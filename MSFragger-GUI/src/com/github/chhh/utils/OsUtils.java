@@ -16,6 +16,7 @@
  */
 package com.github.chhh.utils;
 
+import com.dmtavt.fragpipe.api.DotnetInfo;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -50,6 +51,17 @@ public class OsUtils {
             .filter(StringUtils::isNotBlank)
             .collect(Collectors.joining(", "));
         sb.append(StringUtils.isBlank(info) ? "Could not collect info" : info);
+        return sb.toString();
+    }
+
+    public static String NetCoreInfo() {
+        StringBuilder sb = new StringBuilder(".NET Core Info: ");
+        try {
+            DotnetInfo dotnetInfo = DotnetInfo.fromCommand(DotnetInfo.COMMAND);
+            sb.append(dotnetInfo.getVersion());
+        } catch (Exception e) {
+            sb.append("N/A");
+        }
         return sb.toString();
     }
 

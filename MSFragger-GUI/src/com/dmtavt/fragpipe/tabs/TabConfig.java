@@ -234,9 +234,11 @@ public class TabConfig extends JPanelWithEnablement {
     
     JLabel sysInfo = new JLabel(SwingUtils.makeHtml(
         OsUtils.OsInfo() + "\n"
-            + OsUtils.JavaInfo()
-            + "\nFragPipe: v" + com.dmtavt.fragpipe.Version.version(false)));
+            + OsUtils.JavaInfo() + "\n"
+            + OsUtils.NetCoreInfo() + "\n"
+            + "FragPipe: v" + com.dmtavt.fragpipe.Version.version(false)));
             //+ FragpipeLocations.get().getJarPath().toString()));
+
     sysInfo.setVerticalAlignment(JLabel.TOP);
     //p.add(UiUtils.createButton("Find tools", e -> post(new MessageFindTools())), ccL.get().split().spanX());
 

@@ -272,7 +272,7 @@ public class FragpipeRun {
           .map(CmdBase::getBuilderDescriptor).toList();
 
       // =========================================================================================================
-      toConsole(OsUtils.OsInfo() + "\n" + OsUtils.JavaInfo() + "\n", tabRun.console);
+      toConsole(OsUtils.OsInfo() + "\n" + OsUtils.JavaInfo() + "\n" + OsUtils.NetCoreInfo() + "\n", tabRun.console);
       toConsole("", tabRun.console);
       toConsole("Version info:\n" + createVersionsString(), tabRun.console);
       toConsole("", tabRun.console);

@@ -138,7 +138,7 @@ public class TabDownstream extends JPanelWithEnablement {
         }
       }
 
-      toConsole(OsUtils.OsInfo() + "\n" + OsUtils.JavaInfo() + "\n", console);
+      toConsole(OsUtils.OsInfo() + "\n" + OsUtils.JavaInfo() + "\n" + OsUtils.NetCoreInfo() + "\n", console);
       toConsole("", console);
       toConsole("Version info:\n" + createVersionsString(), console);
       toConsole("", console);

@@ -924,6 +924,7 @@ public class Fragpipe extends JFrameHeadless {
     sb.append("(c) University of Michigan").append("\n");
     sb.append(OsUtils.OsInfo()).append("\n");
     sb.append(OsUtils.JavaInfo()).append("\n");
+    sb.append(OsUtils.NetCoreInfo()).append("\n");
     sb.append("Running without GUI. Usage:\n");
     sb.append("\tWindows: fragpipe.bat --headless --workflow <path to workflow file> --manifest <path to manifest file> --workdir <path to result directory>\n");
     sb.append("\tLinux: fragpipe --headless --workflow <path to workflow file> --manifest <path to manifest file> --workdir <path to result directory>\n");
