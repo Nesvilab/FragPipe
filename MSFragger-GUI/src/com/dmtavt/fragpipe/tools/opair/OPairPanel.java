@@ -117,10 +117,11 @@ public class OPairPanel extends JPanelBase {
         FormEntry feMaxGlycans = new FormEntry(PROP_maxGlycan, "Max Glycans", uiSpinnerMaxGlycans,
                 "Maximum number of glycans per peptide. Increasing this value greatly increases search time");
 
-        uiSpinnerMinIsotope = new UiSpinnerInt(0, -10, 10, 1, 1);
+        // To make sure that max isotope >= min isotope
+        uiSpinnerMinIsotope = new UiSpinnerInt(0, -10, 0, 1, 1);
         FormEntry feMinIsotope = new FormEntry(PROP_minIsotope, "Min Isotope Error", uiSpinnerMinIsotope,
                 "Precursor isotope error range lower bound");
-        uiSpinnerMaxIsotope = new UiSpinnerInt(2, -10, 10, 1, 1);
+        uiSpinnerMaxIsotope = new UiSpinnerInt(2, 0, 10, 1, 1);
         FormEntry feMaxIsotope = new FormEntry(PROP_maxIsotope, "Max Isotope Error", uiSpinnerMaxIsotope,
                 "Precursor isotope error range upper bound");
 
