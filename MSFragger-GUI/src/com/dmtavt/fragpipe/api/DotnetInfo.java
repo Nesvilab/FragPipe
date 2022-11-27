@@ -30,17 +30,14 @@ public class DotnetInfo {
     public static final String COMMAND = "dotnet";
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(DotnetInfo.class);
     private String command;
-    private String version;
-    private DefaultArtifactVersion fullVersion;
-    private final static String regex_whole_string = "(NETCore\\.App 6\\.[0-9.]+)";
-    private final static String regex_version_only = "NETCore\\.App (6\\.[0-9.]+)";
+    private DefaultArtifactVersion version;
+    private final static Pattern pattern = Pattern.compile("6\\.[0-9.]+", Pattern.CASE_INSENSITIVE);
 
     @Override
     public String toString() {
         return new StringJoiner(", ", DotnetInfo.class.getSimpleName() + "[", "]")
                 .add("command='" + command + "'")
-                .add("version='" + version + "'")
-                .add("fullVersion=" + fullVersion)
+                .add("version=" + version)
                 .toString();
     }
 
@@ -58,29 +55,18 @@ public class DotnetInfo {
     private void trySetDotNetCommand(String command) throws ValidationException, UnexpectedException {
         this.command = command;
         this.version = tryGetVersion(command);
-
-        Matcher m = Pattern.compile(regex_version_only, Pattern.CASE_INSENSITIVE).matcher(this.version);
-        if (m.find()) {
-            this.fullVersion = new DefaultArtifactVersion(m.group(1).trim());
-        } else {
-            throw new ValidationException("Could not detect dotnet version.");
-        }
     }
 
     public String getCommand() {
         return command;
     }
 
-    public String getVersion() {
+    public DefaultArtifactVersion getVersion() {
         return version;
     }
 
-    public DefaultArtifactVersion getFullVersion() {
-        return fullVersion;
-    }
-
-    private static String tryGetVersion(String cmd) throws UnexpectedException, ValidationException {
-        ProcessBuilder pb = new ProcessBuilder(cmd, "--info");
+    private static DefaultArtifactVersion tryGetVersion(String cmd) throws UnexpectedException, ValidationException {
+        ProcessBuilder pb = new ProcessBuilder(cmd, "--version");
         pb.redirectErrorStream(true);
 
         String printed;
@@ -88,11 +74,11 @@ public class DotnetInfo {
         printed = ProcessUtils.captureOutput(pb);
         log.debug("Dotnet version command printed: {}", printed);
 
-        Matcher m = Pattern.compile(regex_whole_string, Pattern.CASE_INSENSITIVE).matcher(printed);
-        if (m.find()) {
-            String version = m.group(1);
+        Matcher m = pattern.matcher(printed);
+        if (m.matches()) {
+            String version = m.group();
             log.debug("Found dotnet version string in output: {}", version);
-            return version;
+            return new DefaultArtifactVersion(version);
         } else {
             log.debug("Did not find dotnet version string in output");
             throw new ValidationException("Could not detect dotnet version");
