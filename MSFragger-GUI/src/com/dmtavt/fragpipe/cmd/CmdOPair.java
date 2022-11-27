@@ -21,24 +21,23 @@ import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.DotnetInfo;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
-import com.dmtavt.fragpipe.api.PyInfo;
-import com.dmtavt.fragpipe.exceptions.NoStickyException;
 import com.dmtavt.fragpipe.exceptions.UnexpectedException;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
-import com.dmtavt.fragpipe.messages.NoteConfigDotnet;
 import com.dmtavt.fragpipe.tools.opair.OPairParams;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.SwingUtils;
+import java.awt.Component;
+import java.awt.Desktop;
+import java.net.URI;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import javax.swing.JOptionPane;
 import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.swing.*;
-import java.awt.*;
-import java.nio.file.Path;
-import java.util.*;
-import java.util.List;
-import java.util.stream.Collectors;
 
 
 public class CmdOPair  extends CmdBase {
@@ -59,17 +58,25 @@ public class CmdOPair  extends CmdBase {
 
         // check that .NET is available
         try {
-            DotnetInfo di = DotnetInfo.fromCommand(DotnetInfo.COMMAND);
+            DotnetInfo.fromCommand(DotnetInfo.COMMAND);
         } catch (ValidationException | UnexpectedException e) {
             if (Fragpipe.headless) {
-                log.error("O-Pair was enabled, but .NET Core 6.0 was not found.");
+                log.error("O-Pair was enabled, but .NET Core 6.0 was not found. Please download it from https://dotnet.microsoft.com/en-us/download");
             } else {
-                JOptionPane.showMessageDialog(comp, "O-Pair was enabled, but .NET Core 6.0 was not found.", "Error", JOptionPane.ERROR_MESSAGE);
+                int choice = SwingUtils.showChoiceDialog(comp, "Download .NET Core", "O-Pair was enabled, but .NET Core 6.0 was not found.\nDownload the installer from Microsoft website?", new String[]{"Yes", "No"}, 0);
+                if (choice == 0) {
+                    try {
+                        Desktop.getDesktop().browse(URI.create("https://dotnet.microsoft.com/en-us/download"));
+                    } catch (Exception ex) {
+                        SwingUtils.showErrorDialogWithStacktrace(ex, null);
+                    }
+                }
+                return false;
             }
-            return false;
         }
 
         // check that each group only has lcms files in one directory
+        // fixme: LCMS files in one experimental group must be in the same directory. Not ideal but may be OK for now.
         ArrayList<Path> allRawPaths = new ArrayList<>();
         for (LcmsFileGroup group : sharedMapGroupsToProtxml.keySet()) {
             List<Path> lcmsPathsForGroup = group.lcmsFiles.stream().map(inputLcmsFile -> inputLcmsFile.getPath().getParent()).distinct().collect(Collectors.toList());
