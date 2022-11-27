@@ -31,7 +31,12 @@ import com.github.chhh.utils.swing.UiUtils;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.ItemSelectable;
+import java.awt.image.BufferedImage;
+import java.util.Objects;
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 import net.miginfocom.layout.LC;
@@ -81,8 +86,17 @@ public class SaintexpressPanel extends JPanelBase {
 
     HtmlStyledJEditorPane messagePane = createClickableHtml(message);
 
+    JLabel imageLabel = new JLabel();
+    try {
+      BufferedImage image = ImageIO.read(Objects.requireNonNull(getClass().getResource("/com/dmtavt/fragpipe/icons/icon-saint-100.png")));
+      imageLabel = new JLabel(new ImageIcon(image));
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+
     mu.add(p, checkRun).wrap();
-    mu.add(p, messagePane).pushX().wrap();
+    mu.add(p, messagePane).pushX();
+    mu.add(p, imageLabel).gapRight("40").wrap();
 
     return p;
   }

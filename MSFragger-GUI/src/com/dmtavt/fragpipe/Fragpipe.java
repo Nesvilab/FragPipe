@@ -622,7 +622,7 @@ public class Fragpipe extends JFrameHeadless {
     addTab.accept(new UiTab("Quant (DIA)", tabDiann,
         "/com/dmtavt/fragpipe/icons/icon-diann-16.png", null));
     addTabNoScroll.accept(new UiTab("Run", tabRun, "/com/dmtavt/fragpipe/icons/video-play-16.png", null));
-    addTabNoScroll.accept(new UiTab("Downstream", tabDownstream, null, null));
+    addTabNoScroll.accept(new UiTab("Downstream", tabDownstream, "/com/dmtavt/fragpipe/icons/icon-saint-20.png", null));
 
     log.debug("Done createTabs()");
     return t;
