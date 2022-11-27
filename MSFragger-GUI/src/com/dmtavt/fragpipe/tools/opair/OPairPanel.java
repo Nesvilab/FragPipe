@@ -206,11 +206,6 @@ public class OPairPanel extends JPanelBase {
         super.initMore();
     }
 
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
-    public void on(NoteConfigDotnet m) {
-        updateEnabledStatus(this, m.isValid());
-    }
-
     public OPairParams getOPairParams() {
         OPairParams params = new OPairParams();
         params.setProductPPMtol(uiSpinnerMS2Tol.getActualValue());
