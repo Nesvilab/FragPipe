@@ -27,11 +27,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class DotnetInfo {
+
     public static final String COMMAND = "dotnet";
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(DotnetInfo.class);
     private String command;
     private DefaultArtifactVersion version;
     private final static Pattern pattern = Pattern.compile("6\\.[0-9.]+", Pattern.CASE_INSENSITIVE);
+    private static DotnetInfo dotnetInfo = null;
 
     @Override
     public String toString() {
@@ -46,9 +48,11 @@ public class DotnetInfo {
     }
 
     public static DotnetInfo fromCommand(String command) throws ValidationException, UnexpectedException {
-        DotnetInfo di = new DotnetInfo();
-        di.trySetDotNetCommand(command);
-        return di;
+        if (dotnetInfo == null) {
+            dotnetInfo = new DotnetInfo();
+            dotnetInfo.trySetDotNetCommand(command);
+        }
+        return dotnetInfo;
     }
 
     /** @param command The command to start dotnet interpreter. */
