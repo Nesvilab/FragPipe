@@ -46,6 +46,6 @@ public class TabPtms extends JPanelWithEnablement {
   }
 
   public boolean isRunShepherd() {
-    return panelPtmshepherd.isRunShepherd();
+    return panelPtmshepherd.isRun();
   }
 }

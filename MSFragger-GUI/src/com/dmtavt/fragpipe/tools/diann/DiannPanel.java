@@ -85,7 +85,7 @@ public class DiannPanel extends JPanelBase {
   public void on(NoteConfigDiann m) {
     if (m.isValid()) {
       updateEnabledStatus(this, true);
-      updateEnabledStatus(pContent, isRunDiann());
+      updateEnabledStatus(pContent, isRun());
       if (m.isChecked()) {
         checkRun.setSelected(true);
       }
@@ -220,7 +220,8 @@ public class DiannPanel extends JPanelBase {
     this.add(pContent, BorderLayout.CENTER);
   }
 
-  public boolean isRunDiann() {
+  @Override
+  public boolean isRun() {
     return SwingUtils.isEnabledAndChecked(checkRun);
   }
 

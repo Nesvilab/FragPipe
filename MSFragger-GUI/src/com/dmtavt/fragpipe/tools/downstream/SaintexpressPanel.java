@@ -74,6 +74,10 @@ public class SaintexpressPanel extends JPanelBase {
     return PREFIX;
   }
 
+  protected boolean isRun() {
+    return SwingUtils.isEnabledAndChecked(checkRun);
+  }
+
   private JPanel createPanelTop() {
     // setting the insets allows the top panel to be shifted left of the options panel
     JPanel p = new JPanel(new MigLayout(new LC()));

@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class JPanelBase extends JPanelWithEnablement {
+
   private static final Logger log = LoggerFactory.getLogger(JPanelBase.class);
   protected final MigUtils mu = MigUtils.get();
 
@@ -37,6 +38,8 @@ public abstract class JPanelBase extends JPanelWithEnablement {
   protected abstract ItemSelectable getRunCheckbox();
   protected abstract Component getEnablementToggleComponent();
   protected abstract String getComponentNamePrefix();
+  protected abstract boolean isRun();
+
   /** Override if the component itself doesn't need to be
    * published to the bus by initMore() method. */
   protected boolean doPostSelfAsSticky() {

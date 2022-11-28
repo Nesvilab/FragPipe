@@ -150,7 +150,8 @@ public class UmpirePanel extends JPanelBase {
     Bus.postSticky(this);
   }
 
-  public boolean isRunUmpire() {
+  @Override
+  public boolean isRun() {
     return isEnabledAndChecked(checkRunUmpireSe);
   }
 
@@ -174,7 +175,7 @@ public class UmpirePanel extends JPanelBase {
     pTop.add(checkRunUmpireSe, new CC().spanX().wrap());
 
     checkRunUmpireSe.addItemListener(e -> {
-      if (isRunUmpire()) {
+      if (isRun()) {
         Bus.post(new NoteConfigCrystalC(true));
         Bus.post(new NoteConfigPeptideProphet(true));
         Bus.post(new NoteConfigPtmProphet(true));

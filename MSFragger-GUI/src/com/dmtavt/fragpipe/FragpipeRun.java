@@ -508,7 +508,7 @@ public class FragpipeRun {
     toConsole(Fragpipe.COLOR_RED_DARKEST, "\nPlease cite:", true, console);
 
     UmpirePanel umpirePanel = Bus.getStickyEvent(UmpirePanel.class);
-    if (umpirePanel != null && umpirePanel.isRunUmpire()) {
+    if (umpirePanel != null && umpirePanel.isRun()) {
       toConsole(Fragpipe.COLOR_CMDLINE, "(pseudo-MS/MS generation with DIA-Umpire) ", false, console);
       toConsole(Fragpipe.COLOR_BLACK, "DIA-Umpire: comprehensive computational framework for data-independent acquisition proteomics. Nat Methods 12:258 (2015)", true, console);
     }
@@ -563,13 +563,13 @@ public class FragpipeRun {
     }
 
     ReportPanel reportPanel = Bus.getStickyEvent(ReportPanel.class);
-    if (reportPanel != null && reportPanel.isGenerateReport()) {
+    if (reportPanel != null && reportPanel.isRun()) {
       toConsole(Fragpipe.COLOR_CMDLINE, "(FDR filtering and reporting) ", false, console);
       toConsole(Fragpipe.COLOR_BLACK, "Philosopher: a versatile toolkit for shotgun proteomics data analysis. Nat Methods 17:869 (2020)", true, console);
     }
 
     PtmshepherdPanel ptmshepherdPanel = Bus.getStickyEvent(PtmshepherdPanel.class);
-    if (ptmshepherdPanel != null && ptmshepherdPanel.isRunShepherd()) {
+    if (ptmshepherdPanel != null && ptmshepherdPanel.isRun()) {
       toConsole(Fragpipe.COLOR_CMDLINE, "(Open search) ", false, console);
       toConsole(Fragpipe.COLOR_BLACK, "PTM-Shepherd: analysis and summarization of post-translational and chemical modifications from open search results. Mol Cell Proteomics 20:100018 (2020)", true, console);
     }
@@ -587,7 +587,7 @@ public class FragpipeRun {
     }
 
     DiannPanel diannPanel = Bus.getStickyEvent(DiannPanel.class);
-    if (diannPanel != null && diannPanel.isRunDiann()) {
+    if (diannPanel != null && diannPanel.isRun()) {
       toConsole(Fragpipe.COLOR_CMDLINE, "(DIA quantification with DIA-NN) ", false, console);
       toConsole(Fragpipe.COLOR_BLACK, "dia-PASEF data analysis using FragPipe and DIA-NN for deep proteomics of low sample amounts. Nat Commun. 13:3944 (2022)", true, console);
     }
@@ -957,7 +957,7 @@ public class FragpipeRun {
       sharedLcmsFiles.addAll(Seq.seq(sharedLcmsFileGroups.values()).flatMap(group -> group.lcmsFiles.stream()).toList());
       if (sharedLcmsFiles.isEmpty()) {
         DiannPanel diannPanel = Fragpipe.getStickyStrict(DiannPanel.class);
-        if (!diannPanel.isRunDiann()) {
+        if (!diannPanel.isRun()) {
           SwingUtils.showErrorDialog(parent, "There are only DIA-Quant or diaPASEF runs, but the DIA-NN quant was not enabled.", "Add LCMS files");
           return false;
         } else if (diannPanel.getLibraryPath().isEmpty()) {
@@ -993,7 +993,7 @@ public class FragpipeRun {
     final UsageTrigger binMsfragger = new UsageTrigger(configMsfragger.path, "MSFragger");
 
     final UmpirePanel umpirePanel = Fragpipe.getStickyStrict(UmpirePanel.class);
-    final CmdUmpireSe cmdUmpire = new CmdUmpireSe(umpirePanel.isRunUmpire(), wd);
+    final CmdUmpireSe cmdUmpire = new CmdUmpireSe(umpirePanel.isRun(), wd);
     addConfig.accept(cmdUmpire, () -> {
       if (cmdUmpire.isRun()) {
         if (!cmdUmpire.configure(parent, isDryRun, jarPath, ramGb, Paths.get(binMsfragger.getBin()), umpirePanel, sharedLcmsFiles)) {
@@ -1179,7 +1179,7 @@ public class FragpipeRun {
       return true;
     });
 
-    final boolean isReport = reportPanel.isGenerateReport();
+    final boolean isReport = reportPanel.isRun();
     final QuantPanelLabelfree quantPanelLabelfree = Fragpipe
         .getStickyStrict(QuantPanelLabelfree.class);
     final boolean isFreequant = quantPanelLabelfree.isRunFreeQuant();
@@ -1430,7 +1430,7 @@ public class FragpipeRun {
 
     // run PTMShepherd
     PtmshepherdPanel ptmsPanel = Fragpipe.getStickyStrict(PtmshepherdPanel.class);
-    final boolean isRunShepherd = ptmsPanel.isRunShepherd();
+    final boolean isRunShepherd = ptmsPanel.isRun();
     final CmdPtmshepherd cmdPtmshepherd = new CmdPtmshepherd(isRunShepherd, wd);
 
     addCheck.accept(() -> {
@@ -1455,7 +1455,7 @@ public class FragpipeRun {
         if (!StringUtils.isNullOrWhitespace(massOffsets)) {
           additionalShepherdParams.put("mass_offsets", massOffsets);
         }
-        if (ptmsGlycanPanel.isRunGlycanAssignment()) {
+        if (ptmsGlycanPanel.isRun()) {
           additionalShepherdParams.putAll(ptmsGlycanPanel.getGlycanAssignParams());
         }
         Optional.ofNullable(tabMsf.getUiTextIsoErr().getNonGhostText())
@@ -1470,7 +1470,7 @@ public class FragpipeRun {
 
     // run Spectral library generation
     final SpeclibPanel speclibPanel = Fragpipe.getStickyStrict(SpeclibPanel.class);
-    final CmdSpecLibGen cmdSpecLibGen = new CmdSpecLibGen(speclibPanel.isRunSpeclibgen(), wd);
+    final CmdSpecLibGen cmdSpecLibGen = new CmdSpecLibGen(speclibPanel.isRun(), wd);
 
     addConfig.accept(cmdSpecLibGen, () -> {
       if (speclibPanel.isChecked() && !speclibPanel.isEnabled()) {
@@ -1502,7 +1502,7 @@ public class FragpipeRun {
 
     // run DIA-NN
     final DiannPanel diannPanel = Fragpipe.getStickyStrict(DiannPanel.class);
-    final CmdDiann cmdDiann = new CmdDiann(diannPanel.isRunDiann(), wd);
+    final CmdDiann cmdDiann = new CmdDiann(diannPanel.isRun(), wd);
     addConfig.accept(cmdDiann,  () -> {
       if (cmdDiann.isRun()) {
         return cmdDiann.configure(parent, sharedLcmsFileGroupsAll.values(), threads, diannPanel.getDiannQuantificationStrategy(), diannPanel.usePredict(), diannPanel.unrelatedRuns(), diannPanel.getDiannQvalue(), diannPanel.getRunSpecificProteinQvalue(), diannPanel.getLibraryPath(), diannPanel.getCmdOpts());

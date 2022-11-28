@@ -1390,7 +1390,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     if (hasDia() || hasDiaLib() || hasGpfDia()) {
       Bus.post(new NoteConfigUmpire(true));
       UmpirePanel umpirePanel = Fragpipe.getStickyStrict(UmpirePanel.class);
-      if (umpirePanel.isRunUmpire()) {
+      if (umpirePanel.isRun()) {
         Bus.post(new NoteConfigCrystalC(true));
         Bus.post(new NoteConfigPeptideProphet(true));
         Bus.post(new NoteConfigPtmProphet(true));

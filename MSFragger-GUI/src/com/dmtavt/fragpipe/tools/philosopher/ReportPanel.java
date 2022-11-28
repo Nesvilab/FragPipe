@@ -22,6 +22,7 @@ import com.dmtavt.fragpipe.messages.MessageLcmsFilesList;
 import com.dmtavt.fragpipe.messages.MessageSearchType;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.dmtavt.fragpipe.params.ThisAppProps;
+import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelBase;
 import com.github.chhh.utils.swing.MigUtils;
@@ -219,8 +220,9 @@ public class ReportPanel extends JPanelBase {
     return p;
   }
 
-  public boolean isGenerateReport() {
-    return checkRun.isEnabled() && checkRun.isSelected();
+  @Override
+  public boolean isRun() {
+    return SwingUtils.isEnabledAndChecked(checkRun);
   }
 
   public boolean isPepSummary() {

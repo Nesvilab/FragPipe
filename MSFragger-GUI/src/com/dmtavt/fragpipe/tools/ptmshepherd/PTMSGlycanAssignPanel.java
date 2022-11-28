@@ -5,20 +5,28 @@ import com.dmtavt.fragpipe.tabs.TabPtms;
 import com.github.chhh.utils.MapUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
-import com.github.chhh.utils.swing.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.swing.*;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import java.awt.*;
+import com.github.chhh.utils.swing.FileChooserUtils;
+import com.github.chhh.utils.swing.FormEntry;
+import com.github.chhh.utils.swing.JPanelBase;
+import com.github.chhh.utils.swing.UiCheck;
+import com.github.chhh.utils.swing.UiSpinnerDouble;
+import com.github.chhh.utils.swing.UiSpinnerInt;
+import com.github.chhh.utils.swing.UiText;
+import com.github.chhh.utils.swing.UiUtils;
+import java.awt.Component;
+import java.awt.ItemSelectable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.stream.Stream;
+import javax.swing.JButton;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PTMSGlycanAssignPanel extends JPanelBase {
     public static final String PREFIX = "ptmshepherd.";
@@ -68,7 +76,7 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
 
         // make sure PTM-S is run for glycan assignment
         checkRunGlycanAssignment.addItemListener(e -> {
-            if (isRunGlycanAssignment()) {
+            if (isRun()) {
                 final TabPtms tabPtms = Fragpipe.getStickyStrict(TabPtms.class);
                 if (!tabPtms.isRunShepherd()) {
                     if (Fragpipe.headless) {
@@ -106,7 +114,8 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
         return PREFIX;
     }
 
-    public boolean isRunGlycanAssignment() {
+    @Override
+    public boolean isRun() {
         return SwingUtils.isEnabledAndChecked(checkRunGlycanAssignment);
     }
 

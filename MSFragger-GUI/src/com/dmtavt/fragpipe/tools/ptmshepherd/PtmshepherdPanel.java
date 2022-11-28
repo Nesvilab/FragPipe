@@ -732,8 +732,9 @@ public class PtmshepherdPanel extends JPanelBase {
     SwingUtils.setEnablementUpdater(this, pDiagnosticKnownContent, uiCheckDiagnostic);
   }
 
-  public boolean isRunShepherd() {
-    return checkRun.isEnabled() && checkRun.isSelected();
+  @Override
+  public boolean isRun() {
+    return SwingUtils.isEnabledAndChecked(checkRun);
   }
 
   private void clearBalloonTips() {

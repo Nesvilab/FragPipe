@@ -388,7 +388,8 @@ public class SpeclibPanel extends JPanelBase {
     return new CC().alignX("right");
   }
 
-  public boolean isRunSpeclibgen() {
+  @Override
+  public boolean isRun() {
     return SwingUtils.isEnabledAndChecked(checkRun);
   }
 
