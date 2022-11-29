@@ -1430,7 +1430,7 @@ public class FragpipeRun {
 
     // run PTMShepherd
     PtmshepherdPanel ptmsPanel = Fragpipe.getStickyStrict(PtmshepherdPanel.class);
-    final boolean isRunShepherd = ptmsPanel.isRun();
+    final boolean isRunShepherd = ptmsPanel.isRun() || ptmsGlycanPanel.isRun();
     final CmdPtmshepherd cmdPtmshepherd = new CmdPtmshepherd(isRunShepherd, wd);
 
     addCheck.accept(() -> {

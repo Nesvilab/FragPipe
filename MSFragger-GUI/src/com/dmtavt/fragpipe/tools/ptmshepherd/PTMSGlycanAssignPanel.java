@@ -75,24 +75,6 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
     protected void initMore() {
         super.initMore();
 
-        // make sure PTM-S is run for glycan assignment
-        checkRunGlycanAssignment.addItemListener(e -> {
-            if (isRun()) {
-                final TabPtms tabPtms = Fragpipe.getStickyStrict(TabPtms.class);
-                if (!tabPtms.isRunShepherd()) {
-                    if (Fragpipe.headless) {
-                        log.error("Glycan Composition Assignment requires PTM-Shepherd. Please enable it on the PTMs tab.");
-                        System.exit(1);
-                    }
-                    JOptionPane.showMessageDialog(this, "<html>Glycan Composition Assignment requires PTM-Shepherd. Please enable it on the PTMs tab.", "Incompatible options", JOptionPane.WARNING_MESSAGE);
-                    checkRunGlycanAssignment.setSelected(false);
-                    pGlycoAssignContent.setEnabled(false);
-                }
-            }
-        });
-        final PtmshepherdPanel ptmshepherdPanel = Fragpipe.getStickyStrict(PtmshepherdPanel.class);
-        SwingUtils.setEnablementUpdater(this, pGlycanAssignment, ptmshepherdPanel.getRunCheckbox());
-
         // enable/disable the Glycan Assignment sub-area specifically when the glycan assignment box is changed
         SwingUtils.setEnablementUpdater(this, pGlycoAssignContent, checkRunGlycanAssignment);
         SwingUtils.setEnablementUpdater(this, uiCheckGlycoAdvParams, checkRunGlycanAssignment);
