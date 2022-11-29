@@ -252,17 +252,19 @@ public class CmdIonquant extends CmdBase {
       cmd.add("--filelist");
       cmd.add(filelist.toAbsolutePath().toString());
 
-      Path modMassListPath = wd.resolve("modmasses_ionquant.txt");
-      if (Files.exists(modMassListPath.getParent())) { // Dry run does not make directories, so does not write the file.
-        BufferedWriter bufferedWriter = Files.newBufferedWriter(modMassListPath);
-        for (float modMass : modMassSet) {
-          bufferedWriter.write(modMass + "\n");
+      if (modMassSet != null) {
+        Path modMassListPath = wd.resolve("modmasses_ionquant.txt");
+        if (Files.exists(modMassListPath.getParent())) { // Dry run does not make directories, so does not write the file.
+          BufferedWriter bufferedWriter = Files.newBufferedWriter(modMassListPath);
+          for (float modMass : modMassSet) {
+            bufferedWriter.write(modMass + "\n");
+          }
+          bufferedWriter.close();
         }
-        bufferedWriter.close();
-      }
 
-      cmd.add("--modlist");
-      cmd.add(modMassListPath.toAbsolutePath().toString());
+        cmd.add("--modlist");
+        cmd.add(modMassListPath.toAbsolutePath().toString());
+      }
     } catch (IOException ex) {
       throw new UncheckedIOException(ex);
     }

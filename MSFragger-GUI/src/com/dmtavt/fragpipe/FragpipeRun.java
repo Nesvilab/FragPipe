@@ -1323,7 +1323,8 @@ public class FragpipeRun {
 
       addConfig.accept(cmdIonquant,  () -> {
         if (cmdIonquant.isRun()) {
-          return cmdIonquant.configure(parent, Paths.get(binMsfragger.getBin()), Paths.get(binIonQuant.getBin()), ramGb, quantPanelLabelfree.toMap(), tabWorkflow.getInputDataType(), sharedPepxmlFilesFromMsfragger, sharedMapGroupsToProtxml, threads, modMassSet);
+          OPairPanel oPairPanel = Bus.getStickyEvent(OPairPanel.class);
+          return cmdIonquant.configure(parent, Paths.get(binMsfragger.getBin()), Paths.get(binIonQuant.getBin()), ramGb, quantPanelLabelfree.toMap(), tabWorkflow.getInputDataType(), sharedPepxmlFilesFromMsfragger, sharedMapGroupsToProtxml, threads, oPairPanel.isRun() ? null : modMassSet);
         }
         return true;
       });
