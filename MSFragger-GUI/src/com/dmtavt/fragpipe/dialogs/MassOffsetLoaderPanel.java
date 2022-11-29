@@ -25,17 +25,26 @@ import java.awt.*;
 import java.text.DecimalFormat;
 
 public class MassOffsetLoaderPanel extends JPanel {
-    private UiSpinnerDouble maxOffsetMass;
-    private UiSpinnerInt maxOffsetCombos;
-    private UiCheck filterMaxMass;
+    private UiCheck saveToMSFragger;
+    private UiCheck saveToPTMShepherd;
+    private UiCheck saveToOPair;
 
-    public MassOffsetLoaderPanel() {
-        initMore();
+    private UiSpinnerDouble maxOffsetMass;
+    private UiSpinnerDouble minOffsetMass;
+    private UiSpinnerInt maxOffsetCombos;
+    private UiCheck filterMass;
+
+    public MassOffsetLoaderPanel(boolean msfraggerOnly) {
+        init(msfraggerOnly);
     }
 
-    private void initMore() {
+    private void init(boolean msfraggerOnly) {
         JPanel container = new JPanel();
         container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
+
+        saveToMSFragger = UiUtils.createUiCheck("Load Glycans to MSFragger mass offset list", true);
+        saveToPTMShepherd = UiUtils.createUiCheck("Load Glycans to PTM-Shepherd Composition Assignment", true);
+        saveToOPair = UiUtils.createUiCheck("Load Glycans to O-Pair Localization", true);
 
         maxOffsetCombos = new UiSpinnerInt(1, 1, 100, 1, 2);
         String maxOffsetsTooltip = "Generates combinations of provided mass offsets up to the max number (if >1)." +
@@ -44,17 +53,31 @@ public class MassOffsetLoaderPanel extends JPanel {
         FormEntry feMaxCombos = Fragpipe.feNoCache(maxOffsetCombos, "Max Combinations of Offsets", Fragpipe.PROP_NOCACHE)
                 .label("Max Combinations of Offsets").tooltip(maxOffsetsTooltip).create();
 
-        maxOffsetMass = new UiSpinnerDouble(3000, -10000, 100000, 1,0, new DecimalFormat("0") );
-        String maxMassTooltip = "Filter loaded offsets and combinations to a maximum mass value (if enabled).";
+        minOffsetMass = new UiSpinnerDouble(100, -10000, 10000, 1,0, new DecimalFormat("0") );
+        maxOffsetMass = new UiSpinnerDouble(3000, -10000, 10000, 1,0, new DecimalFormat("0") );
+        String maxMassTooltip = "Filter loaded offsets and combinations to the specified mass range (if enabled).";
+        FormEntry feMinMass = Fragpipe.feNoCache(minOffsetMass, "Min Mass", Fragpipe.PROP_NOCACHE)
+                .label("Min Mass").tooltip(maxMassTooltip).create();
         FormEntry feMaxMass = Fragpipe.feNoCache(maxOffsetMass, "Max Mass", Fragpipe.PROP_NOCACHE)
                 .label("Max Mass").tooltip(maxMassTooltip).create();
-        filterMaxMass = UiUtils.createUiCheck("Filter Combinations by Max Mass", false);
+        filterMass = UiUtils.createUiCheck("Filter Combinations by Mass", false);
 
         final MigUtils mu = MigUtils.get();
-        JPanel entries = mu.newPanel("Mass Offset Loading Options", true);
+
+        if (!msfraggerOnly) {
+            JPanel saveOptions = mu.newPanel("Choose Where to Load Glycans", true);
+            mu.add(saveOptions, saveToMSFragger).wrap();
+            mu.add(saveOptions, saveToPTMShepherd).wrap();
+            mu.add(saveOptions, saveToOPair).wrap();
+            container.add(saveOptions);
+        }
+
+        JPanel entries = mu.newPanel("MSFragger: Multiple Offsets per Peptide Options", true);
         mu.add(entries, feMaxCombos.label()).split();
         mu.add(entries, feMaxCombos.comp).wrap();
-        mu.add(entries, filterMaxMass).split();
+        mu.add(entries, filterMass).split();
+        mu.add(entries, feMinMass.label()).split();
+        mu.add(entries, feMinMass.comp).split();
         mu.add(entries, feMaxMass.label()).split();
         mu.add(entries, feMaxMass.comp).wrap();
 
@@ -67,10 +90,20 @@ public class MassOffsetLoaderPanel extends JPanel {
     public int getMaxCombos() {
         return maxOffsetCombos.getActualValue();
     }
+    public boolean useMassFilter() { return filterMass.isSelected(); }
     public double getMaxMass() {
         return maxOffsetMass.getActualValue();
     }
-    public boolean useMassFilter() {
-        return filterMaxMass.isSelected();
+    public double getMinMass() {
+        return minOffsetMass.getActualValue();
+    }
+    public boolean isSaveToMSFragger() {
+        return saveToMSFragger.isSelected();
+    }
+    public boolean isSaveToPTMShepherd() {
+        return saveToPTMShepherd.isSelected();
+    }
+    public boolean isSaveToOPair() {
+        return saveToOPair.isSelected();
     }
 }

@@ -17,20 +17,41 @@
 
 package com.dmtavt.fragpipe.util;
 
+import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.dialogs.MassOffsetLoaderPanel;
 import com.dmtavt.fragpipe.tabs.TabMsfragger;
+import com.github.chhh.utils.SwingUtils;
+import com.github.chhh.utils.swing.FileChooserUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import umich.ms.fileio.filetypes.agilent.cef.jaxb.P;
 
+import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.*;
 import java.io.*;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
+
+import static javax.swing.JOptionPane.OK_CANCEL_OPTION;
 
 public class GlycoMassLoader {
+    public String glycoFilePath;
+    public List<Double> glycoMasses;
+    public MassOffsetLoaderPanel optionsPanel;
+
     private static final Logger log = LoggerFactory.getLogger(TabMsfragger.class);
     private static final String MASSES_FILE = "glycan_masses.txt";
     private static final Pattern pGlycoPattern = Pattern.compile("[AGFHNXP]");
     private static final HashMap<String, String> pGlycoTokenMap;    // map pGlyco tokens to our internal Glycan strings
+    public static final String PROP_FILECHOOSER_LAST_PATH = "glycoloader.filechooser.path";
+
     static
     {
         pGlycoTokenMap = new HashMap<>();
@@ -57,6 +78,116 @@ public class GlycoMassLoader {
         } catch (IOException | NullPointerException e) {
             throw new IllegalStateException("Error reading internal glycan masses file");
         }
+    }
+
+    public GlycoMassLoader(boolean msfraggerOnly) {
+        optionsPanel = new MassOffsetLoaderPanel(msfraggerOnly);
+        glycoMasses = new ArrayList<>();
+    }
+
+    public List<Double> loadMassesFile(Component parent) {
+        List<javax.swing.filechooser.FileFilter> glycFilters = new ArrayList<>();
+        FileFilter filter = new FileNameExtensionFilter("Glycan or Mod Database (.txt, .csv, .gdb)", "txt", "csv", "gdb");
+        glycFilters.add(filter);
+        String loc = Fragpipe.propsVarGet(PROP_FILECHOOSER_LAST_PATH);
+        JFileChooser fc = FileChooserUtils.builder("Select the Glycan or other Mod List file")
+                .approveButton("Select").mode(FileChooserUtils.FcMode.FILES_ONLY)
+                .acceptAll(false).multi(false).filters(glycFilters)
+                .paths(Stream.of(loc)).create();
+
+        String selectedPath;
+        int userSelection = fc.showSaveDialog(SwingUtils.findParentFrameForDialog(parent));
+        if (JFileChooser.APPROVE_OPTION == userSelection) {
+            selectedPath = fc.getSelectedFile().toString();
+            Fragpipe.propsVarSet(PROP_FILECHOOSER_LAST_PATH, selectedPath);
+            glycoFilePath = selectedPath;
+
+            // load from file
+            List<Double> masses;
+            if (selectedPath.endsWith(".txt")) {
+                // Generic offset list
+                masses = GlycoMassLoader.loadTextOffsets(selectedPath);
+            } else if (selectedPath.endsWith(".csv")) {
+                // Byonic format
+                masses = GlycoMassLoader.loadByonicFile(selectedPath);
+            } else if (selectedPath.endsWith(".gdb")) {
+                // pGlyco format
+                masses = GlycoMassLoader.loadPGlycoFile(selectedPath);
+            } else {
+                // invalid file type
+                log.error("Invalid file type for mass offset file %s. Must be .csv, .txt, or .glyc");
+                return new ArrayList<>();
+            }
+            glycoMasses = masses;
+            return masses;
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    public List<String> mainLoadOffsets(Component parent) {
+        List<Double> masses = loadMassesFile(parent);
+        if (masses.size() > 0) {
+            // combos and filtering
+            final int confirmation = SwingUtils.showConfirmDialog2(parent, optionsPanel, "Offset loading options", OK_CANCEL_OPTION);
+            if (JOptionPane.OK_OPTION == confirmation) {
+                // combine glycan masses if requested (e.g. O-glycans)
+                if (optionsPanel.getMaxCombos() > 1) {
+                    masses = generateMassCombos(masses, optionsPanel.getMaxCombos(), optionsPanel.useMassFilter(), optionsPanel.getMaxMass(), optionsPanel.getMinMass());
+                }
+            }
+
+            // make sure 0 is included in the mass offsets list
+            if (!masses.contains(0.0)) {
+                masses.add(0, 0.0);
+            }
+
+            // clean up masses before returning final strings (round off floating point errors at 12 decimal places)
+            List<String> massStrings = new ArrayList<>();
+            for (double mass : masses) {
+                BigDecimal decimal = new BigDecimal(mass).setScale(12, RoundingMode.HALF_EVEN).stripTrailingZeros();
+                massStrings.add(decimal.toPlainString());
+            }
+            return massStrings;
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * Generate all combinations of provided masses up to the specified max number. Remove duplicates (at 4 decimal places)
+     * Uses combinations with repetition since same glycan can occur multiple times on a peptide.
+     * @return
+     */
+    private static List<Double> generateMassCombos(List<Double> masses, int maxCombos, boolean massFilter, double maxMass, double minMass) {
+        Set<Long> existingMasses = new HashSet<>();
+        List<Double> allMasses = new ArrayList<>();
+        for (int count = 1; count <= maxCombos; count++) {
+            // iterate combinations
+            List<int[]> combos = GlycoMassLoader.combinationsWithRepetition(masses.size(), count);
+            for (int[] combo : combos) {
+                // calculate mass as the sum of the glycans at selected indices
+                double comboMass = 0;
+                for (int i : combo) {
+                    comboMass += masses.get(i);
+                }
+                // check for duplicates and add if unique
+                long massKey = Math.round(comboMass * 10000);
+                if (!existingMasses.contains(massKey)) {
+                    if (!massFilter) {
+                        allMasses.add(comboMass);
+                        existingMasses.add(massKey);
+                    } else {
+                        // filtering requested
+                        if (comboMass < maxMass && comboMass > minMass) {
+                            allMasses.add(comboMass);
+                            existingMasses.add(massKey);
+                        }
+                    }
+                }
+            }
+        }
+        return allMasses;
     }
 
     // read masses only from a text file. Can have , or \t delimiter, and one or multiple entries per line.

@@ -1573,6 +1573,9 @@ public class TabMsfragger extends JPanelBase {
     }
     return outputSet;
   }
+  public void setMassOffsets(String offsetsText) {
+    epMassOffsets.setText(offsetsText);
+  }
 
   /**
    * Converts textual representations of all fields in the form to stadard {@link MsfraggerParams}.
@@ -1832,102 +1835,13 @@ public class TabMsfragger extends JPanelBase {
   }
 
   private void actionBtnLoadMassOffsets(ActionEvent actionEvent) {
-    List<FileFilter> glycFilters = new ArrayList<>();
-    FileFilter filter = new FileNameExtensionFilter("Glycan or Mod Database (.txt, .csv, .gdb)", "txt", "csv", "gdb");
-    glycFilters.add(filter);
-    String loc = Fragpipe.propsVarGet(PROP_FILECHOOSER_LAST_PATH);
-    JFileChooser fc = FileChooserUtils.builder("Select the Glycan or other Mod List file")
-            .approveButton("Select").mode(FcMode.FILES_ONLY)
-            .acceptAll(false).multi(false).filters(glycFilters)
-            .paths(Stream.of(loc)).create();
-
-    String selectedPath;
-    int userSelection = fc.showSaveDialog(SwingUtils.findParentFrameForDialog(this));
-    if (JFileChooser.APPROVE_OPTION == userSelection) {
-      selectedPath = fc.getSelectedFile().toString();
-      Fragpipe.propsVarSet(PROP_FILECHOOSER_LAST_PATH, selectedPath);
-
-      // load from file
-      List<Double> masses;
-      if (selectedPath.endsWith(".txt")) {
-        // Generic offset list
-        masses = GlycoMassLoader.loadTextOffsets(selectedPath);
-      }
-      else if (selectedPath.endsWith(".csv")) {
-        // Byonic format
-        masses = GlycoMassLoader.loadByonicFile(selectedPath);
-      }
-      else if (selectedPath.endsWith(".gdb")) {
-        // pGlyco format
-        masses = GlycoMassLoader.loadPGlycoFile(selectedPath);
-      }
-      else {
-        // invalid file type
-        log.error("Invalid file type for mass offset file %s. Must be .csv, .txt, or .glyc");
-        return;
-      }
-
-      // combos and filtering
-      MassOffsetLoaderPanel p = new MassOffsetLoaderPanel();
-      final int confirmation = SwingUtils.showConfirmDialog2(this, p, "Offset loading options", OK_CANCEL_OPTION);
-      if (JOptionPane.OK_OPTION == confirmation) {
-        // combine glycan masses if requested (e.g. O-glycans)
-        if (p.getMaxCombos() > 1) {
-          masses = generateMassCombos(masses, p.getMaxCombos(), p.useMassFilter(), p.getMaxMass());
-        }
-      }
-
-      // make sure 0 is included in the mass offsets list
-      if (!masses.contains(0.0)) {
-        masses.add(0, 0.0);
-      }
-
-      // clean up masses before returning final strings (round off floating point errors at 12 decimal places)
-      List<String> massStrings = new ArrayList<>();
-      for (double mass : masses) {
-        BigDecimal decimal = new BigDecimal(mass).setScale(12, RoundingMode.HALF_EVEN).stripTrailingZeros();
-        massStrings.add(decimal.toPlainString());
-      }
+    GlycoMassLoader loader = new GlycoMassLoader(true);
+    List<String> massStrings = loader.mainLoadOffsets(this);
+    if (massStrings.size() > 0) {
       String offsetsText = String.join(" ", massStrings);
       epMassOffsets.setText(offsetsText);
       log.info(String.format("[MSFragger Load Mass Offsets Button] Loaded %d unique mass offsets from file", massStrings.size()));
     }
-  }
-
-  /**
-   * Generate all combinations of provided masses up to the specified max number. Remove duplicates (at 4 decimal places)
-   * Uses combinations with repetition since same glycan can occur multiple times on a peptide.
-   * @return
-   */
-  private List<Double> generateMassCombos(List<Double> masses, int maxCombos, boolean massFilter, double maxMass) {
-    Set<Long> existingMasses = new HashSet<>();
-    List<Double> allMasses = new ArrayList<>();
-    for (int count = 1; count <= maxCombos; count++) {
-      // iterate combinations
-      List<int[]> combos = GlycoMassLoader.combinationsWithRepetition(masses.size(), count);
-      for (int[] combo : combos) {
-        // calculate mass as the sum of the glycans at selected indices
-        double comboMass = 0;
-        for (int i : combo) {
-          comboMass += masses.get(i);
-        }
-        // check for duplicates and add if unique
-        long massKey = Math.round(comboMass * 10000);
-        if (!existingMasses.contains(massKey)) {
-          if (!massFilter) {
-            allMasses.add(comboMass);
-            existingMasses.add(massKey);
-          } else {
-            // filtering requested - only add if less than max mass
-            if (comboMass < maxMass) {
-              allMasses.add(comboMass);
-              existingMasses.add(massKey);
-            }
-          }
-        }
-      }
-    }
-    return allMasses;
   }
 
   private void actionBtnConfigLoad(ActionEvent actionEvent) {

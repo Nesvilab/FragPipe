@@ -126,6 +126,10 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
         return map1;
     }
 
+    public void setGlycanDatabase(String path) {
+        uiTextGlycanDBFile.setText(path);
+    }
+
     private JPanel createpanelGlycanAssignment() {
         pGlycanAssignment = mu.newPanel("Glycan Composition Assignment and FDR (using PTM-Shepherd)", mu.lcFillXNoInsetsTopBottom());
 

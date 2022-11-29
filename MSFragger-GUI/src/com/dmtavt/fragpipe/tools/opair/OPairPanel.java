@@ -240,4 +240,8 @@ public class OPairPanel extends JPanelBase {
         params.setActivation2((String) uiComboActivation2.getSelectedItem());
         return params;
     }
+
+    public void setGlycanDatabase(String path) {
+        uiTextOGlycanDBFile.setText(path);
+    }
 }
