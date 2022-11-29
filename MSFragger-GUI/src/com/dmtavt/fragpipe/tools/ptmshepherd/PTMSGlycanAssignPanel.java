@@ -172,31 +172,45 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
                     }
                 });
 
-        FormEntry feNeuAcProbs = mu.feb(PROP_neuac_probs, UiUtils.uiTextBuilder().create())
+        UiText neuacProbs = UiUtils.uiTextBuilder().create();
+        neuacProbs.setColumns(7);
+        FormEntry feNeuAcProbs = mu.feb(PROP_neuac_probs, neuacProbs)
                 .label("NeuAc Oxonium Ratios")
                 .tooltip("Likelihood ratios for NeuAc oxonium ions. Hit ratio, miss ratio, expected intensity, separated by commas. " +
                         "Default 2,0.05,0.2").create();
-        FormEntry feNeuGcProbs = mu.feb(PROP_neugc_probs, UiUtils.uiTextBuilder().create())
+        UiText neugcProbs = UiUtils.uiTextBuilder().create();
+        neugcProbs.setColumns(7);
+        FormEntry feNeuGcProbs = mu.feb(PROP_neugc_probs, neugcProbs)
                 .label("NeuGc Oxonium Ratios")
                 .tooltip("Likelihood ratios for NeuGc oxonium ions. Hit ratio, miss ratio, expected intensity, separated by commas. " +
                         "Default 2,0.05,0.2").create();
-        FormEntry feFucOxProbs = mu.feb(PROP_fucOx_probs, UiUtils.uiTextBuilder().create())
+        UiText fucProbs = UiUtils.uiTextBuilder().create();
+        fucProbs.setColumns(7);
+        FormEntry feFucOxProbs = mu.feb(PROP_fucOx_probs, fucProbs)
                 .label("Fucose Oxonium Ratios")
                 .tooltip("Likelihood ratios for Fucose oxonium ions. Hit ratio, miss ratio, expected intensity, separated by commas. " +
                         "Default 2,0.5,0.1").create();
-        FormEntry fePhosphoProbs = mu.feb(PROP_phospho_probs, UiUtils.uiTextBuilder().create())
+        UiText phosphoProbs = UiUtils.uiTextBuilder().create();
+        phosphoProbs.setColumns(7);
+        FormEntry fePhosphoProbs = mu.feb(PROP_phospho_probs, phosphoProbs)
                 .label("Phospho Oxonium Ratios")
                 .tooltip("Likelihood ratios for Phospho oxonium ions. Hit ratio, miss ratio, expected intensity, separated by commas. " +
                         "Default 2,0.05,0.2").create();
-        FormEntry feSulfoProbs = mu.feb(PROP_sulfo_probs, UiUtils.uiTextBuilder().create())
+        UiText sulfoProbs = UiUtils.uiTextBuilder().create();
+        sulfoProbs.setColumns(7);
+        FormEntry feSulfoProbs = mu.feb(PROP_sulfo_probs, sulfoProbs)
                 .label("Sulfo Oxonium Ratios")
                 .tooltip("Likelihood ratios for Sulfo oxonium ions. Hit ratio, miss ratio, expected intensity, separated by commas. " +
                         "Default 2,0.1,0.1").create();
-        FormEntry feRegYProbs = mu.feb(PROP_regY_probs, UiUtils.uiTextBuilder().create())
+        UiText regYprobs = UiUtils.uiTextBuilder().create();
+        regYprobs.setColumns(4);
+        FormEntry feRegYProbs = mu.feb(PROP_regY_probs, regYprobs)
                 .label("Y-ion Ratios")
                 .tooltip("Likelihood ratios for Y-ions not containing Fucose. Hit ratio, miss ratio, separated by commas. " +
                         "Default 5,0.5").create();
-        FormEntry feFucYProbs = mu.feb(PROP_fucY_probs, UiUtils.uiTextBuilder().create())
+        UiText fucYprobs = UiUtils.uiTextBuilder().create();
+        fucYprobs.setColumns(4);
+        FormEntry feFucYProbs = mu.feb(PROP_fucY_probs, fucYprobs)
                 .label("Fucose Y-ion Ratios")
                 .tooltip("Likelihood ratios for for Y-ions containing Fucose. Hit ratio, miss ratio, separated by commas. " +
                         "Default 2,0.5").create();
@@ -253,10 +267,10 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
         mu.add(pGlycoAdvParams, feFucOxProbs.label(), mu.ccR());
         mu.add(pGlycoAdvParams, feFucOxProbs.comp).split();
         mu.add(pGlycoAdvParams, fePhosphoProbs.label(), mu.ccR());
-        mu.add(pGlycoAdvParams, fePhosphoProbs.comp).split().spanX().pushX().wrap();
-
+        mu.add(pGlycoAdvParams, fePhosphoProbs.comp).split();
         mu.add(pGlycoAdvParams, feSulfoProbs.label(), mu.ccR());
-        mu.add(pGlycoAdvParams, feSulfoProbs.comp).split();
+        mu.add(pGlycoAdvParams, feSulfoProbs.comp).split().spanX().pushX().wrap();
+
         mu.add(pGlycoAdvParams, feRegYProbs.label(), mu.ccR());
         mu.add(pGlycoAdvParams, feRegYProbs.comp).split();
         mu.add(pGlycoAdvParams, feFucYProbs.label(), mu.ccR());
