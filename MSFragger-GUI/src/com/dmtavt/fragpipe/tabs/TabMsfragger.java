@@ -370,7 +370,12 @@ public class TabMsfragger extends JPanelBase {
       return false;
     }
 
-    return (PrecursorMassTolUnits.valueOf((String) selected).valueInParamsFile() == 0 && uiSpinnerPrecTolLo.getActualValue() < -3 && uiSpinnerPrecTolHi.getActualValue() > 3) || !((UiText) epMassOffsets).getNonGhostText().trim().contentEquals("0");
+    boolean isOpenSearch = PrecursorMassTolUnits.valueOf((String) selected).valueInParamsFile() == 0 && uiSpinnerPrecTolLo.getActualValue() < -3 && uiSpinnerPrecTolHi.getActualValue() > 3;
+
+    String[] massOffsetStrings = (epMassOffsets).getNonGhostText().trim().split("[/\\s]+");
+    boolean isMassOffsetSearch = massOffsetStrings.length > 1 || Math.abs(Double.parseDouble(massOffsetStrings[0])) > 0.01;
+
+    return isOpenSearch || isMassOffsetSearch;
   }
 
   public int getMassDiffToVariableMod() {
@@ -1559,7 +1564,7 @@ public class TabMsfragger extends JPanelBase {
 
   public Set<Float> getMassOffsetSet() {
     Set<Float> outputSet = new TreeSet<>();
-    String[] ss = epMassOffsets.getNonGhostText().trim().split("[/\\s]+"); // todo: check
+    String[] ss = epMassOffsets.getNonGhostText().trim().split("[/\\s]+");
     for (String s : ss) {
       float v = Float.parseFloat(s);
       if (Math.abs(v) > 0.01f) {

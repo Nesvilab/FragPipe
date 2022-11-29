@@ -27,6 +27,7 @@ import static com.github.chhh.utils.OsUtils.isWindows;
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
+import com.github.chhh.utils.SwingUtils;
 import java.awt.Component;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -62,8 +63,14 @@ public class CmdMSBooster extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, int ramGb, int threads, Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml, boolean predictRT, boolean predictSpectra, boolean useCorrelatedFeatures, boolean hasDda, boolean hasDia, boolean hasGpfDia, boolean hasDiaLib, boolean isRunDiaU) {
+  public boolean configure(Component comp, int ramGb, int threads, Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml, boolean predictRT, boolean predictSpectra, boolean useCorrelatedFeatures, boolean hasDda, boolean hasDia, boolean hasGpfDia, boolean hasDiaLib, boolean isRunDiaU, boolean isOpenMassOffsetSearch) {
     initPreConfig();
+
+    // MSBooster does not compatible with open search and mass-offset search.
+    if (isOpenMassOffsetSearch) {
+      SwingUtils.showErrorDialog(comp, "MSBooster is incompatible with open search or mass offset search. Please disable MSBooster.", NAME + " error");
+      return false;
+    }
 
     final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(JAR_MSBOOSTER_NAME).concat(JAR_DEPS));
     if (classpathJars == null) {

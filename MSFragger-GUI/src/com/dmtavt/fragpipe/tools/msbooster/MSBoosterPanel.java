@@ -17,9 +17,6 @@
 
 package com.dmtavt.fragpipe.tools.msbooster;
 
-import com.dmtavt.fragpipe.Fragpipe;
-import com.dmtavt.fragpipe.tabs.TabMsfragger;
-import com.dmtavt.fragpipe.tools.percolator.PercolatorPanel;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.JPanelBase;
 import com.github.chhh.utils.swing.MigUtils;
@@ -27,7 +24,6 @@ import com.github.chhh.utils.swing.UiCheck;
 import java.awt.Component;
 import java.awt.ItemSelectable;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,23 +118,6 @@ public class MSBoosterPanel extends JPanelBase {
 
   @Override
   public void initMore() {
-    checkRun.addItemListener(e -> {
-      if (isRun()) {
-        final TabMsfragger tabMsfragger = Fragpipe.getStickyStrict(TabMsfragger.class);
-        if (tabMsfragger.isOpenMassOffsetSearch()) {
-          if (Fragpipe.headless) {
-            log.error("MSBooster is incompatible with open search or mass offset search.");
-            System.exit(1);
-          }
-          JOptionPane.showMessageDialog(this, "<html>MSBooster is incompatible with open search or mass offset search. Uncheck it.", "Incompatible options", JOptionPane.WARNING_MESSAGE);
-          checkRun.setSelected(false);
-        } else {
-          final PercolatorPanel percolatorPanel = Fragpipe.getStickyStrict(PercolatorPanel.class);
-          percolatorPanel.checkRun.setSelected(true);
-        }
-      }
-    });
-
     updateEnabledStatus(this, true);
     super.initMore();
   }
