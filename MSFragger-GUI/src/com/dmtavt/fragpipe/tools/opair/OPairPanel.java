@@ -18,6 +18,7 @@
 package com.dmtavt.fragpipe.tools.opair;
 
 import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.tabs.TabMsfragger;
 import com.dmtavt.fragpipe.tools.enums.ActivationTypes;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FileChooserUtils;
@@ -192,6 +193,13 @@ public class OPairPanel extends JPanelBase {
         checkRun = new UiCheck("Run O-Pair", null, false);
         checkRun.setName("run-opair");
         JLabel info = new JLabel("<html>O-glycan localization with O-Pair. Requires <b>paired scan data</b>.");
+
+        checkRun.addActionListener(e -> {
+            if (isRun()) {
+                TabMsfragger tabMsfragger = Fragpipe.getStickyStrict(TabMsfragger.class);
+                tabMsfragger.setWriteCalMzml(true); // If mass calibration is enabled, let MSFragger write calibrated mzML. If mass calibration is not enable, the calibrated mzML is till not generated.
+            }
+        });
 
         JLabel imageLabel = new JLabel();
         try {
