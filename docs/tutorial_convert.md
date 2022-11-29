@@ -44,6 +44,6 @@ In the MSConvert window:
 5. Add '**peakPicking**' and '**scanSumming**' filters.
 7. Press 'Start' to begin converting your files.
 
-**Note:** with '**scanSumming**' enabled, there is no ion mobility array in the converted file. Thus, the file is not suitable for MS1-based quantification.
+**Note:** with '**scanSumming**' enabled, there is **no ion mobility** array in the converted file. Thus, the file is **not suitable** for MS1-based quantification.
 
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/10.jpg)
