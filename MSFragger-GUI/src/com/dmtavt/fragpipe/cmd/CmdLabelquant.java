@@ -158,14 +158,14 @@ public class CmdLabelquant extends CmdBase {
     try {
       String line;
       BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(wd.resolve("combined_annotation.txt").toFile()));
-      bufferedWriter.write("experiment channel label plex replicate condition\n");
+      bufferedWriter.write("experiment\tchannel\tlabel\tplex\treplicate\tcondition\n");
       int plex = 1;
       for (Map.Entry<LcmsFileGroup, Path> e : annotations.entrySet()) {
         BufferedReader bufferedReader = new BufferedReader(new FileReader(e.getValue().toFile()));
         while ((line = bufferedReader.readLine()) != null) {
           line = line.trim();
           if (!line.isEmpty()) {
-            bufferedWriter.write(e.getKey().name + " " + line + " " + plex + "  \n");
+            bufferedWriter.write(e.getKey().name + "\t" + line + "\t" + plex + "\t\t\n");
           }
         }
         bufferedReader.close();
