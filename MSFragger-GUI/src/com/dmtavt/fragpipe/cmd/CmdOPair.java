@@ -20,6 +20,7 @@ package com.dmtavt.fragpipe.cmd;
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.DotnetInfo;
+import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
 import com.dmtavt.fragpipe.exceptions.UnexpectedException;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
@@ -28,7 +29,9 @@ import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.SwingUtils;
 import java.awt.Component;
 import java.awt.Desktop;
+import java.io.BufferedWriter;
 import java.net.URI;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +56,7 @@ public class CmdOPair  extends CmdBase {
         return NAME;
     }
 
-    public boolean configure(Component comp, Path workdir, Map<LcmsFileGroup, Path> sharedMapGroupsToProtxml, OPairParams params) {
+    public boolean configure(Component comp, Path workdir, Map<LcmsFileGroup, Path> sharedMapGroupsToProtxml, OPairParams params, boolean isDryRun) {
         initPreConfig();
 
         // check that .NET is available
@@ -77,7 +80,6 @@ public class CmdOPair  extends CmdBase {
 
         // check that each group only has lcms files in one directory
         // fixme: LCMS files in one experimental group must be in the same directory. Not ideal but may be OK for now.
-        ArrayList<Path> allRawPaths = new ArrayList<>();
         for (LcmsFileGroup group : sharedMapGroupsToProtxml.keySet()) {
             List<Path> lcmsPathsForGroup = group.lcmsFiles.stream().map(inputLcmsFile -> inputLcmsFile.getPath().getParent()).distinct().collect(Collectors.toList());
             if (lcmsPathsForGroup.size() != 1) {
@@ -89,9 +91,24 @@ public class CmdOPair  extends CmdBase {
                     SwingUtils.showDialog(comp, SwingUtils.createClickableHtml(msg), "O-Pair configuration error", JOptionPane.WARNING_MESSAGE);
                     log.error(msg);
                 }
-                return false;
-            } else {
-                allRawPaths.add(lcmsPathsForGroup.get(0));
+                // return false;
+            }
+
+            List<Path> lcmsPathList = group.lcmsFiles.stream().map(InputLcmsFile::getPath).distinct().sorted().collect(Collectors.toList());
+            Path experimentPath = wd.resolve(group.name);
+            Path fileListPath = experimentPath.resolve("filelist_opair.txt");
+            if (!isDryRun) {
+                try {
+                    Files.createDirectories(experimentPath);
+                    BufferedWriter bufferedWriter = Files.newBufferedWriter(fileListPath);
+                    for (Path p : lcmsPathList) {
+                        bufferedWriter.write(p.toAbsolutePath() + "\n");
+                    }
+                    bufferedWriter.close();
+                } catch (Exception ex) {
+                    SwingUtils.showErrorDialogWithStacktrace(ex, comp);
+                    return false;
+                }
             }
 
             List<String> cmd = new ArrayList<>();
@@ -124,7 +141,7 @@ public class CmdOPair  extends CmdBase {
             cmd.add("-n " + params.getMaxNumGlycans());
             cmd.add("-i " + params.getMinIsotope());
             cmd.add("-j " + params.getMaxIsotope());
-            cmd.add("-d " + allRawPaths.get(0));                // rawfile dir
+            cmd.add("-r " + fileListPath.toAbsolutePath());
             cmd.add("-s " + psmPath);
             cmd.add("-o " + group.outputDir(workdir));          // output dir relative to group
 

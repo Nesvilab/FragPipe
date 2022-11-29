@@ -1423,7 +1423,7 @@ public class FragpipeRun {
     OPairParams oPairParams = oPairPanel.getOPairParams();
     addConfig.accept(cmdOPair, () -> {
       if (cmdOPair.isRun()) {
-        return cmdOPair.configure(parent, wd, sharedMapGroupsToProtxml, oPairParams);
+        return cmdOPair.configure(parent, wd, sharedMapGroupsToProtxml, oPairParams, isDryRun);
       }
       return true;
     });
