@@ -942,13 +942,19 @@ public class TabConfig extends JPanelWithEnablement {
     final StringBuilder sb = new StringBuilder();
 
     sb.append("<p style=\"margin-top: 0\">")
-        .append("More info and docs: <a href=\"").append("https://www.nesvilab.org/Crystal-C/").append("\">Crystal-C</a>")
+        .append("More info and docs: <a href=\"").append("https://diaumpire.nesvilab.org/").append("\">DIA-Umpire</a>")
+        .append(", <a href=\"").append("https://www.nesvilab.org/Crystal-C/").append("\">Crystal-C</a>")
+        .append(", <a href=\"").append("https://github.com/Nesvilab/MSBooster").append("\">MSBooster</a>")
+        .append(", <a href=\"").append("http://percolator.ms/").append("\">Percolator</a>")
+        .append(", <a href=\"").append("http://www.tppms.org/tools/ptm/").append("\">PTMProphet</a>")
+        .append(", <a href=\"").append("https://ptmshepherd.nesvilab.org/").append("\">PTM-Shepherd</a>")
+        .append(", <a href=\"").append("https://github.com/lonelu/PTMLocalization").append("\">O-Pair</a>")
         .append(", <a href=\"").append("https://ionquant.nesvilab.org/").append("\">IonQuant</a>")
         .append(", <a href=\"").append("https://tmt-integrator.nesvilab.org/").append("\">TMT-Integrator</a>")
-        .append(", <a href=\"").append("https://ptmshepherd.nesvilab.org/").append("\">PTM-Shepherd</a>")
         .append(", <a href=\"").append("https://github.com/grosenberger/easypqp").append("\">EasyPQP</a>")
-        .append(", <a href=\"").append("http://percolator.ms/").append("\">Percolator</a>")
-        .append(", <a href=\"").append("https://github.com/vdemichev/DiaNN").append("\">DIA-NN</a>");
+        .append(", <a href=\"").append("https://github.com/vdemichev/DiaNN").append("\">DIA-NN</a>")
+        .append(", <a href=\"").append("https://github.com/Nesvilab/FP-PDV").append("\">FP-PDV</a>")
+        .append(", <a href=\"").append("https://saint-apms.sourceforge.net/Main.html").append("\">SAINT</a>");
     return sb.toString();
   }
 
