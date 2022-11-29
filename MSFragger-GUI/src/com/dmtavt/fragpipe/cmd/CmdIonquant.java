@@ -99,7 +99,7 @@ public class CmdIonquant extends CmdBase {
           JOptionPane.showMessageDialog(comp,
               "<html>When processing .d files IonQuant requires native Bruker libraries.<br/>\n"
                   + "Native libraries come with MSFragger zip download, contained in <i>ext</i><br/>\n"
-                  + "sub-directory. If you don't have an <i>ext</i> directory next to MSfragger.jar<br/>\n"
+                  + "sub-directory. If you don't have an <i>ext</i> directory next to MSFragger.jar<br/>\n"
                   + "please go to Config tab and Update MSFragger.",
               NAME + " error", JOptionPane.WARNING_MESSAGE);
         }
@@ -117,7 +117,7 @@ public class CmdIonquant extends CmdBase {
           JOptionPane.showMessageDialog(comp,
               "<html>When processing .RAW files IonQuant requires native Thermo libraries.<br/>\n"
                   + "Native libraries come with MSFragger zip download, contained in <i>ext</i><br/>\n"
-                  + "sub-directory. If you don't have an <i>ext</i> directory next to MSfragger.jar<br/>\n"
+                  + "sub-directory. If you don't have an <i>ext</i> directory next to MSFragger.jar<br/>\n"
                   + "please go to Config tab and Update MSFragger.",
               NAME + " error", JOptionPane.WARNING_MESSAGE);
         }
