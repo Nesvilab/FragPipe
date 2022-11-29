@@ -119,7 +119,7 @@ public class PtmProphetPanel extends JPanelBase {
     checkRun.addActionListener(e -> {
       if (isRun()) {
         TabMsfragger tabMsfragger = Fragpipe.getStickyStrict(TabMsfragger.class);
-        tabMsfragger.setWriteCalMgf(true);
+        tabMsfragger.setWriteCalMzml(true); // If mass calibration is enabled, let MSFragger write calibrated mzML. If mass calibration is not enable, the calibrated mzML is till not generated.
       }
     });
 

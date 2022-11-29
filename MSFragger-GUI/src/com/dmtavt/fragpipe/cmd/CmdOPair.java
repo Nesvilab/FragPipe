@@ -26,6 +26,7 @@ import com.dmtavt.fragpipe.exceptions.UnexpectedException;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
 import com.dmtavt.fragpipe.tools.opair.OPairParams;
 import com.github.chhh.utils.OsUtils;
+import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
 import java.awt.Component;
 import java.awt.Desktop;
@@ -55,7 +56,7 @@ public class CmdOPair  extends CmdBase {
         return NAME;
     }
 
-    public boolean configure(Component comp, Path workdir, Map<LcmsFileGroup, Path> sharedMapGroupsToProtxml, OPairParams params, boolean isDryRun) {
+    public boolean configure(Component comp, Path workdir, Map<LcmsFileGroup, Path> sharedMapGroupsToProtxml, OPairParams params, boolean isDryRun, boolean hasCalibratedMzml) {
         initPreConfig();
 
         // check that .NET is available
@@ -87,7 +88,15 @@ public class CmdOPair  extends CmdBase {
                     Files.createDirectories(experimentPath);
                     BufferedWriter bufferedWriter = Files.newBufferedWriter(fileListPath);
                     for (Path p : lcmsPathList) {
-                        bufferedWriter.write(p.toAbsolutePath() + "\n");
+                        String baseName = StringUtils.upToLastDot(p.toAbsolutePath().toString());
+                        String extension = StringUtils.afterLastDot(p.toAbsolutePath().toString());
+                        if (hasCalibratedMzml) {
+                            bufferedWriter.write(baseName + "_calibrated.mzML\n");
+                        } else if (extension.equalsIgnoreCase("raw") || extension.equalsIgnoreCase("d")) {
+                            bufferedWriter.write(baseName + "_uncalibrated.mzML\n");
+                        } else {
+                            bufferedWriter.write(p.toAbsolutePath() + "\n");
+                        }
                     }
                     bufferedWriter.close();
                 } catch (Exception ex) {

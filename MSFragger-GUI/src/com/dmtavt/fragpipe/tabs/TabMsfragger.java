@@ -1726,11 +1726,15 @@ public class TabMsfragger extends JPanelBase {
     return SwingUtils.isEnabledAndChecked(checkRun);
   }
 
-  public boolean isWriteCalMgf() {
+  public int getMassCalibration() {
+    return uiComboMassCalibrate.getSelectedIndex(); // 0 = None; 1 = Mass calibration; 2 = Mass calibration, parameter optimization;
+  }
+
+  public boolean isWriteCalMzml() {
     return uiCheckWriteCalibratedMzml.isSelected();
   }
 
-  public void setWriteCalMgf(boolean selected) {
+  public void setWriteCalMzml(boolean selected) {
     uiCheckWriteCalibratedMzml.setSelected(selected);
   }
 
