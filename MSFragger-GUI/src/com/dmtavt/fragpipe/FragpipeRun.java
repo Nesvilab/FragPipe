@@ -234,7 +234,7 @@ public class FragpipeRun {
             try {
               Files.deleteIfExists(p);
             } catch (Exception e) {
-              throw new RuntimeException(e);
+              throw new RuntimeException("Could not delete " + p.toAbsolutePath() + ". Please close all visualization (FP-PDV) windows and try again.");
             }
           });
         } catch (Exception ex) {
