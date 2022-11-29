@@ -96,7 +96,7 @@ public class TabRun extends JPanelWithEnablement {
   public static final String TAB_PREFIX = "tab-run.";
   private static final String LAST_WORK_DIR = "workdir.last-path";
   private static final String PROP_FILECHOOSER_LAST_PATH = TAB_PREFIX + "filechooser.last-path";
-  private static final String PDV_NAME = "/FP-PDV/FP-PDV-1.0.4.jar";
+  private static final String PDV_NAME = "/FP-PDV/FP-PDV-1.0.5.jar";
   public final TextConsole console;
   Color defTextColor;
   private UiText uiTextWorkdir;
