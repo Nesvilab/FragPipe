@@ -101,7 +101,7 @@ public class OPairPanel extends JPanelBase {
     @Override
     protected void init() {
         mu.layout(this, mu.lcFillXNoInsetsTopBottom());
-        mu.border(this, "O-glycan Localization with O-Pair");
+        mu.border(this, "O-glycan Localization (using O-Pair)");
 
         pTop = createPanelTop();
 

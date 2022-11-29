@@ -64,7 +64,8 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
     }
 
     protected void init() {
-        mu.layout(this).fillX();
+        mu.layout(this, mu.lcFillXNoInsetsTopBottom());
+        mu.border(this, "Glycan Composition Assignment and FDR (using PTM-Shepherd)");
 
         pGlycanAssignment = createpanelGlycanAssignment();
         mu.add(this, pGlycanAssignment).spanX().growX().wrap();
@@ -131,7 +132,7 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
     }
 
     private JPanel createpanelGlycanAssignment() {
-        pGlycanAssignment = mu.newPanel("Glycan Composition Assignment and FDR (using PTM-Shepherd)", mu.lcFillXNoInsetsTopBottom());
+        pGlycanAssignment = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
 
         // glycan assignment params
         pGlycoAssignContent = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
