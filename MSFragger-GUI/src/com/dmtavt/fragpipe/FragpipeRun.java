@@ -1412,7 +1412,7 @@ public class FragpipeRun {
     CmdPairScans cmdPairScans = new CmdPairScans(oPairPanel.isRun(), wd);
     addConfig.accept(cmdPairScans, () -> {
       if (cmdPairScans.isRun()) {
-        return cmdPairScans.configure(parent, jarPath, ramGb, threads, sharedLcmsFiles, oPairPanel.getOPairParams());
+        return cmdPairScans.configure(parent, Paths.get(binMsfragger.getBin()), jarPath, ramGb, threads, sharedLcmsFiles, oPairPanel.getOPairParams());
       }
       return true;
     });

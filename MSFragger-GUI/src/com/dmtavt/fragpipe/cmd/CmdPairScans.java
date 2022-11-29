@@ -26,15 +26,17 @@ import com.github.chhh.utils.SwingUtils;
 import java.awt.Component;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.jooq.lambda.Seq;
 
 public class CmdPairScans extends CmdBase {
 
-
     public static final String NAME = "PairScans";
     public static final String JAR_MSFTBX_NAME = ToolingUtils.BATMASS_IO_JAR;
     private static String[] JAR_DEPS = {JAR_MSFTBX_NAME};
+    private static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML", "mzXML");
 
     public CmdPairScans(boolean isRun, Path workDir) {
         super(isRun, workDir);
@@ -45,7 +47,7 @@ public class CmdPairScans extends CmdBase {
         return NAME;
     }
 
-    public boolean configure(Component component, Path jarFragpipe, int ramGb, int nThreads, List<InputLcmsFile> lcmsFiles, OPairParams params) {
+    public boolean configure(Component component, Path binFragger, Path jarFragpipe, int ramGb, int nThreads, List<InputLcmsFile> lcmsFiles, OPairParams params) {
         initPreConfig();
 
         final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(jarFragpipe.toAbsolutePath().toString()).concat(JAR_DEPS));
@@ -54,10 +56,46 @@ public class CmdPairScans extends CmdBase {
             return false;
         }
 
+        List<String> sup = new ArrayList<>(SUPPORTED_FORMATS);
+        final Path extLibsBruker = CmdMsfragger.searchExtLibsBruker(Collections.singletonList(binFragger.getParent()));
+        if (extLibsBruker != null) {
+            sup.add("d");
+        }
+        final Path extLibsThermo = CmdMsfragger.searchExtLibsThermo(Collections.singletonList(binFragger.getParent()));
+        if (extLibsThermo != null) {
+            sup.add("raw");
+        }
+        if (!checkCompatibleFormats(component, lcmsFiles, sup)) {
+            return false;
+        }
+
+        String brukerLib = "";
+        String thermoLib = "";
+
+        if (extLibsBruker != null) {
+            brukerLib = createJavaDParamString("libs.bruker.dir", extLibsBruker.toString());
+        } else {
+            if (lcmsFiles.stream().anyMatch(f -> f.getPath().getFileName().toString().toLowerCase().endsWith(".d"))) {
+                SwingUtils.showErrorDialog(component, "When processing .d files PairScans requires native Bruker libraries. Native libraries come with MSFragger zip download, contained in ext sub-directory.", NAME + " error");
+                return false;
+            }
+        }
+
+        if (extLibsThermo != null) {
+            thermoLib = createJavaDParamString("libs.thermo.dir", extLibsThermo.toString());
+        } else {
+            if (lcmsFiles.stream().anyMatch(f -> f.getPath().getFileName().toString().toLowerCase().endsWith(".raw"))) {
+                SwingUtils.showErrorDialog(component, "When processing .RAW files PairScans requires native Thermo libraries. Native libraries come with MSFragger zip download, contained in ext sub-directory.", NAME + " error");
+                return false;
+            }
+        }
+
         for (InputLcmsFile lcms : lcmsFiles) {
             List<String> cmd = new ArrayList<>();
             cmd.add(Fragpipe.getBinJava());
             cmd.add("-Xmx" + ramGb + "G");
+            cmd.add(brukerLib);
+            cmd.add(thermoLib);
             cmd.add("-cp");
             cmd.add(constructClasspathString(classpathJars));
             cmd.add(PairScans.class.getCanonicalName());
@@ -72,6 +110,15 @@ public class CmdPairScans extends CmdBase {
         }
 
         isConfigured = true;
+        return true;
+    }
+
+    private boolean checkCompatibleFormats(Component comp, List<InputLcmsFile> inputLcmsFiles, List<String> supportedFormats) {
+        List<String> notSupportedExts = getNotSupportedExts(inputLcmsFiles, supportedFormats);
+        if (!notSupportedExts.isEmpty()) {
+            SwingUtils.showErrorDialog(comp, String.format(".%s files need the \"ext\" folder from MSFragger.", String.join(", ", notSupportedExts)), NAME + " error");
+            return false;
+        }
         return true;
     }
 }

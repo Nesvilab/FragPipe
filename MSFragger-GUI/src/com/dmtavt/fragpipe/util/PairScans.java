@@ -34,6 +34,7 @@ import umich.ms.datatypes.scancollection.impl.ScanCollectionDefault;
 import umich.ms.fileio.filetypes.AbstractLCMSDataSource;
 import umich.ms.fileio.filetypes.mzml.MZMLFile;
 import umich.ms.fileio.filetypes.mzxml.MZXMLFile;
+import umich.ms.fileio.filetypes.thermo.ThermoRawFile;
 
 
 public class PairScans {
@@ -78,8 +79,8 @@ public class PairScans {
             return;
         }
 
-        if (!ext.equalsIgnoreCase("mzml") && !ext.equalsIgnoreCase("mzxml")) {
-            System.err.println(spectralPath + " not supported. Scan pairing is only supported for mzML and mzXML formats. Scans not paired.\n");
+        if (!ext.equalsIgnoreCase("mzml") && !ext.equalsIgnoreCase("raw") && !ext.equalsIgnoreCase("mzxml")) {
+            System.err.println(spectralPath + " not supported. Scan pairing is only supported for mzML, mzXML, and raw formats. Scans not paired.\n");
             return;
         }
 
@@ -101,8 +102,11 @@ public class PairScans {
             case "mzxml":
                 source = new MZXMLFile(spectralPath);
                 break;
+            case "raw":
+                source = new ThermoRawFile(spectralPath);
+                break;
             default:
-                return;
+                throw new RuntimeException("Unrecognized file extension: " + ext);
         }
 
         source.setExcludeEmptyScans(true);
