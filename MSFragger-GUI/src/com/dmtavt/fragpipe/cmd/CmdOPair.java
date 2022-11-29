@@ -37,7 +37,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.swing.JOptionPane;
 import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,21 +78,7 @@ public class CmdOPair  extends CmdBase {
         }
 
         // check that each group only has lcms files in one directory
-        // fixme: LCMS files in one experimental group must be in the same directory. Not ideal but may be OK for now.
         for (LcmsFileGroup group : sharedMapGroupsToProtxml.keySet()) {
-            List<Path> lcmsPathsForGroup = group.lcmsFiles.stream().map(inputLcmsFile -> inputLcmsFile.getPath().getParent()).distinct().collect(Collectors.toList());
-            if (lcmsPathsForGroup.size() != 1) {
-                if (Fragpipe.headless) {
-                    log.error("O-Pair requires all LCMS files in a group/experiment to be in one directory.");
-                } else {
-                    String msg = "O-Pair requires all LCMS files in a group/experiment to be in one directory.\n<br/><br/>"
-                            + "<b>Check 'Workflows' tab, 'Input LCMS files' section.</b>";
-                    SwingUtils.showDialog(comp, SwingUtils.createClickableHtml(msg), "O-Pair configuration error", JOptionPane.WARNING_MESSAGE);
-                    log.error(msg);
-                }
-                // return false;
-            }
-
             List<Path> lcmsPathList = group.lcmsFiles.stream().map(InputLcmsFile::getPath).distinct().sorted().collect(Collectors.toList());
             Path experimentPath = wd.resolve(group.name);
             Path fileListPath = experimentPath.resolve("filelist_opair.txt");
