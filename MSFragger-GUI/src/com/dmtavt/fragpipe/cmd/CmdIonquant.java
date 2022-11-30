@@ -87,6 +87,11 @@ public class CmdIonquant extends CmdBase {
 
     List<String> cmd = new ArrayList<>();
     cmd.add(Fragpipe.getBinJava());
+
+    if (Fragpipe.headless) {
+      cmd.add("-Djava.awt.headless=true"); // In some rare case, the server does not have X11 but DISPLAY env var is set, which crashes the headless mode. Setting the headless env to true to prevent the crash.
+    }
+
     cmd.add("-Xmx" + ramGb + "G");
 
     if (extLibsBruker != null) {
