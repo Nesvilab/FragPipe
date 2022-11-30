@@ -307,11 +307,13 @@ public class TabRun extends JPanelWithEnablement {
     });
     JButton btnClearConsole = UiUtils.createButton("Clear Console", e -> clearConsole() );
     uiCheckWordWrap = UiUtils
-        .createUiCheck("Word wrap", console.getScrollableTracksViewportWidth(), e -> {
+        .createUiCheck("Word wrap", true, e -> {
           console.setScrollableTracksViewportWidth(uiCheckWordWrap.isSelected());
           console.setVisible(false);
           console.setVisible(true);
         });
+
+    console.setScrollableTracksViewportWidth(true);
 
     JLabel imageLabel = new JLabel();
     try {

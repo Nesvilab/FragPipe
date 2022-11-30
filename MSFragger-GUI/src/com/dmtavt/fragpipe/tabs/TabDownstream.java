@@ -215,11 +215,13 @@ public class TabDownstream extends JPanelWithEnablement {
     btnRun = UiUtils.createButton("Run", e -> Bus.post(new MessageRunDownstream(isDryRun(), pSaintExpress.isRunSaintexpress(), pSaintExpress.getMaxReplicates(), pSaintExpress.getVirtualControls(), pSaintExpress.getCmdOpts())));
 
     JButton btnClearConsole = UiUtils.createButton("Clear Console", e -> clearConsole());
-    uiCheckWordWrap = UiUtils.createUiCheck("Word wrap", console.getScrollableTracksViewportWidth(), e -> {
+    uiCheckWordWrap = UiUtils.createUiCheck("Word wrap", true, e -> {
       console.setScrollableTracksViewportWidth(uiCheckWordWrap.isSelected());
       console.setVisible(false);
       console.setVisible(true);
     });
+
+    console.setScrollableTracksViewportWidth(true);
 
     JPanel p = mu.newPanel(null, true);
     mu.add(p, btnRun).split(5);
