@@ -251,6 +251,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     builtInWorkflows.add("Nonspecific-HLA-glyco");
     builtInWorkflows.add("Nonspecific-HLA-phospho");
     builtInWorkflows.add("Nonspecific-HLA-TMT10");
+    builtInWorkflows.add("glyco-O-Pair");
   }
 
   // Ok, if we could keep some workflows pinned toward the top,  I would say Default, SpecLib, Open, Common-mass-offset, LFQ-MBR,  then the rest
