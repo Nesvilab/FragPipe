@@ -574,6 +574,18 @@ public class FragpipeRun {
       toConsole(Fragpipe.COLOR_BLACK, "PTM-Shepherd: analysis and summarization of post-translational and chemical modifications from open search results. Mol Cell Proteomics 20:100018 (2020)", true, console);
     }
 
+    PTMSGlycanAssignPanel ptmsGlycanAssignPanel = Bus.getStickyEvent(PTMSGlycanAssignPanel.class);
+    if (ptmsGlycanAssignPanel != null && ptmsGlycanAssignPanel.isRun()) {
+      toConsole(Fragpipe.COLOR_CMDLINE, "(Glycan identification and FDR control) ", false, console);
+      toConsole(Fragpipe.COLOR_BLACK, "Multiattribute glycan identification and FDR control for Glycoproteomics. Mol Cell Proteomics 21:100105 (2022)", true, console);
+    }
+
+    OPairPanel oPairPanel = Bus.getStickyEvent(OPairPanel.class);
+    if (oPairPanel != null && oPairPanel.isRun()) {
+      toConsole(Fragpipe.COLOR_CMDLINE, "(O-Glycan localization) ", false, console);
+      toConsole(Fragpipe.COLOR_BLACK, "O-Pair Search with MetaMorpheus for O-glycopeptide characterization. Nat Methods 17:1133 (2020)", true, console);
+    }
+
     QuantPanelLabelfree quantPanelLabelfree = Bus.getStickyEvent(QuantPanelLabelfree.class);
     if (quantPanelLabelfree != null && quantPanelLabelfree.isRunIonQuant()) {
       toConsole(Fragpipe.COLOR_CMDLINE, "(Label-free/isotopic-labeling quantification) ", false, console);
