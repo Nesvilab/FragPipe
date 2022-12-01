@@ -157,7 +157,7 @@ public class CmdLabelquant extends CmdBase {
 
     try {
       String line;
-      BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(wd.resolve("combined_annotation.txt").toFile()));
+      BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(wd.resolve("combined_annotation.tsv").toFile()));
       bufferedWriter.write("experiment\tchannel\tlabel\tplex\treplicate\tcondition\n");
       int plex = 1;
       for (Map.Entry<LcmsFileGroup, Path> e : annotations.entrySet()) {
