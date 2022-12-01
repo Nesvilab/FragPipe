@@ -103,7 +103,7 @@ public class QuantPanelLabelfree extends JPanelBase {
     return checkRun.isSelected();
   }
 
-  public boolean isEnabled() {
+  public boolean isCheckRunEnabled() {
     return checkRun.isEnabled();
   }
 

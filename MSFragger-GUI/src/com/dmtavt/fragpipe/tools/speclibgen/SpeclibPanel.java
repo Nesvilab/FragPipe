@@ -397,7 +397,7 @@ public class SpeclibPanel extends JPanelBase {
     return checkRun.isSelected();
   }
 
-  public boolean isEnabled() {
+  public boolean isCheckRunEnabled() {
     return checkRun.isEnabled();
   }
 

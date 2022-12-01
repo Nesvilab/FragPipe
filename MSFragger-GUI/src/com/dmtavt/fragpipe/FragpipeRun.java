@@ -1315,7 +1315,7 @@ public class FragpipeRun {
 
     // run Report - IonQuant (Labelfree)
     final CmdIonquant cmdIonquant = new CmdIonquant(quantPanelLabelfree.isRunIonQuant(), wd);
-    if (quantPanelLabelfree.isChecked() && quantPanelLabelfree.isIonQuantChecked() && (!quantPanelLabelfree.isIonQuantEnabled() || !quantPanelLabelfree.isEnabled())) {
+    if (quantPanelLabelfree.isChecked() && quantPanelLabelfree.isIonQuantChecked() && (!quantPanelLabelfree.isIonQuantEnabled() || !quantPanelLabelfree.isCheckRunEnabled())) {
       SwingUtils.showErrorDialog(parent, "Looks like IonQuant was not configured.\nIonQuant is currently required.", "No IonQuant");
       return false;
     }
@@ -1487,7 +1487,7 @@ public class FragpipeRun {
     final CmdSpecLibGen cmdSpecLibGen = new CmdSpecLibGen(speclibPanel.isRun(), wd);
 
     addConfig.accept(cmdSpecLibGen, () -> {
-      if (speclibPanel.isChecked() && !speclibPanel.isEnabled()) {
+      if (speclibPanel.isChecked() && !speclibPanel.isCheckRunEnabled()) {
         if (Fragpipe.headless) {
           log.error("Spectral Library Generation module was not configured correctly. Please make sure that Python and EasyPQP have been installed.");
         } else {
