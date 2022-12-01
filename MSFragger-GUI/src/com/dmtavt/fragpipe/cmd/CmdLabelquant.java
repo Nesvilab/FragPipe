@@ -165,7 +165,7 @@ public class CmdLabelquant extends CmdBase {
         while ((line = bufferedReader.readLine()) != null) {
           line = line.trim();
           if (!line.isEmpty()) {
-            bufferedWriter.write(e.getKey().name + "\t" + line + "\t" + plex + "\t\t\n");
+            bufferedWriter.write(e.getKey().name + "\t" + line.replace(" ", "\t") + "\t" + plex + "\t\t\n");
           }
         }
         bufferedReader.close();
