@@ -87,7 +87,7 @@ public class GlycoMassLoader {
 
     public List<Double> loadMassesFile(Component parent) {
         List<javax.swing.filechooser.FileFilter> glycFilters = new ArrayList<>();
-        FileFilter filter = new FileNameExtensionFilter("Glycan or Mod Database (.txt, .csv, .gdb)", "txt", "csv", "gdb");
+        FileFilter filter = new FileNameExtensionFilter("Glycan or Mod Database (.txt, .csv, .tsv, .glyc, .gdb)", "txt", "csv", "tsv", "glyc", "gdb");
         glycFilters.add(filter);
         String loc = Fragpipe.propsVarGet(PROP_FILECHOOSER_LAST_PATH);
         JFileChooser fc = FileChooserUtils.builder("Select the Glycan or other Mod List file")
@@ -104,12 +104,9 @@ public class GlycoMassLoader {
 
             // load from file
             List<Double> masses;
-            if (selectedPath.endsWith(".txt")) {
-                // Generic offset list
-                masses = GlycoMassLoader.loadTextOffsets(selectedPath);
-            } else if (selectedPath.endsWith(".csv")) {
+            if (selectedPath.endsWith(".csv") || selectedPath.endsWith(".txt") || selectedPath.endsWith(".tsv") || selectedPath.endsWith(".glyc")) {
                 // Byonic format
-                masses = GlycoMassLoader.loadByonicFile(selectedPath);
+                masses = GlycoMassLoader.loadTextOffsets(selectedPath);
             } else if (selectedPath.endsWith(".gdb")) {
                 // pGlyco format
                 masses = GlycoMassLoader.loadPGlycoFile(selectedPath);
@@ -192,7 +189,7 @@ public class GlycoMassLoader {
     }
 
     // read masses only from a text file. Can have , or \t delimiter, and one or multiple entries per line.
-    public static ArrayList<Double> loadTextOffsets(String filePath) {
+    public static ArrayList<Double> loadTextOffsetsOld(String filePath) {
         ArrayList<Double> massOffsets = new ArrayList<>();
         try {
             BufferedReader reader = new BufferedReader(new FileReader(filePath));
@@ -252,8 +249,8 @@ public class GlycoMassLoader {
                 if (t >= 0) {
                     readline = readline.substring(0, t);
                 }
-
-                if (readline.isEmpty()) {
+                // skip empty lines and lines without a glycan structure
+                if (!readline.contains("(")) {
                     continue;
                 }
 
@@ -292,7 +289,7 @@ public class GlycoMassLoader {
      * @param filePath
      * @return
      */
-    public static ArrayList<Double> loadByonicFile(String filePath) {
+    public static ArrayList<Double> loadTextOffsets(String filePath) {
         ArrayList<Double> massOffsets = new ArrayList<>();
         try {
             BufferedReader reader = new BufferedReader(new FileReader(filePath));
@@ -378,7 +375,7 @@ public class GlycoMassLoader {
      */
     public static double parseByonicGlycanString(String glycanString) {
         String[] massSplits = glycanString.split(" % ");
-        String[] compositionSplits = massSplits[0].split("\\)");
+        String[] compositionSplits = massSplits[0].trim().split("\\)");
         // Read all residue counts into the composition container
         double mass = 0;
         for (String split: compositionSplits) {
