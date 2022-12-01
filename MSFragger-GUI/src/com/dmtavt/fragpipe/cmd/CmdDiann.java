@@ -54,7 +54,7 @@ public class CmdDiann extends CmdBase {
   private static final String[] DIANN_SO_DEPS_libgomp = {"diann_so/libgomp.so.1.0.0"};
   public static final String DIANN_VERSION = "1.8.2_beta_8";
   public static final String DIANN_WIN = "diann/1.8.2_beta_8/win/DiaNN.exe";
-  public static final String DIANN_LINUX = "diann/1.8.2_beta_8/linux/diann-1.8.1";
+  public static final String DIANN_LINUX = "diann/1.8.2_beta_8/linux/diann-1.8.1.8";
   private static final List<String> SUPPORTED_FORMATS_WIN = Arrays.asList("mzML", "d", "dia", "wiff", "raw");
   private static final List<String> SUPPORTED_FORMATS_LINUX = Arrays.asList("mzML", "d", "dia");
 
