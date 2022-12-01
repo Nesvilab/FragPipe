@@ -91,12 +91,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TabRun extends JPanelWithEnablement {
+
   private static final Logger log = LoggerFactory.getLogger(TabRun.class);
   public static final MigUtils mu = MigUtils.get();
   public static final String TAB_PREFIX = "tab-run.";
   private static final String LAST_WORK_DIR = "workdir.last-path";
   private static final String PROP_FILECHOOSER_LAST_PATH = TAB_PREFIX + "filechooser.last-path";
   private static final String PDV_NAME = "/FP-PDV/FP-PDV-1.0.5.jar";
+  private static final String FRAGPIPE_ANALYST_URL = Fragpipe.propsFix().getProperty("fragpipe-analyst-url", "https://fragpipe-analyst.org/");
+
   public final TextConsole console;
   Color defTextColor;
   private UiText uiTextWorkdir;
@@ -291,7 +294,7 @@ public class TabRun extends JPanelWithEnablement {
     });
 
     btnOpenFragPipeAnalyst = UiUtils.createButton("Open FragPipe-Analyst", e -> {
-      SwingUtils.openBrowserOrThrow("http://fragpipe-analyst.nesvilab.org/");
+      SwingUtils.openBrowserOrThrow(FRAGPIPE_ANALYST_URL);
     });
 
     JButton btnExport = UiUtils.createButton("Export Log", e -> Bus.post(new MessageExportLog()));
