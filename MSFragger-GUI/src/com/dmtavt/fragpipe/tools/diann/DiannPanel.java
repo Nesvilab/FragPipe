@@ -73,7 +73,7 @@ public class DiannPanel extends JPanelBase {
   private UiText uiTextLibrary;
   private JPanel panelDiann;
   private UiCheck uiCheckUsePredictedSpectra;
-  private UiSpinnerDouble uiSpinRunSpecificProteinQvalue;
+  private UiCheck uiCheckUseRunSpecificProteinQvalue;
   private UiCheck uiCheckUnrelatedRuns;
 
   @Override
@@ -152,10 +152,10 @@ public class DiannPanel extends JPanelBase {
     mu.border(p, 1);
 
     uiSpinnerQvalue = UiUtils.spinnerDouble(0.01, 0.0, 1.0, 0.01).setCols(5).setFormat("#.##").create();
-    FormEntry feQvalue = mu.feb(uiSpinnerQvalue).name("q-value").label("Precursor FDR").create();
+    FormEntry feQvalue = mu.feb(uiSpinnerQvalue).name("q-value").label("FDR").tooltip("Control the global protein group FDR, global precursor FDR, and run-specific precursor FDR.").create();
 
-    uiSpinRunSpecificProteinQvalue = UiUtils.spinnerDouble(0.01, 0.0, 1.0, 0.01).setCols(5).setFormat("#.##").create();
-    FormEntry feRunSpecificProteinQvalue = mu.feb(uiSpinRunSpecificProteinQvalue).name("run-specific-protein-q-value").label("Run specific protein FDR").tooltip("By default, the output matrices are filtered with 1% global protein group FDR, 1% global precursor FDR, and 1% run-specific precursor FDR.\n Set run specific protein FDR to have a more stringent filtering.").create();
+    uiCheckUseRunSpecificProteinQvalue = UiUtils.createUiCheck("Apply run-specific protein FDR", false);
+    FormEntry feUseRunSpecificProteinQvalue = mu.feb(uiCheckUseRunSpecificProteinQvalue).name("run-specific-protein-q-value").label("Apply run-specific protein FDR").tooltip("By default, the output matrices are filtered with 1% global protein group FDR, 1% global precursor FDR, and 1% run-specific precursor FDR.\nApply run specific protein FDR to have a more stringent filtering.").create();
 
     uiComboQuantificationStrategy = UiUtils.createUiCombo(Arrays.asList("Any LC (high accuracy)", "Any LC (high precision)", "Robust LC (high accuracy)", "Robust LC (high precision)"));
     FormEntry feQuantificationStrategy = new FormEntry("quantification-strategy", "Quantification strategy", uiComboQuantificationStrategy);
@@ -190,8 +190,7 @@ public class DiannPanel extends JPanelBase {
 
     mu.add(p, feQvalue.label(), mu.ccL());
     mu.add(p, feQvalue.comp).wrap();
-    mu.add(p, feRunSpecificProteinQvalue.label(), mu.ccL());
-    mu.add(p, feRunSpecificProteinQvalue.comp).wrap();
+    mu.add(p, feUseRunSpecificProteinQvalue.comp).wrap();
     mu.add(p, feQuantificationStrategy.label(), mu.ccL());
     mu.add(p, feQuantificationStrategy.comp).wrap();
     mu.add(p, feUnrelatedRuns.comp).wrap();
@@ -227,8 +226,8 @@ public class DiannPanel extends JPanelBase {
     return (float) uiSpinnerQvalue.getActualValue();
   }
 
-  public float getRunSpecificProteinQvalue() {
-    return (float) uiSpinRunSpecificProteinQvalue.getActualValue();
+  public boolean useRunSpecificProteinQvalue() {
+    return uiCheckUseRunSpecificProteinQvalue.isSelected();
   }
 
   public String getLibraryPath() {
