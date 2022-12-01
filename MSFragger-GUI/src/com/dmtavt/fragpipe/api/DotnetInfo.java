@@ -48,7 +48,7 @@ public class DotnetInfo {
     }
 
     public static DotnetInfo fromCommand(String command) throws ValidationException, UnexpectedException {
-        if (dotnetInfo == null) {
+        if (dotnetInfo == null || dotnetInfo.version == null || dotnetInfo.version.toString().isEmpty()) {
             dotnetInfo = new DotnetInfo();
             dotnetInfo.trySetDotNetCommand(command);
         }
