@@ -98,9 +98,9 @@ public class SaintexpressPanel extends JPanelBase {
       ex.printStackTrace();
     }
 
-    mu.add(p, checkRun).wrap();
-    mu.add(p, messagePane).pushX();
+    mu.add(p, checkRun);
     mu.add(p, imageLabel).gapRight("40").wrap();
+    mu.add(p, messagePane).pushX();
 
     return p;
   }

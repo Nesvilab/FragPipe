@@ -117,9 +117,7 @@ public class DiannPanel extends JPanelBase {
     checkRun = new UiCheck("Quantify with DIA-NN (version " + DIANN_VERSION + ")", null, false);
     checkRun.setName("run-dia-nn");
 
-    String message = "The stand-alone DIA-NN program (with full functionality) can be downloaded from the <a href=\"https://github.com/vdemichev/DiaNN/releases\">DIA-NN GitHub repository</a>. <a href=\"https://doi.org/10.1038/s41587-021-00860-4\">Reference</a><br/><br/>"
-        + "<b>When using DIA-NN in combination with FragPipe-generated spectral libraries, please cite:</b><br/>"
-        + "<a href=\"https://www.nature.com/articles/s41467-022-31492-0\">Demichev, V., et al. dia-PASEF data analysis using FragPipe and DIA-NN for deep proteomics of low sample amounts. Nat Commun. 13:3944 (2022)</a>";
+    String message = "The stand-alone DIA-NN program (with full functionality) can be downloaded from the <a href=\"https://github.com/vdemichev/DiaNN/releases\">DIA-NN GitHub repository</a>. <a href=\"https://doi.org/10.1038/s41592-019-0638-x\">Reference</a><br/>";
 
     HtmlStyledJEditorPane messagePane = createClickableHtml(message);
 
@@ -131,9 +129,9 @@ public class DiannPanel extends JPanelBase {
       ex.printStackTrace();
     }
 
-    mu.add(p, checkRun).wrap();
-    mu.add(p, messagePane).pushX();
+    mu.add(p, checkRun);
     mu.add(p, imageLabel).gapRight("50").wrap();
+    mu.add(p, messagePane).pushX();
 
     return p;
   }
