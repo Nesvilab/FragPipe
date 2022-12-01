@@ -244,4 +244,7 @@ public class OPairPanel extends JPanelBase {
     public void setGlycanDatabase(String path) {
         uiTextOGlycanDBFile.setText(path);
     }
+    public void setMaxGlycans(int maxGlycans) {
+        uiSpinnerMaxGlycans.setValue(maxGlycans);
+    }
 }

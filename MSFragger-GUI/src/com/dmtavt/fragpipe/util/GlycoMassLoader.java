@@ -135,20 +135,21 @@ public class GlycoMassLoader {
                 if (optionsPanel.getMaxCombos() > 1) {
                     masses = generateMassCombos(masses, optionsPanel.getMaxCombos(), optionsPanel.useMassFilter(), optionsPanel.getMaxMass(), optionsPanel.getMinMass());
                 }
-            }
+                // make sure 0 is included in the mass offsets list
+                if (!masses.contains(0.0)) {
+                    masses.add(0, 0.0);
+                }
 
-            // make sure 0 is included in the mass offsets list
-            if (!masses.contains(0.0)) {
-                masses.add(0, 0.0);
+                // clean up masses before returning final strings (round off floating point errors at 12 decimal places)
+                List<String> massStrings = new ArrayList<>();
+                for (double mass : masses) {
+                    BigDecimal decimal = new BigDecimal(mass).setScale(12, RoundingMode.HALF_EVEN).stripTrailingZeros();
+                    massStrings.add(decimal.toPlainString());
+                }
+                return massStrings;
+            } else {
+                return new ArrayList<>();
             }
-
-            // clean up masses before returning final strings (round off floating point errors at 12 decimal places)
-            List<String> massStrings = new ArrayList<>();
-            for (double mass : masses) {
-                BigDecimal decimal = new BigDecimal(mass).setScale(12, RoundingMode.HALF_EVEN).stripTrailingZeros();
-                massStrings.add(decimal.toPlainString());
-            }
-            return massStrings;
         } else {
             return new ArrayList<>();
         }

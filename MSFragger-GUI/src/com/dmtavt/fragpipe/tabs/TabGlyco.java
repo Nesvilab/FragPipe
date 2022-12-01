@@ -86,15 +86,19 @@ public class TabGlyco extends JPanelWithEnablement {
                 String offsetsText = String.join(" ", massStrings);
                 TabMsfragger fraggerTab = Fragpipe.getStickyStrict(TabMsfragger.class);
                 fraggerTab.setMassOffsets(offsetsText);
-                textLoadGlycans.setText(String.format("Loaded %d unique glycan masses from file", massStrings.size()));
-                log.info(String.format("[Glyco Tab load glycans button] Loaded %d unique mass offsets from file", massStrings.size()));
+                textLoadGlycans.setText(String.format("Loaded %d unique glycan masses from file", massStrings.size() - 1));
+                log.info(String.format("[Glyco Tab load glycans button] Loaded %d unique mass offsets from file", massStrings.size() - 1));
             }
             if (loader.optionsPanel.isSaveToPTMShepherd()) {
                 panelGlycanAssign.setGlycanDatabase(loader.glycoFilePath);
             }
             if (loader.optionsPanel.isSaveToOPair()) {
                 panelOPair.setGlycanDatabase(loader.glycoFilePath);
+                panelOPair.setMaxGlycans(loader.optionsPanel.getMaxCombos());   // also sync O-Pair setting for max combox
             }
+        } else {
+            textLoadGlycans.setText("No glycans loaded");
+            log.info("[Glyco Tab load glycans button] no glycans loaded");
         }
     }
 }
