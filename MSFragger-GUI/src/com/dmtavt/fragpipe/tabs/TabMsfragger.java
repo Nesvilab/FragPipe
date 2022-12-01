@@ -27,7 +27,6 @@ import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTIONS;
 import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTION_labile;
 import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTION_nglycan;
 import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTION_off;
-import static javax.swing.JOptionPane.OK_CANCEL_OPTION;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.Bus;
@@ -35,7 +34,6 @@ import com.dmtavt.fragpipe.api.FragpipeCacheUtils;
 import com.dmtavt.fragpipe.api.ModsTable;
 import com.dmtavt.fragpipe.api.ModsTableModel;
 import com.dmtavt.fragpipe.api.SearchTypeProp;
-import com.dmtavt.fragpipe.dialogs.MassOffsetLoaderPanel;
 import com.dmtavt.fragpipe.messages.MessageMsfraggerParamsUpdate;
 import com.dmtavt.fragpipe.messages.MessagePrecursorSelectionMode;
 import com.dmtavt.fragpipe.messages.MessageSearchType;
@@ -91,8 +89,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -104,7 +100,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -130,7 +125,6 @@ import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.TableCellEditor;
 import net.miginfocom.layout.CC;
@@ -364,18 +358,23 @@ public class TabMsfragger extends JPanelBase {
     return uiTextIsoErr;
   }
 
-  public boolean isOpenMassOffsetSearch() {
+  public boolean isMassOffsetSearch() {
     Object selected = uiComboPrecursorTolUnits.getSelectedItem();
     if (selected == null || StringUtils.isNullOrWhitespace((String) selected)) {
       return false;
     }
 
-    boolean isOpenSearch = PrecursorMassTolUnits.valueOf((String) selected).valueInParamsFile() == 0 && uiSpinnerPrecTolLo.getActualValue() < -3 && uiSpinnerPrecTolHi.getActualValue() > 3;
-
     String[] massOffsetStrings = (epMassOffsets).getNonGhostText().trim().split("[/\\s]+");
-    boolean isMassOffsetSearch = massOffsetStrings.length > 1 || Math.abs(Double.parseDouble(massOffsetStrings[0])) > 0.01;
+    return massOffsetStrings.length > 1 || Math.abs(Double.parseDouble(massOffsetStrings[0])) > 0.01;
+  }
 
-    return isOpenSearch || isMassOffsetSearch;
+  public boolean isOpenSearch() {
+    Object selected = uiComboPrecursorTolUnits.getSelectedItem();
+    if (selected == null || StringUtils.isNullOrWhitespace((String) selected)) {
+      return false;
+    }
+
+    return PrecursorMassTolUnits.valueOf((String) selected).valueInParamsFile() == 0 && uiSpinnerPrecTolLo.getActualValue() < -3 && uiSpinnerPrecTolHi.getActualValue() > 3;
   }
 
   public int getMassDiffToVariableMod() {
