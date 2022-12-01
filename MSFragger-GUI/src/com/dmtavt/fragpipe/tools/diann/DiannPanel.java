@@ -151,7 +151,7 @@ public class DiannPanel extends JPanelBase {
     final JPanel p = mu.newPanel(mu.lcFillX());
     mu.border(p, 1);
 
-    uiSpinnerQvalue = UiUtils.spinnerDouble(0.01, 0.0, 1.0, 0.01).setCols(5).setFormat("#.##").create();
+    uiSpinnerQvalue = UiUtils.spinnerDouble(0.01, 0.001, 0.05, 0.01).setCols(5).setFormat("#.##").create();
     FormEntry feQvalue = mu.feb(uiSpinnerQvalue).name("q-value").label("FDR").tooltip("Control the global protein group FDR, global precursor FDR, and run-specific precursor FDR.").create();
 
     uiCheckUseRunSpecificProteinQvalue = UiUtils.createUiCheck("Apply run-specific protein FDR", false);
