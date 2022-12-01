@@ -296,4 +296,4 @@ tmtintegrator.use_glycan_composition=true
 workflow.description=<p style\="margin-top\: 0">For hybrid activation open search of O-glycopeptides. NOTE\: glycan assignment/FDR control is NOT yet supported for open searches and is not performed in this workflow.</p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
-workflow.saved-with-ver=19.0-build26
+workflow.saved-with-ver=19.0-build32

@@ -296,4 +296,4 @@ tmtintegrator.use_glycan_composition=true
 workflow.description=<p style\="margin-top\: 0">For MSFragger search and O-Pair localization of O-glycopeptides. Requires paired scan data\! (for example, HCD-pd-EThcD)</p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
-workflow.saved-with-ver=19.0-build26
+workflow.saved-with-ver=19.0-build32

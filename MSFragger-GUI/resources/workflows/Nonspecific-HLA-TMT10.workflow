@@ -294,4 +294,4 @@ tmtintegrator.use_glycan_composition=false
 workflow.description=<p style\="margin-top\: 0in">Wokflow for TMT10 labeled HLA peptidome data. Nonspecific search. MSFragger search assumes cysteines were not alkylated (i.e. samples were not treated with iodoacetamide). Cysteinylation (C+119) is specified as variable modification. TMT10 on peptide n-term and K as fixed modifications. MSFragger rescoring with MSBooster. PSM validation with Percolator. Protein FDR filter is not applied, so each output file (PSM, ion, peptide) is filtered to 1% FDR at that level. TMT quantification with TMT-Integrator.</p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
-workflow.saved-with-ver=19.0-build27
+workflow.saved-with-ver=19.0-build32
