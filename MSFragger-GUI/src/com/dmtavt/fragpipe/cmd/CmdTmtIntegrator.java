@@ -65,15 +65,9 @@ public class CmdTmtIntegrator extends CmdBase {
     List<String> notSupportedExts = getNotSupportedExts(mapGroupsToProtxml, SUPPORTED_FORMATS);
     if (!notSupportedExts.isEmpty()) {
       if (Fragpipe.headless) {
-        log.error(String.format("%s can't work with '.%s' files. You can also convert files using msconvert from ProteoWizard.", NAME, String.join(", ", notSupportedExts)));
+        log.error(String.format("TMT analysis doesn't support '.%s' files. Please replace with mzML format.", String.join(", ", notSupportedExts)));
       } else {
-        JOptionPane.showMessageDialog(comp, String.format(
-                "<html>%s can't work with '.%s' files.<br/>"
-                    + "Compatible formats are: %s<br/>"
-                    + "Either remove files from input or disable %s<br/>"
-                    + "You can also convert files using <i>msconvert</i> from ProteoWizard.",
-                NAME, String.join(", ", notSupportedExts), String.join(", ", SUPPORTED_FORMATS), NAME),
-            NAME + " error", JOptionPane.WARNING_MESSAGE);
+        JOptionPane.showMessageDialog(comp, String.format("<html>TMT analysis doesn't support '.%s' files.<br>Please replace with mzML format.", String.join(", ", notSupportedExts)), NAME + " error", JOptionPane.WARNING_MESSAGE);
       }
       return false;
     }

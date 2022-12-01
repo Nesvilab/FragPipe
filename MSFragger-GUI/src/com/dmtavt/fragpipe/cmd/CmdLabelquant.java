@@ -185,12 +185,9 @@ public class CmdLabelquant extends CmdBase {
     List<String> notSupportedExts = getNotSupportedExts(mapGroupsToProtxml, SUPPORTED_FORMATS);
     if (!notSupportedExts.isEmpty()) {
       if (Fragpipe.headless) {
-        log.error(String.format("%s doesn't support '.%s' files. Either replace with mzML format or disable %s.", NAME, String.join(", ", notSupportedExts), NAME));
+        log.error(String.format("TMT analysis doesn't support '.%s' files. Please replace with mzML format.", String.join(", ", notSupportedExts)));
       } else {
-        JOptionPane.showMessageDialog(comp, String.format(
-                "<html>%s doesn't support '.%s' files.<br/>"
-                    + "Either replace with mzML format or disable %s.<br/>", NAME, String.join(", ", notSupportedExts), NAME),
-            NAME + " error", JOptionPane.WARNING_MESSAGE);
+        JOptionPane.showMessageDialog(comp, String.format("<html>TMT analysis doesn't support '.%s' files.<br>Please replace with mzML format.<br/>", String.join(", ", notSupportedExts)), NAME + " error", JOptionPane.WARNING_MESSAGE);
       }
       return false;
     } else if (mapGroupsToProtxml.keySet().stream().flatMap(g -> g.lcmsFiles.stream()).map(f -> StringUtils.afterLastDot(f.getPath().getFileName().toString().toLowerCase())).distinct().anyMatch(ext -> ext.endsWith("raw"))) {

@@ -1302,11 +1302,13 @@ public class FragpipeRun {
       return true;
     });
 
+    final TmtiPanel tmtiPanel = Fragpipe.getStickyStrict(TmtiPanel.class);
+
     // run Report - Freequant (Labelfree)
     final CmdFreequant cmdFreequant = new CmdFreequant(isReport && isFreequant, wd);
     addConfig.accept(cmdFreequant, () -> {
       if (cmdFreequant.isRun()) {
-        return cmdFreequant.configure(parent, usePhi, quantPanelLabelfree.getFreequantOptsAsText(), sharedMapGroupsToProtxml);
+        return cmdFreequant.configure(parent, usePhi, quantPanelLabelfree.getFreequantOptsAsText(), sharedMapGroupsToProtxml, tmtiPanel.isRun(), tabMsf.isOpenSearch());
       }
       return true;
     });
@@ -1343,7 +1345,6 @@ public class FragpipeRun {
     }
 
     // run TMT-Integrator
-    final TmtiPanel tmtiPanel = Fragpipe.getStickyStrict(TmtiPanel.class);
     final boolean isTmt = tmtiPanel.isRun();
     final boolean isTmtLqFq = tmtiPanel.isRunFqLq();
     final CmdTmtIntegrator cmdTmt = new CmdTmtIntegrator(isTmt, wd);
@@ -1380,7 +1381,7 @@ public class FragpipeRun {
     });
     addConfig.accept(cmdTmtFreequant, () -> {
       if (cmdTmtFreequant.isRun()) {
-        return cmdTmtFreequant.configure(parent, usePhi, quantPanelLabelfree.getFreequantOptsAsText(), sharedMapGroupsToProtxml);
+        return cmdTmtFreequant.configure(parent, usePhi, quantPanelLabelfree.getFreequantOptsAsText(), sharedMapGroupsToProtxml, tmtiPanel.isRun(), tabMsf.isOpenSearch());
       }
       return true;
     });

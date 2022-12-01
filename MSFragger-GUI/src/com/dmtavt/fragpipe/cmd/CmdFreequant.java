@@ -52,16 +52,25 @@ public class CmdFreequant extends CmdBase {
     return NAME;
   }
 
-  private boolean checkCompatibleFormats(Component comp, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
+  private boolean checkCompatibleFormats(Component comp, Map<LcmsFileGroup, Path> mapGroupsToProtxml, boolean isTMT, boolean isOpenSearch) {
     List<String> notSupportedExts = getNotSupportedExts(mapGroupsToProtxml, SUPPORTED_FORMATS);
     if (!notSupportedExts.isEmpty()) {
       if (Fragpipe.headless) {
-        log.error(String.format("%s doesn't support '.%s' files. Either replace with mzML format or disable %s.", NAME, String.join(", ", notSupportedExts), NAME));
+        if (isTMT) {
+          log.error(String.format("TMT analysis doesn't support '.%s' files. Please replace with mzML format.", String.join(", ", notSupportedExts)));
+        } else if (isOpenSearch) {
+          log.error(String.format("FreeQuant doesn't support '.%s' files. Please replace with mzML format or disable the Quant (MS1) tab.", String.join(", ", notSupportedExts)));
+        } else {
+          log.error(String.format("FreeQuant doesn't support '.%s' files. Please switch to IonQuant in the Quant (MS1) tab.", String.join(", ", notSupportedExts)));
+        }
       } else {
-        JOptionPane.showMessageDialog(comp, String.format(
-                "<html>%s doesn't support '.%s' files.<br/>"
-                    + "Either replace with mzML format or disable %s.<br/>", NAME, String.join(", ", notSupportedExts), NAME),
-            NAME + " error", JOptionPane.WARNING_MESSAGE);
+        if (isTMT) {
+          JOptionPane.showMessageDialog(comp, String.format("<html>TMT analysis doesn't support '.%s' files.<br>Please replace with mzML format.<br>", String.join(", ", notSupportedExts)), NAME + " error", JOptionPane.WARNING_MESSAGE);
+        } else if (isOpenSearch) {
+          JOptionPane.showMessageDialog(comp, String.format("<html>FreeQuant doesn't support '.%s' files.<br>Please replace with mzML format or disable the Quant (MS1) tab.<br>", String.join(", ", notSupportedExts)), NAME + " error", JOptionPane.WARNING_MESSAGE);
+        } else {
+          JOptionPane.showMessageDialog(comp, String.format("<html>FreeQuant doesn't support '.%s' files.<br>Please switch to IonQuant in the Quant (MS1) tab.<br>", String.join(", ", notSupportedExts)), NAME + " error", JOptionPane.WARNING_MESSAGE);
+        }
       }
       return false;
     } else if (mapGroupsToProtxml.keySet().stream().flatMap(g -> g.lcmsFiles.stream()).map(f -> StringUtils.afterLastDot(f.getPath().getFileName().toString().toLowerCase())).distinct().anyMatch(ext -> ext.endsWith("raw"))) {
@@ -71,12 +80,11 @@ public class CmdFreequant extends CmdBase {
     return true;
   }
 
-  public boolean configure(Component comp, UsageTrigger usePhilosopher,
-      String textReportLabelfree, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
+  public boolean configure(Component comp, UsageTrigger usePhilosopher, String textReportLabelfree, Map<LcmsFileGroup, Path> mapGroupsToProtxml, boolean isTMT, boolean isOpenSearch) {
 
     initPreConfig();
 
-    if (!checkCompatibleFormats(comp, mapGroupsToProtxml)) {
+    if (!checkCompatibleFormats(comp, mapGroupsToProtxml, isTMT, isOpenSearch)) {
       return false;
     }
 
