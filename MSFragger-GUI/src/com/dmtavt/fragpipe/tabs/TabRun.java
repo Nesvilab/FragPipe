@@ -109,7 +109,6 @@ public class TabRun extends JPanelWithEnablement {
   private JButton btnRun;
   private JButton btnStop;
   private JButton btnOpenPdv;
-  private JButton btnClosePdv;
   private JButton btnOpenFragPipeAnalyst;
   private Thread pdvThread = null;
   private JPanel pTop;
@@ -149,7 +148,6 @@ public class TabRun extends JPanelWithEnablement {
     btnRun.setEnabled(m.isEnabled);
     btnStop.setEnabled(!btnRun.isEnabled());
     btnOpenPdv.setEnabled(m.isEnabled); // When Run button is gray, disable the PDV button. When Run button is not gray, also enable the PDV button.
-    btnClosePdv.setEnabled(!btnOpenPdv.isEnabled());
     tabDownstream.btnRun.setEnabled(m.isEnabled);
   }
 
@@ -249,7 +247,6 @@ public class TabRun extends JPanelWithEnablement {
         pdvThread = new Thread(() -> {
           try {
             btnOpenPdv.setEnabled(false);
-            btnClosePdv.setEnabled(true);
             ProcessBuilder pb = new ProcessBuilder(cmd);
             ProcessBuilderInfo pbi = new PbiBuilder().setPb(pb).setName(pb.toString()).setFnStdOut(null).setFnStdErr(null).setParallelGroup(null).create();
             ProcessResult pr = new ProcessResult(pbi);
@@ -274,22 +271,12 @@ public class TabRun extends JPanelWithEnablement {
             if (pdvProcess != null) {
               pdvProcess.destroyForcibly();
               btnOpenPdv.setEnabled(true);
-              btnClosePdv.setEnabled(false);
             }
           } finally {
             btnOpenPdv.setEnabled(true);
-            btnClosePdv.setEnabled(false);
           }
         });
         pdvThread.start();
-      }
-    });
-
-    btnClosePdv = UiUtils.createButton("Close visualization window", e -> {
-      if (pdvProcess != null) {
-        pdvProcess.destroyForcibly();
-        btnOpenPdv.setEnabled(true);
-        btnClosePdv.setEnabled(false);
       }
     });
 
@@ -353,8 +340,7 @@ public class TabRun extends JPanelWithEnablement {
     mu.add(p, uiCheckWordWrap).wrap();
 
     mu.add(p, imageLabel).split(5);
-    mu.add(p, btnOpenPdv);
-    mu.add(p, btnClosePdv).pushX();
+    mu.add(p, btnOpenPdv).pushX();
 
     mu.add(p, imageLabel2).gapLeft("100px");
     mu.add(p, btnOpenFragPipeAnalyst).wrap();
