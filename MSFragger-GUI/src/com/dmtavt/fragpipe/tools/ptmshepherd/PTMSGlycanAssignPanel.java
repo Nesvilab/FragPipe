@@ -1,7 +1,6 @@
 package com.dmtavt.fragpipe.tools.ptmshepherd;
 
 import com.dmtavt.fragpipe.Fragpipe;
-import com.dmtavt.fragpipe.tabs.TabPtms;
 import com.github.chhh.utils.MapUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
@@ -15,13 +14,17 @@ import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.Component;
 import java.awt.ItemSelectable;
+import java.awt.image.BufferedImage;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Stream;
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JOptionPane;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -256,7 +259,17 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
         mu.add(pGlycoAssignContent, btnBrosweGlycanDBFile, mu.ccR()).split();
         mu.add(pGlycoAssignContent, feGlycanDBFile.comp).split().growX().spanX().pushX().wrap();
 
-        mu.add(pGlycanAssignment, checkRunGlycanAssignment).spanX().wrap();
+        JLabel imageLabel = new JLabel();
+        try {
+            BufferedImage image = ImageIO.read(Objects.requireNonNull(getClass().getResource("/com/dmtavt/fragpipe/icons/ptm-s_logo.png")));
+            imageLabel = new JLabel(new ImageIcon(image));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        mu.add(pGlycanAssignment, checkRunGlycanAssignment).split(2);
+        mu.add(pGlycanAssignment, imageLabel).gapLeft("800px").wrap();
+
         mu.add(pGlycanAssignment, pGlycoAssignContent).growX().wrap();
 
         // advanced params panel
