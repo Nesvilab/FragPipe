@@ -7,7 +7,7 @@ diann.library=
 diann.q-value=0.01
 diann.quantification-strategy=3
 diann.run-dia-nn=false
-diann.run-specific-protein-q-value=0.01
+diann.run-specific-protein-q-value=false
 diann.unrelated-runs=false
 diann.use-predicted-spectra=true
 diaumpire.AdjustFragIntensity=true
@@ -294,4 +294,4 @@ tmtintegrator.use_glycan_composition=false
 workflow.description=<p style\="margin-top\: 0in">Workflow for identification of phosphopeptides in HLA peptidome data. Nonspecific search, peptide length 7-20. MSFragger search assumes cysteines were not alkylated (i.e. samples were not treated with iodoacetamide). Optionally add C+119 as variable mod. PSM rescoring and validation with MSBooster and Percolator. Group-speciifc FDR filtering (unmodified, peptides with common mods, and phosphopeptides are filtered separately). Protein FDR filter of 1%. Optionally add LFQ with IonQuant.</p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
-workflow.saved-with-ver=19.0-build32
+workflow.saved-with-ver=19.0-build38

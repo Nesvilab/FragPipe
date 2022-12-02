@@ -7,7 +7,7 @@ diann.library=
 diann.q-value=0.01
 diann.quantification-strategy=3
 diann.run-dia-nn=false
-diann.run-specific-protein-q-value=0.01
+diann.run-specific-protein-q-value=false
 diann.unrelated-runs=false
 diann.use-predicted-spectra=true
 diaumpire.AdjustFragIntensity=true
@@ -291,7 +291,7 @@ tmtintegrator.top3_pep=true
 tmtintegrator.unique_gene=0
 tmtintegrator.unique_pep=false
 tmtintegrator.use_glycan_composition=true
-workflow.description=Workflow for cysteine activity-based protein profiling method isoTOP-ABPP\: Weerapana, E., Wang, C., Simon, G.&nbsp;et al.&nbsp;Quantitative reactivity profiling predicts functional cysteines in proteomes.&nbsp;Nature&nbsp;468,&nbsp;790\u2013795 (2010).\n static modification of +57.02146 on cysteine (iodoacetamide alkylation) is specified as fixed modification, and +464.28596 (light probe) and +470.29977 (heavy probe) were specified on cysteine to account for probe modifications with the either light or heavy variants of the IA-probe-TEV adduct. In addition, Met oxidation and N-terminal Acetyl are specified as variable modifications. 20 ppm precursor tolerance, parameter optimization enabled. Fully tryptic search, up to 2 missed cleavages. Rescoring with MSBooster. Validation with Percolator and ProteinProphet. Relative quantification of peptides with light/heavy probe using IonQuant.</p>\n<p class\="MsoNormal" style\="margin-bottom\: 0in; line-height\: normal"></p>\n<p class\="MsoNormal" style\="margin-bottom\: 0in; line-height\: normal">Note\: If the dataset has multiple MS files (e.g. replicates or LC fractions) they should be annotated as different experiments (e.g. F1, F2, etc. in the Experiment column).
+workflow.description=Workflow for cysteine activity-based protein profiling method isoTOP-ABPP\: Weerapana, E., Wang, C., Simon, G.&nbsp;et al.&nbsp;Quantitative reactivity profiling predicts functional cysteines in proteomes.&nbsp;Nature&nbsp;468,&nbsp;790\u2013795 (2010). static modification of +57.02146 on cysteine (iodoacetamide alkylation) is specified as fixed modification, and +464.28596 (light probe) and +470.29977 (heavy probe) were specified on cysteine to account for probe modifications with the either light or heavy variants of the IA-probe-TEV adduct. In addition, Met oxidation and N-terminal Acetyl are specified as variable modifications. 20 ppm precursor tolerance, parameter optimization enabled. Fully tryptic search, up to 2 missed cleavages. Rescoring with MSBooster. Validation with Percolator and ProteinProphet. Relative quantification of peptides with light/heavy probe using IonQuant. \n<p class\="MsoNormal" style\="margin-bottom\: 0in; line-height\: normal"></p>\n<p class\="MsoNormal" style\="margin-bottom\: 0in; line-height\: normal">Note\: If the dataset has multiple MS files (e.g. replicates or LC fractions) they should be annotated as different experiments (e.g. F1, F2, etc. in the Experiment column).</p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
-workflow.saved-with-ver=19.0-build32
+workflow.saved-with-ver=19.0-build38

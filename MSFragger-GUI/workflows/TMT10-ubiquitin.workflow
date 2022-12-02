@@ -7,7 +7,7 @@ diann.library=
 diann.q-value=0.01
 diann.quantification-strategy=3
 diann.run-dia-nn=false
-diann.run-specific-protein-q-value=0.01
+diann.run-specific-protein-q-value=false
 diann.unrelated-runs=false
 diann.use-predicted-spectra=true
 diaumpire.AdjustFragIntensity=true
@@ -294,4 +294,4 @@ tmtintegrator.use_glycan_composition=false
 workflow.description=<p style\="margin-top\: 0">TMT 10-plex workflow for ubiquitin enriched data, with quantification from MS2. Site localization based on the MSFragger search engine assignment. TMT is specified as fixed on K and n-term. Oxidation is specified as variable modification. Ubiq is specified as two variable modifications\: +114 (Ubiq in addition to TMT on the same residue) and -115 (just Ubiq, without TMT on the same residue). Up to 3 missed cleavages and 4 variable modifications in total. PSM validation with Percolator, and protein inference with ProteinProphet. Data is filtered at 1% FDR at the PSM, ion, peptide, and protein levels. TMT-Integrator with virtual reference approach, median-centering normalization, data summarization at the gene/protein/peptide/site levels. If a reference/bridge sample is available, specify the corresponding channel/sample name tag in the annotation file(s) and in TMT-Integrator tab.</p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
-workflow.saved-with-ver=19.0-build32
+workflow.saved-with-ver=19.0-build38

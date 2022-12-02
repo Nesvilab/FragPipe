@@ -7,7 +7,7 @@ diann.library=
 diann.q-value=0.01
 diann.quantification-strategy=3
 diann.run-dia-nn=false
-diann.run-specific-protein-q-value=0.01
+diann.run-specific-protein-q-value=false
 diann.unrelated-runs=false
 diann.use-predicted-spectra=true
 diaumpire.AdjustFragIntensity=true
@@ -294,4 +294,4 @@ tmtintegrator.use_glycan_composition=false
 workflow.description=<p style\="margin-top\: 0in">Open search workflow for TMT10 data. MSFragger localization-aware open search (LOS) algorithm, with deisotoping, mass calibration, parameter optimization, and monoisotope correction enabled. Mass range -150 to 500 Da, with Met oxidation included as variable modifications and TMT on n-term and K as fixed modifications. PeptideProphet with extended mass model. Crystal-C for artifact removal. PTM-Shepherd for mass shift summarization. TMT-Integrator for TMT quantification.</p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
-workflow.saved-with-ver=19.0-build32
+workflow.saved-with-ver=19.0-build38

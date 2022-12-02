@@ -7,7 +7,7 @@ diann.library=
 diann.q-value=0.01
 diann.quantification-strategy=3
 diann.run-dia-nn=false
-diann.run-specific-protein-q-value=0.01
+diann.run-specific-protein-q-value=false
 diann.unrelated-runs=false
 diann.use-predicted-spectra=true
 diaumpire.AdjustFragIntensity=true
@@ -294,4 +294,4 @@ tmtintegrator.use_glycan_composition=false
 workflow.description=<p style\="margin-top\: 0">Basic TMT 10-plex workflow, with identification and quantification from high mass accuracy MS2. Met oxidation, protein N-term Acetyl, n-term TMT, and TMT on S ("overlabeling") are specified as variable modifications. TMT-Integrator with virtual reference approach, median-centering normalization, data summarization at the gene level. If a reference/bridge sample is available, specify the corresponding channel/sample name tag in the annotation file(s) and in TMT-Integrator tab.</p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
-workflow.saved-with-ver=19.0-build32
+workflow.saved-with-ver=19.0-build38

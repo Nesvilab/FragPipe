@@ -7,7 +7,7 @@ diann.library=
 diann.q-value=0.01
 diann.quantification-strategy=3
 diann.run-dia-nn=true
-diann.run-specific-protein-q-value=0.01
+diann.run-specific-protein-q-value=false
 diann.unrelated-runs=false
 diann.use-predicted-spectra=true
 diaumpire.AdjustFragIntensity=true
@@ -294,4 +294,4 @@ tmtintegrator.use_glycan_composition=false
 workflow.description=<p style\="margin-top\: 0in">Alternative workflow for DIA analysis using spectral library building and quantification using DIA-NN. This is an alternative to the main DIA_SpecLib_Quant workflow in that DIA data (files annotated as \u2018DIA\u2019 type) are first converted to pseudo-MS/MS spectra using DIA-Umpire, followed by conventional MSFragger (DDA mode) search.</p>\n<p style\="margin-top\: 0in"></p>\n<p style\="margin-top\: 0in">Spectral library can be built from DIA (via DIA-Umpire) and optionally DDA data. All data (DDA and pseudo-MS/MS spectra from DIA) are processed together using MSFragger - MSBooster - Percolator - ProteinProphet (Philosopher) - EasyPQP. The library is filtered to 1% FDR at the protein and peptide levels. <span>&nbsp;</span></p>\n<p style\="margin-top\: 0in"></p>\n<p style\="margin-top\: 0in">Supports Thermo and Sciex data only. For spectral library building both RAW and mzML files are supported, however, quantification with DIA-NN requires mzML files.</p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
-workflow.saved-with-ver=19.0-build32
+workflow.saved-with-ver=19.0-build38

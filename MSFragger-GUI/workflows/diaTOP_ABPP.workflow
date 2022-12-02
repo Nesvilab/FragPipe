@@ -7,7 +7,7 @@ diann.library=
 diann.q-value=0.01
 diann.quantification-strategy=3
 diann.run-dia-nn=true
-diann.run-specific-protein-q-value=0.01
+diann.run-specific-protein-q-value=false
 diann.unrelated-runs=false
 diann.use-predicted-spectra=true
 diaumpire.AdjustFragIntensity=true
@@ -294,4 +294,4 @@ tmtintegrator.use_glycan_composition=false
 workflow.description=<p class\="MsoNormal" style\="margin-bottom\: 0in; line-height\: normal">Workflow for cysteine activity-based protein profiling method with DIA-based label-free quantification, based on data described in\: "Quantitative Chemoproteomic Profiling with Data-Independent Acquisition-Based Mass Spectrometry", Fan Yang et al. JACS 144\:901\u2013911 (2022).</p>\n<p style\="margin-top\: 0in"></p>\n<p style\="margin-top\: 0in">This workflow supports DDA-based (when DDA data is available), DIA-based (directDIA via MSFragger-DIA), and hybrid (from both DIA and DDA) spectral library building. MSFragger (MSFragger-DIA for DIA data) search with a static modification of +57.02146 on cysteine (iodoacetamide alkylation) specified as fixed modification, and +223.1685 is specified on cysteine to account for the probe mass. In addition, Met oxidation and N-terminal Acetyl are specified as variable modifications. 20 ppm precursor tolerance, parameter optimization enabled. Fully tryptic search, up to 2 missed cleavages.</p>\n<p style\="margin-top\: 0in"></p>\n<p style\="margin-top\: 0in">Deep learning-based rescoring of MSFragger results with MSBooster, followed by PSM validation with Percolator. Protein inference is performed with ProteinProphet. The data is filtered to 1% protein FDR and additionally at 1% FDR at the peptide and PSM levels. Spectral library building with EasyPQP followed by quantification, using that library, from the DIA files using DIA-NN.</p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
-workflow.saved-with-ver=19.0-build32
+workflow.saved-with-ver=19.0-build38

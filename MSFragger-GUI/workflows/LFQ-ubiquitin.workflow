@@ -7,7 +7,7 @@ diann.library=
 diann.q-value=0.01
 diann.quantification-strategy=3
 diann.run-dia-nn=false
-diann.run-specific-protein-q-value=0.01
+diann.run-specific-protein-q-value=false
 diann.unrelated-runs=false
 diann.use-predicted-spectra=true
 diaumpire.AdjustFragIntensity=true
@@ -294,4 +294,4 @@ tmtintegrator.use_glycan_composition=false
 workflow.description=<p style\="margin-top\: 0">LFQ workflow for ubiquitin enriched data, with quantification from MS1 with IonQuant. Oxidation and lysine ubiquitination are specified as variable modifications. Up to 3 missed cleavages. PSM validation with Percolator, and protein inference with ProteinProphet. Data is filtered at 1% FDR at the PSM, ion, peptide, and protein levels. Site localization with PTM-Prophet. Quantification with IonQuant.</p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
-workflow.saved-with-ver=19.0-build32
+workflow.saved-with-ver=19.0-build38

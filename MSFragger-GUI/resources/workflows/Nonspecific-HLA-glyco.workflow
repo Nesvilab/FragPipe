@@ -7,7 +7,7 @@ diann.library=
 diann.q-value=0.01
 diann.quantification-strategy=0
 diann.run-dia-nn=false
-diann.run-specific-protein-q-value=0.01
+diann.run-specific-protein-q-value=false
 diann.unrelated-runs=false
 diann.use-predicted-spectra=true
 diaumpire.AdjustFragIntensity=true
@@ -294,4 +294,4 @@ tmtintegrator.use_glycan_composition=true
 workflow.description=<p style\="margin-top\: 0in">Workflow for identification of glycopeptides in HLA peptidome data. Nonspecific search, peptide length 7-25, N-linked glyco mode settings (198 glycan list). MSFragger search assumes cysteines were not alkylated (i.e. samples were not treated with iodoacetamide). Optionally add C+119 as variable mod. PSM validation with PeptideProphet (glyco mode settings).Class speciifc FDR filtering (unmodified, peptides with common mods, and glycopeptides are filtered separately). Protein FDR filter of 1%. PTM-Shepherd glycan assignment. Optionally add LFQ with FreeQuant.</p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
-workflow.saved-with-ver=19.0-build32
+workflow.saved-with-ver=19.0-build38

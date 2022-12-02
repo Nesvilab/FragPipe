@@ -7,7 +7,7 @@ diann.library=
 diann.q-value=0.01
 diann.quantification-strategy=3
 diann.run-dia-nn=false
-diann.run-specific-protein-q-value=0.01
+diann.run-specific-protein-q-value=false
 diann.unrelated-runs=false
 diann.use-predicted-spectra=true
 diaumpire.AdjustFragIntensity=true
@@ -294,4 +294,4 @@ tmtintegrator.use_glycan_composition=false
 workflow.description=<p style\="margin-top\: 0">TMT 16-plex workflow for acetylation enriched data, with quantification from MS2. Site localization based on the MSFragger search engine assignment. TMT is specified as fixed modification on n-term and K. Oxidation is specified as variable modifications. Acetyl is specified as -262 (mass of Acetyl minus TMT, as these two modifications are not expected at the same time on the same residue). Also allowed is Carbamyl, specified as -261 (mass of carbamyl minus TMT). Up to 4 missed cleavages and 4 variable modifications in total. PSM validation with Percolator, and protein inference with ProteinProphet. Data is filtered at 1% FDR at the PSM, ion, peptide, and protein levels. TMT-Integrator with virtual reference approach, median-centering normalization, data summarization at the gene/protein/peptide/site levels. If a reference/bridge sample is available, specify the corresponding channel/sample name tag in the annotation file(s) and in TMT-Integrator tab.</p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
-workflow.saved-with-ver=19.0-build32
+workflow.saved-with-ver=19.0-build38

@@ -7,7 +7,7 @@ diann.library=
 diann.q-value=0.01
 diann.quantification-strategy=3
 diann.run-dia-nn=false
-diann.run-specific-protein-q-value=0.01
+diann.run-specific-protein-q-value=false
 diann.unrelated-runs=false
 diann.use-predicted-spectra=true
 diaumpire.AdjustFragIntensity=true
@@ -294,4 +294,4 @@ tmtintegrator.use_glycan_composition=false
 workflow.description=<p style\="margin-top\: 0in">Mass Offset (also known as Multinotch) search workflow for a fast search for most common modifications (list of mass shifts specified in MSFragger 'Mass Offset' field). MSFragger localization-aware open search (LOS) algorithm, filtered to report PSMs with specified mass shifts only (with isotope errors allowed). No variable modifications are specified. Mass calibration, parameter optimization, and precursor monoisotope error correction are enabled. PSM validation using PeptideProphet with extended mass model. Protein inference with ProteinProphet. Data filtered using 1% protein level FDR and additionally 1% FDR at the peptide/ion/PSM level. Precursor ion quantification using Freequant. PTM-Shepherd for mass shift summarization.</p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
-workflow.saved-with-ver=19.0-build32
+workflow.saved-with-ver=19.0-build38

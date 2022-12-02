@@ -7,7 +7,7 @@ diann.library=
 diann.q-value=0.01
 diann.quantification-strategy=3
 diann.run-dia-nn=true
-diann.run-specific-protein-q-value=0.01
+diann.run-specific-protein-q-value=false
 diann.unrelated-runs=false
 diann.use-predicted-spectra=true
 diaumpire.AdjustFragIntensity=true
@@ -294,4 +294,4 @@ tmtintegrator.use_glycan_composition=false
 workflow.description=<p style\="margin-top\: 0">Complete workflow for DIA analysis using spectral library building and quantification using DIA-NN.</p>\n<p style\="margin-top\: 0"></p>\n<p style\="margin-top\: 0">Spectral library can be built from DDA data and/or DIA (including GPF-DIA) data, with direct identification from DIA data using MSFragger-DIA. All data are processed together using MSFragger (in DDA, DIA, or GPF-DIA mode, respectively) - MSBooster - Percolator - ProteinProphet (Philosopher) - EasyPQP. The library is filtered to 1% FDR at the protein and peptide levels. DIA files annotated as 'DIA-Quant' are used for quantification only (i.e. not used for spectral library building). If building the library from fractionated DDA data only, in EasyPQP tab change RT Calibration option to "ciRT", or "iRT" if using organisms other than yeast or human (requires iRT peptides).</p>\n<p style\="margin-top\: 0"></p>\n<p style\="margin-top\: 0">Supports DDA RAW/.d files, mzML, and MGF files. DIA files with staggered windows should be mzML files demultiplexed using Proteowizard. For quantification using DIA-NN, Thermo/Sciex DIA files should be in mzML format, and .d for Bruker's timsTOF. diaPASEF DIA data will only be used for quantification (i.e. automatically considered as 'DIA-Quant' data type).</p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
-workflow.saved-with-ver=19.0-build32
+workflow.saved-with-ver=19.0-build38
