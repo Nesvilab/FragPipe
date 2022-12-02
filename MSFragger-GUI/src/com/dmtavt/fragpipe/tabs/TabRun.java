@@ -255,19 +255,19 @@ public class TabRun extends JPanelWithEnablement {
             ProcessResult pr = new ProcessResult(pbi);
             pdvProcess = pr.start();
             if (pdvProcess.waitFor() == 0) {
-              log.info("Process output: {}", pr.getOutput().toString());
+              log.debug("Process output: {}", pr.getOutput().toString());
               final int exitValue = pr.getProcess().exitValue();
               if (exitValue != 0) {
                 String errStr = pr.appendErr(pr.pollStdErr());
-                throw new IllegalStateException("Process " + pb + " returned non zero value. Message:\n" + (errStr == null ? "" : errStr));
+                log.debug("Process " + pb + " returned non zero value. Message:\n" + (errStr == null ? "" : errStr));
               }
             } else {
               String errStr = pr.appendErr(pr.pollStdErr());
-              throw new IllegalStateException("Process " + pb + " returned non zero value. Message:\n " + (errStr == null ? "" : errStr));
+              log.debug("Process " + pb + " returned non zero value. Message:\n " + (errStr == null ? "" : errStr));
             }
 
             String outStr = pr.appendOut(pr.pollStdOut());
-            log.info("Process output: {}", (outStr == null ? "" : outStr));
+            log.debug("Process output: {}", (outStr == null ? "" : outStr));
           } catch (Exception ex) {
             ex.printStackTrace();
             log.error(ExceptionUtils.getStackTrace(ex));
