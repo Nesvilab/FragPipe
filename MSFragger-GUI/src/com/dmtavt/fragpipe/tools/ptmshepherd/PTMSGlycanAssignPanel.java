@@ -239,25 +239,25 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
                         "and O-glycan default database used.")
                 .create();
 
-        mu.add(pGlycoAssignContent, feGlycanFDR.label(), mu.ccL()).split();
-        mu.add(pGlycoAssignContent, feGlycanFDR.comp).split();
+        mu.add(pGlycoAssignContent, feGlycanFDR.label()).split(2);
+        mu.add(pGlycoAssignContent, feGlycanFDR.comp);
 
-        mu.add(pGlycoAssignContent, feGlycanMassErr.label(), mu.ccR());
-        mu.add(pGlycoAssignContent, feGlycanMassErr.comp).split();
-        mu.add(pGlycoAssignContent, feGlycanIsotopesLow.label(), mu.ccR());
-        mu.add(pGlycoAssignContent, feGlycanIsotopesLow.comp).split();
-        mu.add(pGlycoAssignContent, feGlycanIsotopesHigh.label(), mu.ccR());
-        mu.add(pGlycoAssignContent, feGlycanIsotopesHigh.comp).split().spanX().pushX().wrap();
+        mu.add(pGlycoAssignContent, feNGlycanMode.comp);
+        mu.add(pGlycoAssignContent, feGlycanIsotopesLow.label()).split(4);
+        mu.add(pGlycoAssignContent, feGlycanIsotopesLow.comp);
+        mu.add(pGlycoAssignContent, feGlycanIsotopesHigh.label());
+        mu.add(pGlycoAssignContent, feGlycanIsotopesHigh.comp).wrap();
 
-        mu.add(pGlycoAssignContent, feNGlycanMode.comp).split();
-        mu.add(pGlycoAssignContent, feMaxAdducts.label(), mu.ccR());
-        mu.add(pGlycoAssignContent, feMaxAdducts.comp).split();
-        mu.add(pGlycoAssignContent, feAdductNames.label(), mu.ccR());
-        mu.add(pGlycoAssignContent, feAdductNames.comp).split().growX(200).spanX().pushX().wrap();
+        mu.add(pGlycoAssignContent, feGlycanMassErr.label()).split(2);
+        mu.add(pGlycoAssignContent, feGlycanMassErr.comp);
+        mu.add(pGlycoAssignContent, feMaxAdducts.label()).split(2);
+        mu.add(pGlycoAssignContent, feMaxAdducts.comp);
+        mu.add(pGlycoAssignContent, feAdductNames.label()).split();
+        mu.add(pGlycoAssignContent, feAdductNames.comp).growX().wrap();
 
-        mu.add(pGlycoAssignContent, feGlycanDBFile.label(), mu.ccR()).split();
-        mu.add(pGlycoAssignContent, btnBrosweGlycanDBFile, mu.ccR()).split();
-        mu.add(pGlycoAssignContent, feGlycanDBFile.comp).split().growX().spanX().pushX().wrap();
+        mu.add(pGlycoAssignContent, feGlycanDBFile.label(), mu.ccL()).split(3).spanX();
+        mu.add(pGlycoAssignContent, btnBrosweGlycanDBFile, mu.ccL());
+        mu.add(pGlycoAssignContent, feGlycanDBFile.comp).growX().wrap();
 
         JLabel imageLabel = new JLabel();
         try {
