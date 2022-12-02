@@ -267,8 +267,8 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
             ex.printStackTrace();
         }
 
-        mu.add(pGlycanAssignment, checkRunGlycanAssignment).split(2);
-        mu.add(pGlycanAssignment, imageLabel).gapLeft("800px").wrap();
+        mu.add(pGlycanAssignment, checkRunGlycanAssignment);
+        mu.add(pGlycanAssignment, imageLabel, mu.ccR()).wrap();
 
         mu.add(pGlycanAssignment, pGlycoAssignContent).growX().wrap();
 

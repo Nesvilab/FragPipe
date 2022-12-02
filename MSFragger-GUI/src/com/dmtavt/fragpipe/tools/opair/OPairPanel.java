@@ -209,9 +209,9 @@ public class OPairPanel extends JPanelBase {
             ex.printStackTrace();
         }
 
-        mu.add(p, checkRun).split();
+        mu.add(p, checkRun).split(2);
         mu.add(p, info).gapLeft("80px");
-        mu.add(p, imageLabel).gapLeft("460").wrap();
+        mu.add(p, imageLabel, mu.ccR()).wrap();
         return p;
     }
 
