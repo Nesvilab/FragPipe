@@ -66,7 +66,7 @@ public class Version {
     CHANGELOG.put("19.0", Arrays.asList(
         "Require Java 9+",
         "Require MSFragger 3.6+",
-        "Require Philosopher 4.5.1+",
+        "Require Philosopher 4.6.0+",
         "Require IonQuant 1.8.9+",
         "Require EasyPQP 0.1.34+",
         "Add O-Pair for O-Glycan localization",
