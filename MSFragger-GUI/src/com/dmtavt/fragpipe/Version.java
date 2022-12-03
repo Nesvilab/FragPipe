@@ -81,12 +81,15 @@ public class Version {
         "Add mass-offset list loader to MSFragger tab",
         "Put DIA-NN's output fies to \"diann-output\" folder",
         "Put EasyPQP output files to \"eaasypqp_files\" directory",
+        "Rename \"Open visualization window\" button to \"Open FragPipe-PDV viewer\"",
+        "Remove \"Close visualization window\" button",
         "Write all TMT annotations to a single combined_annotation.txt file",
         "Upgrade DIA-NN to 1.8.2 beta 8",
         "Upgrade PTM-Shepherd to 2.0.3",
         "Upgrade TMT-Integrator to 4.0.4",
         "Upgrade DIA-Umpire to 2.3.1",
         "Upgrade MSBooster to 1.1.10",
+        "Upgrade FP-PDV to 1.0.5",
         "Add more workflows",
         "Various minor bug fixes and improvements"
     ));
