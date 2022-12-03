@@ -227,7 +227,7 @@ public class TabRun extends JPanelWithEnablement {
       }
     });
 
-    btnOpenPdv = UiUtils.createButton("Open visualization window", e -> {
+    btnOpenPdv = UiUtils.createButton("Open FragPipe-PDV viewer", e -> {
       String[] t = {ToolingUtils.BATMASS_IO_JAR};
       List<Path> pdvPath = FragpipeLocations.checkToolsMissing(Seq.of(PDV_NAME).concat(t));
       if (pdvPath == null || pdvPath.isEmpty()) {
