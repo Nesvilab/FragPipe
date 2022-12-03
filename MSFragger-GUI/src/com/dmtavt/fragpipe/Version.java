@@ -63,6 +63,34 @@ public class Version {
       new VersionComparator());
 
   static {
+    CHANGELOG.put("19.0", Arrays.asList(
+        "Require Java 9+",
+        "Require MSFragger 3.6+",
+        "Require Philosopher 4.5.1+",
+        "Require IonQuant 1.8.9+",
+        "Require EasyPQP 0.1.34+",
+        "Add O-Pair for O-Glycan localization",
+        "Add downstream analysis tool SAINT",
+        "Support PTM localization using PTMProphet for timsTOF .d and Thermo .raw formats",
+        "Add --config-ionquant flag in headless mode",
+        "Add \"delete calibrated mzML\" and \"delete temp files\" checkboxes",
+        "Add \"open FragPipe-Analyst\" button",
+        "Add \"remove contaminants\" checkbox to the \"FDR filter and report\" panel",
+        "Add \"neutral loss\" checkbox to the speclib tab",
+        "Add glycan database loader to Glyco tab",
+        "Add mass-offset list loader to MSFragger tab",
+        "Put DIA-NN's output fies to \"diann-output\" folder",
+        "Put EasyPQP output files to \"eaasypqp_files\" directory",
+        "Write all TMT annotations to a single combined_annotation.txt file",
+        "Upgrade DIA-NN to 1.8.2 beta 8",
+        "Upgrade PTM-Shepherd to 2.0.3",
+        "Upgrade TMT-Integrator to 4.0.4",
+        "Upgrade DIA-Umpire to 2.3.1",
+        "Upgrade MSBooster to 1.1.10",
+        "Add more workflows",
+        "Various minor bug fixes and improvements"
+    ));
+
     CHANGELOG.put("18.0", Arrays.asList(
         "Require Java 9+",
         "Require MSFragger 3.5+",
