@@ -18,7 +18,8 @@
 package com.github.chhh.utils.swing;
 
 import com.github.chhh.utils.swing.FormEntry.Builder;
-import java.awt.Color;
+
+import java.awt.*;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
@@ -122,18 +123,18 @@ public class MigUtils {
     return new LC().insets("0px", null, "0px", null);
   }
 
-  public CC add(JComponent host, JComponent child) {
+  public CC add(JComponent host, Component child) {
     CC cc = ccL();
     host.add(child, cc);
     return cc;
   }
 
-  public CC add(JComponent host, JComponent child, CC cc) {
+  public CC add(JComponent host, Component child, CC cc) {
     host.add(child, cc);
     return cc;
   }
 
-  public CC add(JComponent host, JComponent child, boolean isAlignLeft) {
+  public CC add(JComponent host, Component child, boolean isAlignLeft) {
     CC cc = isAlignLeft ? ccL() : ccR();
     host.add(child, cc);
     return cc;
