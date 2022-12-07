@@ -17,7 +17,6 @@
 
 package com.dmtavt.fragpipe.api;
 
-import java.awt.Component;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
@@ -32,12 +31,14 @@ public class UiTab {
   private final String title;
   private final JComponent comp;
   private final String tip;
+  private final boolean wrapTabInScroll;
 
-  public UiTab(String title, JComponent comp, String iconResourcePath, String tip) {
+  public UiTab(String title, JComponent comp, String iconResourcePath, String tip, boolean wrapTabInScroll) {
     this.iconResourcePath = iconResourcePath;
     this.title = title;
     this.comp = comp;
     this.tip = tip;
+    this.wrapTabInScroll = wrapTabInScroll;
 
     if (iconResourcePath != null) {
       try {
@@ -46,6 +47,10 @@ public class UiTab {
         log.warn("Error loading icons", e);
       }
     }
+  }
+
+  public UiTab(String title, JComponent comp, String iconResourcePath, String tip) {
+    this(title, comp, iconResourcePath, tip, true);
   }
 
   public String getTitle() {
@@ -62,5 +67,9 @@ public class UiTab {
 
   public String getTooltip() {
     return tip;
+  }
+
+  public boolean isWrapTabInScroll() {
+    return wrapTabInScroll;
   }
 }
