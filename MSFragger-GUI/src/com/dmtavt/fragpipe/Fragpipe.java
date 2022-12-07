@@ -84,7 +84,9 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -92,7 +94,8 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.function.Consumer;
+import java.util.TreeMap;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.swing.BorderFactory;
@@ -183,6 +186,21 @@ public class Fragpipe extends JFrameHeadless {
     Bus.registerQuietly(updater);
   }
 
+
+  private UiTab uiTabDb;
+  private UiTab uiTabFragger;
+  private UiTab uiTabConfig;
+  private UiTab uiTabWorkflow;
+  private UiTab uiTabUmpire;
+  private UiTab uiTabValidation;
+  private UiTab uiTabPtms;
+  private UiTab uiTabGlyco;
+  private UiTab uiTabQuantLfq;
+  private UiTab uiTabQuantLabeled;
+  private UiTab uiTabSpecLib;
+  private UiTab uiTabDiann;
+  private UiTab uiTabRun;
+  private UiTab uiTabDownstream;
   public Fragpipe() throws HeadlessException {
     super(headless);
     init();
@@ -208,6 +226,20 @@ public class Fragpipe extends JFrameHeadless {
     Thread.setDefaultUncaughtExceptionHandler(Fragpipe::uncaughtExceptionHandler);
 
     log.debug("Done init()");
+  }
+
+  private static void addTab(JTabbedPane tabPane, UiTab tab, int insertionIndex) {
+    final Component comp = tab.isWrapTabInScroll()
+            ? SwingUtils.wrapInScroll(tab.getComponent())
+            : tab.getComponent();
+    if (insertionIndex < 0) {
+      tabPane.addTab(tab.getTitle(), tab.getIcon(), comp, tab.getTooltip());
+    } else {
+      tabPane.insertTab(tab.getTitle(), tab.getIcon(), comp, tab.getTooltip(), insertionIndex);
+    }
+  }
+  private static void addTab(JTabbedPane tabPane, UiTab tab) {
+    addTab(tabPane, tab, -1);
   }
 
   public static void uncaughtExceptionHandler(Thread t, Throwable e) {
@@ -570,10 +602,7 @@ public class Fragpipe extends JFrameHeadless {
 
   private JTabbedPane createTabs(TextConsole console) {
     log.debug("Start createTabs()");
-    final JTabbedPane t = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
-
-    Consumer<UiTab> addTab = tab -> t.addTab(tab.getTitle(), tab.getIcon(), SwingUtils.wrapInScroll(tab.getComponent()), tab.getTooltip());
-    Consumer<UiTab> addTabNoScroll = tab -> t.addTab(tab.getTitle(), tab.getIcon(), tab.getComponent(), tab.getTooltip());
+    final JTabbedPane tp = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
 
     TabConfig tabConfig = new TabConfig(console);
     TabWorkflow tabWorkflow = new TabWorkflow();
@@ -590,32 +619,46 @@ public class Fragpipe extends JFrameHeadless {
     TabDownstream tabDownstream = new TabDownstream();
     TabRun tabRun = new TabRun(console, tabDownstream);
 
-    addTab.accept(new UiTab("Config", tabConfig, "/com/dmtavt/fragpipe/icons/150-cogs.png", null));
-    addTabNoScroll.accept(new UiTab(TAB_NAME_LCMS, tabWorkflow,
-        "/com/dmtavt/fragpipe/icons/icon-workflow-16.png", null));
-    addTab.accept(new UiTab("Umpire", tabUmpire,
-        "/com/dmtavt/fragpipe/icons/dia-umpire-16x16.png", null));
-    addTab.accept(new UiTab("Database", tabDatabase,
-        "/com/dmtavt/fragpipe/icons/icon-dna-helix-16.png", null));
-    addTab.accept(new UiTab(TAB_NAME_MSFRAGGER, tabMsfragger,
-        "/com/dmtavt/fragpipe/icons/bolt-outlined-16.png", null));
-    addTab.accept(new UiTab("Validation", tabValidation,
-        "/com/dmtavt/fragpipe/icons/icon-filtration-16.png", null));
-    addTab.accept(new UiTab("PTMs", tabPtms, "/com/dmtavt/fragpipe/icons/icon-edit-16.png", null));
-    addTab.accept(new UiTab("Glyco", tabGlyco, "/com/dmtavt/fragpipe/icons/glyco-16.png", null));
-    addTab.accept(new UiTab("Quant (MS1)", tabQuantificationLfq,
-        "/com/dmtavt/fragpipe/icons/icon-scales-balance-16.png", null));
-    addTab.accept(new UiTab("Quant (Isobaric)", tabQuantificationLabeling,
-        "/com/dmtavt/fragpipe/icons/icon-scales-balance-color-2-16.png", null));
-    addTab.accept(new UiTab("Spec Lib", tabSpecLib,
-        "/com/dmtavt/fragpipe/icons/icon-library-16.png", null));
-    addTab.accept(new UiTab("Quant (DIA)", tabDiann,
-        "/com/dmtavt/fragpipe/icons/icon-diann-16.png", null));
-    addTabNoScroll.accept(new UiTab("Run", tabRun, "/com/dmtavt/fragpipe/icons/video-play-16.png", null));
-    addTabNoScroll.accept(new UiTab("Downstream", tabDownstream, "/com/dmtavt/fragpipe/icons/icon-saint-20.png", null));
+    uiTabDb = new UiTab("Database", tabDatabase,
+            "/com/dmtavt/fragpipe/icons/icon-dna-helix-16.png", null, true);
+    uiTabFragger = new UiTab(TAB_NAME_MSFRAGGER, tabMsfragger,
+            "/com/dmtavt/fragpipe/icons/bolt-outlined-16.png", null, true);
+    uiTabConfig = new UiTab(TabConfig.TAB_NAME, tabConfig, "/com/dmtavt/fragpipe/icons/150-cogs.png", null, true);
+    uiTabWorkflow = new UiTab(TAB_NAME_LCMS, tabWorkflow,
+      "/com/dmtavt/fragpipe/icons/icon-workflow-16.png", null, false);
+    uiTabUmpire = new UiTab("Umpire", tabUmpire,
+      "/com/dmtavt/fragpipe/icons/dia-umpire-16x16.png", null, true);
+    uiTabValidation = new UiTab("Validation", tabValidation,
+      "/com/dmtavt/fragpipe/icons/icon-filtration-16.png", null, false);
+    uiTabPtms = new UiTab("PTMs", tabPtms, "/com/dmtavt/fragpipe/icons/icon-edit-16.png", null, true);
+    uiTabGlyco = new UiTab("Glyco", tabGlyco, "/com/dmtavt/fragpipe/icons/glyco-16.png", null, true);
+    uiTabQuantLfq = new UiTab("Quant (MS1)", tabQuantificationLfq,
+      "/com/dmtavt/fragpipe/icons/icon-scales-balance-16.png", null, true);
+    uiTabQuantLabeled = new UiTab("Quant (Isobaric)", tabQuantificationLabeling,
+      "/com/dmtavt/fragpipe/icons/icon-scales-balance-color-2-16.png", null, true);
+    uiTabSpecLib = new UiTab("Spec Lib", tabSpecLib,
+      "/com/dmtavt/fragpipe/icons/icon-library-16.png", null, true);
+    uiTabDiann = new UiTab("Quant (DIA)", tabDiann,
+      "/com/dmtavt/fragpipe/icons/icon-diann-16.png", null, true);
+    uiTabRun = new UiTab("Run", tabRun, "/com/dmtavt/fragpipe/icons/video-play-16.png", null, false);
+    uiTabDownstream = new UiTab("Downstream", tabDownstream, "/com/dmtavt/fragpipe/icons/icon-saint-20.png", null, false);
+    addTab(tp, uiTabConfig);
+    addTab(tp, uiTabWorkflow);
+    addTab(tp, uiTabUmpire);
+    addTab(tp, uiTabDb);
+    addTab(tp, uiTabFragger);
+    addTab(tp, uiTabValidation);
+    addTab(tp, uiTabPtms);
+    addTab(tp, uiTabGlyco);
+    addTab(tp, uiTabQuantLfq);
+    addTab(tp, uiTabQuantLabeled);
+    addTab(tp, uiTabSpecLib);
+    addTab(tp, uiTabDiann);
+    addTab(tp, uiTabRun);
+    addTab(tp, uiTabDownstream);
 
     log.debug("Done createTabs()");
-    return t;
+    return tp;
   }
 
   public static void decorateFrame(Window frame) {
@@ -719,7 +762,7 @@ public class Fragpipe extends JFrameHeadless {
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteFragpipeCache m) {
-    log.debug("Got NotePreviousUiState, updating UI");
+    log.debug("Got NoteFragpipeCache, updating UI");
     loadUi(m.propsUiState, true, !headless);
   }
 
