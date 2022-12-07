@@ -204,7 +204,7 @@ public class CmdCrystalc extends CmdBase {
         List<String> cmd = new ArrayList<>();
         cmd.add(Fragpipe.getBinJava());
         if (extLibsThermo != null) {
-          cmd.add(createJavaDParamString("batmass.io.libs.thermo.dir", extLibsThermo.toString()));
+          cmd.add(createJavaDParamString("libs.thermo.dir", extLibsThermo.toString()));
         }
         cmd.add("-Xmx" + ramGb + "G");
         cmd.add("-cp");

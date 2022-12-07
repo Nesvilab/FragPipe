@@ -177,9 +177,6 @@ public class CmdTmtIntegrator extends CmdBase {
 
     List<String> cmd = new ArrayList<>();
     cmd.add(Fragpipe.getBinJava());
-//    if (extLibsThermo != null) {
-//      cmd.add("-Dbatmass.io.libs.thermo.dir=\"" + extLibsThermo.toString() + "\"");
-//    }
     cmd.add("-Xmx" + ramGb + "G");
     cmd.add("-cp");
     cmd.add(constructClasspathString(classpathJars));
