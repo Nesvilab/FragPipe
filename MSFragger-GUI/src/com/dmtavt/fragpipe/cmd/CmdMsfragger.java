@@ -242,40 +242,33 @@ public class CmdMsfragger extends CmdBase {
   }
 
   public static Path searchExtLibsBruker(List<Path> searchLocations) {
-    Path local;
     synchronized (CmdMsfragger.class) {
       Path rel = Paths.get("ext/bruker");
       List<Path> dirs = searchLocations.stream()
           .map(path -> Files.isDirectory(path) ? path : path.getParent()).distinct().collect(
               Collectors.toList());
       List<Path> locs = createRelSearchPaths(dirs, rel);
-      pathBruker = local = searchExtLibsByPattern(locs, timsdataPattern.stream().map(Pattern::compile).collect(Collectors.toList()));
+      pathBruker = searchExtLibsByPattern(locs, timsdataPattern.stream().map(Pattern::compile).collect(Collectors.toList()));
     }
-    return local;
+    return pathBruker;
   }
 
   public static Path searchExtLibsThermo(List<Path> searchLocations) {
-    Path local = pathThermo;
-    if (PATH_NONE.equals(local)) {
-      synchronized (CmdMsfragger.class) {
-        local = pathThermo;
-        if (PATH_NONE.equals(local)) {
-          Path rel = Paths.get("ext/thermo");
-          List<String> files = Arrays.asList(
-              "ThermoFisher.CommonCore.Data.dll",
-              "ThermoFisher.CommonCore.RawFileReader.dll",
-              "BatmassIoThermoServer",
-              "BatmassIoThermoServer.exe"
-          );
-          List<Path> dirs = searchLocations.stream()
-              .map(path -> Files.isDirectory(path) ? path : path.getParent()).distinct().collect(
-                  Collectors.toList());
-          List<Path> locs = createRelSearchPaths(dirs, rel);
-          pathThermo = local = searchExtLibsByPath(locs, files.stream().map(Paths::get).collect(Collectors.toList()));
-        }
-      }
+    synchronized (CmdMsfragger.class) {
+      Path rel = Paths.get("ext/thermo");
+      List<String> files = Arrays.asList(
+          "ThermoFisher.CommonCore.Data.dll",
+          "ThermoFisher.CommonCore.RawFileReader.dll",
+          "BatmassIoThermoServer",
+          "BatmassIoThermoServer.exe"
+      );
+      List<Path> dirs = searchLocations.stream()
+          .map(path -> Files.isDirectory(path) ? path : path.getParent()).distinct().collect(
+              Collectors.toList());
+      List<Path> locs = createRelSearchPaths(dirs, rel);
+      pathThermo = searchExtLibsByPath(locs, files.stream().map(Paths::get).collect(Collectors.toList()));
     }
-    return local;
+    return pathThermo;
   }
 
   private static List<Path> createRelSearchPaths(List<Path> searchLocations, Path rel) {
