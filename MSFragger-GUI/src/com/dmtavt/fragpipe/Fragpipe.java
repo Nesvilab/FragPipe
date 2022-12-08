@@ -631,7 +631,7 @@ public class Fragpipe extends JFrameHeadless {
 
     uiTabConfig = new UiTab(TabConfig.TAB_NAME, tabConfig, "/com/dmtavt/fragpipe/icons/150-cogs.png", null, true);
     uiTabWorkflow = new UiTab(TAB_NAME_LCMS, tabWorkflow,
-      "/com/dmtavt/fragpipe/icons/icon-workflow-16.png", null, false);
+      "/com/dmtavt/fragpipe/icons/icon-workflow-16.png", null, true);
     uiTabUmpire = new UiTab("Umpire", tabUmpire,
       "/com/dmtavt/fragpipe/icons/dia-umpire-16x16.png", null, true);
     uiTabDb = new UiTab("Database", tabDatabase,
@@ -639,7 +639,7 @@ public class Fragpipe extends JFrameHeadless {
     uiTabFragger = new UiTab(TAB_NAME_MSFRAGGER, tabMsfragger,
         "/com/dmtavt/fragpipe/icons/bolt-outlined-16.png", null, true);
     uiTabValidation = new UiTab("Validation", tabValidation,
-      "/com/dmtavt/fragpipe/icons/icon-filtration-16.png", null, false);
+      "/com/dmtavt/fragpipe/icons/icon-filtration-16.png", null, true);
     uiTabPtms = new UiTab("PTMs", tabPtms, "/com/dmtavt/fragpipe/icons/icon-edit-16.png", null, true);
     uiTabGlyco = new UiTab("Glyco", tabGlyco, "/com/dmtavt/fragpipe/icons/glyco-16.png", null, true);
     uiTabQuantLfq = new UiTab("Quant (MS1)", tabQuantificationLfq,
