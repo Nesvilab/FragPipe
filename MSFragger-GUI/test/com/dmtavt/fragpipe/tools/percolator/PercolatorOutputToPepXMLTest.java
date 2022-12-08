@@ -35,8 +35,7 @@ public class PercolatorOutputToPepXMLTest {
     public static void setup() {
         Path testResourcesDir = Paths.get("test", "resources", "percolator-to-pepxml").toAbsolutePath();
         Path pFragger = testResourcesDir.resolve("fragpipe-search-16_PXD022287_msfragger");
-        Path pComet = testResourcesDir.resolve("fragpipe-search-16_PXD022287_comet");
-        dirs = Stream.of(pFragger, pComet).filter(Files::exists).collect(Collectors.toList());
+        dirs = Stream.of(pFragger).filter(Files::exists).collect(Collectors.toList());
         fnPin = "Human-Protein-Training_Trypsin.pin";
         fnBase = PathUtils.removeExtension(fnPin, 2, 10);
         fnPercolatorTargets = fnBase + "_percolator_target_psms.tsv";
