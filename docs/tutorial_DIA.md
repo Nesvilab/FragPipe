@@ -8,23 +8,22 @@ FragPipe currently offers two workflows for DIA data:
 
 2) [**DIA_DIA-Umpire_SpecLib_Quant**](https://fragpipe.nesvilab.org/docs/tutorial_DIA.html#dia_dia-umpire_speclib_quant) - takes DIA data (plus optional DDA data) as input, DIA-Umpire generates pseudo-MS/MS spectra from the DIA files (instead of direct search with MSFragger-DIA), then MSFragger in DDA mode is used to search, followed by quantification with DIA-NN
 
+**Recommendation: do not assign the files to any experimental groups. FragPipe builds a single spectral library using all files.**
+
+If more than one experimental group are created, FragPipe will generate a spectral library for each group, and use it for the DIA runs in the same group. Spectral libraries from different groups will not be used together.
+
 Please note:
 
 * DIA data acquired with overlapping/staggered windows must be converted to mzML using the 'Demultiplex' filter, see [this page](https://fragpipe.nesvilab.org/docs/tutorial_convert.html#convert-thermo-dia-raw-files-with-overlappingstaggered-windows). 
 * To quantify from .raw files, Thermo MS File Reader must be installed, see the [DIA-NN documentation](https://github.com/vdemichev/DiaNN#raw-data-formats) for details.
 * Any pseudo-MS/MS files from DIA-Umpire (`*_Q1.mzML`, `*_Q2.mzML`, `*_Q3.mzML`) should be designated DDA data type on the Workflow tab.
 * If you already have a spectral library and want to quantify only, uncheck all steps except 'Quantify with DIA-NN' on the 'Quant (DIA)' tab, set the path to the spectral library, and run.
-* Multiple spectral libraries can be generated in a single FragPipe run if multiple experiments are specified on the Workflow tab. 
+* Multiple spectral libraries can be generated in a single FragPipe run if multiple experiments are specified on the Workflow tab. In each experiment, FragPipe uses the spectral library for the DIA runs in the same experiment. Spectral libraries from different experiments will not be used together.
 * If iRT peptides were spiked-in to the samples, change the 'RT calibration' option on the 'Spec Lib' tab to 'iRT'. EasyPQP will use the [ciRT](https://www.mcponline.org/article/S1535-9476(20)32633-5/fulltext) option by default.
 * diaPASEF data is not supported at this time.
 * Skyline users may also choose to import interact-.pep.xml files into Skyline for spectral library building and further analysis of DIA experiments, see this [tutorial](https://fragpipe.nesvilab.org/docs/tutorial_skyline.html).
  
-
 <br>
-
-
-The example dataset used here was downloaded from [PXD011691](http://proteomecentral.proteomexchange.org/cgi/GetDataset?ID=PXD011691). It includes 10 samples analyzed using DIA (10 mouse brain tissue, with UPS proteins spiked in at varying concentration). It also includes 6 DDA runs (pool of the same 10 brain tissues, with peptides fractionated into 6 fractions) collected for building a spectrum library. **Download a subset of the dataset ('speclib-raw.zip', containing 2 DIA and 2 DDA files in mzML format plus a sequence database) [from Dropbox](https://www.dropbox.com/s/e3uqq42676kb39e/speclib-raw.zip?dl=1) to use for these demos.**
-
 
 ### Configure FragPipe
 Python (with EasyPQP installed) is needed for spectral library generation. On the Config tab, check that a valid Python path is provided (Python version will be shown) and that EasyPQP is 'Available'. If Python is installed but EasyPQP is missing, click the 'Install/Upgrade EasyPQP' button and wait a minute or so for installation. For help installing Python, see [this page](https://fragpipe.nesvilab.org/docs/tutorial_setup_fragpipe.html#optional-install-update-or-use-an-already-installed-version-of-python).
@@ -73,9 +72,11 @@ Example output from this workflow can be downloaded [here](https://www.dropbox.c
 
 
 #### Key References
+Yu F, Teo GC, Kong AT, Li GX, Demichev V, Nesvizhskii AI. [One-stop analysis of DIA proteomics data using MSFragger-DIA and FragPipe computational platform](https://doi.org/10.1101/2022.10.28.514272), biorxiv (2022).
+
 Tsou CC, Avtonomov D, Larsen B, Tucholska M, Choi H, Gingras AC, Nesvizhskii AI. [DIA-Umpire: comprehensive computational framework for data-independent acquisition proteomics](https://doi.org/10.1021/acs.analchem.9b04418), Nature Methods 12:258-64 (2015).
 
-Demichev V, Yu F, Teo GC, Szyrwiel L, Rosenberger G, Decker J, Kaspar-Schoenefeld S, Lilley KS, Mülleder M, Nesvizhskii AI, Ralser M. [High sensitivity dia-PASEF proteomics with DIA-NN and FragPipe](https://www.biorxiv.org/content/10.1101/2021.03.08.434385v1.full), bioRxiv (2021).
+Demichev V, Szyrwiel L, Yu F, Teo GC, Rosenberger G, Niewienda A, Ludwig D, Decker J, Kaspar-Schoenefeld S, Lilley KS, Mülleder M, Nesvizhskii AI, Ralser M. [dia-PASEF data analysis using FragPipe and DIA-NN for deep proteomics of low sample amounts](https://doi.org/10.1038/s41467-022-31492-0), Nature Communications 13:3944 (2022).
 
 <br>
 <br>
