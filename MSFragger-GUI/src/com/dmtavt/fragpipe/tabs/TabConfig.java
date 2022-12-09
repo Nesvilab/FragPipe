@@ -18,6 +18,7 @@
 package com.dmtavt.fragpipe.tabs;
 
 import static com.dmtavt.fragpipe.Fragpipe.fe;
+import static com.dmtavt.fragpipe.Fragpipe.headless;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
@@ -322,7 +323,7 @@ public class TabConfig extends JPanelWithEnablement {
     if (StringUtils.isNotBlank(m.releaseVer)) {
       sb.append(String.format("FragPipe update available, new version %s\n", m.releaseVer));
     }
-    if (StringUtils.isNotBlank(m.downloadUrl)) {
+    if (!headless && StringUtils.isNotBlank(m.downloadUrl)) {
       sb.append(String.format("<a href=\"%s\">Click here to download</a>\n", m.downloadUrl));
     }
     if (StringUtils.isNotBlank(m.announcement)) {

@@ -25,6 +25,7 @@ import com.dmtavt.fragpipe.messages.NoteConfigTips;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.HtmlStyledJEditorPane;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,6 +34,7 @@ import javax.swing.JScrollPane;
 import net.java.balloontip.BalloonTip;
 import net.java.balloontip.styles.BalloonTipStyle;
 import net.java.balloontip.styles.RoundedBalloonStyle;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
@@ -87,13 +89,26 @@ public class Notifications {
         if (Fragpipe.headless) {
           String s = null;
           try {
-            s = ((HtmlStyledJEditorPane) m.body.getComponents()[0]).getTextLessHtml();
-          } catch (ClassCastException | ArrayIndexOutOfBoundsException ignored) {
+            if (m.body instanceof HtmlStyledJEditorPane) {
+              s = ((HtmlStyledJEditorPane) m.body).getTextLessHtml();
+            } else {
+              for (Component tt : m.body.getComponents()) {
+                if (tt instanceof HtmlStyledJEditorPane) {
+                  s = ((HtmlStyledJEditorPane) tt).getTextLessHtml();
+                  break;
+                }
+              }
+            }
+          } catch (Exception ignored) {
             log.error("Cannot get error message");
-            System.exit(1);
+            log.error(ExceptionUtils.getStackTrace(ignored));
           }
-          log.error(s);
-          System.exit(1);
+          if (m.exitHeadless) {
+            log.error(s);
+            System.exit(1);
+          } else {
+            log.warn(s);
+          }
         } else {
           tip = new BalloonTip(m.parent, m.body, new RoundedBalloonStyle(5, 5, BG_COLOR, Color.BLACK), true);
         }
