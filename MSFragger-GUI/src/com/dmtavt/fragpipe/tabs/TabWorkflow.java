@@ -1407,7 +1407,7 @@ public class TabWorkflow extends JPanelWithEnablement {
       Bus.post(new NoteConfigIonQuant(NoteConfigIonQuant.path, NoteConfigIonQuant.version, NoteConfigIonQuant.isTooOld, false, NoteConfigIonQuant.ex));
       Bus.post(new NoteConfigTmtI(false));
       if (hasDia()) {
-        Bus.post(new NoteConfigDiann(true, false));
+        Bus.post(new NoteConfigDiann(true, true));
       } else {
         Bus.post(new NoteConfigDiann(false, false));
       }
