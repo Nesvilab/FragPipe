@@ -34,6 +34,7 @@ import javax.swing.JScrollPane;
 import net.java.balloontip.BalloonTip;
 import net.java.balloontip.styles.BalloonTipStyle;
 import net.java.balloontip.styles.RoundedBalloonStyle;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
@@ -99,10 +100,14 @@ public class Notifications {
             }
           } catch (Exception ignored) {
             log.error("Cannot get error message");
-            System.exit(1);
+            log.error(ExceptionUtils.getStackTrace(ignored));
           }
-          log.error(s);
-          System.exit(1);
+          if (m.exitHeadless) {
+            log.error(s);
+            System.exit(1);
+          } else {
+            log.warn(s);
+          }
         } else {
           tip = new BalloonTip(m.parent, m.body, new RoundedBalloonStyle(5, 5, BG_COLOR, Color.BLACK), true);
         }
