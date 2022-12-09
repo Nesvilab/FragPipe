@@ -85,12 +85,15 @@ public class DiannPanel extends JPanelBase {
   public void on(NoteConfigDiann m) {
     if (m.isValid()) {
       updateEnabledStatus(this, true);
-      updateEnabledStatus(pContent, isRun());
+      checkRun.setEnabled(true);
       if (m.isChecked()) {
         checkRun.setSelected(true);
       }
+      updateEnabledStatus(pContent, isRun());
     } else {
       updateEnabledStatus(this, false);
+      checkRun.setSelected(false);
+      updateEnabledStatus(pContent, isRun());
     }
   }
 
