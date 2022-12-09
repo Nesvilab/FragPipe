@@ -137,19 +137,8 @@ public class DiannPanel extends JPanelBase {
   }
 
   private JPanel createPanelContent() {
-    JPanel p = new JPanel(new MigLayout(new LC().fillX()));
-    mu.borderEmpty(p);
-
-    panelDiann = createPanelDiann();
-
-    mu.add(p, panelDiann).growX().pushX().wrap();
-
-    return p;
-  }
-
-  private JPanel createPanelDiann() {
-    final JPanel p = mu.newPanel(mu.lcFillX());
-    mu.border(p, 1);
+    panelDiann = mu.newPanel(mu.lcFillX());
+    mu.border(panelDiann, 1);
 
     uiSpinnerQvalue = UiUtils.spinnerDouble(0.01, 0.001, 0.05, 0.01).setCols(5).setFormat("#.##").create();
     FormEntry feQvalue = mu.feb(uiSpinnerQvalue).name("q-value").label("FDR").tooltip("Control the global protein group FDR, global precursor FDR, and run-specific precursor FDR.").create();
@@ -188,21 +177,21 @@ public class DiannPanel extends JPanelBase {
             + "To set --threads, please adjust the Parallelism setting in the Workflow tab.\n"
             + "See output log (e.g. dry-run results) for the complete command.").create();
 
-    mu.add(p, feQvalue.label(), mu.ccL());
-    mu.add(p, feQvalue.comp).wrap();
-    mu.add(p, feUseRunSpecificProteinQvalue.comp).wrap();
-    mu.add(p, feQuantificationStrategy.label(), mu.ccL());
-    mu.add(p, feQuantificationStrategy.comp).wrap();
-    mu.add(p, feUnrelatedRuns.comp).wrap();
-    mu.add(p, feUsePredictedSpectra.comp).wrap();
-    mu.add(p, feLibrary.label(), mu.ccL());
-    mu.add(p, feLibrary.comp).pushX().growX();
-    mu.add(p, jButtonLibrary).wrap();
-    mu.add(p, feCmdOpts.label(), mu.ccL());
-    mu.add(p, feCmdOpts.comp).growX().pushX().wrap();
+    mu.add(panelDiann, feQvalue.label(), mu.ccL());
+    mu.add(panelDiann, feQvalue.comp).wrap();
+    mu.add(panelDiann, feUseRunSpecificProteinQvalue.comp).wrap();
+    mu.add(panelDiann, feQuantificationStrategy.label(), mu.ccL());
+    mu.add(panelDiann, feQuantificationStrategy.comp).wrap();
+    mu.add(panelDiann, feUnrelatedRuns.comp).wrap();
+    mu.add(panelDiann, feUsePredictedSpectra.comp).wrap();
+    mu.add(panelDiann, feLibrary.label(), mu.ccL());
+    mu.add(panelDiann, feLibrary.comp).pushX().growX();
+    mu.add(panelDiann, jButtonLibrary).wrap();
+    mu.add(panelDiann, feCmdOpts.label(), mu.ccL());
+    mu.add(panelDiann, feCmdOpts.comp).growX().pushX().wrap();
 
-    updateEnabledStatus(p, true);
-    return p;
+    updateEnabledStatus(panelDiann, true);
+    return panelDiann;
   }
 
   @Override
