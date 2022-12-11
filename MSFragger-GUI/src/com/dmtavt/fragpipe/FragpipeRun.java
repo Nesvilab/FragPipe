@@ -1103,7 +1103,7 @@ public class FragpipeRun {
 
     addCheck.accept(() -> {
       if (cmdPeptideProphet.isRun()) {
-        return checkDbConfig(parent, percolatorPanel.isRun(), isRunPeptideProphet);
+        return checkDbConfig(parent, percolatorPanel.isRun(), isRunPeptideProphet, reportPanel.isRun());
       }
       return true;
     });
@@ -1136,7 +1136,7 @@ public class FragpipeRun {
 
     addCheck.accept(() -> {
       if (cmdPercolator.isRun()) {
-        return checkDbConfig(parent, percolatorPanel.isRun(), isRunPeptideProphet);
+        return checkDbConfig(parent, percolatorPanel.isRun(), isRunPeptideProphet, reportPanel.isRun());
       }
       return true;
     });
@@ -1213,6 +1213,13 @@ public class FragpipeRun {
 
     // run Report - Filter
     final CmdPhilosopherFilter cmdPhilosopherFilter = new CmdPhilosopherFilter(isReport, wd);
+
+    addCheck.accept(() -> {
+      if (cmdPhilosopherFilter.isRun()) {
+        return checkDbConfig(parent, percolatorPanel.isRun(), isRunPeptideProphet, reportPanel.isRun());
+      }
+      return true;
+    });
 
     addConfig.accept(cmdPhilosopherFilter, () -> {
       if (cmdPhilosopherFilter.isRun()) {
@@ -1795,7 +1802,7 @@ public class FragpipeRun {
     return true;
   }
 
-  private static boolean checkDbConfig(JComponent parent, boolean runPerconator, boolean runPeptideProphet) {
+  private static boolean checkDbConfig(JComponent parent, boolean runPerconator, boolean runPeptideProphet, boolean runReport) {
     NoteConfigDatabase n;
     try {
       n = Fragpipe.getSticky(NoteConfigDatabase.class);
@@ -1820,9 +1827,13 @@ public class FragpipeRun {
         log.error("No decoys found in the FASTA file.");
         return false;
       } else {
-        if (runPerconator || runPeptideProphet) {
-          SwingUtils.showErrorDialog(parent, "No decoys found in the FASTA file.<br>Percolator or PeptideProphet was enabled.<br>Please check protein database tab.", "No decoys");
+        if (runPerconator) {
+          SwingUtils.showErrorDialog(parent, "No decoys found in the FASTA file.<br>Percolator was enabled.<br>Please check protein database tab.", "No decoys");
           return false;
+        } else if (runPeptideProphet || runReport) {
+          int confirm = SwingUtils.showConfirmDialog(parent, new JLabel(
+              "<html>No decoys found in the FASTA file.<br>PeptideProphet or FDR filter and report was enabled.<br>Please check protein database tab.<br><br>You can also continue as-is, but FDR analysis will fail. Do you want to continue?"));
+          return JOptionPane.YES_OPTION == confirm;
         }
       }
     } else if (decoysPercentage >= 1) {
