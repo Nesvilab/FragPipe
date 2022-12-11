@@ -1179,12 +1179,6 @@ public class FragpipeRun {
 
     final CmdProteinProphet cmdProteinProphet = new CmdProteinProphet(isRunProteinProphet, wd);
 
-    addCheck.accept(() -> {
-      if (cmdProteinProphet.isRun()) {
-        return checkDbConfig(parent);
-      }
-      return true;
-    });
     addConfig.accept(cmdProteinProphet, () -> {
       final boolean isMuiltiExperimentReport = sharedLcmsFileGroups.size() > 1;
       if (cmdProteinProphet.isRun()) {
