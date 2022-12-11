@@ -1099,9 +1099,11 @@ public class FragpipeRun {
 
     final CmdPeptideProphet cmdPeptideProphet = new CmdPeptideProphet(isRunPeptideProphet, wd);
 
+    final PercolatorPanel percolatorPanel = Fragpipe.getStickyStrict(PercolatorPanel.class);
+
     addCheck.accept(() -> {
       if (cmdPeptideProphet.isRun()) {
-        return checkDbConfig(parent);
+        return checkDbConfig(parent, percolatorPanel.isRun(), isRunPeptideProphet);
       }
       return true;
     });
@@ -1127,13 +1129,18 @@ public class FragpipeRun {
     });
 
     // run Percolator
-    final PercolatorPanel percolatorPanel = Fragpipe.getStickyStrict(PercolatorPanel.class);
     final boolean isRunPercolator = percolatorPanel.isRun();
     final boolean isCombinedPepxml_percolator = percolatorPanel.isCombinePepxml();
 
     final CmdPercolator cmdPercolator = new CmdPercolator(isRunPercolator, wd);
 
-    addCheck.accept(() -> true);
+    addCheck.accept(() -> {
+      if (cmdPercolator.isRun()) {
+        return checkDbConfig(parent, percolatorPanel.isRun(), isRunPeptideProphet);
+      }
+      return true;
+    });
+
     addConfig.accept(cmdPercolator, () -> {
       if (cmdPercolator.isRun()) {
         final String percolatorCmd = percolatorPanel.getCmdOpts();
@@ -1794,7 +1801,7 @@ public class FragpipeRun {
     return true;
   }
 
-  private static boolean checkDbConfig(JComponent parent) {
+  private static boolean checkDbConfig(JComponent parent, boolean runPerconator, boolean runPeptideProphet) {
     NoteConfigDatabase n;
     try {
       n = Fragpipe.getSticky(NoteConfigDatabase.class);
@@ -1819,11 +1826,10 @@ public class FragpipeRun {
         log.error("No decoys found in the FASTA file.");
         return false;
       } else {
-        int confirm = SwingUtils.showConfirmDialog(parent, new JLabel(
-            "<html>No decoys found in the FASTA file.<br>\n" +
-                "Please check protein database tab.<br><br><br>\n" +
-                "You can also continue as-is, but FDR analysis will fail. Do you want to continue?"));
-        return JOptionPane.YES_OPTION == confirm;
+        if (runPerconator || runPeptideProphet) {
+          SwingUtils.showErrorDialog(parent, "No decoys found in the FASTA file.<br>Percolator or PeptideProphet was enabled.<br>Please check protein database tab.", "No decoys");
+          return false;
+        }
       }
     } else if (decoysPercentage >= 1) {
       if (Fragpipe.headless) {
