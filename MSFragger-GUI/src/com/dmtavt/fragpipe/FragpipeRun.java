@@ -1820,9 +1820,8 @@ public class FragpipeRun {
         return false;
       } else {
         int confirm = SwingUtils.showConfirmDialog(parent, new JLabel(
-            "<html>No decoys found in the FASTA file.<br/>\n" +
-                "You have possibly set incorrect decoy tag. Check protein database tab.<br/><br/>\n" +
-                "<br/>\n" +
+            "<html>No decoys found in the FASTA file.<br>\n" +
+                "Please check protein database tab.<br><br><br>\n" +
                 "You can also continue as-is, but FDR analysis will fail. Do you want to continue?"));
         return JOptionPane.YES_OPTION == confirm;
       }
@@ -1832,23 +1831,21 @@ public class FragpipeRun {
         return false;
       } else {
         int confirm = SwingUtils.showConfirmDialog(parent, new JLabel(
-            "<html>All FASTA entries seem to be decoys.<br/>\n" +
-                "You have possibly set incorrect decoy tag. Check protein database tab.<br/><br/>\n" +
-                "<br/>\n" +
+            "<html>All FASTA entries seem to be decoys.<br>\n" +
+                "Please check protein database tab.<br><br><br>\n" +
                 "You can also continue as-is, but FDR analysis will fail. Do you want to continue?"));
         return JOptionPane.YES_OPTION == confirm;
       }
     } else if (decoysPercentage < 0.4 || decoysPercentage > 0.6) {
       DecimalFormat dfPct = new DecimalFormat("##.#'%'");
       if (Fragpipe.headless) {
-        log.error("FASTA file contains " + dfPct.format(decoysPercentage * 100) + " decoys. You have possibly set incorrect decoy tag. Check protein database tab.");
+        log.error("FASTA file contains " + dfPct.format(decoysPercentage * 100) + " decoys.");
         return false;
       } else {
         int confirm = SwingUtils.showConfirmDialog(parent, new JLabel(
-            "<html>FASTA file contains " + dfPct.format(decoysPercentage * 100) + " decoys.<br/>\n" +
-                "You have possibly set incorrect decoy tag. Check protein database tab.<br/><br/>\n" +
-                "<br/>\n" +
-                "You can also continue as-is, if that's what you're expected.</br>\n"
+            "<html>FASTA file contains " + dfPct.format(decoysPercentage * 100) + " decoys.<br>\n" +
+                "Please check protein database tab.<br><br><br>\n" +
+                "You can also continue as-is, if that's what you're expected.<br>\n"
                 + "Do you want to continue?"));
         return JOptionPane.YES_OPTION == confirm;
       }
