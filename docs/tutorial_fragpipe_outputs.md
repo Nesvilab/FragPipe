@@ -23,7 +23,6 @@ Also see our [guide to using FragPipe](https://fragpipe.nesvilab.org/docs/tutori
 * [global.profile.tsv](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_outputs.html#globalprofiletsv) (from PTM-Shepherd)
 * [global.diagmine.tsv](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_outputs.html#globaldiagminetsv) (from PTM-Shepherd)
 * [global.modsummary.tsv](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_outputs.html#globalmodsummarytsv) (from PTM-Shepherd)
-* [filename_quant.csv](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_outputs.html#filename_quantcsv) (from IonQuant)
 * diann-output files (see [DIA-NN documentation](https://github.com/vdemichev/DiaNN#main-output-reference))
 
 
@@ -593,60 +592,6 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 **[experiment]\_PSMs** Number of PSMs with the modification, including any row from the global.profile.tsv file where the modification appears (e.g., a 'Methylation' entry in the will include PSMs corresponding to both 'Methylation' and 'Methylation + First isotopic peak')
 
 **[experiment]\_percent_PSMs** The number of PSMs from the previous column as a percentage of the total PSMs
-<br>
-<br>
-<br>
-
-### filename_quant.csv
-##### `filename_quant.csv` contains label-free quantification information from [IonQuant](https://ionquant.nesvilab.org/). These quantification values will also be included in the psm.tsv, peptide.tsv, and protein.tsv reports.
-
-**scan_num** scan number of the MS/MS spectrum within the LC-MS file
-
-**compensation_voltage** FAIMS compensation voltage for the scan if applicable
-
-**peptide** stripped amino acid sequence of the identified peptide
-
-**modified_peptide** peptide sequence plus variable modifications
-
-**calculated_MZ** theoretical mass-to-charge value of the identified peptide
-
-**uncalibrated_precursor_MZ** observed mass-to-charge value prior to calibration
-
-**calibrated_precursor_MZ** observed mass-to-charge value after calibration by MSFragger
-
-**uncalibrated_ppm** difference between calculated and observed peptide mass (in parts per million) prior to calibration
-
-**calibrated_ppm** difference between calculated and observed peptide mass (in parts per million) after calibration by MSFragger
-
-**retention_time** retention time at which the MS/MS scan was taken (usually in seconds but units can vary by instrument type)
-
-**charge** precursor charge state
-
-**apex_scan_num** scan number closest to the apex intensity of the precursor
-
-**relative_mass_deviation** 
-
-**apex_retention_time** retention time of the precursor's apex intensity (usually in seconds but units can vary by instrument type)
-
-**retention_time_begin** time the traced precursor feature is first observed
-
-**retention_time_end** time the traced precursor feature is last observed
-
-**intensity** summed precursor feature intensity (including all isotopic peaks)
-
-**intensity0** precursor intensity at the 0th isotopic peak
-
-**intensity1** precursor intensity at the 1st isotopic peak
-
-**intensity2** precursor intensity at the 2nd isotopic peak
-
-**ppm0** intensity-weighted ppm error of the 0th isotope peak
-
-**ppm1** intensity-weighted ppm error of the 1st isotope peak
-
-**ppm2** intensity-weighted ppm error of the 2nd isotope peak
-
-**hyperscore** similarity score between observed and theoretical spectra, higher values indicate greater similarity
 <br>
 <br>
 <br>
