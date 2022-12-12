@@ -561,7 +561,7 @@ public class TabConfig extends JPanelWithEnablement {
 
     if (m.ex != null) {
       epPhiVer.setText("Philosopher version: N/A");
-      showConfigError(m.ex, TIP_PHILOSOPHER_BIN, uiTextBinPhi);
+      showConfigError(m.ex, TIP_PHILOSOPHER_BIN, uiTextBinPhi, true);
     } else {
       epPhiVer.setText("Philosopher version: " + m.version);
       Notifications.tryClose(TIP_PHILOSOPHER_BIN);
@@ -705,7 +705,7 @@ public class TabConfig extends JPanelWithEnablement {
 
     if (m.ex != null) {
       epFraggerVer.setText("MSFragger version: N/A");
-      showConfigError(m.ex, TIP_MSFRAGGER_BIN, uiTextBinFragger);
+      showConfigError(m.ex, TIP_MSFRAGGER_BIN, uiTextBinFragger, true);
     } else if (m.isTooOld) {
       epFraggerVer.setText("MSFragger version: too old, not supported anymore");
       Bus.post(new MessageBalloon(TIP_MSFRAGGER_BIN, uiTextBinFragger, "MSFragger " + msfraggerMinVersion + " is required.", true));
@@ -733,7 +733,7 @@ public class TabConfig extends JPanelWithEnablement {
 
     if (m.ex != null) {
       epIonQuantVer.setText("IonQuant version: N/A");
-      showConfigError(m.ex, TIP_IONQUANT_BIN, uiTextBinIonQuant);
+      showConfigError(m.ex, TIP_IONQUANT_BIN, uiTextBinIonQuant, true);
     } else if (m.isTooOld) {
       epIonQuantVer.setText("IonQuant version: too old, not supported anymore");
       Bus.post(new MessageBalloon(TIP_IONQUANT_BIN, uiTextBinIonQuant, "IonQuant " + ionquantMinVersion + " is required.", true));
@@ -820,7 +820,7 @@ public class TabConfig extends JPanelWithEnablement {
     uiTextBinPython.setText(m.command);
     epPythonVer.setText(StringUtils.isBlank(m.version) ? "Python version: N/A" : "Python version: " + m.version);
     if (m.ex != null) {
-      showConfigError(m.ex, TIP_PYTHON_BIN, uiTextBinPython);
+      showConfigError(m.ex, TIP_PYTHON_BIN, uiTextBinPython, false);
     }
   }
 
@@ -841,7 +841,7 @@ public class TabConfig extends JPanelWithEnablement {
       if (m.ex instanceof ValidationException) {
         epDbsplitErr.setText(m.ex.getMessage());
       } else {
-        showConfigError(m.ex, TIP_DBSPLIT, epDbsplitText);
+        showConfigError(m.ex, TIP_DBSPLIT, epDbsplitText, false);
       }
       this.revalidate();
       return;
@@ -887,7 +887,7 @@ public class TabConfig extends JPanelWithEnablement {
     if (m.ex != null) {
       log.debug("Got NoteConfigSpeclibgen with exception set");
       epEasyPQPText.setText(textEasyPQP("N/A", "N/A", false, m.ex.getMessage()));
-      showConfigError(m.ex, TIP_SPECLIBGEN, epEasyPQPText);
+      showConfigError(m.ex, TIP_SPECLIBGEN, epEasyPQPText, false);
       this.revalidate();
       return;
     }
@@ -932,17 +932,9 @@ public class TabConfig extends JPanelWithEnablement {
     this.revalidate();
   }
 
-  private void showConfigError(Throwable e, String balloonTopic, JComponent balloonParent) {
-    if(Fragpipe.headless){
-      if (e instanceof ValidationException) {
-        log.error(e.getMessage());
-      } else {
-        log.error(org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace(e));
-      }
-      System.exit(1);
-    }
+  private void showConfigError(Throwable e, String balloonTopic, JComponent balloonParent, boolean exitHeadless) {
     if (e instanceof ValidationException) {
-      Bus.post(new MessageBalloon(balloonTopic, balloonParent, e.getMessage(), true));
+      Bus.post(new MessageBalloon(balloonTopic, balloonParent, e.getMessage(), exitHeadless));
     } else {
       SwingUtils.showErrorDialogWithStacktrace(e, this);
     }
