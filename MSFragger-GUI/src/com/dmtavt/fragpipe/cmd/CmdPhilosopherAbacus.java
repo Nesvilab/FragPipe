@@ -55,7 +55,7 @@ public class CmdPhilosopherAbacus extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, UsageTrigger usePhilosopher, String textReportFilterCmdOpts, boolean isProtLevelSummary, boolean isPepLevelSummary, boolean isCheckFilterNoProtxml, String decoyTag, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
+  public boolean configure(Component comp, UsageTrigger usePhilosopher, String textReportFilterCmdOpts, boolean isProtLevelSummary, boolean isPepLevelSummary, boolean isCheckFilterNoProtxml, String decoyTag, int plex, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
     final List<String> flagsAbacus = Arrays.asList("--picked", "--uniqueonly");
 
     initPreConfig();
@@ -128,6 +128,11 @@ public class CmdPhilosopherAbacus extends CmdBase {
       }
       if (isPepLevelSummary) {
         cmd.add("--peptide");
+      }
+      if (plex > 0) {
+        cmd.add("--labels");
+        cmd.add("--plex");
+        cmd.add(String.valueOf(plex));
       }
       // list locations with pepxml files
       for (Path pepxmlDir : outputDirsForProtxml) {

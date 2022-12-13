@@ -1287,15 +1287,21 @@ public class FragpipeRun {
       return true;
     });
 
+    final TmtiPanel tmtiPanel = Fragpipe.getStickyStrict(TmtiPanel.class);
+
     // run Report - Multi-Experiment report
     final CmdPhilosopherAbacus cmdPhilosopherAbacus = new CmdPhilosopherAbacus(false, wd);
-
     addConfig.accept(cmdPhilosopherAbacus, () -> {
       final boolean isMultiExpReport = sharedLcmsFileGroups.size() > 1;
       final boolean doRunAbacus = cmdPhilosopherReport.isRun() && isMultiExpReport && !quantPanelLabelfree.isRunIonQuant() && ((!reportPanel.isNoProtXml() && reportPanel.isProtSummary()) || reportPanel.isPepSummary());
       cmdPhilosopherAbacus.isRun(doRunAbacus);
       if (cmdPhilosopherAbacus.isRun()) {
-        return cmdPhilosopherAbacus.configure(parent, usePhi, reportPanel.getFilterCmdText(), reportPanel.isProtSummary(), reportPanel.isPepSummary(), reportPanel.isNoProtXml(), decoyTag, sharedMapGroupsToProtxml);
+        int plex = 0;
+        if (tmtiPanel.isRunFqLq()) {
+          QuantLabel label = tmtiPanel.getSelectedLabel();
+          plex = label.getReagentNames().size();
+        }
+        return cmdPhilosopherAbacus.configure(parent, usePhi, reportPanel.getFilterCmdText(), reportPanel.isProtSummary(), reportPanel.isPepSummary(), reportPanel.isNoProtXml(), decoyTag, plex, sharedMapGroupsToProtxml);
       }
       return true;
     });
@@ -1309,8 +1315,6 @@ public class FragpipeRun {
       }
       return true;
     });
-
-    final TmtiPanel tmtiPanel = Fragpipe.getStickyStrict(TmtiPanel.class);
 
     // run Report - Freequant (Labelfree)
     final CmdFreequant cmdFreequant = new CmdFreequant(isReport && isFreequant, wd);
