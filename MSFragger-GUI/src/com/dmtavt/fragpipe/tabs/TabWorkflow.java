@@ -800,26 +800,27 @@ public class TabWorkflow extends JPanelWithEnablement {
     Fragpipe fp0 = Fragpipe.getStickyStrict(Fragpipe.class);
     final javax.swing.JFrame fp = fp0.toJFrame();
     Properties uiProps = FragpipeCacheUtils.tabsSave0(fp0.tabs, m.saveWithFieldTypes);
+    String workflowExt = ".workflow";
+    FileNameEndingFilter workflowEndingFilter = new FileNameEndingFilter("workflow files", ".workflow");
 
     Path saveDir;
+    Path savePath = null;
     Path fpWorkflowsDir = FragpipeLocations.get().getDirWorkflows();
     if (!m.toCustomDir) {
       saveDir = fpWorkflowsDir;
     } else {
-      // save to custom dir
+      // save to custom dir. Allow direct selection of file path to save
       final String propWorkflowDir = "workflow.last-save-dir";
-      JFileChooser fc = FileChooserUtils.builder("Select folder to save workflow file to").multi(false).mode(FcMode.DIRS_ONLY).acceptAll(true).approveButton("Select folder").paths(Stream.of(Fragpipe.propsVarGet(propWorkflowDir), FragpipeLocations.get().getDirWorkflows().toString())).create();
-      if (fc.showOpenDialog(fp) != JFileChooser.APPROVE_OPTION) {
-        log.debug("User cancelled dir selection");
+      savePath = getSaveFilePath(null, propWorkflowDir, workflowEndingFilter, workflowExt, false  );
+      if (savePath == null) {
         return;
       }
-      saveDir = fc.getSelectedFile().toPath();
+      saveDir = savePath.getParent();
       Fragpipe.propsVarSet(PROP_WORKFLOW_SAVEDIR, saveDir.toString());
     }
 
     // ask about name and description
-
-    String curName = (String)uiComboWorkflows.getSelectedItem();
+    String curName = savePath == null? (String)uiComboWorkflows.getSelectedItem() : savePath.getFileName().toString();
     String curDesc = epWorkflowsDesc.getText();
 
     MigUtils mu = MigUtils.get();
@@ -832,8 +833,10 @@ public class TabWorkflow extends JPanelWithEnablement {
     ep.setText(curDesc);
     ep.setPreferredSize(new Dimension(320, 240));
     ep.setName("file-desc");
-    mu.add(p, new JLabel("Name")).split();
-    mu.add(p, uiTextName).growX().wrap();
+    if (savePath == null) {
+      mu.add(p, new JLabel("Name")).split();
+      mu.add(p, uiTextName).growX().wrap();
+    }
     mu.add(p, new JLabel("Description (optional)")).wrap();
     mu.add(p, ep).spanX().wrap();
 
@@ -841,9 +844,8 @@ public class TabWorkflow extends JPanelWithEnablement {
     JarUtils.walkResources("/workflows", defaultWorkflows::add);
     log.debug("Found default workflows in jar: {}", defaultWorkflows);
 
-    Path savePath = null;
     while (true) {
-      int answer = SwingUtils.showConfirmDialog(fp, p, "Assign workflow name");
+      int answer = SwingUtils.showConfirmDialog(fp, p, "Assign workflow description");
       if (JOptionPane.OK_OPTION != answer) {
         return;
       }
@@ -1297,32 +1299,11 @@ public class TabWorkflow extends JPanelWithEnablement {
 
   @Subscribe(threadMode = ThreadMode.POSTING)
   public void on(MessageManifestSave m) {
-    Path path = m.path;
-    if (path == null) {
-      String loc = Fragpipe.propsVarGet(ThisAppProps.CONFIG_SAVE_LOCATION);
-      JFileChooser fc = FileChooserUtils.builder("Path to save manifest").paths(Stream.of(loc)).mode(FcMode.FILES_ONLY).approveButton("Save").multi(false).acceptAll(true).filters(Collections.singletonList(fileNameEndingFilter)).create();
-      fc.setFileFilter(fileNameEndingFilter);
-      if (JFileChooser.APPROVE_OPTION == fc.showSaveDialog(this)) {
-        String s = fc.getSelectedFile().getAbsolutePath();
-        if (!s.endsWith(manifestExt)) {
-          s += manifestExt;
-        }
-        path = Paths.get(s);
-      }
-    }
+    Path path = getSaveFilePath(m.path, ThisAppProps.CONFIG_SAVE_LOCATION, fileNameEndingFilter, manifestExt, m.quite);
 
     if (path != null) {
       Fragpipe.propsVarSet(ThisAppProps.CONFIG_SAVE_LOCATION, path.getParent().toString());
       try {
-        if (m.quite) {
-          Files.deleteIfExists(path);
-        } else if (Files.exists(path)) {
-          if (!SwingUtils.showConfirmDialogShort(this, "File exists, overwrite?\n\n" + path)) {
-            return;
-          } else {
-            Files.deleteIfExists(path);
-          }
-        }
         manifestSave(path);
       } catch (IOException e) {
         SwingUtils.showErrorDialogWithStacktrace(e, this);
@@ -1652,6 +1633,40 @@ public class TabWorkflow extends JPanelWithEnablement {
     }
     return false;
   }
+  private Path getSaveFilePath(Path inputPath, String defaultSaveDir, FileNameEndingFilter filenameFilter, String fileExtension, boolean quiet) {
+    Path path = inputPath;
+    if (path == null) {
+      String loc = Fragpipe.propsVarGet(defaultSaveDir);
+      JFileChooser fc = FileChooserUtils.builder("Path to save file").paths(Stream.of(loc)).mode(FcMode.FILES_ONLY).approveButton("Save").multi(false).acceptAll(true).filters(Collections.singletonList(filenameFilter)).create();
+      fc.setFileFilter(filenameFilter);
+      if (JFileChooser.APPROVE_OPTION == fc.showSaveDialog(this)) {
+        String s = fc.getSelectedFile().getAbsolutePath();
+        if (!s.endsWith(fileExtension)) {
+          s += fileExtension;
+        }
+        path = Paths.get(s);
+      }
+    }
+
+    if (path != null) {
+      Fragpipe.propsVarSet(defaultSaveDir, path.getParent().toString());
+      try {
+        if (quiet) {
+          Files.deleteIfExists(path);
+        } else if (Files.exists(path)) {
+          if (!SwingUtils.showConfirmDialogShort(this, "File exists, overwrite?\n\n" + path)) {
+            return null;
+          } else {
+            Files.deleteIfExists(path);
+          }
+        }
+        return path;
+      } catch (IOException e) {
+        SwingUtils.showErrorDialogWithStacktrace(e, this);
+      }
+    }
+    return null;
+  }
 
   private void actionLoadSelectedWorkflow(ActionEvent e) {
     String workflow = (String) uiComboWorkflows.getSelectedItem();
@@ -1683,6 +1698,7 @@ public class TabWorkflow extends JPanelWithEnablement {
       propsFile.remove("fragpipe-config.bin-python");
 
       epWorkflowsDesc.setText(propsFile.getProperty(PROP_WORKFLOW_DESC, "Description not present"));
+      Fragpipe.propsVarSet(PROP_WORKFLOW_SAVEDIR, propsFile.getPath().getParent().toString());
 
       Bus.post(new MessageLoadUi(propsFile, true, false));
     } else {
