@@ -17,6 +17,8 @@
 
 package com.dmtavt.fragpipe.tools.tmtintegrator;
 
+import static com.dmtavt.fragpipe.tools.tmtintegrator.QuantLabelAnnotation.unifyAnnotationSampleName;
+
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
@@ -311,7 +313,7 @@ public class TmtiPanel extends JPanelBase {
     uiSpinnerTolerance = UiUtils.spinnerInt(20, 1, 9999, 1).create();
     FormEntry feTolerance = fe("tolerance", "Mass tolerance (ppm)", uiSpinnerTolerance, "Reporter ions mass tolerance in PPM");
 
-    UiText uiTextRefTag = UiUtils.uiTextBuilder().cols(10).text("Bridge").create();
+    UiText uiTextRefTag = UiUtils.uiTextBuilder().cols(10).filter("[^0-9a-zA-Z_]").text("Bridge").create();
     FormEntry feRefTag = fe(TmtiConfProps.PROP_ref_tag,
         "Ref sample tag", uiTextRefTag,
         "<html>Unique tag to identify reference (bridge) channels");
@@ -1090,6 +1092,8 @@ public class TmtiPanel extends JPanelBase {
         } else {
           mapConv.put(prop, t);
         }
+      } if (prop.contentEquals("ref_tag")) {
+        mapConv.put(prop, unifyAnnotationSampleName(CONVERT_TO_FILE.getOrDefault(prop, Function.identity()).apply(v)));
       } else if (prop.contentEquals(TmtiConfProps.PROP_channel_num)) {
         // TMT-I only needs the channel_num, but multiple tags may have the same number so we save the label_type to workflow file instead
         // of channel num. Get the channel num from the QuantLabel for the TMT-I config
