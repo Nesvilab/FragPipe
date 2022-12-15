@@ -18,8 +18,11 @@
 package com.dmtavt.fragpipe.tools.tmtintegrator;
 
 import java.util.StringJoiner;
+import java.util.regex.Pattern;
 
 public class QuantLabelAnnotation {
+
+  private static Pattern disallowedPattern = Pattern.compile("[^0-9a-zA-Z_]");
 
   private String label;
   private String sample;
@@ -29,7 +32,7 @@ public class QuantLabelAnnotation {
 
   public QuantLabelAnnotation(String label, String sample) {
     this.label = label.trim();
-    this.sample = sample.trim().replaceAll("[^0-9a-zA-Z_]", "_");
+    this.sample = unifyAnnotationSampleName(sample);
   }
 
   public String getLabel() {
@@ -45,7 +48,7 @@ public class QuantLabelAnnotation {
   }
 
   public void setSample(String sample) {
-    this.sample = sample.trim().replaceAll("[^0-9a-zA-Z_]", "_");
+    this.sample = unifyAnnotationSampleName(sample);
   }
 
   @Override
@@ -54,5 +57,9 @@ public class QuantLabelAnnotation {
         .add("label='" + label + "'")
         .add("sample='" + sample + "'")
         .toString();
+  }
+
+  public static String unifyAnnotationSampleName(String s) {
+    return disallowedPattern.matcher(s.trim()).replaceAll("");
   }
 }
