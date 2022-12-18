@@ -1224,7 +1224,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     Set<Path> inTablePaths = inTable.stream().map(InputLcmsFile::getPath).collect(Collectors.toSet());
     if (inTable.isEmpty()) {
       showSkippedFiles(notExist);
-      tableModelRawFiles.dataAddAll(loaded);
+      tableModelRawFiles.dataAddAll(Seq.seq(loaded).filter(f -> !notExist.contains(f.getPath())).toList());
     } else {
       Set<Path> addedPaths = loaded.stream().map(f -> f.getPath().getFileName()).collect(Collectors.toSet());
       boolean hasMatchingPaths = inTable.stream().map(f -> f.getPath().getFileName()).anyMatch(addedPaths::contains);
