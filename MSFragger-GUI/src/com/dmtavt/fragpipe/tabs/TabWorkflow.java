@@ -1255,6 +1255,12 @@ public class TabWorkflow extends JPanelWithEnablement {
           }
           tableModelRawFiles.dataAddAll(updated);
         }
+      } else {
+        showSkippedFiles(notExist);
+        tableModelRawFiles.dataAddAll(Seq.seq(loaded)
+            .filter(f -> !notExist.contains(f.getPath()))
+            .filter(f -> !inTablePaths.contains(f.getPath()))
+            .toList());
       }
     }
   }
