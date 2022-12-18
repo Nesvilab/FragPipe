@@ -17,8 +17,6 @@
 
 package com.dmtavt.fragpipe.tools.philosopher;
 
-import com.dmtavt.fragpipe.api.InputLcmsFile;
-import com.dmtavt.fragpipe.messages.MessageLcmsFilesList;
 import com.dmtavt.fragpipe.messages.MessageSearchType;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.dmtavt.fragpipe.params.ThisAppProps;
@@ -100,13 +98,6 @@ public class ReportPanel extends JPanelBase {
   protected void initMore() {
     updateEnabledStatus(this, false);
     super.initMore();
-  }
-
-  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
-  public void on(MessageLcmsFilesList m) {
-    if (m.files == null)
-      return;
-    long countExps = m.files.stream().map(InputLcmsFile::getExperiment).distinct().count();
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
