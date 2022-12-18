@@ -1219,7 +1219,7 @@ public class TabWorkflow extends JPanelWithEnablement {
           Seq.seq(badLines).toString("\n"), "Malformed manifest");
     }
 
-    List<Path> notExist = loaded.stream().map(InputLcmsFile::getPath).filter(Files::notExists)
+    List<Path> notExist = loaded.stream().map(InputLcmsFile::getPath).filter(p -> !Files.exists(p))
         .collect(Collectors.toList());
     Set<Path> inTablePaths = inTable.stream().map(InputLcmsFile::getPath).collect(Collectors.toSet());
     if (inTable.isEmpty()) {
