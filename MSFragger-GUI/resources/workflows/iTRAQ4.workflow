@@ -290,7 +290,7 @@ tmtintegrator.tolerance=20
 tmtintegrator.top3_pep=true
 tmtintegrator.unique_gene=0
 tmtintegrator.unique_pep=false
-tmtintegrator.use_glycan_composition=true
+tmtintegrator.use_glycan_composition=false
 workflow.description=<p style\="margin-top\: 0">Basic iTRAQ 4-plex workflow, with quantification from MS2. TMT-Integrator with virtual reference approach, median-centering normalization, data summarization at the gene level.</p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
