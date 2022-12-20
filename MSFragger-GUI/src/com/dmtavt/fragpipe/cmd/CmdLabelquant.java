@@ -155,26 +155,28 @@ public class CmdLabelquant extends CmdBase {
       pbis.add(PbiBuilder.from(pb));
     }
 
-    try {
-      String line;
-      BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(wd.resolve("combined_annotation.tsv").toFile()));
-      bufferedWriter.write("experiment\tchannel\tlabel\tplex\treplicate\tcondition\n");
-      int plex = 1;
-      for (Map.Entry<LcmsFileGroup, Path> e : annotations.entrySet()) {
-        BufferedReader bufferedReader = new BufferedReader(new FileReader(e.getValue().toFile()));
-        while ((line = bufferedReader.readLine()) != null) {
-          line = line.trim();
-          if (!line.isEmpty()) {
-            bufferedWriter.write(e.getKey().name + "\t" + line.replace(" ", "\t") + "\t" + plex + "\t\t\n");
+    if (!isDryRun) {
+      try {
+        String line;
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(wd.resolve("combined_annotation.tsv").toFile()));
+        bufferedWriter.write("experiment\tchannel\tlabel\tplex\treplicate\tcondition\n");
+        int plex = 1;
+        for (Map.Entry<LcmsFileGroup, Path> e : annotations.entrySet()) {
+          BufferedReader bufferedReader = new BufferedReader(new FileReader(e.getValue().toFile()));
+          while ((line = bufferedReader.readLine()) != null) {
+            line = line.trim();
+            if (!line.isEmpty()) {
+              bufferedWriter.write(e.getKey().name + "\t" + line.replace(" ", "\t") + "\t" + plex + "\t\t\n");
+            }
           }
+          bufferedReader.close();
+          ++plex;
         }
-        bufferedReader.close();
-        ++plex;
+        bufferedWriter.close();
+      } catch (Exception ex) {
+        ex.printStackTrace();
+        return false;
       }
-      bufferedWriter.close();
-    } catch (Exception ex) {
-      ex.printStackTrace();
-      return false;
     }
 
     isConfigured = true;
