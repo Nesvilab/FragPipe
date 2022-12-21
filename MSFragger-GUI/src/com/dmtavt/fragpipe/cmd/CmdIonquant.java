@@ -19,6 +19,7 @@ package com.dmtavt.fragpipe.cmd;
 
 import static com.dmtavt.fragpipe.cmd.ToolingUtils.BATMASS_IO_JAR;
 import static com.dmtavt.fragpipe.cmd.ToolingUtils.JFREECHART_JAR;
+import static com.github.chhh.utils.SwingUtils.showErrorDialogWithStacktrace;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
@@ -29,6 +30,7 @@ import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
 import java.awt.Component;
 import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
@@ -63,7 +65,7 @@ public class CmdIonquant extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, Path binFragger, Path binIonQuant, int ramGb, Map<String, String> uiCompsRepresentation, InputDataType dataType, Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml, Map<LcmsFileGroup, Path> mapGroupsToProtxml, int nThreads, Set<Float> modMassSet) {
+  public boolean configure(Component comp, Path binFragger, Path binIonQuant, int ramGb, Map<String, String> uiCompsRepresentation, InputDataType dataType, Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml, Map<LcmsFileGroup, Path> mapGroupsToProtxml, int nThreads, Set<Float> modMassSet, boolean isDryRun) {
 
     initPreConfig();
 
@@ -277,6 +279,22 @@ public class CmdIonquant extends CmdBase {
     ProcessBuilder pb = new ProcessBuilder(cmd);
     pb.directory(wd.toFile());
     pbis.add(PbiBuilder.from(pb));
+
+    if (!isDryRun) {
+      try {
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(wd.resolve("experiment_annotation.tsv").toFile()));
+        bufferedWriter.write("file\tlabel\treplicate\n");
+        for (LcmsFileGroup lcmsFileGroup : mapGroupsToProtxml.keySet()) {
+          for (InputLcmsFile inputLcmsFile : lcmsFileGroup.lcmsFiles) {
+            bufferedWriter.write(inputLcmsFile.getPath() + "\t" + inputLcmsFile.getExperiment() + "\t" + (inputLcmsFile.getReplicate() == null ? 1 : inputLcmsFile.getReplicate()) + "\n");
+          }
+        }
+        bufferedWriter.close();
+      } catch (Exception ex) {
+        showErrorDialogWithStacktrace(ex, comp);
+        return false;
+      }
+    }
 
     isConfigured = true;
     return true;
