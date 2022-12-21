@@ -17,6 +17,8 @@
 
 package com.dmtavt.fragpipe.cmd;
 
+import static com.github.chhh.utils.SwingUtils.showErrorDialogWithStacktrace;
+
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
@@ -158,23 +160,21 @@ public class CmdLabelquant extends CmdBase {
     if (!isDryRun) {
       try {
         String line;
-        bufferedWriter.write("experiment\tchannel\tlabel\tplex\treplicate\tcondition\n");
-        int plex = 1;
         BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(wd.resolve("experiment_annotation.tsv").toFile()));
+        bufferedWriter.write("experiment\tchannel\tlabel\tcondition\treplicate\n");
         for (Map.Entry<LcmsFileGroup, Path> e : annotations.entrySet()) {
           BufferedReader bufferedReader = new BufferedReader(new FileReader(e.getValue().toFile()));
           while ((line = bufferedReader.readLine()) != null) {
             line = line.trim();
             if (!line.isEmpty()) {
-              bufferedWriter.write(e.getKey().name + "\t" + line.replace(" ", "\t") + "\t" + plex + "\t\t\n");
+              bufferedWriter.write(e.getKey().name + "\t" + line.replace(" ", "\t") + "\t\t\n");
             }
           }
           bufferedReader.close();
-          ++plex;
         }
         bufferedWriter.close();
       } catch (Exception ex) {
-        ex.printStackTrace();
+        showErrorDialogWithStacktrace(ex, comp);
         return false;
       }
     }
