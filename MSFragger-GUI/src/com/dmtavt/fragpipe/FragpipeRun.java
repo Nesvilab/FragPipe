@@ -1531,7 +1531,7 @@ public class FragpipeRun {
     final CmdDiann cmdDiann = new CmdDiann(diannPanel.isRun(), wd);
     addConfig.accept(cmdDiann,  () -> {
       if (cmdDiann.isRun()) {
-        return cmdDiann.configure(parent, sharedLcmsFileGroupsAll.values(), threads, diannPanel.getDiannQuantificationStrategy(), diannPanel.usePredict(), diannPanel.unrelatedRuns(), diannPanel.getDiannQvalue(), diannPanel.useRunSpecificProteinQvalue(), diannPanel.getLibraryPath(), diannPanel.getCmdOpts());
+        return cmdDiann.configure(parent, sharedLcmsFileGroupsAll.values(), threads, diannPanel.getDiannQuantificationStrategy(), diannPanel.usePredict(), diannPanel.unrelatedRuns(), diannPanel.getDiannQvalue(), diannPanel.useRunSpecificProteinQvalue(), diannPanel.getLibraryPath(), diannPanel.getCmdOpts(), isDryRun);
       }
       return true;
     });

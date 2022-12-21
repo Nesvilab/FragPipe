@@ -20,6 +20,8 @@ package com.dmtavt.fragpipe.cmd;
 import static com.github.chhh.utils.OsUtils.isUnix;
 import static com.github.chhh.utils.OsUtils.isWindows;
 import static com.github.chhh.utils.SwingUtils.createClickableHtml;
+import static com.github.chhh.utils.SwingUtils.showErrorDialogWithStacktrace;
+import static org.apache.commons.lang3.StringUtils.getCommonPrefix;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
@@ -29,6 +31,7 @@ import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
@@ -37,11 +40,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
+import org.apache.commons.io.FilenameUtils;
 import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +73,7 @@ public class CmdDiann extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, Collection<LcmsFileGroup> lcmsFileGroups, int nThreads, Set<String> quantificationStrategy, boolean usePredict, boolean unrelatedRuns, float qvalue, boolean useRunSpecificProteinQvalue, String libraryPath, String additionalCmdOpts) {
+  public boolean configure(Component comp, Collection<LcmsFileGroup> lcmsFileGroups, int nThreads, Set<String> quantificationStrategy, boolean usePredict, boolean unrelatedRuns, float qvalue, boolean useRunSpecificProteinQvalue, String libraryPath, String additionalCmdOpts, boolean isDryRun) {
 
     initPreConfig();
 
@@ -253,6 +258,38 @@ public class CmdDiann extends CmdBase {
         ProcessBuilder pb2 = new ProcessBuilder(cmd2);
         pb2.directory(groupWd.toFile());
         pbis.add(PbiBuilder.from(pb2));
+      }
+    }
+
+    if (!isDryRun) {
+      try {
+        Set<String> fileNameSet = new HashSet<>();
+        Set<String> reversedFileNameSet = new HashSet<>();
+        for (LcmsFileGroup lcmsFileGroup : lcmsFileGroups) {
+          for (InputLcmsFile inputLcmsFile : lcmsFileGroup.lcmsFiles) {
+            String baseName = FilenameUtils.getBaseName(inputLcmsFile.getPath().getFileName().toString());
+            fileNameSet.add(baseName);
+            reversedFileNameSet.add((new StringBuilder(baseName)).reverse().toString());
+          }
+        }
+
+        String commonPrefix = getCommonPrefix(fileNameSet.toArray(new String[0]));
+        String commonSuffix = getCommonPrefix(reversedFileNameSet.toArray(new String[0]));
+        int a = commonPrefix.length();
+        int b = commonSuffix.length();
+
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(wd.resolve("experiment_annotation.tsv").toFile()));
+        bufferedWriter.write("file\tlabel\tcondition\treplicate\n");
+        for (LcmsFileGroup lcmsFileGroup : lcmsFileGroups) {
+          for (InputLcmsFile inputLcmsFile : lcmsFileGroup.lcmsFiles) {
+            String baseName = FilenameUtils.getBaseName(inputLcmsFile.getPath().getFileName().toString());
+            bufferedWriter.write(inputLcmsFile.getPath() + "\t" + baseName.substring(a, baseName.length() - b) + "\t\t1\n");
+          }
+        }
+        bufferedWriter.close();
+      } catch (Exception ex) {
+        showErrorDialogWithStacktrace(ex, comp);
+        return false;
       }
     }
 
