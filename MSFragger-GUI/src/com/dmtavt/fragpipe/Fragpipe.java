@@ -631,7 +631,7 @@ public class Fragpipe extends JFrameHeadless {
 
     uiTabConfig = new UiTab(TabConfig.TAB_NAME, tabConfig, "/com/dmtavt/fragpipe/icons/150-cogs.png", null, true);
     uiTabWorkflow = new UiTab(TAB_NAME_LCMS, tabWorkflow,
-      "/com/dmtavt/fragpipe/icons/icon-workflow-16.png", null, true);
+      "/com/dmtavt/fragpipe/icons/icon-workflow-16.png", null, false);
     uiTabUmpire = new UiTab("Umpire", tabUmpire,
       "/com/dmtavt/fragpipe/icons/dia-umpire-16x16.png", null, true);
     uiTabDb = new UiTab("Database", tabDatabase,
