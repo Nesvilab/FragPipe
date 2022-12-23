@@ -283,10 +283,11 @@ public class CmdIonquant extends CmdBase {
     if (!isDryRun) {
       try {
         BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(wd.resolve("experiment_annotation.tsv").toFile()));
-        bufferedWriter.write("file\tlabel\treplicate\n");
+        bufferedWriter.write("file\tsample\tsample_name\tcondition\treplicate\n");
         for (LcmsFileGroup lcmsFileGroup : mapGroupsToProtxml.keySet()) {
           for (InputLcmsFile inputLcmsFile : lcmsFileGroup.lcmsFiles) {
-            bufferedWriter.write(inputLcmsFile.getPath() + "\t" + inputLcmsFile.getExperiment() + "\t" + (inputLcmsFile.getReplicate() == null ? 1 : inputLcmsFile.getReplicate()) + "\n");
+            String[] parts = inputLcmsFile.getExperiment().split("_");
+            bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getGroup() + "\t" + inputLcmsFile.getGroup() + "\t" + parts[0].trim() + "\t" + (inputLcmsFile.getReplicate() == null ? 1 : inputLcmsFile.getReplicate()) + "\n");
           }
         }
         bufferedWriter.close();

@@ -279,11 +279,11 @@ public class CmdDiann extends CmdBase {
         int b = commonSuffix.length();
 
         BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(wd.resolve("experiment_annotation.tsv").toFile()));
-        bufferedWriter.write("file\tlabel\tcondition\treplicate\n");
+        bufferedWriter.write("file\tsample\tsample_name\tcondition\treplicate\n");
         for (LcmsFileGroup lcmsFileGroup : lcmsFileGroups) {
           for (InputLcmsFile inputLcmsFile : lcmsFileGroup.lcmsFiles) {
             String baseName = FilenameUtils.getBaseName(inputLcmsFile.getPath().getFileName().toString());
-            bufferedWriter.write(inputLcmsFile.getPath() + "\t" + baseName.substring(a, baseName.length() - b) + "\t\t1\n");
+            bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getGroup() + "\t" + inputLcmsFile.getGroup() + "\t" + baseName.substring(a, baseName.length() - b) + "\t1\n");
           }
         }
         bufferedWriter.close();

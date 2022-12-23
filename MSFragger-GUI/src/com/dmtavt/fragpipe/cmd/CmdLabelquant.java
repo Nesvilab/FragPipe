@@ -161,13 +161,14 @@ public class CmdLabelquant extends CmdBase {
       try {
         String line;
         BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(wd.resolve("experiment_annotation.tsv").toFile()));
-        bufferedWriter.write("experiment\tchannel\tlabel\tcondition\treplicate\n");
+        bufferedWriter.write("plex\tchannel\tsample\tsample_name\tcondition\treplicate\n");
         for (Map.Entry<LcmsFileGroup, Path> e : annotations.entrySet()) {
           BufferedReader bufferedReader = new BufferedReader(new FileReader(e.getValue().toFile()));
           while ((line = bufferedReader.readLine()) != null) {
             line = line.trim();
             if (!line.isEmpty()) {
-              bufferedWriter.write(e.getKey().name + "\t" + line.replace(" ", "\t") + "\t\t\n");
+              String[] parts = line.split("\\s");
+              bufferedWriter.write(e.getKey().name + "\t" + parts[0].trim() + "\t" + parts[1].trim() + "\t" + parts[1].trim() + "\t\t1\n");
             }
           }
           bufferedReader.close();
