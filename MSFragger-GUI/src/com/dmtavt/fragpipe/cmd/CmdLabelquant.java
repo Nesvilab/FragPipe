@@ -168,6 +168,9 @@ public class CmdLabelquant extends CmdBase {
             line = line.trim();
             if (!line.isEmpty()) {
               String[] parts = line.split("\\s");
+              if (parts[1].trim().equalsIgnoreCase("na")) {
+                continue;
+              }
               bufferedWriter.write(e.getKey().name + "\t" + parts[0].trim() + "\t" + parts[1].trim() + "\t" + parts[1].trim() + "\t\t1\n");
             }
           }
