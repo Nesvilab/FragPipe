@@ -264,26 +264,22 @@ public class CmdDiann extends CmdBase {
     if (!isDryRun) {
       try {
         Set<String> fileNameSet = new HashSet<>();
-        Set<String> reversedFileNameSet = new HashSet<>();
         for (LcmsFileGroup lcmsFileGroup : lcmsFileGroups) {
           for (InputLcmsFile inputLcmsFile : lcmsFileGroup.lcmsFiles) {
             String baseName = FilenameUtils.getBaseName(inputLcmsFile.getPath().getFileName().toString());
             fileNameSet.add(baseName);
-            reversedFileNameSet.add((new StringBuilder(baseName)).reverse().toString());
           }
         }
 
         String commonPrefix = getCommonPrefix(fileNameSet.toArray(new String[0]));
-        String commonSuffix = getCommonPrefix(reversedFileNameSet.toArray(new String[0]));
         int a = commonPrefix.length();
-        int b = commonSuffix.length();
 
         BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(wd.resolve("experiment_annotation.tsv").toFile()));
         bufferedWriter.write("file\tsample\tsample_name\tcondition\treplicate\n");
         for (LcmsFileGroup lcmsFileGroup : lcmsFileGroups) {
           for (InputLcmsFile inputLcmsFile : lcmsFileGroup.lcmsFiles) {
             String baseName = FilenameUtils.getBaseName(inputLcmsFile.getPath().getFileName().toString());
-            bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getGroup() + "\t" + inputLcmsFile.getGroup() + "\t" + baseName.substring(a, baseName.length() - b) + "\t1\n");
+            bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getPath().toAbsolutePath() + "\t" + baseName.substring(a) + "\t\t1\n");
           }
         }
         bufferedWriter.close();
