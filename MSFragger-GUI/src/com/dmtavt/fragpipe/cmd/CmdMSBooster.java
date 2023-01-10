@@ -63,12 +63,12 @@ public class CmdMSBooster extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, int ramGb, int threads, Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml, boolean predictRT, boolean predictSpectra, boolean useCorrelatedFeatures, boolean hasDda, boolean hasDia, boolean hasGpfDia, boolean hasDiaLib, boolean isRunDiaU, boolean isOpenMassOffsetSearch) {
+  public boolean configure(Component comp, int ramGb, int threads, Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml, boolean predictRT, boolean predictSpectra, boolean useCorrelatedFeatures, boolean hasDda, boolean hasDia, boolean hasGpfDia, boolean hasDiaLib, boolean isRunDiaU, boolean isOpenSearch) {
     initPreConfig();
 
     // MSBooster does not compatible with open search and mass-offset search.
-    if (isOpenMassOffsetSearch) {
-      SwingUtils.showErrorDialog(comp, "MSBooster is incompatible with open search or mass offset search. Please disable MSBooster.", NAME + " error");
+    if (isOpenSearch) {
+      SwingUtils.showErrorDialog(comp, "MSBooster is incompatible with open search. Please disable MSBooster.", NAME + " error");
       return false;
     }
 
