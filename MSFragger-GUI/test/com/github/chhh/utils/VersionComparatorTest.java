@@ -17,10 +17,8 @@
 
 package com.github.chhh.utils;
 
-import com.github.chhh.utils.VersionComparator;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class VersionComparatorTest {
@@ -42,6 +40,24 @@ public class VersionComparatorTest {
 
     compare = vc.compare("13.0-RC11", "13.0.0-RC2");
     Assert.assertTrue(compare > 0);
+
+    compare = vc.compare("13.1-RC11", "13.1.0-RC2");
+    Assert.assertTrue(compare > 0);
+
+    compare = vc.compare("13.1", "13.1.0-RC2");
+    Assert.assertTrue(compare > 0);
+
+    compare = vc.compare("13.1.0", "13.1.0-RC2");
+    Assert.assertTrue(compare > 0);
+
+    compare = vc.compare("13.1", "13.1-RC2");
+    Assert.assertTrue(compare > 0);
+
+    compare = vc.compare("13.1.1-rc1", "13.1.0");
+    Assert.assertTrue(compare > 0);
+
+//    compare = vc.compare("13.1-rc1", "13.1.0"); // The DefaultArtifactVersion can not handle this case
+//    Assert.assertTrue(compare > 0);
   }
 
 
@@ -54,6 +70,15 @@ public class VersionComparatorTest {
     Assert.assertTrue(compare > 0);
 
     compare = vc.compare("9.0.0", "9.0.RC1");
+    Assert.assertTrue(compare > 0);
+
+    compare = vc.compare("9.1.1", "9.1");
+    Assert.assertTrue(compare > 0);
+
+    compare = vc.compare("9.1.1.0", "9.1");
+    Assert.assertTrue(compare > 0);
+
+    compare = vc.compare("9.1.0.1", "9.1");
     Assert.assertTrue(compare > 0);
   }
 
@@ -69,9 +94,12 @@ public class VersionComparatorTest {
   @Test
   public void versionsEqual() {
     int compare = vc.compare("9.0", "9.0.0");
-    Assert.assertTrue(compare == 0);
+    Assert.assertEquals(0, compare);
 
     compare = vc.compare("9.0", "9.0.0.0.0.0.0.0");
-    Assert.assertTrue(compare == 0);
+    Assert.assertEquals(0, compare);
+
+    compare = vc.compare("9.1.0", "9.1");
+    Assert.assertEquals(0, compare);
   }
 }
