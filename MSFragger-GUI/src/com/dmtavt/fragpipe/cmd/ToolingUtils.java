@@ -20,6 +20,7 @@ package com.dmtavt.fragpipe.cmd;
 import static com.github.chhh.utils.PathUtils.testBinaryPath;
 
 import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.github.chhh.utils.FileCopy;
@@ -32,6 +33,7 @@ import java.awt.Component;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -56,6 +58,34 @@ public class ToolingUtils {
   public static final String JFREECHART_JAR = "jfreechart-1.5.3.jar";
 
   /**
+   * Create a stub for a command that uses an executable class (with main() method) from Fragpipe jar.
+   * Typical usage will include appending full qualified class name to the command and then appending
+   * parameters one by one, like so:
+   * {@code
+   *   <br/>cmd.add(CometPinUpdateDecoyLabel.class.getCanonicalName());
+   *   <br/>cmd.add("rev_");
+   *   <br/>
+   * }
+   * And then creating a ProcessBuilder from that command list.
+   */
+  public static List<String> cmdStubForJar(Path jarFragpipe) {
+    if (jarFragpipe == null) {
+      throw new IllegalArgumentException("jar can't be null");
+    }
+    final List<String> cmd = new ArrayList<>();
+    cmd.add(Fragpipe.getBinJava());
+    cmd.add("-cp");
+    Path root = FragpipeLocations.get().getDirFragpipeRoot();
+    String libsDir = root.resolve("lib") + "/*";
+    if (Files.isDirectory(jarFragpipe)) {
+      libsDir = jarFragpipe.getParent().getParent().getParent().getParent().resolve("build/install/fragpipe/lib") + "/*";
+      log.warn("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
+    }
+    cmd.add(libsDir);
+    return cmd;
+  }
+
+  /**
    * @return Full absolute normalized path to the output combined protein file.
    */
   public static Path getCombinedProtFilePath(String combinedProtFn, Path workingDir) {
@@ -67,7 +97,7 @@ public class ToolingUtils {
     return workingDir.resolve(combinedProtFn).normalize().toAbsolutePath();
   }
 
-  private enum Op {COPY, MOVE, DELETE}
+  public enum Op {COPY, MOVE, DELETE}
 
   /**
    * @param jarFragpipe Use {@link JarUtils#getCurrentJarUri()} to get that from the current Jar.
@@ -132,6 +162,48 @@ public class ToolingUtils {
       cmd.add(file.toAbsolutePath().normalize().toString());
       if (dest != null)
         cmd.add(dest.resolve(file.getFileName()).toString());
+      ProcessBuilder pb = new ProcessBuilder(cmd);
+      pbs.add(pb);
+    }
+    return pbs;
+  }
+
+  public static List<ProcessBuilder> pbsCopyMoveFiles(Path jarFragpipe, Op operation,
+                                                       boolean ignoreMissingFiles, Map<Path, Path> files) {
+    if (jarFragpipe == null) {
+      throw new IllegalArgumentException("jar can't be null");
+    }
+
+    List<ProcessBuilder> pbs = new LinkedList<>();
+    for (Map.Entry<Path, Path> sourceDest : files.entrySet()) {
+      final Path source = sourceDest.getKey();
+      final Path dest = sourceDest.getValue();
+      if (source.equals(dest)) {
+        continue;
+      }
+      List<String> cmd = new ArrayList<>();
+      cmd.add(Fragpipe.getBinJava());
+      cmd.add("-cp");
+      final String commons_io_jar_path = org.apache.commons.io.FileUtils.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+      cmd.add(jarFragpipe.toAbsolutePath() +
+              (operation == Op.MOVE ?
+                      File.pathSeparator + commons_io_jar_path :
+                      ""));
+      switch (operation) {
+        case COPY:
+          cmd.add(FileCopy.class.getCanonicalName());
+          break;
+        case MOVE:
+          cmd.add(FileMove.class.getCanonicalName());
+          break;
+        default:
+          throw new IllegalStateException("Unknown enum value: " + operation.toString());
+      }
+      if (ignoreMissingFiles) {
+        cmd.add(FileMove.NO_ERR);
+      }
+      cmd.add(source.toAbsolutePath().normalize().toString());
+      cmd.add(dest.toAbsolutePath().normalize().toString());
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pbs.add(pb);
     }
