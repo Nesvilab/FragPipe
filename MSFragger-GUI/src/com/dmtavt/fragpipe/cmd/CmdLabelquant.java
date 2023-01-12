@@ -171,7 +171,18 @@ public class CmdLabelquant extends CmdBase {
               if (parts[1].trim().equalsIgnoreCase("na")) {
                 continue;
               }
-              bufferedWriter.write(e.getKey().name + "\t" + parts[0].trim() + "\t" + parts[1].trim() + "\t" + parts[1].trim() + "\t\t1\n");
+              String[] parts2 = parts[1].trim().split("_");
+              if (parts2.length == 2) {
+                int replicate = 1;
+                try {
+                  replicate = Integer.parseInt(parts2[1]);
+                  bufferedWriter.write(e.getKey().name + "\t" + parts[0].trim() + "\t" + parts[1].trim() + "\t" + parts[1].trim() + "\t" + parts2[0].trim() + "\t" + replicate + "\n");
+                } catch (NumberFormatException ex) {
+                  bufferedWriter.write(e.getKey().name + "\t" + parts[0].trim() + "\t" + parts[1].trim() + "\t" + parts[1].trim() + "\t" + parts[1].trim() + "\t1\n");
+                }
+              } else {
+                bufferedWriter.write(e.getKey().name + "\t" + parts[0].trim() + "\t" + parts[1].trim() + "\t" + parts[1].trim() + "\t" + parts[1].trim() + "\t1\n");
+              }
             }
           }
           bufferedReader.close();
