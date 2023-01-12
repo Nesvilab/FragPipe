@@ -220,6 +220,7 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_GUI = new HashMap<>();
 
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_write_calibrated_mzml, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_write_uncalibrated_mgf, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_mass_diff_to_variable_mod, s -> itos(
         MASS_DIFF_TO_VAR_MOD_MAP[ArrayUtils.indexOf(MASS_DIFF_TO_VAR_MOD, s)]));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_deisotope, s -> {
@@ -265,6 +266,7 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_deneutralloss, s -> s.toLowerCase().contentEquals("yes") ? "1" : "0");
 
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_write_calibrated_mzml, s -> Boolean.toString(Integer.parseInt(s) > 0));
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_write_uncalibrated_mgf, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_mass_diff_to_variable_mod, s-> MASS_DIFF_TO_VAR_MOD[MASS_DIFF_TO_VAR_MOD_MAP[Integer.parseInt(s)]]);
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_deisotope, s-> DEISOTOPE[Integer.parseInt(s)]);
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_precursor_mass_units, s -> PrecursorMassTolUnits.fromParamsFileRepresentation(s).name());
@@ -337,7 +339,7 @@ public class TabMsfragger extends JPanelBase {
   private JPanel pMods;
   private JPanel pAdvanced;
   private UiCheck uiCheckWriteCalibratedMzml;
-
+  private UiCheck uiCheckWriteUncalibratedMgf;
 
   @Override
   protected ItemSelectable getRunCheckbox() {
@@ -1349,6 +1351,9 @@ public class TabMsfragger extends JPanelBase {
     uiCheckWriteCalibratedMzml = UiUtils.createUiCheck("Write calibrated mzML", false);
     FormEntry feCheckWriteCalibratedMzml = mu.feb(MsfraggerParams.PROP_write_calibrated_mzml, uiCheckWriteCalibratedMzml).create();
 
+    uiCheckWriteUncalibratedMgf = UiUtils.createUiCheck("Write uncalibrated MGF", false);
+    FormEntry feCheckWriteUncalibratedMgf = mu.feb(MsfraggerParams.PROP_write_uncalibrated_mgf, uiCheckWriteUncalibratedMgf).tooltip("Only for .raw and .d formats.").create();
+
     mu.add(p, feReportTopN.label(), mu.ccR());
     mu.add(p, feReportTopN.comp).growX();
     mu.add(p, feReportAltProts.comp);
@@ -1356,7 +1361,8 @@ public class TabMsfragger extends JPanelBase {
     mu.add(p, feOutputMaxExpect.comp).pushX().wrap();
     mu.add(p, feOutputType.label(), mu.ccR());
     mu.add(p, feOutputType.comp);
-    mu.add(p, feCheckWriteCalibratedMzml.comp).wrap();
+    mu.add(p, feCheckWriteCalibratedMzml.comp);
+    mu.add(p, feCheckWriteUncalibratedMgf.comp).wrap();
 
     return p;
   }

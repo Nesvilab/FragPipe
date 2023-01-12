@@ -83,6 +83,7 @@ public class MsfraggerParams extends AbstractParams {
     public static final String PROP_check_spectral_files = "check_spectral_files";
     public static final String PROP_activation_filter = "activation_types";
     public static final String PROP_write_calibrated_mzml = "write_calibrated_mzml";
+    public static final String PROP_write_uncalibrated_mgf = "write_uncalibrated_mgf";
     public static final String PROP_mass_diff_to_variable_mod = "mass_diff_to_variable_mod";
 
     public static final String PROP_calibrate_mass = "calibrate_mass";
@@ -171,6 +172,7 @@ public class MsfraggerParams extends AbstractParams {
         PROP_intensity_transform,
         PROP_check_spectral_files,
         PROP_write_calibrated_mzml,
+        PROP_write_uncalibrated_mgf,
         PROP_mass_diff_to_variable_mod,
         PROP_calibrate_mass,
         PROP_use_all_mods_in_first_search,
@@ -328,7 +330,8 @@ public class MsfraggerParams extends AbstractParams {
         c.put(PROP_data_type, "Data type (0 for DDA, 1 for DIA, 2 for gas-phase fractionation DIA).");
         c.put(PROP_calibrate_mass, "Perform mass calibration (0 for OFF, 1 for ON, 2 for ON and find optimal parameters).");
         c.put(PROP_use_all_mods_in_first_search, "Use all variable modifications in first search (0 for No, 1 for Yes).");
-        c.put(PROP_write_calibrated_mzml, "Write calibrated MS2 scan to a MGF file (0 for No, 1 for Yes).");
+        c.put(PROP_write_calibrated_mzml, "Write calibrated MS2 scan to a mzML file (0 for No, 1 for Yes).");
+        c.put(PROP_write_uncalibrated_mgf, "Write uncalibrated MS2 scan to a MGF file (0 for No, 1 for Yes). Only for .raw and .d formats.");
         c.put(PROP_decoy_prefix, "Prefix of the decoy protein entries. Used for parameter optimization only.");
         c.put(PROP_isotope_error, "Also search for MS/MS events triggered on specified isotopic peaks.");
         c.put(PROP_mass_offsets, "Creates multiple precursor tolerance windows with specified mass offsets.");
