@@ -116,10 +116,10 @@ public class CmdSaintExpress extends CmdBase {
       final String[] second_row = br.readLine().split("\t");
       for (int i = 0; i < IP.length; i++) {
         final String s = second_row[i + column_offset];
-        bait_names[i] = s.equals("CONTROL") ? IP[i] : s;
+        bait_names[i] = s.equalsIgnoreCase("CONTROL") ? IP[i] : s;
       }
       for (int i = 0; i < IP.length; ++i) {
-        bait_dat.add(IP[i] + "\t" + bait_names[i] + "\t" + (bait_names[i].startsWith("CONTROL") ? "C" : "T"));
+        bait_dat.add(IP[i] + "\t" + bait_names[i] + "\t" + (bait_names[i].toUpperCase().startsWith("CONTROL") ? "C" : "T"));
       }
       String line;
       while ((line = br.readLine()) != null) {
