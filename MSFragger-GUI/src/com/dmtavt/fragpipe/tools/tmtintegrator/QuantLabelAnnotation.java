@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 
 public class QuantLabelAnnotation {
 
-  private static Pattern disallowedPattern = Pattern.compile("[^0-9a-zA-Z_]");
+  public static final Pattern disallowedPattern = Pattern.compile("[^0-9a-zA-Z_-]");
 
   private String label;
   private String sample;

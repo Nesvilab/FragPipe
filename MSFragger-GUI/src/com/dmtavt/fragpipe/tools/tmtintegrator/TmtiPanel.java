@@ -17,6 +17,7 @@
 
 package com.dmtavt.fragpipe.tools.tmtintegrator;
 
+import static com.dmtavt.fragpipe.tools.tmtintegrator.QuantLabelAnnotation.disallowedPattern;
 import static com.dmtavt.fragpipe.tools.tmtintegrator.QuantLabelAnnotation.unifyAnnotationSampleName;
 
 import com.dmtavt.fragpipe.api.Bus;
@@ -313,7 +314,7 @@ public class TmtiPanel extends JPanelBase {
     uiSpinnerTolerance = UiUtils.spinnerInt(20, 1, 9999, 1).create();
     FormEntry feTolerance = fe("tolerance", "Mass tolerance (ppm)", uiSpinnerTolerance, "Reporter ions mass tolerance in PPM");
 
-    UiText uiTextRefTag = UiUtils.uiTextBuilder().cols(10).filter("[^0-9a-zA-Z_]").text("Bridge").create();
+    UiText uiTextRefTag = UiUtils.uiTextBuilder().cols(10).filter(disallowedPattern.toString()).text("Bridge").create();
     FormEntry feRefTag = fe(TmtiConfProps.PROP_ref_tag,
         "Ref sample tag", uiTextRefTag,
         "<html>Unique tag to identify reference (bridge) channels");
