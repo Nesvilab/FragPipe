@@ -63,6 +63,24 @@ public class Version {
       new VersionComparator());
 
   static {
+    CHANGELOG.put("19.1", Arrays.asList(
+        "Require MSFragger 3.7+",
+        "Require Philosopher 4.8.0+",
+        "Require IonQuant 1.8.10+",
+        "Require EasyPQP 0.1.34+",
+        "Add 'write uncalibrated mgf' checkbox",
+        "Add Add iTRAQ4-phospho workflow",
+        "Update iTRAQ4 workflow",
+        "Rename 'combined_annotation.tsv' to 'experiment_annotation.tsv'",
+        "Update the format of `experiment_annotation.tsv`",
+        "Allow MSBooster for mass-offset search",
+        "In GUI mode, do not load the tools' config paths from the workflow file",
+        "Upgrade Crystal-C to 1.5.1",
+        "Upgrade MSBooster to 1.1.11",
+        "Upgrade DIA-Umpire to 2.3.2",
+        "Various minor bug fixes and improvements"
+    ));
+
     CHANGELOG.put("19.0", Arrays.asList(
         "Require Java 9+",
         "Require MSFragger 3.6+",
