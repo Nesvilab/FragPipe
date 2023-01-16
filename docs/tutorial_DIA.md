@@ -34,7 +34,7 @@ Python (with EasyPQP installed) is needed for spectral library generation. On th
 
 ### DIA_SpecLib_Quant
 1. In the Workflow tab, select the 'DIA_SpecLib_Quant' workflow from the dropdown menu and click 'Load'.
-2. Load DIA (and optionally additional DDA) spectral files in mzML or raw format. You can use the 'Add folder recursively' button to browse for the unzipped 'speclib-raw' folder, which will load 2 DIA files and 2 DDA files. The data type of each file should be automatically detected by FragPipe, check that these assignments are correct.
+2. Load DIA (and optionally additional DDA) spectral files in mzML or raw format. You can use the 'Add folder recursively' button to browse for the unzipped 'speclib-raw' folder, which will load 2 DIA files and 2 DDA files. The data type of each file will be automatically **guessed** by FragPipe. The guess is based on the folder and file name. **Please double check the data type and adjust it if necessary.**
 
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/DIA-tutorial_SpecLib_Quant_workflow.png)
 
