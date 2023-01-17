@@ -1274,6 +1274,8 @@ public class FragpipeRun {
       return true;
     });
 
+    final TmtiPanel tmtiPanel = Fragpipe.getStickyStrict(TmtiPanel.class);
+
     // run Report - Report command itself
     final CmdPhilosopherReport cmdPhilosopherReport = new CmdPhilosopherReport(isReport, wd);
     final boolean doPrintDecoys = reportPanel.isPrintDecoys();
@@ -1281,13 +1283,10 @@ public class FragpipeRun {
 
     addConfig.accept(cmdPhilosopherReport, () -> {
       if (cmdPhilosopherReport.isRun()) {
-        return cmdPhilosopherReport
-            .configure(parent, usePhi, doPrintDecoys, doMSstats, reportPanel.isRemoveContaminants(), sharedMapGroupsToProtxml);
+        return cmdPhilosopherReport.configure(parent, usePhi, isDryRun, doPrintDecoys, doMSstats, reportPanel.isRemoveContaminants(), sharedMapGroupsToProtxml, tmtiPanel.getAnnotations());
       }
       return true;
     });
-
-    final TmtiPanel tmtiPanel = Fragpipe.getStickyStrict(TmtiPanel.class);
 
     // run Report - Multi-Experiment report
     final CmdPhilosopherAbacus cmdPhilosopherAbacus = new CmdPhilosopherAbacus(false, wd);
