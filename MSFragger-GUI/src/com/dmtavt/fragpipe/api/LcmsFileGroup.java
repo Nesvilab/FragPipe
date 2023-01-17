@@ -33,6 +33,7 @@ public class LcmsFileGroup implements Comparable<LcmsFileGroup> {
         return workDir.resolve(name);
     }
 
+    @Override
     public boolean equals(Object other) {
         if (other instanceof LcmsFileGroup) {
             return ((LcmsFileGroup) other).name.contentEquals(name);
@@ -41,7 +42,13 @@ public class LcmsFileGroup implements Comparable<LcmsFileGroup> {
         }
     }
 
+    @Override
     public int compareTo(LcmsFileGroup other) {
         return name.compareTo(other.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
     }
 }
