@@ -165,7 +165,7 @@ public class ReportPanel extends JPanelBase {
     uiCheckMsstats = new UiCheck("Generate MSstats files", null, false);
     FormEntry feCheckMSstats = new FormEntry("philosoher-msstats", "not-shown",
         uiCheckMsstats,
-        "<html>Option to generate an MSstats-compatible report with Philosopher.");
+        "<html>Option to generate an MSstats-compatible report with Philosopher.<br>No need to enable this if using IonQuant.");
 
     uiCheckRemoveContaminants = new UiCheck("Remove contaminants", null, false);
     FormEntry feCheckRemoveContaminants = new FormEntry("remove-contaminants", "not-shown", uiCheckRemoveContaminants, "<html>Remove contaminant proteins from the tsv files.");
