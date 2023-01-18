@@ -42,6 +42,7 @@ public class IonQuant {
 
   private static final Logger log = LoggerFactory.getLogger(IonQuant.class);
   private static final Pattern re = Pattern.compile("ionquant-(\\d+\\.\\d+\\.\\d+).jar", Pattern.CASE_INSENSITIVE);
+  private static final Pattern re2 = Pattern.compile("ionquant-(\\d+\\.\\d+\\.\\d+)", Pattern.CASE_INSENSITIVE);
 
   public static Version getVersion(Path jar) throws Exception {
     // only validate IonQuant version if the current Java version is 1.9 or higher
@@ -107,7 +108,7 @@ public class IonQuant {
       try (BufferedReader in = new BufferedReader(new InputStreamReader(pr.getInputStream()))) {
         String line;
         while ((line = in.readLine()) != null) {
-          m = re.matcher(line);
+          m = re2.matcher(line);
           if (m.find()) {
             isVersionParsed = true;
             verStr = m.group(1);

@@ -109,6 +109,7 @@ public class Msfragger {
     }
 
     if (!isVersionParsed) {
+      regexs = Arrays.asList(MsfraggerVerCmp.regexNewScheme2, MsfraggerVerCmp.regexOldScheme2); // New scheme first because most people are using the new version.
       ProcessBuilder pb = new ProcessBuilder(Fragpipe.getBinJava(), "-jar", jarPath);
       pb.redirectErrorStream(true);
       Process pr = pb.start();
@@ -120,7 +121,7 @@ public class Msfragger {
             Matcher m = re.matcher(line);
             if (m.find()) {
               isVersionParsed = true;
-              verStr = m.group(2);
+              verStr = m.group(1);
               break;
             }
           }
