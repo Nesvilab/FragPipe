@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.io.FilenameUtils;
 
 public class CmdPhilosopherReport extends CmdBase {
 
@@ -78,12 +77,12 @@ public class CmdPhilosopherReport extends CmdBase {
               if (parts2.length == 2) {
                 try {
                   replicate = Integer.parseInt(parts2[1]);
-                  bw.write(FilenameUtils.getBaseName(inputLcmsFile.getPath().getFileName().toString()) + "," + fraction + "," + replicate + "," + parts[1].trim() + "," + parts[0].trim() + "," + replicate + "," + parts2[0].trim() + "\n");
+                  bw.write(inputLcmsFile.getPath().getFileName() + "," + fraction + "," + replicate + "," + parts[1].trim() + "," + parts[0].trim() + "," + replicate + "," + parts2[0].trim() + "\n");
                 } catch (NumberFormatException ex) {
-                  bw.write(FilenameUtils.getBaseName(inputLcmsFile.getPath().getFileName().toString()) + "," + fraction + "," + replicate + "," + parts[1].trim() + "," + parts[0].trim() + "," + replicate + "," + parts[1].trim() + "\n");
+                  bw.write(inputLcmsFile.getPath().getFileName() + "," + fraction + "," + replicate + "," + parts[1].trim() + "," + parts[0].trim() + "," + replicate + "," + parts[1].trim() + "\n");
                 }
               } else {
-                bw.write(FilenameUtils.getBaseName(inputLcmsFile.getPath().getFileName().toString()) + "," + fraction + "," + replicate + "," + parts[1].trim() + "," + parts[0].trim() + "," + replicate + "," + parts[1].trim() + "\n");
+                bw.write(inputLcmsFile.getPath().getFileName() + "," + fraction + "," + replicate + "," + parts[1].trim() + "," + parts[0].trim() + "," + replicate + "," + parts[1].trim() + "\n");
               }
               ++fraction;
             }
