@@ -140,7 +140,11 @@ public class Msfragger {
 
     public Version(boolean isVersionParsed, String version) {
       this.isVersionParsed = isVersionParsed;
-      this.version = new DefaultArtifactVersion(version);
+      if (isVersionParsed && version != null) {
+        this.version = new DefaultArtifactVersion(version);
+      } else {
+        this.version = new DefaultArtifactVersion("N/A");
+      }
     }
   }
 }
