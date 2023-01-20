@@ -346,7 +346,7 @@ def get_pep_to_prot_mapping(infile: pathlib.Path) -> typing.Mapping[bytes, Prot]
 	import types
 	return types.MappingProxyType(pep_to_prot)
 
-def replace_prot_list(sh: bytes, prot_list: list[Prot]) -> bytes:
+def replace_prot_list(sh: bytes, prot_list: typing.List[Prot]) -> bytes:
 	prot_list_original = get_prots_from_search_hit(sh)
 	if len(prot_list) == len(prot_list_original):
 		return sh
