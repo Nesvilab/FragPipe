@@ -320,17 +320,17 @@ public class CmdMsfragger extends CmdBase {
 
     if (StringUtils.isNullOrWhitespace(binFragger.getBin())) {
       if (Fragpipe.headless) {
-        log.error("Binary for running Fragger can not be an empty string.");
+        log.error("Binary for running MSFragger can not be an empty string.");
       } else {
-        JOptionPane.showMessageDialog(comp, "Binary for running Fragger can not be an empty string.\n", "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(comp, "Binary for running MSFragger can not be an empty string.\n", "Error", JOptionPane.ERROR_MESSAGE);
       }
       return false;
     }
     if (testFilePath(binFragger.getBin(), "") == null) {
       if (Fragpipe.headless) {
-        log.error("Binary for running Fragger not found or could not be run. Neither on PATH, nor in the working directory");
+        log.error("Binary for running MSFragger not found or could not be run. Neither on PATH, nor in the working directory");
       } else {
-        JOptionPane.showMessageDialog(comp, "Binary for running Fragger not found or could not be run.\nNeither on PATH, nor in the working directory", "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(comp, "Binary for running MSFragger not found or could not be run.\nNeither on PATH, nor in the working directory", "Error", JOptionPane.ERROR_MESSAGE);
       }
       return false;
     }
@@ -357,7 +357,7 @@ public class CmdMsfragger extends CmdBase {
       if (Fragpipe.headless) {
         log.error("Fasta file path can't be empty");
       } else {
-        JOptionPane.showMessageDialog(comp, "Fasta file path (Fragger) can't be empty", "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(comp, "FASTA file path can't be empty", "Error", JOptionPane.ERROR_MESSAGE);
       }
       return false;
     }
