@@ -54,7 +54,6 @@ import com.dmtavt.fragpipe.tools.fragger.Mod;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerEnzyme;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerProps;
-import com.dmtavt.fragpipe.tools.umpire.UmpirePanel;
 import com.dmtavt.fragpipe.util.GlycoMassLoader;
 import com.github.chhh.utils.MapUtils;
 import com.github.chhh.utils.StringUtils;
@@ -402,8 +401,6 @@ public class TabMsfragger extends JPanelBase {
 
   @Override
   protected void initMore() {
-    postInitAddActionListeners();
-
     updateEnabledStatus(this, false); // will get enabled once we receive NoteConfigMsfragger
     updateEnabledStatus(uiSpinnerDbsplit, false); // only gets enabled when DbSlice2 is initialized
 
@@ -1434,32 +1431,6 @@ public class TabMsfragger extends JPanelBase {
     mu.add(p, feLocalizeDeltaMass.comp).skip(1).wrap();
 
     return p;
-  }
-
-  private void postInitAddActionListeners() {
-    uiCheckLocalizeDeltaMass.addActionListener(e -> {
-      final boolean selected = uiCheckLocalizeDeltaMass.isSelected();
-      final int dbSlicing = uiSpinnerDbsplit.getActualValue();
-      if (selected && dbSlicing > 1) {
-        JOptionPane.showMessageDialog(this,
-            "<html>This option is incompatible with DB Splitting.<br/>"
-                + "Please either turn it off, or turn off DB Splitting by setting<br/>"
-                + "it to 1.", "Incompatible options", JOptionPane.WARNING_MESSAGE);
-      }
-    });
-
-    uiSpinnerDbsplit.addChangeListener(e -> {
-      if (getNumDbSlices() > 1) {
-        TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
-        if (tabWorkflow.hasDia() || tabWorkflow.hasGpfDia() || tabWorkflow.hasDiaLib()) {
-          UmpirePanel umpirePanel = Fragpipe.getStickyStrict(UmpirePanel.class);
-          if (!umpirePanel.isRun()) { // With DIA-Umpire, the split database works.
-            JOptionPane.showMessageDialog(this, "<html><code>Split database</code> is incompatible with DIA, GPF-DIA, or DIA-Lib data types.<br/>Set <code>split database</code> to 1.<br/>", "Incompatible options", JOptionPane.WARNING_MESSAGE);
-            uiSpinnerDbsplit.setValue(1);
-          }
-        }
-      }
-    });
   }
 
   private void setJTableColSize(JTable table, int colIndex, int minW, int maxW, int prefW) {

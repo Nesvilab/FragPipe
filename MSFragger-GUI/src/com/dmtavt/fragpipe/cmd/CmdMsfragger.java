@@ -32,6 +32,7 @@ import com.dmtavt.fragpipe.tools.enums.PrecursorMassTolUnits;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.StringUtils;
+import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.UsageTrigger;
 import java.awt.Component;
 import java.io.File;
@@ -293,7 +294,16 @@ public class CmdMsfragger extends CmdBase {
 
     final boolean isSlicing = numSlices > 1;
     if (isSlicing) {
-      // slicing requested
+      if (params.getShiftedIons()) {
+        SwingUtils.showErrorDialog(comp, "<html><code>Split database</code> is incompatible with <code>localize mass shift</code>.", "Incompatible options");
+        return false;
+      }
+
+      if (hasDia || hasGpfDia || hasDiaLib) {
+        SwingUtils.showErrorDialog(comp, "<html><code>Split database</code> is incompatible with DIA, GPF-DIA, or DIA-Lib data types.", "Incompatible options");
+        return false;
+      }
+
       if (!DbSplit2.get().isInitialized()) {
         if (Fragpipe.headless) {
           log.error("MSFragger: database splitting in more than 1 chunk. However not all preconditions for enabling slicing were met, check that Python is installed and meets minimum version requirements.");
