@@ -36,6 +36,7 @@ import com.dmtavt.fragpipe.cmd.CmdMSBooster;
 import com.dmtavt.fragpipe.cmd.CmdMsfragger;
 import com.dmtavt.fragpipe.cmd.CmdOPair;
 import com.dmtavt.fragpipe.cmd.CmdPairScans;
+import com.dmtavt.fragpipe.cmd.CmdAppendFile;
 import com.dmtavt.fragpipe.cmd.CmdPeptideProphet;
 import com.dmtavt.fragpipe.cmd.CmdPercolator;
 import com.dmtavt.fragpipe.cmd.CmdPhilosopherAbacus;
@@ -1324,6 +1325,16 @@ public class FragpipeRun {
       return true;
     });
 
+    // PTM-S glycan assignment can assign additional masses to PSMs. Append those masses to the mass list file after PTM-S is run for IonQuant
+    PTMSGlycanAssignPanel ptmsGlycanPanel = Fragpipe.getStickyStrict(PTMSGlycanAssignPanel.class);
+    final CmdAppendFile cmdAppendFile = new CmdAppendFile(ptmsGlycanPanel.isRun() && quantPanelLabelfree.isRunIonQuant(), wd);
+    addConfig.accept(cmdAppendFile,  () -> {
+      if (cmdAppendFile.isRun()) {
+        return cmdAppendFile.configure(parent, jarPath,"modmasses_ionquant.txt", "ptm-shepherd-output/glyco_masses_list.txt");
+      }
+      return true;
+    });
+
     // run Report - IonQuant (Labelfree)
     final CmdIonquant cmdIonquant = new CmdIonquant(quantPanelLabelfree.isRunIonQuant(), wd);
     if (quantPanelLabelfree.isChecked() && quantPanelLabelfree.isIonQuantChecked() && (!quantPanelLabelfree.isIonQuantEnabled() || !quantPanelLabelfree.isCheckRunEnabled())) {
@@ -1443,7 +1454,6 @@ public class FragpipeRun {
     });
 
     // run O-Pair
-    PTMSGlycanAssignPanel ptmsGlycanPanel = Fragpipe.getStickyStrict(PTMSGlycanAssignPanel.class);
     CmdOPair cmdOPair = new CmdOPair(oPairPanel.isRun(), wd);
     OPairParams oPairParams = oPairPanel.getOPairParams();
     addConfig.accept(cmdOPair, () -> {
@@ -1589,6 +1599,7 @@ public class FragpipeRun {
     addToGraph(graphOrder, cmdPairScans, DIRECTION.IN, cmdPhilosopherReport, cmdPhilosopherAbacus);
     addToGraph(graphOrder, cmdOPair, DIRECTION.IN, cmdPairScans);
     addToGraph(graphOrder, cmdPtmshepherd, DIRECTION.IN, cmdPhilosopherReport, cmdPhilosopherAbacus);
+    addToGraph(graphOrder, cmdAppendFile, DIRECTION.IN, cmdPtmshepherd);
     addToGraph(graphOrder, cmdIonquant, DIRECTION.IN, cmdPhilosopherReport, cmdPhilosopherAbacus, cmdPtmshepherd);
     addToGraph(graphOrder, cmdTmt, DIRECTION.IN, cmdPhilosopherReport, cmdTmtFreequant, cmdTmtLabelQuant, cmdPhilosopherAbacus, cmdPtmshepherd);
     addToGraph(graphOrder, cmdSpecLibGen, DIRECTION.IN, cmdPhilosopherReport);
