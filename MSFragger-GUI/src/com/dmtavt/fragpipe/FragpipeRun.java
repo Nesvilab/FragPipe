@@ -1267,7 +1267,7 @@ public class FragpipeRun {
           dontUseProtxmlInFilter = isCheckFilterNoProtxml;
         }
 
-        return cmdPhilosopherFilter.configure(parent, usePhi,
+        return cmdPhilosopherFilter.configure(parent, ramGb, threads, usePhi,
             decoyTag, reportPanel.getFilterCmdText(), dontUseProtxmlInFilter,
             sharedMapGroupsToProtxml, sharedPepxmlFiles.firstKey());
       }
@@ -1283,7 +1283,7 @@ public class FragpipeRun {
 
     addConfig.accept(cmdPhilosopherReport, () -> {
       if (cmdPhilosopherReport.isRun()) {
-        return cmdPhilosopherReport.configure(parent, usePhi, isDryRun, doPrintDecoys, doMSstats, reportPanel.isRemoveContaminants(), sharedMapGroupsToProtxml, tmtiPanel.getAnnotations());
+        return cmdPhilosopherReport.configure(parent, ramGb, threads, usePhi, isDryRun, doPrintDecoys, doMSstats, reportPanel.isRemoveContaminants(), sharedMapGroupsToProtxml, tmtiPanel.getAnnotations());
       }
       return true;
     });

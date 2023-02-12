@@ -50,9 +50,9 @@ public class CmdPhilosopherFilter extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, UsageTrigger usePhilosopher,
-      String decoyTag, String textReportFilter, boolean dontUseFilterProtxml,
-      Map<LcmsFileGroup, Path> mapGroupsToProtxml, InputLcmsFile firstInputLcmsFile) {
+  public boolean configure(Component comp, int ramGb, int threads, UsageTrigger usePhilosopher,
+                           String decoyTag, String textReportFilter, boolean dontUseFilterProtxml,
+                           Map<LcmsFileGroup, Path> mapGroupsToProtxml, InputLcmsFile firstInputLcmsFile) {
 
     initPreConfig();
 
@@ -105,6 +105,9 @@ public class CmdPhilosopherFilter extends CmdBase {
       }
 
       ProcessBuilder pb = new ProcessBuilder(cmd);
+      pb.environment().put("GOMEMLIMIT", ramGb + "GiB");
+      pb.environment().put("GOGC", "200");
+      pb.environment().put("GOMAXPROCS", String.valueOf(threads));
       pb.directory(groupWd.toFile());
       pbis.add(PbiBuilder.from(pb));
     }

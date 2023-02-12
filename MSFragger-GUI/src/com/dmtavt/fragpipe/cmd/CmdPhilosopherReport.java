@@ -48,7 +48,7 @@ public class CmdPhilosopherReport extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, UsageTrigger usePhilosopher, boolean isDryRun, boolean doPrintDecoys, boolean doMsstats, boolean doRemoveContaminants, Map<LcmsFileGroup, Path> mapGroupsToProtxml, Map<LcmsFileGroup, Path> groupAnnotationMap) {
+  public boolean configure(Component comp, int ramGb, int threads, UsageTrigger usePhilosopher, boolean isDryRun, boolean doPrintDecoys, boolean doMsstats, boolean doRemoveContaminants, Map<LcmsFileGroup, Path> mapGroupsToProtxml, Map<LcmsFileGroup, Path> groupAnnotationMap) {
 
     initPreConfig();
 
@@ -112,6 +112,9 @@ public class CmdPhilosopherReport extends CmdBase {
         cmd.add("--removecontam");
       }
       ProcessBuilder pb = new ProcessBuilder(cmd);
+      pb.environment().put("GOMEMLIMIT", ramGb + "GiB");
+      pb.environment().put("GOGC", "200");
+      pb.environment().put("GOMAXPROCS", String.valueOf(threads));
       pb.directory(groupWd.toFile());
       pbis.add(PbiBuilder.from(pb));
     }
