@@ -17,18 +17,20 @@
 
 package com.dmtavt.fragpipe.cmd;
 
+import com.github.chhh.utils.UsageTrigger;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
-import com.github.chhh.utils.UsageTrigger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CmdPhilosopherWorkspaceCleanInit extends CmdBase {
+
+  private static final Logger log = LoggerFactory.getLogger(CmdPhilosopherWorkspaceCleanInit.class);
 
   public static final String NAME = "WorkspaceCleanInit";
 
@@ -69,7 +71,7 @@ public class CmdPhilosopherWorkspaceCleanInit extends CmdBase {
       try {
         Files.createDirectories(phiTempDir);
       } catch (IOException ex) {
-        throw new UncheckedIOException(ex);
+        throw new RuntimeException("Could not generate temporary directory " + phiTempDir + " for Philosopher", ex);
       }
       cmd.add(phiTempDir.toString());
       ProcessBuilder pb = new ProcessBuilder(cmd);

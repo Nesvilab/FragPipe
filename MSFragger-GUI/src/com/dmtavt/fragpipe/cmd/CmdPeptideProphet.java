@@ -32,7 +32,6 @@ import com.github.chhh.utils.UsageTrigger;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -263,7 +262,7 @@ public class CmdPeptideProphet extends CmdBase {
           try {
             Files.createDirectories(phiTempDir);
           } catch (IOException ex) {
-            throw new UncheckedIOException(ex);
+            throw new RuntimeException("Could not generate temporary directory " + phiTempDir + " for Philosopher", ex);
           }
           cmdPhiInit.add(phiTempDir.toString());
           ProcessBuilder pbPhiInit = new ProcessBuilder(cmdPhiInit);
