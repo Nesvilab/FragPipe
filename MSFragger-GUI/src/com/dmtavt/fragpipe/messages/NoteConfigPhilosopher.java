@@ -37,7 +37,7 @@ public class NoteConfigPhilosopher implements INoteConfig {
 
   @Override
   public boolean isValid() {
-    return ex == null && version != null && path != null;
+    return ex == null && version != null && path != null && !version.isEmpty() && !path.isEmpty() && !version.trim().equalsIgnoreCase("n/a") && !path.trim().equalsIgnoreCase("n/a");
   }
 
   @Override

@@ -44,7 +44,7 @@ public class NoteConfigMsfragger implements INoteConfig {
 
   @Override
   public boolean isValid() {
-    return ex == null;
+    return ex == null && path != null && version != null && !isTooOld && !path.isEmpty() && !version.isEmpty() && !path.trim().equalsIgnoreCase("n/a") && !version.trim().equalsIgnoreCase("n/a");
   }
 
   @Override

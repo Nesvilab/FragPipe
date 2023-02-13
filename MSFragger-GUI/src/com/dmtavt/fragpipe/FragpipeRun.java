@@ -909,12 +909,12 @@ public class FragpipeRun {
     final ReportPanel reportPanel = Fragpipe.getStickyStrict(ReportPanel.class);
 
     final NoteConfigPhilosopher configPhi = Fragpipe.getStickyStrict(NoteConfigPhilosopher.class);
-    final UsageTrigger usePhi;
-    if (configPhi.isValid()) {
-      usePhi = new UsageTrigger(configPhi.path, "Philosopher");
-    } else {
-      usePhi = null;
+
+    if (!configPhi.isValid()) {
+      SwingUtils.showErrorDialog(parent, "Philosopher was not configured properly. Please check the config tab if you want to use it.", "Philosopher is not available");
     }
+
+    final UsageTrigger usePhi = new UsageTrigger(configPhi.path, "Philosopher");
 
     // all the configurations are aggregated before being executed
     // because some commands might require others to run
@@ -1002,6 +1002,12 @@ public class FragpipeRun {
       SwingUtils.showErrorDialog(parent, "Looks like MSFragger was not configured.\nMSFragger is currently required.", "No MSFragger");
       return false;
     }
+
+    if (!configMsfragger.isValid()) {
+      SwingUtils.showErrorDialog(parent, "MSFragger was not configured properly. Please check the config tab.", "MSFragger is not available");
+      return false;
+    }
+
     final UsageTrigger binMsfragger = new UsageTrigger(configMsfragger.path, "MSFragger");
 
     final UmpirePanel umpirePanel = Fragpipe.getStickyStrict(UmpirePanel.class);
@@ -1349,7 +1355,12 @@ public class FragpipeRun {
         return false;
       }
 
-      final UsageTrigger binIonQuant = new UsageTrigger(configIonQuant.path, "IonQuant");
+      if (!configIonQuant.isValid()) {
+        SwingUtils.showErrorDialog(parent, "Looks like IonQuant was not configured.\nIonQuant is currently required.", "IonQuant not available");
+        return false;
+      }
+
+      final UsageTrigger binIonQuant = new UsageTrigger(NoteConfigIonQuant.path, "IonQuant");
 
       Set<Float> modMassSet = new TreeSet<>();
       modMassSet.addAll(tabMsf.getVarModMassSet());

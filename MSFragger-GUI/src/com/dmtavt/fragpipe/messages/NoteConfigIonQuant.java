@@ -46,7 +46,7 @@ public class NoteConfigIonQuant implements INoteConfig {
 
   @Override
   public boolean isValid() {
-    return !isTooOld && enabled && ex == null && path != null && !path.contentEquals("N/A") && version != null && !version.contentEquals("N/A");
+    return !isTooOld && enabled && ex == null && path != null && !path.equalsIgnoreCase("N/A") && version != null && !version.equalsIgnoreCase("N/A") && !path.isEmpty() && !version.isEmpty();
   }
 
   @Override
