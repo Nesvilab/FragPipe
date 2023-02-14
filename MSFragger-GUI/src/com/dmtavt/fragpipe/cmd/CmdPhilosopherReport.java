@@ -73,16 +73,17 @@ public class CmdPhilosopherReport extends CmdBase {
 
             int fraction = 1;
             int replicate = 1;
+            int idx = 1;
             for (InputLcmsFile inputLcmsFile : e.getKey().lcmsFiles) {
               if (parts2.length == 2) {
                 try {
                   replicate = Integer.parseInt(parts2[1]);
-                  bw.write(inputLcmsFile.getPath().getFileName() + "," + fraction + "," + replicate + "," + parts[1].trim() + "," + parts[0].trim() + "," + replicate + "," + parts2[0].trim() + "\n");
+                  bw.write(inputLcmsFile.getPath().getFileName() + "," + fraction + "," + replicate + "," + parts[1].trim() + "," + parts[0].trim() + "," + (idx++) + "," + parts2[0].trim() + "\n");
                 } catch (NumberFormatException ex) {
-                  bw.write(inputLcmsFile.getPath().getFileName() + "," + fraction + "," + replicate + "," + parts[1].trim() + "," + parts[0].trim() + "," + replicate + "," + parts[1].trim() + "\n");
+                  bw.write(inputLcmsFile.getPath().getFileName() + "," + fraction + "," + replicate + "," + parts[1].trim() + "," + parts[0].trim() + "," + (idx++) + "," + parts[1].trim() + "\n");
                 }
               } else {
-                bw.write(inputLcmsFile.getPath().getFileName() + "," + fraction + "," + replicate + "," + parts[1].trim() + "," + parts[0].trim() + "," + replicate + "," + parts[1].trim() + "\n");
+                bw.write(inputLcmsFile.getPath().getFileName() + "," + fraction + "," + replicate + "," + parts[1].trim() + "," + parts[0].trim() + "," + (idx++) + "," + parts[1].trim() + "\n");
               }
               ++fraction;
             }
