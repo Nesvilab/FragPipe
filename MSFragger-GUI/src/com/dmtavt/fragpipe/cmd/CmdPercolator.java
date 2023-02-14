@@ -113,7 +113,7 @@ public class CmdPercolator extends CmdBase {
   /**
    * @param pepxmlFiles Either pepxml files after search or after Crystal-C.
    */
-  public boolean configure(Component comp, Path jarFragpipe, String percolatorCmd, boolean combine, Map<InputLcmsFile, List<Path>> pepxmlFiles, boolean hasCrystalC, double minProb) {
+  public boolean configure(Component comp, Path jarFragpipe, String percolatorCmd, boolean combine, Map<InputLcmsFile, List<Path>> pepxmlFiles, boolean hasCrystalC, double minProb, String decoyTag) {
     PeptideProphetParams percolatorParams = new PeptideProphetParams();
     percolatorParams.setCmdLineParams(percolatorCmd);
 
@@ -158,6 +158,11 @@ public class CmdPercolator extends CmdBase {
         cmdPp.add(strippedBaseName + "_percolator_target_psms.tsv");
         cmdPp.add("--decoy-results-psms");
         cmdPp.add(strippedBaseName + "_percolator_decoy_psms.tsv");
+
+        if (OsUtils.isWindows()) { // The Windows version is 3.06 which needs this flag to avoid a warning. The Linux version is 3.05 which does not need this flag. TODO: change it after upgrading the Linux version.
+          cmdPp.add("--protein-decoy-pattern");
+          cmdPp.add(decoyTag);
+        }
 
         if (msboosterPanel.isRun()) {
           cmdPp.add(Paths.get(strippedBaseName + "_edited.pin").toString());
