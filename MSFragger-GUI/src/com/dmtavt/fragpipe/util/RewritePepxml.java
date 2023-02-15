@@ -20,16 +20,13 @@ package com.dmtavt.fragpipe.util;
 import static com.github.chhh.utils.StringUtils.upToLastDot;
 
 import com.github.chhh.utils.StringUtils;
-import java.io.BufferedReader;
 import java.io.EOFException;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,7 +34,6 @@ import okio.Buffer;
 import okio.BufferedSource;
 import okio.Okio;
 import okio.Sink;
-import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,25 +69,6 @@ public class RewritePepxml {
     final int overlap = 2 << 10;
     final int bufsz = 2 << 16;
 
-    // Find out if calibrated.mzML file will be generated
-    boolean hasCalibratedFile = false;
-    try {
-      BufferedReader reader = Files.newBufferedReader(origPepxml);
-      String line;
-      while ((line = reader.readLine()) != null) {
-        if (line.trim().contentEquals("<parameter name=\"write_calibrated_mzml\" value=\"1\"/>")) {
-          hasCalibratedFile = true;
-          break;
-        } else if (line.trim().contentEquals("<parameter name=\"write_calibrated_mzml\" value=\"0\"/>")) {
-          hasCalibratedFile = false;
-          break;
-        }
-      }
-      reader.close();
-    } catch (IOException ex) {
-      throw new UncheckedIOException(ex);
-    }
-
     Sink sink = Okio.sink(rewritten.toFile(), false);
     Buffer buf = new Buffer();
     try (BufferedSource bs = Okio.buffer(Okio.source(origPepxml))) {
@@ -120,28 +97,36 @@ public class RewritePepxml {
               throw new IllegalStateException("Didn't find base_name attribute inside msms_run_summary");
             }
             String origPath = m.group(1);
-            Path origPathFn = Paths.get(origPath).getFileName();
+            String origPathFn = Paths.get(origPath).getFileName().toString();
 
             String rewrite = null;
             if (replacement != null && replacement.length > 0) {
               // try to match to what we have
-              Map<String, Path> mapFnLessExtToFull = Seq.of(replacement).map(Paths::get)
-                  .toMap(path -> StringUtils.upToLastDot(path.getFileName().toString()), path -> path);
-              Path correctRaw = mapFnLessExtToFull.get(origPathFn.toString());
+              String correctRaw = null;
+              for (String s : replacement) {
+                if (Paths.get(s.replace("_calibrated.mzML", "")).getFileName().toString().contentEquals(origPathFn)) {
+                  correctRaw = s;
+                  break;
+                }
+                if (Paths.get(s.replace("_uncalibrated.mzML", "")).getFileName().toString().contentEquals(origPathFn)) {
+                  correctRaw = s;
+                  break;
+                }
+                if (Paths.get(StringUtils.upToLastDot(s)).getFileName().toString().contentEquals(origPathFn)) {
+                  correctRaw = s;
+                  break;
+                }
+              }
+
               if (correctRaw == null) {
                 System.err.printf("Didn't find correct mapping for raw file path in pepxml: %s", origPath);
                 System.exit(1);
               }
 
-              if (hasCalibratedFile && originalMsmsRunSummary.contains("This pepXML was from calibrated spectra.")) {
-                rewrite = String.format("<msms_run_summary base_name=\"%s\" raw_data_type=\"mzML\" comment=\"This pepXML was from calibrated spectra.\" raw_data=\"mzML\">", upToLastDot(correctRaw.toAbsolutePath().toString()) + "_calibrated");
+              if (originalMsmsRunSummary.contains("This pepXML was from calibrated spectra.")) {
+                rewrite = String.format("<msms_run_summary base_name=\"%s\" raw_data_type=\"%s\" comment=\"This pepXML was from calibrated spectra.\" raw_data=\"%s\">", upToLastDot(correctRaw), StringUtils.afterLastDot(correctRaw), StringUtils.afterLastDot(correctRaw));
               } else {
-                String ext = StringUtils.afterLastDot(correctRaw.getFileName().toString());
-                if (ext.equalsIgnoreCase("mzml")) {
-                  rewrite = String.format("<msms_run_summary base_name=\"%s\" raw_data_type=\"mzML\" raw_data=\"mzML\">", upToLastDot(correctRaw.toAbsolutePath().toString()));
-                } else {
-                  rewrite = String.format("<msms_run_summary base_name=\"%s\" raw_data_type=\"mzML\" raw_data=\"mzML\">", upToLastDot(correctRaw.toAbsolutePath().toString()) + "_uncalibrated");
-                }
+                rewrite = String.format("<msms_run_summary base_name=\"%s\" raw_data_type=\"%s\" raw_data=\"%s\">", upToLastDot(correctRaw), StringUtils.afterLastDot(correctRaw), StringUtils.afterLastDot(correctRaw));
               }
             } else {
               System.err.printf("There are no replacements for %s", origPepxml.toAbsolutePath());

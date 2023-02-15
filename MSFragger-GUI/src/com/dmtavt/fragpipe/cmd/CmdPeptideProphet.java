@@ -191,7 +191,7 @@ public class CmdPeptideProphet extends CmdBase {
    */
   public boolean configure(Component comp, UsageTrigger phi, Path jarFragpipe, boolean isDryRun,
       String fastaPath, String decoyTag, String textPepProphCmd, boolean combine, String enzymeName,
-      Map<InputLcmsFile, List<Path>> pepxmlFiles) {
+      Map<InputLcmsFile, List<Path>> pepxmlFiles, boolean hasCalibratedMzml) {
 
     initPreConfig();
 
@@ -355,7 +355,7 @@ public class CmdPeptideProphet extends CmdBase {
 
     for (Entry<Path, List<InputLcmsFile>> kv : pepxmlToLcms.entrySet()) {
       List<Path> lcmsPaths = Seq.seq(kv.getValue()).map(InputLcmsFile::getPath).distinct().toList();
-      ProcessBuilder pbRewrite = pbRewritePepxml(jarFragpipe, kv.getKey(), lcmsPaths);
+      ProcessBuilder pbRewrite = pbRewritePepxml(jarFragpipe, kv.getKey(), lcmsPaths, hasCalibratedMzml);
       pbRewrite.directory(kv.getValue().get(0).outputDir(wd).toFile());
       pbis.add(new PbiBuilder().setName("Rewrite pepxml")
           .setPb(pbRewrite).setParallelGroup(ProcessBuilderInfo.GROUP_SEQUENTIAL).create());
@@ -430,7 +430,7 @@ public class CmdPeptideProphet extends CmdBase {
     return true;
   }
 
-  private static ProcessBuilder pbRewritePepxml(Path jarFragpipe, Path pepxml, List<Path> lcmsPaths) {
+  private static ProcessBuilder pbRewritePepxml(Path jarFragpipe, Path pepxml, List<Path> lcmsPaths, boolean hasCalibratedMzml) {
     if (jarFragpipe == null) {
       throw new IllegalArgumentException("jar can't be null");
     }
@@ -438,16 +438,22 @@ public class CmdPeptideProphet extends CmdBase {
     cmd.add(Fragpipe.getBinJava());
     cmd.add("-cp");
     Path root = FragpipeLocations.get().getDirFragpipeRoot();
-    String libsDir = root.resolve("lib").toString() + "/*";
+    String libsDir = root.resolve("lib") + "/*";
     if (Files.isDirectory(jarFragpipe)) {
-      libsDir = jarFragpipe.getParent().getParent().getParent().getParent().resolve("build/install/fragpipe/lib").toString() + "/*";
+      libsDir = jarFragpipe.getParent().getParent().getParent().getParent().resolve("build/install/fragpipe/lib") + "/*";
       log.debug("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
     }
     cmd.add(libsDir);
     cmd.add(RewritePepxml.class.getCanonicalName());
     cmd.add(pepxml.toAbsolutePath().normalize().toString());
     for (Path lcms : lcmsPaths) {
-      cmd.add(lcms.toString());
+      String lcmsPath = lcms.toAbsolutePath().toString();
+      if (hasCalibratedMzml) {
+        lcmsPath = StringUtils.upToLastDot(lcmsPath) + "_calibrated.mzML";
+      } else if (lcmsPath.toLowerCase().endsWith(".raw") || lcmsPath.toLowerCase().endsWith(".d")) {
+        lcmsPath = StringUtils.upToLastDot(lcmsPath) + "_uncalibrated.mzML";
+      }
+      cmd.add(lcmsPath);
     }
     return new ProcessBuilder(cmd);
   }

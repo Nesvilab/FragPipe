@@ -29,6 +29,7 @@ import com.dmtavt.fragpipe.tools.pepproph.PeptideProphetParams;
 import com.dmtavt.fragpipe.tools.percolator.PercolatorOutputToPepXML;
 import com.dmtavt.fragpipe.tools.percolator.PercolatorPanel;
 import com.github.chhh.utils.OsUtils;
+import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -113,7 +114,7 @@ public class CmdPercolator extends CmdBase {
   /**
    * @param pepxmlFiles Either pepxml files after search or after Crystal-C.
    */
-  public boolean configure(Component comp, Path jarFragpipe, String percolatorCmd, boolean combine, Map<InputLcmsFile, List<Path>> pepxmlFiles, boolean hasCrystalC, double minProb, String decoyTag) {
+  public boolean configure(Component comp, Path jarFragpipe, String percolatorCmd, boolean combine, Map<InputLcmsFile, List<Path>> pepxmlFiles, boolean hasCrystalC, double minProb, String decoyTag, boolean hasCalibratedMzml) {
     PeptideProphetParams percolatorParams = new PeptideProphetParams();
     percolatorParams.setCmdLineParams(percolatorCmd);
 
@@ -176,8 +177,15 @@ public class CmdPercolator extends CmdBase {
             .setPb(pbPp)
             .setParallelGroup(basename).create());
 
+        String lcmsPath = e.getKey().getPath().toAbsolutePath().toString();
+        if (hasCalibratedMzml) {
+          lcmsPath = StringUtils.upToLastDot(lcmsPath) + "_calibrated.mzML";
+        } else if (lcmsPath.toLowerCase().endsWith(".raw") || lcmsPath.toLowerCase().endsWith(".d")) {
+          lcmsPath = StringUtils.upToLastDot(lcmsPath) + "_uncalibrated.mzML";
+        }
+
         // convert the percolator output tsv to PeptideProphet's pep.xml format
-        ProcessBuilder pbRewrite = pbConvertToPepxml(jarFragpipe, "interact-" + basename, strippedBaseName, basename, e.getKey().getDataType().contentEquals("DDA"), minProb);
+        ProcessBuilder pbRewrite = pbConvertToPepxml(jarFragpipe, "interact-" + basename, strippedBaseName, basename, e.getKey().getDataType().contentEquals("DDA"), minProb, lcmsPath);
         pbRewrite.directory(pepxmlPath.getParent().toFile());
         pbisPostParallel.add(new PbiBuilder().setName("Percolator: Convert to pepxml").setPb(pbRewrite).setParallelGroup(ProcessBuilderInfo.GROUP_SEQUENTIAL).create());
 
@@ -226,7 +234,7 @@ public class CmdPercolator extends CmdBase {
     return b;
   }
 
-  private static ProcessBuilder pbConvertToPepxml(Path jarFragpipe, String outBaseName, String stripedBasename, String basename, boolean isDDA, double minProb) {
+  private static ProcessBuilder pbConvertToPepxml(Path jarFragpipe, String outBaseName, String stripedBasename, String basename, boolean isDDA, double minProb, String lcmsPath) {
     if (jarFragpipe == null) {
       throw new IllegalArgumentException("jar can't be null");
     }
@@ -248,6 +256,7 @@ public class CmdPercolator extends CmdBase {
     cmd.add(outBaseName);
     cmd.add(isDDA ? "DDA" : "DIA");
     cmd.add(minProb + "");
+    cmd.add(lcmsPath);
     return new ProcessBuilder(cmd);
   }
 

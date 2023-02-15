@@ -17,6 +17,7 @@
 
 package com.dmtavt.fragpipe.tools.percolator;
 
+import com.github.chhh.utils.StringUtils;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -52,11 +53,12 @@ public class PercolatorOutputToPepXML {
                 Paths.get("G:\\dev\\msfragger\\dev2\\5ngHeLaosmoothCE20-52lowguessSRIG450easy4_30t_C2_01_3451_percolator_decoy_psms.tsv"),
                 Paths.get("G:\\dev\\msfragger\\dev2\\interact-5ngHeLaosmoothCE20-52lowguessSRIG450easy4_30t_C2_01_3451_2"),
                 "DDA",
-                0);
+                0,
+                "");
         } else if (Files.exists(Paths.get(args[0].replace(".pin", "_edited.pin")))){
-            percolatorToPepXML(Paths.get(args[0].replace(".pin", "_edited.pin")), args[1], Paths.get(args[2]), Paths.get(args[3]), Paths.get(args[4]), args[5], Double.parseDouble(args[6]));
+            percolatorToPepXML(Paths.get(args[0].replace(".pin", "_edited.pin")), args[1], Paths.get(args[2]), Paths.get(args[3]), Paths.get(args[4]), args[5], Double.parseDouble(args[6]), args[7].trim());
         } else {
-            percolatorToPepXML(Paths.get(args[0]), args[1], Paths.get(args[2]), Paths.get(args[3]), Paths.get(args[4]), args[5], Double.parseDouble(args[6]));
+            percolatorToPepXML(Paths.get(args[0]), args[1], Paths.get(args[2]), Paths.get(args[3]), Paths.get(args[4]), args[5], Double.parseDouble(args[6]), args[7].trim());
         }
     }
 
@@ -256,7 +258,7 @@ public class PercolatorOutputToPepXML {
         return sb.toString();
     }
 
-    public static void percolatorToPepXML(final Path pin, final String basename, final Path percolatorTargetPsms, final Path percolatorDecoyPsms, final Path outBasename, final String DIA_DDA, final double minProb) {
+    public static void percolatorToPepXML(final Path pin, final String basename, final Path percolatorTargetPsms, final Path percolatorDecoyPsms, final Path outBasename, final String DIA_DDA, final double minProb, String lcmsPath) {
         // get max rank from pin
         final boolean is_DIA = DIA_DDA.equals("DIA");
         final int max_rank = get_max_rank(basename, is_DIA);
@@ -368,78 +370,27 @@ public class PercolatorOutputToPepXML {
             final Path pepxml_rank = is_DIA ? Paths.get(basename + "_rank" + rank + ".pepXML") :
                     Paths.get(basename + ".pepXML");
 
-            // Find out if calibrated.mzML file will be generated
-            boolean hasCalibratedFile = false;
-            try {
-                BufferedReader reader = Files.newBufferedReader(pepxml_rank);
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    if (line.trim().contentEquals("<parameter name=\"write_calibrated_mzml\" value=\"1\"/>")) {
-                        hasCalibratedFile = true;
-                        break;
-                    } else if (line.trim().contentEquals("<parameter name=\"write_calibrated_mzml\" value=\"0\"/>")) {
-                        hasCalibratedFile = false;
-                        break;
-                    }
-                }
-                reader.close();
-            } catch (IOException ex) {
-                throw new UncheckedIOException(ex);
-            }
-
             try (final BufferedReader brpepxml = Files.newBufferedReader(pepxml_rank);
                  final BufferedWriter out = Files.newBufferedWriter(output_rank)) {
                 String line;
                 while ((line = brpepxml.readLine()) != null) {
                     if (line.trim().startsWith("<msms_run_summary")) {
-                        if (hasCalibratedFile && line.contains("This pepXML was from calibrated spectra.")) {
-                            Matcher matcher1 = pattern1.matcher(line);
-                            if (matcher1.find()) {
-                                line = matcher1.replaceFirst(Matcher.quoteReplacement("base_name=\"" + matcher1.group(1) + "_calibrated" + "\""));
-
-                                Matcher matcher2 = pattern2.matcher(line);
-                                if (matcher2.find()) {
-                                    line = matcher2.replaceFirst("raw_data_type=\"mzML\"");
-                                }
-
-                                Matcher matcher3 = pattern3.matcher(line);
-                                if (matcher3.find()) {
-                                    line = matcher3.replaceFirst("raw_data=\"mzML\"");
-                                }
-                            } else {
-                                System.err.printf("Could not find the base_name from " + pepxml_rank);
-                                System.exit(1);
-                            }
-                        } else {
-                            String extension = null;
+                        Matcher matcher1 = pattern1.matcher(line);
+                        if (matcher1.find()) {
+                            line = matcher1.replaceFirst(Matcher.quoteReplacement("base_name=\"" + StringUtils.upToLastDot(lcmsPath) + "\""));
 
                             Matcher matcher2 = pattern2.matcher(line);
-                            Matcher matcher3 = pattern3.matcher(line);
                             if (matcher2.find()) {
-                                extension = matcher2.group(1);
-                            } else if (matcher3.find()) {
-                                extension = matcher3.group(1);
-                            } else {
-                                System.err.printf("Could not get the raw data type from " + pepxml_rank);
-                                System.exit(1);
+                                line = matcher2.replaceFirst("raw_data_type=\"" + StringUtils.afterLastDot(lcmsPath) + "\"");
                             }
 
-                            if (!extension.equalsIgnoreCase("mzml")) {
-                                Matcher matcher1 = pattern1.matcher(line);
-                                if (matcher1.find()) {
-                                    line = matcher1.replaceFirst(Matcher.quoteReplacement("base_name=\"" + matcher1.group(1) + "_uncalibrated" + "\""));
-
-                                    matcher2 = pattern2.matcher(line);
-                                    if (matcher2.find()) {
-                                        line = matcher2.replaceFirst("raw_data_type=\"mzML\"");
-                                    }
-
-                                    matcher3 = pattern3.matcher(line);
-                                    if (matcher3.find()) {
-                                        line = matcher3.replaceFirst("raw_data=\"mzML\"");
-                                    }
-                                }
+                            Matcher matcher3 = pattern3.matcher(line);
+                            if (matcher3.find()) {
+                                line = matcher3.replaceFirst("raw_data=\"" + StringUtils.afterLastDot(lcmsPath) + "\"");
                             }
+                        } else {
+                            System.err.printf("Could not find the base_name from " + pepxml_rank);
+                            System.exit(1);
                         }
                     }
 

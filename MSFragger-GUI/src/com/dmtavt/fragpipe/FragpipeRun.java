@@ -1121,7 +1121,7 @@ public class FragpipeRun {
         final String pepProphCmd = pepProphPanel.getCmdOpts();
         final String enzymeName = tabMsf.getEnzymeName();
         if (!cmdPeptideProphet.configure(parent, usePhi, jarPath, isDryRun,
-            fastaFile, decoyTag, pepProphCmd, isCombinedPepxml, enzymeName, sharedPepxmlFiles)) {
+            fastaFile, decoyTag, pepProphCmd, isCombinedPepxml, enzymeName, sharedPepxmlFiles, tabMsf.isWriteCalMzml() && tabMsf.getMassCalibration() > 0)) {
           return false;
         }
       }
@@ -1150,7 +1150,7 @@ public class FragpipeRun {
     addConfig.accept(cmdPercolator, () -> {
       if (cmdPercolator.isRun()) {
         final String percolatorCmd = percolatorPanel.getCmdOpts();
-        if (!cmdPercolator.configure(parent, jarPath, percolatorCmd, isCombinedPepxml_percolator, sharedPepxmlFilesBeforePeptideValidation, crystalcPanel.isRun(), percolatorPanel.getMinProb(), decoyTag)) {
+        if (!cmdPercolator.configure(parent, jarPath, percolatorCmd, isCombinedPepxml_percolator, sharedPepxmlFilesBeforePeptideValidation, crystalcPanel.isRun(), percolatorPanel.getMinProb(), decoyTag, tabMsf.isWriteCalMzml() && tabMsf.getMassCalibration() > 0)) {
           return false;
         }
       }
