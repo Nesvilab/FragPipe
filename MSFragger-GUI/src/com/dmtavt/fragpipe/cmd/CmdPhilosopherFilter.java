@@ -99,8 +99,8 @@ public class CmdPhilosopherFilter extends CmdBase {
         if (group.name.contentEquals(firstInputLcmsFile.getGroup())) {
           cmd.add("--razor");
         } else {
-          cmd.add("--razorbin");
-          cmd.add(wd.resolve(firstInputLcmsFile.getGroup()).resolve(".meta").resolve("razor.bin").toAbsolutePath().toString());
+          cmd.add("--probin");
+          cmd.add(wd.resolve(firstInputLcmsFile.getGroup()).toAbsolutePath().toString());
         }
       }
 
