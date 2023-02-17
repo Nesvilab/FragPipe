@@ -41,7 +41,7 @@ public class CmdPhilosopherReport extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, int ramGb, int threads, UsageTrigger usePhilosopher, boolean doPrintDecoys, boolean doMsstats, boolean doRemoveContaminants, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
+  public boolean configure(Component comp, int ramGb, int threads, UsageTrigger usePhilosopher, boolean doPrintDecoys, boolean doMsstats, boolean isMultiExpReport, boolean doRemoveContaminants, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
 
     initPreConfig();
 
@@ -54,7 +54,7 @@ public class CmdPhilosopherReport extends CmdBase {
       if (doPrintDecoys) {
         cmd.add("--decoys");
       }
-      if (doMsstats) {
+      if (doMsstats && !isMultiExpReport) {
         cmd.add("--msstats");
       }
       if (doRemoveContaminants) {
