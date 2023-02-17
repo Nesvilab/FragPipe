@@ -17,17 +17,10 @@
 
 package com.dmtavt.fragpipe.cmd;
 
-import static com.github.chhh.utils.SwingUtils.showErrorDialogWithStacktrace;
-
-import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
 import com.dmtavt.fragpipe.tools.philosopher.PhilosopherProps;
 import com.github.chhh.utils.UsageTrigger;
 import java.awt.Component;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,54 +41,9 @@ public class CmdPhilosopherReport extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, int ramGb, int threads, UsageTrigger usePhilosopher, boolean isDryRun, boolean doPrintDecoys, boolean doMsstats, boolean doRemoveContaminants, Map<LcmsFileGroup, Path> mapGroupsToProtxml, Map<LcmsFileGroup, Path> groupAnnotationMap) {
+  public boolean configure(Component comp, int ramGb, int threads, UsageTrigger usePhilosopher, boolean doPrintDecoys, boolean doMsstats, boolean doRemoveContaminants, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
 
     initPreConfig();
-
-    if (!isDryRun && doMsstats) {
-      try {
-        String line;
-        BufferedWriter bw = Files.newBufferedWriter(wd.resolve("MSstatsTMT_annotation.csv"));
-        bw.write("Run,Fraction,TechRepMixture,Mixture,Channel,BioReplicate,Condition\n");
-        for (Map.Entry<LcmsFileGroup, Path> e : mapGroupsToProtxml.entrySet()) {
-          Path annotationPath = groupAnnotationMap.get(e.getKey());
-          BufferedReader br = new BufferedReader(new FileReader(annotationPath.toFile()));
-          while ((line = br.readLine()) != null) {
-            line = line.trim();
-            if (line.isEmpty()) {
-              continue;
-            }
-            String[] parts = line.split("\\s");
-            if (parts[1].trim().equalsIgnoreCase("na")) {
-              continue;
-            }
-            String[] parts2 = parts[1].trim().split("_");
-
-            int fraction = 1;
-            int replicate = 1;
-            int idx = 1;
-            for (InputLcmsFile inputLcmsFile : e.getKey().lcmsFiles) {
-              if (parts2.length == 2) {
-                try {
-                  replicate = Integer.parseInt(parts2[1]);
-                  bw.write(inputLcmsFile.getPath().getFileName() + "," + fraction + "," + replicate + "," + parts[1].trim() + "," + parts[0].trim() + "," + (idx++) + "," + parts2[0].trim() + "\n");
-                } catch (NumberFormatException ex) {
-                  bw.write(inputLcmsFile.getPath().getFileName() + "," + fraction + "," + replicate + "," + parts[1].trim() + "," + parts[0].trim() + "," + (idx++) + "," + parts[1].trim() + "\n");
-                }
-              } else {
-                bw.write(inputLcmsFile.getPath().getFileName() + "," + fraction + "," + replicate + "," + parts[1].trim() + "," + parts[0].trim() + "," + (idx++) + "," + parts[1].trim() + "\n");
-              }
-              ++fraction;
-            }
-          }
-          br.close();
-        }
-        bw.close();
-      } catch (Exception ex) {
-        showErrorDialogWithStacktrace(ex, comp);
-        return false;
-      }
-    }
 
     Set<Path> groupWds = mapGroupsToProtxml.keySet().stream().map(g -> g.outputDir(wd))
         .collect(Collectors.toSet());

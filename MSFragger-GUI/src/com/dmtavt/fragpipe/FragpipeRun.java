@@ -1289,7 +1289,7 @@ public class FragpipeRun {
 
     addConfig.accept(cmdPhilosopherReport, () -> {
       if (cmdPhilosopherReport.isRun()) {
-        return cmdPhilosopherReport.configure(parent, ramGb, threads, usePhi, isDryRun, doPrintDecoys, doMSstats, reportPanel.isRemoveContaminants(), sharedMapGroupsToProtxml, tmtiPanel.getAnnotations());
+        return cmdPhilosopherReport.configure(parent, ramGb, threads, usePhi, doPrintDecoys, doMSstats, reportPanel.isRemoveContaminants(), sharedMapGroupsToProtxml);
       }
       return true;
     });
@@ -1387,7 +1387,7 @@ public class FragpipeRun {
           SwingUtils.showWarningDialog(parent, CmdTmtIntegrator.NAME + " only supports mzML and raw files.\nPlease remove other files from the input list.", CmdTmtIntegrator.NAME + " error");
           return false;
         }
-        return cmdTmt.configure(tmtiPanel, isDryRun, ramGb, decoyTag, fastaFile, sharedMapGroupsToProtxml);
+        return cmdTmt.configure(tmtiPanel, isDryRun, ramGb, decoyTag, fastaFile, sharedMapGroupsToProtxml, doMSstats, tmtiPanel.getAnnotations());
       }
       return true;
     });

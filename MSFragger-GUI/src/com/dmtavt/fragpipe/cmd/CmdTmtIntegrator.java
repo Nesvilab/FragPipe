@@ -17,12 +17,17 @@
 
 package com.dmtavt.fragpipe.cmd;
 
+import static com.github.chhh.utils.SwingUtils.showErrorDialogWithStacktrace;
+
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
+import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.tools.tmtintegrator.TmtiConfProps;
 import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -74,7 +79,7 @@ public class CmdTmtIntegrator extends CmdBase {
     return true;
   }
 
-  public boolean configure(TmtiPanel panel, boolean isDryRun, int ramGb, String decoyTag, String pathFasta, Map<LcmsFileGroup, Path> mapGroupsToProtxml) {
+  public boolean configure(TmtiPanel panel, boolean isDryRun, int ramGb, String decoyTag, String pathFasta, Map<LcmsFileGroup, Path> mapGroupsToProtxml, boolean doMsstats, Map<LcmsFileGroup, Path> groupAnnotationMap) {
     isConfigured = false;
 
     List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Stream.of(JAR_NAME));
@@ -92,6 +97,52 @@ public class CmdTmtIntegrator extends CmdBase {
     // see if input files match compatibility table
     if (!checkCompatibleFormats(panel, mapGroupsToProtxml)) {
       return false;
+    }
+
+    // write MSstatsTMT_annotation
+    if (!isDryRun && doMsstats) {
+      try {
+        String line;
+        BufferedWriter bw = Files.newBufferedWriter(wd.resolve("MSstatsTMT_annotation.csv"));
+        bw.write("Run,Fraction,TechRepMixture,Mixture,Channel,BioReplicate,Condition\n");
+        for (Map.Entry<LcmsFileGroup, Path> e : mapGroupsToProtxml.entrySet()) {
+          Path annotationPath = groupAnnotationMap.get(e.getKey());
+          BufferedReader br = new BufferedReader(new FileReader(annotationPath.toFile()));
+          while ((line = br.readLine()) != null) {
+            line = line.trim();
+            if (line.isEmpty()) {
+              continue;
+            }
+            String[] parts = line.split("\\s");
+            if (parts[1].trim().equalsIgnoreCase("na")) {
+              continue;
+            }
+            String[] parts2 = parts[1].trim().split("_");
+
+            int fraction = 1;
+            int replicate = 1;
+            int idx = 1;
+            for (InputLcmsFile inputLcmsFile : e.getKey().lcmsFiles) {
+              if (parts2.length == 2) {
+                try {
+                  replicate = Integer.parseInt(parts2[1]);
+                  bw.write(inputLcmsFile.getPath().getFileName() + "," + fraction + "," + replicate + "," + parts[1].trim() + "," + parts[0].trim() + "," + (idx++) + "," + parts2[0].trim() + "\n");
+                } catch (NumberFormatException ex) {
+                  bw.write(inputLcmsFile.getPath().getFileName() + "," + fraction + "," + replicate + "," + parts[1].trim() + "," + parts[0].trim() + "," + (idx++) + "," + parts[1].trim() + "\n");
+                }
+              } else {
+                bw.write(inputLcmsFile.getPath().getFileName() + "," + fraction + "," + replicate + "," + parts[1].trim() + "," + parts[0].trim() + "," + (idx++) + "," + parts[1].trim() + "\n");
+              }
+              ++fraction;
+            }
+          }
+          br.close();
+        }
+        bw.close();
+      } catch (Exception ex) {
+        showErrorDialogWithStacktrace(ex, panel);
+        return false;
+      }
     }
 
     // write and check TMT-I config file
