@@ -427,30 +427,6 @@ public class QuantPanelLabelfree extends JPanelBase {
     radioBasicGroup.add(uiRadioUseLabeling);
     FormEntry feRadioLabeling = new FormEntry("ionquant.use-labeling", "Not shown", uiRadioUseLabeling);
 
-    uiRadioUseLabeling.addItemListener(e -> {
-      if (e.getStateChange() == ItemEvent.SELECTED) {
-        uiCheckMbr.setSelected(false);
-        updateEnabledStatus(uiCheckMbr, false);
-        updateEnabledStatus(uiSpinnerMbrRtTol, false);
-        updateEnabledStatus(uiSpinnerMbrImTol, false);
-        updateEnabledStatus(uiSpinnerMbrMinCorr, false);
-        updateEnabledStatus(uiSpinnerMbrTopRuns, false);
-        updateEnabledStatus(uiSpinnerMbrIonFdr, false);
-        updateEnabledStatus(uiSpinnerMbrPepFdr, false);
-        updateEnabledStatus(uiSpinnerMbrProtFdr, false);
-      } else {
-        uiCheckMbr.setSelected(true);
-        updateEnabledStatus(uiCheckMbr, true);
-        updateEnabledStatus(uiSpinnerMbrRtTol, true);
-        updateEnabledStatus(uiSpinnerMbrImTol, true);
-        updateEnabledStatus(uiSpinnerMbrMinCorr, true);
-        updateEnabledStatus(uiSpinnerMbrTopRuns, true);
-        updateEnabledStatus(uiSpinnerMbrIonFdr, true);
-        updateEnabledStatus(uiSpinnerMbrPepFdr, true);
-        updateEnabledStatus(uiSpinnerMbrProtFdr, true);
-      }
-    });
-
     mu.add(pLabel, feRadioLabeling.comp, mu.ccL()).split(2).growX();
     mu.add(pLabel, feRequant.comp, mu.ccR()).wrap();
     mu.add(pLabel, feLight.label(), mu.ccL()).split(2);
