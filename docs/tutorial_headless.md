@@ -19,6 +19,7 @@ Options:
         --ram <integer>                 # (optional) Specify the maximum allowed memory size. The unit is GB. Set it to 0 to let FragPipe decide. Default = 0
         --threads <integer>             # (optional) Specify the number of threads. Default = core number - 1
         --config-msfragger <string>     # (optional) specify the location of the MSFragger jar file. If not specified, using the one in the cache.
+        --config-ionquant <string>      # (optional) specify the location of the IonQuant jar file. If not specified, using the one in the cache.
         --config-philosopher <string>   # (optional) specify the location of the Philosopher binary file. If not specified, using the one in the cache.
         --config-python <string>        # (optional) specify the location of the Python directory. If not specified, using the one in the cache.
 ```
