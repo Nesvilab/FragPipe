@@ -123,12 +123,7 @@ public class CmdTmtIntegrator extends CmdBase {
             int replicate = 1;
             for (InputLcmsFile inputLcmsFile : e.getKey().lcmsFiles) {
               if (parts2.length == 2) {
-                try {
-                  replicate = Integer.parseInt(parts2[1]);
-                  bw.write(inputLcmsFile.getPath().getFileName() + "," + fraction + "," + replicate + "," + e.getKey().name + "," + parts[0].trim() + "," + parts[1].trim() + "," + parts2[0].trim() + "\n");
-                } catch (NumberFormatException ex) {
-                  bw.write(inputLcmsFile.getPath().getFileName() + "," + fraction + "," + replicate + "," + e.getKey().name + "," + parts[0].trim() + "," + parts[1].trim() + ",\n");
-                }
+                bw.write(inputLcmsFile.getPath().getFileName() + "," + fraction + "," + replicate + "," + e.getKey().name + "," + parts[0].trim() + "," + parts[1].trim() + "," + parts2[1].trim() + "\n");
               } else {
                 bw.write(inputLcmsFile.getPath().getFileName() + "," + fraction + "," + replicate + "," + e.getKey().name + "," + parts[0].trim() + "," + parts[1].trim() + ",\n");
               }
