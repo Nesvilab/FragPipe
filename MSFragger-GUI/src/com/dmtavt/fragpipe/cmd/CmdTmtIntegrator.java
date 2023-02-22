@@ -22,8 +22,13 @@ import static com.github.chhh.utils.SwingUtils.showErrorDialogWithStacktrace;
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
+import com.dmtavt.fragpipe.api.LcmsFileGroup;
+import com.dmtavt.fragpipe.tools.tmtintegrator.QuantLabelAnnotation;
 import com.dmtavt.fragpipe.tools.tmtintegrator.TmtiConfProps;
+import com.dmtavt.fragpipe.tools.tmtintegrator.TmtiPanel;
+import com.github.chhh.utils.FileDelete;
 import com.github.chhh.utils.StringUtils;
+import com.github.chhh.utils.SwingUtils;
 import java.awt.Component;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -40,13 +45,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.swing.JOptionPane;
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dmtavt.fragpipe.api.LcmsFileGroup;
-import com.dmtavt.fragpipe.tools.tmtintegrator.QuantLabelAnnotation;
-import com.dmtavt.fragpipe.tools.tmtintegrator.TmtiPanel;
-import com.github.chhh.utils.FileDelete;
-import com.github.chhh.utils.SwingUtils;
 
 public class CmdTmtIntegrator extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdTmtIntegrator.class);
@@ -123,9 +124,9 @@ public class CmdTmtIntegrator extends CmdBase {
             int replicate = 1;
             for (InputLcmsFile inputLcmsFile : e.getKey().lcmsFiles) {
               if (parts2.length == 2) {
-                bw.write(inputLcmsFile.getPath().getFileName() + "," + fraction + "," + replicate + "," + e.getKey().name + "," + parts[0].trim() + "," + parts[1].trim() + "," + parts2[1].trim() + "\n");
+                bw.write(FilenameUtils.getBaseName(inputLcmsFile.getPath().getFileName().toString()) + "," + fraction + "," + replicate + "," + e.getKey().name + "," + parts[0].trim() + "," + parts[1].trim() + "," + parts2[1].trim() + "\n");
               } else {
-                bw.write(inputLcmsFile.getPath().getFileName() + "," + fraction + "," + replicate + "," + e.getKey().name + "," + parts[0].trim() + "," + parts[1].trim() + ",\n");
+                bw.write(FilenameUtils.getBaseName(inputLcmsFile.getPath().getFileName().toString()) + "," + fraction + "," + replicate + "," + e.getKey().name + "," + parts[0].trim() + "," + parts[1].trim() + ",\n");
               }
               ++fraction;
             }
