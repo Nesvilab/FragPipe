@@ -228,13 +228,13 @@ public class FragpipeRun {
           return 1;
         }
 
-        // Delete FP-PDV's *.db file before running anything
+        // Delete FragPipe-PDV's *.db file before running anything
         try {
           Files.list(preparedWd).filter(Files::isRegularFile).filter(p -> fppdvDbPattern.matcher(p.getFileName().toString()).matches()).forEach(p -> {
             try {
               Files.deleteIfExists(p);
             } catch (Exception e) {
-              throw new RuntimeException("Could not delete " + p.toAbsolutePath() + ". Please close all visualization (FP-PDV) windows and try again.");
+              throw new RuntimeException("Could not delete " + p.toAbsolutePath() + ". Please close all visualization (FragPipe-PDV) windows and try again.");
             }
           });
         } catch (Exception ex) {
@@ -604,7 +604,7 @@ public class FragpipeRun {
       toConsole(Fragpipe.COLOR_BLACK, "dia-PASEF data analysis using FragPipe and DIA-NN for deep proteomics of low sample amounts. Nat Commun. 13:3944 (2022)", true, console);
     }
 
-    toConsole(Fragpipe.COLOR_CMDLINE, "(Visualization with FP-PDV) ", false, console);
+    toConsole(Fragpipe.COLOR_CMDLINE, "(Visualization with FragPipe-PDV) ", false, console);
     toConsole(Fragpipe.COLOR_BLACK, "PDV: an integrative proteomics data viewer. Bioinformatics. 35(7):1249 (2019)", true, console);
   }
 

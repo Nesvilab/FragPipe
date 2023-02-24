@@ -853,7 +853,7 @@ public class Fragpipe extends JFrameHeadless {
         + "Spectral library generation: Guo-Ci Teo<br>"
         + "<a href='https://github.com/grosenberger/easypqp'>EasyPQP</a>: George Rosenberger, Guo-Ci Teo, Fengchao Yu<br>"
         + "<a href='https://github.com/vdemichev/DiaNN'>DIA-NN</a>: Vadim Demichev<br>"
-        + "<a href='https://github.com/Nesvilab/FP-PDV'>FP-PDV</a>: Kai Li, Bo Wen<br>"
+        + "<a href='https://github.com/Nesvilab/FragPipe-PDV'>FragPipe-PDV</a>: Kai Li, Bo Wen<br>"
         + "<a href='https://saint-apms.sourceforge.net/Main.html'>SAINT</a>: Hyungwon Choi<br>"
         + "Websites and tutorials: Sarah Haynes<br>"
         + "Special thanks to Lukas Käll (Percolator), George Rosenberger (EasyPQP), Vadim Demichev (DIA-NN), and David Shteynberg (TPP, PTMProphet).<br><br>"

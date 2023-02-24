@@ -131,7 +131,7 @@ public class CmdMSBooster extends CmdBase {
         bufferedWriter.write("useRT = " + (predictRT ? "true" : "false") + "\n");
         bufferedWriter.write("useSpectra = " + (predictSpectra ? "true" : "false") + "\n");
         bufferedWriter.write("fragger = " + fraggerParams + "\n");
-        bufferedWriter.write("deletePreds = false\n"); // FP-PDV need the prediction files.
+        bufferedWriter.write("deletePreds = false\n"); // FragPipe-PDV need the prediction files.
 
         // compute unique lcms file directories
         bufferedWriter.write("mzmlDirectory = ");
