@@ -62,7 +62,7 @@ public class CmdPtmProphet extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, String cmdLineOpts, List<Tuple2<InputLcmsFile, Path>> lcmsToPepxml) {
+  public boolean configure(Component comp, String cmdLineOpts, List<Tuple2<InputLcmsFile, Path>> lcmsToPepxml, int threads) {
     initPreConfig();
 
     final List<Path> ptmprophetPath;
@@ -103,6 +103,8 @@ public class CmdPtmProphet extends CmdBase {
       return false;
     }
 
+    int idx = 0;
+    int batchNum = Math.min(32, threads);
     for (Entry<Path, List<Tuple2<InputLcmsFile, Path>>> kv : groupByPepxml.entrySet()) {
       Path pepxml = kv.getKey();
       Path workDir = kv.getValue().get(0).v1.outputDir(wd);
@@ -121,7 +123,8 @@ public class CmdPtmProphet extends CmdBase {
 
       final ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(workDir.toFile());
-      pbis.add(new PbiBuilder().setPb(pb).setParallelGroup(getCmdName()).create());
+      pbis.add(new PbiBuilder().setPb(pb).setParallelGroup(getCmdName() + (idx / batchNum)).create());
+      ++idx;
     }
 
     isConfigured = true;

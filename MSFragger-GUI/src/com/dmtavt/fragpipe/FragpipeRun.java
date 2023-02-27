@@ -1121,7 +1121,7 @@ public class FragpipeRun {
         final String pepProphCmd = pepProphPanel.getCmdOpts();
         final String enzymeName = tabMsf.getEnzymeName();
         if (!cmdPeptideProphet.configure(parent, usePhi, jarPath, isDryRun,
-            fastaFile, decoyTag, pepProphCmd, isCombinedPepxml, enzymeName, sharedPepxmlFiles, tabMsf.isWriteCalMzml() && tabMsf.getMassCalibration() > 0)) {
+            fastaFile, decoyTag, pepProphCmd, isCombinedPepxml, enzymeName, sharedPepxmlFiles, tabMsf.isWriteCalMzml() && tabMsf.getMassCalibration() > 0, threads)) {
           return false;
         }
       }
@@ -1174,7 +1174,7 @@ public class FragpipeRun {
           .toList();
 
       if (panelPtmProphet.isRun()) {
-        return cmdPtmProphet.configure(parent, panelPtmProphet.getCmdLineOpts(), lcmsToPepxml);
+        return cmdPtmProphet.configure(parent, panelPtmProphet.getCmdLineOpts(), lcmsToPepxml, threads);
       }
       return true;
     });

@@ -191,7 +191,7 @@ public class CmdPeptideProphet extends CmdBase {
    */
   public boolean configure(Component comp, UsageTrigger phi, Path jarFragpipe, boolean isDryRun,
       String fastaPath, String decoyTag, String textPepProphCmd, boolean combine, String enzymeName,
-      Map<InputLcmsFile, List<Path>> pepxmlFiles, boolean hasCalibratedMzml) {
+      Map<InputLcmsFile, List<Path>> pepxmlFiles, boolean hasCalibratedMzml, int threads) {
 
     initPreConfig();
 
@@ -226,6 +226,8 @@ public class CmdPeptideProphet extends CmdBase {
       LinkedList<ProcessBuilderInfo> pbisParallel = new LinkedList<>();
       LinkedList<ProcessBuilderInfo> pbisPostParallel = new LinkedList<>();
 
+      int idx = 0;
+      int batchNum = Math.min(32, threads);
       for (Map.Entry<InputLcmsFile, List<Path>> e : pepxmlFiles.entrySet()) {
         for (Path pepxmlPath : e.getValue()) {
           final Path pepxmlDir = pepxmlPath.getParent();
@@ -287,7 +289,7 @@ public class CmdPeptideProphet extends CmdBase {
           setupEnv(temp, pbPp);
           pbisParallel.add(new PbiBuilder()
               .setPb(pbPp)
-              .setParallelGroup(getCmdName()).create());
+              .setParallelGroup(getCmdName() + (idx / batchNum)).create());
 
           // delete temp dir
           workspacesToBeCleaned.add(temp);
@@ -300,6 +302,7 @@ public class CmdPeptideProphet extends CmdBase {
                   .setName(getCmdName() + ": Delete temp").create())
               .collect(Collectors.toList()));
         }
+        ++idx;
       }
       pbis.addAll(pbisPreParallel);
       pbis.addAll(pbisParallel);
