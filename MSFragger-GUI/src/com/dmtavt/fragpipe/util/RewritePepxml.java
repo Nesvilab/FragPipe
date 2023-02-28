@@ -27,7 +27,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import okio.Buffer;
@@ -41,11 +40,42 @@ public class RewritePepxml {
   private static final Logger log = LoggerFactory.getLogger(RewritePepxml.class);
 
   public static void main(String[] args) throws IOException {
-    Optional<Path> notExists = Arrays.stream(args).map(Paths::get).filter(Files::notExists).findFirst();
-    if (notExists.isPresent()) {
-      System.err.printf("Not all given paths exist: %s\n", notExists);
-      System.exit(1);
+    // Check if the LCMS files exist. Replace the non-existing ones with the existing ones if possible.
+    for (int i = 0; i < args.length; ++i) {
+      if (!Files.exists(Paths.get(args[i]))) { // Try to find the alternative file.
+        boolean notOk = true;
+        if (args[i].toLowerCase().endsWith("_calibrated.mzml")) {
+          String ss = args[i].substring(0, args[i].length() - "_calibrated.mzml".length()) + ".mzML";
+          if (Files.exists(Paths.get(ss))) {
+            args[i] = ss;
+            notOk = false;
+          } else {
+            ss = args[i].substring(0, args[i].length() - "_calibrated.mzml".length()) + "_uncalibrated.mzML";
+            if (Files.exists(Paths.get(ss))) {
+              args[i] = ss;
+              notOk = false;
+            }
+          }
+        } else if (args[i].toLowerCase().endsWith("_uncalibrated.mzml")) {
+          String ss = args[i].substring(0, args[i].length() - "_uncalibrated.mzml".length()) + ".mzML";
+          if (Files.exists(Paths.get(ss))) {
+            args[i] = ss;
+            notOk = false;
+          } else {
+            ss = args[i].substring(0, args[i].length() - "_uncalibrated.mzml".length()) + "_calibrated.mzML";
+            if (Files.exists(Paths.get(ss))) {
+              args[i] = ss;
+              notOk = false;
+            }
+          }
+        }
+        if (notOk) {
+          System.err.printf("Not all given paths exist: %s\n", args[i]);
+          System.exit(1);
+        }
+      }
     }
+
     Path pepxml = Paths.get(args[0]);
     final String[] replacements = Arrays.copyOfRange(args, 1, args.length);
     System.out.printf("Fixing pepxml: %s\n", pepxml);

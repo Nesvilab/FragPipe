@@ -259,6 +259,40 @@ public class PercolatorOutputToPepXML {
     }
 
     public static void percolatorToPepXML(final Path pin, final String basename, final Path percolatorTargetPsms, final Path percolatorDecoyPsms, final Path outBasename, final String DIA_DDA, final double minProb, String lcmsPath) {
+        // Check if the LCMS files exist. Replace the non-existing ones with the existing ones if possible.
+        if (!Files.exists(Paths.get(lcmsPath))) { // Try to find the alternative file.
+            boolean notOk = true;
+            if (lcmsPath.toLowerCase().endsWith("_calibrated.mzml")) {
+                String ss = lcmsPath.substring(0, lcmsPath.length() - "_calibrated.mzml".length()) + ".mzML";
+                if (Files.exists(Paths.get(ss))) {
+                    lcmsPath = ss;
+                    notOk = false;
+                } else {
+                    ss = lcmsPath.substring(0, lcmsPath.length() - "_calibrated.mzml".length()) + "_uncalibrated.mzML";
+                    if (Files.exists(Paths.get(ss))) {
+                        lcmsPath = ss;
+                        notOk = false;
+                    }
+                }
+            } else if (lcmsPath.toLowerCase().endsWith("_uncalibrated.mzml")) {
+                String ss = lcmsPath.substring(0, lcmsPath.length() - "_uncalibrated.mzml".length()) + ".mzML";
+                if (Files.exists(Paths.get(ss))) {
+                    lcmsPath = ss;
+                    notOk = false;
+                } else {
+                    ss = lcmsPath.substring(0, lcmsPath.length() - "_uncalibrated.mzml".length()) + "_calibrated.mzML";
+                    if (Files.exists(Paths.get(ss))) {
+                        lcmsPath = ss;
+                        notOk = false;
+                    }
+                }
+            }
+            if (notOk) {
+                System.err.printf(lcmsPath + " does not exist.");
+                System.exit(1);
+            }
+        }
+
         // get max rank from pin
         final boolean is_DIA = DIA_DDA.equals("DIA");
         final int max_rank = get_max_rank(basename, is_DIA);
