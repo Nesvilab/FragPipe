@@ -48,7 +48,7 @@ public class CmdPhilosopherDbAnnotate extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, UsageTrigger binPhilosopher,
+  public boolean configure(Component comp, int ramGb, int threads, UsageTrigger binPhilosopher,
       String dbPath, String decoyTag,
       Map<InputLcmsFile, List<Path>> pepxmlFiles, Map<LcmsFileGroup, Path> protxmlFiles) {
 
@@ -77,6 +77,9 @@ public class CmdPhilosopherDbAnnotate extends CmdBase {
       cmd.add("--prefix");
       cmd.add(decoyTag);
       ProcessBuilder pb = new ProcessBuilder(cmd);
+      pb.environment().put("GOMEMLIMIT", ramGb + "GiB");
+      pb.environment().put("GOGC", "100");
+      pb.environment().put("GOMAXPROCS", String.valueOf(threads));
       pb.directory(pepxmlDir.toFile());
       pbis.add(PbiBuilder.from(pb));
     }

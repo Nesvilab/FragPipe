@@ -1211,7 +1211,7 @@ public class FragpipeRun {
     addConfig.accept(cmdPhilosopherDbAnnotate, () -> {
       if (cmdPhilosopherDbAnnotate.isRun()) {
         return cmdPhilosopherDbAnnotate
-            .configure(parent, usePhi, fastaFile, decoyTag, sharedPepxmlFiles,
+            .configure(parent, ramGb, threads, usePhi, fastaFile, decoyTag, sharedPepxmlFiles,
                 sharedMapGroupsToProtxml);
       }
       return true;
