@@ -70,7 +70,7 @@ public class DotnetInfo {
     }
 
     private static DefaultArtifactVersion tryGetVersion(String cmd) throws UnexpectedException, ValidationException {
-        ProcessBuilder pb = new ProcessBuilder(cmd, "--version");
+        ProcessBuilder pb = new ProcessBuilder(cmd, "--info");
         pb.redirectErrorStream(true);
 
         String printed;
@@ -79,7 +79,7 @@ public class DotnetInfo {
         log.debug("Dotnet version command printed: {}", printed);
 
         Matcher m = pattern.matcher(printed);
-        if (m.matches()) {
+        if (m.find()) {
             String version = m.group();
             log.debug("Found dotnet version string in output: {}", version);
             return new DefaultArtifactVersion(version);
