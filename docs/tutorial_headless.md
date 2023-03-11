@@ -1,8 +1,8 @@
-# Running FragPipe in headless mode (command line)
+# Running FragPipe in command line interface (headless mode)
 
 For most desktop users, we recommend running FragPipe in GUI mode ([https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html)). Users can also use FragPipe on remote server with X forwarding ([https://fragpipe.nesvilab.org/docs/tutorial_setup_x_forwarding.html](https://fragpipe.nesvilab.org/docs/tutorial_setup_x_forwarding.html)).
 
-To run FragPipe in command line, using `fragpipe` (Linux) or `fragpipe.bat` (Windows) in `fragpipe/bin` directory with the following commands:
+To run FragPipe in command line interface, using `fragpipe` (Linux) or `fragpipe.bat` (Windows) in `fragpipe/bin` directory with the following commands:
 
 ```shell
 Running without GUI. Usage:
