@@ -171,7 +171,6 @@ public class FragpipeRun {
     ProcessManager processManager = Bus.getStickyEvent(ProcessManager.class);
     if (processManager == null) {
       throw new IllegalStateException("ProcessManager has not been posted to the bus");
-
     }
     processManager.setThreads(tabWorkflow.getThreads());
 
@@ -266,6 +265,10 @@ public class FragpipeRun {
 
       // check fasta file
       NoteConfigDatabase configDb = Bus.getStickyEvent(NoteConfigDatabase.class);
+      if (configDb == null) {
+        throw new IllegalStateException("NoteConfigDatabase has not been posted to the bus");
+      }
+
       final String fastaPath = checkFasta(tabRun, configDb);
       if (fastaPath == null) {
         log.debug("checkFasta() failed");
@@ -1371,6 +1374,10 @@ public class FragpipeRun {
       addConfig.accept(cmdIonquant,  () -> {
         if (cmdIonquant.isRun()) {
           OPairPanel oPairPanel = Bus.getStickyEvent(OPairPanel.class);
+          if (oPairPanel == null) {
+            throw new IllegalStateException("OPairPanel has not been posted to the bus");
+          }
+
           return cmdIonquant.configure(parent, Paths.get(binMsfragger.getBin()), Paths.get(binIonQuant.getBin()), ramGb, quantPanelLabelfree.toMap(), tabWorkflow.getInputDataType(), sharedPepxmlFilesFromMsfragger, sharedMapGroupsToProtxml, threads, oPairPanel.isRun() ? null : modMassSet, isDryRun);
         }
         return true;

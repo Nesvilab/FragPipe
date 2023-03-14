@@ -36,7 +36,6 @@ import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.UsageTrigger;
 import java.awt.Component;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -389,13 +388,13 @@ public class CmdMsfragger extends CmdBase {
     if (!isDryRun) {
       try {
         if (hasDda || isRunDiaU) {
-          paramsDda.save(new FileOutputStream(savedDdaParamsPath.toFile()));
+          paramsDda.save(Files.newOutputStream(savedDdaParamsPath));
         }
         if ((hasDia || hasDiaLib) && !isRunDiaU) {
-          paramsDia.save(new FileOutputStream(savedDiaParamsPath.toFile()));
+          paramsDia.save(Files.newOutputStream(savedDiaParamsPath));
         }
         if (hasGpfDia && !isRunDiaU) {
-          paramsGpfDia.save(new FileOutputStream(savedGpfDiaParamsPath.toFile()));
+          paramsGpfDia.save(Files.newOutputStream(savedGpfDiaParamsPath));
         }
 
         // cache the params
