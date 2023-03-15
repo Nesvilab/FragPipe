@@ -218,8 +218,7 @@ public class TabRun extends JPanelWithEnablement {
     uiCheckDeleteTempFiles.setName(TAB_PREFIX + "delete_temp_files");
 
     uiCheckWriteSubMzml = UiUtils.createUiCheck("Write sub mzML", false);
-    uiCheckWriteSubMzml.setName(TAB_PREFIX + "write_sub_mzml");
-    uiCheckWriteSubMzml.createToolTip().setTipText("Write mzML files excluding identified scans. Need to run MSFragger.");
+    FormEntry feWriteSubMzml = mu.feb(uiCheckWriteSubMzml).name("write_sub_mzml").label("Write sub mzML").tooltip("Write mzML files excluding identified scans. Need to run MSFragger.").create();
 
     btnRun = UiUtils.createButton("<html><b>RUN", e -> Bus.post(new MessageRun(isDryRun())));
 
@@ -338,7 +337,7 @@ public class TabRun extends JPanelWithEnablement {
     mu.add(p, uiCheckDryRun);
     mu.add(p, uiCheckDeleteCalibratedFiles);
     mu.add(p, uiCheckDeleteTempFiles);
-    mu.add(p, uiCheckWriteSubMzml);
+    mu.add(p, feWriteSubMzml.comp);
 
     mu.add(p, btnExport).split(3);
     mu.add(p, btnReportErrors);
