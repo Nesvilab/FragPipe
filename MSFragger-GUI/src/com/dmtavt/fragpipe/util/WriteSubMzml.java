@@ -74,14 +74,14 @@ public class WriteSubMzml {
       System.exit(1);
     }
 
-    Set<Integer> scanNums = readPsm(psmPath, runName, probabilityThreshold);
+    Set<Integer> scanNumsToExclude = readPsm(psmPath, runName, probabilityThreshold);
 
-    System.out.println("Found " + scanNums.size() + " scans to exclude.");
+    System.out.println("Found " + scanNumsToExclude.size() + " scans to exclude.");
 
     List<IScan> iScans = new ArrayList<>();
     MZBINFile mzbinFile = new MZBINFile(1, lcmsPath.toFile(), true);
     for (MZBINFile.MZBINSpectrum mzbinSpectrum : mzbinFile.specs) {
-      if (!scanNums.contains(mzbinSpectrum.scanNum)) {
+      if (!scanNumsToExclude.contains(mzbinSpectrum.scanNum)) {
         iScans.add(mzbinSpectrum.toIScan());
       }
     }
@@ -90,7 +90,7 @@ public class WriteSubMzml {
   }
 
   private static Set<Integer> readPsm(Path psmPath, String runName, float probabilityThreshold) throws Exception {
-    Set<Integer> scanNums = new HashSet<>();
+    Set<Integer> scanNumsToExclude = new HashSet<>();
     BufferedReader reader = new BufferedReader(Files.newBufferedReader(psmPath));
     String line;
     int scanNameIdx = -1;
@@ -117,7 +117,7 @@ public class WriteSubMzml {
       Matcher matcher = pattern.matcher(split[scanNameIdx].trim());
       if (matcher.matches()) {
         if (matcher.group(1).equals(runName) && Float.parseFloat(split[probabilityThresholdIdx]) > probabilityThreshold) {
-          scanNums.add(Integer.parseInt(matcher.group(2)));
+          scanNumsToExclude.add(Integer.parseInt(matcher.group(2)));
         }
       } else {
         System.err.println("Failed to parse scan name " + split[scanNameIdx].trim());
@@ -126,7 +126,7 @@ public class WriteSubMzml {
     }
     reader.close();
 
-    return scanNums;
+    return scanNumsToExclude;
   }
 
   private static void writeMzML(String sourceFilePath, String runName, String outputPath, List<IScan> iScanList) throws Exception {
