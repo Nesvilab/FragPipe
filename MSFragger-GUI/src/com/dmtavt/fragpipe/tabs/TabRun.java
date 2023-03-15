@@ -217,7 +217,7 @@ public class TabRun extends JPanelWithEnablement {
     uiCheckDeleteTempFiles = UiUtils.createUiCheck("Delete temp files", false);
     uiCheckDeleteTempFiles.setName(TAB_PREFIX + "delete_temp_files");
 
-    uiCheckWriteSubMzml = UiUtils.createUiCheck("Write sub mzML", false); // todo: show a warning and disable it if MSFragger is not enabled.
+    uiCheckWriteSubMzml = UiUtils.createUiCheck("Write sub mzML", false);
     uiCheckWriteSubMzml.setName(TAB_PREFIX + "write_sub_mzml");
     uiCheckWriteSubMzml.createToolTip().setTipText("Write mzML files excluding identified scans. Need to run MSFragger.");
 

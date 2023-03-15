@@ -406,8 +406,6 @@ public class TabMsfragger extends JPanelBase {
     updateEnabledStatus(this, false); // will get enabled once we receive NoteConfigMsfragger
     updateEnabledStatus(uiSpinnerDbsplit, false); // only gets enabled when DbSlice2 is initialized
 
-    // TODO: ACHTUNG: temporary fix, disabling "Define custom ion series field"
-    // Remove when custom ion series work properly in msfragger
     updateEnabledStatus(uiTextCustomIonSeries, true);
     updateEnabledStatus(labelCustomIonSeries, true);
 
