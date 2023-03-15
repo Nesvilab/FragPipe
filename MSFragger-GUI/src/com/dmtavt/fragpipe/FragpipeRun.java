@@ -1573,7 +1573,7 @@ public class FragpipeRun {
     final CmdWriteSubMzml cmdWriteSubMzml = new CmdWriteSubMzml(tabRun.isWriteSubMzml(), wd);
     addConfig.accept(cmdWriteSubMzml, () -> {
       if (cmdWriteSubMzml.isRun()) {
-        return cmdWriteSubMzml.configure(parent, jarPath, ramGb, threads, sharedLcmsFileGroups, 0, tabMsf.isRun());
+        return cmdWriteSubMzml.configure(parent, jarPath, ramGb, threads, sharedLcmsFileGroups, tabRun.getSubMzmlProbThreshold(), tabMsf.isRun());
       }
       return true;
     });

@@ -47,6 +47,7 @@ import com.github.chhh.utils.swing.JPanelWithEnablement;
 import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.TextConsole;
 import com.github.chhh.utils.swing.UiCheck;
+import com.github.chhh.utils.swing.UiSpinnerDouble;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.Color;
@@ -107,6 +108,7 @@ public class TabRun extends JPanelWithEnablement {
   private UiCheck uiCheckDeleteCalibratedFiles;
   private UiCheck uiCheckDeleteTempFiles;
   public UiCheck uiCheckWriteSubMzml;
+  public UiSpinnerDouble uiSpinnerProbThreshold;
   private JButton btnRun;
   private JButton btnStop;
   private JButton btnOpenPdv;
@@ -219,6 +221,9 @@ public class TabRun extends JPanelWithEnablement {
 
     uiCheckWriteSubMzml = UiUtils.createUiCheck("Write sub mzML", false);
     FormEntry feWriteSubMzml = mu.feb(uiCheckWriteSubMzml).name("write_sub_mzml").label("Write sub mzML").tooltip("Write mzML files excluding identified scans. Need to run MSFragger.").create();
+
+    uiSpinnerProbThreshold = UiUtils.spinnerDouble(0.0, 0.0, 1.0, 0.01).setCols(4).setFormat("#.##").create();
+    FormEntry feProbThreshold = mu.feb(uiSpinnerProbThreshold).name("sub_mzml_prob_threshold").label("Probability threshold").tooltip("Set the maximum probability threshold for writing sub mzML files.").create();
 
     btnRun = UiUtils.createButton("<html><b>RUN", e -> Bus.post(new MessageRun(isDryRun())));
 
@@ -337,12 +342,15 @@ public class TabRun extends JPanelWithEnablement {
     mu.add(p, uiCheckDryRun);
     mu.add(p, uiCheckDeleteCalibratedFiles);
     mu.add(p, uiCheckDeleteTempFiles);
-    mu.add(p, feWriteSubMzml.comp);
 
     mu.add(p, btnExport).split(3);
     mu.add(p, btnReportErrors);
     mu.add(p, btnClearConsole);
     mu.add(p, uiCheckWordWrap).wrap();
+
+    mu.add(p, feWriteSubMzml.comp).split(3);
+    mu.add(p, feProbThreshold.label());
+    mu.add(p, feProbThreshold.comp).wrap();
 
     mu.add(p, imageLabel).split(5);
     mu.add(p, btnOpenPdv).pushX();
@@ -367,6 +375,10 @@ public class TabRun extends JPanelWithEnablement {
 
   public boolean isWriteSubMzml() {
     return SwingUtils.isEnabledAndChecked(uiCheckWriteSubMzml);
+  }
+
+  public float getSubMzmlProbThreshold() {
+    return ((Double) uiSpinnerProbThreshold.getValue()).floatValue();
   }
 
   protected void init() {
