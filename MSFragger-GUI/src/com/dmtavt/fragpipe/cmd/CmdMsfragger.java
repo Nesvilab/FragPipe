@@ -287,7 +287,7 @@ public class CmdMsfragger extends CmdBase {
     return locs;
   }
 
-  public boolean configure(Component comp, boolean isDryRun, Path jarFragpipe, UsageTrigger binFragger, String pathFasta, MsfraggerParams params, int numSlices, int ramGb, List<InputLcmsFile> lcmsFiles, final String decoyTag, boolean hasDda, boolean hasDia, boolean hasGpfDia, boolean hasDiaLib, boolean isRunDiaU) {
+  public boolean configure(Component comp, boolean isDryRun, Path jarFragpipe, UsageTrigger binFragger, String pathFasta, MsfraggerParams params, int numSlices, int ramGb, List<InputLcmsFile> lcmsFiles, final String decoyTag, boolean hasDda, boolean hasDia, boolean hasGpfDia, boolean hasDiaLib, boolean isRunDiaU, boolean writeMzbinAll) {
 
     initPreConfig();
 
@@ -373,6 +373,7 @@ public class CmdMsfragger extends CmdBase {
     // Search parameter file
     params.setDatabaseName(pathFasta);
     params.setDecoyPrefix(decoyTag);
+    params.setWriteMzbinAll(writeMzbinAll);
     Path savedDdaParamsPath = (hasDia || hasGpfDia || hasDiaLib) ? wd.resolve("fragger_dda.params") : wd.resolve("fragger.params");
     Path savedDiaParamsPath = wd.resolve("fragger_dia.params");
     Path savedGpfDiaParamsPath = wd.resolve("fragger_gpfdia.params");

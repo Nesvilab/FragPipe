@@ -220,6 +220,7 @@ public class TabMsfragger extends JPanelBase {
 
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_write_calibrated_mzml, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_write_uncalibrated_mgf, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_write_mzbin_all, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_mass_diff_to_variable_mod, s -> itos(
         MASS_DIFF_TO_VAR_MOD_MAP[ArrayUtils.indexOf(MASS_DIFF_TO_VAR_MOD, s)]));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_deisotope, s -> {
@@ -266,6 +267,7 @@ public class TabMsfragger extends JPanelBase {
 
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_write_calibrated_mzml, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_write_uncalibrated_mgf, s -> Boolean.toString(Integer.parseInt(s) > 0));
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_write_mzbin_all, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_mass_diff_to_variable_mod, s-> MASS_DIFF_TO_VAR_MOD[MASS_DIFF_TO_VAR_MOD_MAP[Integer.parseInt(s)]]);
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_deisotope, s-> DEISOTOPE[Integer.parseInt(s)]);
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_precursor_mass_units, s -> PrecursorMassTolUnits.fromParamsFileRepresentation(s).name());

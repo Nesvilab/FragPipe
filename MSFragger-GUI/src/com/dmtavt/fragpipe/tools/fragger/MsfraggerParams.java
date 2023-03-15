@@ -84,6 +84,7 @@ public class MsfraggerParams extends AbstractParams {
     public static final String PROP_activation_filter = "activation_types";
     public static final String PROP_write_calibrated_mzml = "write_calibrated_mzml";
     public static final String PROP_write_uncalibrated_mgf = "write_uncalibrated_mgf";
+    public static final String PROP_write_mzbin_all = "write_mzbin_all";
     public static final String PROP_mass_diff_to_variable_mod = "mass_diff_to_variable_mod";
 
     public static final String PROP_calibrate_mass = "calibrate_mass";
@@ -173,6 +174,7 @@ public class MsfraggerParams extends AbstractParams {
         PROP_check_spectral_files,
         PROP_write_calibrated_mzml,
         PROP_write_uncalibrated_mgf,
+        PROP_write_mzbin_all,
         PROP_mass_diff_to_variable_mod,
         PROP_calibrate_mass,
         PROP_use_all_mods_in_first_search,
@@ -494,9 +496,15 @@ public class MsfraggerParams extends AbstractParams {
     public void setNumThreads(int numThreads) {
         props.setProp(PROP_num_threads, Integer.toString(numThreads));
     }
-    
-    
-    // =======================================================================
+
+    public void setWriteMzbinAll(boolean v) {
+        setInt(PROP_write_mzbin_all, v ? 1 : 0);
+    }
+
+    public boolean getWriteMzbinAll() {
+        return getInt(PROP_write_mzbin_all, "0") == 1;
+    }
+
     public int getWriteCalibratedMzml() {
         return getInt(PROP_write_calibrated_mzml, "0");
     }

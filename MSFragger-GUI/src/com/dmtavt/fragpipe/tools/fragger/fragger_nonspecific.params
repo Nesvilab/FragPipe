@@ -26,6 +26,7 @@ activation_types =
 
 write_calibrated_mzml = 0
 write_uncalibrated_mgf = 0
+write_mzbin_all = 0
 mass_diff_to_variable_mod = 0
 
 localize_delta_mass = 0

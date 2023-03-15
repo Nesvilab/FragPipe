@@ -106,6 +106,7 @@ public class TabRun extends JPanelWithEnablement {
   private UiCheck uiCheckDryRun;
   private UiCheck uiCheckDeleteCalibratedFiles;
   private UiCheck uiCheckDeleteTempFiles;
+  public UiCheck uiCheckWriteSubMzml;
   private JButton btnRun;
   private JButton btnStop;
   private JButton btnOpenPdv;
@@ -215,6 +216,10 @@ public class TabRun extends JPanelWithEnablement {
 
     uiCheckDeleteTempFiles = UiUtils.createUiCheck("Delete temp files", false);
     uiCheckDeleteTempFiles.setName(TAB_PREFIX + "delete_temp_files");
+
+    uiCheckWriteSubMzml = UiUtils.createUiCheck("Write sub mzML", false); // todo: show a warning and disable it if MSFragger is not enabled.
+    uiCheckWriteSubMzml.setName(TAB_PREFIX + "write_sub_mzml");
+    uiCheckWriteSubMzml.createToolTip().setTipText("Write mzML files excluding identified scans. Need to run MSFragger.");
 
     btnRun = UiUtils.createButton("<html><b>RUN", e -> Bus.post(new MessageRun(isDryRun())));
 
@@ -333,6 +338,7 @@ public class TabRun extends JPanelWithEnablement {
     mu.add(p, uiCheckDryRun);
     mu.add(p, uiCheckDeleteCalibratedFiles);
     mu.add(p, uiCheckDeleteTempFiles);
+    mu.add(p, uiCheckWriteSubMzml);
 
     mu.add(p, btnExport).split(3);
     mu.add(p, btnReportErrors);
@@ -358,6 +364,10 @@ public class TabRun extends JPanelWithEnablement {
 
   public boolean isDeleteTempFiles() {
     return SwingUtils.isEnabledAndChecked(uiCheckDeleteTempFiles);
+  }
+
+  public boolean isWriteSubMzml() {
+    return SwingUtils.isEnabledAndChecked(uiCheckWriteSubMzml);
   }
 
   protected void init() {

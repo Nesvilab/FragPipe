@@ -80,7 +80,7 @@ public class ProcessBuilderInfo {
 
       // main loop reading process' output
       try {
-        if ((pbi.name.equalsIgnoreCase("peptideprophet") || pbi.name.equalsIgnoreCase("ptmprophet"))) {
+        if ((pbi.name.equalsIgnoreCase("peptideprophet") || pbi.name.equalsIgnoreCase("ptmprophet")) || pbi.name.equalsIgnoreCase("writesubmzml")) {
           toConsole(Fragpipe.COLOR_BLACK, "Please wait. " + pbi.name + " is running. It can take a long time.", true, console);
         }
 
@@ -95,6 +95,8 @@ public class ProcessBuilderInfo {
             } else if (pbi.name.equalsIgnoreCase("ptmprophet")) {
               String errStr = (new String(pollErr, StandardCharsets.UTF_8)).replaceAll("\"chmod [0-9]{3} [^\\r\\n]+\" failed: Operation not permitted[\\r\\n]*", "");
               sbBuffer.append(errStr);
+            } else if (pbi.name.equalsIgnoreCase("writesubmzml")) {
+              sbBuffer.append(new String(pollErr, StandardCharsets.UTF_8));
             } else {
               String errStr = pr.appendErr(pollErr);
               toConsole(null, errStr, false, console);
@@ -103,9 +105,8 @@ public class ProcessBuilderInfo {
 
           final byte[] pollOut = pr.pollStdOut();
           if (pollOut != null && pollOut.length > 0) {
-            if (pbi.name.equalsIgnoreCase("peptideprophet") || pbi.name.equalsIgnoreCase("ptmprophet")) {
-              String outStr = new String(pollOut, StandardCharsets.UTF_8);
-              sbBuffer.append(outStr);
+            if (pbi.name.equalsIgnoreCase("peptideprophet") || pbi.name.equalsIgnoreCase("ptmprophet") || pbi.name.equalsIgnoreCase("writesubmzml")) {
+              sbBuffer.append(new String(pollOut, StandardCharsets.UTF_8));
             } else {
               String outStr = pr.appendOut(pollOut);
               toConsole(null, outStr, false, console);
@@ -116,7 +117,7 @@ public class ProcessBuilderInfo {
             continue;
           }
 
-          if (pbi.name.equalsIgnoreCase("peptideprophet") || pbi.name.equalsIgnoreCase("ptmprophet")) {
+          if (pbi.name.equalsIgnoreCase("peptideprophet") || pbi.name.equalsIgnoreCase("ptmprophet") || pbi.name.equalsIgnoreCase("writesubmzml")) {
             pr.appendOut(sbBuffer.toString().getBytes(StandardCharsets.UTF_8));
             toConsole(null, sbBuffer.toString(), false, console);
           }

@@ -52,6 +52,7 @@ import com.dmtavt.fragpipe.cmd.CmdSpecLibGen;
 import com.dmtavt.fragpipe.cmd.CmdStart;
 import com.dmtavt.fragpipe.cmd.CmdTmtIntegrator;
 import com.dmtavt.fragpipe.cmd.CmdUmpireSe;
+import com.dmtavt.fragpipe.cmd.CmdWriteSubMzml;
 import com.dmtavt.fragpipe.cmd.PbiBuilder;
 import com.dmtavt.fragpipe.cmd.ProcessBuilderInfo;
 import com.dmtavt.fragpipe.cmd.ProcessBuildersDescriptor;
@@ -1027,6 +1028,10 @@ public class FragpipeRun {
       return true;
     });
 
+    final TabRun tabRun = Bus.getStickyEvent(TabRun.class);
+    if (tabRun == null) {
+      throw new IllegalStateException("TabRun has not been posted to the bus");
+    }
 
     // run MsFragger
     final TabDatabase tabDatabase = Fragpipe.getStickyStrict(TabDatabase.class);
@@ -1039,7 +1044,7 @@ public class FragpipeRun {
 
     addConfig.accept(cmdMsfragger, () -> {
       if (cmdMsfragger.isRun()) {
-        if (!cmdMsfragger.configure(parent, isDryRun, jarPath, binMsfragger, fastaFile, tabMsf.getParams(), tabMsf.getNumDbSlices(), ramGb, sharedLcmsFiles, decoyTag, tabWorkflow.hasDda(), tabWorkflow.hasDia(), tabWorkflow.hasGpfDia(), tabWorkflow.hasDiaLib(), cmdUmpire.isRun())) {
+        if (!cmdMsfragger.configure(parent, isDryRun, jarPath, binMsfragger, fastaFile, tabMsf.getParams(), tabMsf.getNumDbSlices(), ramGb, sharedLcmsFiles, decoyTag, tabWorkflow.hasDda(), tabWorkflow.hasDia(), tabWorkflow.hasGpfDia(), tabWorkflow.hasDiaLib(), cmdUmpire.isRun(), tabRun.isWriteSubMzml())) {
           return false;
         }
 
@@ -1564,6 +1569,16 @@ public class FragpipeRun {
     });
 
 
+    // write sub mzML files
+    final CmdWriteSubMzml cmdWriteSubMzml = new CmdWriteSubMzml(tabRun.isWriteSubMzml(), wd);
+    addConfig.accept(cmdWriteSubMzml, () -> {
+      if (cmdWriteSubMzml.isRun()) {
+        return cmdWriteSubMzml.configure(parent, jarPath, ramGb, threads, sharedLcmsFileGroups, 0, tabMsf.isRun());
+      }
+      return true;
+    });
+
+
     // check if any incompatible tools are requested
     addCheck.accept(() -> {
       if (InputDataType.ImMsTimsTof == tabWorkflow.getInputDataType()) {
@@ -1622,6 +1637,7 @@ public class FragpipeRun {
     addToGraph(graphOrder, cmdTmt, DIRECTION.IN, cmdPhilosopherReport, cmdTmtFreequant, cmdTmtLabelQuant, cmdPhilosopherAbacus, cmdPtmshepherd);
     addToGraph(graphOrder, cmdSpecLibGen, DIRECTION.IN, cmdPhilosopherReport);
     addToGraph(graphOrder, cmdDiann, DIRECTION.IN, cmdSpecLibGen);
+    addToGraph(graphOrder, cmdWriteSubMzml, DIRECTION.IN, cmdPhilosopherReport);
 
     // compose graph of required dependencies
     final Graph<CmdBase, DefEdge> graphDeps = new DirectedAcyclicGraph<>(DefEdge.class);
