@@ -40,7 +40,7 @@ import umich.ms.fileio.filetypes.mzml.jaxb.ProcessingMethodType;
 
 public class WriteSubMzml {
 
-  private static final Pattern pattern = Pattern.compile("(.+)\\.(\\d+)\\.(\\d+)\\.(\\d+)");
+  private static final Pattern pattern = Pattern.compile("^(.+)\\.(\\d+)\\.(\\d+)\\.(\\d+)");
 
   public static void main(String[] args) {
     long time = System.nanoTime();
@@ -115,7 +115,7 @@ public class WriteSubMzml {
       }
 
       Matcher matcher = pattern.matcher(split[scanNameIdx].trim());
-      if (matcher.matches()) {
+      if (matcher.find()) {
         if (matcher.group(1).equals(runName) && Float.parseFloat(split[probabilityThresholdIdx]) > probabilityThreshold) {
           scanNumsToExclude.add(Integer.parseInt(matcher.group(2)));
         }
