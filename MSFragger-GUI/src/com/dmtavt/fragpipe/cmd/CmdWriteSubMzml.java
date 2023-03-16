@@ -26,7 +26,6 @@ import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
 import java.awt.Component;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -102,7 +101,7 @@ public class CmdWriteSubMzml extends CmdBase {
         cmd.add(WriteSubMzml.class.getCanonicalName());
         cmd.add(inputLcmsFile.getPath().toAbsolutePath().toString());
         cmd.add(wd.resolve(e.getKey()).resolve("psm.tsv").toAbsolutePath().toString());
-        cmd.add(inputLcmsFile.getPath().getParent() + File.separator + StringUtils.upToLastDot(inputLcmsFile.getPath().getFileName().toString()) + "_sub.mzML");
+        cmd.add(wd.resolve(StringUtils.upToLastDot(inputLcmsFile.getPath().getFileName().toString()) + "_sub.mzML").toAbsolutePath().toString());
         cmd.add(probabilityThreshold + "");
         cmd.add("1");
         ProcessBuilder pb = new ProcessBuilder(cmd);
