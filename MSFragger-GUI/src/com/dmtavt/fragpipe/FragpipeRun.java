@@ -24,6 +24,7 @@ import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.IConfig;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
+import com.dmtavt.fragpipe.cmd.CmdAppendFile;
 import com.dmtavt.fragpipe.cmd.CmdBase;
 import com.dmtavt.fragpipe.cmd.CmdCheckCentroid;
 import com.dmtavt.fragpipe.cmd.CmdCrystalc;
@@ -36,7 +37,6 @@ import com.dmtavt.fragpipe.cmd.CmdMSBooster;
 import com.dmtavt.fragpipe.cmd.CmdMsfragger;
 import com.dmtavt.fragpipe.cmd.CmdOPair;
 import com.dmtavt.fragpipe.cmd.CmdPairScans;
-import com.dmtavt.fragpipe.cmd.CmdAppendFile;
 import com.dmtavt.fragpipe.cmd.CmdPeptideProphet;
 import com.dmtavt.fragpipe.cmd.CmdPercolator;
 import com.dmtavt.fragpipe.cmd.CmdPhilosopherAbacus;
@@ -108,6 +108,8 @@ import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.UsageTrigger;
 import com.github.chhh.utils.swing.TextConsole;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -129,6 +131,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -490,6 +493,107 @@ public class FragpipeRun {
         // save manifest file in both GUI and headless mode
         Path path = wd.resolve("fragpipe-files.fp-manifest");
         Bus.post(new MessageManifestSave(path, true));
+
+        if (tabRun.isWriteSubMzml()) { // write sub workflow and manifest files for the second-pass
+          try {
+            Float newFragmentMassTolerance = null;
+            Integer newUseTopNPeaks = null;
+            Float newMinimumRatio = null;
+            Integer newIntensityTransform = null;
+            Integer newRemovePrecursorPeak = null;
+            Integer newMaxFragmentCharge = null;
+            Float newPrecursorTrueTolerance = null;
+
+            final String text = tabRun.console.getText().replaceAll("[^\n]+\u200B" + System.lineSeparator(), ""); // todo: check
+            Matcher matcher = Pattern.compile("New fragment_mass_tolerance = ([\\d.]+) PPM").matcher(text);
+            if (matcher.find()) {
+              newFragmentMassTolerance = Float.parseFloat(matcher.group(1));
+            }
+
+            matcher = Pattern.compile("New use_topN_peaks = (\\d+)").matcher(text);
+            if (matcher.find()) {
+              newUseTopNPeaks = Integer.parseInt(matcher.group(1));
+            }
+
+            matcher = Pattern.compile("New minimum_ratio = ([\\d.]+)").matcher(text);
+            if (matcher.find()) {
+              newMinimumRatio = Float.parseFloat(matcher.group(1));
+            }
+
+            matcher = Pattern.compile("New intensity_transform = (\\d+)").matcher(text);
+            if (matcher.find()) {
+              newIntensityTransform = Integer.parseInt(matcher.group(1));
+            }
+
+            matcher = Pattern.compile("New remove_precursor_peak = (\\d+)").matcher(text);
+            if (matcher.find()) {
+              newRemovePrecursorPeak = Integer.parseInt(matcher.group(1));
+            }
+
+            matcher = Pattern.compile("New max_fragment_charge = (\\d+)").matcher(text);
+            if (matcher.find()) {
+              newMaxFragmentCharge = Integer.parseInt(matcher.group(1));
+            }
+
+            matcher = Pattern.compile("New precursor_true_tolerance = ([\\d.]+) PPM").matcher(text);
+            if (matcher.find()) {
+              newPrecursorTrueTolerance = Float.parseFloat(matcher.group(1));
+            }
+
+            Path workflowFilePath = wd.resolve("fragpipe.workflow");
+            Path workflowFileSecondPassPath = wd.resolve("fragpipe-second-pass.workflow");
+            if (Files.exists(workflowFilePath) && Files.isRegularFile(workflowFilePath) && Files.isReadable(workflowFilePath)) {
+              BufferedReader reader = Files.newBufferedReader(workflowFilePath);
+              BufferedWriter writer = Files.newBufferedWriter(workflowFileSecondPassPath);
+              String line;
+              while ((line = reader.readLine()) != null) {
+                line = line.trim();
+                if (line.startsWith("msfragger.calibrate_mass")) {
+                  line = "msfragger.calibrate_mass=0";
+                } else if (newFragmentMassTolerance != null && line.startsWith("msfragger.fragment_mass_tolerance")) {
+                  line = "msfragger.fragment_mass_tolerance=" + newFragmentMassTolerance;
+                } else if (newFragmentMassTolerance != null && line.startsWith("msfragger.fragment_mass_units")) {
+                  line = "msfragger.fragment_mass_units=1";
+                } else if (newUseTopNPeaks != null && line.startsWith("msfragger.use_topN_peaks")) {
+                  line = "msfragger.use_topN_peaks=" + newUseTopNPeaks;
+                } else if (newMinimumRatio != null && line.startsWith("msfragger.minimum_ratio")) {
+                  line = "msfragger.minimum_ratio=" + newMinimumRatio;
+                } else if (newIntensityTransform != null && line.startsWith("msfragger.intensity_transform")) {
+                  line = "msfragger.intensity_transform=" + newIntensityTransform;
+                } else if (newRemovePrecursorPeak != null && line.startsWith("msfragger.remove_precursor_peak")) {
+                  line = "msfragger.remove_precursor_peak=" + newRemovePrecursorPeak;
+                } else if (newMaxFragmentCharge != null && line.startsWith("msfragger.max_fragment_charge")) {
+                  line = "msfragger.max_fragment_charge=" + newMaxFragmentCharge;
+                } else if (newPrecursorTrueTolerance != null && line.startsWith("msfragger.precursor_true_tolerance")) {
+                  line = "msfragger.precursor_true_tolerance=" + newPrecursorTrueTolerance;
+                } else if (newPrecursorTrueTolerance != null && line.startsWith("msfragger.precursor_true_units")) {
+                  line = "msfragger.precursor_true_units=1";
+                }
+                writer.write(line + "\n");
+              }
+              writer.close();
+              reader.close();
+            }
+
+            Path manifestFilePath = wd.resolve("fragpipe-files.fp-manifest");
+            Path manifestFileSecondPassPath = wd.resolve("fragpipe-files-second-pass.fp-manifest");
+            if (Files.exists(manifestFilePath) && Files.isRegularFile(manifestFilePath) && Files.isReadable(manifestFilePath)) {
+              BufferedReader reader = Files.newBufferedReader(manifestFilePath);
+              BufferedWriter writer = Files.newBufferedWriter(manifestFileSecondPassPath);
+              String line;
+              while ((line = reader.readLine()) != null) {
+                line = line.trim();
+                String[] parts = line.split("\t");
+                parts[0] = StringUtils.upToLastDot(parts[0]) + "_sub.mzML";
+                writer.write(String.join("\t", parts) + "\n");
+              }
+              writer.close();
+              reader.close();
+            }
+          } catch (Exception ex) {
+            ex.printStackTrace();
+          }
+        }
 
         Bus.post(new MessageRunButtonEnabled(true));
       };

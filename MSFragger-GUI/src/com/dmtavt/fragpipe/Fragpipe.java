@@ -731,7 +731,7 @@ public class Fragpipe extends JFrameHeadless {
     saveCache();
   }
 
-  @Subscribe
+  @Subscribe(threadMode = ThreadMode.POSTING)
   public void on(MessageSaveUiState m) {
     log.debug("Writing ui state cache to: {}", m.path.toString());
     try (OutputStream os = Files.newOutputStream(m.path)) {
