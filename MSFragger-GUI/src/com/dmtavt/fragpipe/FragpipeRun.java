@@ -548,7 +548,15 @@ public class FragpipeRun {
               String line;
               while ((line = reader.readLine()) != null) {
                 line = line.trim();
-                if (line.startsWith("msfragger.calibrate_mass")) {
+                if (line.startsWith("tab-run.write_sub_mzml")) {
+                  line = "tab-run.write_sub_mzml=false";
+                } else if (line.startsWith("percolator.run-percolator")) {
+                  line = "percolator.run-percolator=false";
+                } else if (line.startsWith("peptide-prophet.run-peptide-prophet")) {
+                  line = "peptide-prophet.run-peptide-prophet=true";
+                } else if (line.startsWith("phi-report.print-decoys")) {
+                  line = "phi-report.print-decoys=false";
+                } else if (line.startsWith("msfragger.calibrate_mass")) {
                   line = "msfragger.calibrate_mass=0";
                 } else if (newFragmentMassTolerance != null && line.startsWith("msfragger.fragment_mass_tolerance")) {
                   line = "msfragger.fragment_mass_tolerance=" + newFragmentMassTolerance;
