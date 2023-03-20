@@ -37,6 +37,7 @@ import com.dmtavt.fragpipe.messages.MessageRunButtonEnabled;
 import com.dmtavt.fragpipe.messages.MessageSaveLog;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
 import com.dmtavt.fragpipe.process.ProcessResult;
+import com.dmtavt.fragpipe.tools.philosopher.ReportPanel;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
@@ -224,6 +225,16 @@ public class TabRun extends JPanelWithEnablement {
 
     uiSpinnerProbThreshold = UiUtils.spinnerDouble(0.0, 0.0, 1.0, 0.01).setCols(4).setFormat("#.##").create();
     FormEntry feProbThreshold = mu.feb(uiSpinnerProbThreshold).name("sub_mzml_prob_threshold").label("Probability threshold").tooltip("Set the minimum probability to exclude the scans.").create();
+
+    ReportPanel reportPanel = Bus.getStickyEvent(ReportPanel.class);
+    if (reportPanel == null) {
+      throw new NullPointerException("Sticky note not on the bus: ReportPanel");
+    }
+
+    uiCheckWriteSubMzml.addActionListener(e -> {
+      uiSpinnerProbThreshold.setEnabled(uiCheckWriteSubMzml.isSelected());
+      reportPanel.setPrintDecoys(uiCheckWriteSubMzml.isSelected());
+    });
 
     btnRun = UiUtils.createButton("<html><b>RUN", e -> Bus.post(new MessageRun(isDryRun())));
 

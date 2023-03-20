@@ -232,6 +232,10 @@ public class ReportPanel extends JPanelBase {
     return uiTextFilter.getNonGhostText();
   }
 
+  public void setPrintDecoys(boolean printDecoys) {
+    uiCheckPrintDecoys.setSelected(printDecoys);
+  }
+
   public boolean isPrintDecoys() {
     return uiCheckPrintDecoys.isSelected();
   }
