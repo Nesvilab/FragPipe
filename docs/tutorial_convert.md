@@ -8,7 +8,7 @@ This page has instructions for using MSConvert to generate mzML files from both 
 
 <br>
 
-### Convert Thermo .raw files (DDA or DIA data with non-overlapping windows):
+### Convert Thermo .raw files (DDA or DIA data with non-staggered windows):
 In the MSConvert GUI window:
 1. Browse for the raw files you want to convert.
 2. Add them to the input list.
@@ -27,7 +27,9 @@ Example command line options:
 
 <br>
 
-### Convert Thermo DIA .raw files with overlapping/staggered windows:
+### Convert Thermo DIA .raw files with staggered windows:
+***Note: "staggered" means the isolation windows have 50% overlapping. A small percentage of overlapping at the window boundary does not count.***
+
 Follow the steps above, with the addition of the "Demultiplex" filter in step 5.
 
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/msconvert_staggered_DIA.png)
