@@ -220,7 +220,7 @@ public class TabRun extends JPanelWithEnablement {
     uiCheckDeleteTempFiles.setName(TAB_PREFIX + "delete_temp_files");
 
     uiCheckWriteSubMzml = UiUtils.createUiCheck("Write sub mzML", false);
-    FormEntry feWriteSubMzml = mu.feb(uiCheckWriteSubMzml).name("write_sub_mzml").label("Write sub mzML").tooltip("Write unidentified scans to mzML files. Need to run MSFragger.").create();
+    FormEntry feWriteSubMzml = mu.feb(uiCheckWriteSubMzml).name(TAB_PREFIX + "write_sub_mzml").label("Write sub mzML").tooltip("Write unidentified scans to mzML files. Need to run MSFragger.").create();
 
     uiSpinnerProbThreshold = UiUtils.spinnerDouble(0.0, 0.0, 1.0, 0.01).setCols(4).setFormat("#.##").create();
     FormEntry feProbThreshold = mu.feb(uiSpinnerProbThreshold).name("sub_mzml_prob_threshold").label("Probability threshold").tooltip("Set the minimum probability to exclude the scans.").create();

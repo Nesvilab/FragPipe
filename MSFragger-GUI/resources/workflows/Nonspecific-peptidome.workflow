@@ -261,6 +261,7 @@ speclibgen.keep-intermediate-files=false
 speclibgen.run-speclibgen=true
 tab-run.delete_calibrated_mzml=false
 tab-run.delete_temp_files=false
+tab-run.write_sub_mzml=false
 tmtintegrator.add_Ref=-1
 tmtintegrator.aggregation_method=0
 tmtintegrator.allow_overlabel=true
