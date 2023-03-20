@@ -348,26 +348,26 @@ public class TabRun extends JPanelWithEnablement {
     mu.add(p, btnBrowse);
     mu.add(p, btnOpenInFileManager).wrap();
 
-    mu.add(p, btnRun).split(5);
+    mu.add(p, btnRun).split(3);
     mu.add(p, btnStop);
     mu.add(p, uiCheckDryRun);
-    mu.add(p, uiCheckDeleteCalibratedFiles);
-    mu.add(p, uiCheckDeleteTempFiles);
 
-    mu.add(p, btnExport).split(3);
+    mu.add(p, btnExport, false).split();
     mu.add(p, btnReportErrors);
     mu.add(p, btnClearConsole);
     mu.add(p, uiCheckWordWrap).wrap();
 
-    mu.add(p, feWriteSubMzml.comp).split(3);
-    mu.add(p, feProbThreshold.label());
-    mu.add(p, feProbThreshold.comp).wrap();
-
-    mu.add(p, imageLabel).split(5);
+    mu.add(p, imageLabel).split(4);
     mu.add(p, btnOpenPdv).pushX();
 
-    mu.add(p, imageLabel2).gapLeft("100px");
-    mu.add(p, btnOpenFragPipeAnalyst).wrap();
+    mu.add(p, imageLabel2).gapLeft("50px");
+    mu.add(p, btnOpenFragPipeAnalyst);
+
+    mu.add(p, uiCheckDeleteCalibratedFiles, false).split();
+    mu.add(p, uiCheckDeleteTempFiles).gapRight("20px");
+    mu.add(p, feWriteSubMzml.comp, false);
+    mu.add(p, feProbThreshold.label(), false);
+    mu.add(p, feProbThreshold.comp, false).wrap();
 
     return p;
   }
