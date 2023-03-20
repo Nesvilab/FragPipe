@@ -584,7 +584,7 @@ public class FragpipeRun {
               while ((line = reader.readLine()) != null) {
                 line = line.trim();
                 String[] parts = line.split("\t");
-                parts[0] = StringUtils.upToLastDot(parts[0]) + "_sub.mzML";
+                parts[0] = wd.resolve(StringUtils.upToLastDot(Paths.get(parts[0]).getFileName().toString()) + "_sub.mzML").toAbsolutePath().toString();
                 writer.write(String.join("\t", parts) + "\n");
               }
               writer.close();
