@@ -101,6 +101,7 @@ public class CmdPhilosopherFilter extends CmdBase {
         } else {
           cmd.add("--probin");
           cmd.add(wd.resolve(firstInputLcmsFile.getGroup()).toAbsolutePath().toString());
+          cmd.add("--razor");
         }
       }
 
