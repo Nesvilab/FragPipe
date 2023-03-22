@@ -19,17 +19,12 @@ package com.dmtavt.fragpipe.cmd;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
-import com.dmtavt.fragpipe.api.LcmsFileGroup;
 import com.dmtavt.fragpipe.tools.philosopher.PhilosopherProps;
 import com.github.chhh.utils.UsageTrigger;
 import java.awt.Component;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.swing.JOptionPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,8 +44,7 @@ public class CmdPhilosopherDbAnnotate extends CmdBase {
   }
 
   public boolean configure(Component comp, int ramGb, int threads, UsageTrigger binPhilosopher,
-      String dbPath, String decoyTag,
-      Map<InputLcmsFile, List<Path>> pepxmlFiles, Map<LcmsFileGroup, Path> protxmlFiles) {
+      String dbPath, String decoyTag, InputLcmsFile firstInputLcmsFile) {
 
     initPreConfig();
 
@@ -63,26 +57,19 @@ public class CmdPhilosopherDbAnnotate extends CmdBase {
       return false;
     }
 
-    Set<Path> pepProtDirs = Stream
-        .concat(pepxmlFiles.values().stream().flatMap(List::stream), protxmlFiles.values().stream())
-        .map(Path::getParent)
-        .collect(Collectors.toSet());
-
-    for (Path pepxmlDir : pepProtDirs) {
-      List<String> cmd = new ArrayList<>();
-      cmd.add(binPhilosopher.useBin(pepxmlDir));
-      cmd.add(PhilosopherProps.CMD_DATABASE);
-      cmd.add("--annotate");
-      cmd.add(dbPath);
-      cmd.add("--prefix");
-      cmd.add(decoyTag);
-      ProcessBuilder pb = new ProcessBuilder(cmd);
-      pb.environment().put("GOMEMLIMIT", ramGb + "GiB");
-      pb.environment().put("GOGC", "100");
-      pb.environment().put("GOMAXPROCS", String.valueOf(threads));
-      pb.directory(pepxmlDir.toFile());
-      pbis.add(PbiBuilder.from(pb));
-    }
+    List<String> cmd = new ArrayList<>();
+    cmd.add(binPhilosopher.useBin(wd.resolve(firstInputLcmsFile.getGroup())));
+    cmd.add(PhilosopherProps.CMD_DATABASE);
+    cmd.add("--annotate");
+    cmd.add(dbPath);
+    cmd.add("--prefix");
+    cmd.add(decoyTag);
+    ProcessBuilder pb = new ProcessBuilder(cmd);
+    pb.environment().put("GOMEMLIMIT", ramGb + "GiB");
+    pb.environment().put("GOGC", "100");
+    pb.environment().put("GOMAXPROCS", String.valueOf(threads));
+    pb.directory(wd.resolve(firstInputLcmsFile.getGroup()).toFile());
+    pbis.add(PbiBuilder.from(pb));
 
     isConfigured = true;
     return true;
