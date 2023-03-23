@@ -100,7 +100,7 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 
 **Charge** charge state of the identified peptide
 
-**Retention** retention time (in seconds)
+**Retention** MS2 scan's precursor retention time (in seconds)
 
 **Observed Mass** mass of the identified peptide (in Da)
 
