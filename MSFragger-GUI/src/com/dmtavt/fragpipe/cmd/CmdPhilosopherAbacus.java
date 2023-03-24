@@ -88,10 +88,10 @@ public class CmdPhilosopherAbacus extends CmdBase {
       Path protxml = entry.getKey();
       List<LcmsFileGroup> groups = entry.getValue();
 
-      List<Path> outputDirsForProtxml = groups.stream().map(group -> group.outputDir(wd)).distinct().collect(Collectors.toList());
-      log.debug("Protxml: {}, outputDirsForProtxml: {}", protxml.toString(), outputDirsForProtxml.stream().map(Path::toString).collect(Collectors.joining(", ")));
+      List<Path> outputDirsForPepXML = groups.stream().map(group -> group.outputDir(wd)).distinct().collect(Collectors.toList());
+      log.debug("Protxml: {}, outputDirsForPepXML: {}", protxml.toString(), outputDirsForPepXML.stream().map(Path::toString).collect(Collectors.joining(", ")));
 
-      if (outputDirsForProtxml.size() < 2) {
+      if (outputDirsForPepXML.size() < 2) {
         if (Fragpipe.headless) {
           log.error("Multi-experiment report requires experiments processed together by ProteinProphet.");
         } else {
@@ -135,7 +135,7 @@ public class CmdPhilosopherAbacus extends CmdBase {
         cmd.add(String.valueOf(plex));
       }
       // list locations with pepxml files
-      for (Path pepxmlDir : outputDirsForProtxml) {
+      for (Path pepxmlDir : outputDirsForPepXML) {
         cmd.add(pepxmlDir.getFileName().toString());
       }
 
