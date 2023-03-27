@@ -158,10 +158,10 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
                 "Mass tolerance for finding possible glycan candidates to consider in glycan assignment (ppm).\n");
 
         FormEntry feGlycanIsotopesLow = new FormEntry(PROP_glyco_isotope_error_low, "Isotope Error Range Min:",
-                new UiSpinnerInt(-1, -5, 0, 1, 3),
+                new UiSpinnerInt(-1, -2, 0, 1, 3),
                 "Lowest isotope error to consider. Allowed isotope errors will go from this value to Isotope Error Range Max (inclusive).");
         FormEntry feGlycanIsotopesHigh = new FormEntry(PROP_glyco_isotope_error_high, "Max:",
-                new UiSpinnerInt(3, 0, 5, 1, 3),
+                new UiSpinnerInt(3, 0, 4, 1, 3),
                 "Highest isotope error to consider. Allowed isotope errors will go from Isotope Error Range Min to this value (inclusive).");
 
         FormEntry feAdductNames = mu.feb(PROP_adduct_names, UiUtils.uiTextBuilder().create())
