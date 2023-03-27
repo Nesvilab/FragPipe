@@ -1826,7 +1826,7 @@ public class TabMsfragger extends JPanelBase {
 
   private void actionBtnLoadMassOffsets(ActionEvent actionEvent) {
     GlycoMassLoader loader = new GlycoMassLoader(true);
-    List<String> massStrings = loader.mainLoadOffsets(this);
+    List<String> massStrings = loader.loadOffsets(this);
     if (massStrings.size() > 0) {
       String offsetsText = String.join(" ", massStrings);
       epMassOffsets.setText(offsetsText);

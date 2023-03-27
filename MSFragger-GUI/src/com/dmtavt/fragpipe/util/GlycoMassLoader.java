@@ -101,29 +101,40 @@ public class GlycoMassLoader {
             selectedPath = fc.getSelectedFile().toString();
             Fragpipe.propsVarSet(PROP_FILECHOOSER_LAST_PATH, selectedPath);
             glycoFilePath = selectedPath;
-
-            // load from file
-            List<Double> masses;
-            if (selectedPath.endsWith(".csv") || selectedPath.endsWith(".txt") || selectedPath.endsWith(".tsv") || selectedPath.endsWith(".glyc")) {
-                // Byonic format
-                masses = GlycoMassLoader.loadTextOffsets(selectedPath);
-            } else if (selectedPath.endsWith(".gdb")) {
-                // pGlyco format
-                masses = GlycoMassLoader.loadPGlycoFile(selectedPath);
-            } else {
-                // invalid file type
-                log.error("Invalid file type for mass offset file %s. Must be .csv, .txt, or .glyc");
-                return new ArrayList<>();
-            }
-            glycoMasses = masses;
-            return masses;
+            return loadMassesFromFile(selectedPath);
         } else {
             return new ArrayList<>();
         }
     }
 
-    public List<String> mainLoadOffsets(Component parent) {
+    private List<Double> loadMassesFromFile(String selectedPath) {
+        List<Double> masses;
+        if (selectedPath.endsWith(".csv") || selectedPath.endsWith(".txt") || selectedPath.endsWith(".tsv") || selectedPath.endsWith(".glyc")) {
+            // Byonic format
+            masses = GlycoMassLoader.loadTextOffsets(selectedPath);
+        } else if (selectedPath.endsWith(".gdb")) {
+            // pGlyco format
+            masses = GlycoMassLoader.loadPGlycoFile(selectedPath);
+        } else {
+            // invalid file type
+            log.error("Invalid file type for mass offset file %s. Must be .csv, .txt, or .glyc");
+            return new ArrayList<>();
+        }
+        glycoMasses = masses;
+        return masses;
+    }
+
+    public List<String> loadOffsets(Component parent) {
         List<Double> masses = loadMassesFile(parent);
+        return loadOffsetsHelper(parent, masses);
+    }
+
+    public List<String> loadOffsetsFromFile(Component parent, File glycoFile) {
+        List<Double> masses = loadMassesFromFile(glycoFile.toString());
+        return loadOffsetsHelper(parent, masses);
+    }
+
+    public List<String> loadOffsetsHelper(Component parent, List<Double> masses) {
         if (masses.size() > 0) {
             // combos and filtering
             final int confirmation = SwingUtils.showConfirmDialog2(parent, optionsPanel, "Offset loading options", OK_CANCEL_OPTION);

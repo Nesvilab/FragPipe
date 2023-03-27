@@ -18,20 +18,30 @@
 package com.dmtavt.fragpipe.tabs;
 
 import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.tools.opair.OPairPanel;
 import com.dmtavt.fragpipe.tools.ptmshepherd.PTMSGlycanAssignPanel;
 import com.dmtavt.fragpipe.util.GlycoMassLoader;
+import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.swing.*;
 import com.dmtavt.fragpipe.api.Bus;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
+import org.jooq.lambda.Unchecked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.List;
+import java.util.function.Predicate;
 
 
 public class TabGlyco extends JPanelWithEnablement {
@@ -41,6 +51,9 @@ public class TabGlyco extends JPanelWithEnablement {
     private JPanel panelLoadGlycans;
     private static final Logger log = LoggerFactory.getLogger(TabGlyco.class);
     private UiText textLoadGlycans;
+    private UiCombo uiComboLoadBuiltinGlycans;
+    private LinkedHashMap<String, File> glycanDBs;
+    private static final String glycanDBfolder = "Glycan_Databases";
 
     public TabGlyco() {
         init();
@@ -67,11 +80,24 @@ public class TabGlyco extends JPanelWithEnablement {
     private JPanel createPanelLoadGlycans() {
         JPanel p = mu.newPanel("Glycan Database Options", true);
 
+        JLabel jLabelLoadGlycanDB = new JLabel("Select Glycan Database to Load:");
+        try {
+            glycanDBs = getGlycanDBs();
+        } catch (IOException ex) {
+            glycanDBs = new LinkedHashMap<>();
+            log.error("Failed to load internal glycan databases list on Glyco tab\n" + Arrays.toString(ex.getStackTrace()));
+        }
+        List<String> glycanDBnames = new ArrayList<>(glycanDBs.keySet());
+        glycanDBnames.add(0, "Custom");     // for custom DB loading
+        uiComboLoadBuiltinGlycans = UiUtils.createUiCombo(glycanDBnames);
+
         JButton btnLoadGlycanMasses = new JButton("Load Glycan Database");
         btnLoadGlycanMasses.addActionListener(this::actionBtnLoadMassOffsets);
-        btnLoadGlycanMasses.setToolTipText("Load mass offsets from a file. Supported formats: Byonic, pGlyco, text (.csv, .tsv, .txt, .glyc files)");
+        btnLoadGlycanMasses.setToolTipText("Load glycans from a file. Supported formats: Byonic, pGlyco, text (.csv, .tsv, .txt, .glyc files)");
         textLoadGlycans = new UiText();
 
+        mu.add(p, jLabelLoadGlycanDB).split();
+        mu.add(p, uiComboLoadBuiltinGlycans).split();
         mu.add(p, btnLoadGlycanMasses).spanX().split().wrap();
         mu.add(p, textLoadGlycans).spanX().growX().wrap();
         return p;
@@ -79,8 +105,26 @@ public class TabGlyco extends JPanelWithEnablement {
 
     private void actionBtnLoadMassOffsets(ActionEvent actionEvent) {
         GlycoMassLoader loader = new GlycoMassLoader(false);
-        List<String> massStrings = loader.mainLoadOffsets(this);
+        List<String> massStrings;
+        if (uiComboLoadBuiltinGlycans.getSelectedItem().toString().equals("Custom")) {
+            // load a custom (user-defined) glycan database
+            massStrings = loader.loadOffsets(this);
+        } else {
+            // load the built-in glycan database specified by the UiCombo
+            String name = (String) uiComboLoadBuiltinGlycans.getSelectedItem();
+            File selectedDB = glycanDBs.get(name);
+            if (selectedDB != null) {
+                massStrings = loader.loadOffsetsFromFile(this, selectedDB);
+            } else {
+                log.info("No database selected, canceling load glycan masses");
+                return;
+            }
+        }
+        loadOffsetsFollowup(loader, massStrings);
+    }
 
+
+    private void loadOffsetsFollowup(GlycoMassLoader loader, List<String> massStrings) {
         if (massStrings.size() > 0) {
             if (loader.optionsPanel.isSaveToMSFragger()) {
                 String offsetsText = String.join(" ", massStrings);
@@ -100,6 +144,25 @@ public class TabGlyco extends JPanelWithEnablement {
             textLoadGlycans.setText("No glycans loaded");
             log.info("[Glyco Tab load glycans button] no glycans loaded");
         }
+    }
+
+    // Find all ".glyc" files in the glycan databases internal folder and return them as a map of name -> File
+    private LinkedHashMap<String, File> getGlycanDBs() throws IOException {
+        LinkedHashMap<String, File> glycoDBs = new LinkedHashMap<>();
+        final Path dirTools = FragpipeLocations.get().getDirTools();
+        Path glycoDBpath = Paths.get(dirTools.toString(), glycanDBfolder);
+
+        final Predicate<Path> filter = p -> "glyc".equalsIgnoreCase(StringUtils.afterLastDot(p.getFileName().toString()));
+        Files.walk(glycoDBpath).filter(Files::isRegularFile)
+                .filter(filter)
+                .forEach(Unchecked.consumer(path -> {
+                    File f = new File(String.valueOf(path));
+                    String s = path.getFileName().toString();
+                    String name = StringUtils.upToLastDot(s);
+                    glycoDBs.put(StringUtils.isBlank(name) ? s : name, f);
+                }));
+
+        return glycoDBs;
     }
 }
 
