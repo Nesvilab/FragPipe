@@ -284,16 +284,16 @@ public class CmdDiann extends CmdBase {
             if (tt.length == 3) {
               try {
                 int replicate = Integer.parseInt(tt[2]);
-                bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getPath().toAbsolutePath() + "\t" + tt[0] + "\t" + tt[1] + "\t" + replicate + "\n");
+                bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getPath().toAbsolutePath() + "\t" + tt[0] + "_" + tt[1] + "\t" + tt[1] + "\t" + replicate + "\n");
               } catch (Exception ex) {
                 bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getPath().toAbsolutePath() + "\t" + tt[0] + "_" + tt[1] + "\t" + tt[2] + "\t1\n");
               }
             } else if (tt.length == 2) {
               try {
                 int replicate = Integer.parseInt(tt[1]);
-                bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getPath().toAbsolutePath() + "\t" + tt[0] + "\t" + tt[0] + "\t" + replicate + "\n");
+                bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getPath().toAbsolutePath() + "\t" + sampleName + "\t" + tt[0] + "\t" + replicate + "\n");
               } catch (Exception ex) {
-                bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getPath().toAbsolutePath() + "\t" + tt[0] + "\t" + tt[1] + "\t1\n");
+                bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getPath().toAbsolutePath() + "\t" + sampleName + "\t" + tt[1] + "\t1\n");
               }
             } else {
               bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getPath().toAbsolutePath() + "\t" + sampleName + "\t\t1\n");
