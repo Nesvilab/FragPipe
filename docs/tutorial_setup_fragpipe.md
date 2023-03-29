@@ -31,23 +31,21 @@ If you have already downloaded the latest Philosopher release, use the 'Browse' 
 #### Optional: install, update, or use an already installed version of Python
 Database splitting (to reduce the size of the in-memory fragment ion index-- helpful for workstations with limited memory or for complex searches) and/or spectral library generation will require Python 3 or above.
 
-**If you already have Python 3 or above**, make sure the following packages are installed: `numpy`,`scipy`,`scikit-learn`,`statsmodels`,`pandas>=1.1.0`,`biopython`,`pyopenms>=2.6.0`,`matplotlib`,`seaborn`. The `easypqp` package is also required to build spectral libraries. Please note: if Python was installed through Anaconda, you will already have all of these packages except for `pyopenms` (version 0.8.0) and `easypqp`. In most cases, you can run `pip install [package name]` in the Anaconda prompt to install a missing package. The 'Config' tab in FragPipe also has a button to download/upgrade the `easypqp` package.
+**FragPipe requires Python 3.9**
 
-**If Python 3 is not already installed**:
-1) Click 'Download' in the Python section of the Config tab in FragPipe or [click here](https://www.anaconda.com/distribution/) to go to the Anaconda site, click 'Download', then select the latest Python version (3.7 or higher) and launch the installer.
-<img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/anaconda_install.png" width="500px" align="middle"/>
+**If you already have Python 3.9**, specify the python executable file path in the `Config` tab, click `Install/Upgrade EasyPQP`, and wait for a few minutes.
 
-2) Follow the prompts in the graphical installer. **Note the install location** that you choose and complete the installation. We do not recommend adding Anaconda to your PATH environment variable, but you can choose to register Anaconda as your default Python.
-<img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/anaconda_install_path.png" width="500px" align="middle"/>
+**If Python 3.9 is not already installed**:
+1) Download and install Python 3.9
 
-3) From the start menu, search for "Anaconda Prompt" and launch it.
-<img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/anaconda_prompt_search.png" width="700px" align="middle"/>
+Windows: download the install from [here](https://www.python.org/ftp/python/3.9.13/python-3.9.13-amd64.exe)
 
-4)  To enable spectral library building with EasyPQP (which also works for timsTOF data), type `pip install easypqp` into the Anaconda prompt window and hit enter to install the _easypqp_ package. You may also need to install the `pyopenms` package by typing `pip install pyopenms`.
+Linux: different Linux distributions have different commands to install Python. Please figure it out by yourself. If you are not familiar with the command line interface, please switching to Windows.
 
-<img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/pip_install.png" width="700px" align="middle"/>
+2)  To enable spectral library building with EasyPQP (which also works for timsTOF data), click `Install/Upgrade EasyPQP` at the bottom of the `Config` tab and wait for a few minutes. FragPipe will froze during the installation.
 
-5) In FragPipe -> Config -> Python, use the 'Browse' button to navigate to the installation location and select **python.exe**. When FragPipe refreshes, DB Splitting and Spectral Library Generation should now be enabled.
+
+3) In FragPipe -> Config -> Python, use the 'Browse' button to navigate to the installation location and select **python.exe**. When FragPipe refreshes, DB Splitting and Spectral Library Generation should now be enabled.
 
 
 <br>
