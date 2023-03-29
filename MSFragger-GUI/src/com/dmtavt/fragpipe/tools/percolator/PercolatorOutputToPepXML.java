@@ -307,6 +307,9 @@ public class PercolatorOutputToPepXML {
         try {
             BufferedReader brtsv = Files.newBufferedReader(pin);
             final String pin_header = brtsv.readLine();
+            if (pin_header == null) {
+                throw new NullPointerException("Could not read the first line of " + pin.toAbsolutePath() + ".");
+            }
             final List<String> colnames = Arrays.asList(pin_header.split("\t"));
             final int indexOf_SpecId = colnames.indexOf("SpecId");
             final int indexOf_ntt = colnames.indexOf("ntt");
