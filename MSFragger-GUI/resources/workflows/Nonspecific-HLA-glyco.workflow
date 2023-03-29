@@ -164,6 +164,7 @@ percolator.min-prob=0.5
 percolator.run-percolator=false
 phi-report.dont-use-prot-proph-file=false
 phi-report.filter=--sequential --delta
+phi-report.group_fdr_variable=0
 phi-report.pep-level-summary=false
 phi-report.philosoher-msstats=false
 phi-report.print-decoys=false

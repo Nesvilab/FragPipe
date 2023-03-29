@@ -86,7 +86,7 @@ public class MsfraggerParams extends AbstractParams {
     public static final String PROP_write_uncalibrated_mgf = "write_uncalibrated_mgf";
     public static final String PROP_write_mzbin_all = "write_mzbin_all";
     public static final String PROP_mass_diff_to_variable_mod = "mass_diff_to_variable_mod";
-
+    public static final String PROP_group_fdr_variable = "group_fdr_variable";
     public static final String PROP_calibrate_mass = "calibrate_mass";
     public static final String PROP_use_all_mods_in_first_search = "use_all_mods_in_first_search";
     public static final String PROP_isotope_error = "isotope_error";
@@ -176,6 +176,7 @@ public class MsfraggerParams extends AbstractParams {
         PROP_write_uncalibrated_mgf,
         PROP_write_mzbin_all,
         PROP_mass_diff_to_variable_mod,
+        PROP_group_fdr_variable,
         PROP_calibrate_mass,
         PROP_use_all_mods_in_first_search,
         PROP_isotope_error,
@@ -359,6 +360,7 @@ public class MsfraggerParams extends AbstractParams {
         c.put(PROP_max_variable_mods_per_peptide, "Maximum total number of variable modifications per peptide.");
         c.put(PROP_max_variable_mods_combinations, "Maximum number of modified forms allowed for each peptide (up to 65534).");
         c.put(PROP_mass_diff_to_variable_mod, "Put mass diff as a variable modification. 0 for no; 1 for yes and remove delta mass; 2 for yes and keep delta mass.");
+        c.put(PROP_group_fdr_variable, "Specify the variable used to decide the PSM group in the group FDR estimation. 0 = no group FDR; 1 = num_enzyme_termini.");
         c.put(PROP_output_format, "File format of output files (tsv, pin, pepxml, tsv_pin, tsv_pepxml, pepxml_pin, or tsv_pepxml_pin).");
         c.put(PROP_output_report_topN, "Reports top N PSMs per input spectrum.");
         c.put(PROP_output_max_expect, "Suppresses reporting of PSM if top hit has expectation value greater than this threshold.");
@@ -515,6 +517,14 @@ public class MsfraggerParams extends AbstractParams {
 
     public int getMassDiffToVariableMod() {
         return getInt(PROP_mass_diff_to_variable_mod, "0");
+    }
+
+    public int getGroupFDRVariable() {
+        return getInt(PROP_group_fdr_variable, "0");
+    }
+
+    public void setGroupFDRVariable(int v) {
+        setInt(PROP_group_fdr_variable, v);
     }
 
     public void setMassDiffToVariableMod(int v) {

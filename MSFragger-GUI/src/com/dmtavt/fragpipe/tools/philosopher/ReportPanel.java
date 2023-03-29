@@ -17,6 +17,8 @@
 
 package com.dmtavt.fragpipe.tools.philosopher;
 
+import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.PROP_group_fdr_variable;
+
 import com.dmtavt.fragpipe.messages.MessageSearchType;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.dmtavt.fragpipe.params.ThisAppProps;
@@ -25,11 +27,14 @@ import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelBase;
 import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiCheck;
+import com.github.chhh.utils.swing.UiCombo;
 import com.github.chhh.utils.swing.UiText;
+import com.github.chhh.utils.swing.UiUtils;
 import com.github.chhh.utils.swing.UiUtils.UiTextBuilder;
 import java.awt.Component;
 import java.awt.ItemSelectable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
@@ -62,6 +67,7 @@ public class ReportPanel extends JPanelBase {
   private UiCheck uiCheckPrintDecoys;
   private UiCheck uiCheckDontUseProtProphFile;
   private UiCheck uiCheckRemoveContaminants;
+  private UiCombo uiComboGroupFDRVariable;
 
   @Override
   protected ItemSelectable getRunCheckbox() {
@@ -181,9 +187,18 @@ public class ReportPanel extends JPanelBase {
         "<html>Only to be used in rare cases.<br/>\n" +
             "Consider unchecking 'Run ProteinProphet' above instead of using this checkbox.");
 
+    uiComboGroupFDRVariable = UiUtils.createUiCombo(Arrays.asList("None", "Number of enzymatic termini"));
+    FormEntry feGroupFDRVariable= mu.feb(uiComboGroupFDRVariable)
+        .name(PROP_group_fdr_variable)
+        .label("Group FDR variable")
+        .tooltip("Specify the variable to group PSMs for the FDR estimation.")
+        .create();
+
     mu.add(p, feFilter.label()).spanX().split();
     mu.add(p, feFilter.comp).growX().pushX().wrap();
-    mu.add(p, feCheckDontUseProtProphFile.comp).wrap();
+    mu.add(p, feCheckDontUseProtProphFile.comp);
+    mu.add(p, feGroupFDRVariable.label()).gapLeft("20px").split(2);
+    mu.add(p, feGroupFDRVariable.comp).wrap();
     mu.add(p, new JSeparator(SwingConstants.HORIZONTAL)).growX().spanX().wrap();
     mu.add(p, feCheckMSstats.comp);
     mu.add(p, feCheckRemoveContaminants.comp);
@@ -246,6 +261,10 @@ public class ReportPanel extends JPanelBase {
 
   public boolean isRemoveContaminants() {
     return uiCheckRemoveContaminants.isSelected();
+  }
+
+  public String getGroupFDRVariable() {
+    return uiComboGroupFDRVariable.getSelectedItem().toString();
   }
 
   private void clearBalloonTips() {

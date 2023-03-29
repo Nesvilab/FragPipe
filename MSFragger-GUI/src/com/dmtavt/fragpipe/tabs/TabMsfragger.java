@@ -54,6 +54,7 @@ import com.dmtavt.fragpipe.tools.fragger.Mod;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerEnzyme;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerProps;
+import com.dmtavt.fragpipe.tools.philosopher.ReportPanel;
 import com.dmtavt.fragpipe.util.GlycoMassLoader;
 import com.github.chhh.utils.MapUtils;
 import com.github.chhh.utils.StringUtils;
@@ -168,6 +169,7 @@ public class TabMsfragger extends JPanelBase {
   private static final String CALIBRATE_VALUE_OFF = "None";
   private static final String[] CALIBRATE_LABELS = {CALIBRATE_VALUE_OFF, "Mass calibration", "Mass calibration, parameter optimization"};
   private static final String[] MASS_DIFF_TO_VAR_MOD = {"No", "Yes, keep delta mass", "Yes, remove delta mass"};
+  private static final String[] GROUP_FDR_VARIABLE = {"None", "Number of enzymatic termini"};
   private static final String[] DEISOTOPE = {"No", "Yes", "Yes, use charge 1 and 2 for undeisotoped peaks"};
   private static final int[] MASS_DIFF_TO_VAR_MOD_MAP = {0, 2, 1};
   private static final List<String> GLYCO_OPTIONS_UI = Arrays
@@ -223,6 +225,14 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_write_mzbin_all, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_mass_diff_to_variable_mod, s -> itos(
         MASS_DIFF_TO_VAR_MOD_MAP[ArrayUtils.indexOf(MASS_DIFF_TO_VAR_MOD, s)]));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_group_fdr_variable, s -> {
+      for (int i = 0; i < GROUP_FDR_VARIABLE.length; ++i) {
+        if (s.equalsIgnoreCase(GROUP_FDR_VARIABLE[i])) {
+          return itos(i);
+        }
+      }
+      return "0";
+    });
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_deisotope, s -> {
       for (int i = 0; i < DEISOTOPE.length; ++i) {
         if (s.equalsIgnoreCase(DEISOTOPE[i])) {
@@ -269,6 +279,7 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_write_uncalibrated_mgf, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_write_mzbin_all, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_mass_diff_to_variable_mod, s-> MASS_DIFF_TO_VAR_MOD[MASS_DIFF_TO_VAR_MOD_MAP[Integer.parseInt(s)]]);
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_group_fdr_variable, s-> GROUP_FDR_VARIABLE[Integer.parseInt(s)]);
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_deisotope, s-> DEISOTOPE[Integer.parseInt(s)]);
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_precursor_mass_units, s -> PrecursorMassTolUnits.fromParamsFileRepresentation(s).name());
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_fragment_mass_units, s -> MassTolUnits.fromFileToUi(s).name());
@@ -1471,6 +1482,9 @@ public class TabMsfragger extends JPanelBase {
     // ram and threads parameters have been moved to Workflow tab, need to re-inject them when saving fragger params
     TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
     map.put(MsfraggerParams.PROP_num_threads, itos(tabWorkflow.getThreads()));
+
+    ReportPanel reportPanel = Fragpipe.getStickyStrict(ReportPanel.class);
+    map.put(MsfraggerParams.PROP_group_fdr_variable, reportPanel.getGroupFDRVariable());
 
     MsfraggerParams params = paramsFromMap(map);
 
