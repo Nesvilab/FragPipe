@@ -1002,8 +1002,8 @@ public class TabConfig extends JPanelWithEnablement {
   private JPanel createPanelPython() {
     JPanel p = newMigPanel();
     p.setBorder(new TitledBorder("Python"));
-    final String tip = "Python 3 is required for Spectral Library generation and Database Splitting";
-    final String ghost = "Select Python 3 binary (Anaconda Python recommended)";
+    final String tip = "Python " + pythonMinVersion + " is required for Spectral Library generation and Database Splitting";
+    final String ghost = "Select Python " + pythonMinVersion + " binary";
     uiTextBinPython = UiUtils.uiTextBuilder().ghost(ghost).create();
     SwingUtils.addOnFocusLostAndContentChanged(uiTextBinPython, (s, s2) -> {
       Bus.post(new MessagePythonNewBin(s2));
@@ -1085,9 +1085,9 @@ public class TabConfig extends JPanelWithEnablement {
 
     StringBuilder tip = new StringBuilder()
         .append("Used for searching very large databases by splitting into smaller chunks.<br/>")
-        .append("Requires <b>Python 3</b> with packages <b>Numpy, Pandas</b>.\n")
+        .append("Requires <b>Python " + pythonMinVersion + "</b> with packages <b>Numpy, Pandas</b>.\n")
         .append("Ways to get everything set up:").append("<ul>")
-        .append("<li>Install Python 3 if you don't yet have it.</li>")
+        .append("<li>Install Python " + pythonMinVersion + " if you don't yet have it.</li>")
         .append(
             "<li>Install required python modules using <i>pip</i>, the python package manager, with command:</li>")
         .append("<ul>").append("<li>pip install numpy pandas</li>").append("</ul>")
@@ -1099,7 +1099,7 @@ public class TabConfig extends JPanelWithEnablement {
     epDbsplitText = new HtmlStyledJEditorPane(textDbsplitEnabled(false));
     epDbsplitText.setToolTipText(tipHtml);
     epDbsplitText.setPreferredSize(dim);
-    epDbsplitErr = new HtmlStyledJEditorPane("Requires Python 3 with modules Numpy and Pandas.");
+    epDbsplitErr = new HtmlStyledJEditorPane("Requires Python " + pythonMinVersion + " with modules Numpy and Pandas.");
     epDbsplitErr.setPreferredSize(dim);
 
     mu.add(p, epDbsplitText).growX().pushX().wrap();
@@ -1111,11 +1111,11 @@ public class TabConfig extends JPanelWithEnablement {
   private JPanel createPanelSpeclibgen() {
     JPanel p = mu.newPanel("Spectral Library Generation", true);
 
-    p.setToolTipText(SwingUtils.makeHtml("EasyPQP: Requires <b>Python 3</b> with package <b>EasyPQP</b> and <b>lxml</b>"));
+    p.setToolTipText(SwingUtils.makeHtml("EasyPQP: Requires <b>Python " + pythonMinVersion + "</b> with package <b>EasyPQP</b> and <b>lxml</b>"));
     Dimension dim = new Dimension(200, 25);
 
     epEasyPQPText = new HtmlStyledJEditorPane("Configuring EasyPQP.");
-    epEasyPQPText.setToolTipText(SwingUtils.makeHtml("EasyPQP: Requires <b>Python 3</b> with package <b>EasyPQP</b> and <b>lxml</b>"));
+    epEasyPQPText.setToolTipText(SwingUtils.makeHtml("EasyPQP: Requires <b>Python " + pythonMinVersion + "</b> with package <b>EasyPQP</b> and <b>lxml</b>"));
     epEasyPQPText.setPreferredSize(dim);
 
     final JButton btnInstallEasyPQP = UiUtils.createButton("Install/Upgrade EasyPQP", e -> Bus.post(new MessageInstallEasyPQP(console)));
@@ -1140,7 +1140,7 @@ public class TabConfig extends JPanelWithEnablement {
   }
 
   private JFileChooser createPythonFilechooser() {
-    JFileChooser fc = FileChooserUtils.create("Select Python 3 binary", "Select",
+    JFileChooser fc = FileChooserUtils.create("Select Python " + pythonMinVersion + " binary", "Select",
         false, FcMode.FILES_ONLY, true);
     if (OsUtils.isWindows()) {
       fc.addChoosableFileFilter(new FileNameExtensionFilter("Executables", "exe"));
