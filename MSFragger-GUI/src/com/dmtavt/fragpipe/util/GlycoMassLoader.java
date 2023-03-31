@@ -142,7 +142,10 @@ public class GlycoMassLoader {
                 // combine glycan masses if requested (e.g. O-glycans)
                 if (optionsPanel.getMaxCombos() > 1) {
                     masses = generateMassCombos(masses, optionsPanel.getMaxCombos(), optionsPanel.useMassFilter(), optionsPanel.getMaxMass(), optionsPanel.getMinMass());
+                } else if (optionsPanel.useMassFilter()) {
+                    masses = filterMasses(masses, optionsPanel.getMinMass(), optionsPanel.getMaxMass());
                 }
+
                 // make sure 0 is included in the mass offsets list
                 if (!masses.contains(0.0)) {
                     masses.add(0, 0.0);
@@ -161,6 +164,17 @@ public class GlycoMassLoader {
         } else {
             return new ArrayList<>();
         }
+    }
+
+    // Method for filtering if NOT using mass combinations
+    private static List<Double> filterMasses(List<Double> inputMasses, double minMass, double maxMass) {
+        List<Double> filteredMasses = new ArrayList<>();
+        for (double mass : inputMasses) {
+            if (mass <= maxMass && mass >= minMass) {
+                filteredMasses.add(mass);
+            }
+        }
+        return filteredMasses;
     }
 
     /**
@@ -188,7 +202,7 @@ public class GlycoMassLoader {
                         existingMasses.add(massKey);
                     } else {
                         // filtering requested
-                        if (comboMass < maxMass && comboMass > minMass) {
+                        if (comboMass <= maxMass && comboMass >= minMass) {
                             allMasses.add(comboMass);
                             existingMasses.add(massKey);
                         }
