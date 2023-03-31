@@ -28,6 +28,7 @@ import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
 import com.github.chhh.utils.StringUtils;
+import com.github.chhh.utils.SwingUtils;
 import java.awt.Component;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -36,6 +37,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -187,6 +189,14 @@ public class CmdDiann extends CmdBase {
         }
       } catch (IOException ex) {
         throw new UncheckedIOException(ex);
+      }
+
+      if (libraryPath != null && !libraryPath.isEmpty()) {
+        Path tt = Paths.get(libraryPath);
+        if (!Files.exists(tt) || !Files.isRegularFile(tt) || !Files.isReadable(tt)) {
+          SwingUtils.showErrorDialog(comp, "The custom library file does not exist or is not readable: " + libraryPath + "<br>Please double check the <b>spectral library (optinal)</b> box in the <b>Quant (DIA)</b> tab.", libraryPath + " is not readable");
+          return false;
+        }
       }
 
       List<String> cmd = new ArrayList<>();
