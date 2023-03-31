@@ -71,7 +71,7 @@ public class DiannPanel extends JPanelBase {
   private UiText uiTextCmdOpts;
   private UiSpinnerDouble uiSpinnerQvalue;
   private UiText uiTextLibrary;
-  private JPanel panelDiann;
+  private JPanel panelBasic;
   private UiCheck uiCheckUsePredictedSpectra;
   private UiCheck uiCheckUseRunSpecificProteinQvalue;
   private UiCheck uiCheckUnrelatedRuns;
@@ -139,9 +139,9 @@ public class DiannPanel extends JPanelBase {
     return p;
   }
 
-  private JPanel createPanelContent() {
-    panelDiann = mu.newPanel(mu.lcFillX());
-    mu.border(panelDiann, 1);
+  private JPanel createPanelBasic() {
+    panelBasic = mu.newPanel(mu.lcFillX());
+    mu.border(panelBasic, 1);
 
     uiSpinnerQvalue = UiUtils.spinnerDouble(0.01, 0.001, 0.05, 0.01).setCols(5).setFormat("#.##").create();
     FormEntry feQvalue = mu.feb(uiSpinnerQvalue).name("q-value").label("FDR").tooltip("Control the global protein group FDR, global precursor FDR, and run-specific precursor FDR.").create();
@@ -180,21 +180,21 @@ public class DiannPanel extends JPanelBase {
             + "To set --threads, please adjust the Parallelism setting in the Workflow tab.\n"
             + "See output log (e.g. dry-run results) for the complete command.").create();
 
-    mu.add(panelDiann, feQvalue.label(), mu.ccL());
-    mu.add(panelDiann, feQvalue.comp).wrap();
-    mu.add(panelDiann, feUseRunSpecificProteinQvalue.comp).wrap();
-    mu.add(panelDiann, feQuantificationStrategy.label(), mu.ccL());
-    mu.add(panelDiann, feQuantificationStrategy.comp).wrap();
-    mu.add(panelDiann, feUnrelatedRuns.comp).wrap();
-    mu.add(panelDiann, feUsePredictedSpectra.comp).wrap();
-    mu.add(panelDiann, feLibrary.label(), mu.ccL());
-    mu.add(panelDiann, feLibrary.comp).pushX().growX();
-    mu.add(panelDiann, jButtonLibrary).wrap();
-    mu.add(panelDiann, feCmdOpts.label(), mu.ccL());
-    mu.add(panelDiann, feCmdOpts.comp).growX().pushX().wrap();
+    mu.add(panelBasic, feQvalue.label(), mu.ccL());
+    mu.add(panelBasic, feQvalue.comp).wrap();
+    mu.add(panelBasic, feUseRunSpecificProteinQvalue.comp).wrap();
+    mu.add(panelBasic, feQuantificationStrategy.label(), mu.ccL());
+    mu.add(panelBasic, feQuantificationStrategy.comp).wrap();
+    mu.add(panelBasic, feUnrelatedRuns.comp).wrap();
+    mu.add(panelBasic, feUsePredictedSpectra.comp).wrap();
+    mu.add(panelBasic, feLibrary.label(), mu.ccL());
+    mu.add(panelBasic, feLibrary.comp).pushX().growX();
+    mu.add(panelBasic, jButtonLibrary).wrap();
+    mu.add(panelBasic, feCmdOpts.label(), mu.ccL());
+    mu.add(panelBasic, feCmdOpts.comp).growX().pushX().wrap();
 
-    updateEnabledStatus(panelDiann, true);
-    return panelDiann;
+    updateEnabledStatus(panelBasic, true);
+    return panelBasic;
   }
 
   @Override
@@ -203,7 +203,7 @@ public class DiannPanel extends JPanelBase {
     this.setBorder(new TitledBorder("DIA Quantification"));
 
     pTop = createPanelTop();
-    pContent = createPanelContent();
+    pContent = createPanelBasic();
 
     this.add(pTop, BorderLayout.NORTH);
     this.add(pContent, BorderLayout.CENTER);
