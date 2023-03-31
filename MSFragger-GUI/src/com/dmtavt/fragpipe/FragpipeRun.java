@@ -504,7 +504,7 @@ public class FragpipeRun {
             Integer newMaxFragmentCharge = null;
             Float newPrecursorTrueTolerance = null;
 
-            final String text = tabRun.console.getText().replaceAll("[^\n]+\u200B" + System.lineSeparator(), ""); // todo: check
+            final String text = tabRun.console.getText().replaceAll("[^\n]+\u200B" + System.lineSeparator(), "");
             Matcher matcher = Pattern.compile("New fragment_mass_tolerance = ([\\d.]+) PPM").matcher(text);
             if (matcher.find()) {
               newFragmentMassTolerance = Float.parseFloat(matcher.group(1));
