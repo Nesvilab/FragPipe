@@ -54,6 +54,7 @@ public class ToolingUtils {
 
   public static final String BATMASS_IO_JAR = "batmass-io-1.28.12.jar";
   public static final String JFREECHART_JAR = "jfreechart-1.5.3.jar";
+  public static final String UNIMOD_OBO = "unimod.obo";
 
   /**
    * @return Full absolute normalized path to the output combined protein file.

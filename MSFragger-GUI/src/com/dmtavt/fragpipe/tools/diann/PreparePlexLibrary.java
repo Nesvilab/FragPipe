@@ -17,11 +17,13 @@
 
 package com.dmtavt.fragpipe.tools.diann;
 
+import static com.dmtavt.fragpipe.cmd.ToolingUtils.UNIMOD_OBO;
 import static com.dmtavt.fragpipe.util.Utils.AAMasses;
 import static com.dmtavt.fragpipe.util.Utils.correctModMass;
 import static com.dmtavt.fragpipe.util.Utils.removeClosedModifications;
 import static com.dmtavt.fragpipe.util.Utils.threshold;
 
+import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.util.UnimodOboReader;
 import com.github.chhh.utils.StringUtils;
 import com.google.common.collect.ComparisonChain;
@@ -30,6 +32,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Table;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -41,7 +44,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
@@ -52,6 +54,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.jooq.lambda.Seq;
 
 public class PreparePlexLibrary {
 
@@ -75,7 +78,11 @@ public class PreparePlexLibrary {
     this.mediumAaMassMap = mediumAaMassMap;
     this.heavyAaMassMap = heavyAaMassMap;
 
-    Path unimodPath = Paths.get(Objects.requireNonNull(PreparePlexLibrary.class.getResource("/unimod.obo")).toURI());
+    final List<Path> tt = FragpipeLocations.checkToolsMissing(Seq.of(UNIMOD_OBO));
+    if (tt == null || tt.size() != 1) {
+      throw new FileNotFoundException("Could not find unimod.obo file from " + FragpipeLocations.get().getDirTools());
+    }
+    Path unimodPath = tt.get(0);
     UnimodOboReader unimodOboReader = new UnimodOboReader(unimodPath);
     unimodMassMap = unimodOboReader.unimodMassMap;
     massSiteUnimodTable = unimodOboReader.massSiteUnimodTable;

@@ -17,25 +17,30 @@
 
 package com.dmtavt.fragpipe.util;
 
-import com.dmtavt.fragpipe.tools.diann.PreparePlexLibrary;
+import static com.dmtavt.fragpipe.cmd.ToolingUtils.UNIMOD_OBO;
+
+import com.dmtavt.fragpipe.FragpipeLocations;
 import com.google.common.collect.Table;
+import java.io.FileNotFoundException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import org.jooq.lambda.Seq;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 public class UnimodOboReaderTest {
 
-
-
   private Path unimodOboPath;
 
   @Before
   public void setUp() throws Exception {
-    unimodOboPath = Paths.get(Objects.requireNonNull(PreparePlexLibrary.class.getResource("/unimod.obo")).toURI());
+    final List<Path> tt = FragpipeLocations.checkToolsMissing(Seq.of(UNIMOD_OBO));
+    if (tt == null || tt.size() != 1) {
+      throw new FileNotFoundException("Could not find unimod.obo file from " + FragpipeLocations.get().getDirTools());
+    }
+    unimodOboPath = tt.get(0);
   }
 
   @Test
