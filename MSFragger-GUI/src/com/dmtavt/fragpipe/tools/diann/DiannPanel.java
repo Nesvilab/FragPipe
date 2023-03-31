@@ -65,6 +65,7 @@ public class DiannPanel extends JPanelBase {
   private static final String PREFIX = "diann.";
 
   private JCheckBox checkRun;
+  private JCheckBox checkRunPlex;
   private JPanel pContent;
   private JPanel pTop;
   private UiCombo uiComboQuantificationStrategy;
@@ -72,9 +73,13 @@ public class DiannPanel extends JPanelBase {
   private UiSpinnerDouble uiSpinnerQvalue;
   private UiText uiTextLibrary;
   private JPanel panelBasic;
+  private JPanel panelPlex;
   private UiCheck uiCheckUsePredictedSpectra;
   private UiCheck uiCheckUseRunSpecificProteinQvalue;
   private UiCheck uiCheckUnrelatedRuns;
+  private UiText uiTextLight;
+  private UiText uiTextMedium;
+  private UiText uiTextHeavy;
 
   @Override
   protected void initMore() {
@@ -139,6 +144,19 @@ public class DiannPanel extends JPanelBase {
     return p;
   }
 
+  private JPanel createPanelContent() {
+    JPanel p = new JPanel(new MigLayout(new LC().fillX()));
+    mu.borderEmpty(p);
+
+    panelBasic = createPanelBasic();
+    panelPlex = createPanelPlex();
+
+    mu.add(p, panelBasic).growX().wrap();
+    mu.add(p, panelPlex).growX().wrap();
+
+    return p;
+  }
+
   private JPanel createPanelBasic() {
     panelBasic = mu.newPanel(mu.lcFillX());
     mu.border(panelBasic, 1);
@@ -197,13 +215,61 @@ public class DiannPanel extends JPanelBase {
     return panelBasic;
   }
 
+  private JPanel createPanelPlex() {
+    panelPlex = mu.newPanel(mu.lcFillX());
+    mu.border(panelPlex, 1);
+
+    checkRunPlex = new UiCheck("plex DIA", null, false);
+    checkRunPlex.setName("run-dia-plex");
+
+    uiTextLight = UiUtils.uiTextBuilder().cols(40).create();
+    uiTextMedium = UiUtils.uiTextBuilder().cols(40).create();
+    uiTextHeavy = UiUtils.uiTextBuilder().cols(40).create();
+
+    FormEntry feLight = new FormEntry("light", "Light    ", uiTextLight,
+        "String description of mass deltas. <b>A-Z</b> for amino acids, <b>n</b> for N-terminus, <b>c</b> for C-terminus, and <b>*</b> for any amino acids.<br>"
+            + "E.g. (1) for SILAC: <b>K0;R0</b> (2) for dimethyl labeling: <b>Kn28.0313</b><br>"
+            + "If the amino acid has both fixed and variable modifications, should sum up the <b>both</b> masses.");
+    FormEntry feMedium = new FormEntry("medium", "Medium", uiTextMedium,
+        "String description of mass deltas. <b>A-Z</b> for amino acids, <b>n</b> for N-terminus, <b>c</b> for C-terminus, and <b>*</b> for any amino acids.<br>"
+            + "E.g. for SILAC: <b>K4.025107;R6.020129</b><br>"
+            + "If the amino acid has both fixed and variable modifications, should sum up the <b>both</b> masses.");
+    FormEntry feHeavy = new FormEntry("heavy", "Heavy  ", uiTextHeavy,
+        "String description of mass deltas. <b>A-Z</b> for amino acids, <b>n</b> for N-terminus, <b>c</b> for C-terminus, and <b>*</b> for any amino acids.<br>"
+            + "E.g. (1) for SILAC: <b>K8.014199;R10.008269</b> (2) for dimethyl labeling: <b>Kn36.075670</b><br>"
+            + "If the amino acid has both fixed and variable modifications, should sum up the <b>both</b> masses.");
+
+    updateEnabledStatus(uiTextLibrary, !isRunPlex());
+    updateEnabledStatus(uiTextLight, isRunPlex());
+    updateEnabledStatus(uiTextMedium, isRunPlex());
+    updateEnabledStatus(uiTextHeavy, isRunPlex());
+
+    checkRunPlex.addItemListener(e -> {
+      updateEnabledStatus(uiTextLibrary, !isRunPlex());
+      updateEnabledStatus(uiTextLight, isRunPlex());
+      updateEnabledStatus(uiTextMedium, isRunPlex());
+      updateEnabledStatus(uiTextHeavy, isRunPlex());
+    });
+
+    mu.add(panelPlex, checkRunPlex).wrap();
+    mu.add(panelPlex, feLight.label(), mu.ccL()).split(2);
+    mu.add(panelPlex, feLight.comp).growX().wrap();
+    mu.add(panelPlex, feMedium.label(), mu.ccL()).split(2);
+    mu.add(panelPlex, feMedium.comp).growX().wrap();
+    mu.add(panelPlex, feHeavy.label(), mu.ccL()).split(2);
+    mu.add(panelPlex, feHeavy.comp).growX().wrap();
+
+    updateEnabledStatus(panelPlex, true);
+    return panelPlex;
+  }
+
   @Override
   protected void init() {
     this.setLayout(new BorderLayout());
     this.setBorder(new TitledBorder("DIA Quantification"));
 
     pTop = createPanelTop();
-    pContent = createPanelBasic();
+    pContent = createPanelContent();
 
     this.add(pTop, BorderLayout.NORTH);
     this.add(pContent, BorderLayout.CENTER);
@@ -212,6 +278,22 @@ public class DiannPanel extends JPanelBase {
   @Override
   public boolean isRun() {
     return SwingUtils.isEnabledAndChecked(checkRun);
+  }
+
+  public boolean isRunPlex() {
+    return SwingUtils.isEnabledAndChecked(checkRunPlex);
+  }
+
+  public String getLight() {
+    return uiTextLight.getNonGhostText().trim();
+  }
+
+  public String getMedium() {
+    return uiTextMedium.getNonGhostText().trim();
+  }
+
+  public String getHeavy() {
+    return uiTextHeavy.getNonGhostText().trim();
   }
 
   public float getDiannQvalue() {
