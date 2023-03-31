@@ -59,6 +59,7 @@ import org.jooq.lambda.Seq;
 public class PreparePlexLibrary {
 
   private static final Pattern aaPattern = Pattern.compile("([A-Zn])(\\((UniMod:\\d+)\\))?(\\[([\\d+.-]+)\\])?"); // EasyPQP does not support C-term mods?
+  private static final Pattern pattern = Pattern.compile("([A-Znc*]+)([\\d.+-]+)");
   static final Pattern tabPattern = Pattern.compile("\\t");
 
   private final Path libraryPath;
@@ -70,6 +71,92 @@ public class PreparePlexLibrary {
   private final Table<Float, Character, Integer> massSiteUnimodTable;
 
   float[] theoModMasses;
+
+  public static void main(String[] args) {
+    int nThreads = Runtime.getRuntime().availableProcessors();
+    Map<Character, Float> lightAaMassMap = null;
+    Map<Character, Float> mediumAaMassMap = null;
+    Map<Character, Float> heavyAaMassMap = null;
+    Path libraryPath = null;
+    Path outputLibraryPath = null;
+
+    for (int i = 0; i < args.length; ++i) {
+      if (args[i].trim().contentEquals("--threads")) {
+        int t = Integer.parseInt(args[++i]);
+        if (t > 0) {
+          nThreads = t;
+        }
+      } else if (args[i].trim().contentEquals("--light")) {
+        if (!args[i + 1].trim().startsWith("--")) {
+          String s = args[++i].trim();
+          lightAaMassMap = parseLabel(s);
+        }
+      } else if (args[i].trim().contentEquals("--medium")) {
+        if (!args[i + 1].trim().startsWith("--")) {
+          String s = args[++i].trim();
+          mediumAaMassMap = parseLabel(s);
+        }
+      } else if (args[i].trim().contentEquals("--heavy")) {
+        if (!args[i + 1].trim().startsWith("--")) {
+          String s = args[++i].trim();
+          heavyAaMassMap = parseLabel(s);
+        }
+      } else if (args[i].trim().contentEquals("--library")) {
+        libraryPath = Paths.get(args[++i].trim());
+      } else if (args[i].trim().contentEquals("--out")) {
+        outputLibraryPath = Paths.get(args[++i].trim());
+      }
+    }
+
+    if (lightAaMassMap == null && mediumAaMassMap == null && heavyAaMassMap == null) {
+      System.err.println("There are no light, medium, or heavy labels.");
+      System.exit(1);
+    }
+
+    if (libraryPath == null) {
+      System.err.println("There is no library path.");
+      System.exit(1);
+    }
+
+    if (outputLibraryPath == null) {
+      System.err.println("There is no output library path.");
+      System.exit(1);
+    }
+
+    try {
+      PreparePlexLibrary preparePlexLibrary = new PreparePlexLibrary(nThreads, lightAaMassMap, mediumAaMassMap, heavyAaMassMap, libraryPath);
+      preparePlexLibrary.generateNewLibrary(outputLibraryPath);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+      System.exit(1);
+    }
+  }
+
+  private static Map<Character, Float> parseLabel(String inputStr) {
+    Map<Character, Float> outputMap = new HashMap<>();
+    Matcher matcher = pattern.matcher(inputStr.trim());
+    while (matcher.find()) {
+      char[] aas = matcher.group(1).toCharArray();
+      float modMass = Float.parseFloat(matcher.group(2));
+      for (char aa : aas) {
+        if (aa == '*') {
+          for (int i = 65; i < 91; ++i) {
+            outputMap.put((char) i, modMass);
+          }
+          outputMap.put('n', modMass);
+          outputMap.put('c', modMass);
+        } else {
+          outputMap.put(aa, modMass);
+        }
+      }
+    }
+
+    if (outputMap.isEmpty()) {
+      return null;
+    } else {
+      return outputMap;
+    }
+  }
 
   public PreparePlexLibrary(int nThreads, Map<Character, Float> lightAaMassMap, Map<Character, Float> mediumAaMassMap, Map<Character, Float> heavyAaMassMap, Path libraryPath) throws Exception {
     this.libraryPath = libraryPath;
