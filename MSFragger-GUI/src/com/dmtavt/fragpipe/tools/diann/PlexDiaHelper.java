@@ -56,13 +56,12 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.jooq.lambda.Seq;
 
-public class PreparePlexLibrary {
+public class PlexDiaHelper {
 
   private static final Pattern aaPattern = Pattern.compile("([A-Zn])(\\((UniMod:\\d+)\\))?(\\[([\\d+.-]+)\\])?"); // EasyPQP does not support C-term mods?
   private static final Pattern pattern = Pattern.compile("([A-Znc*]+)([\\d.+-]+)");
   static final Pattern tabPattern = Pattern.compile("\\t");
 
-  private final Path libraryPath;
   private final int nThreads;
   private final Map<Character, Float> lightAaMassMap;
   private final Map<Character, Float> mediumAaMassMap;
@@ -124,8 +123,8 @@ public class PreparePlexLibrary {
     }
 
     try {
-      PreparePlexLibrary preparePlexLibrary = new PreparePlexLibrary(nThreads, lightAaMassMap, mediumAaMassMap, heavyAaMassMap, libraryPath);
-      preparePlexLibrary.generateNewLibrary(outputLibraryPath);
+      PlexDiaHelper plexDiaHelper = new PlexDiaHelper(nThreads, lightAaMassMap, mediumAaMassMap, heavyAaMassMap);
+      plexDiaHelper.generateNewLibrary(libraryPath, outputLibraryPath);
     } catch (Exception ex) {
       ex.printStackTrace();
       System.exit(1);
@@ -158,8 +157,7 @@ public class PreparePlexLibrary {
     }
   }
 
-  public PreparePlexLibrary(int nThreads, Map<Character, Float> lightAaMassMap, Map<Character, Float> mediumAaMassMap, Map<Character, Float> heavyAaMassMap, Path libraryPath) throws Exception {
-    this.libraryPath = libraryPath;
+  public PlexDiaHelper(int nThreads, Map<Character, Float> lightAaMassMap, Map<Character, Float> mediumAaMassMap, Map<Character, Float> heavyAaMassMap) throws Exception {
     this.nThreads = nThreads;
     this.lightAaMassMap = lightAaMassMap;
     this.mediumAaMassMap = mediumAaMassMap;
@@ -175,7 +173,7 @@ public class PreparePlexLibrary {
     massSiteUnimodTable = unimodOboReader.massSiteUnimodTable;
   }
 
-  public void generateNewLibrary(Path outputPath) throws Exception {
+  public void generateNewLibrary(Path libraryPath, Path outputPath) throws Exception {
     BufferedReader reader = Files.newBufferedReader(libraryPath);
 
     ForkJoinPool forkJoinPool = new ForkJoinPool(nThreads);
@@ -190,7 +188,7 @@ public class PreparePlexLibrary {
 
     reader.close();
 
-    Map<String, Integer> columnNameToIndex = getColumnIndexMap(library.get(0));
+    Map<String, Integer> columnNameToIndex = getColumnIndexMap(libraryPath, "PrecursorMz", library.get(0));
 
     int columnIdx = columnNameToIndex.get("ModifiedPeptideSequence");
     Set<String> modifiedPeptides = library.stream().skip(1).map(p -> "n" + p[columnIdx]).collect(Collectors.toSet());
@@ -242,9 +240,9 @@ public class PreparePlexLibrary {
     writeLibrary(transactions, outputPath);
   }
 
-  private Map<String, Integer> getColumnIndexMap(String[] header) {
-    if(!header[0].contentEquals("PrecursorMz")) {
-      throw new RuntimeException("The library file " + libraryPath.toAbsolutePath() + " does not start with PrecursorMz");
+  private Map<String, Integer> getColumnIndexMap(Path path, String firstColumnName, String[] header) {
+    if(!header[0].contentEquals(firstColumnName)) {
+      throw new RuntimeException("The library file " + path.toAbsolutePath() + " does not start with " + firstColumnName + " column");
     }
 
     Map<String, Integer> columnNameToIndex = new HashMap<>();

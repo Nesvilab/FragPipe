@@ -28,7 +28,7 @@ import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
-import com.dmtavt.fragpipe.tools.diann.PreparePlexLibrary;
+import com.dmtavt.fragpipe.tools.diann.PlexDiaHelper;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
@@ -121,7 +121,7 @@ public class CmdDiann extends CmdBase {
         cmd.add(Fragpipe.getBinJava());
         cmd.add("-cp");
         cmd.add(classpath);
-        cmd.add(PreparePlexLibrary.class.getCanonicalName());
+        cmd.add(PlexDiaHelper.class.getCanonicalName());
         cmd.add("--threads");
         cmd.add(String.valueOf(nThreads));
         if (lightString != null && !lightString.isEmpty()) {

@@ -17,7 +17,7 @@
 
 package com.dmtavt.fragpipe.tools.diann;
 
-import static com.dmtavt.fragpipe.tools.diann.PreparePlexLibrary.tabPattern;
+import static com.dmtavt.fragpipe.tools.diann.PlexDiaHelper.tabPattern;
 import static com.dmtavt.fragpipe.util.Utils.AAMasses;
 import static com.dmtavt.fragpipe.util.Utils.removeClosedModifications;
 import static org.junit.Assert.assertEquals;
@@ -38,11 +38,11 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 import org.junit.Test;
 
-public class PreparePlexLibraryTest {
+public class PlexDiaHelperTest {
 
   @Test
   public void testPreparePlexLibrary1() throws Exception {
-    Path libraryPath = Paths.get(Objects.requireNonNull(PreparePlexLibraryTest.class.getResource("/library_1.tsv")).toURI());
+    Path libraryPath = Paths.get(Objects.requireNonNull(PlexDiaHelperTest.class.getResource("/library_1.tsv")).toURI());
     Path generatedLibraryPath = libraryPath.getParent().resolve("library_1_plex.tsv");
 
     TreeMap<Character, Float> lightLabels = new TreeMap<>();
@@ -56,10 +56,10 @@ public class PreparePlexLibraryTest {
     heavyLabels.put('K', 8.014199f);
     heavyLabels.put('R', 10.008269f);
 
-    PreparePlexLibrary preparePlexLibrary = new PreparePlexLibrary(11, lightLabels, mediumLabels, heavyLabels, libraryPath);
-    preparePlexLibrary.generateNewLibrary(generatedLibraryPath);
+    PlexDiaHelper plexDiaHelper = new PlexDiaHelper(11, lightLabels, mediumLabels, heavyLabels);
+    plexDiaHelper.generateNewLibrary(libraryPath, generatedLibraryPath);
 
-    Path expectedLibraryPath = Paths.get(Objects.requireNonNull(PreparePlexLibraryTest.class.getResource("/library_1_expected_plex.tsv")).toURI());
+    Path expectedLibraryPath = Paths.get(Objects.requireNonNull(PlexDiaHelperTest.class.getResource("/library_1_expected_plex.tsv")).toURI());
 
     // load expected library
     BufferedReader reader = Files.newBufferedReader(expectedLibraryPath);
@@ -97,7 +97,7 @@ public class PreparePlexLibraryTest {
 
   @Test
   public void testPreparePlexLibrary2() throws Exception {
-    Path libraryPath = Paths.get(Objects.requireNonNull(PreparePlexLibraryTest.class.getResource("/library_2.tsv")).toURI());
+    Path libraryPath = Paths.get(Objects.requireNonNull(PlexDiaHelperTest.class.getResource("/library_2.tsv")).toURI());
     Path generatedLibraryPath = libraryPath.getParent().resolve("library_2_plex.tsv");
 
     TreeMap<Character, Float> lightLabels = new TreeMap<>();
@@ -107,10 +107,10 @@ public class PreparePlexLibraryTest {
     lightLabels.put('C', 618.36036f);
     heavyLabels.put('C', 624.36722f);
 
-    PreparePlexLibrary preparePlexLibrary = new PreparePlexLibrary(11, lightLabels, mediumLabels, heavyLabels, libraryPath);
-    preparePlexLibrary.generateNewLibrary(generatedLibraryPath);
+    PlexDiaHelper plexDiaHelper = new PlexDiaHelper(11, lightLabels, mediumLabels, heavyLabels);
+    plexDiaHelper.generateNewLibrary(libraryPath, generatedLibraryPath);
 
-    Path expectedLibraryPath = Paths.get(Objects.requireNonNull(PreparePlexLibraryTest.class.getResource("/library_2_expected_plex.tsv")).toURI());
+    Path expectedLibraryPath = Paths.get(Objects.requireNonNull(PlexDiaHelperTest.class.getResource("/library_2_expected_plex.tsv")).toURI());
 
     // load expected library
     BufferedReader reader = Files.newBufferedReader(expectedLibraryPath);
@@ -146,8 +146,8 @@ public class PreparePlexLibraryTest {
     }
   }
 
-  private PreparePlexLibrary prepareForReflection() throws Exception {
-    Path libraryPath = Paths.get(Objects.requireNonNull(PreparePlexLibraryTest.class.getResource("/library_1.tsv")).toURI());
+  private PlexDiaHelper prepareForReflection() throws Exception {
+    Path libraryPath = Paths.get(Objects.requireNonNull(PlexDiaHelperTest.class.getResource("/library_1.tsv")).toURI());
     if (!Files.exists(libraryPath) || !Files.isRegularFile(libraryPath) || !Files.isReadable(libraryPath)) {
       throw new IllegalStateException("Test library file not found: " + libraryPath);
     }
@@ -160,12 +160,12 @@ public class PreparePlexLibraryTest {
     mediumLabels.put('K', 4.025107f);
     heavyLabels.put('K', 8.014199f);
 
-    return new PreparePlexLibrary(11, lightLabels, mediumLabels, heavyLabels, libraryPath);
+    return new PlexDiaHelper(11, lightLabels, mediumLabels, heavyLabels);
   }
 
   @Test
   public void testCollectAllMods() throws Exception {
-    PreparePlexLibrary preparePlexLibrary = prepareForReflection();
+    PlexDiaHelper plexDiaHelper = prepareForReflection();
 
     Set<String> modifiedPeptides = new HashSet<>(Arrays.asList(
         "nDLEEDHAC(UniMod:4)IPIK(UniMod:259)K(UniMod:259)",
@@ -183,16 +183,16 @@ public class PreparePlexLibraryTest {
         140.3424f - AAMasses['K' - 'A']
     ));
 
-    Method collectAllModsMethod = PreparePlexLibrary.class.getDeclaredMethod("collectAllMods", Set.class);
+    Method collectAllModsMethod = PlexDiaHelper.class.getDeclaredMethod("collectAllMods", Set.class);
     collectAllModsMethod.setAccessible(true);
-    @SuppressWarnings("unchecked") Set<Float> actualModMasses = (Set<Float>) collectAllModsMethod.invoke(preparePlexLibrary, modifiedPeptides);
+    @SuppressWarnings("unchecked") Set<Float> actualModMasses = (Set<Float>) collectAllModsMethod.invoke(plexDiaHelper, modifiedPeptides);
 
     assertEquals(expectedModMasses, actualModMasses);
   }
 
   @Test
   public void testCorrectModifiedPeptide() throws Exception {
-    PreparePlexLibrary preparePlexLibrary = prepareForReflection();
+    PlexDiaHelper plexDiaHelper = prepareForReflection();
 
     String[] modifiedPeptides = new String[]{
         "nDLEEDHAC(UniMod:4)IPIK(UniMod:259)K(UniMod:259)",
@@ -208,16 +208,16 @@ public class PreparePlexLibraryTest {
         "n[20.093]DLDHAC[57.021465]IIK[12.247452]"
     };
 
-    Method collectAllModsMethod = PreparePlexLibrary.class.getDeclaredMethod("collectAllMods", Set.class);
+    Method collectAllModsMethod = PlexDiaHelper.class.getDeclaredMethod("collectAllMods", Set.class);
     collectAllModsMethod.setAccessible(true);
-    @SuppressWarnings("unchecked") Set<Float> modMasses = (Set<Float>) collectAllModsMethod.invoke(preparePlexLibrary, new HashSet<>(Arrays.asList(modifiedPeptides)));
-    preparePlexLibrary.theoModMasses = removeClosedModifications(modMasses);
+    @SuppressWarnings("unchecked") Set<Float> modMasses = (Set<Float>) collectAllModsMethod.invoke(plexDiaHelper, new HashSet<>(Arrays.asList(modifiedPeptides)));
+    plexDiaHelper.theoModMasses = removeClosedModifications(modMasses);
 
-    Method correctModifiedPeptideMethod = PreparePlexLibrary.class.getDeclaredMethod("correctModifiedPeptide", String.class);
+    Method correctModifiedPeptideMethod = PlexDiaHelper.class.getDeclaredMethod("correctModifiedPeptide", String.class);
     correctModifiedPeptideMethod.setAccessible(true);
 
     for (int i = 0; i < modifiedPeptides.length; ++i) {
-      String correctedPeptide = (String) correctModifiedPeptideMethod.invoke(preparePlexLibrary, modifiedPeptides[i]);
+      String correctedPeptide = (String) correctModifiedPeptideMethod.invoke(plexDiaHelper, modifiedPeptides[i]);
       assertEquals(expectedModifiedPeptides[i], correctedPeptide);
     }
   }

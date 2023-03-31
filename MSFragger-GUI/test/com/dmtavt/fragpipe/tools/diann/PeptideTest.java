@@ -4,7 +4,7 @@ import static com.dmtavt.fragpipe.util.Utils.removeClosedModifications;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-import com.dmtavt.fragpipe.tools.diann.PreparePlexLibrary.Peptide;
+import com.dmtavt.fragpipe.tools.diann.PlexDiaHelper.Peptide;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,7 +20,7 @@ import org.junit.Test;
 
 public class PeptideTest {
 
-  private PreparePlexLibrary preparePlexLibrary;
+  private PlexDiaHelper plexDiaHelper;
   private String[] modifiedPeptides;
   private int[] peptideLengths;
   private String[] expectedModifiedPeptides;
@@ -32,7 +32,7 @@ public class PeptideTest {
 
   @Before
   public void setUp() throws Exception {
-    Path libraryPath = Paths.get(Objects.requireNonNull(PreparePlexLibraryTest.class.getResource("/library_1.tsv")).toURI());
+    Path libraryPath = Paths.get(Objects.requireNonNull(PlexDiaHelperTest.class.getResource("/library_1.tsv")).toURI());
     if (!Files.exists(libraryPath) || !Files.isRegularFile(libraryPath) || !Files.isReadable(libraryPath)) {
       throw new IllegalStateException("Test library file not found: " + libraryPath);
     }
@@ -51,12 +51,12 @@ public class PeptideTest {
         "n[4.025107]DLDHAC(UniMod:4)IIK[140.3424]"
     };
 
-    preparePlexLibrary = new PreparePlexLibrary(11, lightLabels, mediumLabels, heavyLabels, libraryPath);
+    plexDiaHelper = new PlexDiaHelper(11, lightLabels, mediumLabels, heavyLabels);
 
-    Method collectAllModsMethod = PreparePlexLibrary.class.getDeclaredMethod("collectAllMods", Set.class);
+    Method collectAllModsMethod = PlexDiaHelper.class.getDeclaredMethod("collectAllMods", Set.class);
     collectAllModsMethod.setAccessible(true);
-    @SuppressWarnings("unchecked") Set<Float> modMasses = (Set<Float>) collectAllModsMethod.invoke(preparePlexLibrary, new HashSet<>(Arrays.asList(modifiedPeptides)));
-    preparePlexLibrary.theoModMasses = removeClosedModifications(modMasses);
+    @SuppressWarnings("unchecked") Set<Float> modMasses = (Set<Float>) collectAllModsMethod.invoke(plexDiaHelper, new HashSet<>(Arrays.asList(modifiedPeptides)));
+    plexDiaHelper.theoModMasses = removeClosedModifications(modMasses);
 
     peptideLengths = new int[]{
         "nDLEEDHACIPIKK".length(),
@@ -90,7 +90,7 @@ public class PeptideTest {
   @Test
   public void testPeptide1() {
     for (int i = 0; i < modifiedPeptides.length; ++i) {
-      Peptide peptide = preparePlexLibrary.new Peptide(modifiedPeptides[i], peptideLengths[i]);
+      Peptide peptide = plexDiaHelper.new Peptide(modifiedPeptides[i], peptideLengths[i]);
       assertEquals(expectedModifiedPeptides[i], peptide.modifiedPeptide);
       assertEquals(expectedPeptideSequences[i], peptide.peptideSequence);
       assertEquals(peptideLengths[i], peptide.peptideLength);
@@ -101,7 +101,7 @@ public class PeptideTest {
   @Test
   public void testPeptide2() {
     for (int i = 0; i < expectedPeptideSequences.length; ++i) {
-      Peptide peptide = preparePlexLibrary.new Peptide(expectedPeptideSequences[i], expectedModMasses[i]);
+      Peptide peptide = plexDiaHelper.new Peptide(expectedPeptideSequences[i], expectedModMasses[i]);
       assertEquals(expectedModifiedPeptides[i], peptide.modifiedPeptide);
       assertEquals(expectedPeptideSequences[i], peptide.peptideSequence);
       assertEquals(peptideLengths[i], peptide.peptideLength);
@@ -111,30 +111,30 @@ public class PeptideTest {
 
   @Test
   public void testGetComplementaryPeptide() {
-    Peptide peptide = preparePlexLibrary.new Peptide("nDLEEDHAC(UniMod:4)IPIK(UniMod:259)K(UniMod:259)", "nDLEEDHACIPIKK".length());
+    Peptide peptide = plexDiaHelper.new Peptide("nDLEEDHAC(UniMod:4)IPIK(UniMod:259)K(UniMod:259)", "nDLEEDHACIPIKK".length());
     Peptide complementaryPeptide = peptide.getComplementaryPeptide(heavyLabels, lightLabels);
-    Peptide expectedComplementaryPeptide = preparePlexLibrary.new Peptide("nDLEEDHAC(UniMod:4)IPIKK", "nDLEEDHACIPIKK".length());
+    Peptide expectedComplementaryPeptide = plexDiaHelper.new Peptide("nDLEEDHAC(UniMod:4)IPIKK", "nDLEEDHACIPIKK".length());
     assertEquals(expectedComplementaryPeptide.modifiedPeptide, complementaryPeptide.modifiedPeptide);
     assertEquals(expectedComplementaryPeptide.peptideSequence, complementaryPeptide.peptideSequence);
     assertArrayEquals(expectedComplementaryPeptide.modMasses, complementaryPeptide.modMasses, 0.0001f);
 
-    peptide = preparePlexLibrary.new Peptide("nDLC(UniMod:4)IPIK[120.0023]K", "nDLCIPIKK".length());
+    peptide = plexDiaHelper.new Peptide("nDLC(UniMod:4)IPIK[120.0023]K", "nDLCIPIKK".length());
     complementaryPeptide = peptide.getComplementaryPeptide(lightLabels, mediumLabels);
-    expectedComplementaryPeptide = preparePlexLibrary.new Peptide("n[4.025107]DLC(UniMod:4)IPIK[120.0023]K(UniMod:481)", "nDLCIPIKK".length());
+    expectedComplementaryPeptide = plexDiaHelper.new Peptide("n[4.025107]DLC(UniMod:4)IPIK[120.0023]K(UniMod:481)", "nDLCIPIKK".length());
     assertEquals(expectedComplementaryPeptide.modifiedPeptide, complementaryPeptide.modifiedPeptide);
     assertEquals(expectedComplementaryPeptide.peptideSequence, complementaryPeptide.peptideSequence);
     assertArrayEquals(expectedComplementaryPeptide.modMasses, complementaryPeptide.modMasses, 0.0001f);
 
-    peptide = preparePlexLibrary.new Peptide("n(UniMod:1)DLEEDHAC(UniMod:4)IPKK(UniMod:259)", "nDLEEDHACIPKK".length());
+    peptide = plexDiaHelper.new Peptide("n(UniMod:1)DLEEDHAC(UniMod:4)IPKK(UniMod:259)", "nDLEEDHACIPKK".length());
     complementaryPeptide = peptide.getComplementaryPeptide(heavyLabels, lightLabels);
-    expectedComplementaryPeptide = preparePlexLibrary.new Peptide("n(UniMod:1)DLEEDHAC(UniMod:4)IPKK", "nDLEEDHACIPKK".length());
+    expectedComplementaryPeptide = plexDiaHelper.new Peptide("n(UniMod:1)DLEEDHAC(UniMod:4)IPKK", "nDLEEDHACIPKK".length());
     assertEquals(expectedComplementaryPeptide.modifiedPeptide, complementaryPeptide.modifiedPeptide);
     assertEquals(expectedComplementaryPeptide.peptideSequence, complementaryPeptide.peptideSequence);
     assertArrayEquals(expectedComplementaryPeptide.modMasses, complementaryPeptide.modMasses, 0.0001f);
 
-    peptide = preparePlexLibrary.new Peptide("n[4.025107]DLDHAC(UniMod:4)IIK[140.3424]", "nDLDHACIIK".length());
+    peptide = plexDiaHelper.new Peptide("n[4.025107]DLDHAC(UniMod:4)IIK[140.3424]", "nDLDHACIIK".length());
     complementaryPeptide = peptide.getComplementaryPeptide(mediumLabels, heavyLabels);
-    expectedComplementaryPeptide = preparePlexLibrary.new Peptide("n(UniMod:259)DLDHAC(UniMod:4)IIK[140.3424]", "nDLDHACIIK".length());
+    expectedComplementaryPeptide = plexDiaHelper.new Peptide("n(UniMod:259)DLDHAC(UniMod:4)IIK[140.3424]", "nDLDHACIIK".length());
     assertEquals(expectedComplementaryPeptide.modifiedPeptide, complementaryPeptide.modifiedPeptide);
     assertEquals(expectedComplementaryPeptide.peptideSequence, complementaryPeptide.peptideSequence);
     assertArrayEquals(expectedComplementaryPeptide.modMasses, complementaryPeptide.modMasses, 0.0001f);
@@ -142,35 +142,35 @@ public class PeptideTest {
 
   @Test
   public void testGetUnimodPeptide() {
-    Peptide peptide = preparePlexLibrary.new Peptide("nDLEEDHAC(UniMod:4)IPIK(UniMod:259)K(UniMod:259)", "nDLEEDHACIPIKK".length());
+    Peptide peptide = plexDiaHelper.new Peptide("nDLEEDHAC(UniMod:4)IPIK(UniMod:259)K(UniMod:259)", "nDLEEDHACIPIKK".length());
     String outString = peptide.getUnimodPeptide();
     assertEquals("DLEEDHAC(UniMod:4)IPIK(UniMod:259)K(UniMod:259)", outString);
 
-    peptide = preparePlexLibrary.new Peptide("nDLC[160.030]IPIK[120.0023]K", "nDLCIPIKK".length());
+    peptide = plexDiaHelper.new Peptide("nDLC[160.030]IPIK[120.0023]K", "nDLCIPIKK".length());
     outString = peptide.getUnimodPeptide();
     assertEquals("DLC(UniMod:4)IPIK[120.0023]K", outString);
 
-    peptide = preparePlexLibrary.new Peptide("n[42.010569]DLEEDHAC[160.030658]IPKK[136.109159]", "nDLEEDHACIPKK".length());
+    peptide = plexDiaHelper.new Peptide("n[42.010569]DLEEDHAC[160.030658]IPKK[136.109159]", "nDLEEDHACIPKK".length());
     outString = peptide.getUnimodPeptide();
     assertEquals("(UniMod:1)DLEEDHAC(UniMod:4)IPKK(UniMod:259)", outString);
 
-    peptide = preparePlexLibrary.new Peptide("n[4.025107]DLDHAC(UniMod:4)IIK[132.120067]", "nDLDHACIIK".length());
+    peptide = plexDiaHelper.new Peptide("n[4.025107]DLDHAC(UniMod:4)IIK[132.120067]", "nDLDHACIIK".length());
     outString = peptide.getUnimodPeptide();
     assertEquals("[4.025107]DLDHAC(UniMod:4)IIK(UniMod:481)", outString);
   }
 
   @Test
   public void testDetectLabelTypes() {
-    Peptide peptide = preparePlexLibrary.new Peptide("n(UniMod:259)DLEEDHAC(UniMod:4)IPIK(UniMod:259)K(UniMod:259)", "nDLEEDHACIPIKK".length());
+    Peptide peptide = plexDiaHelper.new Peptide("n(UniMod:259)DLEEDHAC(UniMod:4)IPIK(UniMod:259)K(UniMod:259)", "nDLEEDHACIPIKK".length());
     assertEquals(Integer.valueOf(3), peptide.detectLabelTypes());
 
-    peptide = preparePlexLibrary.new Peptide("nDLC(UniMod:4)IPIK[120.0023]K", "nDLCIPIKK".length());
+    peptide = plexDiaHelper.new Peptide("nDLC(UniMod:4)IPIK[120.0023]K", "nDLCIPIKK".length());
     assertEquals(Integer.valueOf(1), peptide.detectLabelTypes());
 
-    peptide = preparePlexLibrary.new Peptide("n(UniMod:1)DLEEDHAC(UniMod:4)IPKK(UniMod:481)", "nDLEEDHACIPKK".length());
+    peptide = plexDiaHelper.new Peptide("n(UniMod:1)DLEEDHAC(UniMod:4)IPKK(UniMod:481)", "nDLEEDHACIPKK".length());
     assertEquals(Integer.valueOf(0), peptide.detectLabelTypes());
 
-    peptide = preparePlexLibrary.new Peptide("n[4.025107]DLDHAC(UniMod:4)IIK[140.3424]", "nDLDHACIIK".length());
+    peptide = plexDiaHelper.new Peptide("n[4.025107]DLDHAC(UniMod:4)IIK[140.3424]", "nDLDHACIIK".length());
     assertEquals(Integer.valueOf(2), peptide.detectLabelTypes());
   }
 }
