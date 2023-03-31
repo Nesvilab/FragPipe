@@ -17,6 +17,7 @@
 
 package com.dmtavt.fragpipe.cmd;
 
+import static com.dmtavt.fragpipe.cmd.ToolingUtils.BATMASS_IO_JAR;
 import static com.github.chhh.utils.OsUtils.isUnix;
 import static com.github.chhh.utils.OsUtils.isWindows;
 import static com.github.chhh.utils.SwingUtils.createClickableHtml;
@@ -27,6 +28,8 @@ import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
+import com.dmtavt.fragpipe.tools.diann.PreparePlexLibrary;
+import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
 import java.awt.Component;
@@ -75,9 +78,73 @@ public class CmdDiann extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, Collection<LcmsFileGroup> lcmsFileGroups, int nThreads, Set<String> quantificationStrategy, boolean usePredict, boolean unrelatedRuns, float qvalue, boolean useRunSpecificProteinQvalue, String libraryPath, String additionalCmdOpts, boolean isDryRun) {
+  public boolean configure(Component comp, Collection<LcmsFileGroup> lcmsFileGroups, int nThreads, Set<String> quantificationStrategy, boolean usePredict, boolean unrelatedRuns, float qvalue, boolean useRunSpecificProteinQvalue, String libraryPath, String additionalCmdOpts, boolean isDryRun, boolean isRunPlex, String lightString, String mediumString, String heavyString, Path jarFragpipe) {
 
     initPreConfig();
+
+    if (isRunPlex) {
+      if ((lightString == null || lightString.isEmpty()) && (mediumString == null || mediumString.isEmpty()) && (heavyString == null || heavyString.isEmpty())) {
+        SwingUtils.showErrorDialog(comp, "All light, medium, and heavy labels are empty.<br>Please disable/uncheck <b>plexDIA</b> in <b>Quant (DIA)</b> tab or provide label info.", "No label info");
+        return false;
+      }
+
+      final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(BATMASS_IO_JAR));
+      if (classpathJars == null) {
+        return false;
+      }
+
+      Path root = FragpipeLocations.get().getDirFragpipeRoot();
+      Path libsDir = root.resolve("lib");
+      if (Files.isDirectory(jarFragpipe)) {
+        libsDir = jarFragpipe.getParent().getParent().getParent().getParent().resolve("build/install/fragpipe/lib");
+        log.debug("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
+      }
+
+      List<String> toJoin = classpathJars.stream().map(p -> p.toAbsolutePath().normalize().toString()).collect(Collectors.toList());
+      try {
+        toJoin.addAll(Files.walk(libsDir).
+            filter(p -> p.getFileName().toString().endsWith(".jar")).
+            filter(p -> p.getFileName().toString().startsWith("fragpipe-")).
+            map(p -> p.toAbsolutePath().normalize().toString()).collect(Collectors.toList())
+        );
+      } catch (IOException ex) {
+        ex.printStackTrace();
+        return false;
+      }
+
+      toJoin.add(jarFragpipe.toAbsolutePath().normalize().toString());
+      final String classpath = OsUtils.asSingleArgument(String.join(System.getProperties().getProperty("path.separator"), toJoin));
+
+      for (LcmsFileGroup group : lcmsFileGroups) {
+        final Path groupWd = group.outputDir(wd);
+        List<String> cmd = new ArrayList<>();
+        cmd.add(Fragpipe.getBinJava());
+        cmd.add("-cp");
+        cmd.add(classpath);
+        cmd.add(PreparePlexLibrary.class.getCanonicalName());
+        cmd.add("--threads");
+        cmd.add(String.valueOf(nThreads));
+        if (lightString != null && !lightString.isEmpty()) {
+          cmd.add("--light");
+          cmd.add(lightString);
+        }
+        if (mediumString != null && !mediumString.isEmpty()) {
+          cmd.add("--medium");
+          cmd.add(mediumString);
+        }
+        if (heavyString != null && !heavyString.isEmpty()) {
+          cmd.add("--heavy");
+          cmd.add(heavyString);
+        }
+        cmd.add("--library");
+        cmd.add("library.tsv");
+        cmd.add("--out");
+        cmd.add("library_2.tsv");
+        ProcessBuilder pb = new ProcessBuilder(cmd);
+        pb.directory(groupWd.toFile());
+        pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + ": Prepare plex library").create());
+      }
+    }
 
     List<String> sup;
     if (isWindows()) {
@@ -191,7 +258,7 @@ public class CmdDiann extends CmdBase {
         throw new UncheckedIOException(ex);
       }
 
-      if (libraryPath != null && !libraryPath.isEmpty()) {
+      if (!isRunPlex && libraryPath != null && !libraryPath.isEmpty()) {
         Path tt = Paths.get(libraryPath);
         if (!Files.exists(tt) || !Files.isRegularFile(tt) || !Files.isReadable(tt)) {
           SwingUtils.showErrorDialog(comp, "The custom library file does not exist or is not readable: " + libraryPath + "<br>Please double check the <b>spectral library (optinal)</b> box in the <b>Quant (DIA)</b> tab.", libraryPath + " is not readable");
@@ -202,7 +269,7 @@ public class CmdDiann extends CmdBase {
       List<String> cmd = new ArrayList<>();
       cmd.add(diannPath.get(0).toAbsolutePath().toString());
       cmd.add("--lib");
-      cmd.add((libraryPath != null && !libraryPath.isEmpty()) ? libraryPath : "library.tsv");
+      cmd.add((!isRunPlex && libraryPath != null && !libraryPath.isEmpty()) ? libraryPath : (isRunPlex ? "library_2.tsv" : "library.tsv"));
       cmd.add("--threads");
       cmd.add(String.valueOf(nThreads));
       cmd.add("--verbose");
