@@ -26,7 +26,6 @@ import static com.dmtavt.fragpipe.util.Utils.threshold;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.util.UnimodOboReader;
 import com.github.chhh.utils.StringUtils;
-import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Table;
@@ -545,62 +544,6 @@ public class PlexDiaHelper {
   }
 
 
-  private static class Transaction implements Comparable<Transaction> {
-
-    final float precursorMz;
-    final Fragment[] fragments;
-    final String proteinId;
-    final String geneName;
-    final Peptide peptide;
-    final byte peptideCharge;
-    final float normalizedRetentionTime;
-    final float precursorIonMobility;
-    final float averageExperimentRetentionTime;
-
-    public Transaction(float precursorMz, Fragment[] fragments, String proteinId, String geneName, Peptide peptide, byte peptideCharge, float normalizedRetentionTime, float precursorIonMobility, float averageExperimentRetentionTime) {
-      this.precursorMz = precursorMz;
-      this.fragments = fragments;
-      this.proteinId = proteinId;
-      this.geneName = geneName;
-      this.peptide = peptide;
-      this.peptideCharge = peptideCharge;
-      this.normalizedRetentionTime = normalizedRetentionTime;
-      this.precursorIonMobility = precursorIonMobility;
-      this.averageExperimentRetentionTime = averageExperimentRetentionTime;
-    }
-
-    @Override
-    public int compareTo(Transaction o) {
-      return ComparisonChain.start()
-          .compare(precursorMz, o.precursorMz)
-          .compare(peptide, o.peptide)
-          .compare(peptideCharge, o.peptideCharge)
-          .compare(normalizedRetentionTime, o.normalizedRetentionTime)
-          .compare(precursorIonMobility, o.precursorIonMobility)
-          .result();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (o instanceof Transaction) {
-        return compareTo((Transaction) o) == 0;
-      } else {
-        return false;
-      }
-    }
-
-    @Override
-    public String toString() {
-      return peptide + "-" + peptideCharge + "-" + normalizedRetentionTime + "-" + precursorIonMobility + "-" + precursorMz;
-    }
-
-    @Override
-    public int hashCode() {
-      return toString().hashCode();
-    }
-  }
-
-
   class Peptide implements Comparable<Peptide> {
 
     final String modifiedPeptide; // with "n" as the first amino acid
@@ -762,60 +705,6 @@ public class PlexDiaHelper {
     @Override
     public String toString() {
       return modifiedPeptide;
-    }
-
-    @Override
-    public int hashCode() {
-      return toString().hashCode();
-    }
-  }
-
-
-  private static class Fragment implements Comparable<Fragment> {
-
-    final float mz;
-    final float intensity;
-    final char type;
-    final byte charge;
-    final int ordinal;
-    final String lossType;
-
-    public Fragment(float mz, float intensity, char type, byte charge, int ordinal, String lossType) {
-      this.mz = mz;
-      this.intensity = intensity;
-      this.type = type;
-      this.charge = charge;
-      this.ordinal = ordinal;
-      this.lossType = lossType;
-    }
-
-    @Override
-    public int compareTo(Fragment o) {
-      return ComparisonChain.start()
-          .compare(mz, o.mz)
-          .compare(type, o.type)
-          .compare(ordinal, o.ordinal)
-          .compare(lossType, o.lossType)
-          .compare(charge, o.charge)
-          .result();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (o instanceof Fragment) {
-        return compareTo((Fragment) o) == 0;
-      } else {
-        return false;
-      }
-    }
-
-    @Override
-    public String toString() {
-      if (lossType.isEmpty()) {
-        return String.valueOf(type) + ordinal + "^" + charge;
-      } else {
-        return String.valueOf(type) + ordinal + "-" + lossType + "^" + charge;
-      }
     }
 
     @Override
