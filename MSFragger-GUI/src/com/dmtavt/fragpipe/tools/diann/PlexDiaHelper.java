@@ -363,7 +363,7 @@ public class PlexDiaHelper {
               mzFragmentMap.values().toArray(new Fragment[0]),
               ss[columnNameToIndex.get("ProteinId")],
               ss[columnNameToIndex.get("GeneName")],
-              new Peptide("n" + ss[columnNameToIndex.get("ModifiedPeptideSequence")], ss[columnNameToIndex.get("PeptideSequence")].length() + 1),
+              new Peptide(ss[columnNameToIndex.get("ModifiedPeptideSequence")], ss[columnNameToIndex.get("PeptideSequence")].length()),
               Byte.parseByte(ss[columnNameToIndex.get("PrecursorCharge")]),
               myToFloat(ss[columnNameToIndex.get("NormalizedRetentionTime")], 0),
               myToFloat(ss[columnNameToIndex.get("PrecursorIonMobility")], 0),
@@ -554,6 +554,11 @@ public class PlexDiaHelper {
     Integer labelType = null;
 
     public Peptide(String inputString, int peptideLength) {
+      if (!inputString.startsWith("n")) {
+        inputString = "n" + inputString;
+        ++peptideLength;
+      }
+
       this.peptideLength = peptideLength;
       modMasses = new float[peptideLength];
 
@@ -584,6 +589,13 @@ public class PlexDiaHelper {
     }
 
     public Peptide(String peptideSequence, float[] modMasses) {
+      if (!peptideSequence.startsWith("n")) {
+        peptideSequence = "n" + peptideSequence;
+        float[] tt = new float[modMasses.length + 1];
+        System.arraycopy(modMasses, 0, tt, 1, modMasses.length);
+        modMasses = tt;
+      }
+
       this.peptideSequence = peptideSequence;
       peptideLength = modMasses.length;
       this.modMasses = modMasses;
