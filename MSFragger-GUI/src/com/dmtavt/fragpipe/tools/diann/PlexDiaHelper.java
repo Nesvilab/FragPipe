@@ -156,7 +156,7 @@ public class PlexDiaHelper {
     }
   }
 
-  public PlexDiaHelper(int nThreads, Map<Character, Float> lightAaMassMap, Map<Character, Float> mediumAaMassMap, Map<Character, Float> heavyAaMassMap) throws Exception {
+  PlexDiaHelper(int nThreads, Map<Character, Float> lightAaMassMap, Map<Character, Float> mediumAaMassMap, Map<Character, Float> heavyAaMassMap) throws Exception {
     this.nThreads = nThreads;
     this.lightAaMassMap = lightAaMassMap;
     this.mediumAaMassMap = mediumAaMassMap;
@@ -172,7 +172,7 @@ public class PlexDiaHelper {
     massSiteUnimodTable = unimodOboReader.massSiteUnimodTable;
   }
 
-  public void generateNewLibrary(Path libraryPath, Path outputPath) throws Exception {
+  void generateNewLibrary(Path libraryPath, Path outputPath) throws Exception {
     BufferedReader reader = Files.newBufferedReader(libraryPath);
 
     ForkJoinPool forkJoinPool = new ForkJoinPool(nThreads);
@@ -553,7 +553,7 @@ public class PlexDiaHelper {
 
     private Integer labelType = null;
 
-    public Peptide(String inputString, int peptideLength) {
+    Peptide(String inputString, int peptideLength) {
       if (!inputString.startsWith("n")) {
         inputString = "n" + inputString;
         ++peptideLength;
@@ -588,7 +588,7 @@ public class PlexDiaHelper {
       peptideSequence = sb2.toString();
     }
 
-    public Peptide(String peptideSequence, float[] modMasses) {
+    Peptide(String peptideSequence, float[] modMasses) {
       if (!peptideSequence.startsWith("n")) {
         peptideSequence = "n" + peptideSequence;
         float[] tt = new float[modMasses.length + 1];
@@ -612,7 +612,7 @@ public class PlexDiaHelper {
       modifiedPeptide = sb.toString();
     }
 
-    public Peptide getComplementaryPeptide(Map<Character, Float> aaMassMap1, Map<Character, Float> aaMassMap2) {
+    Peptide getComplementaryPeptide(Map<Character, Float> aaMassMap1, Map<Character, Float> aaMassMap2) {
       char[] aaArray = peptideSequence.toCharArray();
       float[] modMasses2 = Arrays.copyOf(modMasses, modMasses.length);
 
@@ -626,7 +626,7 @@ public class PlexDiaHelper {
       return new Peptide(peptideSequence, modMasses2);
     }
 
-    public String getUnimodPeptide() {
+    String getUnimodPeptide() {
       StringBuilder sb = new StringBuilder();
       char[] aaArray = peptideSequence.toCharArray();
       for (int i = 0; i < aaArray.length; ++i) {
@@ -662,7 +662,7 @@ public class PlexDiaHelper {
       return sb.toString();
     }
 
-    public Integer detectLabelTypes() { // 0: no labels or multiple labels, 1: light, 2: medium, 3: heavy
+    Integer detectLabelTypes() { // 0: no labels or multiple labels, 1: light, 2: medium, 3: heavy
       if (labelType == null) {
         int labelFlags = 0;
         char[] aaArray = peptideSequence.toCharArray();
