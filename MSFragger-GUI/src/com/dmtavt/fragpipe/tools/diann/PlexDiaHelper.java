@@ -551,7 +551,7 @@ public class PlexDiaHelper {
     final int peptideLength; // Amino acid count plus "n"
     final float[] modMasses;
 
-    Integer labelType = null;
+    private Integer labelType = null;
 
     public Peptide(String inputString, int peptideLength) {
       if (!inputString.startsWith("n")) {
@@ -687,13 +687,16 @@ public class PlexDiaHelper {
 
         switch (labelFlags) {
           case 1:
-            return 1;
+            labelType =  1;
+            break;
           case 2:
-            return 2;
+            labelType = 2;
+            break;
           case 4:
-            return 3;
+            labelType = 3;
+            break;
           default:
-            return 0;
+            labelType =  0;
         }
       }
 
