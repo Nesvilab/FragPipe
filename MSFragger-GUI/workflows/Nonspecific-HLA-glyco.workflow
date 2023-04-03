@@ -125,6 +125,7 @@ msfragger.precursor_true_units=1
 msfragger.remainder_fragment_masses=203.07937
 msfragger.remove_precursor_peak=1
 msfragger.report_alternative_proteins=false
+msfragger.require_precursor=false
 msfragger.restrict_deltamass_to=all
 msfragger.run-msfragger=true
 msfragger.search_enzyme_cut_1=-

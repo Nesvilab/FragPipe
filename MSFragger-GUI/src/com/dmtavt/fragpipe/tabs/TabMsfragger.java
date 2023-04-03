@@ -254,6 +254,7 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_intensity_transform, s -> itos(
         IntensityTransform.get(s)));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_check_spectral_files, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_require_precursor, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_activation_filter, s -> ACTIVATION_TYPES.get(ACTIVATION_TYPES_UI.indexOf(ACTIVATION_MAP.get(s.toUpperCase()))));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_localize_delta_mass, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_clip_nTerm_M, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
@@ -290,6 +291,7 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_remove_precursor_peak, s -> RemovePrecursorPeak.get(Integer.parseInt(s)));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_intensity_transform, s -> IntensityTransform.get(Integer.parseInt(s)));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_check_spectral_files, s -> Boolean.toString(Integer.parseInt(s) > 0));
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_require_precursor, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_activation_filter, s -> ACTIVATION_TYPES_UI.get(ACTIVATION_TYPES.indexOf(ACTIVATION_MAP.get(s.toUpperCase()))));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_localize_delta_mass, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_clip_nTerm_M, s -> Boolean.toString(Integer.parseInt(s) > 0));
@@ -323,6 +325,7 @@ public class TabMsfragger extends JPanelBase {
   private UiText uiTextCustomIonSeries;
   private JLabel labelCustomIonSeries;
   private Map<Component, Boolean> enablementMapping = new HashMap<>();
+  private UiCheck requirePrecursor;
 
   private UiCombo uiComboEnzymes;
   private UiText uiTextCuts;
@@ -1198,34 +1201,36 @@ public class TabMsfragger extends JPanelBase {
             .tooltip("Filter to include only scans matching the corresponding activation type.\n" +
                     "NOTE: not all instruments and activation types are supported. Use ETD for EThcd\n" +
                     "or other hybrid data.").create();
+    FormEntry feCheckRequirePrecursor = mu.feb(MsfraggerParams.PROP_require_precursor, UiUtils.createUiCheck("Require precursor", false))
+        .tooltip("If required, PSMs with no precursor peaks will be discarded. For DIA data type only.").create();
 
-    mu.add(p, fePrecursorMassMode.label(), mu.ccR());
-    mu.add(p, fePrecursorMassMode.comp).wrap();
+    mu.add(p, feActivationFilter.label()).split(2);
+    mu.add(p, feActivationFilter.comp);
+    mu.add(p, fePrecursorMassMode.label()).split(2);
+    mu.add(p, fePrecursorMassMode.comp);
+    mu.add(p, feCheckRequirePrecursor.comp).wrap();
 
-    mu.add(p, feMinPeaks.label(), mu.ccR());
-    mu.add(p, feMinPeaks.comp).split(5).spanX();
-    mu.add(p, feUseTopN.label()).gapBefore("20px");
+    mu.add(p, feMinPeaks.label()).split(2);
+    mu.add(p, feMinPeaks.comp);
+    mu.add(p, feUseTopN.label()).split(2);
     mu.add(p, feUseTopN.comp);
-    mu.add(p, feMinRatio.label()).gapBefore("20px");
+    mu.add(p, feMinRatio.label()).split(2);
     mu.add(p, feMinRatio.comp).wrap();
 
-    mu.add(p, feClearRangeMzLo.label(), mu.ccR());
-    mu.add(p, feClearRangeMzLo.comp).split(3).spanX();
+    mu.add(p, feClearRangeMzLo.label()).split(4);
+    mu.add(p, feClearRangeMzLo.comp);
     mu.add(p, new JLabel("-"));
-    mu.add(p, feClearRangeMzHi.comp).wrap();
+    mu.add(p, feClearRangeMzHi.comp);
+    mu.add(p, feIntensityTransform.label()).split(2);
+    mu.add(p, feIntensityTransform.comp).wrap();
 
-    mu.add(p, feRemovePrecPeak.label(), mu.ccR());
-    mu.add(p, feRemovePrecPeak.comp).split(5).spanX();
-    mu.add(p, fePrecRemoveRangeLo.label());
+    mu.add(p, feRemovePrecPeak.label()).split(2);
+    mu.add(p, feRemovePrecPeak.comp);
+    mu.add(p, fePrecRemoveRangeLo.label()).split(4);
     mu.add(p, fePrecRemoveRangeLo.comp);
     mu.add(p, new JLabel("-"));
-    mu.add(p, fePrecRemoveRangeHi.comp).pushX().wrap();
-
-    mu.add(p, feIntensityTransform.label(), mu.ccR());
-    mu.add(p, feIntensityTransform.comp).split();
-    mu.add(p, feCheckSpectralFiles.comp);
-    mu.add(p, feActivationFilter.label(), mu.ccR());
-    mu.add(p, feActivationFilter.comp).split().wrap();
+    mu.add(p, fePrecRemoveRangeHi.comp);
+    mu.add(p, feCheckSpectralFiles.comp).wrap();
     return p;
   }
 

@@ -24,6 +24,7 @@ remove_precursor_range = -1.5,1.5
 intensity_transform = 0
 activation_types =
 group_fdr_variable = 0
+require_precursor = 0
 
 write_calibrated_mzml = 0
 write_uncalibrated_mgf = 0
