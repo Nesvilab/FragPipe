@@ -58,7 +58,7 @@ import org.jooq.lambda.Seq;
 public class PlexDiaHelper {
 
   private static final Pattern aaPattern = Pattern.compile("([A-Zn])(\\((UniMod:\\d+)\\))?(\\[([\\d+.-]+)\\])?"); // EasyPQP does not support C-term mods?
-  private static final Pattern pattern = Pattern.compile("([A-Znc*]+)([\\d.+-]+)");
+  private static final Pattern labelPattern = Pattern.compile("([A-Znc*]+)([\\d.+-]+)");
   static final Pattern tabPattern = Pattern.compile("\\t");
 
   private final int nThreads;
@@ -132,7 +132,7 @@ public class PlexDiaHelper {
 
   private static Map<Character, Float> parseLabel(String inputStr) {
     Map<Character, Float> outputMap = new HashMap<>();
-    Matcher matcher = pattern.matcher(inputStr.trim());
+    Matcher matcher = labelPattern.matcher(inputStr.trim());
     while (matcher.find()) {
       char[] aas = matcher.group(1).toCharArray();
       float modMass = Float.parseFloat(matcher.group(2));
