@@ -49,7 +49,10 @@ public class GlycoMassLoader {
     private static final Logger log = LoggerFactory.getLogger(TabMsfragger.class);
     private static final String MASSES_FILE = "glycan_masses.txt";
     private static final Pattern pGlycoPattern = Pattern.compile("[AGFHNXP]");
+    private static final Pattern MMGlycoPattern = Pattern.compile("[AGFHN][0-9]+");
     private static final HashMap<String, String> pGlycoTokenMap;    // map pGlyco tokens to our internal Glycan strings
+    private static final HashMap<String, String> MMGlycoTokenMap;    // map MetaMorpheus kind tokens to our internal Glycan strings
+
     public static final String PROP_FILECHOOSER_LAST_PATH = "glycoloader.filechooser.path";
 
     static
@@ -62,6 +65,20 @@ public class GlycoMassLoader {
         pGlycoTokenMap.put("N", "HexNAc");
         pGlycoTokenMap.put("X", "Xyl");
         pGlycoTokenMap.put("P", "HexPh");
+
+        MMGlycoTokenMap = new HashMap<>();
+        MMGlycoTokenMap.put("A", "NeuAc");
+        MMGlycoTokenMap.put("G", "NeuGc");
+        MMGlycoTokenMap.put("F", "Fuc");
+        MMGlycoTokenMap.put("H", "Hex");
+        MMGlycoTokenMap.put("N", "HexNAc");
+        MMGlycoTokenMap.put("P", "Phospho");
+        MMGlycoTokenMap.put("S", "Sulfo");
+        MMGlycoTokenMap.put("Y", "Na");
+        MMGlycoTokenMap.put("C", "Acetyl");
+        MMGlycoTokenMap.put("X", "Xyl");
+        MMGlycoTokenMap.put("U", "SuccinylHex");
+        MMGlycoTokenMap.put("M", "Formyl");
     }
 
     private static final HashMap<String, Double> glycanMasses;
@@ -316,6 +333,7 @@ public class GlycoMassLoader {
      */
     public static ArrayList<Double> loadTextOffsets(String filePath) {
         ArrayList<Double> massOffsets = new ArrayList<>();
+        List<String> charsNotInKindGlycans = Arrays.asList("(", ")", "%", "_", "-", "\t");
         try {
             BufferedReader reader = new BufferedReader(new FileReader(filePath));
             String readline;
@@ -357,13 +375,18 @@ public class GlycoMassLoader {
                         if (line.contains("\t")) {
                             // various databases may include other info in addition to glycan name - ignore and only take name (first column)
                             glycanName = line.split("\t")[0];
+                            glycanMass = parseOldPTMSGlycanString(glycanName);
                         } else if (line.contains("_")) {
                             glycanName = line;
+                            glycanMass = parseOldPTMSGlycanString(glycanName);
+                        } else if (charsNotInKindGlycans.stream().noneMatch(line::contains)) {
+                            // line contains no distinguishing characters - see if it is a MetaMorpheus "Kind" glycan
+                            glycanMass = parseMMKindGlycanString(line);
                         } else {
                             // not a recognized format - often other info in the database
                             continue;
                         }
-                        glycanMass = parseOldPTMSGlycanString(glycanName);
+
                     }
                     if (glycanMass == 0) {
                         continue;
@@ -408,6 +431,29 @@ public class GlycoMassLoader {
             mass = getResidueMass(mass, glycanSplits);
         }
         return mass;
+    }
+
+    /**
+     * Parse MetaMorpheus "Kind" glycan strings, which are in the format N2H2A1 (for example)
+     * @param glycanString MM format glycan kind string
+     * @return mass of glycan
+     */
+    public static double parseMMKindGlycanString(String glycanString) {
+        Matcher matcher = MMGlycoPattern.matcher(glycanString);
+        double glycanMass = 0;
+        while(matcher.find()) {
+            String glycanToken = matcher.group();
+            String glycanType = glycanToken.substring(0, 1);
+            int glycanCount = Integer.parseInt(glycanToken.substring(1));
+            if (MMGlycoTokenMap.containsKey(glycanType)) {
+                glycanMass += (glycanMasses.get(MMGlycoTokenMap.get(glycanType).toLowerCase()) * glycanCount);
+            } else {
+                log.warn(String.format("Invalid token %s in line %s. This line will be skipped", glycanToken, glycanString));
+                glycanMass = 0;
+                break;
+            }
+        }
+        return glycanMass;
     }
 
     private static double getResidueMass(double mass, String[] glycanSplits) {

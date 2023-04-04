@@ -17,3 +17,5 @@ Fe3 = 52.911462
 Xyl = 150.05282
 Formyl = 27.99491
 HexPh = 242.01915
+Acetyl = 42.01056
+SuccinylHex = 262.06890
