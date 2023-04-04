@@ -237,16 +237,15 @@ public class CmdDiann extends CmdBase {
 
       try {
         final Path filelist = groupWd.resolve("filelist_diann.txt");
-        final Path filelist_fixdiann = isUnix() ? groupWd.resolve("filelist_diann.txt ") : filelist;
-        if (Files.exists(filelist_fixdiann.getParent())) { // Dry run does not make directories, so does not write the file.
-          BufferedWriter bufferedWriter = Files.newBufferedWriter(filelist_fixdiann);
+        if (Files.exists(filelist.getParent())) { // Dry run does not make directories, so does not write the file.
+          BufferedWriter bufferedWriter = Files.newBufferedWriter(filelist);
           for (Path p : sizeInputLcms.values().stream().flatMap(List::stream).collect(Collectors.toList())) {
             bufferedWriter.write("--f " + p.toAbsolutePath() + "\n");
           }
           bufferedWriter.close();
         }
         cmd.add("--cfg");
-        cmd.add(filelist.toAbsolutePath().toString());
+        cmd.add(isUnix() ? (filelist.toAbsolutePath() + "--") : filelist.toAbsolutePath().toString()); // https://github.com/vdemichev/DiaNN/issues/641#issuecomment-1479416716
       } catch (IOException ex) {
         throw new UncheckedIOException(ex);
       }
