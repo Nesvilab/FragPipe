@@ -313,17 +313,33 @@ public class PlexDiaHelper {
   }
 
   private Multimap<String, Transaction> collectTransactions(List<String[]> library, Map<String, Integer> columnNameToIndex) throws Exception {
+    int precursorMzIdx = columnNameToIndex.get("PrecursorMz");
+    int modifiedPeptideSequenceIdx = columnNameToIndex.get("ModifiedPeptideSequence");
+    int peptideSequenceIdx = columnNameToIndex.get("PeptideSequence");
+    int precursorChargeIdx = columnNameToIndex.get("PrecursorCharge");
+    int normalizedRetentionTimeIdx = columnNameToIndex.get("NormalizedRetentionTime");
+    int precursorIonMobilityIdx = columnNameToIndex.get("PrecursorIonMobility");
+    int productMzIdx = columnNameToIndex.get("ProductMz");
+    int libraryIntensityIdx = columnNameToIndex.get("LibraryIntensity");
+    int fragmentTypeIdx = columnNameToIndex.get("FragmentType");
+    int fragmentChargeIdx = columnNameToIndex.get("FragmentCharge");
+    int fragmentSeriesNumberIdx = columnNameToIndex.get("FragmentSeriesNumber");
+    int fragmentLossTypeIdx = columnNameToIndex.get("FragmentLossType");
+    int proteinIdIdx = columnNameToIndex.get("ProteinId");
+    int geneNameIdx = columnNameToIndex.get("GeneName");
+    int averageExperimentalRetentionTimeIdx = columnNameToIndex.get("AverageExperimentalRetentionTime");
+
     ForkJoinPool forkJoinPool = new ForkJoinPool(nThreads);
     Map<String, List<String[]>> transactionFragmentMap = forkJoinPool.submit(() ->
         library.stream()
             .skip(1)
             .parallel()
             .collect(Collectors.groupingBy(p ->
-                p[columnNameToIndex.get("PrecursorMz")] + "-" +
-                correctModifiedPeptide("n" + p[columnNameToIndex.get("ModifiedPeptideSequence")]) + "-" +
-                p[columnNameToIndex.get("PrecursorCharge")] + "-" +
-                p[columnNameToIndex.get("NormalizedRetentionTime")] + "-" +
-                p[columnNameToIndex.get("PrecursorIonMobility")]))
+                p[precursorMzIdx] + "-" +
+                correctModifiedPeptide("n" + p[modifiedPeptideSequenceIdx]) + "-" +
+                p[precursorChargeIdx] + "-" +
+                p[normalizedRetentionTimeIdx] + "-" +
+                p[precursorIonMobilityIdx]))
     ).get();
     forkJoinPool.shutdown();
 
@@ -345,12 +361,12 @@ public class PlexDiaHelper {
           Map<Float, Fragment> mzFragmentMap = new TreeMap<>();
           for (String[] ss : tt) {
             Fragment fragment = new Fragment(
-                Float.parseFloat(ss[columnNameToIndex.get("ProductMz")]),
-                Float.parseFloat(ss[columnNameToIndex.get("LibraryIntensity")]),
-                ss[columnNameToIndex.get("FragmentType")].charAt(0),
-                Byte.parseByte(ss[columnNameToIndex.get("FragmentCharge")]),
-                Integer.parseInt(ss[columnNameToIndex.get("FragmentSeriesNumber")]),
-                ss[columnNameToIndex.get("FragmentLossType")]
+                Float.parseFloat(ss[productMzIdx]),
+                Float.parseFloat(ss[libraryIntensityIdx]),
+                ss[fragmentTypeIdx].charAt(0),
+                Byte.parseByte(ss[fragmentChargeIdx]),
+                Integer.parseInt(ss[fragmentSeriesNumberIdx]),
+                ss[fragmentLossTypeIdx]
             );
             Fragment oldFragment = mzFragmentMap.get(fragment.mz);
             if (oldFragment == null || oldFragment.intensity < fragment.intensity) {
@@ -359,15 +375,15 @@ public class PlexDiaHelper {
           }
           String[] ss = tt.get(0);
           Transaction transaction = new Transaction(
-              Float.parseFloat(ss[columnNameToIndex.get("PrecursorMz")]),
+              Float.parseFloat(ss[precursorMzIdx]),
               mzFragmentMap.values().toArray(new Fragment[0]),
-              ss[columnNameToIndex.get("ProteinId")],
-              ss[columnNameToIndex.get("GeneName")],
-              new Peptide(ss[columnNameToIndex.get("ModifiedPeptideSequence")], ss[columnNameToIndex.get("PeptideSequence")].length()),
-              Byte.parseByte(ss[columnNameToIndex.get("PrecursorCharge")]),
-              myToFloat(ss[columnNameToIndex.get("NormalizedRetentionTime")], 0),
-              myToFloat(ss[columnNameToIndex.get("PrecursorIonMobility")], 0),
-              myToFloat(ss[columnNameToIndex.get("AverageExperimentalRetentionTime")], 0)
+              ss[proteinIdIdx],
+              ss[geneNameIdx],
+              new Peptide(ss[modifiedPeptideSequenceIdx], ss[peptideSequenceIdx].length()),
+              Byte.parseByte(ss[precursorChargeIdx]),
+              myToFloat(ss[normalizedRetentionTimeIdx], 0),
+              myToFloat(ss[precursorIonMobilityIdx], 0),
+              myToFloat(ss[averageExperimentalRetentionTimeIdx], 0)
           );
           localMap.put(transaction.peptide.modifiedPeptide + transaction.peptideCharge, transaction);
         }
