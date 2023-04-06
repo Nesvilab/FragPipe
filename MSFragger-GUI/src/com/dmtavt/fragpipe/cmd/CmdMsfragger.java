@@ -620,7 +620,7 @@ public class CmdMsfragger extends CmdBase {
     paramsNew.setMassDiffToVariableMod(0);
     paramsNew.setIsotopeError("0");
     paramsNew.setMassOffsets("0");
-    paramsNew.setUseTopNPeaks(300);
+    paramsNew.setUseTopNPeaks(Math.max(300, params.getUseTopNPeaks()));
     paramsNew.setMinimumRatio(0);
     paramsNew.setIntensityTransform(1);
 
