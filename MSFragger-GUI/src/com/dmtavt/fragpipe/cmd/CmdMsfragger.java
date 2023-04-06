@@ -613,7 +613,6 @@ public class CmdMsfragger extends CmdBase {
     paramsNew.setShiftedIons(false);
     paramsNew.setLabileSearchMode("off");
     paramsNew.setDeltamassAllowedResidues("all");
-    paramsNew.setRemovePrecursorPeak(0);
     if (paramsNew.getCalibrateMass() > 1) {
       paramsNew.setCalibrateMass(1);
     }
