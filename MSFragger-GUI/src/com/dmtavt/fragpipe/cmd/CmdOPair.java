@@ -129,6 +129,9 @@ public class CmdOPair  extends CmdBase {
             Path psmPath = group.outputDir(workdir).resolve("psm.tsv");     // psm file path relative to group output dir
             cmd.add("-b " + params.getProductPPMtol());
             cmd.add("-c " + params.getPrecursorPPMtol());
+            if (params.isFilterOxonium()) {
+                cmd.add("-f true");
+            }
             if (params.getOglycanDB().length() > 0) {
                 cmd.add("-g " + params.getOglycanDB());
             }

@@ -28,7 +28,7 @@ public class OPairParams {
     private boolean singleScanType;
     private String activation1;
     private String activation2;
-
+    private boolean filterOxonium;
 
     public double getProductPPMtol() {
         return productPPMtol;
@@ -101,4 +101,8 @@ public class OPairParams {
     public void setReverseScanOrder(boolean reverseScanOrder) {
         this.reverseScanOrder = reverseScanOrder;
     }
+
+    public boolean isFilterOxonium() { return filterOxonium; }
+
+    public void setFilterOxonium(boolean filterOxonium) { this.filterOxonium = filterOxonium; }
 }

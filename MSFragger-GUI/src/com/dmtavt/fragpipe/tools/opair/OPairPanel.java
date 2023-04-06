@@ -68,6 +68,7 @@ public class OPairPanel extends JPanelBase {
     private static final String PROP_singleScanType = "single_scan_type";
     private static final String PROP_activation1 = "activation1";
     private static final String PROP_activation2 = "activation2";
+    private static final String PROP_filterOxonium = "filterOxonium";
 
     private UiSpinnerDouble uiSpinnerMS2Tol;
     private UiSpinnerDouble uiSpinnerMS1Tol;
@@ -78,6 +79,7 @@ public class OPairPanel extends JPanelBase {
     private UiCombo uiComboActivation2;
     private UiCheck uiCheckReverseScanOrder;
     private UiCheck uiCheckSingleScanType;
+    private UiCheck uiCheckFilterOxonium;
 
     public OPairPanel() {
         super();
@@ -139,6 +141,9 @@ public class OPairPanel extends JPanelBase {
         uiCheckSingleScanType = UiUtils.createUiCheck("Single scan type", false);
         uiCheckSingleScanType.setName(PROP_singleScanType);
         uiCheckSingleScanType.setToolTipText("Use if only one scan type (must be hybrid activation)");
+        uiCheckFilterOxonium = UiUtils.createUiCheck("Filter using oxonium ions", true);
+        uiCheckFilterOxonium.setName(PROP_filterOxonium);
+        uiCheckFilterOxonium.setToolTipText("Filter possible glycan groups by requiring monosaccharide-specific oxonium ions");
 
         String tooltipGlycanDBFile = "Glycan database file in Byonic or pGlyco formats (.txt or .pdb). Will use internal default O-glycan list if not provided.";
         uiTextOGlycanDBFile = UiUtils.uiTextBuilder().cols(80).create();
@@ -176,7 +181,8 @@ public class OPairPanel extends JPanelBase {
         mu.add(pContent, feMS1SpectraTol.label(), mu.ccR());
         mu.add(pContent, feMS1SpectraTol.comp);
         mu.add(pContent, feMaxGlycans.label(), mu.ccR());
-        mu.add(pContent, feMaxGlycans.comp).wrap();
+        mu.add(pContent, feMaxGlycans.comp);
+        mu.add(pContent, uiCheckFilterOxonium).wrap();
 
         mu.add(pContent, feGlycanDBFile.label()).split().spanX();
         mu.add(pContent, btnBrosweGlycanDBFile);
@@ -238,6 +244,7 @@ public class OPairPanel extends JPanelBase {
         params.setSingleScanType(uiCheckSingleScanType.isSelected());
         params.setActivation1((String) uiComboActivation1.getSelectedItem());
         params.setActivation2((String) uiComboActivation2.getSelectedItem());
+        params.setFilterOxonium(uiCheckFilterOxonium.isSelected());
         return params;
     }
 
