@@ -130,6 +130,7 @@ msfragger.remove_precursor_peak=1
 msfragger.report_alternative_proteins=true
 msfragger.require_precursor=false
 msfragger.restrict_deltamass_to=ST-
+msfragger.reuse_dia_fragment_peaks=false
 msfragger.run-msfragger=true
 msfragger.search_enzyme_cut_1=KR
 msfragger.search_enzyme_cut_2=

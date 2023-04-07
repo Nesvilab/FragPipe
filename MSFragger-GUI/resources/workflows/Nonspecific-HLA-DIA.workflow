@@ -127,6 +127,7 @@ msfragger.remainder_fragment_masses=
 msfragger.remove_precursor_peak=1
 msfragger.report_alternative_proteins=true
 msfragger.restrict_deltamass_to=all
+msfragger.reuse_dia_fragment_peaks=false
 msfragger.run-msfragger=true
 msfragger.search_enzyme_cut_1=-
 msfragger.search_enzyme_cut_2=-

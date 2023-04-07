@@ -25,6 +25,7 @@ intensity_transform = 0
 activation_types =
 group_variable = 0
 require_precursor = 0
+reuse_dia_fragment_peaks = 0
 
 write_calibrated_mzml = 0
 write_uncalibrated_mgf = 0

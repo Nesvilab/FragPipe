@@ -254,6 +254,7 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_intensity_transform, s -> itos(
         IntensityTransform.get(s)));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_check_spectral_files, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_reuse_dia_fragment_peaks, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_require_precursor, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_activation_filter, s -> ACTIVATION_TYPES.get(ACTIVATION_TYPES_UI.indexOf(ACTIVATION_MAP.get(s.toUpperCase()))));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_localize_delta_mass, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
@@ -291,6 +292,7 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_remove_precursor_peak, s -> RemovePrecursorPeak.get(Integer.parseInt(s)));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_intensity_transform, s -> IntensityTransform.get(Integer.parseInt(s)));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_check_spectral_files, s -> Boolean.toString(Integer.parseInt(s) > 0));
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_reuse_dia_fragment_peaks, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_require_precursor, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_activation_filter, s -> ACTIVATION_TYPES_UI.get(ACTIVATION_TYPES.indexOf(ACTIVATION_MAP.get(s.toUpperCase()))));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_localize_delta_mass, s -> Boolean.toString(Integer.parseInt(s) > 0));
@@ -1197,6 +1199,7 @@ public class TabMsfragger extends JPanelBase {
         UiSpinnerDouble.builder(+1.5, -1000.0, 1000.0, 0.1).setCols(5).setFormat(df1).create())
         .create();
     FormEntry feIntensityTransform = mu.feb(MsfraggerParams.PROP_intensity_transform, UiUtils.createUiCombo(IntensityTransform.getNames())).label("Intensity transform").create();
+    FormEntry feCheckReuseDiaFragmentPeaks = mu.feb(MsfraggerParams.PROP_reuse_dia_fragment_peaks, UiUtils.createUiCheck("Reuse DIA fragment peaks", false)).tooltip("Allow the same peak matches to multiple peptides. For DIA data type only.").create();
     FormEntry feCheckSpectralFiles = mu.feb(MsfraggerParams.PROP_check_spectral_files, UiUtils.createUiCheck("Check spectral files", true)).tooltip("Checking spectral files before searching.").create();
     FormEntry feActivationFilter = mu.feb(MsfraggerParams.PROP_activation_filter, UiUtils.createUiCombo(ACTIVATION_TYPES_UI)).label("Activation Type Filter")
             .tooltip("Filter to include only scans matching the corresponding activation type.\n" +
@@ -1223,7 +1226,8 @@ public class TabMsfragger extends JPanelBase {
     mu.add(p, new JLabel("-"));
     mu.add(p, feClearRangeMzHi.comp);
     mu.add(p, feIntensityTransform.label()).split(2);
-    mu.add(p, feIntensityTransform.comp).wrap();
+    mu.add(p, feIntensityTransform.comp);
+    mu.add(p, feCheckReuseDiaFragmentPeaks.comp).wrap();
 
     mu.add(p, feRemovePrecPeak.label()).split(2);
     mu.add(p, feRemovePrecPeak.comp);
