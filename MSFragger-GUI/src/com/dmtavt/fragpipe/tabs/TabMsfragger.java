@@ -1209,7 +1209,7 @@ public class TabMsfragger extends JPanelBase {
     mu.add(p, feActivationFilter.comp);
     mu.add(p, fePrecursorMassMode.label()).split(2);
     mu.add(p, fePrecursorMassMode.comp);
-    mu.add(p, feCheckRequirePrecursor.comp).wrap();
+    mu.add(p, feCheckRequirePrecursor.comp).pushX().wrap();
 
     mu.add(p, feMinPeaks.label()).split(2);
     mu.add(p, feMinPeaks.comp);
