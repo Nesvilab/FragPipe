@@ -27,6 +27,7 @@ import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTIONS;
 import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTION_labile;
 import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTION_nglycan;
 import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTION_off;
+import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.PROP_group_variable;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.Bus;
@@ -54,7 +55,6 @@ import com.dmtavt.fragpipe.tools.fragger.Mod;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerEnzyme;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerProps;
-import com.dmtavt.fragpipe.tools.philosopher.ReportPanel;
 import com.dmtavt.fragpipe.util.GlycoMassLoader;
 import com.github.chhh.utils.MapUtils;
 import com.github.chhh.utils.StringUtils;
@@ -355,6 +355,7 @@ public class TabMsfragger extends JPanelBase {
   private JPanel pAdvanced;
   private UiCheck uiCheckWriteCalibratedMzml;
   private UiCheck uiCheckWriteUncalibratedMgf;
+  private UiCombo uiComboGroupVariable;
 
   @Override
   protected ItemSelectable getRunCheckbox() {
@@ -1367,11 +1368,20 @@ public class TabMsfragger extends JPanelBase {
     uiCheckWriteUncalibratedMgf = UiUtils.createUiCheck("Write uncalibrated MGF", false);
     FormEntry feCheckWriteUncalibratedMgf = mu.feb(MsfraggerParams.PROP_write_uncalibrated_mgf, uiCheckWriteUncalibratedMgf).tooltip("Only for .raw and .d formats.").create();
 
+    uiComboGroupVariable = UiUtils.createUiCombo(Arrays.asList("None", "Number of enzymatic termini"));
+    FormEntry feGroupVariable= mu.feb(uiComboGroupVariable)
+        .name(PROP_group_variable)
+        .label("Group variable")
+        .tooltip("Specify the variable to group PSMs for the FDR estimation.")
+        .create();
+
     mu.add(p, feReportTopN.label(), mu.ccR());
     mu.add(p, feReportTopN.comp).growX();
     mu.add(p, feReportAltProts.comp);
-    mu.add(p, feOutputMaxExpect.label()).split().spanX().gapLeft("10px");
-    mu.add(p, feOutputMaxExpect.comp).pushX().wrap();
+    mu.add(p, feOutputMaxExpect.label()).split(2).gapLeft("10px");
+    mu.add(p, feOutputMaxExpect.comp);
+    mu.add(p, feGroupVariable.label()).split(2).gapLeft("10px");
+    mu.add(p, feGroupVariable.comp).pushX().wrap();
     mu.add(p, feOutputType.label(), mu.ccR());
     mu.add(p, feOutputType.comp);
     mu.add(p, feCheckWriteCalibratedMzml.comp);
@@ -1488,8 +1498,7 @@ public class TabMsfragger extends JPanelBase {
     TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
     map.put(MsfraggerParams.PROP_num_threads, itos(tabWorkflow.getThreads()));
 
-    ReportPanel reportPanel = Fragpipe.getStickyStrict(ReportPanel.class);
-    map.put(MsfraggerParams.PROP_group_variable, reportPanel.getGroupVariable());
+    map.put(MsfraggerParams.PROP_group_variable, getGroupVariable());
 
     MsfraggerParams params = paramsFromMap(map);
 
@@ -1568,9 +1577,15 @@ public class TabMsfragger extends JPanelBase {
     }
     return outputSet;
   }
+
   public void setMassOffsets(String offsetsText) {
     epMassOffsets.setText(offsetsText);
   }
+
+  public String getGroupVariable() {
+    return uiComboGroupVariable.getSelectedItem().toString();
+  }
+
 
   /**
    * Converts textual representations of all fields in the form to stadard {@link MsfraggerParams}.
