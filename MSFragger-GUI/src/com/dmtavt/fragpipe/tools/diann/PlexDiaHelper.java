@@ -129,6 +129,8 @@ public class PlexDiaHelper {
       ex.printStackTrace();
       System.exit(1);
     }
+
+    System.out.printf("Done in %.1f s.%n", (System.nanoTime() - start) * 1e-9f);
   }
 
   private static Map<Character, Float> parseLabel(String inputStr) {
