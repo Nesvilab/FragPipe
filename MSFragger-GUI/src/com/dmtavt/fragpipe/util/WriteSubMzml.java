@@ -50,7 +50,7 @@ public class WriteSubMzml {
       e.printStackTrace();
       System.exit(1);
     }
-    System.out.printf("Done in %d s.%n", Math.round((System.nanoTime() - time) * 1e-9));
+    System.out.printf("Done in %.1f s.%n", (System.nanoTime() - time) * 1e-9f);
   }
 
   private static void writeSubMzml(String lcmsPathStr, Path psmPath, Path outputPath, float probabilityThreshold, boolean deleteMzbinAll) throws Exception {

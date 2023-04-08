@@ -66,7 +66,8 @@ public class PairScans {
             e.printStackTrace();
             System.exit(1);
         }
-        System.out.printf("Done in %d ms.%n", Math.round((System.nanoTime() - time) * 1e-6));
+
+        System.out.printf("Done in %.1f s.%n", (System.nanoTime() - time) * 1e-9f);
     }
 
     void findScanPairs(String spectralPath, int nThreads, String firstActivationStr, String secondActivationStr, boolean reverseOrder, boolean singleScanType) throws Exception {
