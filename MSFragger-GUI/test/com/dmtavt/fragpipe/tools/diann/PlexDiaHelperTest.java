@@ -168,9 +168,9 @@ public class PlexDiaHelperTest {
     PlexDiaHelper plexDiaHelper = prepareForReflection();
 
     Set<String> modifiedPeptides = new HashSet<>(Arrays.asList(
-        "nDLEEDHAC(UniMod:4)IPIK(UniMod:259)K(UniMod:259)",
+        "DLEEDHAC(UniMod:4)IPIK(UniMod:259)K(UniMod:259)",
         "nDLC(UniMod:4)IPIK[120.0023]K",
-        "n(UniMod:1)DLEEDHAC(UniMod:4)IPKK(UniMod:259)",
+        "(UniMod:1)DLEEDHAC(UniMod:4)IPKK(UniMod:259)",
         "n[20.093]DLDHAC(UniMod:4)IIK[140.3424]"
     ));
 
@@ -196,9 +196,9 @@ public class PlexDiaHelperTest {
 
     String[] modifiedPeptides = new String[]{
         "nDLEEDHAC(UniMod:4)IPIK(UniMod:259)K(UniMod:259)",
-        "nDLC(UniMod:4)IPIK[120.0023]K",
+        "DLC(UniMod:4)IPIK[120.0023]K",
         "n(UniMod:1)DLEEDHAC(UniMod:4)IPKK(UniMod:259)",
-        "n[20.093]DLDHAC(UniMod:4)IIK[140.3424]"
+        "[20.093]DLDHAC(UniMod:4)IIK[140.3424]"
     };
 
     String[] expectedModifiedPeptides = new String[]{

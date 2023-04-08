@@ -29,6 +29,7 @@ import com.github.chhh.utils.StringUtils;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Table;
+import com.google.common.primitives.Floats;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
@@ -190,7 +191,7 @@ public class PlexDiaHelper {
     Map<String, Integer> columnNameToIndex = getColumnIndexMap(libraryPath, "PrecursorMz", library.get(0));
 
     int columnIdx = columnNameToIndex.get("ModifiedPeptideSequence");
-    Set<String> modifiedPeptides = library.stream().skip(1).map(p -> "n" + p[columnIdx]).collect(Collectors.toSet());
+    Set<String> modifiedPeptides = library.stream().skip(1).map(p -> p[columnIdx]).collect(Collectors.toSet());
 
     Set<Float> modMasses = collectAllMods(modifiedPeptides);
 
@@ -256,6 +257,9 @@ public class PlexDiaHelper {
     Set<String> mods =  forkJoinPool.submit(() ->
         modifiedPeptides.stream().parallel().flatMap(s -> {
           Set<String> ttt = new HashSet<>();
+          if (!s.startsWith("n")) {
+            s = "n" + s;
+          }
           Matcher aaMatcher = aaPattern.matcher(s);
           while (aaMatcher.find()) {
             if (aaMatcher.group(2) != null || aaMatcher.group(4) != null) {
@@ -294,6 +298,10 @@ public class PlexDiaHelper {
   }
 
   private String correctModifiedPeptide(String peptide) {
+    if (!peptide.startsWith("n")) {
+      peptide = "n" + peptide;
+    }
+
     StringBuilder sb = new StringBuilder();
     Matcher matcher = aaPattern.matcher(peptide);
     while (matcher.find()) {
@@ -315,7 +323,6 @@ public class PlexDiaHelper {
   private Multimap<String, Transaction> collectTransactions(List<String[]> library, Map<String, Integer> columnNameToIndex) throws Exception {
     int precursorMzIdx = columnNameToIndex.get("PrecursorMz");
     int modifiedPeptideSequenceIdx = columnNameToIndex.get("ModifiedPeptideSequence");
-    int peptideSequenceIdx = columnNameToIndex.get("PeptideSequence");
     int precursorChargeIdx = columnNameToIndex.get("PrecursorCharge");
     int normalizedRetentionTimeIdx = columnNameToIndex.get("NormalizedRetentionTime");
     int precursorIonMobilityIdx = columnNameToIndex.get("PrecursorIonMobility");
@@ -336,7 +343,7 @@ public class PlexDiaHelper {
             .parallel()
             .collect(Collectors.groupingBy(p ->
                 p[precursorMzIdx] + "-" +
-                correctModifiedPeptide("n" + p[modifiedPeptideSequenceIdx]) + "-" +
+                correctModifiedPeptide(p[modifiedPeptideSequenceIdx]) + "-" +
                 p[precursorChargeIdx] + "-" +
                 p[normalizedRetentionTimeIdx] + "-" +
                 p[precursorIonMobilityIdx]))
@@ -379,7 +386,7 @@ public class PlexDiaHelper {
               mzFragmentMap.values().toArray(new Fragment[0]),
               ss[proteinIdIdx],
               ss[geneNameIdx],
-              new Peptide(ss[modifiedPeptideSequenceIdx], ss[peptideSequenceIdx].length()),
+              new Peptide(ss[modifiedPeptideSequenceIdx]),
               Byte.parseByte(ss[precursorChargeIdx]),
               myToFloat(ss[normalizedRetentionTimeIdx], 0),
               myToFloat(ss[precursorIonMobilityIdx], 0),
@@ -562,49 +569,61 @@ public class PlexDiaHelper {
 
   class Peptide implements Comparable<Peptide> {
 
-    final String modifiedPeptide; // with "n" as the first amino acid
-    final String peptideSequence; // with "n" as the first amino acid
-    final int peptideLength; // Amino acid count plus "n"
-    final float[] modMasses;
+    final String modifiedPeptide;
+    final String peptideSequence;
+    final int peptideLength;
+    final float[] modMasses; // The first element is N-term modification
 
     private Integer labelType = null;
 
-    Peptide(String inputString, int peptideLength) {
+    Peptide(String inputString) {
       if (!inputString.startsWith("n")) {
         inputString = "n" + inputString;
-        ++peptideLength;
       }
 
-      this.peptideLength = peptideLength;
-      modMasses = new float[peptideLength];
+      List<Float> modMassList = new ArrayList<>(inputString.length());
 
       StringBuilder sb1 = new StringBuilder();
-      StringBuilder sb2 = new StringBuilder(peptideLength);
+      StringBuilder sb2 = new StringBuilder();
       Matcher matcher = aaPattern.matcher(inputString);
-      int idx = 0;
       while (matcher.find()) {
         char aa = matcher.group(1).charAt(0);
-        sb1.append(aa);
-        sb2.append(aa);
-        if (matcher.group(2) != null) {
-          modMasses[idx] = correctModMass(unimodMassMap.get(matcher.group(3).toLowerCase()), theoModMasses);
-          sb1.append("[").append(modMasses[idx]).append("]");
-        } else if (matcher.group(4) != null) {
-          if (aa == 'n' || aa == 'c') {
-            modMasses[idx] = correctModMass(Float.parseFloat(matcher.group(5)), theoModMasses);
-          } else {
-            modMasses[idx] = correctModMass(Float.parseFloat(matcher.group(5)) - AAMasses[aa - 'A'], theoModMasses);
-          }
-          sb1.append("[").append(modMasses[idx]).append("]");
+        if (aa != 'n') {
+          sb2.append(aa);
         }
-        ++idx;
+
+        if (matcher.group(2) != null) {
+          float modMass = correctModMass(unimodMassMap.get(matcher.group(3).toLowerCase()), theoModMasses);
+          modMassList.add(modMass);
+          sb1.append(aa).append("[").append(modMass).append("]");
+        } else if (matcher.group(4) != null) {
+          float modMass;
+          if (aa == 'n' || aa == 'c') {
+            modMass = correctModMass(Float.parseFloat(matcher.group(5)), theoModMasses);
+          } else {
+            modMass = correctModMass(Float.parseFloat(matcher.group(5)) - AAMasses[aa - 'A'], theoModMasses);
+          }
+          modMassList.add(modMass);
+          sb1.append(aa).append("[").append(modMass).append("]");
+        } else  {
+          modMassList.add(0f);
+          if (aa != 'n') {
+            sb1.append(aa);
+          }
+        }
       }
 
       this.modifiedPeptide = sb1.toString();
       peptideSequence = sb2.toString();
+      peptideLength = peptideSequence.length();
+      modMasses = Floats.toArray(modMassList);
     }
 
     Peptide(String peptideSequence, float[] modMasses) {
+      if (peptideSequence.length() != modMasses.length) {
+        throw new RuntimeException("peptideSequence and modMasses must have the same length");
+      }
+
       if (!peptideSequence.startsWith("n")) {
         peptideSequence = "n" + peptideSequence;
         float[] tt = new float[modMasses.length + 1];
@@ -612,8 +631,8 @@ public class PlexDiaHelper {
         modMasses = tt;
       }
 
-      this.peptideSequence = peptideSequence;
-      peptideLength = modMasses.length;
+      this.peptideSequence = peptideSequence.substring(1);
+      peptideLength = modMasses.length - 1;
       this.modMasses = modMasses;
 
       char[] aaArray = peptideSequence.toCharArray();
@@ -621,7 +640,7 @@ public class PlexDiaHelper {
       for (int i = 0; i < aaArray.length; ++i) {
         if (Math.abs(modMasses[i]) > threshold) {
           sb.append(aaArray[i]).append("[").append(modMasses[i]).append("]");
-        } else {
+        } else if (aaArray[i] != 'n') {
           sb.append(aaArray[i]);
         }
       }
@@ -629,7 +648,7 @@ public class PlexDiaHelper {
     }
 
     Peptide getComplementaryPeptide(Map<Character, Float> aaMassMap1, Map<Character, Float> aaMassMap2) {
-      char[] aaArray = peptideSequence.toCharArray();
+      char[] aaArray = ("n" + peptideSequence).toCharArray();
       float[] modMasses2 = Arrays.copyOf(modMasses, modMasses.length);
 
       for (int i = 0; i < aaArray.length; i++) {
@@ -639,12 +658,12 @@ public class PlexDiaHelper {
         }
       }
 
-      return new Peptide(peptideSequence, modMasses2);
+      return new Peptide("n" + peptideSequence, modMasses2);
     }
 
     String getUnimodPeptide() {
       StringBuilder sb = new StringBuilder();
-      char[] aaArray = peptideSequence.toCharArray();
+      char[] aaArray = ("n" + peptideSequence).toCharArray();
       for (int i = 0; i < aaArray.length; ++i) {
         if (i > 0) {
           sb.append(aaArray[i]);
@@ -681,7 +700,7 @@ public class PlexDiaHelper {
     Integer detectLabelTypes() { // 0: no labels or multiple labels, 1: light, 2: medium, 3: heavy
       if (labelType == null) {
         int labelFlags = 0;
-        char[] aaArray = peptideSequence.toCharArray();
+        char[] aaArray = ("n" + peptideSequence).toCharArray();
         for (int i = 0; i < aaArray.length; ++i) {
           char aa = aaArray[i];
           Float lightValue = lightAaMassMap != null ? lightAaMassMap.get(aa) : null;
