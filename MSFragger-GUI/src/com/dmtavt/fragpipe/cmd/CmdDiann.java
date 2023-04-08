@@ -337,6 +337,67 @@ public class CmdDiann extends CmdBase {
       }
     }
 
+    if (isRunPlex) {
+      final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(BATMASS_IO_JAR));
+      if (classpathJars == null) {
+        return false;
+      }
+
+      Path root = FragpipeLocations.get().getDirFragpipeRoot();
+      Path libsDir = root.resolve("lib");
+      if (Files.isDirectory(jarFragpipe)) {
+        libsDir = jarFragpipe.getParent().getParent().getParent().getParent().resolve("build/install/fragpipe/lib");
+        log.debug("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
+      }
+
+      List<String> toJoin = classpathJars.stream().map(p -> p.toAbsolutePath().normalize().toString()).collect(Collectors.toList());
+      try {
+        toJoin.addAll(Files.walk(libsDir).
+            filter(p -> p.getFileName().toString().endsWith(".jar")).
+            filter(p -> p.getFileName().toString().startsWith("fragpipe-")).
+            map(p -> p.toAbsolutePath().normalize().toString()).collect(Collectors.toList())
+        );
+      } catch (IOException ex) {
+        ex.printStackTrace();
+        return false;
+      }
+
+      toJoin.add(jarFragpipe.toAbsolutePath().normalize().toString());
+      final String classpath = OsUtils.asSingleArgument(String.join(System.getProperties().getProperty("path.separator"), toJoin));
+
+      for (LcmsFileGroup group : lcmsFileGroups) {
+        final Path groupWd = group.outputDir(wd);
+        List<String> cmd = new ArrayList<>();
+        cmd.add(Fragpipe.getBinJava());
+        cmd.add("-cp");
+        cmd.add(classpath);
+        cmd.add(PlexDiaHelper.class.getCanonicalName());
+        cmd.add("--threads");
+        cmd.add(String.valueOf(nThreads));
+        if (lightString != null && !lightString.isEmpty()) {
+          cmd.add("--light");
+          cmd.add(lightString);
+        }
+        if (mediumString != null && !mediumString.isEmpty()) {
+          cmd.add("--medium");
+          cmd.add(mediumString);
+        }
+        if (heavyString != null && !heavyString.isEmpty()) {
+          cmd.add("--heavy");
+          cmd.add(heavyString);
+        }
+        cmd.add("--library");
+        cmd.add("library_2.tsv");
+        cmd.add("--diann-report");
+        cmd.add("diann-output" + File.separator + "diann-output.tsv");
+        cmd.add("--output-dir");
+        cmd.add(groupWd.toAbsolutePath().toString());
+        ProcessBuilder pb = new ProcessBuilder(cmd);
+        pb.directory(groupWd.toFile());
+        pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + ": Process DIA-NN output").create());
+      }
+    }
+
     if (!isDryRun) {
       try {
         Set<String> fileNameSet = new HashSet<>();

@@ -26,9 +26,12 @@ import static com.dmtavt.fragpipe.util.Utils.threshold;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.util.UnimodOboReader;
 import com.github.chhh.utils.StringUtils;
+import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Table;
+import com.google.common.collect.Tables;
+import com.google.common.collect.TreeBasedTable;
 import com.google.common.primitives.Floats;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -58,7 +61,7 @@ import org.jooq.lambda.Seq;
 
 public class PlexDiaHelper {
 
-  private static final Pattern aaPattern = Pattern.compile("([A-Zn])(\\((UniMod:\\d+)\\))?(\\[([\\d+.-]+)\\])?"); // EasyPQP does not support C-term mods?
+  private static final Pattern aaPattern = Pattern.compile("([A-Zn])(\\((UniMod:\\d+)\\))?([\\(\\[]([\\d+.-]+)[\\]\\)])?"); // EasyPQP does not support C-term mods?
   private static final Pattern labelPattern = Pattern.compile("([A-Znc*]+)([\\d.+-]+)");
   static final Pattern tabPattern = Pattern.compile("\\t");
 
@@ -72,12 +75,16 @@ public class PlexDiaHelper {
   float[] theoModMasses;
 
   public static void main(String[] args) {
+    long start = System.nanoTime();
+
     int nThreads = Runtime.getRuntime().availableProcessors();
     Map<Character, Float> lightAaMassMap = null;
     Map<Character, Float> mediumAaMassMap = null;
     Map<Character, Float> heavyAaMassMap = null;
     Path libraryPath = null;
     Path outputLibraryPath = null;
+    Path diannReportPath = null;
+    Path outputDirectory = null;
 
     for (int i = 0; i < args.length; ++i) {
       if (args[i].trim().contentEquals("--threads")) {
@@ -104,6 +111,10 @@ public class PlexDiaHelper {
         libraryPath = Paths.get(args[++i].trim());
       } else if (args[i].trim().contentEquals("--out")) {
         outputLibraryPath = Paths.get(args[++i].trim());
+      } else if (args[i].trim().contentEquals("--diann-report")) {
+        diannReportPath = Paths.get(args[++i].trim());
+      } else if (args[i].trim().contentEquals("--output-dir")) {
+        outputDirectory = Paths.get(args[++i].trim());
       }
     }
 
@@ -117,14 +128,14 @@ public class PlexDiaHelper {
       System.exit(1);
     }
 
-    if (outputLibraryPath == null) {
-      System.err.println("There is no output library path.");
-      System.exit(1);
-    }
-
     try {
       PlexDiaHelper plexDiaHelper = new PlexDiaHelper(nThreads, lightAaMassMap, mediumAaMassMap, heavyAaMassMap);
-      plexDiaHelper.generateNewLibrary(libraryPath, outputLibraryPath);
+
+      if (outputLibraryPath != null) {
+        plexDiaHelper.generateNewLibrary(libraryPath, outputLibraryPath);
+      } else if (diannReportPath != null && outputDirectory != null) {
+        plexDiaHelper.pairAndWriteReport(libraryPath, diannReportPath, outputDirectory);
+      }
     } catch (Exception ex) {
       ex.printStackTrace();
       System.exit(1);
@@ -240,6 +251,169 @@ public class PlexDiaHelper {
       outputPath = Paths.get(StringUtils.upToLastDot(libraryPath.toAbsolutePath().toString()) + "_plex.tsv");
     }
     writeLibrary(transactions, outputPath);
+  }
+
+  void pairAndWriteReport(Path libraryPath, Path diannReportPath, Path outputDirectory) throws Exception {
+    BufferedReader reader = Files.newBufferedReader(libraryPath);
+    ForkJoinPool forkJoinPool = new ForkJoinPool(nThreads);
+    List<String[]> library = forkJoinPool.submit(() ->
+        reader.lines()
+            .parallel()
+            .filter(l -> !l.isEmpty())
+            .map(l -> tabPattern.split(l, -1)) // -1 to keep trailing empty strings
+            .collect(Collectors.toList())
+    ).get();
+    forkJoinPool.shutdown();
+    reader.close();
+
+    Map<String, Integer> columnNameToIndex = getColumnIndexMap(libraryPath, "PrecursorMz", library.get(0));
+
+    int columnIdx = columnNameToIndex.get("ModifiedPeptideSequence");
+    Set<String> modifiedPeptides = library.stream().skip(1).map(p -> p[columnIdx]).collect(Collectors.toSet());
+    Set<Float> modMasses = collectAllMods(modifiedPeptides);
+    if (lightAaMassMap != null) {
+      modMasses.addAll(lightAaMassMap.values());
+    }
+    if (mediumAaMassMap != null) {
+      modMasses.addAll(mediumAaMassMap.values());
+    }
+    if (heavyAaMassMap != null) {
+      modMasses.addAll(heavyAaMassMap.values());
+    }
+    theoModMasses = removeClosedModifications(modMasses);
+
+    Table<String, String, IonEntry> diannTable = HashBasedTable.create();
+    Map<String, String[]> sequenceProteinMap = readDiannReport(diannReportPath, diannTable);
+
+    Table<String, String, IonPair> ionRunPairTable = pairIons(diannTable);
+
+    WriteCombinedLabelQuantTables writeCombinedLabelQuantTables = new WriteCombinedLabelQuantTables(lightAaMassMap, mediumAaMassMap, heavyAaMassMap, ionRunPairTable, sequenceProteinMap);
+    writeCombinedLabelQuantTables.writeCombinedIonLabelQuant(outputDirectory.resolve("combined_ion_label_quant.tsv"));
+    writeCombinedLabelQuantTables.writeCombinedModifiedPeptideLabelQuant(outputDirectory.resolve("combined_modified_peptide_label_quant.tsv"));
+    writeCombinedLabelQuantTables.writeCombinedSequenceLabelQuant(outputDirectory.resolve("combined_peptide_label_quant.tsv"));
+    writeCombinedLabelQuantTables.writeCombinedProteinLabelQuant(outputDirectory.resolve("combined_protein_label_quant.tsv"));
+  }
+
+  private Table<String, String, IonPair> pairIons(Table<String, String, IonEntry> diannTable) throws Exception {
+    String[] runArray = diannTable.rowKeySet().toArray(new String[0]);
+    ExecutorService executorService = Executors.newFixedThreadPool(nThreads);
+    int multi = Math.min(nThreads * 8, runArray.length);
+    List<Future<Table<String, String, IonPair>>> futureList = new ArrayList<>(multi);
+    for (int i = 0; i < multi; ++i) {
+      final int currentThread = i;
+      futureList.add(executorService.submit(() -> {
+        Table<String, String, IonPair> localTable = HashBasedTable.create();
+        int start = (int) ((currentThread * ((long) runArray.length)) / multi);
+        int end = (int) (((currentThread + 1) * ((long) runArray.length)) / multi);
+        for (int j = start; j < end; ++j) {
+          String run = runArray[j];
+          Collection<IonEntry> ionEntries = diannTable.row(run).values();
+          Map<String, List<IonEntry>> labelFreeIonEntryMap = ionEntries.stream().collect(Collectors.groupingBy(e -> e.labelFreeIonID));
+          for (Map.Entry<String, List<IonEntry>> e : labelFreeIonEntryMap.entrySet()) {
+            String labelFreeIonID = e.getKey();
+            Map<Integer, List<IonEntry>> labelTypeIonEntryMap = e.getValue().stream().collect(Collectors.groupingBy(ee -> ee.labelType));
+            IonPair ionPair = null;
+            if (labelTypeIonEntryMap.size() == 3) {
+              IonEntry[] bestPair = findBestPair(labelTypeIonEntryMap.get(0), labelTypeIonEntryMap.get(1), labelTypeIonEntryMap.get(2));
+              ionPair = new IonPair(bestPair[0], bestPair[1], bestPair[2]);
+            } else if (labelTypeIonEntryMap.size() == 2) {
+              Integer[] keyArray = labelTypeIonEntryMap.keySet().toArray(new Integer[0]);
+              IonEntry[] bestPair = findBestPair(labelTypeIonEntryMap.get(keyArray[0]), labelTypeIonEntryMap.get(keyArray[1]));
+              if (keyArray[0] == 1 && keyArray[1] == 2) {
+                ionPair = new IonPair(bestPair[0], bestPair[1], null);
+              } else if (keyArray[0] == 1 && keyArray[1] == 3) {
+                ionPair = new IonPair(bestPair[0], null, bestPair[1]);
+              } else if (keyArray[0] == 2 && keyArray[1] == 3) {
+                ionPair = new IonPair(null, bestPair[0], bestPair[1]);
+              }
+            } else if (labelTypeIonEntryMap.size() == 1) {
+              float tt = 0;
+              IonEntry bestIonEntry = null;
+              for (IonEntry ionEntry : labelTypeIonEntryMap.values().iterator().next()) {
+                if (ionEntry.intensity > tt) {
+                  tt = ionEntry.intensity;
+                  bestIonEntry = ionEntry;
+                }
+              }
+
+              Integer[] keyArray = labelTypeIonEntryMap.keySet().toArray(new Integer[0]);
+              if (keyArray[0] == 1) {
+                ionPair = new IonPair(bestIonEntry, null, null);
+              } else if (keyArray[0] == 2) {
+                ionPair = new IonPair(null, bestIonEntry, null);
+              } else if (keyArray[0] == 3) {
+                ionPair = new IonPair(null, null, bestIonEntry);
+              }
+            }
+
+            if (ionPair != null) {
+              IonPair old = localTable.get(run, labelFreeIonID);
+              if (old == null || old.getTotalIntensity() < ionPair.getTotalIntensity()) {
+                localTable.put(run, labelFreeIonID, ionPair);
+              }
+            }
+          }
+        }
+
+        return localTable;
+      }));
+    }
+
+    Table<String, String, IonPair> ionRunPairTable = TreeBasedTable.create();
+    for (Future<Table<String, String, IonPair>> future : futureList) {
+      ionRunPairTable.putAll(Tables.transpose(future.get()));
+    }
+
+    executorService.shutdown();
+    if (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
+      executorService.shutdownNow();
+      if (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
+        throw new InterruptedException("Thread pool did not terminate normally.");
+      }
+    }
+
+    return ionRunPairTable;
+  }
+
+  private IonEntry[] findBestPair(List<IonEntry> list1, List<IonEntry> list2, List<IonEntry> list3) {
+    float gap = Float.MAX_VALUE;
+    float summedIntensity = 0;
+    IonEntry[] pickedPair = new IonEntry[3];
+    for (IonEntry x : list1) {
+      for (IonEntry y : list2) {
+        for (IonEntry z : list3) {
+          float rtDiff = Math.abs(x.apexRt - y.apexRt) + Math.abs(y.apexRt - z.apexRt) + Math.abs(z.apexRt - x.apexRt);
+          float tt = x.intensity + y.intensity + z.intensity;
+          if (rtDiff < gap || (rtDiff == gap && tt > summedIntensity)) {
+            gap = rtDiff;
+            summedIntensity = tt;
+            pickedPair[0] = x;
+            pickedPair[1] = y;
+            pickedPair[2] = z;
+          }
+        }
+      }
+    }
+    return pickedPair;
+  }
+
+  private IonEntry[] findBestPair(List<IonEntry> list1, List<IonEntry> list2) {
+    float gap = Float.MAX_VALUE;
+    float summedIntensity = 0;
+    IonEntry[] pickedPair = new IonEntry[2];
+    for (IonEntry x : list1) {
+      for (IonEntry y : list2) {
+        float rtDiff = Math.abs(x.apexRt - y.apexRt);
+        float tt = x.intensity + y.intensity;
+        if ((rtDiff < gap) || (rtDiff == gap && tt > summedIntensity)) {
+          gap = rtDiff;
+          summedIntensity = tt;
+          pickedPair[0] = x;
+          pickedPair[1] = y;
+        }
+      }
+    }
+    return pickedPair;
   }
 
   private Map<String, Integer> getColumnIndexMap(Path path, String firstColumnName, String[] header) {
@@ -559,6 +733,72 @@ public class PlexDiaHelper {
     writer.close();
   }
 
+  private Map<String, String[]> readDiannReport(Path path, Table<String, String, IonEntry> diannTable) throws Exception {
+    BufferedReader reader = Files.newBufferedReader(path);
+    ForkJoinPool forkJoinPool = new ForkJoinPool(nThreads);
+    List<String[]> diann = forkJoinPool.submit(() ->
+        reader.lines()
+            .parallel()
+            .filter(l -> !l.isEmpty())
+            .map(l -> tabPattern.split(l, -1)) // -1 to keep trailing empty strings
+            .collect(Collectors.toList())
+    ).get();
+    forkJoinPool.shutdown();
+    reader.close();
+
+    Map<String, Integer> columnNameToIndex = getColumnIndexMap(path, "File.Name", diann.get(0));
+
+    int runIdx = columnNameToIndex.get("Run");
+    int modifiedSequenceIdx = columnNameToIndex.get("Modified.Sequence");
+    int strippedSequenceIdx = columnNameToIndex.get("Stripped.Sequence");
+    int precursorChargeIdx = columnNameToIndex.get("Precursor.Charge");
+    int rtIdx = columnNameToIndex.get("RT");
+    int precursorNormalisedIdx = columnNameToIndex.get("Precursor.Normalised");
+    int proteinGroupIdx = columnNameToIndex.get("Protein.Group");
+    int proteinIdsIdx = columnNameToIndex.get("Protein.Ids");
+    int proteinNamesIdx = columnNameToIndex.get("Protein.Names");
+    int genesIdx = columnNameToIndex.get("Genes");
+
+    forkJoinPool = new ForkJoinPool(nThreads);
+    List<IonEntry> ionEntryList = forkJoinPool.submit(() ->
+        diann.parallelStream()
+            .skip(1)
+            .map(l -> new IonEntry(
+                l[runIdx],
+                new Peptide(l[modifiedSequenceIdx]),
+                Byte.parseByte(l[precursorChargeIdx]),
+                Float.parseFloat(l[rtIdx]),
+                Float.parseFloat(l[precursorNormalisedIdx])
+            ))
+            .collect(Collectors.toList())
+    ).get();
+    forkJoinPool.shutdown();
+
+    for (IonEntry ionEntry : ionEntryList) {
+      IonEntry tt = diannTable.get(ionEntry.run, ionEntry.ion);
+      if (tt == null || tt.intensity < ionEntry.intensity) {
+        diannTable.put(ionEntry.run, ionEntry.ion, ionEntry);
+      }
+    }
+
+    forkJoinPool = new ForkJoinPool(nThreads);
+    Map<String, String[]> sequenceProteinMap = forkJoinPool.submit(() -> // todo: check
+        diann.parallelStream()
+            .skip(1)
+            .collect(Collectors.groupingBy(
+                l -> l[strippedSequenceIdx],
+                HashMap::new,
+                Collectors.mapping(l -> new String[]{
+                    l[proteinGroupIdx],
+                      l[proteinIdsIdx],
+                      l[proteinNamesIdx],
+                      l[genesIdx]},
+                    Collectors.collectingAndThen(Collectors.toList(), list -> list.get(0)))))
+    ).get();
+    forkJoinPool.shutdown();
+
+    return sequenceProteinMap;
+  }
 
   private static float myToFloat(String s, float defaultValue) {
     try {
@@ -576,7 +816,9 @@ public class PlexDiaHelper {
     final int peptideLength;
     final float[] modMasses; // The first element is N-term modification
 
+    private String labelFreePeptide = null;
     private Integer labelType = null;
+    private Integer labelCount = null;
 
     Peptide(String inputString) {
       if (!inputString.startsWith("n")) {
@@ -738,6 +980,67 @@ public class PlexDiaHelper {
       }
 
       return labelType;
+    }
+
+    int getLabelCount() {
+      if (labelCount == null) {
+        labelCount = 0;
+        char[] aaArray = ("n" + peptideSequence).toCharArray();
+        int labelType = detectLabelTypes();
+        if (labelType == 1) {
+          for (int i = 0; i < modMasses.length; ++i) {
+            Float tt = lightAaMassMap.get(aaArray[i]);
+            if (tt != null && Math.abs(modMasses[i] - tt) < threshold) {
+              ++labelCount;
+            }
+          }
+        } else if (labelType == 2) {
+          for (int i = 0; i < modMasses.length; ++i) {
+            Float tt = mediumAaMassMap.get(aaArray[i]);
+            if (tt != null && Math.abs(modMasses[i] - tt) < threshold) {
+              ++labelCount;
+            }
+          }
+        } else if (labelType == 3) {
+          for (int i = 0; i < modMasses.length; ++i) {
+            Float tt = heavyAaMassMap.get(aaArray[i]);
+            if (tt != null && Math.abs(modMasses[i] - tt) < threshold) {
+              ++labelCount;
+            }
+          }
+        }
+      }
+      return labelCount;
+    }
+
+    String getLabelFreePeptide() {
+      if (labelFreePeptide == null) {
+        int labelType = detectLabelTypes();
+        if (labelType == 1) {
+          labelFreePeptide = stripLabels(lightAaMassMap);
+        } else if (labelType == 2) {
+          labelFreePeptide = stripLabels(mediumAaMassMap);
+        } else if (labelType == 3) {
+          labelFreePeptide = stripLabels(heavyAaMassMap);
+        } else {
+          labelFreePeptide = modifiedPeptide;
+        }
+      }
+      return labelFreePeptide;
+    }
+
+    private String stripLabels(Map<Character, Float> aaMassMap) {
+      char[] aaArray = ("n" + peptideSequence).toCharArray();
+      float[] modMasses2 = Arrays.copyOf(modMasses, modMasses.length);
+
+      for (int i = 0; i < aaArray.length; i++) {
+        Float mass1 = aaMassMap.get(aaArray[i]);
+        if (mass1 != null && Math.abs(modMasses[i] - mass1) < threshold) {
+          modMasses2[i] = 0;
+        }
+      }
+
+      return (new Peptide("n" + peptideSequence, modMasses2)).modifiedPeptide;
     }
 
     @Override

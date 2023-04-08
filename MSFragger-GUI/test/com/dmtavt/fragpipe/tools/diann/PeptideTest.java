@@ -172,4 +172,34 @@ public class PeptideTest {
     peptide = plexDiaHelper.new Peptide("n[4.025107]DLDHAC(UniMod:4)IIK[140.3424]");
     assertEquals(Integer.valueOf(2), peptide.detectLabelTypes());
   }
+
+  @Test
+  public void testGetLabelCount() {
+    Peptide peptide = plexDiaHelper.new Peptide("n(UniMod:259)DLEEDHAC(UniMod:4)IPIK(UniMod:259)K(UniMod:259)");
+    assertEquals(3, peptide.getLabelCount());
+
+    peptide = plexDiaHelper.new Peptide("nDLC(UniMod:4)IPIK[120.0023]K");
+    assertEquals(2, peptide.getLabelCount());
+
+    peptide = plexDiaHelper.new Peptide("n(UniMod:1)DLEEDHAC(UniMod:4)IPKK(UniMod:481)");
+    assertEquals(0, peptide.getLabelCount());
+
+    peptide = plexDiaHelper.new Peptide("n[4.025107]DLDHAC(UniMod:4)IIK[140.3424]");
+    assertEquals(1, peptide.getLabelCount());
+  }
+
+  @Test
+  public void testGetLabelFreePeptide() {
+    Peptide peptide = plexDiaHelper.new Peptide("n(UniMod:259)DLEEDHAC(UniMod:4)IPIK(UniMod:259)K(UniMod:259)");
+    assertEquals("DLEEDHAC[57.021465]IPIKK", peptide.getLabelFreePeptide());
+
+    peptide = plexDiaHelper.new Peptide("nDLC(UniMod:4)IPIK[120.0023]K");
+    assertEquals("DLC[57.021465]IPIK[-8.092659]K", peptide.getLabelFreePeptide());
+
+    peptide = plexDiaHelper.new Peptide("n(UniMod:1)DLEEDHAC(UniMod:4)IPKK(UniMod:481)");
+    assertEquals("n[42.010567]DLEEDHAC[57.021465]IPKK[4.025107]", peptide.getLabelFreePeptide());
+
+    peptide = plexDiaHelper.new Peptide("n[4.025107]DLDHAC(UniMod:4)IIK[140.3424]");
+    assertEquals("DLDHAC[57.021465]IIK[12.247452]", peptide.getLabelFreePeptide());
+  }
 }
