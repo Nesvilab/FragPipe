@@ -25,7 +25,6 @@ import static com.dmtavt.fragpipe.util.Utils.threshold;
 
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.util.UnimodOboReader;
-import com.github.chhh.utils.StringUtils;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -247,9 +246,6 @@ public class PlexDiaHelper {
     Multimap<String, Transition> transitions = collectTransitions(library, columnNameToIndex);
     appendComplementTransitions(transitions);
 
-    if (outputPath == null) {
-      outputPath = Paths.get(StringUtils.upToLastDot(libraryPath.toAbsolutePath().toString()) + "_plex.tsv");
-    }
     writeLibrary(transitions, outputPath);
   }
 
