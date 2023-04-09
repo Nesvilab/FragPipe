@@ -131,7 +131,7 @@ public class PlexDiaHelper {
       PlexDiaHelper plexDiaHelper = new PlexDiaHelper(nThreads, lightAaMassMap, mediumAaMassMap, heavyAaMassMap);
 
       if (outputLibraryPath != null) {
-        plexDiaHelper.generateNewLibrary(libraryPath, outputLibraryPath);
+        plexDiaHelper.generateNewLibrary2(libraryPath, outputLibraryPath);
       } else if (diannReportPath != null && outputDirectory != null) {
         plexDiaHelper.pairAndWriteReport(libraryPath, diannReportPath, outputDirectory);
       }
@@ -245,6 +245,70 @@ public class PlexDiaHelper {
 
     Multimap<String, Transition> transitions = collectTransitions(library, columnNameToIndex);
     appendComplementTransitions(transitions);
+
+    writeLibrary(transitions, outputPath);
+  }
+
+  void generateNewLibrary2(Path libraryPath, Path outputPath) throws Exception {
+    BufferedReader reader = Files.newBufferedReader(libraryPath);
+
+    ForkJoinPool forkJoinPool = new ForkJoinPool(nThreads);
+    List<String[]> library = forkJoinPool.submit(() ->
+        reader.lines()
+            .parallel()
+            .filter(l -> !l.isEmpty())
+            .map(l -> tabPattern.split(l, -1)) // -1 to keep trailing empty strings
+            .collect(Collectors.toList())
+    ).get();
+    forkJoinPool.shutdown();
+
+    reader.close();
+
+    Map<String, Integer> columnNameToIndex = getColumnIndexMap(libraryPath, "PrecursorMz", library.get(0));
+
+    int columnIdx = columnNameToIndex.get("ModifiedPeptideSequence");
+    Set<String> modifiedPeptides = library.stream().skip(1).map(p -> p[columnIdx]).collect(Collectors.toSet());
+
+    Set<Float> modMasses = collectAllMods(modifiedPeptides);
+
+    if (lightAaMassMap != null) {
+      modMasses.addAll(lightAaMassMap.values());
+    }
+    if (mediumAaMassMap != null) {
+      modMasses.addAll(mediumAaMassMap.values());
+    }
+    if (heavyAaMassMap != null) {
+      modMasses.addAll(heavyAaMassMap.values());
+    }
+
+    theoModMasses = removeClosedModifications(modMasses);
+
+    if (lightAaMassMap != null) {
+      Map<Character, Float> t = new HashMap<>();
+      for (Map.Entry<Character, Float> e : lightAaMassMap.entrySet()) {
+        t.put(e.getKey(), correctModMass(e.getValue(), theoModMasses));
+      }
+      lightAaMassMap.putAll(t);
+    }
+
+    if (mediumAaMassMap != null) {
+      Map<Character, Float> t = new HashMap<>();
+      for (Map.Entry<Character, Float> e : mediumAaMassMap.entrySet()) {
+        t.put(e.getKey(), correctModMass(e.getValue(), theoModMasses));
+      }
+      mediumAaMassMap.putAll(t);
+    }
+
+    if (heavyAaMassMap != null) {
+      Map<Character, Float> t = new HashMap<>();
+      for (Map.Entry<Character, Float> e : heavyAaMassMap.entrySet()) {
+        t.put(e.getKey(), correctModMass(e.getValue(), theoModMasses));
+      }
+      heavyAaMassMap.putAll(t);
+    }
+
+    Multimap<String, Transition> transitions = collectTransitions(library, columnNameToIndex);
+    generateLightOnlyTransitions(transitions);
 
     writeLibrary(transitions, outputPath);
   }
@@ -616,6 +680,34 @@ public class PlexDiaHelper {
       }
     }
     transitions.putAll(complementaryTransitions);
+  }
+
+  private void generateLightOnlyTransitions(Multimap<String, Transition> transitions) { // remove heavy precursors and append light precursors if there are only heavy ones
+    // assume that the light label always exist. Generate light precursors for all medium and heavy ones
+    Multimap<String, Transition> complementaryLightTransitions = HashMultimap.create();
+    Set<String> transitionsToRemove = new HashSet<>();
+    for (Map.Entry<String, Transition> e : transitions.entries()) {
+      Transition transition1 = e.getValue();
+      Peptide peptide1 = transition1.peptide;
+      int labelType = peptide1.detectLabelTypes();
+      if (labelType == 2) {
+        transitionsToRemove.add(e.getKey());
+        if (mediumAaMassMap != null && lightAaMassMap != null) {
+          sub(transitions, peptide1, transition1, complementaryLightTransitions, mediumAaMassMap, lightAaMassMap);
+        }
+      } else if (labelType == 3) {
+        transitionsToRemove.add(e.getKey());
+        if (heavyAaMassMap != null && lightAaMassMap != null) {
+          sub(transitions, peptide1, transition1, complementaryLightTransitions, heavyAaMassMap, lightAaMassMap);
+        }
+      }
+    }
+
+    // remove medium and heavy precursors
+    for (String key : transitionsToRemove) {
+      transitions.removeAll(key);
+    }
+    transitions.putAll(complementaryLightTransitions);
   }
 
   private static void sub(Multimap<String, Transition> transitions, Peptide peptide1, Transition transition1, Multimap<String, Transition> complementaryTransitions, Map<Character, Float> aaMassMap1, Map<Character, Float> aaMassMap2) {
