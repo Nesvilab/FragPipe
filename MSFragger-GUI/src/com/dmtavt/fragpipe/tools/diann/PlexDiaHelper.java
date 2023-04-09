@@ -244,13 +244,13 @@ public class PlexDiaHelper {
       heavyAaMassMap.putAll(t);
     }
 
-    Multimap<String, Transaction> transactions = collectTransactions(library, columnNameToIndex);
-    appendComplementTransactions(transactions);
+    Multimap<String, Transition> transitions = collectTransitions(library, columnNameToIndex);
+    appendComplementTransitions(transitions);
 
     if (outputPath == null) {
       outputPath = Paths.get(StringUtils.upToLastDot(libraryPath.toAbsolutePath().toString()) + "_plex.tsv");
     }
-    writeLibrary(transactions, outputPath);
+    writeLibrary(transitions, outputPath);
   }
 
   void pairAndWriteReport(Path libraryPath, Path diannReportPath, Path outputDirectory) throws Exception {
@@ -496,7 +496,7 @@ public class PlexDiaHelper {
     return sb.toString();
   }
 
-  private Multimap<String, Transaction> collectTransactions(List<String[]> library, Map<String, Integer> columnNameToIndex) throws Exception {
+  private Multimap<String, Transition> collectTransitions(List<String[]> library, Map<String, Integer> columnNameToIndex) throws Exception {
     int precursorMzIdx = columnNameToIndex.get("PrecursorMz");
     int modifiedPeptideSequenceIdx = columnNameToIndex.get("ModifiedPeptideSequence");
     int precursorChargeIdx = columnNameToIndex.get("PrecursorCharge");
@@ -513,7 +513,7 @@ public class PlexDiaHelper {
     int averageExperimentalRetentionTimeIdx = columnNameToIndex.get("AverageExperimentalRetentionTime");
 
     ForkJoinPool forkJoinPool = new ForkJoinPool(nThreads);
-    Map<String, List<String[]>> transactionFragmentMap = forkJoinPool.submit(() ->
+    Map<String, List<String[]>> transitionFragmentMap = forkJoinPool.submit(() ->
         library.stream()
             .skip(1)
             .parallel()
@@ -526,14 +526,14 @@ public class PlexDiaHelper {
     ).get();
     forkJoinPool.shutdown();
 
-    List[] ttArray = transactionFragmentMap.values().toArray(new List[0]);
+    List[] ttArray = transitionFragmentMap.values().toArray(new List[0]);
     ExecutorService executorService = Executors.newFixedThreadPool(nThreads);
     int multi = Math.min(nThreads * 8, ttArray.length);
-    List<Future<Multimap<String, Transaction>>> futures = new ArrayList<>(multi);
+    List<Future<Multimap<String, Transition>>> futures = new ArrayList<>(multi);
     for (int i = 0; i < multi; ++i) {
       final int currentThread = i;
       futures.add(executorService.submit(() -> {
-        Multimap<String, Transaction> localMap = HashMultimap.create();
+        Multimap<String, Transition> localMap = HashMultimap.create();
         int start = (int) ((currentThread * ((long) ttArray.length)) / multi);
         int end = (int) (((currentThread + 1) * ((long) ttArray.length)) / multi);
         for (int j = start; j < end; ++j) {
@@ -557,7 +557,7 @@ public class PlexDiaHelper {
             }
           }
           String[] ss = tt.get(0);
-          Transaction transaction = new Transaction(
+          Transition transition = new Transition(
               Float.parseFloat(ss[precursorMzIdx]),
               mzFragmentMap.values().toArray(new Fragment[0]),
               ss[proteinIdIdx],
@@ -568,15 +568,15 @@ public class PlexDiaHelper {
               myToFloat(ss[precursorIonMobilityIdx], 0),
               myToFloat(ss[averageExperimentalRetentionTimeIdx], 0)
           );
-          localMap.put(transaction.peptide.modifiedPeptide + transaction.peptideCharge, transaction);
+          localMap.put(transition.peptide.modifiedPeptide + transition.peptideCharge, transition);
         }
         return localMap;
       }));
     }
 
-    Multimap<String, Transaction> transactions = HashMultimap.create();
-    for (Future<Multimap<String, Transaction>> future : futures) {
-      transactions.putAll(future.get());
+    Multimap<String, Transition> transitions = HashMultimap.create();
+    for (Future<Multimap<String, Transition>> future : futures) {
+      transitions.putAll(future.get());
     }
 
     executorService.shutdown();
@@ -587,52 +587,52 @@ public class PlexDiaHelper {
       }
     }
 
-    return transactions;
+    return transitions;
   }
 
-  private void appendComplementTransactions(Multimap<String, Transaction> transactions) {
-    Multimap<String, Transaction> complementaryTransactions = HashMultimap.create();
-    for (Map.Entry<String, Transaction> e : transactions.entries()) {
-      Transaction transaction1 = e.getValue();
-      Peptide peptide1 = transaction1.peptide;
+  private void appendComplementTransitions(Multimap<String, Transition> transitions) {
+    Multimap<String, Transition> complementaryTransitions = HashMultimap.create();
+    for (Map.Entry<String, Transition> e : transitions.entries()) {
+      Transition transition1 = e.getValue();
+      Peptide peptide1 = transition1.peptide;
       int labelType = peptide1.detectLabelTypes();
       if (labelType == 1) {
         if (mediumAaMassMap != null && lightAaMassMap != null) {
-          sub(transactions, peptide1, transaction1, complementaryTransactions, lightAaMassMap, mediumAaMassMap);
+          sub(transitions, peptide1, transition1, complementaryTransitions, lightAaMassMap, mediumAaMassMap);
         }
         if (heavyAaMassMap != null && lightAaMassMap != null) {
-          sub(transactions, peptide1, transaction1, complementaryTransactions, lightAaMassMap, heavyAaMassMap);
+          sub(transitions, peptide1, transition1, complementaryTransitions, lightAaMassMap, heavyAaMassMap);
         }
       } else if (labelType == 2) {
         if (mediumAaMassMap != null && lightAaMassMap != null) {
-          sub(transactions, peptide1, transaction1, complementaryTransactions, mediumAaMassMap, lightAaMassMap);
+          sub(transitions, peptide1, transition1, complementaryTransitions, mediumAaMassMap, lightAaMassMap);
         }
         if (mediumAaMassMap != null && heavyAaMassMap != null) {
-          sub(transactions, peptide1, transaction1, complementaryTransactions, mediumAaMassMap, heavyAaMassMap);
+          sub(transitions, peptide1, transition1, complementaryTransitions, mediumAaMassMap, heavyAaMassMap);
         }
       } else if (labelType == 3) {
         if (heavyAaMassMap != null && lightAaMassMap != null) {
-          sub(transactions, peptide1, transaction1, complementaryTransactions, heavyAaMassMap, lightAaMassMap);
+          sub(transitions, peptide1, transition1, complementaryTransitions, heavyAaMassMap, lightAaMassMap);
         }
         if (heavyAaMassMap != null && mediumAaMassMap != null) {
-          sub(transactions, peptide1, transaction1, complementaryTransactions, heavyAaMassMap, mediumAaMassMap);
+          sub(transitions, peptide1, transition1, complementaryTransitions, heavyAaMassMap, mediumAaMassMap);
         }
       }
     }
-    transactions.putAll(complementaryTransactions);
+    transitions.putAll(complementaryTransitions);
   }
 
-  private static void sub(Multimap<String, Transaction> transactions, Peptide peptide1, Transaction transaction1, Multimap<String, Transaction> complementaryTransactions, Map<Character, Float> aaMassMap1, Map<Character, Float> aaMassMap2) {
+  private static void sub(Multimap<String, Transition> transitions, Peptide peptide1, Transition transition1, Multimap<String, Transition> complementaryTransitions, Map<Character, Float> aaMassMap1, Map<Character, Float> aaMassMap2) {
     Peptide peptide2 = peptide1.getComplementaryPeptide(aaMassMap1, aaMassMap2);
 
-    Collection<Transaction> tt = transactions.get(peptide2.modifiedPeptide + transaction1.peptideCharge);
+    Collection<Transition> tt = transitions.get(peptide2.modifiedPeptide + transition1.peptideCharge);
     if (tt.isEmpty()) {
-      Transaction transaction2 = getComplementaryTransaction(transaction1, peptide1, peptide2);
-      complementaryTransactions.put(peptide2.modifiedPeptide + transaction1.peptideCharge, transaction2);
+      Transition transition2 = getComplementaryTransition(transition1, peptide1, peptide2);
+      complementaryTransitions.put(peptide2.modifiedPeptide + transition1.peptideCharge, transition2);
     }
   }
 
-  private static Transaction getComplementaryTransaction(Transaction transaction1, Peptide peptide1, Peptide peptide2) {
+  private static Transition getComplementaryTransition(Transition transition1, Peptide peptide1, Peptide peptide2) {
     float[] modMasses1 = peptide1.modMasses;
     float[] modMasses2 = peptide2.modMasses;
     float[] massDiffArray = new float[modMasses1.length];
@@ -640,9 +640,9 @@ public class PlexDiaHelper {
       massDiffArray[i] = modMasses2[i] - modMasses1[i];
     }
 
-    float precursorMz2 = transaction1.precursorMz;
+    float precursorMz2 = transition1.precursorMz;
     for (float deltaMass : massDiffArray) {
-      precursorMz2 += deltaMass / transaction1.peptideCharge;
+      precursorMz2 += deltaMass / transition1.peptideCharge;
     }
 
     float[] bIonMassDiffArray = new float[massDiffArray.length];
@@ -658,9 +658,9 @@ public class PlexDiaHelper {
     }
 
     // Use a float[] instead of a Map for fragments2
-    Fragment[] fragments2 = new Fragment[transaction1.fragments.length];
+    Fragment[] fragments2 = new Fragment[transition1.fragments.length];
     int index = 0;
-    for (Fragment fragment1 : transaction1.fragments) {
+    for (Fragment fragment1 : transition1.fragments) {
       float mz2 = fragment1.mz;
 
       if (fragment1.type == 'a' || fragment1.type == 'b' || fragment1.type == 'c') {
@@ -671,10 +671,10 @@ public class PlexDiaHelper {
       fragments2[index++] = new Fragment(mz2, fragment1.intensity, fragment1.type, fragment1.charge, fragment1.ordinal, fragment1.lossType);
     }
 
-    return new Transaction(precursorMz2, fragments2, transaction1.proteinId, transaction1.geneName, peptide2, transaction1.peptideCharge, transaction1.normalizedRetentionTime, transaction1.precursorIonMobility, transaction1.averageExperimentRetentionTime);
+    return new Transition(precursorMz2, fragments2, transition1.proteinId, transition1.geneName, peptide2, transition1.peptideCharge, transition1.normalizedRetentionTime, transition1.precursorIonMobility, transition1.averageExperimentRetentionTime);
   }
 
-  private static void writeLibrary(Multimap<String, Transaction> transactions, Path outputPath) throws Exception {
+  private static void writeLibrary(Multimap<String, Transition> transitions, Path outputPath) throws Exception {
     BufferedWriter writer = Files.newBufferedWriter(outputPath);
     writer.write("PrecursorMz\t"
         + "ProductMz\t"
@@ -693,37 +693,37 @@ public class PlexDiaHelper {
         + "FragmentLossType\t"
         + "AverageExperimentalRetentionTime\n");
 
-    List<Transaction> allTransactions = new ArrayList<>(transactions.values());
-    allTransactions.sort(Comparator.naturalOrder());
+    List<Transition> allTransitions = new ArrayList<>(transitions.values());
+    allTransitions.sort(Comparator.naturalOrder());
 
     // Create a single StringBuilder instance
     StringBuilder sb = new StringBuilder();
 
-    for (Transaction transaction : allTransactions) {
-      String peptideSequence = transaction.peptide.peptideSequence;
-      String unimodPeptide = transaction.peptide.getUnimodPeptide();
+    for (Transition transition : allTransitions) {
+      String peptideSequence = transition.peptide.peptideSequence;
+      String unimodPeptide = transition.peptide.getUnimodPeptide();
 
-      for (Fragment fragment : transaction.fragments) {
+      for (Fragment fragment : transition.fragments) {
         // Reset the StringBuilder
         sb.setLength(0);
 
         // Use the StringBuilder to build the output line
-        sb.append(transaction.precursorMz).append("\t")
+        sb.append(transition.precursorMz).append("\t")
             .append(fragment.mz).append("\t")
             .append(fragment).append("\t")
-            .append(transaction.proteinId).append("\t")
-            .append(transaction.geneName).append("\t")
+            .append(transition.proteinId).append("\t")
+            .append(transition.geneName).append("\t")
             .append(peptideSequence).append("\t")
             .append(unimodPeptide).append("\t")
-            .append(transaction.peptideCharge).append("\t")
+            .append(transition.peptideCharge).append("\t")
             .append(fragment.intensity).append("\t")
-            .append(transaction.normalizedRetentionTime).append("\t")
-            .append(Math.abs(transaction.precursorIonMobility) > threshold ? transaction.precursorIonMobility : "").append("\t")
+            .append(transition.normalizedRetentionTime).append("\t")
+            .append(Math.abs(transition.precursorIonMobility) > threshold ? transition.precursorIonMobility : "").append("\t")
             .append(fragment.type).append("\t")
             .append(fragment.charge).append("\t")
             .append(fragment.ordinal).append("\t")
             .append(fragment.lossType).append("\t")
-            .append(transaction.averageExperimentRetentionTime).append("\n");
+            .append(transition.averageExperimentRetentionTime).append("\n");
 
         // Write the output line
         writer.write(sb.toString());

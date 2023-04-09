@@ -3,7 +3,7 @@ package com.dmtavt.fragpipe.tools.diann;
 import com.dmtavt.fragpipe.tools.diann.PlexDiaHelper.Peptide;
 import com.google.common.collect.ComparisonChain;
 
-class Transaction implements Comparable<Transaction> {
+class Transition implements Comparable<Transition> {
 
   final float precursorMz;
   final Fragment[] fragments;
@@ -15,7 +15,7 @@ class Transaction implements Comparable<Transaction> {
   final float precursorIonMobility;
   final float averageExperimentRetentionTime;
 
-  Transaction(float precursorMz, Fragment[] fragments, String proteinId, String geneName, Peptide peptide, byte peptideCharge, float normalizedRetentionTime, float precursorIonMobility, float averageExperimentRetentionTime) {
+  Transition(float precursorMz, Fragment[] fragments, String proteinId, String geneName, Peptide peptide, byte peptideCharge, float normalizedRetentionTime, float precursorIonMobility, float averageExperimentRetentionTime) {
     this.precursorMz = precursorMz;
     this.fragments = fragments;
     this.proteinId = proteinId;
@@ -28,7 +28,7 @@ class Transaction implements Comparable<Transaction> {
   }
 
   @Override
-  public int compareTo(Transaction o) {
+  public int compareTo(Transition o) {
     return ComparisonChain.start()
         .compare(precursorMz, o.precursorMz)
         .compare(peptide, o.peptide)
@@ -40,8 +40,8 @@ class Transaction implements Comparable<Transaction> {
 
   @Override
   public boolean equals(Object o) {
-    if (o instanceof Transaction) {
-      return compareTo((Transaction) o) == 0;
+    if (o instanceof Transition) {
+      return compareTo((Transition) o) == 0;
     } else {
       return false;
     }
