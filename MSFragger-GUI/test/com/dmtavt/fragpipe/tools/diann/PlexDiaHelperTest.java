@@ -71,7 +71,7 @@ public class PlexDiaHelperTest {
     reader.close();
 
     // load generated library
-    BufferedReader reader2 = Files.newBufferedReader(expectedLibraryPath);
+    BufferedReader reader2 = Files.newBufferedReader(generatedLibraryPath);
     List<String[]> generatedLibrary = reader2.lines()
         .parallel()
         .filter(l -> !l.isEmpty())
@@ -122,7 +122,7 @@ public class PlexDiaHelperTest {
     reader.close();
 
     // load generated library
-    BufferedReader reader2 = Files.newBufferedReader(expectedLibraryPath);
+    BufferedReader reader2 = Files.newBufferedReader(generatedLibraryPath);
     List<String[]> generatedLibrary = reader2.lines()
         .parallel()
         .filter(l -> !l.isEmpty())
