@@ -131,7 +131,7 @@ public class PlexDiaHelper {
       PlexDiaHelper plexDiaHelper = new PlexDiaHelper(nThreads, lightAaMassMap, mediumAaMassMap, heavyAaMassMap);
 
       if (outputLibraryPath != null) {
-        plexDiaHelper.generateNewLibrary2(libraryPath, outputLibraryPath);
+        plexDiaHelper.generateNewLibrary2(libraryPath, outputLibraryPath, true);
       } else if (diannReportPath != null && outputDirectory != null) {
         plexDiaHelper.pairAndWriteReport(libraryPath, diannReportPath, outputDirectory);
       }
@@ -249,7 +249,7 @@ public class PlexDiaHelper {
     writeLibrary(transitions, outputPath);
   }
 
-  void generateNewLibrary2(Path libraryPath, Path outputPath) throws Exception {
+  void generateNewLibrary2(Path libraryPath, Path outputPath, boolean removeUnlabeledTransitions) throws Exception {
     BufferedReader reader = Files.newBufferedReader(libraryPath);
 
     ForkJoinPool forkJoinPool = new ForkJoinPool(nThreads);
@@ -308,7 +308,7 @@ public class PlexDiaHelper {
     }
 
     Multimap<String, Transition> transitions = collectTransitions(library, columnNameToIndex);
-    generateLightOnlyTransitions(transitions);
+    generateLightOnlyTransitions(transitions, removeUnlabeledTransitions);
 
     writeLibrary(transitions, outputPath);
   }
@@ -682,7 +682,7 @@ public class PlexDiaHelper {
     transitions.putAll(complementaryTransitions);
   }
 
-  private void generateLightOnlyTransitions(Multimap<String, Transition> transitions) { // remove heavy precursors and append light precursors if there are only heavy ones
+  private void generateLightOnlyTransitions(Multimap<String, Transition> transitions, boolean removeUnlabeledTransitions) { // remove heavy precursors and append light precursors if there are only heavy ones
     // assume that the light label always exist. Generate light precursors for all medium and heavy ones
     Multimap<String, Transition> complementaryLightTransitions = HashMultimap.create();
     Set<String> transitionsToRemove = new HashSet<>();
@@ -700,6 +700,8 @@ public class PlexDiaHelper {
         if (heavyAaMassMap != null && lightAaMassMap != null) {
           sub(transitions, peptide1, transition1, complementaryLightTransitions, heavyAaMassMap, lightAaMassMap);
         }
+      } else if (labelType == 0 && removeUnlabeledTransitions) {
+        transitionsToRemove.add(e.getKey());
       }
     }
 
