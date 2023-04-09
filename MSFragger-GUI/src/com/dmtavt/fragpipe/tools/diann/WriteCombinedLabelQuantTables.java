@@ -28,8 +28,6 @@ class WriteCombinedLabelQuantTables {
   private final Table<String, String, PeptidePair> peptideRunPairTable = HashBasedTable.create();
   private final Table<String, String, PeptidePair> sequenceRunPairTable = HashBasedTable.create();
 
-  // todo: add medium normalization?
-
   WriteCombinedLabelQuantTables(Map<Character, Float> lightAaMassMap, Map<Character, Float> mediumAaMassMap, Map<Character, Float> heavyAaMassMap, Table<String, String, IonPair> ionRunPairTable, Map<String, String[]> sequenceProteinMap) {
     this.lightAaMassMap = lightAaMassMap;
     this.mediumAaMassMap = mediumAaMassMap;

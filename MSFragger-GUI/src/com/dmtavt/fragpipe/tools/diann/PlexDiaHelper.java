@@ -872,7 +872,7 @@ public class PlexDiaHelper {
     }
 
     forkJoinPool = new ForkJoinPool(nThreads);
-    Map<String, String[]> sequenceProteinMap = forkJoinPool.submit(() -> // todo: check
+    Map<String, String[]> sequenceProteinMap = forkJoinPool.submit(() ->
         diann.parallelStream()
             .skip(1)
             .collect(Collectors.groupingBy(
@@ -999,32 +999,33 @@ public class PlexDiaHelper {
       StringBuilder sb = new StringBuilder();
       char[] aaArray = ("n" + peptideSequence).toCharArray();
       for (int i = 0; i < aaArray.length; ++i) {
+        char aa = aaArray[i];
+        float modMass = modMasses[i];
         if (i > 0) {
-          sb.append(aaArray[i]);
+          sb.append(aa);
         }
-        if (Math.abs(modMasses[i]) > 0) {
-          final int ii = i;
+        if (Math.abs(modMass) > 0) {
           Set<Float> massSet = massSiteUnimodTable.rowKeySet().stream()
-              .filter(mass -> Math.abs(modMasses[ii] - mass) < threshold)
-              .filter(mass -> massSiteUnimodTable.contains(mass, aaArray[ii]))
+              .filter(mass -> Math.abs(modMass - mass) < threshold)
+              .filter(mass -> massSiteUnimodTable.contains(mass, aa))
               .collect(Collectors.toSet());
 
           if (massSet.isEmpty()) {
             if (i == 0) {
-              sb.append("[").append(modMasses[i]).append("]");
+              sb.append("[").append(modMass).append("]");
             } else {
-              sb.append("[").append(modMasses[i] + AAMasses[aaArray[i] - 'A']).append("]");
+              sb.append("[").append(modMass + AAMasses[aa - 'A']).append("]");
             }
           } else {
             float gap = Float.MAX_VALUE;
             Float selectedKey = null;
             for (Float v : massSet) {
-              if (Math.abs(modMasses[i] - v) < gap) {
-                gap = Math.abs(modMasses[i] - v);
+              if (Math.abs(modMass - v) < gap) {
+                gap = Math.abs(modMass - v);
                 selectedKey = v;
               }
             }
-            sb.append("(").append("UniMod:").append(massSiteUnimodTable.get(selectedKey, aaArray[i])).append(")");
+            sb.append("(").append("UniMod:").append(massSiteUnimodTable.get(selectedKey, aa)).append(")");
           }
         }
       }
