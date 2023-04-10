@@ -144,7 +144,7 @@ public class PlexDiaHelper {
   }
 
   private static Map<Character, Float> parseLabel(String inputStr) {
-    Map<Character, Float> outputMap = new HashMap<>();
+    Map<Character, Float> outputMap = new TreeMap<>();
     Matcher matcher = labelPattern.matcher(inputStr.trim());
     while (matcher.find()) {
       char[] aas = matcher.group(1).toCharArray();
