@@ -57,7 +57,7 @@ public class PlexDiaHelperTest {
     heavyLabels.put('R', 10.008269f);
 
     PlexDiaHelper plexDiaHelper = new PlexDiaHelper(11, lightLabels, mediumLabels, heavyLabels);
-    plexDiaHelper.generateNewLibrary(libraryPath, generatedLibraryPath);
+    plexDiaHelper.generateNewLibrary(libraryPath, generatedLibraryPath, false);
 
     Path expectedLibraryPath = Paths.get(Objects.requireNonNull(PlexDiaHelperTest.class.getResource("/library_1_expected_plex.tsv")).toURI());
 
@@ -108,7 +108,7 @@ public class PlexDiaHelperTest {
     heavyLabels.put('C', 624.36722f);
 
     PlexDiaHelper plexDiaHelper = new PlexDiaHelper(11, lightLabels, mediumLabels, heavyLabels);
-    plexDiaHelper.generateNewLibrary(libraryPath, generatedLibraryPath);
+    plexDiaHelper.generateNewLibrary(libraryPath, generatedLibraryPath, false);
 
     Path expectedLibraryPath = Paths.get(Objects.requireNonNull(PlexDiaHelperTest.class.getResource("/library_2_expected_plex.tsv")).toURI());
 
@@ -163,7 +163,7 @@ public class PlexDiaHelperTest {
     heavyLabels.put('R', 10.008269f);
 
     PlexDiaHelper plexDiaHelper = new PlexDiaHelper(11, lightLabels, mediumLabels, heavyLabels);
-    plexDiaHelper.generateNewLibrary2(libraryPath, generatedLibraryPath, false);
+    plexDiaHelper.generateNewLibrary2(libraryPath, generatedLibraryPath, false, false);
 
     Path expectedLibraryPath = Paths.get(Objects.requireNonNull(PlexDiaHelperTest.class.getResource("/library_1_expected_light_only.tsv")).toURI());
 
@@ -214,7 +214,7 @@ public class PlexDiaHelperTest {
     heavyLabels.put('C', 624.36722f);
 
     PlexDiaHelper plexDiaHelper = new PlexDiaHelper(11, lightLabels, mediumLabels, heavyLabels);
-    plexDiaHelper.generateNewLibrary2(libraryPath, generatedLibraryPath, false);
+    plexDiaHelper.generateNewLibrary2(libraryPath, generatedLibraryPath, false, false);
 
     Path expectedLibraryPath = Paths.get(Objects.requireNonNull(PlexDiaHelperTest.class.getResource("/library_2_expected_light_only.tsv")).toURI());
 
@@ -269,7 +269,7 @@ public class PlexDiaHelperTest {
     heavyLabels.put('R', 10.008269f);
 
     PlexDiaHelper plexDiaHelper = new PlexDiaHelper(11, lightLabels, mediumLabels, heavyLabels);
-    plexDiaHelper.generateNewLibrary2(libraryPath, generatedLibraryPath, true);
+    plexDiaHelper.generateNewLibrary2(libraryPath, generatedLibraryPath, true, false);
 
     Path expectedLibraryPath = Paths.get(Objects.requireNonNull(PlexDiaHelperTest.class.getResource("/library_1_expected_light_only_2.tsv")).toURI());
 
@@ -320,9 +320,64 @@ public class PlexDiaHelperTest {
     heavyLabels.put('C', 624.36722f);
 
     PlexDiaHelper plexDiaHelper = new PlexDiaHelper(11, lightLabels, mediumLabels, heavyLabels);
-    plexDiaHelper.generateNewLibrary2(libraryPath, generatedLibraryPath, true);
+    plexDiaHelper.generateNewLibrary2(libraryPath, generatedLibraryPath, true, false);
 
     Path expectedLibraryPath = Paths.get(Objects.requireNonNull(PlexDiaHelperTest.class.getResource("/library_2_expected_light_only_2.tsv")).toURI());
+
+    // load expected library
+    BufferedReader reader = Files.newBufferedReader(expectedLibraryPath);
+    List<String[]> expectedLibrary = reader.lines()
+        .parallel()
+        .filter(l -> !l.isEmpty())
+        .map(l -> tabPattern.split(l, -1)) // -1 to keep trailing empty strings
+        .collect(Collectors.toList());
+    reader.close();
+
+    // load generated library
+    BufferedReader reader2 = Files.newBufferedReader(generatedLibraryPath);
+    List<String[]> generatedLibrary = reader2.lines()
+        .parallel()
+        .filter(l -> !l.isEmpty())
+        .map(l -> tabPattern.split(l, -1)) // -1 to keep trailing empty strings
+        .collect(Collectors.toList());
+    reader.close();
+
+    // compare results
+    assertEquals(expectedLibrary.size(), generatedLibrary.size());
+    for (int i = 0; i < expectedLibrary.size(); ++i) {
+      String[] expected = expectedLibrary.get(i);
+      String[] generated = generatedLibrary.get(i);
+      assertEquals(expected.length, generated.length);
+      for (int j = 0; j < expected.length; ++j) {
+        if (i > 0 && (j == 0 || j == 1 || j == 8 || j == 9 || j == 15)) {
+          assertEquals(Float.parseFloat(expected[j]), Float.parseFloat(generated[j]), 0.001);
+        } else {
+          assertEquals(expected[j], generated[j]);
+        }
+      }
+    }
+  }
+
+  @Test
+  public void testPreparePlexLibrary7() throws Exception {
+    Path libraryPath = Paths.get(Objects.requireNonNull(PlexDiaHelperTest.class.getResource("/library_3.tsv")).toURI());
+    Path generatedLibraryPath = libraryPath.getParent().resolve("library_3_light_only.tsv");
+
+    TreeMap<Character, Float> lightLabels = new TreeMap<>();
+    TreeMap<Character, Float> mediumLabels = new TreeMap<>();
+    TreeMap<Character, Float> heavyLabels = new TreeMap<>();
+
+    lightLabels.put('K', 0f);
+    lightLabels.put('R', 0f);
+    mediumLabels.put('K', 4.025107f);
+    mediumLabels.put('R', 6.020129f);
+    heavyLabels.put('K', 8.014199f);
+    heavyLabels.put('R', 10.008269f);
+
+    PlexDiaHelper plexDiaHelper = new PlexDiaHelper(11, lightLabels, mediumLabels, heavyLabels);
+    plexDiaHelper.generateNewLibrary2(libraryPath, generatedLibraryPath, true, false);
+
+    Path expectedLibraryPath = Paths.get(Objects.requireNonNull(PlexDiaHelperTest.class.getResource("/library_3_expected_light_only_2.tsv")).toURI());
 
     // load expected library
     BufferedReader reader = Files.newBufferedReader(expectedLibraryPath);

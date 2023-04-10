@@ -131,7 +131,7 @@ public class PlexDiaHelper {
       PlexDiaHelper plexDiaHelper = new PlexDiaHelper(nThreads, lightAaMassMap, mediumAaMassMap, heavyAaMassMap);
 
       if (outputLibraryPath != null) {
-        plexDiaHelper.generateNewLibrary2(libraryPath, outputLibraryPath, true);
+        plexDiaHelper.generateNewLibrary2(libraryPath, outputLibraryPath, true, true);
       } else if (diannReportPath != null && outputDirectory != null) {
         plexDiaHelper.pairAndWriteReport(libraryPath, diannReportPath, outputDirectory);
       }
@@ -185,7 +185,7 @@ public class PlexDiaHelper {
     massSiteUnimodTable = unimodOboReader.massSiteUnimodTable;
   }
 
-  void generateNewLibrary(Path libraryPath, Path outputPath) throws Exception {
+  void generateNewLibrary(Path libraryPath, Path outputPath, boolean replaceLabelMods) throws Exception {
     BufferedReader reader = Files.newBufferedReader(libraryPath);
 
     ForkJoinPool forkJoinPool = new ForkJoinPool(nThreads);
@@ -246,10 +246,10 @@ public class PlexDiaHelper {
     Multimap<String, Transition> transitions = collectTransitions(library, columnNameToIndex);
     appendComplementTransitions(transitions);
 
-    writeLibrary(transitions, outputPath);
+    writeLibrary(transitions, outputPath, replaceLabelMods);
   }
 
-  void generateNewLibrary2(Path libraryPath, Path outputPath, boolean removeUnlabeledTransitions) throws Exception {
+  void generateNewLibrary2(Path libraryPath, Path outputPath, boolean removeUnlabeledTransitions, boolean replaceLabelMods) throws Exception {
     BufferedReader reader = Files.newBufferedReader(libraryPath);
 
     ForkJoinPool forkJoinPool = new ForkJoinPool(nThreads);
@@ -310,7 +310,7 @@ public class PlexDiaHelper {
     Multimap<String, Transition> transitions = collectTransitions(library, columnNameToIndex);
     generateLightOnlyTransitions(transitions, removeUnlabeledTransitions);
 
-    writeLibrary(transitions, outputPath);
+    writeLibrary(transitions, outputPath, replaceLabelMods);
   }
 
   void pairAndWriteReport(Path libraryPath, Path diannReportPath, Path outputDirectory) throws Exception {
@@ -764,7 +764,7 @@ public class PlexDiaHelper {
     return new Transition(precursorMz2, fragments2, transition1.proteinId, transition1.geneName, peptide2, transition1.peptideCharge, transition1.normalizedRetentionTime, transition1.precursorIonMobility, transition1.averageExperimentRetentionTime);
   }
 
-  private static void writeLibrary(Multimap<String, Transition> transitions, Path outputPath) throws Exception {
+  private static void writeLibrary(Multimap<String, Transition> transitions, Path outputPath, boolean replaceLabelMods) throws Exception {
     BufferedWriter writer = Files.newBufferedWriter(outputPath);
     writer.write("PrecursorMz\t"
         + "ProductMz\t"
@@ -791,7 +791,7 @@ public class PlexDiaHelper {
 
     for (Transition transition : allTransitions) {
       String peptideSequence = transition.peptide.peptideSequence;
-      String unimodPeptide = transition.peptide.getUnimodPeptide();
+      String unimodPeptide = transition.peptide.getUnimodPeptide(replaceLabelMods);
 
       for (Fragment fragment : transition.fragments) {
         // Reset the StringBuilder
@@ -995,7 +995,7 @@ public class PlexDiaHelper {
       return new Peptide("n" + peptideSequence, modMasses2);
     }
 
-    String getUnimodPeptide() {
+    String getUnimodPeptide(boolean replaceLabeledMods) {
       StringBuilder sb = new StringBuilder();
       char[] aaArray = ("n" + peptideSequence).toCharArray();
       for (int i = 0; i < aaArray.length; ++i) {
@@ -1004,7 +1004,26 @@ public class PlexDiaHelper {
         if (i > 0) {
           sb.append(aa);
         }
-        if (Math.abs(modMass) > 0) {
+
+        // Some labels, such as light SILAC, have 0 modification mass.
+        boolean done = false;
+        if (replaceLabeledMods) {
+          Float lightValue = lightAaMassMap != null ? lightAaMassMap.get(aa) : null;
+          Float mediumValue = mediumAaMassMap != null ? mediumAaMassMap.get(aa) : null;
+          Float heavyValue = heavyAaMassMap != null ? heavyAaMassMap.get(aa) : null;
+          if (lightValue != null && Math.abs(modMass - lightValue) < threshold) {
+            sb.append("[").append("label").append("]");
+            done = true;
+          } else if (mediumValue != null && Math.abs(modMass - mediumValue) < threshold) {
+            sb.append("[").append("label_M").append("]");
+            done = true;
+          } else if (heavyValue != null && Math.abs(modMass - heavyValue) < threshold) {
+            sb.append("[").append("label_H").append("]");
+            done = true;
+          }
+        }
+
+        if (Math.abs(modMass) > 0 && !done) {
           Set<Float> massSet = massSiteUnimodTable.rowKeySet().stream()
               .filter(mass -> Math.abs(modMass - mass) < threshold)
               .filter(mass -> massSiteUnimodTable.contains(mass, aa))

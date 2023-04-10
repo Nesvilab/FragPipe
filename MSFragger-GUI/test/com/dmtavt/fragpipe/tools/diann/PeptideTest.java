@@ -142,20 +142,39 @@ public class PeptideTest {
   @Test
   public void testGetUnimodPeptide() {
     Peptide peptide = plexDiaHelper.new Peptide("nDLEEDHAC(UniMod:4)IPIK(UniMod:259)K(UniMod:259)");
-    String outString = peptide.getUnimodPeptide();
+    String outString = peptide.getUnimodPeptide(false);
     assertEquals("DLEEDHAC(UniMod:4)IPIK(UniMod:259)K(UniMod:259)", outString);
 
     peptide = plexDiaHelper.new Peptide("nDLC[160.030]IPIK[120.0023]K");
-    outString = peptide.getUnimodPeptide();
+    outString = peptide.getUnimodPeptide(false);
     assertEquals("DLC(UniMod:4)IPIK[120.0023]K", outString);
 
     peptide = plexDiaHelper.new Peptide("[42.010569]DLEEDHAC[160.030658]IPKK[136.109159]");
-    outString = peptide.getUnimodPeptide();
+    outString = peptide.getUnimodPeptide(false);
     assertEquals("(UniMod:1)DLEEDHAC(UniMod:4)IPKK(UniMod:259)", outString);
 
     peptide = plexDiaHelper.new Peptide("n[4.025107]DLDHAC(UniMod:4)IIK[132.120067]");
-    outString = peptide.getUnimodPeptide();
+    outString = peptide.getUnimodPeptide(false);
     assertEquals("[4.025107]DLDHAC(UniMod:4)IIK(UniMod:481)", outString);
+  }
+
+  @Test
+  public void testGetUnimodPeptide2() {
+    Peptide peptide = plexDiaHelper.new Peptide("nDLEEDHAC(UniMod:4)IPIK(UniMod:259)K(UniMod:259)");
+    String outString = peptide.getUnimodPeptide(true);
+    assertEquals("[label]DLEEDHAC(UniMod:4)IPIK[label_H]K[label_H]", outString);
+
+    peptide = plexDiaHelper.new Peptide("nDLC[160.030]IPIK[120.0023]K");
+    outString = peptide.getUnimodPeptide(true);
+    assertEquals("[label]DLC(UniMod:4)IPIK[120.0023]K[label]", outString);
+
+    peptide = plexDiaHelper.new Peptide("[42.010569]DLEEDHAC[160.030658]IPKK[136.109159]");
+    outString = peptide.getUnimodPeptide(true);
+    assertEquals("(UniMod:1)DLEEDHAC(UniMod:4)IPK[label]K[label_H]", outString);
+
+    peptide = plexDiaHelper.new Peptide("n[4.025107]DLDHAC(UniMod:4)IIK[132.120067]");
+    outString = peptide.getUnimodPeptide(true);
+    assertEquals("[label_M]DLDHAC(UniMod:4)IIK[label_M]", outString);
   }
 
   @Test
