@@ -47,8 +47,11 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 import org.apache.commons.io.FilenameUtils;
@@ -67,7 +70,7 @@ public class CmdDiann extends CmdBase {
   public static final String DIANN_LINUX = "diann/1.8.2_beta_8/linux/diann-1.8.1.8";
   private static final List<String> SUPPORTED_FORMATS_WIN = Arrays.asList("mzML", "d", "dia", "wiff", "raw");
   private static final List<String> SUPPORTED_FORMATS_LINUX = Arrays.asList("mzML", "d", "dia");
-
+  private static final Pattern labelPattern = Pattern.compile("([A-Znc*]+)([\\d.+-]+)");
 
   public CmdDiann(boolean isRun, Path workDir) {
     super(isRun, workDir);
@@ -298,6 +301,14 @@ public class CmdDiann extends CmdBase {
         cmd.add("--dl-no-im");
         cmd.add("--strip-unknown-mods");
       }
+      if (isRunPlex) {
+        try {
+          cmd.addAll(getPlexDiannFlags(lightString, mediumString, heavyString));
+        } catch (Exception e) {
+          SwingUtils.showErrorDialog(comp, e.getMessage(), "Error parsing plex settings");
+          return false;
+        }
+      }
       if (!additionalCmdOpts.isEmpty()) {
         cmd.add(additionalCmdOpts);
       }
@@ -446,6 +457,112 @@ public class CmdDiann extends CmdBase {
 
     isConfigured = true;
     return true;
+  }
+
+  private static List<String> getPlexDiannFlags(String lightString, String mediumString, String heavyString) throws Exception {
+    List<String> cmds = new ArrayList<>(6);
+
+    if (lightString == null || lightString.isEmpty()) {
+      throw new Exception("Light string must not be empty in plexDIA mode.");
+    }
+
+    Map<Character, Float> lightAaMap = parseLabel(lightString);
+    Map<Character, Float> mediumAaMap = null;
+    Map<Character, Float> heavyAaMap = null;
+
+    if (lightAaMap == null) {
+      throw new Exception("Light string must not be empty in plexDIA mode.");
+    }
+
+    if (mediumString != null && !mediumString.isEmpty()) {
+      mediumAaMap = parseLabel(mediumString);
+      if (mediumAaMap == null) {
+        throw new Exception("Medium label setting is not empty but could not parse it: " + mediumString);
+      }
+      if (!lightAaMap.keySet().equals(mediumAaMap.keySet())) {
+        throw new Exception("Light and medium labels must have the same amino acids.");
+      }
+    }
+
+    if (heavyString != null && !heavyString.isEmpty()) {
+      heavyAaMap = parseLabel(heavyString);
+      if (heavyAaMap == null) {
+        throw new Exception("Heavy label setting is not empty but could not parse it: " + heavyString);
+      }
+      if (!lightAaMap.keySet().equals(heavyAaMap.keySet())) {
+        throw new Exception("Light and heavy labels must have the same amino acids.");
+      }
+    }
+
+    Matcher matcher = labelPattern.matcher(lightString.trim());
+    while (matcher.find()) {
+      cmds.add("--fixed-mod");
+      cmds.add("label," + matcher.group(2) + "," + matcher.group(1) + ",label");
+    }
+
+    cmds.add("--channels");
+    cmds.add(getChannel(lightAaMap, mediumAaMap, heavyAaMap));
+
+    cmds.add("--peak-translation");
+    cmds.add("--original-mods");
+
+    return cmds;
+  }
+
+  private static String getChannel(Map<Character, Float> lightAaMap, Map<Character, Float> mediumAaMap, Map<Character, Float> heavyAaMap) {
+    List<String> channelList = new ArrayList<>();
+
+    channelList.add(buildChannelString("L", lightAaMap, lightAaMap));
+
+    if (mediumAaMap != null && !mediumAaMap.isEmpty()) {
+      channelList.add(buildChannelString("M", mediumAaMap, lightAaMap));
+    }
+
+    if (heavyAaMap != null && !heavyAaMap.isEmpty()) {
+      channelList.add(buildChannelString("H", heavyAaMap, lightAaMap));
+    }
+
+    return String.join(";", channelList);
+  }
+
+  private static String buildChannelString(String label, Map<Character, Float> labelAaMap, Map<Character, Float> lightAaMap) {
+    String aaKeys = labelAaMap.keySet().stream().map(String::valueOf).collect(Collectors.joining());
+    String deltaMasses = labelAaMap.entrySet().stream()
+        .map(entry -> {
+          if (!lightAaMap.containsKey(entry.getKey())) {
+            throw new NullPointerException("The " + label + " labeled amino acid " + entry.getKey() + " with delta mass" + entry.getValue() + " was not found in the base labels.");
+          }
+          return String.valueOf(entry.getValue() - lightAaMap.get(entry.getKey()));
+        })
+        .collect(Collectors.joining(":"));
+
+    return String.format("label,%s,%s,%s", label, aaKeys, deltaMasses);
+  }
+
+  private static Map<Character, Float> parseLabel(String inputStr) {
+    Map<Character, Float> outputMap = new TreeMap<>();
+    Matcher matcher = labelPattern.matcher(inputStr.trim());
+    while (matcher.find()) {
+      char[] aas = matcher.group(1).toCharArray();
+      float modMass = Float.parseFloat(matcher.group(2));
+      for (char aa : aas) {
+        if (aa == '*') {
+          for (int i = 65; i < 91; ++i) {
+            outputMap.put((char) i, modMass);
+          }
+          outputMap.put('n', modMass);
+          outputMap.put('c', modMass);
+        } else {
+          outputMap.put(aa, modMass);
+        }
+      }
+    }
+
+    if (outputMap.isEmpty()) {
+      return null;
+    } else {
+      return outputMap;
+    }
   }
 
   private boolean checkCompatibleFormats(Component comp, List<InputLcmsFile> inputLcmsFiles, List<String> supportedFormats) {
