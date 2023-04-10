@@ -194,7 +194,7 @@ public class DiannPanel extends JPanelBase {
     FormEntry feCmdOpts = fe(uiTextCmdOpts, "cmd-opts")
         .label("Cmd line opts:")
         .tooltip("These options will be passed on to DIA-NN.\n"
-            + "This set will be merged with precursor FDR and quantification strategy.\n"
+            + "This set will be merged with other options in this tab.\n"
             + "To set --threads, please adjust the Parallelism setting in the Workflow tab.\n"
             + "See output log (e.g. dry-run results) for the complete command.").create();
 
@@ -227,15 +227,15 @@ public class DiannPanel extends JPanelBase {
     uiTextHeavy = UiUtils.uiTextBuilder().cols(40).create();
 
     FormEntry feLight = new FormEntry("light", "Light    ", uiTextLight,
-        "String description of mass deltas. <b>A-Z</b> for amino acids, <b>n</b> for N-terminus, <b>c</b> for C-terminus, and <b>*</b> for any amino acids.<br>"
+        "String description of mass deltas. <b>A-Z</b> for amino acids and <b>n</b> for N-terminus.<br>"
             + "E.g. (1) for SILAC: <b>K0;R0</b> (2) for dimethyl labeling: <b>Kn28.0313</b><br>"
             + "If the amino acid has both fixed and variable modifications, should sum up the <b>both</b> masses.");
     FormEntry feMedium = new FormEntry("medium", "Medium", uiTextMedium,
-        "String description of mass deltas. <b>A-Z</b> for amino acids, <b>n</b> for N-terminus, <b>c</b> for C-terminus, and <b>*</b> for any amino acids.<br>"
+        "String description of mass deltas. <b>A-Z</b> for amino acids and <b>n</b> for N-terminus.<br>"
             + "E.g. for SILAC: <b>K4.025107;R6.020129</b><br>"
             + "If the amino acid has both fixed and variable modifications, should sum up the <b>both</b> masses.");
     FormEntry feHeavy = new FormEntry("heavy", "Heavy  ", uiTextHeavy,
-        "String description of mass deltas. <b>A-Z</b> for amino acids, <b>n</b> for N-terminus, <b>c</b> for C-terminus, and <b>*</b> for any amino acids.<br>"
+        "String description of mass deltas. <b>A-Z</b> for amino acids and <b>n</b> for N-terminus.<br>"
             + "E.g. (1) for SILAC: <b>K8.014199;R10.008269</b> (2) for dimethyl labeling: <b>Kn36.075670</b><br>"
             + "If the amino acid has both fixed and variable modifications, should sum up the <b>both</b> masses.");
 
