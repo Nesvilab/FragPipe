@@ -67,13 +67,17 @@ public class CmdMsfragger extends CmdBase {
   private static volatile Path pathBruker = PATH_NONE;
   private static final List<String> timsdataPattern = Arrays.asList("^timsdata.*\\.dll", "^libtimsdata.*\\.so");
   private final FraggerOutputType fraggerOutputType;
+  private final int outputReportTopNDia1;
+  private final int outputReportTopNDia2;
   private MsfraggerParams paramsDda;
   private MsfraggerParams paramsDia;
   private MsfraggerParams paramsGpfDia;
 
-  public CmdMsfragger(boolean isRun, Path workDir, FraggerOutputType fraggerOutputType) {
+  public CmdMsfragger(boolean isRun, Path workDir, FraggerOutputType fraggerOutputType, int outputReportTopNDia1, int outputReportTopNDia2) {
     super(isRun, workDir);
     this.fraggerOutputType = fraggerOutputType;
+    this.outputReportTopNDia1 = outputReportTopNDia1;
+    this.outputReportTopNDia2 = outputReportTopNDia2;
   }
 
   @Override
@@ -96,13 +100,13 @@ public class CmdMsfragger extends CmdBase {
         int maxRank = 5;
         if (f.getDataType().contentEquals("DIA") || f.getDataType().contentEquals("DIA-Lib")) {
           if (paramsDia == null) {
-            maxRank = 5; // The report_topN_rank is 5 by default for DIA data.
+            maxRank = outputReportTopNDia1;
           } else {
             maxRank = paramsDia.getOutputReportTopN();
           }
         } else if (f.getDataType().contentEquals("GPF-DIA")) {
           if (paramsGpfDia == null) {
-            maxRank = 3; // The report_topN_rank is 3 by default for GPF-DIA data.
+            maxRank = outputReportTopNDia2;
           } else {
             maxRank = paramsGpfDia.getOutputReportTopN();
           }
@@ -625,7 +629,7 @@ public class CmdMsfragger extends CmdBase {
 
     if (dataType.contentEquals("DIA")) {
       paramsNew.setDataType(1);
-      paramsNew.setOutputReportTopN(Math.max(5, params.getOutputReportTopN()));
+      paramsNew.setOutputReportTopN(outputReportTopNDia1);
       paramsNew.setPrecursorTrueUnits(MassTolUnits.PPM);
       paramsNew.setPrecursorTrueTolerance(10);
       if (params.getPrecursorMassUnits() == PrecursorMassTolUnits.PPM) {
@@ -638,7 +642,7 @@ public class CmdMsfragger extends CmdBase {
       }
     } else if (dataType.contentEquals("GPF-DIA")) {
       paramsNew.setDataType(2);
-      paramsNew.setOutputReportTopN(Math.max(3, params.getOutputReportTopN()));
+      paramsNew.setOutputReportTopN(outputReportTopNDia2);
     }
   }
 

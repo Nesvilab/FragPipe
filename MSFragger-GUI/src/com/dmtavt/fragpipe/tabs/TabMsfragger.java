@@ -358,6 +358,9 @@ public class TabMsfragger extends JPanelBase {
   private UiCheck uiCheckWriteCalibratedMzml;
   private UiCheck uiCheckWriteUncalibratedMgf;
   private UiCombo uiComboGroupVariable;
+  private UiSpinnerInt uiSpinnerOutputReportTopNDda;
+  private UiSpinnerInt uiSpinnerOutputReportTopNDia1;
+  private UiSpinnerInt uiSpinnerOutputReportTopNDia2;
 
   @Override
   protected ItemSelectable getRunCheckbox() {
@@ -1345,10 +1348,22 @@ public class TabMsfragger extends JPanelBase {
   private JPanel createPanelAdvancedOutput() {
     JPanel p = mu.newPanel("Advanced Output Options", true);
 
+    uiSpinnerOutputReportTopNDda = new UiSpinnerInt(1, 1, 10000, 1, 4);
+    uiSpinnerOutputReportTopNDia1 = new UiSpinnerInt(5, 1, 10000, 1, 4);
+    uiSpinnerOutputReportTopNDia2 = new UiSpinnerInt(3, 1, 10000, 1, 4);
 
-    FormEntry feReportTopN = mu.feb(MsfraggerParams.PROP_output_report_topN,
-        new UiSpinnerInt(1, 1, 10000, 1, 4)).label("Report top N")
-        .tooltip("Report top N PSMs per input spectrum.").create();
+    FormEntry feReportTopNDda = mu.feb(MsfraggerParams.PROP_output_report_topN, uiSpinnerOutputReportTopNDda)
+        .label("Report top N for DDA")
+        .tooltip("Report top N PSMs per input spectrum for DDA data.").create();
+
+    FormEntry feReportTopNDia1 = mu.feb(MsfraggerParams.PROP_output_report_topN_dia1, uiSpinnerOutputReportTopNDia1)
+        .label("Report top N for DIA")
+        .tooltip("Report top N PSMs per input spectrum for DIA and DIA-Lib data type.").create();
+
+    FormEntry feReportTopNDia2 = mu.feb(MsfraggerParams.PROP_output_report_topN_dia2, uiSpinnerOutputReportTopNDia2)
+        .label("Report top N for GPF-DIA")
+        .tooltip("Report top N PSMs per input spectrum for GPF-DIA data type.").create();
+
     UiSpinnerDouble uiSpinnerOutputMaxExpect = new UiSpinnerDouble(50, 0, Double.MAX_VALUE, 1,
         new DecimalFormat("0.#"));
     uiSpinnerOutputMaxExpect.setColumns(4);
@@ -1379,17 +1394,23 @@ public class TabMsfragger extends JPanelBase {
         .tooltip("Specify the variable to group PSMs for the FDR estimation.")
         .create();
 
-    mu.add(p, feReportTopN.label(), mu.ccR());
-    mu.add(p, feReportTopN.comp).growX();
-    mu.add(p, feReportAltProts.comp);
-    mu.add(p, feOutputMaxExpect.label()).split(2).gapLeft("10px");
-    mu.add(p, feOutputMaxExpect.comp);
-    mu.add(p, feGroupVariable.label()).split(2).gapLeft("10px");
-    mu.add(p, feGroupVariable.comp).pushX().wrap();
-    mu.add(p, feOutputType.label(), mu.ccR());
+    mu.add(p, feReportTopNDda.label(), mu.ccR());
+    mu.add(p, feReportTopNDda.comp);
+    mu.add(p, feReportAltProts.comp).gapLeft("20px");
+    mu.add(p, feOutputType.label(), mu.ccR()).gapLeft("10px");
     mu.add(p, feOutputType.comp);
-    mu.add(p, feCheckWriteCalibratedMzml.comp);
-    mu.add(p, feCheckWriteUncalibratedMgf.comp).wrap();
+    mu.add(p, feOutputMaxExpect.label()).gapLeft("10px");
+    mu.add(p, feOutputMaxExpect.comp).pushX().wrap();
+
+    mu.add(p, feReportTopNDia1.label(), mu.ccR());
+    mu.add(p, feReportTopNDia1.comp);
+    mu.add(p, feCheckWriteCalibratedMzml.comp).gapLeft("20px");
+    mu.add(p, feGroupVariable.label()).gapLeft("10px");
+    mu.add(p, feGroupVariable.comp).wrap();
+
+    mu.add(p, feReportTopNDia2.label(), mu.ccR());
+    mu.add(p, feReportTopNDia2.comp).growX();
+    mu.add(p, feCheckWriteUncalibratedMgf.comp).gapLeft("20px").wrap();
 
     return p;
   }
@@ -1774,6 +1795,14 @@ public class TabMsfragger extends JPanelBase {
   public FraggerOutputType getOutputType() {
     String val = uiComboOutputType.getItemAt(uiComboOutputType.getSelectedIndex());
     return FraggerOutputType.valueOf(val);
+  }
+
+  public int getOutputReportTopNDia1() {
+    return uiSpinnerOutputReportTopNDia1.getActualValue();
+  }
+
+  public int getOutputReportTopNDia2() {
+    return uiSpinnerOutputReportTopNDia2.getActualValue();
   }
 
   private void actionBtnConfigSave(ActionEvent e) {

@@ -116,6 +116,8 @@ public class MsfraggerParams extends AbstractParams {
     public static final String PROP_max_variable_mods_combinations = "max_variable_mods_combinations";
     public static final String PROP_output_format = "output_format";
     public static final String PROP_output_report_topN = "output_report_topN";
+    public static final String PROP_output_report_topN_dia1 = "output_report_topN_dia1";
+    public static final String PROP_output_report_topN_dia2 = "output_report_topN_dia2";
     public static final String PROP_report_alternative_proteins = "report_alternative_proteins";
     public static final String PROP_output_max_expect = "output_max_expect";
     public static final String PROP_precursor_charge = "precursor_charge";
