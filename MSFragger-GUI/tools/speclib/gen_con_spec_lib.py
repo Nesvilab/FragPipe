@@ -547,7 +547,7 @@ if use_easypqp:
 	irt_df = pd.concat(dd).reset_index(drop=True)
 	irt_file = workdir / 'irt.tsv'
 	im_file = workdir / 'im.tsv'
-	# irt_df.to_csv(irt_file, index=False, sep='\t', line_terminator='\n')
+	# irt_df.to_csv(irt_file, index=False, sep='\t', lineterminator='\n')
 	'''easypqp convert --pepxml 1.pep_xml --spectra 1.mgf --exclude-range -1.5,3.5
 	easypqp convert --pepxml 2.pep_xml --spectra 2.mgf --exclude-range -1.5,3.5'''
 	'easypqp convert --pepxml interact.pep.xml --spectra 1.mgf --unimod unimod.xml --exclude-range -1.5,3.5'
@@ -761,7 +761,7 @@ def main_easypqp():
 	output_directory = workdir / 'easypqp_files'
 	output_directory.mkdir(exist_ok=overwrite)
 	if irt_choice is Irt_choice.iRT:
-		irt_df.to_csv(irt_file, index=False, sep='\t', line_terminator='\n')
+		irt_df.to_csv(irt_file, index=False, sep='\t', lineterminator='\n')
 	elif irt_choice is Irt_choice.ciRT:
 		shutil.copyfile(script_dir / 'hela_irtkit.tsv', irt_file)
 	elif irt_choice is Irt_choice.Pierce_iRT:
@@ -915,7 +915,7 @@ def edit_raw_con_lib():
 	pep_init_prob = get_pep_init_prob(p)
 	pathlib.Path('con_lib_not_in_psm_tsv.tsv').write_text(
 		t[t["Protein"].isnull()].assign(init_prob=t["PeptideSequence"].map(pep_init_prob.get).map(lambda x: "" if x is None else ','.join(x)))
-			.to_csv(sep='\t', index=False, line_terminator='\n').replace('(UniMod:5)', '(UniMod:1)')
+			.to_csv(sep='\t', index=False, lineterminator='\n').replace('(UniMod:5)', '(UniMod:1)')
 	)
 	del t['UniprotID']
 	d = {'-18': 'H2O', '-17': 'NH3', '': ''}
@@ -929,7 +929,7 @@ def edit_raw_con_lib():
 	fout = pathlib.Path('con_lib.tsv')
 	print(f'Writing {fout.resolve()}')
 	fout.write_text(
-		format_con_lib_for_DIA_NN(t[t["Protein"].notnull()]).to_csv(sep='\t', index=False, line_terminator='\n').replace('(UniMod:5)', '(UniMod:1)')
+		format_con_lib_for_DIA_NN(t[t["Protein"].notnull()]).to_csv(sep='\t', index=False, lineterminator='\n').replace('(UniMod:5)', '(UniMod:1)')
 	)
 
 if use_spectrast:
