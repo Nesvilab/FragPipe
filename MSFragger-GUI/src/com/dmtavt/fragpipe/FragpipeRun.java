@@ -18,6 +18,7 @@
 package com.dmtavt.fragpipe;
 
 import static com.dmtavt.fragpipe.messages.MessagePrintToConsole.toConsole;
+import static com.dmtavt.fragpipe.tabs.TabDatabase.databaseSizeLimit;
 import static com.github.chhh.utils.FileDelete.deleteFileOrFolder;
 
 import com.dmtavt.fragpipe.api.Bus;
@@ -279,7 +280,7 @@ public class FragpipeRun {
         return 1;
       }
 
-      if (tabMsf.getNumDbSlices() > configDb.numEntries) {
+      if (!configDb.isBigDatabase && tabMsf.getNumDbSlices() > configDb.numEntries) {
         if (Fragpipe.headless) {
           log.error("Number of split database is larger than total proteins.");
         } else {
@@ -360,12 +361,17 @@ public class FragpipeRun {
       toConsole("", tabRun.console);
       toConsole("~~~~~~Sample of " + tabDatabase.getFastaPath() + "~~~~~~~", tabRun.console);
       try {
-        List<String> proteinHeaders = Files.lines(Paths.get(tabDatabase.getFastaPath())).filter(e -> e.startsWith(">")).sorted().collect(Collectors.toList());
-        int gap = proteinHeaders.size() < 21 ? 1 : (proteinHeaders.size() - 1) / 20;    // make sure gap is always at least 1 to prevent an infinite loop
-        int idx = 0;
-        while (idx < proteinHeaders.size()) {
-          toConsole(proteinHeaders.get(idx).trim(), tabRun.console);
-          idx += gap;
+        Path p = Paths.get(tabDatabase.getFastaPath());
+        if (Files.size(p) < databaseSizeLimit) {
+          List<String> proteinHeaders = Files.lines(p).filter(e -> e.startsWith(">")).sorted().collect(Collectors.toList());
+          int gap = proteinHeaders.size() < 21 ? 1 : (proteinHeaders.size() - 1) / 20;    // make sure gap is always at least 1 to prevent an infinite loop
+          int idx = 0;
+          while (idx < proteinHeaders.size()) {
+            toConsole(proteinHeaders.get(idx).trim(), tabRun.console);
+            idx += gap;
+          }
+        } else {
+          toConsole("The fasta file " + p.toAbsolutePath() + " is very large.\nSkip printing the head samples.", tabRun.console);
         }
       } catch (Exception e) {
         toConsole("Cannot get the sample of " + tabDatabase.getFastaPath(), tabRun.console);
@@ -1980,44 +1986,46 @@ public class FragpipeRun {
       return false;
     }
 
-    double decoysPercentage = (n.decoysCnt / (double) n.numEntries);
-    if (decoysPercentage <= 0) {
-      if (Fragpipe.headless) {
-        log.error("No decoys found in the FASTA file.");
-        return false;
-      } else {
-        if (runPerconator) {
-          SwingUtils.showErrorDialog(parent, "No decoys found in the FASTA file.<br>Percolator was enabled.<br>Please check protein database tab.", "No decoys");
+    if (!n.isBigDatabase) {
+      double decoysPercentage = (n.decoysCnt / (double) n.numEntries);
+      if (decoysPercentage <= 0) {
+        if (Fragpipe.headless) {
+          log.error("No decoys found in the FASTA file.");
           return false;
-        } else if (runPeptideProphet || runReport) {
+        } else {
+          if (runPerconator) {
+            SwingUtils.showErrorDialog(parent, "No decoys found in the FASTA file.<br>Percolator was enabled.<br>Please check protein database tab.", "No decoys");
+            return false;
+          } else if (runPeptideProphet || runReport) {
+            int confirm = SwingUtils.showConfirmDialog(parent, new JLabel(
+                "<html>No decoys found in the FASTA file.<br>PeptideProphet or FDR filter and report was enabled.<br>Please check protein database tab.<br><br>You can also continue as-is, but FDR analysis will fail. Do you want to continue?"));
+            return JOptionPane.YES_OPTION == confirm;
+          }
+        }
+      } else if (decoysPercentage >= 1) {
+        if (Fragpipe.headless) {
+          log.error("All FASTA entries seem to be decoys.");
+          return false;
+        } else {
           int confirm = SwingUtils.showConfirmDialog(parent, new JLabel(
-              "<html>No decoys found in the FASTA file.<br>PeptideProphet or FDR filter and report was enabled.<br>Please check protein database tab.<br><br>You can also continue as-is, but FDR analysis will fail. Do you want to continue?"));
+              "<html>All FASTA entries seem to be decoys.<br>\n" +
+                  "Please check protein database tab.<br><br><br>\n" +
+                  "You can also continue as-is, but FDR analysis will fail. Do you want to continue?"));
           return JOptionPane.YES_OPTION == confirm;
         }
-      }
-    } else if (decoysPercentage >= 1) {
-      if (Fragpipe.headless) {
-        log.error("All FASTA entries seem to be decoys.");
-        return false;
-      } else {
-        int confirm = SwingUtils.showConfirmDialog(parent, new JLabel(
-            "<html>All FASTA entries seem to be decoys.<br>\n" +
-                "Please check protein database tab.<br><br><br>\n" +
-                "You can also continue as-is, but FDR analysis will fail. Do you want to continue?"));
-        return JOptionPane.YES_OPTION == confirm;
-      }
-    } else if (decoysPercentage < 0.4 || decoysPercentage > 0.6) {
-      DecimalFormat dfPct = new DecimalFormat("##.#'%'");
-      if (Fragpipe.headless) {
-        log.error("FASTA file contains " + dfPct.format(decoysPercentage * 100) + " decoys.");
-        return false;
-      } else {
-        int confirm = SwingUtils.showConfirmDialog(parent, new JLabel(
-            "<html>FASTA file contains " + dfPct.format(decoysPercentage * 100) + " decoys.<br>\n" +
-                "Please check protein database tab.<br><br><br>\n" +
-                "You can also continue as-is, if that's what you're expected.<br>\n"
-                + "Do you want to continue?"));
-        return JOptionPane.YES_OPTION == confirm;
+      } else if (decoysPercentage < 0.4 || decoysPercentage > 0.6) {
+        DecimalFormat dfPct = new DecimalFormat("##.#'%'");
+        if (Fragpipe.headless) {
+          log.error("FASTA file contains " + dfPct.format(decoysPercentage * 100) + " decoys.");
+          return false;
+        } else {
+          int confirm = SwingUtils.showConfirmDialog(parent, new JLabel(
+              "<html>FASTA file contains " + dfPct.format(decoysPercentage * 100) + " decoys.<br>\n" +
+                  "Please check protein database tab.<br><br><br>\n" +
+                  "You can also continue as-is, if that's what you're expected.<br>\n"
+                  + "Do you want to continue?"));
+          return JOptionPane.YES_OPTION == confirm;
+        }
       }
     }
 

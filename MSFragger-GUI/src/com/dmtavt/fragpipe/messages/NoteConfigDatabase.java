@@ -20,15 +20,18 @@ package com.dmtavt.fragpipe.messages;
 import java.nio.file.Path;
 
 public class NoteConfigDatabase implements INoteConfig {
+
   public final Path path;
   public final int numEntries;
   public final int decoysCnt;
+  public final boolean isBigDatabase;
   public final boolean isValid;
 
-  public NoteConfigDatabase(Path path, int numEntries, int decoysCnt, boolean isValid) {
+  public NoteConfigDatabase(Path path, int numEntries, int decoysCnt, boolean isBigDatabase, boolean isValid) {
     this.path = path;
     this.numEntries = numEntries;
     this.decoysCnt = decoysCnt;
+    this.isBigDatabase = isBigDatabase;
     this.isValid = isValid;
   }
 
@@ -36,6 +39,7 @@ public class NoteConfigDatabase implements INoteConfig {
     path = null;
     numEntries = -1;
     decoysCnt = -1;
+    isBigDatabase = false;
     this.isValid = false;
   }
 

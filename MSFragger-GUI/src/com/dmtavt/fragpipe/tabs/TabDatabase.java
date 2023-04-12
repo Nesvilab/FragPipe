@@ -69,8 +69,10 @@ public class TabDatabase extends JPanelWithEnablement {
   private static final MigUtils mu = MigUtils.get();
   public static final String TAB_PREFIX = "database.";
   public static final String TIP_DB_PATH = "tip.db.path";
+  public static final long databaseSizeLimit = 1 << 30L;
   private static final String TIP_DB_DOWNLOAD = "tip.db.download";
   private static final String TIP_DB_UPDATE = "tip.db.update";
+
   private UiText uiTextDbPath;
   private UiText uiTextDecoyTag;
   private JEditorPane epDbInfo;
@@ -236,17 +238,25 @@ public class TabDatabase extends JPanelWithEnablement {
 
   private void validateFasta(String path) {
     try {
-      if (path != null && !Files.exists(Paths.get(path))) {
-        log.debug("Got bad FASTA path: {}", path);
-        Bus.postSticky(new NoteConfigDatabase());
-        return;
+      if (path == null) {
+        throw new Exception("Invalid fasta file: " + path);
       }
-      Path p = PathUtils.existing(path, true);
-      FastaContent fasta = FastaUtils.readFasta(p);
-      final String tag = getDecoyTag();
-      int decoysCnt = (int)FastaUtils.getDecoysCnt(fasta.ordered.get(0), tag);
-      int protsTotal = FastaUtils.getProtsTotal(fasta.ordered.get(0));
-      Bus.postSticky(new NoteConfigDatabase(Paths.get(path), protsTotal, decoysCnt, true));
+
+      Path p = Paths.get(path);
+
+      if (!Files.exists(p) || !Files.isRegularFile(p) || !Files.isReadable(p)) {
+        throw new Exception("Invalid fasta file: " + path);
+      }
+
+      if (Files.size(p) < databaseSizeLimit) {
+        FastaContent fasta = FastaUtils.readFasta(p);
+        final String tag = getDecoyTag();
+        int decoysCnt = (int)FastaUtils.getDecoysCnt(fasta.ordered.get(0), tag);
+        int protsTotal = FastaUtils.getProtsTotal(fasta.ordered.get(0));
+        Bus.postSticky(new NoteConfigDatabase(p, protsTotal, decoysCnt, false, true));
+      } else {
+        Bus.postSticky(new NoteConfigDatabase(p, Integer.MAX_VALUE, Integer.MAX_VALUE, true, true));
+      }
     } catch (AccessDeniedException e) {
       log.warn("No access to FASTA file path: {}", path);
     } catch (Exception e) {
@@ -259,7 +269,11 @@ public class TabDatabase extends JPanelWithEnablement {
   public void on(NoteConfigDatabase m) {
     if (m.isValid) {
       uiTextDbPath.setText(m.path.toString());
-      epDbInfo.setText(String.format("File contains <b>%d entries (%d decoys: %.1f%%)", m.numEntries, m.decoysCnt, ((double)m.decoysCnt)/m.numEntries * 100.0));
+      if (m.isBigDatabase) {
+        epDbInfo.setText("The file is very big. Do not check the target and decoy counts. Please make sure that the decoy tag is correct and the percentage is 50%.");
+      } else {
+        epDbInfo.setText(String.format("File contains <b>%d entries (%d decoys: %.1f%%)", m.numEntries, m.decoysCnt, ((double)m.decoysCnt)/m.numEntries * 100.0));
+      }
     } else {
       epDbInfo.setText("");
     }
