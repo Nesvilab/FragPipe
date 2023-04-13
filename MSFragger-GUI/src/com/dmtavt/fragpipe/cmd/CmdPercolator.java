@@ -111,10 +111,7 @@ public class CmdPercolator extends CmdBase {
     return s;
   }
 
-  /**
-   * @param pepxmlFiles Either pepxml files after search or after Crystal-C.
-   */
-  public boolean configure(Component comp, Path jarFragpipe, String percolatorCmd, boolean combine, Map<InputLcmsFile, List<Path>> pepxmlFiles, boolean hasCrystalC, double minProb, String decoyTag, boolean hasCalibratedMzml) {
+  public boolean configure(Component comp, Path jarFragpipe, String percolatorCmd, boolean combine, Map<InputLcmsFile, List<Path>> pepxmlFiles, boolean hasCrystalC, double minProb, String decoyTag, boolean hasCalibratedMzml, boolean writeSubMzml) {
     PeptideProphetParams percolatorParams = new PeptideProphetParams();
     percolatorParams.setCmdLineParams(percolatorCmd);
 
@@ -132,6 +129,7 @@ public class CmdPercolator extends CmdBase {
 
     final Set<String> basenames = new HashSet<>();
     for (Entry<InputLcmsFile, List<Path>> e : pepxmlFiles.entrySet()) {
+      InputLcmsFile inputLcmsFile = e.getKey();
       for (Path pepxmlPath : e.getValue()) {
         final Path pepxmlDir = pepxmlPath.getParent();
         final String nameWithoutExt = FilenameUtils.removeExtension(pepxmlPath.getFileName().toString());
@@ -163,6 +161,21 @@ public class CmdPercolator extends CmdBase {
         if (OsUtils.isWindows()) { // The Windows version is 3.06 which needs this flag to avoid a warning. The Linux version is 3.05 which does not need this flag. TODO: change it after upgrading the Linux version.
           cmdPp.add("--protein-decoy-pattern");
           cmdPp.add(decoyTag);
+        }
+
+        if (writeSubMzml) { // This is the first-pass and there will be a second-pass. Let Percolator save the weights for the second-pass.
+          cmdPp.add("--weights");
+          cmdPp.add(strippedBaseName + "_percolator.weights");
+        }
+
+        if (inputLcmsFile.getPath().getFileName().toString().endsWith("_sub.mzML")) { // It is likely to be the sub mzML file from the first-pass. Find the weights file.
+          Path p = Paths.get(inputLcmsFile.getPath().toAbsolutePath().toString().replaceFirst("_sub\\.mzML$", "_percolator.weights"));
+          if (Files.exists(p) && Files.isRegularFile(p) && Files.isReadable(p)) {
+            cmdPp.add("--init-weights");
+            cmdPp.add(p.toAbsolutePath().toString());
+            cmdPp.add("--static");
+            cmdPp.add("--override");
+          }
         }
 
         if (msboosterPanel.isRun()) {
