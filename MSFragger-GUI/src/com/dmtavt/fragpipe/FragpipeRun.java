@@ -557,9 +557,9 @@ public class FragpipeRun {
                 if (line.startsWith("tab-run.write_sub_mzml")) {
                   line = "tab-run.write_sub_mzml=false";
                 } else if (line.startsWith("percolator.run-percolator")) {
-                  line = "percolator.run-percolator=false";
+                  line = "percolator.run-percolator=true";
                 } else if (line.startsWith("peptide-prophet.run-peptide-prophet")) {
-                  line = "peptide-prophet.run-peptide-prophet=true";
+                  line = "peptide-prophet.run-peptide-prophet=false";
                 } else if (line.startsWith("phi-report.print-decoys")) {
                   line = "phi-report.print-decoys=false";
                 } else if (line.startsWith("msfragger.calibrate_mass")) {
