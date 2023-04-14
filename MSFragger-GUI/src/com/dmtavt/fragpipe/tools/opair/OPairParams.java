@@ -29,6 +29,7 @@ public class OPairParams {
     private String activation1;
     private String activation2;
     private boolean filterOxonium;
+    private String oxoRulesFilePath;
 
     public double getProductPPMtol() {
         return productPPMtol;
@@ -105,4 +106,13 @@ public class OPairParams {
     public boolean isFilterOxonium() { return filterOxonium; }
 
     public void setFilterOxonium(boolean filterOxonium) { this.filterOxonium = filterOxonium; }
+
+    public String getOxoRulesFilePath() {
+        return oxoRulesFilePath;
+    }
+
+    public void setOxoRulesFilePath(String newPath) {
+        oxoRulesFilePath = newPath;
+    }
+
 }

@@ -130,7 +130,11 @@ public class CmdOPair  extends CmdBase {
             cmd.add("-b " + params.getProductPPMtol());
             cmd.add("-c " + params.getPrecursorPPMtol());
             if (params.isFilterOxonium()) {
-                cmd.add("-f true");
+                if (params.getOxoRulesFilePath().isEmpty()) {
+                    cmd.add("-f default");
+                } else {
+                    cmd.add("-f " + params.getOxoRulesFilePath());
+                }
             }
             if (params.getOglycanDB().length() > 0) {
                 cmd.add("-g " + params.getOglycanDB());

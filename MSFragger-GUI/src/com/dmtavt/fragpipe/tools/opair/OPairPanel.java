@@ -57,6 +57,7 @@ public class OPairPanel extends JPanelBase {
     private static final MigUtils mu = MigUtils.get();
     private UiCheck checkRun;
     private UiText uiTextOGlycanDBFile;
+    private UiText uiTextOxoRuleFile;
 
     private static final String PROP_ms2TolPPM = "ms2_tol";
     private static final String PROP_ms1TolPPM = "ms1_tol";
@@ -69,6 +70,7 @@ public class OPairPanel extends JPanelBase {
     private static final String PROP_activation1 = "activation1";
     private static final String PROP_activation2 = "activation2";
     private static final String PROP_filterOxonium = "filterOxonium";
+    private static final String PROP_oxoRulesFile = "oxonium_filtering_file";
 
     private UiSpinnerDouble uiSpinnerMS2Tol;
     private UiSpinnerDouble uiSpinnerMS1Tol;
@@ -146,7 +148,7 @@ public class OPairPanel extends JPanelBase {
         uiCheckFilterOxonium.setToolTipText("Filter possible glycan groups by requiring monosaccharide-specific oxonium ions");
 
         String tooltipGlycanDBFile = "Glycan database file in Byonic or pGlyco formats (.txt or .pdb). Will use internal default O-glycan list if not provided.";
-        uiTextOGlycanDBFile = UiUtils.uiTextBuilder().cols(80).create();
+        uiTextOGlycanDBFile = UiUtils.uiTextBuilder().cols(85).create();
         List<FileFilter> glycFilters = new ArrayList<>();
         FileFilter filter = new FileNameExtensionFilter("Glycan Database file (glyc, txt, csv, tsv, pdb)", "glyc", "txt", "csv", "tsv", "pdb");
         glycFilters.add(filter);
@@ -161,6 +163,25 @@ public class OPairPanel extends JPanelBase {
                         String path = paths.get(0).toString();
                         Fragpipe.propsVarSet(PROP_glycoDB, path);
                         uiTextOGlycanDBFile.setText(path);
+                    }
+                });
+
+        String tooltipOxoniumFilterFile = "(Optional) Load custom oxonium filter rules from file. Will use default filtering rules if not provided.";
+        uiTextOxoRuleFile = UiUtils.uiTextBuilder().cols(59).create();
+        List<FileFilter> oxoFilters = new ArrayList<>();
+        FileFilter oxoFilter = new FileNameExtensionFilter("Oxonium filtering rules file (tsv)", "tsv");
+        oxoFilters.add(oxoFilter);
+        FormEntry feOxoFiltersFile = mu.feb(PROP_oxoRulesFile, uiTextOxoRuleFile)
+                .label("Custom Oxonium Filtering Rules").tooltip(tooltipOxoniumFilterFile).create();
+        JButton btnBrosweOxoRuleFile = feOxoFiltersFile.browseButton("Browse", tooltipOxoniumFilterFile,
+                () -> FileChooserUtils.builder("Select custom oxonium filtering rules file")
+                        .approveButton("Select").mode(FileChooserUtils.FcMode.FILES_ONLY).acceptAll(false).multi(false).filters(oxoFilters)
+                        .paths(Stream.of(Fragpipe.propsVarGet(PROP_oxoRulesFile))).create(),
+                paths -> {
+                    if (paths != null && !paths.isEmpty()) {
+                        String path = paths.get(0).toString();
+                        Fragpipe.propsVarSet(PROP_oxoRulesFile, path);
+                        uiTextOxoRuleFile.setText(path);
                     }
                 });
 
@@ -181,12 +202,16 @@ public class OPairPanel extends JPanelBase {
         mu.add(pContent, feMS1SpectraTol.label(), mu.ccR());
         mu.add(pContent, feMS1SpectraTol.comp);
         mu.add(pContent, feMaxGlycans.label(), mu.ccR());
-        mu.add(pContent, feMaxGlycans.comp);
-        mu.add(pContent, uiCheckFilterOxonium).wrap();
+        mu.add(pContent, feMaxGlycans.comp).wrap();
 
         mu.add(pContent, feGlycanDBFile.label()).split().spanX();
         mu.add(pContent, btnBrosweGlycanDBFile);
         mu.add(pContent, feGlycanDBFile.comp).wrap();
+
+        mu.add(pContent, uiCheckFilterOxonium);
+        mu.add(pContent, feOxoFiltersFile.label()).split().spanX();
+        mu.add(pContent, btnBrosweOxoRuleFile);
+        mu.add(pContent, feOxoFiltersFile.comp).wrap();
 
         mu.add(this, pTop).growX().wrap();
         mu.add(this, pContent).growX().wrap();
@@ -245,6 +270,7 @@ public class OPairPanel extends JPanelBase {
         params.setActivation1((String) uiComboActivation1.getSelectedItem());
         params.setActivation2((String) uiComboActivation2.getSelectedItem());
         params.setFilterOxonium(uiCheckFilterOxonium.isSelected());
+        params.setOxoRulesFilePath(uiTextOxoRuleFile.getNonGhostText());
         return params;
     }
 
