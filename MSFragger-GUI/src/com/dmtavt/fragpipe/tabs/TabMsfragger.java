@@ -169,7 +169,7 @@ public class TabMsfragger extends JPanelBase {
   private static final String CALIBRATE_VALUE_OFF = "None";
   private static final String[] CALIBRATE_LABELS = {CALIBRATE_VALUE_OFF, "Mass calibration", "Mass calibration, parameter optimization"};
   private static final String[] MASS_DIFF_TO_VAR_MOD = {"No", "Yes, keep delta mass", "Yes, remove delta mass"};
-  private static final String[] GROUP_VARIABLE = {"None", "Number of enzymatic termini"};
+  private static final String[] GROUP_VARIABLE = {"None", "Number of enzymatic termini", "Protein evidence from FASTA file"};
   private static final String[] DEISOTOPE = {"No", "Yes", "Yes, use charge 1 and 2 for undeisotoped peaks"};
   private static final int[] MASS_DIFF_TO_VAR_MOD_MAP = {0, 2, 1};
   private static final List<String> GLYCO_OPTIONS_UI = Arrays
@@ -1387,7 +1387,7 @@ public class TabMsfragger extends JPanelBase {
     uiCheckWriteUncalibratedMgf = UiUtils.createUiCheck("Write uncalibrated MGF", false);
     FormEntry feCheckWriteUncalibratedMgf = mu.feb(MsfraggerParams.PROP_write_uncalibrated_mgf, uiCheckWriteUncalibratedMgf).tooltip("Only for .raw and .d formats.").create();
 
-    uiComboGroupVariable = UiUtils.createUiCombo(Arrays.asList("None", "Number of enzymatic termini"));
+    uiComboGroupVariable = UiUtils.createUiCombo(Arrays.asList(GROUP_VARIABLE));
     FormEntry feGroupVariable= mu.feb(uiComboGroupVariable)
         .name(PROP_group_variable)
         .label("Group variable")

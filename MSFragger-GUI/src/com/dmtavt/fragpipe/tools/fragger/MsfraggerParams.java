@@ -366,7 +366,7 @@ public class MsfraggerParams extends AbstractParams {
         c.put(PROP_max_variable_mods_per_peptide, "Maximum total number of variable modifications per peptide.");
         c.put(PROP_max_variable_mods_combinations, "Maximum number of modified forms allowed for each peptide (up to 65534).");
         c.put(PROP_mass_diff_to_variable_mod, "Put mass diff as a variable modification. 0 for no; 1 for yes and remove delta mass; 2 for yes and keep delta mass.");
-        c.put(PROP_group_variable, "Specify the variable used to decide the PSM group in the group FDR estimation. 0 = no group FDR; 1 = num_enzyme_termini.");
+        c.put(PROP_group_variable, "Specify the variable used to decide the PSM group in the group FDR estimation. 0 = no group FDR; 1 = num_enzyme_termini; 2 = PE from protein header.");
         c.put(PROP_output_format, "File format of output files (tsv, pin, pepxml, tsv_pin, tsv_pepxml, pepxml_pin, or tsv_pepxml_pin).");
         c.put(PROP_output_report_topN, "Reports top N PSMs per input spectrum.");
         c.put(PROP_output_max_expect, "Suppresses reporting of PSM if top hit has expectation value greater than this threshold.");
