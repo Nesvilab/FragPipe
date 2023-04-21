@@ -12,7 +12,7 @@ If you are new to MSFragger or FragPipe searches, please first consult the [Setu
 
 ## Tutorial contents
 * [Diagnostic ion mining overview](https://fragpipe.nesvilab.org/docs/tutorial_diagnostic_mining.html#diagnostic-ion-mining-overview)
-* Running a diagnostic ion mining search using the default workflow
+* [Running a diagnostic ion mining search using the default workflow](https://fragpipe.nesvilab.org/docs/tutorial_diagnostic_mining.html#running-a-diagnostic-ion-mining-search-using-the-default-workflow)
 * Running a diagnostic ion mining search using an offset search
 * Interpreting results
 * Using PTM fragmentation patterns in subsequent labile searches
@@ -36,3 +36,32 @@ The diagnostic ion mining module is embedded within PTM-Shepherd. It allows you 
 3. Check whether these patterns are enriched for peptides bearing the PTM as compared to unmodified peptides from the same dataset
 
 The result of this analysis is a set of diagnostic ions, peptide remainder masses, and fragment remainder masses for every mass shift in a dataset.
+
+### Running a diagnostic ion mining search using the default workflow
+
+If you want to follow along with the tutorial and process the data yourself, you can download the input data [here](http://central.proteomexchange.org/cgi/GetDataset?ID=PXD023401). This dataset corresponds to a photoactivatable RNA crosslinker from Photoactivatable ribonucleosides mark base-specific RNA-binding sites](https://www.nature.com/articles/s41467-021-26317-5) by Bae et al. (2021). We're going to use the mRBS_dTamicon30K_4SU_HCD_half_1.raw file for this tutorial. Note that all of the tools we'll be using in this analysis can directly process Thermo .raw files, so there's no need to convert to mzML.
+
+After setting up FragPipe, navigate to the Workflow tab. Upload the file to be analyzed by clicking "Add files". Then, from the dropdown manu at the top, select the "Diagnostic-ion-mining" workflow. **IMPORTANT:** You must click "Load workflow" after selecting the workflow, or the parameters throughout FragPipe will not change.
+
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/diagnostic-mining_1.png)
+
+<br>
+
+Once you've uploaded your file and configured FragPipe for diagnostic ion mining, navigate to the "Database" tab to select your Fasta. If you don't already have a Fasta you'd like to use, you can download one directly from Uniprot inside Fragpipe. To do that, click "Download".
+
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/diagnostic-mining_2.png)
+
+<br>
+
+By default, FragPipe will download the reviewed Human database, add contamininant proteins to it, and generate decoys. If that all looks okay (for our analysis, it does), click OK and select the directory you would like to download it to.
+
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/diagnostic-mining_3.png)
+
+<br>
+
+That's pretty much it! All that's left to do is to navigate to the "Run" tab, select "Browse" to selection your ourput directory, and then click "RUN".
+
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/diagnostic-mining_4.png)
+
+<br>
+
