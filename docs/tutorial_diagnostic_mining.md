@@ -11,8 +11,19 @@ However, you can generally get more PSMs by doing an offset search if you alread
 If you are new to MSFragger or FragPipe searches, please first consult the [Setup](https://fragpipe.nesvilab.org/docs/tutorial_setup_fragpipe.html) and [Basic](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html) tutorials. 
 
 ## Tutorial contents
-* Diagnostic ion mining overview
+* [Diagnostic ion mining overview](https://fragpipe.nesvilab.org/docs/tutorial_diagnostic_mining.html#diagnostic-ion-mining-overview)
 * Running a diagnostic ion mining search using the default workflow
 * Running a diagnostic ion mining search using an offset search
 * Interpreting results
 * Using PTM fragmentation patterns in subsequent labile searches
+
+### Diagnostic ion mining overview
+The diagnostic ion mining module is embedded within PTM-Shepherd. It allows you to identify fragmentation patterns for PTMs identified via open searches or mass offset searches. Three types of fragmentation patterns are looked for. Each of these corresponds to an ion type that can be used in [MSFragger Labile mode](https://github.com/Nesvilab/FragPipe/edit/gh-pages/docs/tutorial_labile.md).
+
+**Diagnostic ions** are ions that are found alone in the spectrum and have completely dissociated from the peptide. Examples of these are immonium ions derived from modified residues or oxonium ions from glycopeptides.
+**Peptide remainder masses** are found when a peptide remains intact after the PTM fragments. It corresponds to the mass of the PTM that remains on the peptide. An example of this would be *Y*-ions from glycopeptides.
+**Fragment remainder masses** are the PTM masses that remain on fragment ions (e.g., *b*- and *y*- backbone ions). If modifications are intact in the MS2, such as for non-labile modifications, then this is the mass of the modification. Sometimes, PTMs might dissociate from the peptide while taking a piece of the peptide with them, with the most famous example being the 98 Da neutral loss from Phosphoserine and Phosphothreonine. Fragment remainder masses in that case are presented as a negative remainder mass.
+
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/Diagnostic_Mining_Overview.tif)
+
+<br>
