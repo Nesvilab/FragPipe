@@ -135,6 +135,7 @@ public class CmdOPair  extends CmdBase {
                 } else {
                     cmd.add("-f " + params.getOxoRulesFilePath());
                 }
+                cmd.add("-m " + params.getOxoMinInt());
             }
             if (params.getOglycanDB().length() > 0) {
                 cmd.add("-g " + params.getOglycanDB());

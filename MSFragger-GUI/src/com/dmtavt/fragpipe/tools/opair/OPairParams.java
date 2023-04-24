@@ -30,6 +30,7 @@ public class OPairParams {
     private String activation2;
     private boolean filterOxonium;
     private String oxoRulesFilePath;
+    private double oxoMinInt;
 
     public double getProductPPMtol() {
         return productPPMtol;
@@ -115,4 +116,11 @@ public class OPairParams {
         oxoRulesFilePath = newPath;
     }
 
+    public double getOxoMinInt() {
+        return oxoMinInt;
+    }
+
+    public void setOxoMinInt(double minInt) {
+        this.oxoMinInt = minInt;
+    }
 }

@@ -70,6 +70,7 @@ public class OPairPanel extends JPanelBase {
     private static final String PROP_activation1 = "activation1";
     private static final String PROP_activation2 = "activation2";
     private static final String PROP_filterOxonium = "filterOxonium";
+    private static final String PROP_oxoMinInt = "oxonium_minimum_intensity";
     private static final String PROP_oxoRulesFile = "oxonium_filtering_file";
 
     private UiSpinnerDouble uiSpinnerMS2Tol;
@@ -82,6 +83,7 @@ public class OPairPanel extends JPanelBase {
     private UiCheck uiCheckReverseScanOrder;
     private UiCheck uiCheckSingleScanType;
     private UiCheck uiCheckFilterOxonium;
+    private UiSpinnerDouble uiSpinnerOxoMinInt;
 
     public OPairPanel() {
         super();
@@ -143,9 +145,13 @@ public class OPairPanel extends JPanelBase {
         uiCheckSingleScanType = UiUtils.createUiCheck("Single scan type", false);
         uiCheckSingleScanType.setName(PROP_singleScanType);
         uiCheckSingleScanType.setToolTipText("Use if only one scan type (must be hybrid activation)");
-        uiCheckFilterOxonium = UiUtils.createUiCheck("Filter using oxonium ions", true);
+        uiCheckFilterOxonium = UiUtils.createUiCheck("Oxonium Filter", true);
         uiCheckFilterOxonium.setName(PROP_filterOxonium);
         uiCheckFilterOxonium.setToolTipText("Filter possible glycan groups by requiring monosaccharide-specific oxonium ions");
+        uiSpinnerOxoMinInt = UiSpinnerDouble.builder(0.05, 0, 1, 0.05)
+                .setFormat(new DecimalFormat("0.##")).setCols(4).create();
+        FormEntry feOxoMinInt = new FormEntry(PROP_oxoMinInt, "Oxonium Min. Relative Abundance", uiSpinnerOxoMinInt, "If using oxonium ion filtering, oxonium ions must be at least this intense. " +
+                "Value is ratio of oxonium ion intensity to spectrum base peak intensity");
 
         String tooltipGlycanDBFile = "Glycan database file in Byonic or pGlyco formats (.txt or .pdb). Will use internal default O-glycan list if not provided.";
         uiTextOGlycanDBFile = UiUtils.uiTextBuilder().cols(85).create();
@@ -212,6 +218,8 @@ public class OPairPanel extends JPanelBase {
         mu.add(pContent, feOxoFiltersFile.label()).split().spanX();
         mu.add(pContent, btnBrosweOxoRuleFile);
         mu.add(pContent, feOxoFiltersFile.comp).wrap();
+        mu.add(pContent, feOxoMinInt.label(), mu.ccR());
+        mu.add(pContent, feOxoMinInt.comp);
 
         mu.add(this, pTop).growX().wrap();
         mu.add(this, pContent).growX().wrap();
