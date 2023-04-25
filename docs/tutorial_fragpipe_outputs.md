@@ -601,6 +601,8 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 
 **intensity_fold_change** This field contains the fold change in intensity when comparing the modified to unmodified peptides. This uses intensity across all spectra and can be calculated via (avg_intensity_mod * percent_mod) / (avg_intensity_unmod * percent_unmod).
 
+***avg_charge*** This field contains the average charge of peptides from the mass shift. This enables researchers to to use diagnostic ion information intelligently in designing targeted MS routines or rescoring.
+
 **auc** This column contains the AUC-ROC statistic for the intensity-based classification of this ion. It is calculated from the U statistic from the Mann-Whitney U Test. This statistic adjusts the two groups such that they are assumed to be of equal size.
 
 <br>
