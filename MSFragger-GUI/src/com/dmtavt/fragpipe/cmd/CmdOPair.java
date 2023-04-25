@@ -56,7 +56,7 @@ public class CmdOPair  extends CmdBase {
         return NAME;
     }
 
-    public boolean configure(Component comp, Path workdir, Map<LcmsFileGroup, Path> sharedMapGroupsToProtxml, OPairParams params, boolean isDryRun, boolean hasCalibratedMzml) {
+    public boolean configure(Component comp, Path workdir, Map<LcmsFileGroup, Path> sharedMapGroupsToProtxml, OPairParams params, boolean isDryRun, boolean hasCalibratedMzml, int numThreads) {
         initPreConfig();
 
         // check that .NET is available
@@ -141,6 +141,7 @@ public class CmdOPair  extends CmdBase {
                 cmd.add("-g " + params.getOglycanDB());
             }
             cmd.add("-n " + params.getMaxNumGlycans());
+            cmd.add("-t " + numThreads);
             cmd.add("-i " + params.getMinIsotope());
             cmd.add("-j " + params.getMaxIsotope());
             cmd.add("-r " + fileListPath.toAbsolutePath());

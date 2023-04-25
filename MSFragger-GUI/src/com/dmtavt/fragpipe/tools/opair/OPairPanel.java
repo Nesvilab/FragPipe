@@ -279,6 +279,7 @@ public class OPairPanel extends JPanelBase {
         params.setActivation2((String) uiComboActivation2.getSelectedItem());
         params.setFilterOxonium(uiCheckFilterOxonium.isSelected());
         params.setOxoRulesFilePath(uiTextOxoRuleFile.getNonGhostText());
+        params.setOxoMinInt(uiSpinnerOxoMinInt.getActualValue());
         return params;
     }
 
