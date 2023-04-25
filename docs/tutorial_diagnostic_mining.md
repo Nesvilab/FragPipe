@@ -13,12 +13,11 @@ If you are new to MSFragger or FragPipe searches, please first consult the [Setu
 ## Tutorial contents
 * [Diagnostic ion mining overview](https://fragpipe.nesvilab.org/docs/tutorial_diagnostic_mining.html#diagnostic-ion-mining-overview)
 * [Running a diagnostic ion mining search using the default workflow](https://fragpipe.nesvilab.org/docs/tutorial_diagnostic_mining.html#running-a-diagnostic-ion-mining-search-using-the-default-workflow)
-* Running a diagnostic ion mining search using an offset search
-* Interpreting results
-* Using PTM fragmentation patterns in subsequent labile searches
+* [Interpreting results](https://fragpipe.nesvilab.org/docs/tutorial_diagnostic_mining.html#interpreting-results)
+* [Using PTM fragmentation patterns in subsequent labile searches]((https://fragpipe.nesvilab.org/docs/tutorial_diagnostic_mining.html#using-ptm-fragmentation-patterns-in-labile-searches)
 
 ### Diagnostic ion mining overview
-The diagnostic ion mining module is embedded within PTM-Shepherd. It allows you to identify fragmentation patterns for PTMs identified via open searches or mass offset searches. Three types of fragmentation patterns are looked for. Each of these corresponds to an ion type that can be used in [MSFragger Labile mode](https://github.com/Nesvilab/FragPipe/edit/gh-pages/docs/tutorial_labile.md).
+The diagnostic ion mining module is embedded within PTM-Shepherd. It allows you to identify fragmentation patterns for PTMs identified via open searches or mass offset searches. Three types of fragmentation patterns are looked for. Each of these corresponds to an ion type that can be used in [MSFragger Labile mode](https://github.com/Nesvilab/FragPipe/edit/gh-pages/docs/tutorial_labile.html).
 
 **Diagnostic ions** are ions that are found alone in the spectrum and have completely dissociated from the peptide. Examples of these are immonium ions derived from modified residues or oxonium ions from glycopeptides.
 
@@ -39,7 +38,7 @@ The result of this analysis is a set of diagnostic ions, peptide remainder masse
 
 ### Running a diagnostic ion mining search using the default workflow
 
-If you want to follow along with the tutorial and process the data yourself, you can download the input data [here](http://central.proteomexchange.org/cgi/GetDataset?ID=PXD023401). This dataset corresponds to a photoactivatable RNA crosslinker from Photoactivatable ribonucleosides mark base-specific RNA-binding sites](https://www.nature.com/articles/s41467-021-26317-5) by Bae et al. (2021). We're going to use the mRBS_dTamicon30K_4SU_HCD_half_1.raw file for this tutorial. Note that all of the tools we'll be using in this analysis can directly process Thermo .raw files, so there's no need to convert to mzML. The output files can be downloaded from [here](https://www.dropbox.com/sh/6sfbv5oal4pgdwk/AACLct0LDRtywJifDr-Ryspja?dl=0).
+If you want to follow along with the tutorial and process the data yourself, you can download the input data [HERE](http://central.proteomexchange.org/cgi/GetDataset?ID=PXD023401). This dataset corresponds to a photoactivatable RNA crosslinker from Photoactivatable ribonucleosides mark base-specific RNA-binding sites](https://www.nature.com/articles/s41467-021-26317-5) by Bae et al. (2021). We're going to use the mRBS_dTamicon30K_4SU_HCD_half_1.raw file for this tutorial. Note that all of the tools we'll be using in this analysis can directly process Thermo .raw files, so there's no need to convert to mzML. The output files can be downloaded from [HERE](https://www.dropbox.com/sh/6sfbv5oal4pgdwk/AACLct0LDRtywJifDr-Ryspja?dl=0).
 
 After setting up FragPipe, navigate to the Workflow tab. Upload the file to be analyzed by clicking "Add files". Then, from the dropdown manu at the top, select the "Diagnostic-ion-mining" workflow. **IMPORTANT:** You must click "Load workflow" after selecting the workflow, or the parameters throughout FragPipe will not change.
 
@@ -65,3 +64,24 @@ That's pretty much it! All that's left to do is to navigate to the "Run" tab, se
 
 <br>
 
+### Interpreting results
+PTM-Shepherd created a folder called "ptm-shepherd-output" inside your output folder. The most relevant files for this analysis are the "global.profile.tsv" and the "global.diagmine.tsv". For a description of the output tables, check out our [Guide to FragPipe Results](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_outputs.html).
+
+The first file we will look at is the "global.profile.tsv". It provides several metrics based on the MS1 mass shifts detected in the dataset. The image below has both its columns and rows truncated to fit in the tutorial, but the important information for this analysis is shown.
+
+Notably, we see two abundant mass shifts that aren't annotated: a 226 Da mass shift and a 94 Da mass shift. These are likely to related to the analysis. Are they the same modification? To see that, we go to the next table.
+
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/diagnostic-mining_5.png)
+
+<br>
+
+In the "global.diagmine.tsv" table, several metrics are reported to describe diagnostic fragmentation features. The two mass shifts dscribed above show similar remainder masses on *b*- and *y*-ions. This mass corresponds to the mass of the 94 Da mass shift from the MS1. Because the remainder masses produced are the same, the most reasonable explanation is that the 226 Da and 94 Da MS1 mass shifts correspond to the same modification, but there is a (226 Da - 94 Da =) 132 Da neutral loss occuring at both the MS1 and MS2 levels. The optimal way to search for these is probably an offset search with 226 Da and 94 Da as MS1 offsets, but for both only looking for the 94 Da mass on the fragment ions.
+
+It's also common to see diagnostic ions corresponding to PTMs. One of the diagnostic ions identified for the heavier mass shift (133 Da) corresponds to the charged version of the neutral loss described above.
+
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/diagnostic-mining_6.png)
+
+<br>
+
+### Using PTM fragmentation patterns in subsequent labile searches
+Now that we have some PTM fragmentaion information, we can use these patterns in the [MSFragger Labile mode](https://github.com/Nesvilab/FragPipe/edit/gh-pages/docs/tutorial_labile.html).
