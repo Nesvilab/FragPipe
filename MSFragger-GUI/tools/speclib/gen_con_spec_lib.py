@@ -761,7 +761,7 @@ def main_easypqp():
 	output_directory = workdir / 'easypqp_files'
 	output_directory.mkdir(exist_ok=overwrite)
 	if irt_choice is Irt_choice.iRT:
-		irt_df.to_csv(irt_file, index=False, sep='\t', line_terminator='\n')
+		irt_df.to_csv(irt_file, index=False, sep='\t', lineterminator='\n')
 	elif irt_choice is Irt_choice.ciRT:
 		shutil.copyfile(script_dir / 'hela_irtkit.tsv', irt_file)
 	elif irt_choice is Irt_choice.Pierce_iRT:
