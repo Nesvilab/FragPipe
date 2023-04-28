@@ -49,7 +49,7 @@ public class GlycoMassLoader {
     private static final Logger log = LoggerFactory.getLogger(TabMsfragger.class);
     private static final String MASSES_FILE = "glycan_masses.txt";
     private static final Pattern pGlycoPattern = Pattern.compile("[AGFHNXP]");
-    private static final Pattern MMGlycoPattern = Pattern.compile("[AGFHN][0-9]+");
+    private static final Pattern MMGlycoPattern = Pattern.compile("[AGFHNPSYCXUM][0-9]+");
     private static final HashMap<String, String> pGlycoTokenMap;    // map pGlyco tokens to our internal Glycan strings
     private static final HashMap<String, String> MMGlycoTokenMap;    // map MetaMorpheus kind tokens to our internal Glycan strings
 
