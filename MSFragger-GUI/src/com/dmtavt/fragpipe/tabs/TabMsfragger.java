@@ -267,7 +267,10 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_labile_search_mode, s -> GLYCO_OPTIONS.get(GLYCO_OPTIONS_UI.indexOf(s)));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_mass_offsets, s -> {
       Set<String> tt = new TreeSet<>();
-      for (String part : s.split("[\\s/]+")) {
+      if (s == null || s.trim().isEmpty()) {
+        return "0";
+      }
+      for (String part : s.trim().split("[\\s/]+")) {
         tt.add(String.valueOf(Float.parseFloat(part))); // Parsing the values to float and converting back to String to make sure that MSFragger will get the value with the same string representation.
       }
       return String.join("/", tt);
@@ -302,7 +305,12 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_report_alternative_proteins, s -> Boolean.toString(Integer.parseInt(s) > 0));
 
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_labile_search_mode, s -> GLYCO_OPTIONS_UI.get(GLYCO_OPTIONS.indexOf(s)));
-    CONVERT_TO_GUI.put(MsfraggerParams.PROP_mass_offsets, text -> String.join(" ", text.split("/")));
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_mass_offsets, text -> {
+      if (text == null || text.trim().isEmpty()) {
+        return "0";
+      }
+      return String.join(" ", text.trim().split("/"));
+    });
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_Y_type_masses, text -> String.join(" ", text.split("/")));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_diagnostic_fragments, text -> String.join(" ", text.split("/")));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_remainder_masses, text -> String.join(" ", text.split("/")));
