@@ -6,7 +6,7 @@ This page has instructions for using MSConvert to generate mzML files from both 
 
 **Please note: The latest version of MSConvert should be used for TMT MS3 workflows.** Philosopher is not compatible with mzML files generated using some older MSConvert versions, and the Windows taskbar may open an earlier version of MSConvert even if a more recent one is installed. Start MSConvert by clicking on the Windows icon, scrolling down to the desired (latest) version of ProteoWizard, and launching  MSConvert program.
 
-**Please note:** If you are using Linux, check the scripts in https://github.com/Nesvilab/msconvert-scripts
+**Please note:** If you are using Linux, check the scripts in [https://github.com/Nesvilab/msconvert-scripts](https://github.com/Nesvilab/msconvert-scripts)
 
 <br>
 
