@@ -292,7 +292,7 @@ public class Fragpipe extends JFrameHeadless {
       cache.propsUiState.setPath(FragpipeLocations.get().getPathUiCache(true));
       cache.propsUiState.save();
     } catch (IOException ex) {
-      log.error("Error saving ui cache", ex);
+      log.error("Error saving ui cache. It won't affect the results.");
     }
     try {
       cache.propsRuntime.setPath(FragpipeLocations.get().getPathRuntimeCache(false));
@@ -300,7 +300,7 @@ public class Fragpipe extends JFrameHeadless {
       cache.propsRuntime.setPath(FragpipeLocations.get().getPathRuntimeCache(true));
       cache.propsRuntime.save();
     } catch (IOException ex) {
-      log.error("Error saving runtime cache", ex);
+      log.error("Error saving runtime cache. It won't affect the results.");
     }
 
     // saving workflows
@@ -310,7 +310,7 @@ public class Fragpipe extends JFrameHeadless {
     try {
       FileUtils.copyDirectory(dirWorkflows.toFile(), lts.toFile());
     } catch (IOException e) {
-      log.error("Error saving workflows between sessions", e);
+      log.error("Error saving workflows between sessions.");
       throw new IllegalStateException(e);
     }
   }
