@@ -408,12 +408,9 @@ public class QuantPanelLabelfree extends JPanelBase {
     });
 
     mu.add(pLfq, feRadioLfq.comp, mu.ccL()).wrap();
-    mu.add(pLfq, uiCheckMbr, mu.ccL());
-    mu.add(pLfq, feMbrIonFdr.label(), mu.ccR()).split(2);
-    mu.add(pLfq, feMbrIonFdr.comp, mu.ccR().gapRight("100")).wrap();
-    mu.add(pLfq, feMaxLfq.comp, mu.ccL());
-    mu.add(pLfq, feMaxLfqMinIons.label(), mu.ccR()).split(2);
-    mu.add(pLfq, feMaxLfqMinIons.comp, mu.ccR().gapRight("100")).wrap();
+    mu.add(pLfq, feMaxLfq.comp, mu.ccL()).wrap();
+    mu.add(pLfq, feMaxLfqMinIons.label(), mu.ccL()).split(2);
+    mu.add(pLfq, feMaxLfqMinIons.comp, mu.ccL());
 
     mu.add(emptyPanel, pLfq).spanX();
 
@@ -444,6 +441,9 @@ public class QuantPanelLabelfree extends JPanelBase {
 
     // Common panel
     JPanel pCommon = mu.newPanel("Common", mu.lcFillXNoInsetsTopBottom());
+    mu.add(pCommon, uiCheckMbr, mu.ccL());
+    mu.add(pCommon, feMbrIonFdr.label(), mu.ccL()).split(2);
+    mu.add(pCommon, feMbrIonFdr.comp, mu.ccL().gapRight("200")).wrap();
     mu.add(pCommon, feNormalize.comp, mu.ccL());
     mu.add(pCommon, fePeptideProteinUniqueness.label(), mu.ccL()).split(2);
     mu.add(pCommon, fePeptideProteinUniqueness.comp, mu.ccL().gapRight("200")).spanX().wrap();
