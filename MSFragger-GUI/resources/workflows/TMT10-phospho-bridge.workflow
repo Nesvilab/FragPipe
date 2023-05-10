@@ -128,6 +128,7 @@ msfragger.precursor_true_units=1
 msfragger.remainder_fragment_masses=-18.01056 79.96633
 msfragger.remove_precursor_peak=1
 msfragger.report_alternative_proteins=true
+msfragger.require_precursor=false
 msfragger.restrict_deltamass_to=all
 msfragger.reuse_dia_fragment_peaks=false
 msfragger.run-msfragger=true
