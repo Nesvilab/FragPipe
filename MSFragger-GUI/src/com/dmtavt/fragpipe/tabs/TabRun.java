@@ -223,8 +223,8 @@ public class TabRun extends JPanelWithEnablement {
     uiCheckWriteSubMzml = UiUtils.createUiCheck("Write sub mzML", false);
     FormEntry feWriteSubMzml = mu.feb(uiCheckWriteSubMzml).name(TAB_PREFIX + "write_sub_mzml").label("Write sub mzML").tooltip("Write unidentified scans to mzML files. Need to run MSFragger.").create();
 
-    FormEntry feProbThreshold = mu.feb(uiSpinnerProbThreshold).name(TAB_PREFIX + "sub_mzml_prob_threshold").label("Probability threshold").tooltip("Set the minimum probability to exclude the scans.").create();
     uiSpinnerProbThreshold = UiUtils.spinnerDouble(0.5, 0.0, 1.0, 0.01).setCols(4).setFormat("#.##").create();
+    FormEntry feProbThreshold = mu.feb(uiSpinnerProbThreshold).name(TAB_PREFIX + "sub_mzml_prob_threshold").label("Probability threshold").tooltip("Scans with the probability larger than the threshold <b>and</b> passing the FDR cut-off will be discarded.").create();
 
     ReportPanel reportPanel = Bus.getStickyEvent(ReportPanel.class);
     if (reportPanel == null) {
