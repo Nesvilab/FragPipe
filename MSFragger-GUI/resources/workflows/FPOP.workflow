@@ -1,7 +1,5 @@
 # Workflow: FPOP
 
-
-
 crystalc.run-crystalc=false
 database.decoy-tag=rev_
 diann.fragpipe.cmd-opts=
@@ -269,7 +267,7 @@ speclibgen.easypqp.select-file.text=
 speclibgen.easypqp.select-im-file.text=
 speclibgen.keep-intermediate-files=false
 speclibgen.run-speclibgen=false
-sub_mzml_prob_threshold=0
+tab-run.sub_mzml_prob_threshold=0
 tab-run.delete_calibrated_mzml=false
 tab-run.delete_temp_files=false
 tab-run.write_sub_mzml=false
