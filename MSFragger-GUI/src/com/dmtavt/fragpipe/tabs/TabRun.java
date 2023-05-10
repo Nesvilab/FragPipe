@@ -365,7 +365,7 @@ public class TabRun extends JPanelWithEnablement {
 
     mu.add(p, uiCheckDeleteCalibratedFiles, false).split();
     mu.add(p, uiCheckDeleteTempFiles).gapRight("20px");
-    mu.add(p, feWriteSubMzml.comp, false);
+    mu.add(p, feWriteSubMzml.comp, false).gapRight("20px");
     mu.add(p, feProbThreshold.label(), false);
     mu.add(p, feProbThreshold.comp, false).wrap();
 
