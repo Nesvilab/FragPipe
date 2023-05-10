@@ -1,5 +1,7 @@
 # Workflow: FPOP
 
+
+
 crystalc.run-crystalc=false
 database.decoy-tag=rev_
 diann.fragpipe.cmd-opts=
@@ -88,7 +90,7 @@ msfragger.fragment_mass_units=1
 msfragger.group_variable=0
 msfragger.intensity_transform=0
 msfragger.ion_series_definitions=
-msfragger.isotope_error=0/1/2
+msfragger.isotope_error=0/1
 msfragger.labile_search_mode=off
 msfragger.localize_delta_mass=true
 msfragger.mass_diff_to_variable_mod=1
@@ -151,12 +153,15 @@ msfragger.zero_bin_accept_expect=0
 msfragger.zero_bin_mult_expect=1
 opair.activation1=HCD
 opair.activation2=ETD
+opair.filterOxonium=true
 opair.glyco_db=
 opair.max_glycans=3
 opair.max_isotope_error=2
 opair.min_isotope_error=0
 opair.ms1_tol=20
 opair.ms2_tol=20
+opair.oxonium_filtering_file=
+opair.oxonium_minimum_intensity=0.05
 opair.reverse_scan_order=false
 opair.run-opair=false
 opair.single_scan_type=false
@@ -168,7 +173,7 @@ percolator.keep-tsv-files=false
 percolator.min-prob=0.5
 percolator.run-percolator=false
 phi-report.dont-use-prot-proph-file=false
-phi-report.filter=--sequential --mapmods --prot 0.01
+phi-report.filter=--sequential --prot 0.01 --mods M\:15.9949,n\:42.0106
 phi-report.pep-level-summary=true
 phi-report.philosoher-msstats=false
 phi-report.print-decoys=false
@@ -177,7 +182,7 @@ phi-report.remove-contaminants=false
 phi-report.run-report=true
 protein-prophet.cmd-opts=--maxppmdiff 2000000
 protein-prophet.run-protein-prophet=true
-ptmprophet.cmdline=--keepold --static --em 1 --nions b --mods STY\:79.966331,M\:15.9949 --minprob 0.5
+ptmprophet.cmdline=KEEPOLD STATIC EM\=1 NIONS\=b STY\:79.966331,M\:15.9949 MINPROB\=0.5
 ptmprophet.run-ptmprophet=false
 ptmshepherd.adv_params=false
 ptmshepherd.annotation-common=true
@@ -264,6 +269,7 @@ speclibgen.easypqp.select-file.text=
 speclibgen.easypqp.select-im-file.text=
 speclibgen.keep-intermediate-files=false
 speclibgen.run-speclibgen=false
+sub_mzml_prob_threshold=0
 tab-run.delete_calibrated_mzml=false
 tab-run.delete_temp_files=false
 tab-run.write_sub_mzml=false
@@ -298,7 +304,7 @@ tmtintegrator.top3_pep=true
 tmtintegrator.unique_gene=0
 tmtintegrator.unique_pep=false
 tmtintegrator.use_glycan_composition=false
-workflow.description=<p style\="margin-top\: 0">Hybrid MSFragger search\: variable modifications for the most commonly oxidized residues and mass offsets for less common modifications.</p>
+workflow.description=Workflow for analysis of FPOP data using a hybrid (variable modification and mass offset) search. Group-based FDR filtering included
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
-workflow.saved-with-ver=19.0-build38
+workflow.saved-with-ver=19.2-build39
