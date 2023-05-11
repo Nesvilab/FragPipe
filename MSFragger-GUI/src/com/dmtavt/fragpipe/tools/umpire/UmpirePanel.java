@@ -182,7 +182,7 @@ public class UmpirePanel extends JPanelBase {
         Bus.post(new NoteConfigPtmShepherd(true));
       } else {
         TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
-        if (tabWorkflow.hasDia() || tabWorkflow.hasGpfDia() || tabWorkflow.hasDiaLib()) {
+        if (tabWorkflow.hasDataType("DIA") || tabWorkflow.hasDataType("GPF-DIA") || tabWorkflow.hasDataType("DIA-Lib")) {
           Bus.post(new NoteConfigCrystalC(false));
           Bus.post(new NoteConfigPeptideProphet(false));
           Bus.post(new NoteConfigPtmProphet(false));

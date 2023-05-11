@@ -1356,19 +1356,19 @@ public class TabWorkflow extends JPanelWithEnablement {
         this.actionSetRep();
         break;
       case SET_DDA:
-        this.actionSetDda();
+        this.actionSetDataType("DDA");
         break;
       case SET_DIA:
-        this.actionSetDia();
+        this.actionSetDataType("DIA");
         break;
       case SET_GPF_DIA:
-        this.actionSetGpfDia();
+        this.actionSetDataType("GPF-DIA");
         break;
       case SET_DIA_QUANT:
-        this.actionSetDiaQuant();
+        this.actionSetDataType("DIA-Quant");
         break;
       case SET_DIA_LIB:
-        this.actionSetDiaLib();
+        this.actionSetDataType("DIA-Lib");
         break;
       case CLEAR_GROUPS:
         this.actionClearGroups();
@@ -1382,7 +1382,7 @@ public class TabWorkflow extends JPanelWithEnablement {
   }
 
   private void adjustToolsBasedOnDataTypes() {
-    if (hasDia() || hasDiaLib() || hasGpfDia()) {
+    if (hasDataType("DIA") || hasDataType("DIA-Lib") || hasDataType("GPF-DIA")) {
       Bus.post(new NoteConfigUmpire(true));
       UmpirePanel umpirePanel = Fragpipe.getStickyStrict(UmpirePanel.class);
       if (umpirePanel.isRun()) {
@@ -1398,7 +1398,7 @@ public class TabWorkflow extends JPanelWithEnablement {
       }
       Bus.post(new NoteConfigIonQuant(NoteConfigIonQuant.path, NoteConfigIonQuant.version, NoteConfigIonQuant.isTooOld, false, NoteConfigIonQuant.ex));
       Bus.post(new NoteConfigTmtI(false));
-      if (hasDia()) {
+      if (hasDataType("DIA")) {
         Bus.post(new NoteConfigDiann(true, true));
       } else {
         Bus.post(new NoteConfigDiann(false, false));
@@ -1414,7 +1414,7 @@ public class TabWorkflow extends JPanelWithEnablement {
       Bus.post(new NoteConfigDiann(false, false));
     }
 
-    if (hasDiaQuant()) {
+    if (hasDataType("DIA-Quant")) {
       Bus.post(new NoteConfigDiann(true, true));
     }
   }
@@ -1460,87 +1460,19 @@ public class TabWorkflow extends JPanelWithEnablement {
     }
   }
 
-  private void actionSetDda() {
+  private void actionSetDataType(String dataType) {
     final UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
     List<Integer> selectedRows = Arrays.stream(this.tableRawFiles.getSelectedRows()).mapToObj(tableRawFiles::convertRowIndexToModel).collect(Collectors.toList());
     if (selectedRows.isEmpty()) {
       for (int i = 0; i < m.dataSize(); ++i) {
         InputLcmsFile f = m.dataGet(i);
-        m.dataSet(i, new InputLcmsFile(f.getPath(), f.getExperiment(), f.getReplicate(), "DDA"));
+        m.dataSet(i, new InputLcmsFile(f.getPath(), f.getExperiment(), f.getReplicate(), dataType));
       }
     } else {
       for (int selectedRow : selectedRows) {
         int i = tableRawFiles.convertRowIndexToModel(selectedRow);
         InputLcmsFile f = m.dataGet(i);
-        m.dataSet(i, new InputLcmsFile(f.getPath(), f.getExperiment(), f.getReplicate(), "DDA"));
-      }
-    }
-  }
-
-  private void actionSetDia() {
-    final UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
-    List<Integer> selectedRows = Arrays.stream(this.tableRawFiles.getSelectedRows()).mapToObj(tableRawFiles::convertRowIndexToModel).collect(Collectors.toList());
-    if (selectedRows.isEmpty()) {
-      for (int i = 0; i < m.dataSize(); ++i) {
-        InputLcmsFile f = m.dataGet(i);
-        m.dataSet(i, new InputLcmsFile(f.getPath(), f.getExperiment(), f.getReplicate(), "DIA"));
-      }
-    } else {
-      for (int selectedRow : selectedRows) {
-        int i = tableRawFiles.convertRowIndexToModel(selectedRow);
-        InputLcmsFile f = m.dataGet(i);
-        m.dataSet(i, new InputLcmsFile(f.getPath(), f.getExperiment(), f.getReplicate(), "DIA"));
-      }
-    }
-  }
-
-  private void actionSetGpfDia() {
-    final UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
-    List<Integer> selectedRows = Arrays.stream(this.tableRawFiles.getSelectedRows()).mapToObj(tableRawFiles::convertRowIndexToModel).collect(Collectors.toList());
-    if (selectedRows.isEmpty()) {
-      for (int i = 0; i < m.dataSize(); ++i) {
-        InputLcmsFile f = m.dataGet(i);
-        m.dataSet(i, new InputLcmsFile(f.getPath(), f.getExperiment(), f.getReplicate(), "GPF-DIA"));
-      }
-    } else {
-      for (int selectedRow : selectedRows) {
-        int i = tableRawFiles.convertRowIndexToModel(selectedRow);
-        InputLcmsFile f = m.dataGet(i);
-        m.dataSet(i, new InputLcmsFile(f.getPath(), f.getExperiment(), f.getReplicate(), "GPF-DIA"));
-      }
-    }
-  }
-
-  private void actionSetDiaQuant() {
-    final UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
-    List<Integer> selectedRows = Arrays.stream(this.tableRawFiles.getSelectedRows()).mapToObj(tableRawFiles::convertRowIndexToModel).collect(Collectors.toList());
-    if (selectedRows.isEmpty()) {
-      for (int i = 0; i < m.dataSize(); ++i) {
-        InputLcmsFile f = m.dataGet(i);
-        m.dataSet(i, new InputLcmsFile(f.getPath(), f.getExperiment(), f.getReplicate(), "DIA-Quant"));
-      }
-    } else {
-      for (int selectedRow : selectedRows) {
-        int i = tableRawFiles.convertRowIndexToModel(selectedRow);
-        InputLcmsFile f = m.dataGet(i);
-        m.dataSet(i, new InputLcmsFile(f.getPath(), f.getExperiment(), f.getReplicate(), "DIA-Quant"));
-      }
-    }
-  }
-
-  private void actionSetDiaLib() {
-    final UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
-    List<Integer> selectedRows = Arrays.stream(this.tableRawFiles.getSelectedRows()).mapToObj(tableRawFiles::convertRowIndexToModel).collect(Collectors.toList());
-    if (selectedRows.isEmpty()) {
-      for (int i = 0; i < m.dataSize(); ++i) {
-        InputLcmsFile f = m.dataGet(i);
-        m.dataSet(i, new InputLcmsFile(f.getPath(), f.getExperiment(), f.getReplicate(), "DIA-Lib"));
-      }
-    } else {
-      for (int selectedRow : selectedRows) {
-        int i = tableRawFiles.convertRowIndexToModel(selectedRow);
-        InputLcmsFile f = m.dataGet(i);
-        m.dataSet(i, new InputLcmsFile(f.getPath(), f.getExperiment(), f.getReplicate(), "DIA-Lib"));
+        m.dataSet(i, new InputLcmsFile(f.getPath(), f.getExperiment(), f.getReplicate(), dataType));
       }
     }
   }
@@ -1593,50 +1525,15 @@ public class TabWorkflow extends JPanelWithEnablement {
     return tableModelRawFiles.dataCopy();
   }
 
-  public boolean hasDda() {
+  public boolean hasDataType(String dataType) {
     for (InputLcmsFile inputLcmsFile : tableModelRawFiles.dataCopy()) {
-      if (inputLcmsFile.getDataType().contentEquals("DDA")) {
+      if (inputLcmsFile.getDataType().contentEquals(dataType)) {
         return true;
       }
     }
     return false;
   }
 
-  public boolean hasDia() {
-    for (InputLcmsFile inputLcmsFile : tableModelRawFiles.dataCopy()) {
-      if (inputLcmsFile.getDataType().contentEquals("DIA")) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  public boolean hasGpfDia() {
-    for (InputLcmsFile inputLcmsFile : tableModelRawFiles.dataCopy()) {
-      if (inputLcmsFile.getDataType().contentEquals("GPF-DIA")) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  public boolean hasDiaQuant() {
-    for (InputLcmsFile inputLcmsFile : tableModelRawFiles.dataCopy()) {
-      if (inputLcmsFile.getDataType().contentEquals("DIA-Quant")) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  public boolean hasDiaLib() {
-    for (InputLcmsFile inputLcmsFile : tableModelRawFiles.dataCopy()) {
-      if (inputLcmsFile.getDataType().contentEquals("DIA-Lib")) {
-        return true;
-      }
-    }
-    return false;
-  }
   private Path getSaveFilePath(Path inputPath, String defaultSaveDir, FileNameEndingFilter filenameFilter, String fileExtension, boolean quiet) {
     Path path = inputPath;
     if (path == null) {

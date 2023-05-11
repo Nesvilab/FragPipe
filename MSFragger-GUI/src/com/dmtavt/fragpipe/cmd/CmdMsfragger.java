@@ -471,32 +471,11 @@ public class CmdMsfragger extends CmdBase {
 
     for (InputLcmsFile inputLcmsFile : lcmsFiles) {
       if (inputLcmsFile.getDataType().contentEquals("DDA")) {
-        List<InputLcmsFile> tt = t.get("DDA");
-        if (tt == null) {
-          tt = new ArrayList<>();
-          tt.add(inputLcmsFile);
-          t.put("DDA", tt);
-        } else {
-          tt.add(inputLcmsFile);
-        }
+        sub(t, inputLcmsFile, "DDA");
       } else if (inputLcmsFile.getDataType().contentEquals("DIA") || inputLcmsFile.getDataType().contentEquals("DIA-Lib")) { // searching DIA and DIA-Lib together
-        List<InputLcmsFile> tt = t.get("DIA");
-        if (tt == null) {
-          tt = new ArrayList<>();
-          tt.add(inputLcmsFile);
-          t.put("DIA", tt);
-        } else {
-          tt.add(inputLcmsFile);
-        }
+        sub(t, inputLcmsFile, "DIA");
       } else if (inputLcmsFile.getDataType().contentEquals("GPF-DIA")) {
-        List<InputLcmsFile> tt = t.get("GPF-DIA");
-        if (tt == null) {
-          tt = new ArrayList<>();
-          tt.add(inputLcmsFile);
-          t.put("GPF-DIA", tt);
-        } else {
-          tt.add(inputLcmsFile);
-        }
+        sub(t, inputLcmsFile, "GPF-DIA");
       }
     }
 
@@ -610,6 +589,17 @@ public class CmdMsfragger extends CmdBase {
 
     isConfigured = true;
     return true;
+  }
+
+  private void sub(Map<String, List<InputLcmsFile>> t, InputLcmsFile inputLcmsFile, String dataType) {
+    List<InputLcmsFile> tt = t.get(dataType);
+    if (tt == null) {
+      tt = new ArrayList<>(1);
+      tt.add(inputLcmsFile);
+      t.put(dataType, tt);
+    } else {
+      tt.add(inputLcmsFile);
+    }
   }
 
   private void adjustDiaParams(MsfraggerParams params, MsfraggerParams paramsNew, String dataType) {
