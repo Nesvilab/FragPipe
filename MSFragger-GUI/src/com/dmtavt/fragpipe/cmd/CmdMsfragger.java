@@ -69,15 +69,18 @@ public class CmdMsfragger extends CmdBase {
   private final FraggerOutputType fraggerOutputType;
   private final int outputReportTopNDia1;
   private final int outputReportTopNDia2;
+  private final int outputReportTopNWwa;
   private MsfraggerParams paramsDda;
+  private MsfraggerParams paramsWwa;
   private MsfraggerParams paramsDia;
   private MsfraggerParams paramsGpfDia;
 
-  public CmdMsfragger(boolean isRun, Path workDir, FraggerOutputType fraggerOutputType, int outputReportTopNDia1, int outputReportTopNDia2) {
+  public CmdMsfragger(boolean isRun, Path workDir, FraggerOutputType fraggerOutputType, int outputReportTopNDia1, int outputReportTopNDia2, int outputReportTopNWwa) {
     super(isRun, workDir);
     this.fraggerOutputType = fraggerOutputType;
     this.outputReportTopNDia1 = outputReportTopNDia1;
     this.outputReportTopNDia2 = outputReportTopNDia2;
+    this.outputReportTopNWwa = outputReportTopNWwa;
   }
 
   @Override
@@ -109,6 +112,12 @@ public class CmdMsfragger extends CmdBase {
             maxRank = outputReportTopNDia2;
           } else {
             maxRank = paramsGpfDia.getOutputReportTopN();
+          }
+        } else if (f.getDataType().contentEquals("WWA")) {
+          if (paramsWwa == null) {
+            maxRank = outputReportTopNWwa;
+          } else {
+            maxRank = paramsWwa.getOutputReportTopN();
           }
         }
 
@@ -291,7 +300,7 @@ public class CmdMsfragger extends CmdBase {
     return locs;
   }
 
-  public boolean configure(Component comp, boolean isDryRun, Path jarFragpipe, UsageTrigger binFragger, String pathFasta, MsfraggerParams params, int numSlices, int ramGb, List<InputLcmsFile> lcmsFiles, final String decoyTag, boolean hasDda, boolean hasDia, boolean hasGpfDia, boolean hasDiaLib, boolean isRunDiaU, boolean writeMzbinAll) {
+  public boolean configure(Component comp, boolean isDryRun, Path jarFragpipe, UsageTrigger binFragger, String pathFasta, MsfraggerParams params, int numSlices, int ramGb, List<InputLcmsFile> lcmsFiles, final String decoyTag, boolean hasDda, boolean hasDia, boolean hasGpfDia, boolean hasDiaLib, boolean hasWwa, boolean isRunDiaU, boolean writeMzbinAll) {
 
     initPreConfig();
 
@@ -302,8 +311,8 @@ public class CmdMsfragger extends CmdBase {
         return false;
       }
 
-      if (hasDia || hasGpfDia || hasDiaLib) {
-        SwingUtils.showErrorDialog(comp, "<html><code>Split database</code> is incompatible with DIA, GPF-DIA, or DIA-Lib data types.", "Incompatible options");
+      if (hasDia || hasGpfDia || hasDiaLib || hasWwa) {
+        SwingUtils.showErrorDialog(comp, "<html><code>Split database</code> is incompatible with DIA, GPF-DIA, DIA-Lib, or WWA data types.", "Incompatible options");
         return false;
       }
 
@@ -379,16 +388,19 @@ public class CmdMsfragger extends CmdBase {
     params.setDecoyPrefix(decoyTag);
     params.setWriteMzbinAll(writeMzbinAll);
     Path savedDdaParamsPath = (hasDia || hasGpfDia || hasDiaLib) ? wd.resolve("fragger_dda.params") : wd.resolve("fragger.params");
+    Path savedWwaParamsPath = wd.resolve("fragger_wwa.params");
     Path savedDiaParamsPath = wd.resolve("fragger_dia.params");
     Path savedGpfDiaParamsPath = wd.resolve("fragger_gpfdia.params");
 
     paramsDda = new MsfraggerParams(params);
     paramsDia = new MsfraggerParams(params);
     paramsGpfDia = new MsfraggerParams(params);
+    paramsWwa = new MsfraggerParams(params);
 
     paramsDda.setDataType(0);
-    adjustDiaParams(params, paramsDia, "DIA");
-    adjustDiaParams(params, paramsGpfDia, "GPF-DIA");
+    adjustMSFraggerParams(params, paramsDia, "DIA");
+    adjustMSFraggerParams(params, paramsGpfDia, "GPF-DIA");
+    adjustMSFraggerParams(params, paramsWwa, "WWA");
 
     if (!isDryRun) {
       try {
@@ -400,6 +412,9 @@ public class CmdMsfragger extends CmdBase {
         }
         if (hasGpfDia && !isRunDiaU) {
           paramsGpfDia.save(Files.newOutputStream(savedGpfDiaParamsPath));
+        }
+        if (hasWwa) {
+          paramsWwa.save(Files.newOutputStream(savedWwaParamsPath));
         }
 
         // cache the params
@@ -476,6 +491,10 @@ public class CmdMsfragger extends CmdBase {
         sub(t, inputLcmsFile, "DIA");
       } else if (inputLcmsFile.getDataType().contentEquals("GPF-DIA")) {
         sub(t, inputLcmsFile, "GPF-DIA");
+      } else if (inputLcmsFile.getDataType().contentEquals("WWA")) {
+        sub(t, inputLcmsFile, "WWA");
+      } else {
+        throw new IllegalStateException("Unknown data type: " + inputLcmsFile.getDataType());
       }
     }
 
@@ -490,13 +509,15 @@ public class CmdMsfragger extends CmdBase {
         }
         cmd.add(binFragger.useBin());
 
-        // Execution order after sorting: DDA, DIA and DIA-Lib, GPF-DIA. MSFragger would stop if there were wide isolation windows in DDA mode, which makes it better to let DDA be executed first.
+        // Execution order after sorting: DDA, DIA, GPF-DIA, WWA. MSFragger would stop if there were wide isolation windows in DDA mode, which makes it better to let DDA be executed first.
         if (e.getKey().contentEquals("DDA")) {
           cmd.add(savedDdaParamsPath.toString());
         } else if (e.getKey().contentEquals("DIA")) {
           cmd.add(savedDiaParamsPath.toString());
         } else if (e.getKey().contentEquals("GPF-DIA")) {
           cmd.add(savedGpfDiaParamsPath.toString());
+        } else if (e.getKey().contentEquals("WWA")) {
+          cmd.add(savedWwaParamsPath.toString());
         }
 
         // check if the command length is ok so far
@@ -602,14 +623,18 @@ public class CmdMsfragger extends CmdBase {
     }
   }
 
-  private void adjustDiaParams(MsfraggerParams params, MsfraggerParams paramsNew, String dataType) {
+  private void adjustMSFraggerParams(MsfraggerParams params, MsfraggerParams paramsNew, String dataType) {
     paramsNew.setReportAlternativeProteins(true);
     paramsNew.setShiftedIons(false);
     paramsNew.setLabileSearchMode("off");
     paramsNew.setDeltamassAllowedResidues("all");
-    if (paramsNew.getCalibrateMass() > 1) {
-      paramsNew.setCalibrateMass(1);
+
+    if (dataType.contentEquals("DIA") || dataType.contentEquals("GPF-DIA")) {
+      if (paramsNew.getCalibrateMass() > 1) {
+        paramsNew.setCalibrateMass(1);
+      }
     }
+
     paramsNew.setMassDiffToVariableMod(0);
     paramsNew.setIsotopeError("0");
     paramsNew.setMassOffsets("0");
@@ -633,6 +658,9 @@ public class CmdMsfragger extends CmdBase {
     } else if (dataType.contentEquals("GPF-DIA")) {
       paramsNew.setDataType(2);
       paramsNew.setOutputReportTopN(outputReportTopNDia2);
+    } else if (dataType.contentEquals("WWA")) {
+      paramsNew.setDataType(3);
+      paramsNew.setOutputReportTopN(outputReportTopNWwa);
     }
   }
 

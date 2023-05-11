@@ -189,6 +189,13 @@ public class UmpirePanel extends JPanelBase {
           Bus.post(new NoteConfigPtmShepherd(false));
           Bus.post(new NoteConfigIonQuant(NoteConfigIonQuant.path, NoteConfigIonQuant.version, NoteConfigIonQuant.isTooOld, false, NoteConfigIonQuant.ex));
           Bus.post(new NoteConfigTmtI(false));
+        } else if (tabWorkflow.hasDataType("WWA")) {
+          Bus.post(new NoteConfigCrystalC(false));
+          Bus.post(new NoteConfigPeptideProphet(false));
+          Bus.post(new NoteConfigPtmProphet(true));
+          Bus.post(new NoteConfigPtmShepherd(false));
+          Bus.post(new NoteConfigIonQuant(NoteConfigIonQuant.path, NoteConfigIonQuant.version, NoteConfigIonQuant.isTooOld, true, NoteConfigIonQuant.ex));
+          Bus.post(new NoteConfigTmtI(false));
         }
       }
     });

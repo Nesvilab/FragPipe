@@ -64,6 +64,9 @@ public class InputLcmsFile implements Comparable<InputLcmsFile> {
                 case "dia-lib":
                     this.dataType = "DIA-Lib";
                     break;
+                case "wwa":
+                    this.dataType = "WWA";
+                    break;
                 default:
                     this.dataType = "DDA";
             }

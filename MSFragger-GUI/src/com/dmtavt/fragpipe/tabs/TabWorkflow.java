@@ -169,6 +169,7 @@ public class TabWorkflow extends JPanelWithEnablement {
   private JButton btnSetGpfDia;
   private JButton btnSetDiaQuant;
   private JButton btnSetDiaLib;
+  private JButton btnSetWwa;
   private JButton btnGroupsClear;
   private JButton btnManifestSave;
   private JButton btnManifestLoad;
@@ -1009,6 +1010,8 @@ public class TabWorkflow extends JPanelWithEnablement {
         () -> new MessageLcmsGroupAction(Type.SET_DIA_QUANT));
     btnSetDiaLib = button("Set DIA-Lib",
         () -> new MessageLcmsGroupAction(Type.SET_DIA_LIB));
+    btnSetWwa = button("Set WWA",
+        () -> new MessageLcmsGroupAction(Type.SET_WWA));
     btnGroupsClear = button("Clear groups", () -> new MessageLcmsGroupAction(Type.CLEAR_GROUPS));
 
     btnManifestSave = button("Save as manifest", MessageManifestSave::new);
@@ -1060,9 +1063,14 @@ public class TabWorkflow extends JPanelWithEnablement {
 
     mu.add(p, btnSetDda);
     mu.add(p, btnSetDia);
-    mu.add(p, btnSetGpfDia);
+    mu.add(p, btnSetGpfDia).wrap();
+
+    UiText emptySpace2 = UiUtils.uiTextBuilder().cols(1).text("").create();
+    emptySpace2.setVisible(false);
+    mu.add(p, emptySpace2).growX().pushX().split();
     mu.add(p, btnSetDiaQuant);
-    mu.add(p, btnSetDiaLib).wrap();
+    mu.add(p, btnSetDiaLib);
+    mu.add(p, btnSetWwa).wrap();
 
     p.add(scrollPaneRawFiles, mu.ccGx().wrap());
 
@@ -1089,6 +1097,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnSetGpfDia);
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnSetDiaQuant);
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnSetDiaLib);
+    tableRawFiles.addComponentsEnabledOnNonEmptyData(btnSetWwa);
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsClear);
 
     tableRawFiles.addComponentsEnabledOnNonEmptySelection(btnFilesRemove);
@@ -1372,6 +1381,9 @@ public class TabWorkflow extends JPanelWithEnablement {
       case SET_DIA_LIB:
         this.actionSetDataType("DIA-Lib");
         break;
+      case SET_WWA:
+        this.actionSetDataType("WWA");
+        break;
       case CLEAR_GROUPS:
         this.actionClearGroups();
         break;
@@ -1405,6 +1417,15 @@ public class TabWorkflow extends JPanelWithEnablement {
       } else {
         Bus.post(new NoteConfigDiann(false, false));
       }
+    } else if (hasDataType("WWA")) {
+      Bus.post(new NoteConfigUmpire(false));
+      Bus.post(new NoteConfigCrystalC(false));
+      Bus.post(new NoteConfigPeptideProphet(false));
+      Bus.post(new NoteConfigPtmProphet(true));
+      Bus.post(new NoteConfigPtmShepherd(false));
+      Bus.post(new NoteConfigIonQuant(NoteConfigIonQuant.path, NoteConfigIonQuant.version, NoteConfigIonQuant.isTooOld, true, NoteConfigIonQuant.ex));
+      Bus.post(new NoteConfigTmtI(false));
+      Bus.post(new NoteConfigDiann(false, false));
     } else {
       Bus.post(new NoteConfigUmpire(false));
       Bus.post(new NoteConfigCrystalC(true));
@@ -1484,7 +1505,7 @@ public class TabWorkflow extends JPanelWithEnablement {
   }
 
   private boolean checkDataTypeCompatibility(InputLcmsFile f, String dataType) {
-    if ((dataType.contentEquals("DIA") || dataType.contentEquals("GPF-DIA") || dataType.contentEquals("DIA-Lib")) && f.getPath().toString().endsWith(".d")) {
+    if ((dataType.contentEquals("DIA") || dataType.contentEquals("GPF-DIA") || dataType.contentEquals("DIA-Lib") || dataType.contentEquals("WWA")) && f.getPath().toString().endsWith(".d")) {
       SwingUtils.showErrorDialog(this, "timsTOF data is only compatible with DDA and DIA-Quant data type.", "Incompatible data type");
       return false;
     }
