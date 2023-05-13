@@ -1466,15 +1466,27 @@ public class TabWorkflow extends JPanelWithEnablement {
     if (selectedRows.isEmpty()) {
       for (int i = 0; i < m.dataSize(); ++i) {
         InputLcmsFile f = m.dataGet(i);
-        m.dataSet(i, new InputLcmsFile(f.getPath(), f.getExperiment(), f.getReplicate(), dataType));
+        if (checkDataTypeCompatibility(f, dataType)) {
+          m.dataSet(i, new InputLcmsFile(f.getPath(), f.getExperiment(), f.getReplicate(), dataType));
+        }
       }
     } else {
       for (int selectedRow : selectedRows) {
         int i = tableRawFiles.convertRowIndexToModel(selectedRow);
         InputLcmsFile f = m.dataGet(i);
-        m.dataSet(i, new InputLcmsFile(f.getPath(), f.getExperiment(), f.getReplicate(), dataType));
+        if (checkDataTypeCompatibility(f, dataType)) {
+          m.dataSet(i, new InputLcmsFile(f.getPath(), f.getExperiment(), f.getReplicate(), dataType));
+        }
       }
     }
+  }
+
+  private boolean checkDataTypeCompatibility(InputLcmsFile f, String dataType) {
+    if ((dataType.contentEquals("DIA") || dataType.contentEquals("GPF-DIA") || dataType.contentEquals("DIA-Lib")) && f.getPath().toString().endsWith(".d")) {
+      SwingUtils.showErrorDialog(this, "timsTOF data is only compatible with DDA and DIA-Quant data type.", "Incompatible data type");
+      return false;
+    }
+    return true;
   }
 
   private void actionByFileName() {
