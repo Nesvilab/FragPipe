@@ -283,7 +283,7 @@ public class QuantPanelLabelfree extends JPanelBase {
     FormEntry fePeptideProteinUniqueness = mu.feb(uiComboPeptideProteinUniqueness).name("ionquant.uniqueness").label("Peptide-protein uniqueness").tooltip("Unique only: use peptides that are unique or confidently assigned to a single protein\n Unique+Razor: use 'unique plus razor' approach, with each shared peptide assigned as razor to one protein (as classified by Philosopher and defined in psm.tsv file)\n").create();
 
     UiCombo uiComboMinIsotopes = UiUtils.createUiCombo(Arrays.asList("1", "2", "3"));
-    UiSpinnerInt uiSpinnerMinScans = UiUtils.spinnerInt(3, 0, 10000, 1).setCols(5).create();
+    UiSpinnerInt uiSpinnerMinScans = UiUtils.spinnerInt(3, 1, 10000, 1).setCols(5).create();
 
     UiSpinnerDouble uiSpinnerMzTol = UiUtils.spinnerDouble(10.0, 1.0, 1000.0, 1.0)
         .setFormat("0.#").setCols(5).create();
@@ -303,7 +303,7 @@ public class QuantPanelLabelfree extends JPanelBase {
     UiSpinnerDouble uiSpinnerMinFreq = UiUtils.spinnerDouble(0, 0, 1, 0.1)
         .setCols(5).setFormat("#.##").create();
     UiSpinnerInt uiSpinnerTopIons = UiUtils.spinnerInt(0, 0, 10000, 1).setCols(5).create();
-    UiSpinnerInt uiSpinnerMaxLfqMinIons = UiUtils.spinnerInt(1, 0, 10000, 1).setCols(5).create();
+    UiSpinnerInt uiSpinnerMaxLfqMinIons = UiUtils.spinnerInt(1, 1, 10000, 1).setCols(5).create();
 
     UiSpinnerDouble uiSpinnerMbrIonFdr = UiUtils.spinnerDouble(0.01, 0.001, 1.1, 0.01)
         .setCols(5).setFormat("#.###").create();
@@ -312,7 +312,7 @@ public class QuantPanelLabelfree extends JPanelBase {
     UiSpinnerDouble uiSpinnerMbrProtFdr = UiUtils.spinnerDouble(1, 0.001, 1.1, 0.01)
         .setCols(5).setFormat("#.###").create();
 
-    UiSpinnerInt uiSpinnerMbrTopRuns = UiUtils.spinnerInt(10, 0, Integer.MAX_VALUE, 1).setCols(5).create();
+    UiSpinnerInt uiSpinnerMbrTopRuns = UiUtils.spinnerInt(10, 1, Integer.MAX_VALUE, 1).setCols(5).create();
     UiText uiTextLight = UiUtils.uiTextBuilder().cols(40).create();
     UiText uiTextMedium = UiUtils.uiTextBuilder().cols(40).create();
     UiText uiTextHeavy = UiUtils.uiTextBuilder().cols(40).create();
