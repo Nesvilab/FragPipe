@@ -271,9 +271,9 @@ speclibgen.easypqp.select-file.text=
 speclibgen.easypqp.select-im-file.text=
 speclibgen.keep-intermediate-files=false
 speclibgen.run-speclibgen=false
-tab-run.sub_mzml_prob_threshold=0.5
 tab-run.delete_calibrated_mzml=false
 tab-run.delete_temp_files=false
+tab-run.sub_mzml_prob_threshold=0.5
 tab-run.write_sub_mzml=false
 tmtintegrator.add_Ref=1
 tmtintegrator.aggregation_method=0
@@ -309,4 +309,4 @@ tmtintegrator.use_glycan_composition=false
 workflow.description=<p style\="margin-top\: 0">TMT 10-plex workflow for ubiquitination enriched data, with quantification from MS2. This workflow assumes that lysine cannot be ubiquitinated and labeled with TMT at the same time. TMT is specified as fixed mod n-term and as variable mod on K. Oxidation and Ubiq (+114 on K) are specified as variable modifications. Modification stacking is not allowed. Up to 3 missed cleavages and 4 variable modifications in total. PSM validation with Percolator, and protein inference with ProteinProphet. Site localization with PTMProphet. Data is filtered at 1% FDR at the PSM, ion, peptide, and protein levels. TMT-Integrator with virtual reference approach, median-centering normalization, data summarization at the gene/protein/peptide/site levels. If a reference/bridge sample is available, specify the corresponding channel/sample name tag in the annotation file(s) and in TMT-Integrator tab.</p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
-workflow.saved-with-ver=20.0-build2
+workflow.saved-with-ver=20.0-build5
