@@ -177,7 +177,7 @@ phi-report.remove-contaminants=false
 phi-report.run-report=true
 protein-prophet.cmd-opts=--maxppmdiff 2000000
 protein-prophet.run-protein-prophet=true
-ptmprophet.cmdline=KEEPOLD STATIC EM\=1 NIONS\=b C\:463.2366,C\:467.2529,C\:57.02416,M\:15.9949 MINPROB\=0.5
+ptmprophet.cmdline=KEEPOLD STATIC EM\=1 NIONS\=b C\:463.2366,C\:467.2529,C\:57.02416,M\:15.9949,n\:42.0106 MINPROB\=0.5
 ptmprophet.run-ptmprophet=false
 ptmshepherd.adv_params=false
 ptmshepherd.annotation-common=false

@@ -177,7 +177,7 @@ phi-report.remove-contaminants=false
 phi-report.run-report=true
 protein-prophet.cmd-opts=--maxppmdiff 2000000
 protein-prophet.run-protein-prophet=true
-ptmprophet.cmdline=KEEPOLD STATIC FRAGPPMTOL\=20 EM\=1 SKREDTY\:541.06111 MINPROB\=0.5
+ptmprophet.cmdline=
 ptmprophet.run-ptmprophet=true
 ptmshepherd.adv_params=false
 ptmshepherd.annotation-common=false
