@@ -1216,7 +1216,7 @@ public class TabMsfragger extends JPanelBase {
             .tooltip("Filter to include only scans matching the corresponding activation type.\n" +
                     "NOTE: not all instruments and activation types are supported. Use ETD for EThcd\n" +
                     "or other hybrid data.").create();
-    FormEntry feCheckRequirePrecursor = mu.feb(MsfraggerParams.PROP_require_precursor, UiUtils.createUiCheck("Require precursor", false))
+    FormEntry feCheckRequirePrecursor = mu.feb(MsfraggerParams.PROP_require_precursor, UiUtils.createUiCheck("Require precursor", true))
         .tooltip("If required, PSMs with no precursor peaks will be discarded. For DIA data type only.").create();
 
     mu.add(p, feActivationFilter.label()).split(2);
