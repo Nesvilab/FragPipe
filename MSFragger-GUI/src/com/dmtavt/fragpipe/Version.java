@@ -63,6 +63,38 @@ public class Version {
       new VersionComparator());
 
   static {
+    CHANGELOG.put("20.0", Arrays.asList(
+        "Require MSFragger 3.8+",
+        "Require Philosopher 5.0.0+",
+        "Require IonQuant 1.9.8+",
+        "Require Python 3.9",
+        "Require EasyPQP 0.1.34+",
+        "Add MBR support for the MS1-based label quantification",
+        "Support fractionated data for the MS1-based label quantification",
+        "Add two-pass searches support. Generate new calibrated mzML files with identified scans removed.",
+        "Add group FDR support.",
+        "Add plexDIA support on the DIA-NN tab.",
+        "Add `Require precursor` checkbox on the MSFragger tab",
+        "Add `Reuse DIA fragment peaks` checkbox on the MSFragger tab",
+        "Add report top-N options for DDA, DIA, and GPF-DIA, respectively",
+        "Adjust the the `spectral processing` panel on the MSFragger tab",
+        "Add Oxonium filter on the Glyco tab",
+        "Add built-in Glycan databases. Users can load on the Glyco tab",
+        "Add mass filtering option for Glycan database load when not using combinations",
+        "Support parsing MetaMorpheus \"kind\" glycan databases on the Glyco tab",
+        "Add `TMT10-acetyl-noloc`, `TMT16-acetyl-noloc`, `TMT10-ubiquitination-K_tmt_or_ubiq`, and `TMT10-ubiquitination-K_tmt_plus_ubiq` workflows",
+        "Adjust `TMT10-acetyl` and `TMT16-acetyl-noloc` workflows",
+        "Tuning parameters in some built-in workflows",
+        "Generate a single combined msstats.csv file for the TMT workflows",
+        "Generate `MSstatsTMT_annotation.csv` file for MSstatsTMT",
+        "Upgrade Percolator Windows version to 3.06",
+        "Upgrade PTMProphet to 6.3.2",
+        "Upgrade PTMShepherd to 2.0.5",
+        "Upgrade FragPipe-PDV to 1.1.1",
+        "Upgrade O-Pair to 1.1-rc2",
+        "Various bug fixes and improvements"
+    ));
+
     CHANGELOG.put("19.1", Arrays.asList(
         "Require MSFragger 3.7+",
         "Require Philosopher 4.8.0+",
