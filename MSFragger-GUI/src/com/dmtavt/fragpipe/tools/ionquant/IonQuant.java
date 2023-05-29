@@ -17,9 +17,14 @@
 
 package com.dmtavt.fragpipe.tools.ionquant;
 
+import static com.dmtavt.fragpipe.cmd.CmdBase.constructClasspathString;
+import static com.dmtavt.fragpipe.cmd.CmdIonquant.JAR_IONQUANT_MAIN_CLASS;
+
 import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.VersionFetcher;
+import com.dmtavt.fragpipe.cmd.CmdIonquant;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
 import com.dmtavt.fragpipe.messages.MessageIonQuantUpdateAvailable;
 import com.dmtavt.fragpipe.messages.NoteConfigIonQuant;
@@ -28,6 +33,8 @@ import com.github.chhh.utils.StringUtils;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -35,6 +42,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.JavaVersion;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
+import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,7 +109,20 @@ public class IonQuant {
       isVersionParsed = true;
       verStr = m.group(1);
     } else {
-      ProcessBuilder pb = new ProcessBuilder(Fragpipe.getBinJava(), "-jar", jarPath);
+      final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(CmdIonquant.JAR_DEPS));
+      if (classpathJars == null) {
+        return new Version(isVersionParsed, verStr);
+      }
+
+      List<String> cmd = new ArrayList<>();
+      cmd.add(Fragpipe.getBinJava());
+      if (Fragpipe.headless) {
+        cmd.add("-Djava.awt.headless=true"); // In some rare case, the server does not have X11 but DISPLAY env var is set, which crashes the headless mode. Setting the headless env to true to prevent the crash.
+      }
+      cmd.add("-cp");
+      cmd.add(constructClasspathString(classpathJars, Paths.get(jarPath)));
+      cmd.add(JAR_IONQUANT_MAIN_CLASS);
+      ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.redirectErrorStream(true);
       Process pr = pb.start();
       pr.waitFor(5, TimeUnit.SECONDS);
