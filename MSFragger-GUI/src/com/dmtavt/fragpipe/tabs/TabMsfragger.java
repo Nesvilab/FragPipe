@@ -1223,6 +1223,7 @@ public class TabMsfragger extends JPanelBase {
     mu.add(p, feActivationFilter.comp);
     mu.add(p, fePrecursorMassMode.label()).split(2);
     mu.add(p, fePrecursorMassMode.comp);
+    mu.add(p, feCheckSpectralFiles.comp);
     mu.add(p, feCheckRequirePrecursor.comp).pushX().wrap();
 
     mu.add(p, feMinPeaks.label()).split(2);
@@ -1230,23 +1231,22 @@ public class TabMsfragger extends JPanelBase {
     mu.add(p, feUseTopN.label()).split(2);
     mu.add(p, feUseTopN.comp);
     mu.add(p, feMinRatio.label()).split(2);
-    mu.add(p, feMinRatio.comp).wrap();
+    mu.add(p, feMinRatio.comp);
+    mu.add(p, feCheckReuseDiaFragmentPeaks.comp).wrap();
 
     mu.add(p, feClearRangeMzLo.label()).split(4);
     mu.add(p, feClearRangeMzLo.comp);
     mu.add(p, new JLabel("-"));
     mu.add(p, feClearRangeMzHi.comp);
     mu.add(p, feIntensityTransform.label()).split(2);
-    mu.add(p, feIntensityTransform.comp);
-    mu.add(p, feCheckReuseDiaFragmentPeaks.comp).wrap();
+    mu.add(p, feIntensityTransform.comp).wrap();
 
     mu.add(p, feRemovePrecPeak.label()).split(2);
     mu.add(p, feRemovePrecPeak.comp);
     mu.add(p, fePrecRemoveRangeLo.label()).split(4);
     mu.add(p, fePrecRemoveRangeLo.comp);
     mu.add(p, new JLabel("-"));
-    mu.add(p, fePrecRemoveRangeHi.comp);
-    mu.add(p, feCheckSpectralFiles.comp).wrap();
+    mu.add(p, fePrecRemoveRangeHi.comp).wrap();
     return p;
   }
 
