@@ -267,6 +267,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     a.add("Default");
     a.add("Custom");
     a.add("Open");
+    a.add("Open-quickscan");
     a.add("Mass-Offset-CommonPTMs");
     a.add("LFQ-MBR");
     a.add("DIA_SpecLib_Quant");
