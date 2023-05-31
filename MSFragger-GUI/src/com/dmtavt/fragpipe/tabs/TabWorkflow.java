@@ -258,7 +258,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     builtInWorkflows.add("TMT16-acetyl-noloc");
     builtInWorkflows.add("TMT10-ubiquitination-K_tmt_or_ubiq");
     builtInWorkflows.add("TMT10-ubiquitination-K_tmt_plus_ubiq");
-    builtInWorkflows.add("Open-quickscan.workflow");
+    builtInWorkflows.add("Open-quickscan");
   }
 
   // Ok, if we could keep some workflows pinned toward the top,  I would say Default, SpecLib, Open, Common-mass-offset, LFQ-MBR,  then the rest
