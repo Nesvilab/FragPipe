@@ -87,6 +87,7 @@ public class Version {
         "Tuning parameters in some built-in workflows",
         "Generate a single combined msstats.csv file for the TMT workflows",
         "Generate `MSstatsTMT_annotation.csv` file for MSstatsTMT",
+        "Upgrade Crystal-C to 1.5.2",
         "Upgrade Percolator Windows version to 3.06",
         "Upgrade PTMProphet to 6.3.2",
         "Upgrade PTMShepherd to 2.0.5",

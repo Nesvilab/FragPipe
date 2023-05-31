@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
 
 public class CmdCrystalc extends CmdBase {
 
-  public static final String JAR_CRYSTALC_NAME = "original-crystalc-1.5.1.jar";
+  public static final String JAR_CRYSTALC_NAME = "original-crystalc-1.5.2.jar";
   /** Fully qualified name, such as one you'd use for `java -cp my.jar com.example.MyClass`. */
   public static final String JAR_CRYSTALC_MAIN_CLASS = "crystalc.Run";
   private static final Logger log = LoggerFactory.getLogger(CmdCrystalc.class);
