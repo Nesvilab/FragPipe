@@ -93,6 +93,7 @@ public class Version {
         "Upgrade PTMShepherd to 2.0.5",
         "Upgrade FragPipe-PDV to 1.1.1",
         "Upgrade O-Pair to 1.1-rc2",
+        "Upgrade TMT-Integrator to 4.0.5",
         "Various bug fixes and improvements"
     ));
 
