@@ -158,6 +158,11 @@ public class ProcessBuilderInfo {
         toConsole(Fragpipe.COLOR_RED_DARKEST, msg, true, console);
         // all the cleanup is done in the final block
       } finally {
+        // grab the exit code of the process to use for System.exit() if operating in headless mode
+        int overallExitCode = 0;
+        if (started != null && started.exitValue() != 0) {
+          overallExitCode = started.exitValue();
+        }
         // in the end whatever happens always try to kill the process
         if (started != null && started.isAlive()) {
           log.debug("Killing underlying external process");
@@ -167,6 +172,9 @@ public class ProcessBuilderInfo {
           pr.close();
         } catch (Exception e) {
           log.error("Error closing redirected std/err streams from external process", e);
+        }
+        if (Fragpipe.headless && overallExitCode != 0) {
+          System.exit(overallExitCode);
         }
       }
     };
