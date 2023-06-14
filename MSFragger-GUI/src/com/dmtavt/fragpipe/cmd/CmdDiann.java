@@ -643,40 +643,19 @@ public class CmdDiann extends CmdBase {
   }
 
   public static String getLDPRELOAD(List<Path> diannPath) {
-    boolean ld_preload;
     String LD_PRELOAD_str = null;
     if (isUnix()) {
-      final ProcessBuilder pb = new ProcessBuilder("ldd", diannPath.get(0).toString());
-      final java.io.InputStream inputStream;
-      try {
-        final Process proc = pb.redirectErrorStream(true).start();
-        inputStream = proc.getInputStream();
-      } catch (IOException e) {
-        System.err.println("Failed in checking " + diannPath.get(0).toString());
-        return null;
-      }
-      final String s = new java.util.Scanner(inputStream).useDelimiter("\\A").next();
-      ld_preload = s.contains("not found");
-
-      if (ld_preload) {
+      final ProcessBuilder pb = new ProcessBuilder(diannPath.get(0).toString());
+      if (checkExitCode(pb) != 0) {
         final List<Path> diann_so_path = FragpipeLocations.checkToolsMissing(Seq.of(DIANN_SO_DEPS));
         if (diann_so_path == null || diann_so_path.size() != DIANN_SO_DEPS.length) {
           System.err.print(".so files missing");
           return null;
         }
         LD_PRELOAD_str = diann_so_path.get(0).toString() + ":" + diann_so_path.get(1).toString();
-        final ProcessBuilder ldd2 = new ProcessBuilder("ldd", diannPath.get(0).toString());
-        ldd2.environment().put("LD_PRELOAD", LD_PRELOAD_str);
-        final java.io.InputStream ldd2_inputStream;
-        try {
-          final Process proc = ldd2.redirectErrorStream(true).start();
-          ldd2_inputStream = proc.getInputStream();
-        } catch (IOException e) {
-          System.err.println("Failed in checking " + diannPath.get(0).toString());
-          return null;
-        }
-        final String ldd2_output = new java.util.Scanner(ldd2_inputStream).useDelimiter("\\A").next();
-        if (ldd2_output.contains("not found")) {
+        final ProcessBuilder pb2 = new ProcessBuilder(diannPath.get(0).toString());
+        pb2.environment().put("LD_PRELOAD", LD_PRELOAD_str);
+        if (checkExitCode(pb2) != 0) {
           final List<Path> diann_so_path2 = FragpipeLocations.checkToolsMissing(Seq.of(DIANN_SO_DEPS_libgomp));
           if (diann_so_path2 == null || diann_so_path2.size() != DIANN_SO_DEPS_libgomp.length) {
             System.err.print(".so files missing");
@@ -687,5 +666,17 @@ public class CmdDiann extends CmdBase {
       }
     }
     return LD_PRELOAD_str;
+  }
+
+  private static int checkExitCode(final ProcessBuilder pb) {
+    try {
+      final Process proc;
+      proc = pb.start();
+      return proc.waitFor();
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    }
   }
 }
