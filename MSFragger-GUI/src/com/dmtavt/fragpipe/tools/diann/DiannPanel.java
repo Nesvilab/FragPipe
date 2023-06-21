@@ -84,6 +84,7 @@ public class DiannPanel extends JPanelBase {
   @Override
   protected void initMore() {
     super.initMore();
+    SwingUtils.setEnablementUpdater(this, pContent, checkRun);
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
