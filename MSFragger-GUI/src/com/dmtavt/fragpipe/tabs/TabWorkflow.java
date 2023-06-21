@@ -1413,9 +1413,9 @@ public class TabWorkflow extends JPanelWithEnablement {
       Bus.post(new NoteConfigIonQuant(NoteConfigIonQuant.path, NoteConfigIonQuant.version, NoteConfigIonQuant.isTooOld, false, NoteConfigIonQuant.ex));
       Bus.post(new NoteConfigTmtI(false));
       if (hasDataType("DIA")) {
-        Bus.post(new NoteConfigDiann(true, true));
+        Bus.post(new NoteConfigDiann(true));
       } else {
-        Bus.post(new NoteConfigDiann(false, false));
+        Bus.post(new NoteConfigDiann(false));
       }
     } else if (hasDataType("WWA")) {
       Bus.post(new NoteConfigUmpire(false));
@@ -1425,7 +1425,7 @@ public class TabWorkflow extends JPanelWithEnablement {
       Bus.post(new NoteConfigPtmShepherd(false));
       Bus.post(new NoteConfigIonQuant(NoteConfigIonQuant.path, NoteConfigIonQuant.version, NoteConfigIonQuant.isTooOld, true, NoteConfigIonQuant.ex));
       Bus.post(new NoteConfigTmtI(false));
-      Bus.post(new NoteConfigDiann(false, false));
+      Bus.post(new NoteConfigDiann(false));
     } else {
       Bus.post(new NoteConfigUmpire(false));
       Bus.post(new NoteConfigCrystalC(true));
@@ -1434,11 +1434,11 @@ public class TabWorkflow extends JPanelWithEnablement {
       Bus.post(new NoteConfigPtmShepherd(true));
       Bus.post(new NoteConfigIonQuant(NoteConfigIonQuant.path, NoteConfigIonQuant.version, NoteConfigIonQuant.isTooOld, true, NoteConfigIonQuant.ex));
       Bus.post(new NoteConfigTmtI(true));
-      Bus.post(new NoteConfigDiann(false, false));
+      Bus.post(new NoteConfigDiann(false));
     }
 
     if (hasDataType("DIA-Quant")) {
-      Bus.post(new NoteConfigDiann(true, true));
+      Bus.post(new NoteConfigDiann(true));
     }
   }
 
