@@ -394,6 +394,21 @@ public class CmdMsfragger extends CmdBase {
         return false;
       }
     }
+
+    // check if 0 is in the mass offset list if it is a mass offset search
+    String[] offsets = params.getMassOffsets().trim().split("[\\s/]+");
+    if (offsets.length > 0) {
+      boolean foundZero = Arrays.stream(offsets).map(Float::parseFloat).anyMatch(offset -> offset == 0);
+      if (!foundZero) {
+        if (Fragpipe.headless) {
+          log.warn("Warning! 0 is not included in the MSFragger mass offset list. This can cause unexpected behavior. Please add 0 to the list unless you are sure you know what you are doing.");
+        } else {
+          JOptionPane.showMessageDialog(comp, "Warning! 0 is not included in the MSFragger mass offset list. This can cause unexpected behavior. Please add 0 to the list unless you are sure you know what you are doing.", "Warning", JOptionPane.WARNING_MESSAGE);
+        }
+      }
+    }
+
+
     // Search parameter file
     params.setDatabaseName(pathFasta);
     params.setDecoyPrefix(decoyTag);
