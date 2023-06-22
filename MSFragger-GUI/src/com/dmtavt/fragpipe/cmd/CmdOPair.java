@@ -24,6 +24,7 @@ import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
 import com.dmtavt.fragpipe.exceptions.UnexpectedException;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
+import com.dmtavt.fragpipe.tools.enums.ActivationTypes;
 import com.dmtavt.fragpipe.tools.opair.OPairParams;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.StringUtils;
@@ -41,6 +42,7 @@ import java.util.stream.Collectors;
 import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import javax.swing.JOptionPane;
 
 
 public class CmdOPair  extends CmdBase {
@@ -76,6 +78,15 @@ public class CmdOPair  extends CmdBase {
                 }
                 return false;
             }
+        }
+        
+        if (params.isSingleScanType() && (params.getActivation1().equals(ActivationTypes.HCD.getText())) || params.getActivation1().equals(ActivationTypes.CID.getText())) {
+            if (Fragpipe.headless) {
+                log.error("Single activation type must be hybrid, not HCD/CID, for O-Pair because c/z ions are required.");
+            } else {
+                JOptionPane.showMessageDialog(comp, "Single activation type must be hybrid, not HCD/CID, for O-Pair because c/z ions are required.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+            return false;
         }
 
         // check that each group only has lcms files in one directory
