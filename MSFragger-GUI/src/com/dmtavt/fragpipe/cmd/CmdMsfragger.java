@@ -383,6 +383,17 @@ public class CmdMsfragger extends CmdBase {
       return false;
     }
 
+    // localize delta mass is required for fragment remainder ions (relevant in labile modes only)
+    if (!params.getLabileSearchMode().equals(MsfraggerParams.GLYCO_OPTION_off)) {
+      if (params.getRemainderMasses().length() > 0 && !params.getShiftedIons()) {
+        if (Fragpipe.headless) {
+          log.error("Fragment remainder masses are specified for MSFragger, but localize_delta_mass is disabled. Please enable it to continue (it is required for fragment remainder masses).");
+        } else {
+          JOptionPane.showMessageDialog(comp, "Fragment remainder masses are specified for MSFragger, but localize_delta_mass is disabled. Please enable it to continue (it is required for fragment remainder masses).", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        return false;
+      }
+    }
     // Search parameter file
     params.setDatabaseName(pathFasta);
     params.setDecoyPrefix(decoyTag);
