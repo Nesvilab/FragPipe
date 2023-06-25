@@ -49,8 +49,8 @@ import org.slf4j.LoggerFactory;
 public class IonQuant {
 
   private static final Logger log = LoggerFactory.getLogger(IonQuant.class);
-  private static final Pattern re = Pattern.compile("ionquant-(\\d+\\.\\d+\\.\\d+.*).jar", Pattern.CASE_INSENSITIVE);
-  private static final Pattern re2 = Pattern.compile("ionquant-(\\d+\\.\\d+\\.\\d+.*)", Pattern.CASE_INSENSITIVE);
+  private static final Pattern re = Pattern.compile("ionquant-(\\d+\\.\\d+\\.\\d+[\\w-]*).jar", Pattern.CASE_INSENSITIVE);
+  private static final Pattern re2 = Pattern.compile("ionquant-(\\d+\\.\\d+\\.\\d+[\\w-]*)", Pattern.CASE_INSENSITIVE);
 
   public static Version getVersion(Path jar) throws Exception {
     // only validate IonQuant version if the current Java version is 1.9 or higher
