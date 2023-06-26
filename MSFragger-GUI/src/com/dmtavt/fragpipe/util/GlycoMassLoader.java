@@ -24,7 +24,6 @@ import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FileChooserUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.ms.fileio.filetypes.agilent.cef.jaxb.P;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
@@ -48,8 +47,14 @@ public class GlycoMassLoader {
 
     private static final Logger log = LoggerFactory.getLogger(TabMsfragger.class);
     private static final String MASSES_FILE = "glycan_masses.txt";
-    private static final Pattern pGlycoPattern = Pattern.compile("[AGFHNXP]");
-    private static final Pattern MMGlycoPattern = Pattern.compile("[AGFHNPSYCXUM][0-9]+");
+
+    private static final Pattern numberPattern = Pattern.compile("[0-9]");
+    private static final Pattern letterPattern = Pattern.compile("[a-zA-Z]+");
+    private static final Pattern pGlycoPattern = Pattern.compile("[()]?[AGFHNP]+[()]");         // e.g., (N(H))
+    private static final Pattern byonicPattern = Pattern.compile("[A-Za-z]+\\([0-9]+\\)");      // e.g., HexNAc(1)Hex(1)
+    private static final Pattern MMGlycoPattern = Pattern.compile("[AGFHNPSYCXUM][0-9]+");      // e.g., N1H1
+    private static final Pattern oldPTMSPattern = Pattern.compile("[A-Za-z]+-[0-9]+");          // e.g., HexNAc-1_Hex-1
+
     private static final HashMap<String, String> pGlycoTokenMap;    // map pGlyco tokens to our internal Glycan strings
     private static final HashMap<String, String> MMGlycoTokenMap;    // map MetaMorpheus kind tokens to our internal Glycan strings
 
@@ -125,20 +130,9 @@ public class GlycoMassLoader {
     }
 
     private List<Double> loadMassesFromFile(String selectedPath) {
-        List<Double> masses;
-        if (selectedPath.endsWith(".csv") || selectedPath.endsWith(".txt") || selectedPath.endsWith(".tsv") || selectedPath.endsWith(".glyc")) {
-            // Byonic format
-            masses = GlycoMassLoader.loadTextOffsets(selectedPath);
-        } else if (selectedPath.endsWith(".gdb")) {
-            // pGlyco format
-            masses = GlycoMassLoader.loadPGlycoFile(selectedPath);
-        } else {
-            // invalid file type
-            log.error("Invalid file type for mass offset file %s. Must be .csv, .txt, or .glyc");
-            return new ArrayList<>();
-        }
-        glycoMasses = masses;
-        return masses;
+        DatabaseType dbType = detectDBtype(selectedPath);
+        glycoMasses = GlycoMassLoader.loadTextOffsets(selectedPath, dbType);
+        return glycoMasses;
     }
 
     public List<String> loadOffsets(Component parent) {
@@ -230,100 +224,48 @@ public class GlycoMassLoader {
         return allMasses;
     }
 
-    // read masses only from a text file. Can have , or \t delimiter, and one or multiple entries per line.
-    public static ArrayList<Double> loadTextOffsetsOld(String filePath) {
-        ArrayList<Double> massOffsets = new ArrayList<>();
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(filePath));
-            String readline;
-            while ((readline = reader.readLine()) != null) {
-                readline = readline.trim();
-                int t = readline.indexOf('#');
-                if (t >= 0) {
-                    readline = readline.substring(0, t);
-                }
-
-                if (readline.isEmpty()) {
-                    continue;
-                }
-
-                String[] lineSplits;
-                // handle csv and tsv inputs that may contain multiple entries per line
-                if (readline.contains(",")) {
-                    lineSplits = readline.split(",");
-                } else if (readline.contains("\t")) {
-                    lineSplits = readline.split("\t");
-                } else {
-                    lineSplits = new String[]{readline};
-                }
-
-                // parse masses
-                for (String mass : lineSplits) {
-                    try {
-                        massOffsets.add(Double.parseDouble(mass.trim()));
-                    } catch (NumberFormatException ex) {
-                        log.warn(String.format("Invalid entry %s could not be parsed and will be ignored.", mass));
-                    }
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return massOffsets;
-    }
-
     /**
-     * Load pGlyco glycan database file of format (N)(H)(H) or similar. Reads only the composition, ignoring structure.
-     * Removes duplicate masses to 4 decimal places
-     * @param filePath
-     * @return
+     * Peek at first line(s) of the database file and determine what type it is for parsing
+     * @param databasePath reader
+     * @return db type
      */
-    public static ArrayList<Double> loadPGlycoFile(String filePath) {
-        ArrayList<Double> massOffsets = new ArrayList<>();
-        HashMap<Long, Boolean> existingMasses = new HashMap<>();
-
+    public static DatabaseType detectDBtype(String databasePath) {
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(filePath));
-            String readline;
-            while ((readline = reader.readLine()) != null) {
-                readline = readline.trim();
-                int t = readline.indexOf('#');
-                if (t >= 0) {
-                    readline = readline.substring(0, t);
+            BufferedReader in = new BufferedReader(new FileReader(databasePath));
+            String line;
+            int i = 0;
+            while ((line = in.readLine()) != null) {
+                if (i == 0) {
+                    // headers are not required, but may be present
+                    if (line.contains("#") || line.contains("\\\\") || line.contains(",") || line.startsWith("%")) {
+                        i++;
+                        continue;
+                    }
                 }
-                // skip empty lines and lines without a glycan structure
-                if (!readline.contains("(")) {
-                    continue;
+                if (line.contains("%")) {
+                    line = line.split("%")[0];
                 }
 
-                // parse glycans from tokens
-                String line = readline.replace("Hp", "P");      // remove the only double character, if present
-                Matcher matcher = pGlycoPattern.matcher(line);
-                boolean valid = true;
-                double glycanMass = 0;
-                while(matcher.find()) {
-                    String glycanToken = matcher.group();
-                    if (pGlycoTokenMap.containsKey(glycanToken)) {
-                        glycanMass += glycanMasses.get(pGlycoTokenMap.get(glycanToken).toLowerCase());
-                    } else {
-                        log.warn(String.format("Invalid token %s in line %s. This line will be skipped", glycanToken, line));
-                        valid = false;
-                        break;
-                    }
+                // check if line matches any of the known patterns
+                Matcher byonicMatcher = byonicPattern.matcher(line);
+                Matcher metamMatcher = MMGlycoPattern.matcher(line);
+                Matcher pGlycoMatcher = pGlycoPattern.matcher(line);
+                Matcher oldPTMSMatcher = oldPTMSPattern.matcher(line);
+                if (byonicMatcher.find()) {
+                    return DatabaseType.byonic;
+                } else if (oldPTMSMatcher.find()) {
+                    return DatabaseType.oldPTMShepherd;
+                } else if (metamMatcher.find()) {
+                    return DatabaseType.metamorpheus;
+                } else if (pGlycoMatcher.find()) {
+                    return DatabaseType.pGlyco;
                 }
-                // check for duplicates and add if unique
-                if (valid) {
-                    long massKey = Math.round(glycanMass * 10000);
-                    if (!existingMasses.containsKey(massKey)) {
-                        massOffsets.add(glycanMass);
-                        existingMasses.put(massKey, true);
-                    }
-                }
+                i++;
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return massOffsets;
+        return DatabaseType.unknown;
     }
 
     /**
@@ -331,19 +273,17 @@ public class GlycoMassLoader {
      * @param filePath
      * @return
      */
-    public static ArrayList<Double> loadTextOffsets(String filePath) {
+    public static ArrayList<Double> loadTextOffsets(String filePath, DatabaseType dbType) {
         ArrayList<Double> massOffsets = new ArrayList<>();
-        List<String> charsNotInKindGlycans = Arrays.asList("(", ")", "%", "_", "-", "\t");
+        HashMap<Long, Boolean> existingMasses = new HashMap<>();
         try {
             BufferedReader reader = new BufferedReader(new FileReader(filePath));
             String readline;
             while ((readline = reader.readLine()) != null) {
                 readline = readline.trim();
-                int t = readline.indexOf('#');
-                if (t >= 0) {
-                    readline = readline.substring(0, t);
+                if (readline.contains("#") || readline.contains("\\\\") || readline.contains(",") || readline.startsWith("%")) {
+                    continue;
                 }
-
                 if (readline.isEmpty()) {
                     continue;
                 }
@@ -359,34 +299,21 @@ public class GlycoMassLoader {
                 }
 
                 // parse glycans
-                String glycanName;
                 for (String line : lineSplits) {
-                    double glycanMass;
-                    // handle new and old formats
-                    if (line.contains("%") || line.contains("(")) {
-                        if (line.contains("%")) {
-                            // default database includes mass in addition to glycan name - ignore mass and only take name
-                            glycanName = line.split("%")[0];
-                        } else {
-                            glycanName = line;
-                        }
-                        glycanMass = parseByonicGlycanString(glycanName);
-                    } else {
-                        if (line.contains("\t")) {
-                            // various databases may include other info in addition to glycan name - ignore and only take name (first column)
-                            glycanName = line.split("\t")[0];
-                            glycanMass = parseOldPTMSGlycanString(glycanName);
-                        } else if (line.contains("_")) {
-                            glycanName = line;
-                            glycanMass = parseOldPTMSGlycanString(glycanName);
-                        } else if (charsNotInKindGlycans.stream().noneMatch(line::contains)) {
-                            // line contains no distinguishing characters - see if it is a MetaMorpheus "Kind" glycan
+                    double glycanMass = 0;
+                    switch (dbType) {
+                        case byonic:
+                            glycanMass = parseGlycanString(line, byonicPattern.matcher(line));
+                            break;
+                        case pGlyco:
+                            glycanMass = parsePGlycoGlycan(line, existingMasses);
+                            break;
+                        case metamorpheus:
                             glycanMass = parseMMKindGlycanString(line);
-                        } else {
-                            // not a recognized format - often other info in the database
-                            continue;
-                        }
-
+                            break;
+                        case oldPTMShepherd:
+                            glycanMass = parseGlycanString(line, oldPTMSPattern.matcher(line));
+                            break;
                     }
                     if (glycanMass == 0) {
                         continue;
@@ -401,36 +328,61 @@ public class GlycoMassLoader {
     }
 
     /**
-     * Parse old PTM-Shepherd format glycans (HexNAc-2_Hex-5)
-     * @param glycanString string to parse
-     * @return mass of glycan
-     */
-    public static double parseOldPTMSGlycanString(String glycanString) {
-        double mass = 0;
-        String[] splits = glycanString.split("_");
-        // Read all residue counts into the composition container
-        for (String split: splits) {
-            String[] glycanSplits = split.split("-");
-            mass = getResidueMass(mass, glycanSplits);
-        }
-        return mass;
-    }
-
-    /**
      * Parse Byonic base format (Glyc1(#)Glyc2(#) ... % Mass)
      * @param glycanString Byonic format glycan string
      * @return mass of glycan
      */
-    public static double parseByonicGlycanString(String glycanString) {
-        String[] massSplits = glycanString.split(" % ");
-        String[] compositionSplits = massSplits[0].trim().split("\\)");
-        // Read all residue counts into the composition container
+    public static double parseGlycanString(String glycanString, Matcher glycanRegexMatcher) {
         double mass = 0;
-        for (String split: compositionSplits) {
-            String[] glycanSplits = split.split("\\(");
-            mass = getResidueMass(mass, glycanSplits);
+        while(glycanRegexMatcher.find()) {
+            String glycanToken = glycanRegexMatcher.group();
+            Matcher glycanName = letterPattern.matcher(glycanToken);
+            double residueMass = 0;
+            if (glycanName.find()) {
+                String glycan = glycanName.group();
+                residueMass = getResidueMass(glycan);
+            } else {
+                log.error(String.format("Warning: Invalid token %s in line %s. This line will be skipped", glycanName, glycanString));
+                return 0;
+            }
+            Matcher glycanCount = numberPattern.matcher(glycanToken);
+            if (glycanCount.find()) {
+                int count = Integer.parseInt(glycanCount.group());
+                mass += count * residueMass;
+            } else {
+                log.error(String.format("Warning: glycan count not found in glycan %s and was ignored", glycanString));
+                return 0;
+            }
         }
         return mass;
+    }
+
+    public static double parsePGlycoGlycan(String readline, HashMap<Long, Boolean> existingMasses) {
+        // parse glycans from tokens
+        String line = readline.replace("Hp", "P");      // remove the only double character, if present
+        Matcher matcher = pGlycoPattern.matcher(line);
+        boolean valid = true;
+        double glycanMass = 0;
+        while(matcher.find()) {
+            String glycanToken = matcher.group();
+            String glycan = glycanToken.replace("(", "").replace(")", "");
+            if (pGlycoTokenMap.containsKey(glycan)) {
+                glycanMass += glycanMasses.get(pGlycoTokenMap.get(glycan).toLowerCase());
+            } else {
+                log.warn(String.format("Invalid token %s in line %s. This line will be skipped", glycanToken, line));
+                valid = false;
+                break;
+            }
+        }
+        // check for duplicates and add if unique
+        if (valid) {
+            long massKey = Math.round(glycanMass * 10000);
+            if (!existingMasses.containsKey(massKey)) {
+                existingMasses.put(massKey, true);
+                return glycanMass;
+            }
+        }
+        return 0;
     }
 
     /**
@@ -456,16 +408,14 @@ public class GlycoMassLoader {
         return glycanMass;
     }
 
-    private static double getResidueMass(double mass, String[] glycanSplits) {
-        String glycanResidue = glycanSplits[0].trim().toLowerCase();
-        if (glycanMasses.containsKey(glycanResidue)) {
-            double residueMass = glycanMasses.get(glycanResidue);
-            int count = Integer.parseInt(glycanSplits[1].trim());
-            mass += (residueMass * count);
+    private static double getResidueMass(String glycanName) {
+        glycanName = glycanName.toLowerCase();
+        if (glycanMasses.containsKey(glycanName)) {
+            return glycanMasses.get(glycanName);
         } else {
-            log.error(String.format("Invalid glycan %s is not in the internal database. Please add its mass to the database file and retry.", glycanResidue));
+            log.error(String.format("Invalid glycan %s is not in the internal database and was ignored. Please add its mass to the database file and retry.", glycanName));
         }
-        return mass;
+        return 0;
     }
 
     // recursive combination generator (with repetition)
@@ -487,4 +437,14 @@ public class GlycoMassLoader {
         }
     }
 
+    public enum DatabaseType {
+        /**
+         * Possible glycan atabase types that can be parsed
+         */
+        pGlyco,
+        byonic,
+        oldPTMShepherd,
+        metamorpheus,
+        unknown
+    }
 }
