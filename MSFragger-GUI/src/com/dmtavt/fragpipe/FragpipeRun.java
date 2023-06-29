@@ -160,6 +160,17 @@ public class FragpipeRun {
       Pattern.compile(".+\\.pepXML"),
       Pattern.compile(".+\\.pin"),
       Pattern.compile(".+\\.pair"),
+      Pattern.compile("db\\.bin"),
+      Pattern.compile("meta\\.bin"),
+      Pattern.compile("psm\\.bin"),
+      Pattern.compile("ion\\.bin"),
+      Pattern.compile("pep\\.bin"),
+      Pattern.compile("pro\\.bin"),
+      Pattern.compile("pepxml\\.bin"),
+      Pattern.compile("protxml\\.bin"),
+      Pattern.compile("razor\\.bin"),
+      Pattern.compile("raw\\.bin"),
+      Pattern.compile("lfq\\.bin"),
   };
   private static final Pattern fppdvDbPattern = Pattern.compile(".+\\.db");
 
