@@ -46,7 +46,7 @@ public class QuantLabel {
     labels.add(new QuantLabel(TYPE_TMT, "TMT-18", Arrays.asList("126, 127N, 127C, 128N, 128C, 129N, 129C, 130N, 130C, 131N, 131C, 132N, 132C, 133N, 133C, 134N, 134C, 135N".split("[,\\s]+"))));
     labels.add(new QuantLabel(TYPE_ITRAQ, "iTRAQ-4", Arrays.asList("114, 115, 116, 117".split("[,\\s]+"))));
     labels.add(new QuantLabel(TYPE_ITRAQ, "iTRAQ-8", Arrays.asList("113, 114, 115, 116, 117, 118, 119, 121".split("[,\\s]+"))));
-    labels.add(new QuantLabel(TYPE_CUSTOM, CUSTOM_LABEL_NAME, Arrays.asList("xtag1, xtag2, xtag3, xtag4, xtag5, xtag6, xtag7, xtag8, xtag9, xtag10, xtag11, xtag12, xtag13, xtag14, xtag15, xtag16, xtag17, xtag18".split("[,\\s]+"))));
+    labels.add(new QuantLabel(TYPE_CUSTOM, CUSTOM_LABEL_NAME, Arrays.asList("xtag1, xtag2, xtag3, xtag4, xtag5, xtag6, xtag7, xtag8, xtag9, xtag10, xtag11, xtag12, xtag13, xtag14, xtag15, xtag16, xtag17, xtag18, xtag19, xtag20, xtag21, xtag22, xtag23, xtag24, xtag25, xtag26, xtag27, xtag28, xtag29, xtag30, xtag31, xtag32".split("[,\\s]+"))));
     LABELS = Collections.unmodifiableList(labels);
   }
 
