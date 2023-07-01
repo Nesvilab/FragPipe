@@ -17,7 +17,10 @@
 
 package com.dmtavt.fragpipe.api;
 
+import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.params.ThisAppProps;
+import com.dmtavt.fragpipe.tools.diann.DiannPanel;
+import com.dmtavt.fragpipe.tools.speclibgen.SpeclibPanel;
 import com.github.chhh.utils.StringUtils;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -113,6 +116,11 @@ public class InputLcmsFile implements Comparable<InputLcmsFile> {
     }
 
     public String getGroup() {
+        final SpeclibPanel speclibPanel = Fragpipe.getStickyStrict(SpeclibPanel.class);
+        final DiannPanel diannPanel = Fragpipe.getStickyStrict(DiannPanel.class);
+        if (speclibPanel.isRun() || diannPanel.isRun()) {
+            return "";
+        }
         if (getReplicate() != null) {
             if (StringUtils.isNullOrWhitespace(experiment)) {
                 return "exp_" + getReplicate();

@@ -18,6 +18,7 @@
 package com.dmtavt.fragpipe.cmd;
 
 import static com.dmtavt.fragpipe.cmd.ToolingUtils.BATMASS_IO_JAR;
+import static com.dmtavt.fragpipe.tabs.TabWorkflow.manifestExt;
 import static com.github.chhh.utils.OsUtils.isUnix;
 import static com.github.chhh.utils.OsUtils.isWindows;
 import static com.github.chhh.utils.SwingUtils.createClickableHtml;
@@ -28,6 +29,7 @@ import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
+import com.dmtavt.fragpipe.tools.diann.DiannToMsstats;
 import com.dmtavt.fragpipe.tools.diann.PlexDiaHelper;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.StringUtils;
@@ -81,7 +83,7 @@ public class CmdDiann extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, Collection<LcmsFileGroup> lcmsFileGroups, int nThreads, Set<String> quantificationStrategy, boolean usePredict, boolean unrelatedRuns, float qvalue, boolean useRunSpecificProteinQvalue, String libraryPath, String additionalCmdOpts, boolean isDryRun, boolean isRunPlex, String lightString, String mediumString, String heavyString, Path jarFragpipe) {
+  public boolean configure(Component comp, Collection<LcmsFileGroup> lcmsFileGroups, int nThreads, Set<String> quantificationStrategy, boolean usePredict, boolean unrelatedRuns, float qvalue, boolean useRunSpecificProteinQvalue, String libraryPath, String additionalCmdOpts, boolean isDryRun, boolean isRunPlex, boolean generateMsstats, String lightString, String mediumString, String heavyString, Path jarFragpipe) {
 
     initPreConfig();
 
@@ -301,6 +303,9 @@ public class CmdDiann extends CmdBase {
         cmd.add("--dl-no-im");
         cmd.add("--strip-unknown-mods");
       }
+      if (generateMsstats) {
+        cmd.add("--report-lib-info");
+      }
       if (isRunPlex) {
         try {
           cmd.addAll(getPlexDiannFlags(lightString, mediumString, heavyString));
@@ -346,6 +351,53 @@ public class CmdDiann extends CmdBase {
         pb2.directory(groupWd.toFile());
         pbis.add(PbiBuilder.from(pb2));
       }
+    }
+
+    if (generateMsstats) {
+      Path root = FragpipeLocations.get().getDirFragpipeRoot();
+      Path libsDir = root.resolve("lib");
+      if (Files.isDirectory(jarFragpipe)) {
+        libsDir = jarFragpipe.getParent().getParent().getParent().getParent().resolve("build/install/fragpipe/lib");
+        log.debug("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
+      }
+
+      List<String> toJoin = new ArrayList<>();
+      try {
+        toJoin.addAll(Files.walk(libsDir).
+            filter(p -> p.getFileName().toString().endsWith(".jar")).
+            filter(p -> {
+              String t = p.getFileName().toString();
+              return t.startsWith("fragpipe-") || t.startsWith("commons-io");
+            }).
+            map(p -> p.toAbsolutePath().normalize().toString()).collect(Collectors.toList())
+        );
+      } catch (IOException ex) {
+        ex.printStackTrace();
+        return false;
+      }
+
+      toJoin.add(jarFragpipe.toAbsolutePath().normalize().toString());
+      final String classpath = OsUtils.asSingleArgument(String.join(System.getProperties().getProperty("path.separator"), toJoin));
+
+      List<String> cmd = new ArrayList<>();
+      cmd.add(Fragpipe.getBinJava());
+      cmd.add("-cp");
+      cmd.add(classpath);
+      cmd.add(DiannToMsstats.class.getCanonicalName());
+      cmd.add("diann-output.tsv");
+      cmd.add("msstats.csv");
+      cmd.add(String.valueOf(qvalue));
+      if (useRunSpecificProteinQvalue) {
+        cmd.add(String.valueOf(qvalue));
+      } else {
+        cmd.add("1");
+      }
+      cmd.add(String.valueOf(qvalue));
+      cmd.add(String.valueOf(qvalue));
+      cmd.add(wd.resolve("fragpipe-files" + manifestExt).toAbsolutePath().toString());
+      ProcessBuilder pb = new ProcessBuilder(cmd);
+      pb.directory(wd.resolve("diann-output").toFile());
+      pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + ": Convert DIA-NN output to MSstats.csv").create());
     }
 
 //    if (isRunPlex) {

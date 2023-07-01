@@ -77,6 +77,7 @@ public class DiannPanel extends JPanelBase {
   private UiCheck uiCheckUsePredictedSpectra;
   private UiCheck uiCheckUseRunSpecificProteinQvalue;
   private UiCheck uiCheckUnrelatedRuns;
+  private UiCheck uiCheckGenerateMsstats;
   private UiText uiTextLight;
   private UiText uiTextMedium;
   private UiText uiTextHeavy;
@@ -168,6 +169,9 @@ public class DiannPanel extends JPanelBase {
     uiCheckUsePredictedSpectra = UiUtils.createUiCheck("Replace library spectra with predicted", true);
     FormEntry feUsePredictedSpectra = new FormEntry("use-predicted-spectra", "Replace library spectra with predicted", uiCheckUsePredictedSpectra);
 
+    uiCheckGenerateMsstats = UiUtils.createUiCheck("Generate MSstats input", false);
+    FormEntry feGenerateMsstats = new FormEntry("generate-msstats", "Generate MSstats input", uiCheckGenerateMsstats, "Convert the DIA-NN output to MSstats format.");
+
     uiCheckUnrelatedRuns = UiUtils.createUiCheck("Unrelated runs", false);
     FormEntry feUnrelatedRuns = new FormEntry("unrelated-runs", "Unrelated runs", uiCheckUnrelatedRuns, "Different runs will be treated as unrelated, i.e. mass accuracy (when automatic) will be determined separately, as well as the retention time scan window.");
 
@@ -199,6 +203,7 @@ public class DiannPanel extends JPanelBase {
     mu.add(panelBasic, feQuantificationStrategy.comp).wrap();
     mu.add(panelBasic, feUnrelatedRuns.comp).wrap();
     mu.add(panelBasic, feUsePredictedSpectra.comp).wrap();
+    mu.add(panelBasic, feGenerateMsstats.comp).wrap();
     mu.add(panelBasic, feLibrary.label(), mu.ccL());
     mu.add(panelBasic, feLibrary.comp).pushX().growX();
     mu.add(panelBasic, jButtonLibrary).wrap();
@@ -243,6 +248,7 @@ public class DiannPanel extends JPanelBase {
       updateEnabledStatus(uiTextLight, isRunPlex());
       updateEnabledStatus(uiTextMedium, isRunPlex());
       updateEnabledStatus(uiTextHeavy, isRunPlex());
+      updateEnabledStatus(uiCheckGenerateMsstats, !isRunPlex());
     });
 
     mu.add(panelPlex, checkRunPlex).wrap();
@@ -296,6 +302,10 @@ public class DiannPanel extends JPanelBase {
 
   public boolean useRunSpecificProteinQvalue() {
     return uiCheckUseRunSpecificProteinQvalue.isSelected();
+  }
+
+  public boolean generateMsstats() {
+    return SwingUtils.isEnabledAndChecked(uiCheckGenerateMsstats);
   }
 
   public String getLibraryPath() {

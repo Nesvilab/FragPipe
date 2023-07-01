@@ -971,7 +971,7 @@ public class FragpipeRun {
     StringBuilder sb = new StringBuilder();
     for (Entry<String, LcmsFileGroup> e : lcmsFileGroups.entrySet()) {
       sb.append(String.format(Locale.ROOT, "  Experiment/Group: %s", e.getValue().name))
-          .append("\n");
+          .append("\n  (if \"spectral library generation\" is enabled, all files will be analyzed together)\n");
       for (InputLcmsFile f : e.getValue().lcmsFiles) {
         sb.append(String.format(Locale.ROOT, "  - %s\t%s", f.getPath().toString(), f.getDataType())).append("\n");
       }
@@ -1694,7 +1694,7 @@ public class FragpipeRun {
     final CmdDiann cmdDiann = new CmdDiann(diannPanel.isRun(), wd);
     addConfig.accept(cmdDiann,  () -> {
       if (cmdDiann.isRun()) {
-        return cmdDiann.configure(parent, sharedLcmsFileGroupsAll.values(), threads, diannPanel.getDiannQuantificationStrategy(), diannPanel.usePredict(), diannPanel.unrelatedRuns(), diannPanel.getDiannQvalue(), diannPanel.useRunSpecificProteinQvalue(), diannPanel.getLibraryPath(), diannPanel.getCmdOpts(), isDryRun, diannPanel.isRunPlex(), diannPanel.getLight(), diannPanel.getMedium(), diannPanel.getHeavy(), jarPath);
+        return cmdDiann.configure(parent, sharedLcmsFileGroupsAll.values(), threads, diannPanel.getDiannQuantificationStrategy(), diannPanel.usePredict(), diannPanel.unrelatedRuns(), diannPanel.getDiannQvalue(), diannPanel.useRunSpecificProteinQvalue(), diannPanel.getLibraryPath(), diannPanel.getCmdOpts(), isDryRun, diannPanel.isRunPlex(), diannPanel.generateMsstats(), diannPanel.getLight(), diannPanel.getMedium(), diannPanel.getHeavy(), jarPath);
       }
       return true;
     });
