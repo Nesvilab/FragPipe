@@ -18,6 +18,7 @@
 package com.dmtavt.fragpipe.cmd;
 
 import static com.dmtavt.fragpipe.messages.MessagePrintToConsole.toConsole;
+import static com.dmtavt.fragpipe.tabs.TabWorkflow.manifestExt;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeRun;
@@ -138,7 +139,7 @@ public class ProcessBuilderInfo {
 
               if (!isDownstream) {
                 // save manifest file in both GUI and headless mode
-                Path path = wdPath.resolve("fragpipe-files.fp-manifest");
+                Path path = wdPath.resolve("fragpipe-files" + manifestExt);
                 Bus.post(new MessageManifestSave(path, true));
               }
 

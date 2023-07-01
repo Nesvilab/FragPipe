@@ -152,7 +152,8 @@ public class TabWorkflow extends JPanelWithEnablement {
   private JButton btnFilesRemove;
   private JButton btnFilesClear;
   public static final String TAB_PREFIX = "workflow.";
-  private static final String manifestExt = ".fp-manifest";
+  public static final String manifestExt = ".fp-manifest";
+  public static final String workflowExt = ".workflow";
   public static final int maxProcessors = 128;
 
   private SimpleETable tableRawFiles;
@@ -807,8 +808,8 @@ public class TabWorkflow extends JPanelWithEnablement {
     Fragpipe fp0 = Fragpipe.getStickyStrict(Fragpipe.class);
     final javax.swing.JFrame fp = fp0.toJFrame();
     Properties uiProps = FragpipeCacheUtils.tabsSave0(fp0.tabs, m.saveWithFieldTypes);
-    String workflowExt = ".workflow";
-    FileNameEndingFilter workflowEndingFilter = new FileNameEndingFilter("workflow files", ".workflow");
+
+    FileNameEndingFilter workflowEndingFilter = new FileNameEndingFilter("workflow files", workflowExt);
 
     Path saveDir;
     Path savePath = null;
@@ -861,7 +862,7 @@ public class TabWorkflow extends JPanelWithEnablement {
         SwingUtils.showErrorDialog(fp, "Workflow name can't be left empty", "Error saving workflow");
         return;
       }
-      final String fn = StringUtils.appendOnce(text, ".workflow");
+      final String fn = StringUtils.appendOnce(text, workflowExt);
       if (saveDir.equals(fpWorkflowsDir) && defaultWorkflows.stream().anyMatch(path -> path.getFileName().toString().equalsIgnoreCase(fn))) {
         SwingUtils.showInfoDialog(this,
             "Name can't be the same as one of default ones",

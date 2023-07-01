@@ -19,6 +19,8 @@ package com.dmtavt.fragpipe;
 
 import static com.dmtavt.fragpipe.messages.MessagePrintToConsole.toConsole;
 import static com.dmtavt.fragpipe.tabs.TabDatabase.databaseSizeLimit;
+import static com.dmtavt.fragpipe.tabs.TabWorkflow.manifestExt;
+import static com.dmtavt.fragpipe.tabs.TabWorkflow.workflowExt;
 import static com.github.chhh.utils.FileDelete.deleteFileOrFolder;
 
 import com.dmtavt.fragpipe.api.Bus;
@@ -508,7 +510,7 @@ public class FragpipeRun {
         saveRuntimeConfig(wd);
 
         // save manifest file in both GUI and headless mode
-        Path path = wd.resolve("fragpipe-files.fp-manifest");
+        Path path = wd.resolve("fragpipe-files" + manifestExt);
         Bus.post(new MessageManifestSave(path, true));
 
         if (tabRun.isWriteSubMzml()) { // write sub workflow and manifest files for the second-pass
@@ -557,8 +559,8 @@ public class FragpipeRun {
               newPrecursorTrueTolerance = Float.parseFloat(matcher.group(1));
             }
 
-            Path workflowFilePath = wd.resolve("fragpipe.workflow");
-            Path workflowFileSecondPassPath = wd.resolve("fragpipe-second-pass.workflow");
+            Path workflowFilePath = wd.resolve("fragpipe" + workflowExt);
+            Path workflowFileSecondPassPath = wd.resolve("fragpipe-second-pass" + workflowExt);
             if (Files.exists(workflowFilePath) && Files.isRegularFile(workflowFilePath) && Files.isReadable(workflowFilePath)) {
               BufferedReader reader = Files.newBufferedReader(workflowFilePath);
               BufferedWriter writer = Files.newBufferedWriter(workflowFileSecondPassPath);
@@ -600,8 +602,8 @@ public class FragpipeRun {
               reader.close();
             }
 
-            Path manifestFilePath = wd.resolve("fragpipe-files.fp-manifest");
-            Path manifestFileSecondPassPath = wd.resolve("fragpipe-files-second-pass.fp-manifest");
+            Path manifestFilePath = wd.resolve("fragpipe-files" + manifestExt);
+            Path manifestFileSecondPassPath = wd.resolve("fragpipe-files-second-pass" + manifestExt);
             if (Files.exists(manifestFilePath) && Files.isRegularFile(manifestFilePath) && Files.isReadable(manifestFilePath)) {
               BufferedReader reader = Files.newBufferedReader(manifestFilePath);
               BufferedWriter writer = Files.newBufferedWriter(manifestFileSecondPassPath);
@@ -743,7 +745,7 @@ public class FragpipeRun {
 
 
   public static void saveRuntimeConfig(Path wd) {
-    Path path = wd.resolve("fragpipe.workflow");
+    Path path = wd.resolve("fragpipe" + workflowExt);
     Bus.post(new MessageSaveUiState(path));
   }
 
