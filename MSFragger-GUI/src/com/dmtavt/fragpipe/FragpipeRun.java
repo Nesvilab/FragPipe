@@ -331,6 +331,12 @@ public class FragpipeRun {
       toConsole("LCMS files:\n" + createLcmsFilesString(lcmsFileGroups), tabRun.console);
       toConsole("", tabRun.console);
 
+      // save manifest file in both GUI and headless mode
+      Path pp = wd.resolve("fragpipe-files" + manifestExt);
+      Bus.post(new MessageManifestSave(pp, true));
+
+      saveRuntimeConfig(wd);
+
       // Converting process builders descriptors to process builder infos
       final List<ProcessBuilderInfo> pbis = pbDescsBuilderDescs.stream()
           .flatMap(pbd -> pbd.pbis.stream().map(pbi ->
@@ -507,11 +513,6 @@ public class FragpipeRun {
         String totalTime = String.format("%.1f", (System.nanoTime() - startTime) * 1e-9 / 60);
         toConsole(Fragpipe.COLOR_RED_DARKEST, "\n=============================================================ALL JOBS DONE IN " + totalTime + " MINUTES=============================================================", true, tabRun.console);
         Bus.post(MessageSaveLog.saveInDir(wd));
-        saveRuntimeConfig(wd);
-
-        // save manifest file in both GUI and headless mode
-        Path path = wd.resolve("fragpipe-files" + manifestExt);
-        Bus.post(new MessageManifestSave(path, true));
 
         if (tabRun.isWriteSubMzml()) { // write sub workflow and manifest files for the second-pass
           try {
