@@ -162,7 +162,7 @@ public class FragpipeRun {
       Pattern.compile(".+\\.pepXML"),
       Pattern.compile(".+\\.pin"),
       Pattern.compile(".+\\.pair"),
-      Pattern.compile("db\\.bin"),
+      Pattern.compile("db\\.bin.*"),
       Pattern.compile("meta\\.bin"),
       Pattern.compile("psm\\.bin"),
       Pattern.compile("ion\\.bin"),
