@@ -280,7 +280,7 @@ public class CmdDiann extends CmdBase {
       cmd.add("--verbose");
       cmd.add("1");
       cmd.add("--out");
-      cmd.add("diann-output" + File.separator + "diann-output.tsv");
+      cmd.add("diann-output" + File.separator + "report.tsv");
       cmd.add("--qvalue");
       cmd.add(String.valueOf(qvalue));
       cmd.add("--matrix-qvalue");
@@ -344,9 +344,9 @@ public class CmdDiann extends CmdBase {
         // Plotting
         List<String> cmd2 = new ArrayList<>();
         cmd2.add(diannPath.get(0).toAbsolutePath().toString().replaceAll("DiaNN\\.exe$", "dia-nn-plotter.exe"));
-        cmd2.add("diann-output" + File.separator + "diann-output.stats.tsv");
-        cmd2.add("diann-output" + File.separator + "diann-output.tsv");
-        cmd2.add("diann-output" + File.separator + "diann-output.pdf");
+        cmd2.add("diann-output" + File.separator + "report.stats.tsv");
+        cmd2.add("diann-output" + File.separator + "report.tsv");
+        cmd2.add("diann-output" + File.separator + "report.pdf");
         ProcessBuilder pb2 = new ProcessBuilder(cmd2);
         pb2.directory(groupWd.toFile());
         pbis.add(PbiBuilder.from(pb2));
@@ -384,7 +384,7 @@ public class CmdDiann extends CmdBase {
       cmd.add("-cp");
       cmd.add(classpath);
       cmd.add(DiannToMsstats.class.getCanonicalName());
-      cmd.add("diann-output.tsv");
+      cmd.add("report.tsv");
       cmd.add("msstats.csv");
       cmd.add(String.valueOf(qvalue));
       if (useRunSpecificProteinQvalue) {
@@ -452,7 +452,7 @@ public class CmdDiann extends CmdBase {
 //        cmd.add("--library");
 //        cmd.add("library_2.tsv");
 //        cmd.add("--diann-report");
-//        cmd.add("diann-output" + File.separator + "diann-output.tsv");
+//        cmd.add("diann-output" + File.separator + "report.tsv");
 //        cmd.add("--output-dir");
 //        cmd.add(groupWd.toAbsolutePath().toString());
 //        ProcessBuilder pb = new ProcessBuilder(cmd);

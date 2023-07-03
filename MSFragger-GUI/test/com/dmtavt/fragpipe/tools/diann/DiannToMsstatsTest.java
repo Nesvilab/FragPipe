@@ -33,7 +33,7 @@ public class DiannToMsstatsTest {
 
   @Test
   public void test() throws Exception {
-    Path diannPath = Paths.get(Objects.requireNonNull(PlexDiaHelperTest.class.getResource("/diann-output.tsv")).toURI());
+    Path diannPath = Paths.get(Objects.requireNonNull(PlexDiaHelperTest.class.getResource("/report.tsv")).toURI());
     if (!Files.exists(diannPath) || !Files.isRegularFile(diannPath) || !Files.isReadable(diannPath)) {
       throw new IllegalStateException("Test DIA-NN file not found: " + diannPath);
     }
