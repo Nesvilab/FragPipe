@@ -645,38 +645,38 @@ public class CmdDiann extends CmdBase {
   public static String getLDPRELOAD(List<Path> diannPath) {
     String LD_PRELOAD_str = null;
     if (isUnix()) {
-      final ProcessBuilder pb = new ProcessBuilder(diannPath.get(0).toString());
-      if (checkExitCode(pb) != 0) {
-        final List<Path> diann_so_path = FragpipeLocations.checkToolsMissing(Seq.of(DIANN_SO_DEPS));
-        if (diann_so_path == null || diann_so_path.size() != DIANN_SO_DEPS.length) {
-          System.err.print(".so files missing");
-          return null;
-        }
-        LD_PRELOAD_str = diann_so_path.get(0).toString() + ":" + diann_so_path.get(1).toString();
-        final ProcessBuilder pb2 = new ProcessBuilder(diannPath.get(0).toString());
-        pb2.environment().put("LD_PRELOAD", LD_PRELOAD_str);
-        if (checkExitCode(pb2) != 0) {
-          final List<Path> diann_so_path2 = FragpipeLocations.checkToolsMissing(Seq.of(DIANN_SO_DEPS_libgomp));
-          if (diann_so_path2 == null || diann_so_path2.size() != DIANN_SO_DEPS_libgomp.length) {
+      try {
+        final ProcessBuilder pb = new ProcessBuilder(diannPath.get(0).toAbsolutePath().toString());
+        if (checkExitCode(pb) != 0) {
+          final List<Path> diann_so_path = FragpipeLocations.checkToolsMissing(Seq.of(DIANN_SO_DEPS));
+          if (diann_so_path == null || diann_so_path.size() != DIANN_SO_DEPS.length) {
             System.err.print(".so files missing");
             return null;
           }
-          LD_PRELOAD_str += ":" + diann_so_path2.get(0).toString();
+          LD_PRELOAD_str = diann_so_path.get(0).toString() + ":" + diann_so_path.get(1).toString();
+          final ProcessBuilder pb2 = new ProcessBuilder(diannPath.get(0).toAbsolutePath().toString());
+          pb2.environment().put("LD_PRELOAD", LD_PRELOAD_str);
+          if (checkExitCode(pb2) != 0) {
+            final List<Path> diann_so_path2 = FragpipeLocations.checkToolsMissing(Seq.of(DIANN_SO_DEPS_libgomp));
+            if (diann_so_path2 == null || diann_so_path2.size() != DIANN_SO_DEPS_libgomp.length) {
+              System.err.print(".so files missing");
+              return null;
+            }
+            LD_PRELOAD_str += ":" + diann_so_path2.get(0).toString();
+          }
         }
+      } catch (Exception ex) {
+        System.err.println("Failed in checking " + diannPath.get(0).toAbsolutePath());
+        ex.printStackTrace();
+        return null;
       }
     }
     return LD_PRELOAD_str;
   }
 
-  private static int checkExitCode(final ProcessBuilder pb) {
-    try {
-      final Process proc;
-      proc = pb.start();
-      return proc.waitFor();
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    } catch (InterruptedException e) {
-      throw new RuntimeException(e);
-    }
+  private static int checkExitCode(final ProcessBuilder pb) throws Exception {
+    final Process proc;
+    proc = pb.start();
+    return proc.waitFor();
   }
 }
