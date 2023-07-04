@@ -1,7 +1,7 @@
 ### Using a custom offset workflow with FragPipe: RNA crosslinking analysis
 [XRNAX](https://www.xrnax.com/) is a method for “unbiased” purification of protein-crosslinked RNA, which can be used to help probe and understand protein-RNA interactions. For this analysis, we will need to load a custom workflow. This workflow searches the database with mass offsets that correspond to crosslinked RNA fragments. One can alternatively perform a fully open search (with the mass window set to -150, +1000 Da) as was done in the publication (citation below). However, mass offset searches are faster and more sensitive than performing a full open search, with the limitation that you can only find peptides with mass shifts specified in the offset list. 
 
-This tutorial will use 'XRNAX-MassOffset' workflow to search a single .mzML spectral file of RNA-crosslinked tryptic peptides from an MCF7 cell line, acquired on a QExactive HF. Original publication: Trendel, Jakob, et al. "The human RNA-binding proteome and its dynamics during translational arrest." Cell 176.1-2 (2019): 391-403. The files you will need for this tutorial can be found in this [Dropbox folder](https://www.dropbox.com/sh/biwqa6dw3ti4bfz/AADRvn5mRxA3ple9DAC7LMvka?dl=1).
+This tutorial will use 'XRNAX-MassOffset' workflow to search a single .mzML spectral file of RNA-crosslinked tryptic peptides from an MCF7 cell line, acquired on a QExactive HF. Original publication: Trendel, Jakob, et al. "The human RNA-binding proteome and its dynamics during translational arrest." Cell 176.1-2 (2019): 391-403. The `20160530_QE1_JT_XRNAXpep_Trp_hydro.mzML` you will need for this tutorial can be found from [PRIDE](https://www.ebi.ac.uk/pride/archive/projects/PXD010520).
 
 ##### Tutorial contents
 * [Load a custom workflow](https://fragpipe.nesvilab.org/docs/tutorial_offset.html#load-a-custom-workflow)
@@ -21,7 +21,7 @@ On the Workflow tab, select 'XRNAX-MassOffset' from the workflow dropdown menu a
 <br>
 
 ### Get a sequence database
-You can choose to download a readymade human protein database file from [here](https://www.dropbox.com/s/v8tlkwu96f3txfj/2021-05-07-decoys-reviewed-contam-UP000005640.fas?dl=0), or you can download one using FragPipe. On the Database tab, click the ‘Download’ button. Follow the prompts to use the default settings (reviewed human sequences with common contaminants).
+You can download a human protein database file [using FragPipe](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html#specify-a-protein-sequence-database). On the Database tab, click the ‘Download’ button. Follow the prompts to use the default settings (reviewed human sequences with common contaminants).
 
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-database-options.png)
 
@@ -33,7 +33,7 @@ On the MSFragger tab, inspect the search parameters. Scroll down to the Mass Off
 
 
 ### Set the custom annotation file
-On the PTMs tab, we will add a custom annotation file to supply names for the mass offset values (as a list of name-mass pairs), download 'unimod_20191002_RNAadducts.txt' from [Dropbox](https://www.dropbox.com/sh/biwqa6dw3ti4bfz/AADRvn5mRxA3ple9DAC7LMvka?dl=0) if you haven't already. In the ‘Custom annotation file’ box, provide the file path to unimod_20191002_RNAadducts.txt. You can copy and paste the file path or ‘Browse’ to add it.
+On the PTMs tab, we will add a custom annotation file to supply names for the mass offset values (as a list of name-mass pairs), download 'unimod_20191002_RNAadducts.txt' from [here](https://raw.githubusercontent.com/Nesvilab/FragPipe/master/MSFragger-GUI/tools/unimod_20191002_RNAadducts.txt) if you haven't already. In the ‘Custom annotation file’ box, provide the file path to unimod_20191002_RNAadducts.txt. You can copy and paste the file path or ‘Browse’ to add it.
 
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/custom-offset-ptmshepherd.png)
 

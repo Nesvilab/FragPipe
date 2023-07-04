@@ -49,7 +49,7 @@ Python (with EasyPQP installed) is needed for spectral library generation. On th
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-diann.png)
 
 
-5. On the 'Run' tab, set the output directory and click 'Run'. Example output from this workflow can be downloaded [here](https://www.dropbox.com/s/m3bccdccr5xmfo7/DIA_SpecLib_Quant-results.zip?dl=1).
+5. On the 'Run' tab, set the output directory and click 'Run'.
 
 
 <br>
@@ -64,8 +64,6 @@ Follow the same steps as above to run the 'DIA_DIA-Umpire_SpecLib_Quant' workflo
  Please note that if DIA-Umpire fails or is interrupted, temporary files will cause issues if the process runs again. Make sure to delete any temporary files that are generated alongside the raw/mzML files before re-running FragPipe.
 
  ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-diaumpire.png)
-
-Example output from this workflow can be downloaded [here](https://www.dropbox.com/s/xwa86a0nua6bx3s/DIA_DIA-Umpire_SpecLib_Quant-results.zip?dl=1).
 
 <br>
 <br>

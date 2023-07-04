@@ -20,7 +20,7 @@ We will use this CPTAC dataset which can be found [here](https://cptac-data-port
 <br>
 
 ### Download data
-For this tutorial, we will use a publicly-available LC-MS spectral file from a single fraction (_01_CPTAC_TMTS1-NCI7_P_JHUZ_20170509_LUMOS.mzML_) of a TMT 10-plex human cell line sample described [in this publication](https://pubs.acs.org/doi/10.1021/acs.jproteome.8b00165), which you can download from [Dropbox](https://www.dropbox.com/sh/ok32xrlragj9ulr/AAB6cgRVHxtXNAwT-LmarxhYa?dl=1). The full experiment listing is [here](http://proteomecentral.proteomexchange.org/cgi/GetDataset?ID=PXD008952). Place the mzML file in a new folder named 'TMT_tutorial'.
+For this tutorial, we will use a publicly-available LC-MS spectral file from a single fraction (`01_CPTAC_TMTS1-NCI7_P_JHUZ_20170509_LUMOS.mzML`) of a TMT 10-plex human cell line sample described [in this publication](https://pubs.acs.org/doi/10.1021/acs.jproteome.8b00165), which you can download from [PRIDE](https://www.ebi.ac.uk/pride/archive/projects/PXD008952). The full experiment listing is [here](http://proteomecentral.proteomexchange.org/cgi/GetDataset?ID=PXD008952). Place the mzML file in a new folder named 'TMT_tutorial'.
 <br>
 
 ### Start FragPipe

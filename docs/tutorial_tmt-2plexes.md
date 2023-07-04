@@ -28,7 +28,7 @@ When you launch FragPipe, check that MSFragger, IonQuant, and Philosopher are co
 
 
 ### Load the data
-For this tutorial, we will download the ready-to-use dataset as a .zip file. Download the compressed folder ‘tmt-phospho-raw.zip’ from [Dropbox](https://www.dropbox.com/sh/td1vzhuai1ghc8x/AACaHKH0ez9QybXpuuB7EDtca?dl=0) and unzip it. These files have been selected from the larger CPTAC dataset, converted to .mzML format (from .raw, [conversion tutorial here](https://fragpipe.nesvilab.org/docs/tutorial_convert.html)), and organized into subfolders by plex (two high-pH fractions per plex/folder) with corresponding TMT channel annotation files. The file organization is shown below, where 'TMT-P-01s' and 'TMT-P-02s' are the two plexes and ‘f01’ and ‘f02’ indicate two fractions of the same 10-plex. Different plexes must be organized into separate, uniquely-named folders as shown in this example.
+For this tutorial, we will download `01CPTAC_CCRCC_P_JHU_20171106_LUMOS_f01.raw`, `01CPTAC_CCRCC_P_JHU_20171106_LUMOS_f02.raw`, `02CPTAC_CCRCC_P_JHU_20171108_LUMOS_f01.raw`, and `02CPTAC_CCRCC_P_JHU_20171108_LUMOS_f02.raw` from [CPTAC data portal](https://cptac-data-portal.georgetown.edu/study-summary/S050) and convert them to .mzML format (from .raw, [conversion tutorial here](https://fragpipe.nesvilab.org/docs/tutorial_convert.html)), and organized into subfolders by plex (two high-pH fractions per plex/folder) with corresponding TMT channel annotation files. The file organization is shown below, where 'TMT-P-01s' and 'TMT-P-02s' are the two plexes and ‘f01’ and ‘f02’ indicate two fractions of the same 10-plex. Different plexes must be organized into separate, uniquely-named folders as shown in this example.
 
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-2plexes-filesetup.png)
 
@@ -57,7 +57,7 @@ If you haven’t already downloaded a FASTA sequence database with FragPipe, go 
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-database.png)
 
 
-You will need to select a download location first before proceeding to fetch the database with the default options (reviewed human sequences plus common contaminants). Alternatively, you can use the one included in the Dropbox folder (nesvilab_tutorials/2021-05-07-decoys-reviewed-contam-UP000005640.fas).
+You will need to select a download location first before proceeding to fetch the database with the default options (reviewed human sequences plus common contaminants).
 
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-database-options.png)
 
@@ -121,7 +121,7 @@ A key to the row indices in the resulting multi- and single-site reports is show
 <br>
 
 ### Analyze the whole proteome samples
-While you’re inspecting the results of the phosphorylation-enriched samples, you can set up the analysis of the unenriched (‘proteome’) samples. We will again use just two fractions each from two different TMT 10-plexes. To get the unenriched data, open the ‘TMT’ folder in Dropbox, download the ‘tmt-proteome-raw.zip’ file and extract the files.
+While you’re inspecting the results of the phosphorylation-enriched samples, you can set up the analysis of the unenriched (‘proteome’) samples. We will again use just two fractions each from two different TMT 10-plexes.
 
 
 The files are organized similarly to the phospho data, so we can use the ‘Add folder recursively’ button again to load the data.

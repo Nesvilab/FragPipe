@@ -7,7 +7,7 @@ Traditional closed search requires that precursor masses match the identified pe
 
 Parthenolide is a protein-reactive compound frequently used by cytoskeleton researchers to inhibit tubulin detyrosinases, but it is suspected to hit more than just those enzymes. Labeled peptides should have a +248.14125 Da mass shift, and we want to allow modification of any amino acid so we can learn more about parthenolide's specificity. This is a case for mass offset search.
 
-The samples we will use for this tutorial are purified tubulin treated with either DMSO (control) or parthenolide, download the two spectral files from Dropbox [here](https://www.dropbox.com/sh/6yif51e8x3t9v7j/AADfqLPZ4qUe1XcPQ4UuI_Kea?dl=1). Citation: Hotta, Takashi, et al. "Parthenolide Destabilizes Microtubules by Covalently Modifying Tubulin." Current Biology 31.4 (2021): 900-907.
+The samples we will use for this tutorial are purified tubulin treated with either DMSO (control) or parthenolide, download `PRF_Q_2019_R_OHI_51_47069.mzML` and `PRF_Q_2019_R_OHI_51_47070.mzML` from [PRIDE](https://www.ebi.ac.uk/pride/archive/projects/PXD020113). Citation: Hotta, Takashi, et al. "Parthenolide Destabilizes Microtubules by Covalently Modifying Tubulin." Current Biology 31.4 (2021): 900-907.
 
 
 
@@ -28,7 +28,7 @@ When you launch FragPipe, check that MSFragger, IonQuant, and Philosopher are al
 <br>
 
 ### Add the data
-1) Load the [files](https://www.dropbox.com/sh/6yif51e8x3t9v7j/AADfqLPZ4qUe1XcPQ4UuI_Kea?dl=0) (drag and drop or browse) and specify experiments: “DMSO” for the file ending 69, “PTL” (short for parthenolide) for the one ending 70.
+1) Load the mzML files and specify experiments: “DMSO” for the file ending 69, “PTL” (short for parthenolide) for the one ending 70.
 2) Select the 'Mass-Offset-CommonPTMs' workflow from the dropdown menu and click 'Load'.
 
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/offset-workflow.png)
@@ -36,7 +36,7 @@ When you launch FragPipe, check that MSFragger, IonQuant, and Philosopher are al
 <br>
 
 ### Fetch a sequence database
-3) Now we need to select a protein sequence database. You can choose to download a readymade human .fas file from [here](https://www.dropbox.com/s/v8tlkwu96f3txfj/2021-05-07-decoys-reviewed-contam-UP000005640.fas?dl=0), or you can download one using FragPipe. Downloading is easy, so we could also choose to download one at this point. On the Database tab, click the ‘Download’ button. Follow the prompts to use the default settings (reviewed human sequences with common contaminants).
+3) Now we need to select a protein sequence database. You can download a human .fas file [using FragPipe](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html#specify-a-protein-sequence-database). Downloading is easy, so we could also choose to download one at this point. On the Database tab, click the ‘Download’ button. Follow the prompts to use the default settings (reviewed human sequences with common contaminants).
 
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-database-options.png)
 
