@@ -555,7 +555,6 @@ if use_easypqp:
 	# https://github.com/grosenberger/easypqp/blob/master/easypqp/data/unimod.xml?raw=true
 	# http://www.unimod.org/xml/unimod.xml
 	from typing import List
-
 	def pairing_pepxml_spectra_v3(spectras: List[pathlib.PurePath], pep_xmls: List[pathlib.PurePath]):
 		rec = re.compile('(.+?)(?:_(?:un)?calibrated)?')
 		spectra_files_basename = [rec.fullmatch(e.stem)[1] for e in spectras]
@@ -574,12 +573,12 @@ if use_easypqp:
 
 		l2 = [(basename, get_rank(p), s, p) for basename, s, ps in zip(spectra_files_basename, spectras, l) for p in ps]
 		return l2
-
 	runname_rank_spectra_pepxml = pairing_pepxml_spectra_v3(spectra_files, iproph_pep_xmls)
-	convert_outs = [f'{basename}{rank}' for basename, rank, _, _ in runname_rank_spectra_pepxml]
-	easypqp_convert_cmds = [[resolve_mapped(easypqp), 'convert', *easypqp_convert_extra_args,'--enable_unannotated', '--pepxml', resolve_mapped(pep_xml), '--spectra', resolve_mapped(spectra), '--exclude-range', '-1.5,3.5',
+	runname_rank_spectra_pepxml_collapse_rank = list((k[0], '', k[1], [ee[3] for ee in v]) for k, v in itertools.groupby(runname_rank_spectra_pepxml, key=lambda e: (e[0], e[2])))
+	convert_outs = [f'{basename}{rank}' for basename, rank, _, _ in runname_rank_spectra_pepxml_collapse_rank]
+	easypqp_convert_cmds = [[resolve_mapped(easypqp), 'convert', *easypqp_convert_extra_args,'--enable_unannotated', '--pepxml', repr([resolve_mapped(pep_xml).replace("'","\\'") for pep_xml in pep_xmls]), '--spectra', resolve_mapped(spectra), '--exclude-range', '-1.5,3.5',
 							 '--psms', f'{outfiles}.psmpkl', '--peaks', f'{outfiles}.peakpkl']
-							for (_, _, spectra, pep_xml), outfiles in zip(runname_rank_spectra_pepxml, convert_outs)]
+							for (_, _, spectra, pep_xmls), outfiles in zip(runname_rank_spectra_pepxml_collapse_rank, convert_outs)]
 	easypqp_library_infiles = [workdir / (e + '.psmpkl') for e in convert_outs] + \
 														[workdir / (e + '.peakpkl') for e in convert_outs]
 	easyPQP_tempfiles = easypqp_library_infiles + \
@@ -777,11 +776,14 @@ Commands to execute:
 	(output_directory / 'cmds.txt').write_text(allcmds)
 	subprocess.run([os.fspath(easypqp), '--version'], check=True)
 	procs = []
+	# for i, e in enumerate(easypqp_convert_cmds):
+	# 	while sum(p.poll() is None for p in procs) >= nproc:
+	# 		time.sleep(1)
+	# 	procs.append(subprocess.Popen(e, cwd=os_fspath(workdir), stdout=open(output_directory / f'easypqp_convert_{i}.log', 'w'), stderr=subprocess.STDOUT))
+	# 	print(f'Executing {e}')
 	for i, e in enumerate(easypqp_convert_cmds):
-		while sum(p.poll() is None for p in procs) >= nproc:
-			time.sleep(1)
-		procs.append(subprocess.Popen(e, cwd=os_fspath(workdir), stdout=open(output_directory / f'easypqp_convert_{i}.log', 'w'), stderr=subprocess.STDOUT))
 		print(f'Executing {e}')
+		subprocess.run(e, cwd=os_fspath(workdir))
 
 	for p in procs:
 		p.wait()
