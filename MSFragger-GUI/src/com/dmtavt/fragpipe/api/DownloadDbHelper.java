@@ -369,7 +369,7 @@ public class DownloadDbHelper {
 
       Thread updateThread = new Thread(() -> {
         try {
-          runProcesses(pbs, 10);
+          runProcesses(pbs, 120);
 
         } catch (Exception ex) {
           log.error("Something happened during database update", ex);
