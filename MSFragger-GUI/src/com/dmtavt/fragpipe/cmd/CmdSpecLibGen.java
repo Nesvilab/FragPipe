@@ -58,7 +58,7 @@ public class CmdSpecLibGen extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, SpecLibGen2 slg, Map<LcmsFileGroup, Path> mapGroupsToProtxml, String fastaPath, boolean isRunProteinProphet, InputDataType dataType) {
+  public boolean configure(Component comp, SpecLibGen2 slg, Map<LcmsFileGroup, Path> mapGroupsToProtxml, String fastaPath, boolean isRunProteinProphet, InputDataType dataType, int threads) {
 
     initPreConfig();
 
@@ -196,6 +196,7 @@ public class CmdSpecLibGen extends CmdBase {
       PyInfo.modifyEnvironmentVariablesForPythonSubprocesses(pb);
       pb.directory(groupWd.toFile());
       pb.environment().put("PYTHONIOENCODING", "utf-8");
+      pb.environment().put("OMP_NUM_THREADS", String.valueOf(threads));
 
       pbis.add(PbiBuilder.from(pb));
       pbis.addAll(PbiBuilder.from(pbsDeleteLcmsFiles));
