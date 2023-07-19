@@ -69,6 +69,7 @@ import com.dmtavt.fragpipe.messages.MessageSaveCache;
 import com.dmtavt.fragpipe.messages.MessageSaveLog;
 import com.dmtavt.fragpipe.messages.MessageSaveUiState;
 import com.dmtavt.fragpipe.messages.MessageStartProcesses;
+import com.dmtavt.fragpipe.messages.MessageSDRFsave;
 import com.dmtavt.fragpipe.messages.NoteConfigDatabase;
 import com.dmtavt.fragpipe.messages.NoteConfigIonQuant;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
@@ -336,6 +337,9 @@ public class FragpipeRun {
       Bus.post(new MessageManifestSave(pp, true));
 
       saveRuntimeConfig(wd);
+
+      Path sdrfPath = wd.resolve("sdrf.tsv");
+      Bus.post(new MessageSDRFsave(sdrfPath, true, tabWorkflow.getSDRFtype()));
 
       // Converting process builders descriptors to process builder infos
       final List<ProcessBuilderInfo> pbis = pbDescsBuilderDescs.stream()

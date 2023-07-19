@@ -18,6 +18,7 @@
 package com.dmtavt.fragpipe.tabs;
 
 import static com.dmtavt.fragpipe.Fragpipe.PROP_NOCACHE;
+import static com.dmtavt.fragpipe.Fragpipe.getStickyStrict;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
@@ -40,6 +41,7 @@ import com.dmtavt.fragpipe.messages.MessageLcmsClearFiles;
 import com.dmtavt.fragpipe.messages.MessageLcmsFilesAdded;
 import com.dmtavt.fragpipe.messages.MessageLcmsFilesList;
 import com.dmtavt.fragpipe.messages.MessageLcmsGroupAction;
+import com.dmtavt.fragpipe.messages.MessageSDRFsave;
 import com.dmtavt.fragpipe.messages.MessageLcmsGroupAction.Type;
 import com.dmtavt.fragpipe.messages.MessageLcmsRemoveSelected;
 import com.dmtavt.fragpipe.messages.MessageLoadUi;
@@ -59,6 +61,7 @@ import com.dmtavt.fragpipe.messages.NoteConfigTmtI;
 import com.dmtavt.fragpipe.messages.NoteConfigUmpire;
 import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.dmtavt.fragpipe.tools.umpire.UmpirePanel;
+import com.dmtavt.fragpipe.util.SDRFtable;
 import com.github.chhh.utils.FileDrop;
 import com.github.chhh.utils.JarUtils;
 import com.github.chhh.utils.MapUtils;
@@ -78,6 +81,7 @@ import com.github.chhh.utils.swing.UiCombo;
 import com.github.chhh.utils.swing.UiSpinnerInt;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
+import com.github.chhh.utils.swing.UiCheck;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -153,6 +157,7 @@ public class TabWorkflow extends JPanelWithEnablement {
   private JButton btnFilesClear;
   public static final String TAB_PREFIX = "workflow.";
   public static final String manifestExt = ".fp-manifest";
+  public static final String sdrfExt = "sdrf.tsv";
   public static final String workflowExt = ".workflow";
   public static final int maxProcessors = 128;
 
@@ -174,6 +179,15 @@ public class TabWorkflow extends JPanelWithEnablement {
   private JButton btnGroupsClear;
   private JButton btnManifestSave;
   private JButton btnManifestLoad;
+  private UiCheck uiCheckSaveSDRF;
+  private ButtonGroup btnGroupSDRFtype;
+  private JRadioButton btnSDRFdefault;
+  private JRadioButton btnSDRFhuman;
+  private JRadioButton btnSDRFcellLines;
+  private JRadioButton btnSDRFvertebrates;
+  private JRadioButton btnSDRFnonvertebrates;
+  private JRadioButton btnSDRFplants;
+
   private HtmlStyledJEditorPane epWorkflowsInfo;
   private UiSpinnerInt uiSpinnerRam;
   private UiSpinnerInt uiSpinnerThreads;
@@ -519,6 +533,24 @@ public class TabWorkflow extends JPanelWithEnablement {
 
   public int getThreads() {
     return uiSpinnerThreads.getActualValue() > 0 ? uiSpinnerThreads.getActualValue() : Math.max(1, Math.min(Runtime.getRuntime().availableProcessors(), maxProcessors));
+  }
+
+  public SDRFtable.SDRFtypes getSDRFtype() {
+    if (btnSDRFdefault.isSelected()) {
+      return SDRFtable.SDRFtypes.Default;
+    } else if (btnSDRFhuman.isSelected()) {
+      return SDRFtable.SDRFtypes.Human;
+    } else if (btnSDRFcellLines.isSelected()) {
+      return SDRFtable.SDRFtypes.CellLines;
+    } else if (btnSDRFvertebrates.isSelected()) {
+      return SDRFtable.SDRFtypes.Vertebrates;
+    } else if (btnSDRFnonvertebrates.isSelected()) {
+      return SDRFtable.SDRFtypes.NonVertebrates;
+    } else if (btnSDRFplants.isSelected()) {
+      return SDRFtable.SDRFtypes.Plants;
+    } else {
+      return SDRFtable.SDRFtypes.Default;
+    }
   }
 
   public enum InputDataType {RegularMs, ImMsTimsTof}
@@ -1018,6 +1050,35 @@ public class TabWorkflow extends JPanelWithEnablement {
     btnManifestSave = button("Save as manifest", MessageManifestSave::new);
     btnManifestLoad = button("Load manifest", MessageManifestLoad::new);
 
+    uiCheckSaveSDRF = new UiCheck("Save SDRF Template when run:", null,true);
+    uiCheckSaveSDRF.setName("workflow.asdrf.save-sdrf");
+    JLabel emptySpacer = new JLabel("                   ");
+    btnGroupSDRFtype = new ButtonGroup();
+    btnSDRFdefault = new JRadioButton("Default");
+    btnSDRFdefault.setName("workflow.asdrf.default");
+    btnSDRFdefault.setSelected(true);
+    btnSDRFhuman = new JRadioButton("Human");
+    btnSDRFhuman.setName("workflow.asdrf.human");
+    btnSDRFhuman.setSelected(false);
+    btnSDRFcellLines = new JRadioButton("Cell Lines");
+    btnSDRFcellLines.setName("workflow.asdrf.cellline");
+    btnSDRFcellLines.setSelected(false);
+    btnSDRFvertebrates = new JRadioButton("Vertebrates");
+    btnSDRFvertebrates.setName("workflow.asdrf.vertebrates");
+    btnSDRFvertebrates.setSelected(false);
+    btnSDRFnonvertebrates = new JRadioButton("Non-vertebrates");
+    btnSDRFnonvertebrates.setName("workflow.asdrf.nonvertebrates");
+    btnSDRFnonvertebrates.setSelected(false);
+    btnSDRFplants = new JRadioButton("Plants");
+    btnSDRFplants.setName("workflow.asdrf.plants");
+    btnSDRFplants.setSelected(false);
+    btnGroupSDRFtype.add(btnSDRFdefault);
+    btnGroupSDRFtype.add(btnSDRFhuman);
+    btnGroupSDRFtype.add(btnSDRFcellLines);
+    btnGroupSDRFtype.add(btnSDRFvertebrates);
+    btnGroupSDRFtype.add(btnSDRFnonvertebrates);
+    btnGroupSDRFtype.add(btnSDRFplants);
+
     createFileTable();
 
     mu.add(p, btnFilesAddFiles).split();
@@ -1046,7 +1107,16 @@ public class TabWorkflow extends JPanelWithEnablement {
     }
 
     mu.add(p, btnManifestSave).split();
-    mu.add(p, btnManifestLoad).wrap();
+    mu.add(p, btnManifestLoad).split();
+
+    mu.add(p, emptySpacer).split();
+    mu.add(p, uiCheckSaveSDRF).split();
+    mu.add(p, btnSDRFdefault).split();
+    mu.add(p, btnSDRFhuman).split();
+    mu.add(p, btnSDRFcellLines).split();
+    mu.add(p, btnSDRFvertebrates).split();
+    mu.add(p, btnSDRFnonvertebrates).split();
+    mu.add(p, btnSDRFplants).split().wrap();
 
     mu.add(p,
         new JLabel("Assign files to Experiments/Groups (select rows to activate action buttons):"))
@@ -1185,6 +1255,19 @@ public class TabWorkflow extends JPanelWithEnablement {
         Bus.post(new MessageLcmsFilesAdded(accepted));
       }
     });
+  }
+
+  private void sdrfSave(Path path, SDRFtable.SDRFtypes type, ArrayList<String> enzymes, ArrayList<String> mods) throws IOException {
+    ArrayList<InputLcmsFile> files = tableModelRawFiles.dataCopy();
+    SDRFtable table = new SDRFtable(type, enzymes.size(), mods.size());
+
+    for (InputLcmsFile file : files) {
+      table.addSampleLFQ(file.getPath().getFileName().toString(),
+              file.getReplicate() != null ? file.getReplicate().toString() : "",
+              enzymes, mods);
+    }
+
+    table.printTable(path);
   }
 
   private void manifestSave(Path path) throws IOException {
@@ -1343,6 +1426,21 @@ public class TabWorkflow extends JPanelWithEnablement {
         SwingUtils.showErrorDialogWithStacktrace(e, this);
       }
       Fragpipe.loadManifestDone.countDown();
+    }
+  }
+
+  @Subscribe(threadMode = ThreadMode.POSTING)
+  public void on(MessageSDRFsave m) {
+    Path path = getSaveFilePath(m.path, ThisAppProps.CONFIG_SAVE_LOCATION, fileNameEndingFilter, sdrfExt, m.quiet);
+
+    if (path != null) {
+      Fragpipe.propsVarSet(ThisAppProps.CONFIG_SAVE_LOCATION, path.getParent().toString());
+      TabMsfragger tabMsfragger = getStickyStrict(TabMsfragger.class);
+      try {
+        sdrfSave(path, m.type, tabMsfragger.getSDRFenzymes(), tabMsfragger.getSDRFmods());
+      } catch (IOException e) {
+        SwingUtils.showErrorDialogWithStacktrace(e, this);
+      }
     }
   }
 

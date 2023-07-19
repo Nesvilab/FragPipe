@@ -101,6 +101,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
@@ -359,6 +360,7 @@ public class TabMsfragger extends JPanelBase {
   private final Map<String, String> cache = new HashMap<>();
   private UiText uiTextIsoErr;
   private UiText epMassOffsets;
+  private UiText uiTextRestrictDeltamassTo;
   private JPanel pTop;
   private JPanel pBasic;
   private JPanel pMods;
@@ -1126,7 +1128,7 @@ public class TabMsfragger extends JPanelBase {
   private JPanel createPanelMassOffsets() {
     JPanel p = mu.newPanel("Mass Offsets", true);
 
-    UiText uiTextRestrictDeltamassTo = UiUtils.uiTextBuilder().ghost("Restrict delta mass to certain amino acids").filter("[^A-Zall-]")
+    uiTextRestrictDeltamassTo = UiUtils.uiTextBuilder().ghost("Restrict delta mass to certain amino acids").filter("[^A-Zall-]")
         .cols(20).create();
     FormEntry feRestrictDeltamassTo = mu.feb(uiTextRestrictDeltamassTo).name(MsfraggerParams.PROP_restrict_deltamass_to)
         .tooltip("Allowed mod sites in Open Search / Mass Offset Search /Glyco mode").label("Restrict delta mass to")
@@ -2001,6 +2003,82 @@ public class TabMsfragger extends JPanelBase {
   }
   public String getEnzymeCut2() {
     return uiTextCuts2.getNonGhostText();
+  }
+
+  /**
+   * Format for each enzyme is "NT=[name];CS=[regex]", where regex is the regular expression of the enzyme
+   * cleavage rules. Format for regex: (?<=[cut])(?![no cut])
+   * @return
+   */
+  public ArrayList<String> getSDRFenzymes() {
+    ArrayList<String> enzymes = new ArrayList<>();
+    if (!uiTextCuts.getNonGhostText().isEmpty()) {
+      String regex = String.format("(?%s[%s])", uiComboSense.getSelectedItem() == "C" ? "<=" : "=", uiTextCuts.getNonGhostText());
+      if (!uiTextNocuts.getNonGhostText().isEmpty()){
+        regex += String.format("(?![%s])", uiTextNocuts.getNonGhostText());
+      }
+      enzymes.add(String.format("NT=%s;C+=%s", uiTextEnzymeName.getNonGhostText(), regex));
+    }
+    if (!uiTextCuts2.getNonGhostText().isEmpty()) {
+      String regex = String.format("(?%s[%s])", uiComboSense2.getSelectedItem() == "C" ? "<=" : "=", uiTextCuts2.getNonGhostText());
+      if (!uiTextNocuts2.getNonGhostText().isEmpty()){
+        regex += String.format("(?![%s])", uiTextNocuts2.getNonGhostText());
+      }
+      enzymes.add(String.format("NT=%s;C+=%s", uiTextEnzymeName2.getNonGhostText(), regex));
+    }
+    return enzymes;
+  }
+
+  /**
+   * Get SDRF formatted strings for each modification searched.
+   * Format for mods is "NT=[name];MT=[Fixed/Variable];PP=[term];TA=[S,T,Y];MM=[mass]",
+   * where name can be anything and term is one of "Anywhere, Protein N-term, Protein C-term, Any N-term, Any C-term"
+   * @return
+   */
+  public ArrayList<String> getSDRFmods() {
+    ArrayList<String> mods = new ArrayList<>();
+    List<Mod> modsVariable = formToMap(tableVarMods.model);
+    List<Mod> modsFixed = formToMap(tableFixMods.model);
+    Set<Float> offsetSet = getMassOffsetSet();
+    String offsetResidues = uiTextRestrictDeltamassTo.getNonGhostText().replace("-", "");
+    if (offsetResidues.matches("all")) {
+      offsetResidues = "ACDEFGHIKLMNPQRSTVWY";
+    }
+
+    for (Mod mod : modsVariable) {
+      String sites = String.join(",", mod.sites.split(""));
+      String name = String.format("%s:%.0f", mod.sites, mod.massDelta);
+      String modStr = String.format("NT=%s;MT=Variable;PP=%s;TA=%s;MM=%.4f", name, getSDRFmodTerm(mod.sites), sites, mod.massDelta);
+      mods.add(modStr);
+    }
+    for (Mod mod : modsFixed) {
+      String sites = String.join(",", mod.sites.split(""));
+      String name = String.format("%s:%.5f", mod.sites, mod.massDelta);
+      String modStr = String.format("NT=%s;MT=Fixed;PP=%s;TA=%s;MM=%.4f", name, getSDRFmodTerm(mod.sites), sites, mod.massDelta);
+      mods.add(modStr);
+    }
+    for (float mass : offsetSet) {
+      if (!(mass == 0.0)) {
+        String name = String.format("offset:%.5f", mass);
+        String modStr = String.format("NT=%s;MT=Variable;PP=%s;TA=%s;MM=%.4f", name, "Anywhere", offsetResidues, mass);
+        mods.add(modStr);
+      }
+    }
+    return mods;
+  }
+
+  private String getSDRFmodTerm(String modSites) {
+    if (modSites.contains("[")) {
+      return "Protein N-term";
+    } else if (modSites.contains("]")) {
+      return "Protein C-term";
+    } else if (modSites.contains("n")) {
+      return "Any N-term";
+    } else if (modSites.contains("c")) {
+      return "Any C-term";
+    } else {
+      return "Anywhere";
+    }
   }
 
 }
