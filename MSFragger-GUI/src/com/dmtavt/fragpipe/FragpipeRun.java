@@ -59,6 +59,7 @@ import com.dmtavt.fragpipe.cmd.CmdWriteSubMzml;
 import com.dmtavt.fragpipe.cmd.PbiBuilder;
 import com.dmtavt.fragpipe.cmd.ProcessBuilderInfo;
 import com.dmtavt.fragpipe.cmd.ProcessBuildersDescriptor;
+import com.dmtavt.fragpipe.cmd.CmdFpopQuant;
 import com.dmtavt.fragpipe.exceptions.NoStickyException;
 import com.dmtavt.fragpipe.internal.DefEdge;
 import com.dmtavt.fragpipe.messages.MessageClearConsole;
@@ -1663,6 +1664,15 @@ public class FragpipeRun {
       return true;
     });
 
+    // run FPOP script
+    final CmdFpopQuant cmdFpopQuant = new CmdFpopQuant(quantPanelLabelfree.isRunFpopQuant(), wd);
+    addConfig.accept(cmdFpopQuant, () -> {
+      if (cmdFpopQuant.isRun()) {
+        return cmdFpopQuant.configure(parent);
+      }
+      return true;
+    });
+
 
     // run Spectral library generation
     final SpeclibPanel speclibPanel = Fragpipe.getStickyStrict(SpeclibPanel.class);
@@ -1773,6 +1783,7 @@ public class FragpipeRun {
     addToGraph(graphOrder, cmdAppendFile, DIRECTION.IN, cmdPtmshepherd);
     addToGraph(graphOrder, cmdIonquant, DIRECTION.IN, cmdPhilosopherReport, cmdPhilosopherAbacus, cmdPtmshepherd);
     addToGraph(graphOrder, cmdTmt, DIRECTION.IN, cmdPhilosopherReport, cmdTmtFreequant, cmdTmtLabelQuant, cmdPhilosopherAbacus, cmdPtmshepherd);
+    addToGraph(graphOrder, cmdFpopQuant, DIRECTION.IN, cmdIonquant);
     addToGraph(graphOrder, cmdSpecLibGen, DIRECTION.IN, cmdPhilosopherReport);
     addToGraph(graphOrder, cmdDiann, DIRECTION.IN, cmdSpecLibGen);
     addToGraph(graphOrder, cmdWriteSubMzml, DIRECTION.IN, cmdPhilosopherReport);

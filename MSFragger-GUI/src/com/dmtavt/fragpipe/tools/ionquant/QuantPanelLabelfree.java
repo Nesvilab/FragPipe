@@ -74,6 +74,10 @@ public class QuantPanelLabelfree extends JPanelBase {
   private UiRadio uiRadioUseLfq;
   private UiRadio uiRadioUseLabeling;
   private ButtonGroup radioGroupQuant;
+  private UiCheck checkFPOP;
+  private UiText uiTextControl;
+  private UiText uiTextFPOP;
+  private UiSpinnerInt uiSpinnerRegionSize;
 
   @Override
   protected ItemSelectable getRunCheckbox() {
@@ -123,6 +127,8 @@ public class QuantPanelLabelfree extends JPanelBase {
     return isRun() && SwingUtils.isEnabledAndChecked(uiRadioUseFreequant);
   }
 
+  public boolean isRunFpopQuant() {return checkFPOP.isSelected(); }
+
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteConfigIonQuant m) {
     updateEnabledStatus(pIonquant, m.isValid());
@@ -166,6 +172,16 @@ public class QuantPanelLabelfree extends JPanelBase {
     sb.append(" --ptw ").append(getOrThrow(m, "freequant.rt-tol"));
     sb.append(" --tol ").append(getOrThrow(m, "freequant.mz-tol"));
     return sb.toString();
+  }
+
+  public String getFpopControlLabel(){
+    return uiTextControl.getNonGhostText();
+  }
+  public String getFpopFpopLabel(){
+    return uiTextFPOP.getNonGhostText();
+  }
+  public int getFpopRegionSize(){
+    return uiSpinnerRegionSize.getActualValue();
   }
 
   private String getOrThrow(Map<String, String> m, String key) {
@@ -229,10 +245,38 @@ public class QuantPanelLabelfree extends JPanelBase {
     mu.borderEmpty(p);
     pFreequant = createPanelFreequant(buttonGroup);
     pIonquant = createPanelIonquant(buttonGroup);
+    JPanel pFPOP = createPanelFPOP();
 
     mu.add(p, pIonquant).wrap();
     mu.add(p, new JSeparator(SwingConstants.HORIZONTAL)).growX().spanX().wrap();
     mu.add(p, pFreequant).wrap();
+    mu.add(p, new JSeparator(SwingConstants.HORIZONTAL)).growX().spanX().wrap();
+    mu.add(p, pFPOP).wrap();
+
+    return p;
+  }
+
+  private JPanel createPanelFPOP() {
+    JPanel p = mu.newPanel(null, true);
+
+    checkFPOP = UiUtils.createUiCheck("Run FPOP-specific Quant", false);
+    checkFPOP.setName("fpop.run-fpop");
+
+    uiTextControl = UiUtils.uiTextBuilder().cols(15).create();
+    FormEntry feControl = mu.feb(uiTextControl).name("fpop.label_control").label("Control Label").tooltip("Label found in all control (non-FPOP) experiment/group names").create();
+    uiTextFPOP = UiUtils.uiTextBuilder().cols(15).create();
+    FormEntry feFPOP = mu.feb(uiTextFPOP).name("fpop.label_fpop").label("FPOP Label").tooltip("Label found in all FPOP experiment/group names").create();
+
+    uiSpinnerRegionSize = UiUtils.spinnerInt(5, 1, 1000, 1).setCols(4).create();
+    FormEntry feRegionSize = mu.feb(uiSpinnerRegionSize).name("fpop.region_size").label("Site Region Size").tooltip("Number of amino acids to consider a group/region around a modified site").create();
+
+    mu.add(p, checkFPOP);
+    mu.add(p, feRegionSize.label(), mu.ccR());
+    mu.add(p, feRegionSize.comp);
+    mu.add(p, feControl.label(), mu.ccR());
+    mu.add(p, feControl.comp);
+    mu.add(p, feFPOP.label(), mu.ccR());
+    mu.add(p, feFPOP.comp).wrap();
 
     return p;
   }

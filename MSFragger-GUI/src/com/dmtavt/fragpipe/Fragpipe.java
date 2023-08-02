@@ -64,6 +64,7 @@ import com.dmtavt.fragpipe.tabs.TabUmpire;
 import com.dmtavt.fragpipe.tabs.TabValidation;
 import com.dmtavt.fragpipe.tabs.TabWorkflow;
 import com.dmtavt.fragpipe.tools.dbsplit.DbSplit2;
+import com.dmtavt.fragpipe.tools.fpop.FpopScript;
 import com.dmtavt.fragpipe.tools.speclibgen.SpecLibGen2;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.PathUtils;
@@ -724,6 +725,7 @@ public class Fragpipe extends JFrameHeadless {
     ProcessManager.get();
     DbSplit2.initClass();
     SpecLibGen2.initClass();
+    FpopScript.initClass();
   }
 
   @Subscribe(threadMode = ThreadMode.ASYNC)

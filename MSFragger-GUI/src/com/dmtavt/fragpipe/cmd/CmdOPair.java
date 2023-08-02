@@ -121,13 +121,20 @@ public class CmdOPair  extends CmdBase {
                     OsUtils.isWindows() ? "opair/CMD.exe" : null;
 
             if (opair_bin == null) {
-                SwingUtils.showErrorDialog(comp, "O-Pair ony supports Windows, Linux, and Unix.", "Error");
-                return false;
+                if (Fragpipe.headless){
+                    log.error("O-Pair only supports Windows, Linux, and Unix. Could not locate an appropriate binary for this OS.");
+                } else {
+                    SwingUtils.showErrorDialog(comp, "O-Pair only supports Windows, Linux, and Unix.", "Error");
+                }return false;
             }
 
             List<Path> t = FragpipeLocations.checkToolsMissing(Seq.of(opair_bin));
             if (t == null || t.isEmpty()) {
-                SwingUtils.showErrorDialog(comp, "Could not find O-Pair executable file.", "Error");
+                if (Fragpipe.headless) {
+                    log.error("Could not find O-Pair executable file.");
+                } else {
+                    SwingUtils.showErrorDialog(comp, "Could not find O-Pair executable file.", "Error");
+                }
                 return false;
             }
 
