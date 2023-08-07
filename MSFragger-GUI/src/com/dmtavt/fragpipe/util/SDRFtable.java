@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class SDRFtable {
@@ -132,7 +135,9 @@ public class SDRFtable {
         ArrayList<String> outputLines = new ArrayList<>();
         outputLines.add(String.join("\t", header));
         for (String[] row : rows) {
-            outputLines.add(String.join("\t", row));
+            List<String> temp = Arrays.asList(row);
+            Collections.replaceAll(temp, null, "");     // prevent empty values from printing "null"
+            outputLines.add(String.join("\t", temp));
         }
         FileUtils.write(path.toFile(), String.join("\n", outputLines), StandardCharsets.UTF_8, false);
     }

@@ -93,22 +93,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.imageio.ImageIO;
@@ -2045,29 +2035,54 @@ public class TabMsfragger extends JPanelBase {
       offsetResidues = "ACDEFGHIKLMNPQRSTVWY";
     }
 
+    Pattern aaPattern = Pattern.compile("([A-Z])");
     for (Mod mod : modsVariable) {
-      String sites = String.join(",", mod.sites.split(""));
-      String name = String.format("%s:%.0f", mod.sites, mod.massDelta);
-      String modStr = String.format("NT=%s;MT=Variable;PP=%s;TA=%s;MM=%.4f", name, getSDRFmodTerm(mod.sites), sites, mod.massDelta);
-      mods.add(modStr);
+      if (mod.isEnabled) {
+        // find all amino acid sites
+        StringBuilder sites = new StringBuilder();
+        Matcher aaMatcher = aaPattern.matcher(mod.sites);
+        while (aaMatcher.find()) {
+          sites.append(aaMatcher.group());
+        }
+        String sitesTemp = sites.toString();
+        String siteStr = sitesTemp.length() == 0 ? "" : String.format(";TA=%s", sitesTemp);
+        String name = String.format("%s:%.0f", mod.sites, mod.massDelta);
+        String modStr = String.format("NT=%s;MT=Variable;PP=%s%s;MM=%.5f", name, getSDRFvarmodTerm(mod.sites), siteStr, mod.massDelta);
+        mods.add(modStr);
+      }
     }
     for (Mod mod : modsFixed) {
-      String sites = String.join(",", mod.sites.split(""));
-      String name = String.format("%s:%.5f", mod.sites, mod.massDelta);
-      String modStr = String.format("NT=%s;MT=Fixed;PP=%s;TA=%s;MM=%.4f", name, getSDRFmodTerm(mod.sites), sites, mod.massDelta);
-      mods.add(modStr);
+      if (mod.isEnabled && mod.massDelta != 0.0) {
+        // get terminal
+        String terminal = getSDRFfixedmodTerm(mod.sites);
+        // get amino acid if not terminal
+        String sitesStr;
+        if (terminal.matches("Anywhere")) {
+          StringBuilder sites = new StringBuilder();
+          Matcher aaMatcher = aaPattern.matcher(mod.sites);
+          while (aaMatcher.find()) {
+            sites.append(aaMatcher.group());
+          }
+          sitesStr = String.format(";TA=%s", sites);
+        } else {
+          sitesStr = "";
+        }
+        String name = String.format("%s:%.0f", mod.sites, mod.massDelta);
+        String modStr = String.format("NT=%s;MT=Fixed;PP=%s%s;MM=%.5f", name, terminal, sitesStr, mod.massDelta);
+        mods.add(modStr);
+      }
     }
     for (float mass : offsetSet) {
       if (!(mass == 0.0)) {
         String name = String.format("offset:%.5f", mass);
-        String modStr = String.format("NT=%s;MT=Variable;PP=%s;TA=%s;MM=%.4f", name, "Anywhere", offsetResidues, mass);
+        String modStr = String.format("NT=%s;MT=Variable;PP=%s;TA=%s;MM=%.5f", name, "Anywhere", offsetResidues, mass);
         mods.add(modStr);
       }
     }
     return mods;
   }
 
-  private String getSDRFmodTerm(String modSites) {
+  private String getSDRFvarmodTerm(String modSites) {
     if (modSites.contains("[")) {
       return "Protein N-term";
     } else if (modSites.contains("]")) {
@@ -2076,6 +2091,24 @@ public class TabMsfragger extends JPanelBase {
       return "Any N-term";
     } else if (modSites.contains("c")) {
       return "Any C-term";
+    } else {
+      return "Anywhere";
+    }
+  }
+
+  private String getSDRFfixedmodTerm(String modSites) {
+    if (modSites.toLowerCase().contains("n-term")) {
+      if (modSites.toLowerCase().contains("protein")) {
+        return  "Protein N-term";
+      } else {
+        return "Any N-term";
+      }
+    } else if (modSites.toLowerCase().contains("c-term")) {
+      if (modSites.toLowerCase().contains("protein")) {
+        return "Protein C-term";
+      } else {
+        return "Any C-term";
+      }
     } else {
       return "Anywhere";
     }
