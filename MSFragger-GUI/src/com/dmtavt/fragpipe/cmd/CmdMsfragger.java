@@ -29,6 +29,7 @@ import com.dmtavt.fragpipe.tools.enums.CleavageType;
 import com.dmtavt.fragpipe.tools.enums.FraggerOutputType;
 import com.dmtavt.fragpipe.tools.enums.MassTolUnits;
 import com.dmtavt.fragpipe.tools.enums.PrecursorMassTolUnits;
+import com.dmtavt.fragpipe.tools.fragger.Mod;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.StringUtils;
@@ -57,7 +58,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CmdMsfragger extends CmdBase {
+
   private static final Logger log = LoggerFactory.getLogger(CmdMsfragger.class);
+  private static final Pattern pattern = Pattern.compile("[A-Znc\\[\\]\\^\\*]+");
   public static final String NAME = "MSFragger";
 
   private static volatile FileFilter ff = null;
@@ -303,6 +306,13 @@ public class CmdMsfragger extends CmdBase {
   public boolean configure(Component comp, boolean isDryRun, Path jarFragpipe, UsageTrigger binFragger, String pathFasta, MsfraggerParams params, int numSlices, int ramGb, List<InputLcmsFile> lcmsFiles, final String decoyTag, boolean hasDda, boolean hasDia, boolean hasGpfDia, boolean hasDiaLib, boolean hasWwa, boolean isRunDiaU, boolean writeMzbinAll) {
 
     initPreConfig();
+
+    for (Mod mod : params.getVariableMods()) {
+      if (mod.isEnabled && !pattern.matcher(mod.sites).matches()) {
+        SwingUtils.showErrorDialog(null, "Invalid variable modification sites: " + mod.sites + ".\nPlease check the tooltip or documentations.", "Variable modification sites error");
+        return false;
+      }
+    }
 
     final boolean isSlicing = numSlices > 1;
     if (isSlicing) {
