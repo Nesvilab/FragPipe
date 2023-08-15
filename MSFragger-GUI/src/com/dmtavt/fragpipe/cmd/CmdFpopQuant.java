@@ -80,10 +80,10 @@ public class CmdFpopQuant extends CmdBase{
 
         // python script args are 1) filepath, 2) region size, 3) FPOP sample label, 4) control sample label
         cmd.add(filepath.toString());
-        cmd.add(String.valueOf(tabDownstream.getFpopRegionSize()));
-        cmd.add(tabDownstream.getFpopFpopLabel());
-        cmd.add(tabDownstream.getFpopControlLabel());
-        cmd.add(String.valueOf(tabDownstream.getFpopSubtractControl()));
+        cmd.add(String.valueOf(tabDownstream.pFpop.getFpopRegionSize()));
+        cmd.add(tabDownstream.pFpop.getFpopControlLabel());
+        cmd.add(tabDownstream.pFpop.getFpopFpopLabel());
+        cmd.add(String.valueOf(tabDownstream.pFpop.getFpopSubtractControl()));
 
         ProcessBuilder pb = new ProcessBuilder(cmd);
         pb.directory(wd.toFile());

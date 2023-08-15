@@ -35,6 +35,7 @@ import com.dmtavt.fragpipe.process.ProcessDescription;
 import com.dmtavt.fragpipe.process.ProcessDescription.Builder;
 import com.dmtavt.fragpipe.process.RunnableDescription;
 import com.dmtavt.fragpipe.tools.downstream.SaintexpressPanel;
+import com.dmtavt.fragpipe.tools.fpop.FpopQuantPanel;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
@@ -90,15 +91,11 @@ public class TabDownstream extends JPanelWithEnablement {
   private UiCheck uiCheckDryRun;
   public JButton btnRun;
   private SaintexpressPanel pSaintExpress;
+  public FpopQuantPanel pFpop;
   private JPanel pBottom;
   private JPanel pConsole;
   private UiCheck uiCheckWordWrap;
 
-  private UiCheck checkFPOP;
-  private UiCheck checkSubtractControl;
-  private UiText uiTextControl;
-  private UiText uiTextFPOP;
-  private UiSpinnerInt uiSpinnerRegionSize;
 
   public TabDownstream() {
     this.console = createConsole();
@@ -253,18 +250,6 @@ public class TabDownstream extends JPanelWithEnablement {
     return SwingUtils.isEnabledAndChecked(uiCheckDryRun);
   }
 
-  public String getFpopControlLabel(){
-    return uiTextControl.getNonGhostText();
-  }
-  public String getFpopFpopLabel(){
-    return uiTextFPOP.getNonGhostText();
-  }
-  public int getFpopRegionSize(){
-    return uiSpinnerRegionSize.getActualValue();
-  }
-  public boolean getFpopSubtractControl() { return checkSubtractControl.isSelected(); }
-  public boolean isRunFpopQuant() {return checkFPOP.isSelected(); }
-
 
   protected void init() {
     defTextColor = UIManager.getColor("TextField.foreground");
@@ -272,7 +257,7 @@ public class TabDownstream extends JPanelWithEnablement {
       defTextColor = Color.BLACK;
     }
 
-    JPanel pFPOP = createPanelFPOP();
+    pFpop = new FpopQuantPanel();
 
     pSaintExpress = new SaintexpressPanel();
     pBottom = createPanelBottom(console);
@@ -281,40 +266,12 @@ public class TabDownstream extends JPanelWithEnablement {
     pConsole = createPanelConsole(console);
 
     mu.layout(this).fillX();
-    mu.add(this, pFPOP).growX().alignY("top").wrap();
+    mu.add(this, pFpop).growX().alignY("top").wrap();
     mu.add(this, pSaintExpress).growX().alignY("top").wrap();
     mu.add(this, pBottom).growX().alignY("top").wrap();
     mu.add(this, pConsole).grow().push().alignY("top").wrap();
   }
 
-  private JPanel createPanelFPOP() {
-    JPanel p = mu.newPanel("FPOP Quant", true);
-
-    checkFPOP = UiUtils.createUiCheck("Run FPOP-specific Quant", false);
-    checkFPOP.setName("fpop.run-fpop");
-
-    checkSubtractControl = UiUtils.createUiCheck("Subtract Control Oxidation", true);
-    checkSubtractControl.setName("fpop.subtract-control");
-
-    uiTextControl = UiUtils.uiTextBuilder().cols(15).create();
-    FormEntry feControl = mu.feb(uiTextControl).name("fpop.label_control").label("Control Label").tooltip("Label found in all control (non-FPOP) experiment/group names").create();
-    uiTextFPOP = UiUtils.uiTextBuilder().cols(15).create();
-    FormEntry feFPOP = mu.feb(uiTextFPOP).name("fpop.label_fpop").label("FPOP Label").tooltip("Label found in all FPOP experiment/group names").create();
-
-    uiSpinnerRegionSize = UiUtils.spinnerInt(1, 1, 1000, 1).setCols(4).create();
-    FormEntry feRegionSize = mu.feb(uiSpinnerRegionSize).name("fpop.region_size").label("Site Region Size").tooltip("Number of amino acids to consider a group/region around a modified site").create();
-
-    mu.add(p, checkFPOP);
-    mu.add(p, checkSubtractControl);
-    mu.add(p, feControl.label(), mu.ccR());
-    mu.add(p, feControl.comp);
-    mu.add(p, feFPOP.label(), mu.ccR());
-    mu.add(p, feFPOP.comp).wrap();
-    mu.add(p, feRegionSize.label(), mu.ccR());
-    mu.add(p, feRegionSize.comp);
-
-    return p;
-  }
 
   private TextConsole createConsole() {
     TextConsole c = new TextConsole(false);

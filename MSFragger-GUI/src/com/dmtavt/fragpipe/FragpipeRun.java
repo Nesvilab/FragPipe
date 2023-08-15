@@ -1663,7 +1663,7 @@ public class FragpipeRun {
 
     // run FPOP script
     final TabDownstream tabDownstream = Fragpipe.getStickyStrict(TabDownstream.class);
-    final CmdFpopQuant cmdFpopQuant = new CmdFpopQuant(tabDownstream.isRunFpopQuant(), wd);
+    final CmdFpopQuant cmdFpopQuant = new CmdFpopQuant(tabDownstream.pFpop.isRunFpopQuant(), wd);
     addConfig.accept(cmdFpopQuant, () -> {
       if (cmdFpopQuant.isRun()) {
         return cmdFpopQuant.configure(parent);
