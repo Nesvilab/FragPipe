@@ -80,10 +80,7 @@ import com.dmtavt.fragpipe.process.ProcessDescription;
 import com.dmtavt.fragpipe.process.ProcessDescription.Builder;
 import com.dmtavt.fragpipe.process.ProcessManager;
 import com.dmtavt.fragpipe.process.RunnableDescription;
-import com.dmtavt.fragpipe.tabs.TabDatabase;
-import com.dmtavt.fragpipe.tabs.TabMsfragger;
-import com.dmtavt.fragpipe.tabs.TabRun;
-import com.dmtavt.fragpipe.tabs.TabWorkflow;
+import com.dmtavt.fragpipe.tabs.*;
 import com.dmtavt.fragpipe.tabs.TabWorkflow.InputDataType;
 import com.dmtavt.fragpipe.tools.crystalc.CrystalcPanel;
 import com.dmtavt.fragpipe.tools.crystalc.CrystalcParams;
@@ -1665,7 +1662,8 @@ public class FragpipeRun {
     });
 
     // run FPOP script
-    final CmdFpopQuant cmdFpopQuant = new CmdFpopQuant(quantPanelLabelfree.isRunFpopQuant(), wd);
+    final TabDownstream tabDownstream = Fragpipe.getStickyStrict(TabDownstream.class);
+    final CmdFpopQuant cmdFpopQuant = new CmdFpopQuant(tabDownstream.isRunFpopQuant(), wd);
     addConfig.accept(cmdFpopQuant, () -> {
       if (cmdFpopQuant.isRun()) {
         return cmdFpopQuant.configure(parent);

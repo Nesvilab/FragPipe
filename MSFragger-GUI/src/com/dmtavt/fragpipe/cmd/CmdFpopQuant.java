@@ -20,6 +20,7 @@ package com.dmtavt.fragpipe.cmd;
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.exceptions.NoStickyException;
 import com.dmtavt.fragpipe.messages.NoteConfigPython;
+import com.dmtavt.fragpipe.tabs.TabDownstream;
 import com.dmtavt.fragpipe.tools.fpop.FpopScript;
 import com.dmtavt.fragpipe.tools.ionquant.QuantPanelLabelfree;
 import org.slf4j.Logger;
@@ -50,7 +51,7 @@ public class CmdFpopQuant extends CmdBase{
         initPreConfig();
 
         final Path filepath = wd.resolve("combined_modified_peptide.tsv");
-        final QuantPanelLabelfree lfqPanel = Fragpipe.getStickyStrict(QuantPanelLabelfree.class);
+        final TabDownstream tabDownstream = Fragpipe.getStickyStrict(TabDownstream.class);
         List<String> cmd = new ArrayList<>();
 
         if (!FpopScript.get().isInitialized()) {
@@ -79,9 +80,9 @@ public class CmdFpopQuant extends CmdBase{
 
         // python script args are 1) filepath, 2) region size, 3) FPOP sample label, 4) control sample label
         cmd.add(filepath.toString());
-        cmd.add(String.valueOf(lfqPanel.getFpopRegionSize()));
-        cmd.add(lfqPanel.getFpopFpopLabel());
-        cmd.add(lfqPanel.getFpopControlLabel());
+        cmd.add(String.valueOf(tabDownstream.getFpopRegionSize()));
+        cmd.add(tabDownstream.getFpopFpopLabel());
+        cmd.add(tabDownstream.getFpopControlLabel());
 
         ProcessBuilder pb = new ProcessBuilder(cmd);
         pb.directory(wd.toFile());
