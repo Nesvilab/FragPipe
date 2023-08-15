@@ -338,9 +338,9 @@ public class FragpipeRun {
 
       saveRuntimeConfig(wd);
 
-      if (tabWorkflow.isSaveSDRF()) {
+      if (tabRun.isSaveSDRF()) {
         Path sdrfPath = wd.resolve("sdrf.tsv");
-        Bus.post(new MessageSDRFsave(sdrfPath, true, tabWorkflow.getSDRFtype()));
+        Bus.post(new MessageSDRFsave(sdrfPath, true, tabRun.getSDRFtype()));
       }
 
       // Converting process builders descriptors to process builder infos

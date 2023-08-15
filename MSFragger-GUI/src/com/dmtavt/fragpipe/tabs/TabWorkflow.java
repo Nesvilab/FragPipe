@@ -180,8 +180,6 @@ public class TabWorkflow extends JPanelWithEnablement {
   private JButton btnGroupsClear;
   private JButton btnManifestSave;
   private JButton btnManifestLoad;
-  private UiCheck uiCheckSaveSDRF;
-  private UiCombo uiComboSDRFtype;
 
   private HtmlStyledJEditorPane epWorkflowsInfo;
   private UiSpinnerInt uiSpinnerRam;
@@ -528,14 +526,6 @@ public class TabWorkflow extends JPanelWithEnablement {
 
   public int getThreads() {
     return uiSpinnerThreads.getActualValue() > 0 ? uiSpinnerThreads.getActualValue() : Math.max(1, Math.min(Runtime.getRuntime().availableProcessors(), maxProcessors));
-  }
-
-  public SDRFtable.SDRFtypes getSDRFtype() {
-    return SDRFtable.SDRFtypes.valueOf(uiComboSDRFtype.getSelectedItem().toString());
-  }
-
-  public boolean isSaveSDRF() {
-    return uiCheckSaveSDRF.isSelected();
   }
 
   public enum InputDataType {RegularMs, ImMsTimsTof}
@@ -1035,13 +1025,6 @@ public class TabWorkflow extends JPanelWithEnablement {
     btnManifestSave = button("Save as manifest", MessageManifestSave::new);
     btnManifestLoad = button("Load manifest", MessageManifestLoad::new);
 
-    uiCheckSaveSDRF = new UiCheck("Save SDRF Template when run:", null,true);
-    uiCheckSaveSDRF.setName("workflow.asdrf.save-sdrf");
-    JLabel emptySpacer = new JLabel("                   ");
-
-    List<String> sdrfTypes =  Arrays.stream(SDRFtable.SDRFtypes.values()).map(Enum::name).collect(Collectors.toList());
-    uiComboSDRFtype = UiUtils.createUiCombo(sdrfTypes);
-
     createFileTable();
 
     mu.add(p, btnFilesAddFiles).split();
@@ -1071,10 +1054,6 @@ public class TabWorkflow extends JPanelWithEnablement {
 
     mu.add(p, btnManifestSave).split();
     mu.add(p, btnManifestLoad).split();
-
-    mu.add(p, emptySpacer).split();
-    mu.add(p, uiCheckSaveSDRF).split();
-    mu.add(p, uiComboSDRFtype).split().wrap();
 
     mu.add(p,
         new JLabel("Assign files to Experiments/Groups (select rows to activate action buttons):"))
