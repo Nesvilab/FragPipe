@@ -83,6 +83,7 @@ public class CmdFpopQuant extends CmdBase{
         cmd.add(String.valueOf(tabDownstream.getFpopRegionSize()));
         cmd.add(tabDownstream.getFpopFpopLabel());
         cmd.add(tabDownstream.getFpopControlLabel());
+        cmd.add(String.valueOf(tabDownstream.getFpopSubtractControl()));
 
         ProcessBuilder pb = new ProcessBuilder(cmd);
         pb.directory(wd.toFile());
