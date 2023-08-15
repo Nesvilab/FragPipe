@@ -7,18 +7,23 @@ import numpy as np
 import pandas as pd
 import time
 import sys
+import io
 
 # global constants
 FPOP_MOD_MASSES = [15.994915, 31.989829, 47.984744, 13.979265, -43.053433, -22.031969, -23.015984, -10.031969, 4.9735,
                    -30.010565, -27.994915, -43.989829, -25.031631, -9.036716]
-DESCRIPTION_ITEMS = ['Peptide Sequence', 'Start', 'End', 'Protein', 'Protein ID', 'Entry Name', 'Gene',
-                     'Protein Description', 'Mapped Proteins', 'Mapped Genes']
+DESCRIPTION_ITEMS = [
+    # 'Peptide Sequence',
+    # 'Start', 'End',
+    'Protein', 'Protein ID', 'Entry Name', 'Gene', 'Protein Description', 'Mapped Proteins', 'Mapped Genes']
 
 # for testing/running from script directly
-FILEPATH = r"Z:\crojaram\FPOP_Project\In-vivo_FPOP\Output\Manuscript\Group-filteredFDR\MFHILVWY16-noacetylreviweddatabse_Quant\combined_modified_peptide.tsv"
+FILEPATH = r"Z:\crojaram\FPOP_Project\In-vivo_FPOP\Output\Manuscript\Group-filteredFDR\SSHII_Quant_lowercase\combined_modified_peptide.tsv"
 CONTROL_LABEL = "Control_"
 FPOP_LABEL = "Sample_"
-REGION_SIZE = 5
+REGION_SIZE = 1
+SUBTRACT_CONTROL = False
+# TMT = True
 
 
 class Parameters(object):
@@ -29,12 +34,18 @@ class Parameters(object):
     region_size: int
     control_label: str
     fpop_label: str
+    subtract_control: bool
+    # is_tmt: bool
 
-    def __init__(self, tsvpath, region, control, fpop):
+    def __init__(self, tsvpath, region, control, fpop, subtract_control
+                 # , is_tmt
+                 ):
         self.modpep_tsv_path = tsvpath
         self.region_size = int(region)
         self.control_label = control
         self.fpop_label = fpop
+        self.subtract_control = subtract_control
+        # self.is_tmt = is_tmt
 
 
 def parse_modified_peptide_tsv(filepath):
@@ -48,8 +59,99 @@ def parse_modified_peptide_tsv(filepath):
     return pd.read_csv(filepath, index_col=False, sep='\t')
 
 
+def group_peptides_better(mod_pep_df):
+    """
+    Group by base peptide sequence (peptide-level analysis). All overlapping peptides are grouped together, returning
+    the peptide with the longest sequence as group name. Returns a dict of group name (i.e., base peptide
+    sequence): list of pandas Series for each relevant row of the input table. Also computes whether FPOP
+    mods are present.
+    :param mod_pep_df: modified peptide tsv dataframe
+    :type mod_pep_df: pd.Dataframe
+    :return: dict of group name: list of rows
+    :rtype: dict
+    """
+    protein_pep_starts_dict = {}
+    # first pass: group peptides by protein and start position
+    for index, row in mod_pep_df.iterrows():
+        row['is_fpop'] = is_fpop(row)
+        row['is_grouped'] = False
+        protein = row['Protein ID']
+        start = row['Start']
+        if protein in protein_pep_starts_dict.keys():
+            if start in protein_pep_starts_dict[protein]:
+                protein_pep_starts_dict[protein][start].append(row)
+            else:
+                protein_pep_starts_dict[protein][start] = [row]
+        else:
+            protein_pep_starts_dict[protein] = {start: [row]}
+
+    # second pass: collapse overlapping peptides into groups by biggest peptide fully containing other(s)
+    protein_pep_groups = {}
+    for protein, start_pos_dict in protein_pep_starts_dict.items():
+        peptide_groups = {}
+        start_pos_list = []
+        for start, row_list in sorted(start_pos_dict.items(), key=lambda x: x[0]):
+            start_pos_list.append(row_list)
+
+        for index, row_list in enumerate(start_pos_list):
+            highest_end = 0
+            longest_pep = ''
+            pep_list_temp = []
+            for row in row_list:
+                if row['is_grouped']:
+                    continue
+                # same start guaranteed. Find longest peptide by largest 'end', group all under that peptide
+                end = row['End']
+                if end > highest_end:
+                    highest_end = end
+                    longest_pep = row['Peptide Sequence']
+                row['is_grouped'] = True
+                pep_list_temp.append(row)
+            # save all peptides to the group now that we know which is longest
+            peptide_groups[longest_pep] = pep_list_temp
+
+            found_overlapping_peptides = True
+            while found_overlapping_peptides:
+                if len(start_pos_list) > index + 1:
+                    next_list = start_pos_list[index + 1]
+                    index += 1
+                    found_overlapping_peptides = False
+                    for row in next_list:
+                        if row['Start'] < highest_end:
+                            # found overlap, group with the others
+                            row['is_grouped'] = True
+                            peptide_groups[longest_pep].append(row)
+                            found_overlapping_peptides = True
+                            if row['End'] > highest_end:
+                                highest_end = row['End']
+                else:
+                    found_overlapping_peptides = False
+
+            # re-check for longest peptide in case an overlapping one was longer
+            longest_length = len(longest_pep)
+            new_pep = ''
+            for row in peptide_groups[longest_pep]:
+                if row['Peptide Length'] > longest_length:
+                    longest_length = row['Peptide Length']
+                    new_pep = row['Peptide Sequence']
+            if new_pep != '':
+                peptide_groups[new_pep] = peptide_groups.pop(longest_pep)
+
+            protein_pep_groups[protein] = peptide_groups
+
+    # final pass: filter to only peptides with at least 2 entries (single entry can't have both FPOP and unmodified)
+    filtered_data = {}
+    for protein, peptide_dict in protein_pep_groups.items():
+        for peptide, row_list in peptide_dict.items():
+            if len(row_list) > 1:
+                filtered_data[peptide] = row_list
+
+    return filtered_data
+
+
 def group_peptides(mod_pep_df):
     """
+    Deprecated.
     Group by base peptide sequence (peptide-level analysis). Returns a dict of group name (i.e., base peptide
     sequence): list of pandas Series for each relevant row of the input table. Also computes whether FPOP
     mods are present.
@@ -150,7 +252,21 @@ def compute_group_mod_ratio(filtered_dict):
     sample_list = []
     for group_name, row_list in filtered_dict.items():
         # get descriptive info to save for output
-        group_descriptions[group_name] = row_list[0][DESCRIPTION_ITEMS]
+        peptides = []
+        longest_pep_index, highest_end, lowest_start = 0, 0, np.inf
+        for index, row in enumerate(row_list):
+            # use longest peptide description for peptide table; for site table, this conditional will always miss so will use index 0
+            if row['Start'] < lowest_start:
+                lowest_start = row['Start']
+            if row['End'] > highest_end:
+                highest_end = row['End']
+            if row['Peptide Sequence'] == group_name:
+                longest_pep_index = index
+            peptides.append(row['Peptide Sequence'])
+        group_descriptions[group_name] = row_list[longest_pep_index][DESCRIPTION_ITEMS]
+        group_descriptions[group_name]['Peptide Sequence'] = ', '.join(set(peptides))
+        group_descriptions[group_name]['Start'] = lowest_start
+        group_descriptions[group_name]['End'] = highest_end
         group_descriptions[group_name]['FPOP Mods'] = []
         group_descriptions[group_name]['Other Mods'] = []
 
@@ -313,7 +429,7 @@ def to_string(x):
         return str(x)
 
 
-def single_analysis(params):
+def single_lfq_analysis(params):
     """
     Given a combined_modified_peptide.tsv from IonQuant, perform FPOP quant analysis
     :return:
@@ -326,9 +442,12 @@ def single_analysis(params):
     print(" done in {:.1f}s".format(time.time() - start), flush=True)
 
     print("\tGenerating peptide-level table...", end='', flush=True)
-    peptides = group_peptides(mod_pep_df)
+    peptides = group_peptides_better(mod_pep_df)
     group_ratios, sample_list, group_descriptions = compute_group_mod_ratio(peptides)
-    final_dict = compute_experiment_final_ratios(group_ratios, sample_list, params.control_label, params.fpop_label)
+    if params.subtract_control:
+        final_dict = compute_experiment_final_ratios(group_ratios, sample_list, params.control_label, params.fpop_label)
+    else:
+        final_dict = group_ratios
     output_path = pathlib.Path(params.modpep_tsv_path).parent / 'FPOP_peptides.tsv'
     save_output(final_dict, group_descriptions, output_path)
     pep_time = time.time()
@@ -337,7 +456,10 @@ def single_analysis(params):
     print("\tGenerating site-level table...", end='', flush=True)
     sites = group_sites(mod_pep_df, params.region_size)
     group_ratios, sample_list, group_descriptions = compute_group_mod_ratio(sites)
-    final_dict = compute_experiment_final_ratios(group_ratios, sample_list, params.control_label, params.fpop_label)
+    if params.subtract_control:
+        final_dict = compute_experiment_final_ratios(group_ratios, sample_list, params.control_label, params.fpop_label)
+    else:
+        final_dict = group_ratios
     output_path = pathlib.Path(params.modpep_tsv_path).parent / 'FPOP_sites.tsv'
     save_output(final_dict, group_descriptions, output_path)
     print("\t done in {:.1f}s".format(time.time() - pep_time), flush=True)
@@ -366,15 +488,16 @@ def main():
         sys.exit(0)
 
     params = Parameters(*argv)
-    single_analysis(params)
+    single_lfq_analysis(params)
 
 
 def test():
     """
     Method for testing offline
     """
-    params = Parameters(FILEPATH, REGION_SIZE, CONTROL_LABEL, FPOP_LABEL)
-    single_analysis(params)
+    params = Parameters(FILEPATH, REGION_SIZE, CONTROL_LABEL, FPOP_LABEL, SUBTRACT_CONTROL)
+    # params = Parameters(FILEPATH, REGION_SIZE, CONTROL_LABEL, FPOP_LABEL, TMT)
+    single_lfq_analysis(params)
 
 
 if __name__ == '__main__':
