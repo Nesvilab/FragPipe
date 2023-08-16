@@ -95,6 +95,7 @@ public class MsfraggerParams extends AbstractParams {
     public static final String PROP_deisotope = "deisotope";
     public static final String PROP_deneutralloss = "deneutralloss";
     public static final String PROP_mass_offsets = "mass_offsets";
+    public static final String PROP_mass_offset_file = "mass_offset_file";
     public static final String PROP_precursor_mass_mode = "precursor_mass_mode";
     public static final String PROP_search_enzyme_name_1 = "search_enzyme_name_1";
     public static final String PROP_search_enzyme_name_2 = "search_enzyme_name_2";
@@ -190,6 +191,7 @@ public class MsfraggerParams extends AbstractParams {
         PROP_deisotope,
         PROP_deneutralloss,
         PROP_mass_offsets,
+        PROP_mass_offset_file,
         PROP_precursor_mass_mode,
         PROP_search_enzyme_name_1,
         PROP_search_enzyme_name_2,
@@ -345,6 +347,7 @@ public class MsfraggerParams extends AbstractParams {
         c.put(PROP_decoy_prefix, "Prefix of the decoy protein entries. Used for parameter optimization only.");
         c.put(PROP_isotope_error, "Also search for MS/MS events triggered on specified isotopic peaks.");
         c.put(PROP_mass_offsets, "Creates multiple precursor tolerance windows with specified mass offsets.");
+        c.put(PROP_mass_offset_file, "Optional path to detailed mass offset file. Overrides mass_offsets if provided.");
         c.put(PROP_restrict_deltamass_to, "Specify amino acids on which delta masses (mass offsets or search modifications) can occur. Allowed values are single letter codes (e.g. ACD) and '-', must be capitalized. Use 'all' to allow any amino acid.");
         c.put(PROP_labile_search_mode, "type of search (nglycan, labile, or off). Off means non-labile/typical search.");
         c.put(PROP_precursor_mass_mode, "One of isolated/selected/corrected.");
