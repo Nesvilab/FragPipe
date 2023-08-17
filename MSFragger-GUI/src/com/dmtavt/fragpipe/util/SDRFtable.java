@@ -1,5 +1,6 @@
 package com.dmtavt.fragpipe.util;
 
+import com.dmtavt.fragpipe.tools.tmtintegrator.QuantLabel;
 import org.apache.commons.io.FileUtils;
 
 import java.io.IOException;
@@ -129,6 +130,22 @@ public class SDRFtable {
             row[firstModIndex + i] = mods.get(i);
         }
         rows.add(row);
+    }
+
+    public void addSampleTMT(String lcmsfileName, String replicate, ArrayList<String> enzymes, ArrayList<String> mods, QuantLabel quantLabel) {
+        for (String label : quantLabel.getReagentNames()) {
+            String[] row = new String[header.size()];
+            row[header.indexOf(COL_datafile)] = lcmsfileName;
+            row[header.indexOf(COL_replicate)] = replicate;
+            row[header.indexOf(COL_label)] = String.format("%s%s", quantLabel.getType(), label);
+            for (int i=0; i < enzymes.size(); i++) {
+                row[firstEnzymeIndex + i] = enzymes.get(i);
+            }
+            for (int i=0; i < mods.size(); i++) {
+                row[firstModIndex + i] = mods.get(i);
+            }
+            rows.add(row);
+        }
     }
 
     public void printTable(Path path) throws IOException {

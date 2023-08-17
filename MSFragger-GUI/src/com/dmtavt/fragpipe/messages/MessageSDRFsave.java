@@ -17,6 +17,7 @@
 
 package com.dmtavt.fragpipe.messages;
 
+import com.dmtavt.fragpipe.tools.tmtintegrator.QuantLabel;
 import com.dmtavt.fragpipe.util.SDRFtable;
 
 import java.nio.file.Path;
@@ -25,16 +26,19 @@ public class MessageSDRFsave {
     public final Path path;
     public final boolean quiet;
     public final SDRFtable.SDRFtypes type;
+    public final QuantLabel label;
 
     public MessageSDRFsave() {
         path = null;
         quiet = false;
         type = null;
+        label = null;
     }
 
-    public MessageSDRFsave(Path path, boolean quiet, SDRFtable.SDRFtypes type) {
+    public MessageSDRFsave(Path path, boolean quiet, SDRFtable.SDRFtypes type, QuantLabel label) {
         this.path = path;
         this.quiet = quiet;
         this.type = type;
+        this.label = label;
     }
 }
