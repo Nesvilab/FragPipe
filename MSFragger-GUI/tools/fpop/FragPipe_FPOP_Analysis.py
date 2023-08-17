@@ -44,7 +44,7 @@ class Parameters(object):
         self.region_size = int(region)
         self.control_label = control
         self.fpop_label = fpop
-        self.subtract_control = subtract_control
+        self.subtract_control = subtract_control.lower().strip() == 'true'
         # self.is_tmt = is_tmt
 
 
