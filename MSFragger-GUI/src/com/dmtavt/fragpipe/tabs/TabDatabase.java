@@ -49,6 +49,8 @@ import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -72,6 +74,7 @@ public class TabDatabase extends JPanelWithEnablement {
   public static final long databaseSizeLimit = 1 << 30L;
   private static final String TIP_DB_DOWNLOAD = "tip.db.download";
   private static final String TIP_DB_UPDATE = "tip.db.update";
+  public static final Pattern disallowedFastaPattern = Pattern.compile("[^A-Za-z0-9_:\\\\/.+-]");
 
   private UiText uiTextDbPath;
   private UiText uiTextDecoyTag;
@@ -111,7 +114,7 @@ public class TabDatabase extends JPanelWithEnablement {
 
   private JPanel createPanelDbSelection() {
 
-    uiTextDbPath = UiUtils.uiTextBuilder().filter("[\"'|<>]").cols(5).create();
+    uiTextDbPath = UiUtils.uiTextBuilder().cols(5).create();
     uiTextDbPath.addFocusListener(new ContentChangedFocusAdapter(uiTextDbPath, (s, s2) -> {
       Bus.post(new MessageDbNewPath(s2));
     }));
@@ -201,6 +204,15 @@ public class TabDatabase extends JPanelWithEnablement {
       throw new ValidationException(e);
     }
     return fasta;
+  }
+
+  public String checkFastaPath() {
+    Matcher matcher = disallowedFastaPattern.matcher(getFastaPath());
+    if (matcher.find()) {
+      return "FASTA file path contains disallowed characters: " + matcher.group() + "\nPlease rename them and try again.";
+    } else {
+      return null;
+    }
   }
 
   public static JFileChooser createFilechooserFasta(UiText uiTextDbPath) {

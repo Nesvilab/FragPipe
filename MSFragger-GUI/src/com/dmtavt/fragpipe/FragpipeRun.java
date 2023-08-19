@@ -1167,6 +1167,13 @@ public class FragpipeRun {
 
     // run MsFragger
     final TabDatabase tabDatabase = Fragpipe.getStickyStrict(TabDatabase.class);
+
+    String ss = tabDatabase.checkFastaPath();
+    if (ss != null) {
+      SwingUtils.showErrorDialog(parent, ss, "Invalid FASTA file path");
+      return false;
+    }
+
     final String decoyTag = tabDatabase.getDecoyTag();
     MsfraggerParams p = tabMsf.getParams();
     final CmdMsfragger cmdMsfragger = new CmdMsfragger(tabMsf.isRun(), wd, p.getOutputFormat(), tabMsf.getOutputReportTopNDia1(), tabMsf.getOutputReportTopNDia2(), tabMsf.getOutputReportTopNWwa());
