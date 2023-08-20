@@ -1,7 +1,7 @@
 /MSFragger-GUI/nbproject/private/
 /MSFragger-GUI/build/
 /MSFragger-GUI/dist/
-
+.DS_Store
 
 # Created by https://www.gitignore.io/api/visualstudiocode
 
