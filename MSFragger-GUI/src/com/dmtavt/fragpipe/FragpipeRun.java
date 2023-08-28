@@ -1536,7 +1536,7 @@ public class FragpipeRun {
           SwingUtils.showWarningDialog(parent, CmdTmtIntegrator.NAME + " only supports mzML and raw files.\nPlease remove other files from the input list.", CmdTmtIntegrator.NAME + " error");
           return false;
         }
-        return cmdTmt.configure(tmtiPanel, isDryRun, ramGb, decoyTag, fastaFile, sharedMapGroupsToProtxml, doMSstats, tmtiPanel.getAnnotations());
+        return cmdTmt.configure(tmtiPanel, isDryRun, ramGb, decoyTag, fastaFile, sharedMapGroupsToProtxml, doMSstats, tmtiPanel.getAnnotations(), false);
       }
       return true;
     });
@@ -1661,9 +1661,22 @@ public class FragpipeRun {
       return true;
     });
 
+
     // run FPOP script
     final TabDownstream tabDownstream = Fragpipe.getStickyStrict(TabDownstream.class);
     final CmdFpopQuant cmdFpopQuant = new CmdFpopQuant(tabDownstream.pFpop.isRunFpopQuant(), wd);
+    final CmdTmtIntegrator cmdTmtFpop = new CmdTmtIntegrator(isTmt, wd);
+
+    if (tabDownstream.pFpop.isFpopTmt()) {
+      // run TMT-Integrator a second time to provide unmodified peptide data as well as modified (does NOT rerun freequant/labelquant)
+      addConfig.accept(cmdTmtFpop, () -> {
+        if (sharedLcmsFiles.stream().anyMatch(f -> !f.getPath().getFileName().toString().toLowerCase().endsWith(".mzml") && !f.getPath().getFileName().toString().toLowerCase().endsWith(".raw"))) {
+          SwingUtils.showWarningDialog(parent, CmdTmtIntegrator.NAME + " only supports mzML and raw files.\nPlease remove other files from the input list.", CmdTmtIntegrator.NAME + " error");
+          return false;
+        }
+        return cmdTmtFpop.configure(tmtiPanel, isDryRun, ramGb, decoyTag, fastaFile, sharedMapGroupsToProtxml, doMSstats, tmtiPanel.getAnnotations(), true);
+      });
+    }
     addConfig.accept(cmdFpopQuant, () -> {
       if (cmdFpopQuant.isRun()) {
         return cmdFpopQuant.configure(parent);
@@ -1781,7 +1794,8 @@ public class FragpipeRun {
     addToGraph(graphOrder, cmdAppendFile, DIRECTION.IN, cmdPtmshepherd);
     addToGraph(graphOrder, cmdIonquant, DIRECTION.IN, cmdPhilosopherReport, cmdPhilosopherAbacus, cmdPtmshepherd);
     addToGraph(graphOrder, cmdTmt, DIRECTION.IN, cmdPhilosopherReport, cmdTmtFreequant, cmdTmtLabelQuant, cmdPhilosopherAbacus, cmdPtmshepherd);
-    addToGraph(graphOrder, cmdFpopQuant, DIRECTION.IN, cmdIonquant);
+    addToGraph(graphOrder, cmdTmtFpop, DIRECTION.IN, cmdPhilosopherReport, cmdTmtFreequant, cmdTmtLabelQuant, cmdPhilosopherAbacus, cmdPtmshepherd);
+    addToGraph(graphOrder, cmdFpopQuant, DIRECTION.IN, cmdIonquant, cmdTmt, cmdTmtFpop);
     addToGraph(graphOrder, cmdSpecLibGen, DIRECTION.IN, cmdPhilosopherReport);
     addToGraph(graphOrder, cmdDiann, DIRECTION.IN, cmdSpecLibGen);
     addToGraph(graphOrder, cmdWriteSubMzml, DIRECTION.IN, cmdPhilosopherReport);

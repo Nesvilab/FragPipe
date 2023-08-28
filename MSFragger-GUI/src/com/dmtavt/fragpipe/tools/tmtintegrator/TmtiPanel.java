@@ -1079,7 +1079,7 @@ public class TmtiPanel extends JPanelBase {
     return null;
   }
 
-  public Map<String, String> formToConfig(int ramGb, String decoyTag, String pathTmtiJar, String pathFasta, String pathOutput, QuantLabel quantLabel) {
+  public Map<String, String> formToConfig(int ramGb, String decoyTag, String pathTmtiJar, String pathFasta, String pathOutput, QuantLabel quantLabel, boolean isSecondUnmodRun) {
     Map<String, String> map = SwingUtils.valuesGet(this, null);
     final TreeMap<String, String> mapConv = new TreeMap<>();
     map.forEach((k, v) ->
@@ -1090,12 +1090,22 @@ public class TmtiPanel extends JPanelBase {
       }
       if (prop.contentEquals("mod_tag")) {
         String t = CONVERT_TO_FILE.getOrDefault(prop, Function.identity()).apply(v);
-        if (t.isEmpty()) {
-          mapConv.put(prop, "none");
+        if (isSecondUnmodRun) {
+          mapConv.put(prop, "none");    // override mod tag to always be none for special second unmodified run
         } else {
-          mapConv.put(prop, t);
+          if (t.isEmpty()) {
+            mapConv.put(prop, "none");
+          } else {
+            mapConv.put(prop, t);
+          }
         }
-      } if (prop.contentEquals("ref_tag")) {
+      } else if (prop.contentEquals("min_site_prob")) {
+        if (isSecondUnmodRun) {
+          mapConv.put(prop, "-1");    // override mod site prob to match "none" mod tag
+        } else {
+          mapConv.put(prop, CONVERT_TO_FILE.getOrDefault(prop, Function.identity()).apply(v));
+        }
+      } else if (prop.contentEquals("ref_tag")) {
         mapConv.put(prop, unifyAnnotationSampleName(CONVERT_TO_FILE.getOrDefault(prop, Function.identity()).apply(v)));
       } else if (prop.contentEquals(TmtiConfProps.PROP_channel_num)) {
         // TMT-I only needs the channel_num, but multiple tags may have the same number so we save the label_type to workflow file instead

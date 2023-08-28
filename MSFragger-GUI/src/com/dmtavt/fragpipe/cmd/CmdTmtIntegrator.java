@@ -57,6 +57,7 @@ public class CmdTmtIntegrator extends CmdBase {
   public static final String JAR_MAIN = "TMTIntegrator";
   public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML", "raw");
   public static final String CONFIG_FN = "tmt-integrator-conf.yml";
+  public static final String CONFIG_FN_2 = "tmt-integrator-conf-unmod.yml";
 
   public CmdTmtIntegrator(boolean isRun, Path workDir) {
     super(isRun, workDir);
@@ -80,7 +81,7 @@ public class CmdTmtIntegrator extends CmdBase {
     return true;
   }
 
-  public boolean configure(TmtiPanel panel, boolean isDryRun, int ramGb, String decoyTag, String pathFasta, Map<LcmsFileGroup, Path> mapGroupsToProtxml, boolean doMsstats, Map<LcmsFileGroup, Path> groupAnnotationMap) {
+  public boolean configure(TmtiPanel panel, boolean isDryRun, int ramGb, String decoyTag, String pathFasta, Map<LcmsFileGroup, Path> mapGroupsToProtxml, boolean doMsstats, Map<LcmsFileGroup, Path> groupAnnotationMap, boolean isSecondUnmodRun) {
     isConfigured = false;
 
     List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Stream.of(JAR_NAME));
@@ -142,10 +143,20 @@ public class CmdTmtIntegrator extends CmdBase {
 
     // write and check TMT-I config file
     Path pathConf;
-    final String tmtOutDirName = "tmt-report";
+    final String tmtOutDirName;
+    if (isSecondUnmodRun) {
+      tmtOutDirName = "tmt-report-unmod";   // special second run for unmodified peptides to compare
+    } else {
+      tmtOutDirName = "tmt-report";
+    }
+
     final Path outDir = getWd().resolve(tmtOutDirName);
     try {
-      pathConf = wd.resolve(CONFIG_FN);
+      if (isSecondUnmodRun) {
+        pathConf = wd.resolve(CONFIG_FN_2);
+      } else {
+        pathConf = wd.resolve(CONFIG_FN);
+      }
       Files.deleteIfExists(pathConf);
       if (!isDryRun) {
         FileDelete.deleteFileOrFolder(outDir);
@@ -156,7 +167,7 @@ public class CmdTmtIntegrator extends CmdBase {
         log.debug(NAME + " config required presence of output work dir, creating: {}", pathConf.getParent());
         Files.createDirectories(pathConf.getParent());
       }
-      Map<String, String> conf = panel.formToConfig(ramGb, decoyTag, classpathJars.get(0).toString(), pathFasta, outDir.toString(), panel.getSelectedLabel());
+      Map<String, String> conf = panel.formToConfig(ramGb, decoyTag, classpathJars.get(0).toString(), pathFasta, outDir.toString(), panel.getSelectedLabel(), isSecondUnmodRun);
 
       // check that there is a reference channel set in each annotation file
       String refTag = conf.get("ref_tag");

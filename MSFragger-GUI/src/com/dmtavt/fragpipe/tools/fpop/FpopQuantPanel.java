@@ -28,6 +28,7 @@ public class FpopQuantPanel extends JPanelBase {
 
     private UiCheck checkFPOP;
     private UiCheck checkSubtractControl;
+    private UiCheck uiCheckIsTmt;
     private UiText uiTextControl;
     private UiText uiTextFPOP;
     private UiSpinnerInt uiSpinnerRegionSize;
@@ -82,6 +83,7 @@ public class FpopQuantPanel extends JPanelBase {
     }
     public boolean getFpopSubtractControl() { return checkSubtractControl.isSelected(); }
     public boolean isRunFpopQuant() {return isRun(); }
+    public boolean isFpopTmt() {return uiCheckIsTmt.isSelected(); }
 
     private JPanel createPanelTop() {
         JPanel p = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
@@ -97,6 +99,9 @@ public class FpopQuantPanel extends JPanelBase {
     private JPanel createPanelFPOP() {
         JPanel p = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
 
+        uiCheckIsTmt = UiUtils.createUiCheck("TMT FPOP Analysis", false);
+        uiCheckIsTmt.setName("fpop.fpop-tmt");
+
         checkSubtractControl = UiUtils.createUiCheck("Subtract Control Oxidation", true);
         checkSubtractControl.setName("fpop.subtract-control");
 
@@ -108,6 +113,7 @@ public class FpopQuantPanel extends JPanelBase {
         uiSpinnerRegionSize = UiUtils.spinnerInt(1, 1, 1000, 1).setCols(4).create();
         FormEntry feRegionSize = mu.feb(uiSpinnerRegionSize).name("fpop.region_size").label("          Site Region Size").tooltip("Number of amino acids to consider a group/region around a modified site").create();
 
+        mu.add(p, uiCheckIsTmt).split();
         mu.add(p, checkSubtractControl).split();
         mu.add(p, feControl.label(), mu.ccR());
         mu.add(p, feControl.comp);
