@@ -8,22 +8,47 @@ import pandas as pd
 import time
 import sys
 import io
+from enum import Enum
 
 # global constants
 FPOP_MOD_MASSES = [15.994915, 31.989829, 47.984744, 13.979265, -43.053433, -22.031969, -23.015984, -10.031969, 4.9735,
                    -30.010565, -27.994915, -43.989829, -25.031631, -9.036716]
-DESCRIPTION_ITEMS = [
-    # 'Peptide Sequence',
-    # 'Start', 'End',
-    'Protein', 'Protein ID', 'Entry Name', 'Gene', 'Protein Description', 'Mapped Proteins', 'Mapped Genes']
+DESCRIPTION_ITEMS_LFQ = ['Protein', 'Protein ID', 'Entry Name', 'Gene', 'Protein Description', 'Mapped Proteins', 'Mapped Genes']
+DESCRIPTION_ITEMS_TMT = ['Gene', 'ProteinID', 'MaxPepProb', 'ReferenceIntensity']
+
+
+class Type(Enum):
+    """
+    LFQ or TMT
+    """
+    TMT = "tmt"
+    LFQ = "lfq"
+
+
+# lookup for column names in each spreadsheet type
+COLUMN_NAMES = {
+    'peptide': {Type.LFQ: 'Peptide Sequence',
+                Type.TMT: 'Peptide'},
+    'protein': {Type.LFQ: 'Protein ID',
+                Type.TMT: 'ProteinID'},
+    'start': {Type.LFQ: 'Start',
+              Type.TMT: 'Start'},
+    'end': {Type.LFQ: 'End',
+            Type.TMT: 'End'},
+    'mods': {Type.LFQ: 'Assigned Modifications',
+             Type.TMT: 'Index'}
+}
+
 
 # for testing/running from script directly
 FILEPATH = r"Z:\crojaram\FPOP_Project\In-vivo_FPOP\Output\Manuscript\Group-filteredFDR\SSHII_Quant_lowercase\combined_modified_peptide.tsv"
-CONTROL_LABEL = "Control_"
-FPOP_LABEL = "Sample_"
+FILE_TMT_MOD = r"E:\_Software_Tests\FPOP\2023-08-28_2xTMTI-test\tmt-report\ratio_multi-site_None.tsv"
+FILE_TMT_UNMOD = r"E:\_Software_Tests\FPOP\2023-08-28_2xTMTI-test\tmt-report-unmod\ratio_peptide_None.tsv"
+CONTROL_LABEL = "D"
+FPOP_LABEL = "V"
 REGION_SIZE = 1
-SUBTRACT_CONTROL = False
-# TMT = True
+SUBTRACT_CONTROL = 'false'
+TMT = 'true'
 
 
 class Parameters(object):
@@ -35,17 +60,17 @@ class Parameters(object):
     control_label: str
     fpop_label: str
     subtract_control: bool
-    # is_tmt: bool
+    is_tmt: bool
+    unmod_tsv: str
 
-    def __init__(self, tsvpath, region, control, fpop, subtract_control
-                 # , is_tmt
-                 ):
+    def __init__(self, tsvpath, region, control, fpop, subtract_control, is_tmt, unmod_tsv=None):
         self.modpep_tsv_path = tsvpath
         self.region_size = int(region)
         self.control_label = control
         self.fpop_label = fpop
         self.subtract_control = subtract_control.lower().strip() == 'true'
-        # self.is_tmt = is_tmt
+        self.is_tmt = is_tmt.lower().strip() == 'true'
+        self.unmod_tsv = unmod_tsv
 
 
 def parse_modified_peptide_tsv(filepath):
@@ -59,7 +84,7 @@ def parse_modified_peptide_tsv(filepath):
     return pd.read_csv(filepath, index_col=False, sep='\t')
 
 
-def group_peptides_better(mod_pep_df):
+def group_peptides_better(mod_pep_df, is_tmt):
     """
     Group by base peptide sequence (peptide-level analysis). All overlapping peptides are grouped together, returning
     the peptide with the longest sequence as group name. Returns a dict of group name (i.e., base peptide
@@ -71,11 +96,17 @@ def group_peptides_better(mod_pep_df):
     :rtype: dict
     """
     protein_pep_starts_dict = {}
+    if is_tmt:
+        col_type = Type.TMT
+    else:
+        col_type = Type.LFQ
+
     # first pass: group peptides by protein and start position
     for index, row in mod_pep_df.iterrows():
-        row['is_fpop'] = is_fpop(row)
+        if not is_tmt:
+            row['is_fpop'] = is_fpop_lfq(row)
         row['is_grouped'] = False
-        protein = row['Protein ID']
+        protein = row[COLUMN_NAMES['protein'][col_type]]
         start = row['Start']
         if protein in protein_pep_starts_dict.keys():
             if start in protein_pep_starts_dict[protein]:
@@ -101,10 +132,10 @@ def group_peptides_better(mod_pep_df):
                 if row['is_grouped']:
                     continue
                 # same start guaranteed. Find longest peptide by largest 'end', group all under that peptide
-                end = row['End']
+                end = row[COLUMN_NAMES['end'][col_type]]
                 if end > highest_end:
                     highest_end = end
-                    longest_pep = row['Peptide Sequence']
+                    longest_pep = row[COLUMN_NAMES['peptide'][col_type]]
                 row['is_grouped'] = True
                 pep_list_temp.append(row)
             # save all peptides to the group now that we know which is longest
@@ -117,13 +148,13 @@ def group_peptides_better(mod_pep_df):
                     index += 1
                     found_overlapping_peptides = False
                     for row in next_list:
-                        if row['Start'] < highest_end:
+                        if row[COLUMN_NAMES['start'][col_type]] < highest_end:
                             # found overlap, group with the others
                             row['is_grouped'] = True
                             peptide_groups[longest_pep].append(row)
                             found_overlapping_peptides = True
-                            if row['End'] > highest_end:
-                                highest_end = row['End']
+                            if row[COLUMN_NAMES['end'][col_type]] > highest_end:
+                                highest_end = row[COLUMN_NAMES['end'][col_type]]
                 else:
                     found_overlapping_peptides = False
 
@@ -131,9 +162,11 @@ def group_peptides_better(mod_pep_df):
             longest_length = len(longest_pep)
             new_pep = ''
             for row in peptide_groups[longest_pep]:
-                if row['Peptide Length'] > longest_length:
-                    longest_length = row['Peptide Length']
-                    new_pep = row['Peptide Sequence']
+                pep = row[COLUMN_NAMES['peptide'][col_type]]
+                new_len = len(new_pep)
+                if new_len > longest_length:
+                    longest_length = new_len
+                    new_pep = pep
             if new_pep != '':
                 peptide_groups[new_pep] = peptide_groups.pop(longest_pep)
 
@@ -143,42 +176,29 @@ def group_peptides_better(mod_pep_df):
     filtered_data = {}
     for protein, peptide_dict in protein_pep_groups.items():
         for peptide, row_list in peptide_dict.items():
-            if len(row_list) > 1:
-                filtered_data[peptide] = row_list
+            if is_tmt:
+                # make sure both modified and unmodified peptides are found before continuing
+                found_mod = False
+                found_unmod = False
+                for row in row_list:
+                    if row['is_fpop']:
+                        found_mod = True
+                        if found_unmod:
+                            break
+                    else:
+                        found_unmod = True
+                        if found_mod:
+                            break
+                if found_mod and found_unmod:
+                    filtered_data[peptide] = row_list
+            else:
+                if len(row_list) > 1:
+                    filtered_data[peptide] = row_list
 
     return filtered_data
 
 
-def group_peptides(mod_pep_df):
-    """
-    Deprecated.
-    Group by base peptide sequence (peptide-level analysis). Returns a dict of group name (i.e., base peptide
-    sequence): list of pandas Series for each relevant row of the input table. Also computes whether FPOP
-    mods are present.
-    :param mod_pep_df: modified peptide tsv dataframe
-    :type mod_pep_df: pd.Dataframe
-    :return: dict of group name: list of rows
-    :rtype: dict
-    """
-    peptide_data = {}
-    for index, row in mod_pep_df.iterrows():
-        row['is_fpop'] = is_fpop(row)
-        peptide = row['Peptide Sequence']
-        if peptide in peptide_data.keys():
-            peptide_data[peptide].append(row)
-        else:
-            peptide_data[peptide] = [row]
-
-    # remove single-entry peptides (either unmodified only or modified only) because no comparative calculation can be done
-    filtered_data = {}
-    for peptide, row_list in peptide_data.items():
-        if len(row_list) > 1:
-            filtered_data[peptide] = row_list
-
-    return filtered_data
-
-
-def group_sites(mod_pep_df, region_size=1):
+def group_sites(mod_pep_df, region_size=1, is_tmt=False):
     """
     Group based on modification sites rather than peptide sequence. If a region size is specified, consider all fpop mods
     within a given region (span of amino acids) together as one group.
@@ -189,18 +209,28 @@ def group_sites(mod_pep_df, region_size=1):
     :return: dict of group name: list of rows
     :rtype: dict
     """
+    if is_tmt:
+        col_type = Type.TMT
+    else:
+        col_type = Type.LFQ
     site_data = {}
     protein_regions = {}
     unmod_rows = []  # holder to avoid regenerating a series for each unmodified peptide row
     # first pass: define modified regions and group modified peptides
     for index, row in mod_pep_df.iterrows():
-        row['is_fpop'] = is_fpop(row)
-        protein = row['Protein ID']
-        start = row['Start']
+        if not is_tmt:
+            row['is_fpop'] = is_fpop_lfq(row)
+        protein = row[COLUMN_NAMES['protein'][col_type]]
+        start = row[COLUMN_NAMES['start'][col_type]]
         if row['is_fpop']:
             # check for all modification positions to determine the region to check against existing sites
-            row['fpop_sites'] = get_all_fpop_mod_sites(row)
-            protein_sites = [x + start for x in row['fpop_sites']]
+            if is_tmt:
+                row['fpop_sites'] = get_all_mod_sites_tmt(row)
+                protein_sites = [x for x in row['fpop_sites']]      # TMTI sites are already converted to protein index
+            else:
+                row['fpop_sites'] = get_all_fpop_mod_sites_lfq(row)
+                protein_sites = [x + start for x in row['fpop_sites']]      # IonQuant sites are relative to peptide
+
             for site in protein_sites:
                 if protein in protein_regions.keys():
                     # check against all existing sites
@@ -225,9 +255,9 @@ def group_sites(mod_pep_df, region_size=1):
 
     # second pass: group unmodified peptides by site/region
     for index, row in enumerate(unmod_rows):
-        protein = row['Protein ID']
-        start = row['Start']
-        end = row['End']
+        protein = row[COLUMN_NAMES['protein'][col_type]]
+        start = row[COLUMN_NAMES['start'][col_type]]
+        end = row[COLUMN_NAMES['end'][col_type]]
         if not row['is_fpop']:
             # use start/end to determine region(s). Any peptide containing or within tolerance of a defined site/region is counted as belonging
             if protein in protein_regions.keys():
@@ -237,7 +267,7 @@ def group_sites(mod_pep_df, region_size=1):
     return site_data
 
 
-def compute_group_mod_ratio(filtered_dict):
+def compute_group_mod_ratio_lfq(filtered_dict):
     """
     Take the peptide/site group dictionary and collapse the groups to modification (FPOP) ratios. Each group
     consists of FPOP and non-FPOP peptide entries. Ratio is total FPOP intensity / total intensity. Ratio calculation
@@ -247,6 +277,7 @@ def compute_group_mod_ratio(filtered_dict):
     :return: dict of group name: ratio dataframe with ratios for each sample column
     :rtype: dict
     """
+    col_type = Type.LFQ
     output = {}
     group_descriptions = {}
     sample_list = []
@@ -256,17 +287,18 @@ def compute_group_mod_ratio(filtered_dict):
         longest_pep_index, highest_end, lowest_start = 0, 0, np.inf
         for index, row in enumerate(row_list):
             # use longest peptide description for peptide table; for site table, this conditional will always miss so will use index 0
-            if row['Start'] < lowest_start:
-                lowest_start = row['Start']
-            if row['End'] > highest_end:
-                highest_end = row['End']
-            if row['Peptide Sequence'] == group_name:
+            if row[COLUMN_NAMES['start'][col_type]] < lowest_start:
+                lowest_start = row[COLUMN_NAMES['start'][col_type]]
+            if row[COLUMN_NAMES['end'][col_type]] > highest_end:
+                highest_end = row[COLUMN_NAMES['end'][col_type]]
+            if row[COLUMN_NAMES['peptide'][col_type]] == group_name:
                 longest_pep_index = index
-            peptides.append(row['Peptide Sequence'])
-        group_descriptions[group_name] = row_list[longest_pep_index][DESCRIPTION_ITEMS]
-        group_descriptions[group_name]['Peptide Sequence'] = ', '.join(set(peptides))
-        group_descriptions[group_name]['Start'] = lowest_start
-        group_descriptions[group_name]['End'] = highest_end
+            peptides.append(row[COLUMN_NAMES['peptide'][col_type]])
+
+        group_descriptions[group_name] = row_list[longest_pep_index][DESCRIPTION_ITEMS_LFQ]
+        group_descriptions[group_name][COLUMN_NAMES['peptide'][col_type]] = ', '.join(set(peptides))
+        group_descriptions[group_name][COLUMN_NAMES['start'][col_type]] = lowest_start
+        group_descriptions[group_name][COLUMN_NAMES['end'][col_type]] = highest_end
         group_descriptions[group_name]['FPOP Mods'] = []
         group_descriptions[group_name]['Other Mods'] = []
 
@@ -297,6 +329,78 @@ def compute_group_mod_ratio(filtered_dict):
                 ratio_dict[sample] = np.nan
             else:
                 ratio_dict[sample] = mod_int[sample] / (unmod_int[sample] + mod_int[sample])
+        output[group_name] = ratio_dict
+    return output, sample_list, group_descriptions
+
+
+def compute_group_mod_ratio_tmt(filtered_dict):
+    """
+    Take the peptide/site group dictionary and collapse the groups to modification (FPOP) ratios. Each group
+    consists of FPOP and non-FPOP peptide entries. Inputs are ratios calculated by TMT-integrator, and are
+    combined within groups using either weighted average or median (as done in TMT-I). FPOP oxidation ratio
+    is calculated as the aggregated modified ratio / aggregated unmodified ratio.
+
+    NOTE: TMT-Integrator includes modified peptides in the unmod report (it's all peptides, not just unmodified),
+    so the "unmod" ratios are actually totals.
+
+    :param filtered_dict: dict of peptide/site: list of pd.Series with the combined_modified_peptide.tsv info for each row
+    :type filtered_dict: dict
+    :return: dict of group name: ratio dataframe with ratios for each sample column
+    :rtype: dict
+    """
+    col_type = Type.TMT
+    output = {}
+    group_descriptions = {}
+    sample_list = []
+    for group_name, row_list in filtered_dict.items():
+        # get descriptive info to save for output
+        peptides = []
+        longest_pep_index, highest_end, lowest_start = 0, 0, np.inf
+        for index, row in enumerate(row_list):
+            # use longest peptide description for peptide table; for site table, this conditional will always miss so will use index 0
+            if row[COLUMN_NAMES['start'][col_type]] < lowest_start:
+                lowest_start = row[COLUMN_NAMES['start'][col_type]]
+            if row[COLUMN_NAMES['end'][col_type]] > highest_end:
+                highest_end = row[COLUMN_NAMES['end'][col_type]]
+            if row[COLUMN_NAMES['peptide'][col_type]] == group_name:
+                longest_pep_index = index
+            peptides.append(row[COLUMN_NAMES['peptide'][col_type]].upper())
+
+        group_descriptions[group_name] = row_list[longest_pep_index][DESCRIPTION_ITEMS_TMT]
+        group_descriptions[group_name][COLUMN_NAMES['peptide'][col_type]] = ', '.join(set(peptides))
+        group_descriptions[group_name][COLUMN_NAMES['start'][col_type]] = lowest_start
+        group_descriptions[group_name][COLUMN_NAMES['end'][col_type]] = highest_end
+        group_descriptions[group_name]['FPOP Mods'] = []
+        group_descriptions[group_name]['Other Mods'] = []
+
+        # sum intensity across all FPOP and non-FPOP entires
+        if 'ReferenceIntensity' in row_list[0].index:
+            sample_start = row_list[0].index.get_loc('ReferenceIntensity')
+        else:
+            sample_start = row_list[0].index.get_loc('MaxPepProb')
+        sample_list = row_list[0].index.values
+        sample_list = [x for x in sample_list[sample_start + 1: -1] if x != 'is_fpop']
+        unmod_ratios = {x: [] for x in sample_list}
+        mod_ratios = {x: [] for x in sample_list}
+        ratio_dict = {}
+        for row in row_list:
+            if row['is_fpop']:
+                mods = get_all_mods_tmt(row)
+                for mod in mods:
+                    if mod not in group_descriptions[group_name]['FPOP Mods']:
+                        group_descriptions[group_name]['FPOP Mods'].append(mod)
+                for sample in sample_list:
+                    mod_ratios[sample].append(row[sample])
+            else:
+                for sample in sample_list:
+                    unmod_ratios[sample].append(row[sample])
+
+        # generate ratios from sum of FPOP and non-FPOP intensities for each sample
+        for sample in sample_list:
+            mod_avg = np.average(mod_ratios[sample])        # todo: convert to weighted average, add option for median
+            unmod_avg = np.average(unmod_ratios[sample])
+            if unmod_avg != 0:
+                ratio_dict[sample] = mod_avg / unmod_avg
         output[group_name] = ratio_dict
     return output, sample_list, group_descriptions
 
@@ -361,7 +465,7 @@ def save_output(output_dict, group_descriptions, save_path):
             outfile.write('{}\t{}\t{}\n'.format(group_name, '\t'.join([to_string(x) for x in group_descriptions[group_name].to_list()]), '\t'.join([to_string(x) for x in ratio_dict.values()])))
 
 
-def is_fpop(mod_pep_row):
+def is_fpop_lfq(mod_pep_row):
     """
     Determine if a given row (pd.Series) contains FPOP mods or not
     :param mod_pep_row: row from combined_modified_peptide.tsv
@@ -386,7 +490,7 @@ def is_fpop(mod_pep_row):
         return False
 
 
-def get_all_fpop_mod_sites(mod_pep_row):
+def get_all_fpop_mod_sites_lfq(mod_pep_row):
     """
 
     :param mod_pep_row:
@@ -408,6 +512,39 @@ def get_all_fpop_mod_sites(mod_pep_row):
                     fpop_sites.append(location)
                     break
     return fpop_sites
+
+
+def get_all_mod_sites_tmt(mod_pep_row):
+    """
+    Parse index of multi-site report to get all mod sites in this entry and return them as a list
+    :param mod_pep_row:
+    :type mod_pep_row:
+    :return:
+    :rtype:
+    """
+    mod_str = mod_pep_row[COLUMN_NAMES['mods'][Type.TMT]].split('_')[-1]
+    fpop_sites = []
+    pattern = re.compile(r"[A-Z][0-9]+")
+    for mod in re.findall(pattern, mod_str):
+        location = int(re.search(r"(\d+)", mod).group(1))
+        fpop_sites.append(location)
+    return fpop_sites
+
+
+def get_all_mods_tmt(mod_pep_row):
+    """
+    Parse index of multi-site report to get all mods in this entry and return them as a set
+    :param mod_pep_row:
+    :type mod_pep_row:
+    :return:
+    :rtype:
+    """
+    mod_str = mod_pep_row[COLUMN_NAMES['mods'][Type.TMT]].split('_')[-1]
+    fpop_sites = []
+    pattern = re.compile(r"[A-Z][0-9]+")
+    for mod in re.findall(pattern, mod_str):
+        fpop_sites.append(mod)
+    return set(fpop_sites)
 
 
 def to_string(x):
@@ -442,8 +579,8 @@ def single_lfq_analysis(params):
     print(" done in {:.1f}s".format(time.time() - start), flush=True)
 
     print("\tGenerating peptide-level table...", end='', flush=True)
-    peptides = group_peptides_better(mod_pep_df)
-    group_ratios, sample_list, group_descriptions = compute_group_mod_ratio(peptides)
+    peptides = group_peptides_better(mod_pep_df, params.is_tmt)
+    group_ratios, sample_list, group_descriptions = compute_group_mod_ratio_lfq(peptides)
     if params.subtract_control:
         final_dict = compute_experiment_final_ratios(group_ratios, sample_list, params.control_label, params.fpop_label)
     else:
@@ -454,13 +591,54 @@ def single_lfq_analysis(params):
     print(" done in {:.1f}s".format(pep_time - start), flush=True)
 
     print("\tGenerating site-level table...", end='', flush=True)
-    sites = group_sites(mod_pep_df, params.region_size)
-    group_ratios, sample_list, group_descriptions = compute_group_mod_ratio(sites)
+    sites = group_sites(mod_pep_df, params.region_size, params.is_tmt)
+    group_ratios, sample_list, group_descriptions = compute_group_mod_ratio_lfq(sites)
     if params.subtract_control:
         final_dict = compute_experiment_final_ratios(group_ratios, sample_list, params.control_label, params.fpop_label)
     else:
         final_dict = group_ratios
     output_path = pathlib.Path(params.modpep_tsv_path).parent / 'FPOP_sites.tsv'
+    save_output(final_dict, group_descriptions, output_path)
+    print("\t done in {:.1f}s".format(time.time() - pep_time), flush=True)
+    print("Done in {:.1f}s".format(time.time() - start), flush=True)
+
+
+def single_tmt_analysis(params):
+    """
+    Given both modified and unmodified peptide and site level TMT-Integrator reports, perform FPOP quant analysis
+    :return:
+    :rtype:
+    """
+    start = time.time()
+    print("Analyzing FPOP data for file {}".format(params.modpep_tsv_path), flush=True)
+    print("\tParsing input file...", end='', flush=True)
+    mod_pep_df = parse_modified_peptide_tsv(params.modpep_tsv_path)
+    mod_pep_df['is_fpop'] = True
+    unmod_pep_df = parse_modified_peptide_tsv(params.unmod_tsv)
+    unmod_pep_df['is_fpop'] = False
+    mod_pep_df = pd.concat([mod_pep_df, unmod_pep_df])
+    print(" done in {:.1f}s".format(time.time() - start), flush=True)
+
+    print("\tGenerating peptide-level table...", end='', flush=True)
+    peptides = group_peptides_better(mod_pep_df, params.is_tmt)
+    group_ratios, sample_list, group_descriptions = compute_group_mod_ratio_tmt(peptides)
+    if params.subtract_control:
+        final_dict = compute_experiment_final_ratios(group_ratios, sample_list, params.control_label, params.fpop_label)
+    else:
+        final_dict = group_ratios
+    output_path = pathlib.Path(params.modpep_tsv_path).parent.parent / 'FPOP_peptides.tsv'
+    save_output(final_dict, group_descriptions, output_path)
+    pep_time = time.time()
+    print(" done in {:.1f}s".format(pep_time - start), flush=True)
+
+    print("\tGenerating site-level table...", end='', flush=True)
+    sites = group_sites(mod_pep_df, params.region_size, params.is_tmt)
+    group_ratios, sample_list, group_descriptions = compute_group_mod_ratio_tmt(sites)
+    if params.subtract_control:
+        final_dict = compute_experiment_final_ratios(group_ratios, sample_list, params.control_label, params.fpop_label)
+    else:
+        final_dict = group_ratios
+    output_path = pathlib.Path(params.modpep_tsv_path).parent.parent / 'FPOP_sites.tsv'
     save_output(final_dict, group_descriptions, output_path)
     print("\t done in {:.1f}s".format(time.time() - pep_time), flush=True)
     print("Done in {:.1f}s".format(time.time() - start), flush=True)
@@ -484,20 +662,26 @@ def main():
     argv = sys.argv[1:]
     if len(argv) == 0:
         print('Example usage:')
-        print('python3 FragPipe_FPOP_Analysis.py combined_modified_peptide.tsv 5 FPOP Control')
+        print('python3 FragPipe_FPOP_Analysis.py [modified peptide tsv] [site region size (int)] [fpop label] [control label] [subtract control (bool)] [is tmt (bool)] [unmodified peptide tsv (TMT analyses only)]')
         sys.exit(0)
 
     params = Parameters(*argv)
-    single_lfq_analysis(params)
+    if params.is_tmt:
+        single_tmt_analysis(params)
+    else:
+        single_lfq_analysis(params)
 
 
 def test():
     """
     Method for testing offline
     """
-    params = Parameters(FILEPATH, REGION_SIZE, CONTROL_LABEL, FPOP_LABEL, SUBTRACT_CONTROL)
+    params = Parameters(FILE_TMT_MOD, REGION_SIZE, CONTROL_LABEL, FPOP_LABEL, SUBTRACT_CONTROL, TMT, unmod_tsv=FILE_TMT_UNMOD)
     # params = Parameters(FILEPATH, REGION_SIZE, CONTROL_LABEL, FPOP_LABEL, TMT)
-    single_lfq_analysis(params)
+    if params.is_tmt:
+        single_tmt_analysis(params)
+    else:
+        single_lfq_analysis(params)
 
 
 if __name__ == '__main__':
