@@ -21,6 +21,7 @@ import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.exceptions.NoStickyException;
 import com.dmtavt.fragpipe.messages.NoteConfigPython;
 import com.dmtavt.fragpipe.tabs.TabDownstream;
+import com.dmtavt.fragpipe.tabs.TabQuantificationLabeling;
 import com.dmtavt.fragpipe.tools.fpop.FpopScript;
 import com.dmtavt.fragpipe.tools.ionquant.QuantPanelLabelfree;
 import org.slf4j.Logger;
@@ -28,7 +29,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.FileNotFoundException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.List;
 
@@ -49,11 +53,20 @@ public class CmdFpopQuant extends CmdBase{
     public boolean configure(Component comp) {
 
         initPreConfig();
-
-        final Path filepath = wd.resolve("combined_modified_peptide.tsv");
         final TabDownstream tabDownstream = Fragpipe.getStickyStrict(TabDownstream.class);
-        List<String> cmd = new ArrayList<>();
+        final Path filepath;
+        final Path secondTMTpath;
+        // Get file paths
+        if (tabDownstream.pFpop.isFpopTmt()) {
+            final TabQuantificationLabeling tabTMT = Fragpipe.getStickyStrict(TabQuantificationLabeling.class);
+            filepath = getTmtiMultisiteTsv(tabTMT.panelTmtI.getNormMethod());
+            secondTMTpath = getTmtiPeptideTsv(tabTMT.panelTmtI.getNormMethod());
+        } else {
+            filepath = wd.resolve("combined_modified_peptide.tsv");
+            secondTMTpath = null;
+        }
 
+        List<String> cmd = new ArrayList<>();
         if (!FpopScript.get().isInitialized()) {
             if (Fragpipe.headless) {
                 log.error("Fpop quant script was requested but not initialized or Python not configured. Check the bottom of the config tab for Python details.");
@@ -84,6 +97,10 @@ public class CmdFpopQuant extends CmdBase{
         cmd.add(tabDownstream.pFpop.getFpopControlLabel());
         cmd.add(tabDownstream.pFpop.getFpopFpopLabel());
         cmd.add(String.valueOf(tabDownstream.pFpop.getFpopSubtractControl()));
+        cmd.add(String.valueOf(tabDownstream.pFpop.isFpopTmt()));
+        if (tabDownstream.pFpop.isFpopTmt()) {
+            cmd.add(secondTMTpath.toString());
+        }
 
         ProcessBuilder pb = new ProcessBuilder(cmd);
         pb.directory(wd.toFile());
@@ -91,6 +108,44 @@ public class CmdFpopQuant extends CmdBase{
         pbis.add(PbiBuilder.from(pb));
         isConfigured = true;
         return true;
+    }
+
+    /**
+     * Resolve TMT-Integrator file paths from second unmodified run, preferring no normalization
+     * if multiple are present. Case strings are from TmtiConfProps.java / COMBO_NORM
+     * @return
+     */
+    private Path getTmtiPeptideTsv(String normalizationMethod) {
+        Path tmtDir = wd.resolve("tmt-report-unmod");
+        switch (normalizationMethod) {
+            case "None":
+            case "All":
+                return tmtDir.resolve("ratio_peptide_None.tsv");
+            case "MD (median centering)":
+                return tmtDir.resolve("ratio_peptide_MD.tsv");
+            case "GN (median centering + variance scaling)":
+                return tmtDir.resolve("ratio_peptide_GN.tsv");
+        }
+        return null;
+    }
+
+    /**
+     * Resolve TMT-Integrator file paths, preferring no normalization if multiple are present.
+     * Case strings are from TmtiConfProps.java / COMBO_NORM
+     * @return
+     */
+    private Path getTmtiMultisiteTsv(String normalizationMethod) {
+        Path tmtDir = wd.resolve("tmt-report");
+        switch (normalizationMethod) {
+            case "None":
+            case "All":
+                return tmtDir.resolve("ratio_multi-site_None.tsv");
+            case "MD (median centering)":
+                return tmtDir.resolve("ratio_multi-site_MD.tsv");
+            case "GN (median centering + variance scaling)":
+                return tmtDir.resolve("ratio_multi-site_GN.tsv");
+        }
+        return null;
     }
 
 }

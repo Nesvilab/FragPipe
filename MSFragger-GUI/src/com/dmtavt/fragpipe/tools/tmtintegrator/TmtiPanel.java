@@ -168,6 +168,7 @@ public class TmtiPanel extends JPanelBase {
 
   private JPanel pOptsAdvanced;
   private UiCombo uiComboAddRef;
+  private UiCombo uiComboNorm;
   private UiCheck uiCheckDontRunFqLq;
 
   private static Supplier<? extends RuntimeException> supplyRunEx(String message) {
@@ -331,10 +332,10 @@ public class TmtiPanel extends JPanelBase {
             + "4: single PTM sites <br/>\n"
             + "-1: generate reports at all levels");
 
-    UiCombo uiComboNormalization = UiUtils.createUiCombo(TmtiConfProps.COMBO_NORM.stream()
+    uiComboNorm = UiUtils.createUiCombo(TmtiConfProps.COMBO_NORM.stream()
         .map(ComboValue::getValInUi).collect(Collectors.toList()));
     FormEntry feProtNorm = fe(TmtiConfProps.PROP_prot_norm,
-        "Normalization", uiComboNormalization,
+        "Normalization", uiComboNorm,
         "<html>Normalization <br/>\n"
             + "0: None <br/>\n"
             + "1: MD (median centering) <br/>\n"
@@ -368,6 +369,10 @@ public class TmtiPanel extends JPanelBase {
 
   public String getDefineReference() {
     return (String)uiComboAddRef.getSelectedItem();
+  }
+
+  public String getNormMethod() {
+    return (String) uiComboNorm.getSelectedItem();
   }
 
   private JPanel createPanelOptsAdvanced() {

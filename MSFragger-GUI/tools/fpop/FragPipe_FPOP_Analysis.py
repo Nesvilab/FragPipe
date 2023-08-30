@@ -1,6 +1,7 @@
 """
 Scripting module for downstream analysis of FPOP data following FragPipe search.
 """
+import os
 import re
 import pathlib
 import numpy as np
@@ -71,6 +72,18 @@ class Parameters(object):
         self.subtract_control = subtract_control.lower().strip() == 'true'
         self.is_tmt = is_tmt.lower().strip() == 'true'
         self.unmod_tsv = unmod_tsv
+        self.check_file_paths()
+
+    def check_file_paths(self):
+        """
+        make sure the passed files exist and give nice error messages if not
+        """
+        if not os.path.exists(self.modpep_tsv_path):
+            print('Error: mod peptide file {} does not exist! Stopping analysis.'.format(self.modpep_tsv_path))
+            sys.exit(1)
+        if self.is_tmt and not os.path.exists(self.unmod_tsv):
+            print('Error: unmodified peptide file {} does not exist! Stopping analysis. Please check that the second TMT-Integrator run finished and generated report files'.format(self.unmod_tsv))
+            sys.exit(1)
 
 
 def parse_modified_peptide_tsv(filepath):
