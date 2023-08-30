@@ -102,7 +102,7 @@ public class FpopQuantPanel extends JPanelBase {
         uiCheckIsTmt = UiUtils.createUiCheck("TMT FPOP Analysis", false);
         uiCheckIsTmt.setName("fpop.fpop-tmt");
 
-        checkSubtractControl = UiUtils.createUiCheck("Subtract Control Oxidation", true);
+        checkSubtractControl = UiUtils.createUiCheck("Subtract Control Oxidation", false);
         checkSubtractControl.setName("fpop.subtract-control");
 
         uiTextControl = UiUtils.uiTextBuilder().cols(15).create();
