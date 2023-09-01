@@ -200,6 +200,16 @@ public class CmdTmtIntegrator extends CmdBase {
         return false;
       }
 
+      // TMT-Integrator can crash if a mod site probability is >= 0 when no mods are provided
+      if (panel.getMinSiteProb() >= 0 && panel.getModTag().isEmpty()) {
+        if (Fragpipe.headless) {
+          log.error("TMT Integrator Min mod site probability is specified, but no mods are provided. Please set Min site prob to -1 or specify mods.");
+        } else {
+          JOptionPane.showMessageDialog(panel, "TMT Integrator Min mod site probability is specified, but no mods are provided. Please set Min site prob to -1 or specify mods.", NAME + " error", JOptionPane.WARNING_MESSAGE);
+        }
+        return false;
+      }
+
 
       try (BufferedWriter bw = Files.newBufferedWriter(pathConf, StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW)) {
         panel.writeConfig(bw, conf);

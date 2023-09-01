@@ -117,6 +117,8 @@ public class TmtiPanel extends JPanelBase {
   private UiSpinnerDouble uiSpinnerMinPsmProb;
   private UiSpinnerDouble uiSpinnerMinPurity;
   private UiSpinnerDouble uiSpinnerMinPercent;
+  private UiText uiTextModTag;
+  private UiSpinnerDouble uiSpinnerMinSiteProb;
   public static final String PREFIX = "tmtintegrator.";
   public static final String PROP_LAST_ANNOTATION_PATH = "fragpipe.tmt.last-annotation-path";
   private static final Map<String, Function<String, String>> CONVERT_TO_FILE;
@@ -548,7 +550,7 @@ public class TmtiPanel extends JPanelBase {
 
     DecimalFormat df2 = new DecimalFormat("#.##");
 
-    UiSpinnerDouble uiSpinnerMinSiteProb = UiSpinnerDouble
+    uiSpinnerMinSiteProb = UiSpinnerDouble
         .builder(-1, -1, 1.0, 0.1).setFormat(df2).setCols(5).create();
     FormEntry feMinSiteProb = fe(TmtiConfProps.PROP_min_site_prob,
         "Min site probability", uiSpinnerMinSiteProb,
@@ -557,7 +559,7 @@ public class TmtiPanel extends JPanelBase {
             + "0: as determined by the search engine <br/>\n"
             + "above 0 (e.g., 0.75): min PTMProphet site probability");
 
-    UiText uiTextModTag = UiUtils.uiTextBuilder().cols(10).text("none").create();
+    uiTextModTag = UiUtils.uiTextBuilder().cols(10).text("none").create();
     FormEntry feModTag = fe(TmtiConfProps.PROP_mod_tag,
         "Mod tag", uiTextModTag,
         "<html>PTM tag for generating PTM-specific reports <br/>\n"
@@ -652,6 +654,9 @@ public class TmtiPanel extends JPanelBase {
   public double getPurity() {
     return uiSpinnerMinPurity.getActualValue();
   }
+  public String getModTag() { return uiTextModTag.getNonGhostText(); }
+
+  public double getMinSiteProb() { return uiSpinnerMinSiteProb.getActualValue(); }
 
   public double getMinIntensityPercent() {
     return uiSpinnerMinPercent.getActualValue();
