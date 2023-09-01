@@ -2007,14 +2007,14 @@ public class TabMsfragger extends JPanelBase {
       if (!uiTextNocuts.getNonGhostText().isEmpty()){
         regex += String.format("(?![%s])", uiTextNocuts.getNonGhostText());
       }
-      enzymes.add(String.format("NT=%s;C+=%s", uiTextEnzymeName.getNonGhostText(), regex));
+      enzymes.add(String.format("NT=%s;CS=%s", uiTextEnzymeName.getNonGhostText(), regex));
     }
     if (!uiTextCuts2.getNonGhostText().isEmpty()) {
       String regex = String.format("(?%s[%s])", uiComboSense2.getSelectedItem() == "C" ? "<=" : "=", uiTextCuts2.getNonGhostText());
       if (!uiTextNocuts2.getNonGhostText().isEmpty()){
         regex += String.format("(?![%s])", uiTextNocuts2.getNonGhostText());
       }
-      enzymes.add(String.format("NT=%s;C+=%s", uiTextEnzymeName2.getNonGhostText(), regex));
+      enzymes.add(String.format("NT=%s;CS=%s", uiTextEnzymeName2.getNonGhostText(), regex));
     }
     return enzymes;
   }
