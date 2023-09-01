@@ -113,7 +113,6 @@ public class TabRun extends JPanelWithEnablement {
   private Process pdvProcess = null;
   private TabDownstream tabDownstream;
   private UiCheck uiCheckSaveSDRF;
-  private UiCombo uiComboSDRFtype;
 
   public TabRun(TextConsole console, TabDownstream tabDownstream) {
     this.console = console;
@@ -335,13 +334,9 @@ public class TabRun extends JPanelWithEnablement {
       ex.printStackTrace();
     }
 
-    uiCheckSaveSDRF = new UiCheck("Save SDRF Template when run:", null,true);
+    uiCheckSaveSDRF = new UiCheck("Save Technical SDRF", null,true);
     uiCheckSaveSDRF.setName("workflow.asdrf.save-sdrf");
     JLabel emptySpacer = new JLabel("              ");
-
-    List<String> sdrfTypes =  Arrays.stream(SDRFtable.SDRFtypes.values()).map(Enum::name).collect(Collectors.toList());
-    uiComboSDRFtype = UiUtils.createUiCombo(sdrfTypes);
-
 
     JPanel p = mu.newPanel(null, true);
     mu.add(p, btnAbout).wrap();
@@ -350,12 +345,11 @@ public class TabRun extends JPanelWithEnablement {
     mu.add(p, btnBrowse);
     mu.add(p, btnOpenInFileManager).wrap();
 
-    mu.add(p, btnRun).split(6);
+    mu.add(p, btnRun).split(5);
     mu.add(p, btnStop);
     mu.add(p, uiCheckDryRun);
     mu.add(p, emptySpacer).split();
     mu.add(p, uiCheckSaveSDRF);
-    mu.add(p, uiComboSDRFtype);
 
     mu.add(p, btnExport, false).split();
     mu.add(p, btnReportErrors);
@@ -395,9 +389,6 @@ public class TabRun extends JPanelWithEnablement {
 
   public float getSubMzmlProbThreshold() {
     return ((Double) uiSpinnerProbThreshold.getValue()).floatValue();
-  }
-  public SDRFtable.SDRFtypes getSDRFtype() {
-    return SDRFtable.SDRFtypes.valueOf(uiComboSDRFtype.getSelectedItem().toString());
   }
 
   public boolean isSaveSDRF() {

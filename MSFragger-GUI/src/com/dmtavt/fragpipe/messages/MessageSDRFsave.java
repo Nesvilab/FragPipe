@@ -25,20 +25,17 @@ import java.nio.file.Path;
 public class MessageSDRFsave {
     public final Path path;
     public final boolean quiet;
-    public final SDRFtable.SDRFtypes type;
     public final QuantLabel label;
 
     public MessageSDRFsave() {
         path = null;
         quiet = false;
-        type = null;
         label = null;
     }
 
-    public MessageSDRFsave(Path path, boolean quiet, SDRFtable.SDRFtypes type, QuantLabel label) {
+    public MessageSDRFsave(Path path, boolean quiet, QuantLabel label) {
         this.path = path;
         this.quiet = quiet;
-        this.type = type;
         this.label = label;
     }
 }

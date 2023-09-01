@@ -340,7 +340,7 @@ public class FragpipeRun {
         final TmtiPanel tmtiPanel = Fragpipe.getStickyStrict(TmtiPanel.class);
         QuantLabel label = tmtiPanel.isRun() ? tmtiPanel.getSelectedLabel() : null;
         Path sdrfPath = wd.resolve("sdrf.tsv");
-        Bus.post(new MessageSDRFsave(sdrfPath, true, tabRun.getSDRFtype(), label));
+        Bus.post(new MessageSDRFsave(sdrfPath, true, label));
       }
 
       // Converting process builders descriptors to process builder infos
