@@ -1579,10 +1579,11 @@ public class FragpipeRun {
     // run LabelQuant - as part of TMT-I
     final CmdLabelquant cmdTmtLabelQuant = new CmdLabelquant(isTmtLqFq, wd);
     cmdTmtLabelQuant.setTitle(CmdLabelquant.NAME + " (TMT)");
+    final TabDownstream tabDownstream = Fragpipe.getStickyStrict(TabDownstream.class);
 
     addCheck.accept(() -> {
       // check annotations files exist
-      if (!tmtiPanel.isRun()) {
+      if (!tmtiPanel.isRun() && (!tabDownstream.pFpop.isFpopTmt() || !tabDownstream.pFpop.isRunFpopQuant())) {
         return true;
       }
       Map<LcmsFileGroup, Path> annotations = tmtiPanel.getAnnotations();
@@ -1590,7 +1591,7 @@ public class FragpipeRun {
       if (hasMissing) {
         SwingUtils.showErrorDialog(parent,
             "Not all TMT groups have annotation files set.\n"
-                + "Check <b>Quant (Isobaric)</b> tab, <b>TMT-Integrator config</b>.", "TMT-Integrator config error");
+                + "Check <b>Quant (Isobaric)</b> tab, <b>TMT-Integrator config</b>, or <b>Downstream tab (FPOP Quant)</b>.", "TMT-Integrator config error");
         return false;
       }
       return true;
@@ -1671,11 +1672,10 @@ public class FragpipeRun {
 
 
     // run FPOP script
-    final TabDownstream tabDownstream = Fragpipe.getStickyStrict(TabDownstream.class);
     final CmdFpopQuant cmdFpopQuant = new CmdFpopQuant(tabDownstream.pFpop.isRunFpopQuant(), wd);
     final CmdTmtIntegrator cmdTmtFpop = new CmdTmtIntegrator(isTmt, wd);
 
-    if (tabDownstream.pFpop.isFpopTmt()) {
+    if (tabDownstream.pFpop.isFpopTmt() && cmdFpopQuant.isRun()) {
       // run TMT-Integrator a second time to provide unmodified peptide data as well as modified (does NOT rerun freequant/labelquant)
       addConfig.accept(cmdTmtFpop, () -> {
         if (sharedLcmsFiles.stream().anyMatch(f -> !f.getPath().getFileName().toString().toLowerCase().endsWith(".mzml") && !f.getPath().getFileName().toString().toLowerCase().endsWith(".raw"))) {
