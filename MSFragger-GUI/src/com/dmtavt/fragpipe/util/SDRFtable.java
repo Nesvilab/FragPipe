@@ -83,12 +83,14 @@ public class SDRFtable {
     /**
      * Add a row for an unlabeled sample (single LC-MS file)
      */
-    public void addSampleLFQ(String lcmsfileName, String replicate, ArrayList<String> enzymes, ArrayList<String> mods) {
+    public void addSampleLFQ(String lcmsfileName, String replicate, ArrayList<String> enzymes, ArrayList<String> mods, String precTol, String prodTol) {
         String[] row = new String[header.size()];
         row[header.indexOf(COL_datafile)] = lcmsfileName;
         row[header.indexOf(COL_replicate)] = replicate;
+        row[header.indexOf(COL_precTol)] = precTol;
+        row[header.indexOf(COL_prodTol)] = prodTol;
         for (int i=0; i < enzymes.size(); i++) {
-            row[firstEnzymeIndex + i] = mapEnzymeToSDRF(enzymes.get(i));
+            row[firstEnzymeIndex + i] = enzymes.get(i);
         }
         for (int i=0; i < mods.size(); i++) {
             row[firstModIndex + i] = mods.get(i);
@@ -96,14 +98,16 @@ public class SDRFtable {
         rows.add(row);
     }
 
-    public void addSampleTMT(String lcmsfileName, String replicate, ArrayList<String> enzymes, ArrayList<String> mods, QuantLabel quantLabel) {
+    public void addSampleTMT(String lcmsfileName, String replicate, ArrayList<String> enzymes, ArrayList<String> mods, QuantLabel quantLabel, String precTol, String prodTol) {
         for (String label : quantLabel.getReagentNames()) {
             String[] row = new String[header.size()];
             row[header.indexOf(COL_datafile)] = lcmsfileName;
             row[header.indexOf(COL_replicate)] = replicate;
+            row[header.indexOf(COL_precTol)] = precTol;
+            row[header.indexOf(COL_prodTol)] = prodTol;
             row[header.indexOf(COL_label)] = String.format("%s%s", quantLabel.getType(), label);
             for (int i=0; i < enzymes.size(); i++) {
-                row[firstEnzymeIndex + i] =  mapEnzymeToSDRF(enzymes.get(i));
+                row[firstEnzymeIndex + i] =  enzymes.get(i);
             }
             for (int i=0; i < mods.size(); i++) {
                 row[firstModIndex + i] = mods.get(i);
@@ -128,7 +132,7 @@ public class SDRFtable {
      * Map our enyzme names to the supported ontology names. If user has input something that's not one of
      * our supported enzymes (isn't in the enzymesMap), just pass that name through.
      */
-    private String mapEnzymeToSDRF(String inputEnzyme) {
+    public static String mapEnzymeToSDRF(String inputEnzyme) {
         String converted = enzymesMap.get(inputEnzyme);
         if (converted == null) {
             return inputEnzyme;

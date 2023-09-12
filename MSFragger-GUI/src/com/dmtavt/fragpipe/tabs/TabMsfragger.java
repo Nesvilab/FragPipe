@@ -56,6 +56,7 @@ import com.dmtavt.fragpipe.tools.fragger.MsfraggerEnzyme;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerProps;
 import com.dmtavt.fragpipe.util.GlycoMassLoader;
+import com.dmtavt.fragpipe.util.SDRFtable;
 import com.github.chhh.utils.MapUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
@@ -158,7 +159,8 @@ public class TabMsfragger extends JPanelBase {
   private static final Map<String, Function<String, String>> CONVERT_TO_FILE;
   private static final Map<String, Function<String, String>> CONVERT_TO_GUI;
   private static final String CALIBRATE_VALUE_OFF = "None";
-  private static final String[] CALIBRATE_LABELS = {CALIBRATE_VALUE_OFF, "Mass calibration", "Mass calibration, parameter optimization"};
+  private static final String CALIBRATE_VALUE_OPTIMIZATION = "Mass calibration, parameter optimization";
+  private static final String[] CALIBRATE_LABELS = {CALIBRATE_VALUE_OFF, "Mass calibration", CALIBRATE_VALUE_OPTIMIZATION};
   private static final String[] MASS_DIFF_TO_VAR_MOD = {"No", "Yes, keep delta mass", "Yes, remove delta mass"};
   private static final String[] GROUP_VARIABLE = {"None", "Number of enzymatic termini", "Protein evidence from FASTA file"};
   private static final String[] DEISOTOPE = {"No", "Yes", "Yes, use charge 1 and 2 for undeisotoped peaks"};
@@ -321,6 +323,7 @@ public class TabMsfragger extends JPanelBase {
   private UiCombo uiComboMassCalibrate;
   public UiCombo uiComboOutputType;
   private UiCombo uiComboMassMode;
+  private UiCombo uiComboFragTolUnits;
   private UiSpinnerInt uiSpinnerDbsplit;
   private UiCheck uiCheckLocalizeDeltaMass;
   private UiText uiTextCustomIonSeries;
@@ -346,6 +349,7 @@ public class TabMsfragger extends JPanelBase {
   private UiText uiTextRemainderMasses;
   private UiSpinnerDouble uiSpinnerPrecTolLo;
   private UiSpinnerDouble uiSpinnerPrecTolHi;
+  private UiSpinnerDouble uiSpinnerFragTol;
   private UiCombo uiComboPrecursorTolUnits;
   private final Map<String, String> cache = new HashMap<>();
   private UiText uiTextIsoErr;
@@ -567,10 +571,10 @@ public class TabMsfragger extends JPanelBase {
     });
 
     // fragment mass tolerance
-    FormEntry feFragTolUnits = mu.feb(MsfraggerParams.PROP_fragment_mass_units, UiUtils.createUiCombo(
-        MassTolUnits.values()))
+    uiComboFragTolUnits = UiUtils.createUiCombo(MassTolUnits.values());
+    FormEntry feFragTolUnits = mu.feb(MsfraggerParams.PROP_fragment_mass_units, uiComboFragTolUnits)
         .label("Fragment mass tolerance").create();
-    UiSpinnerDouble uiSpinnerFragTol = new UiSpinnerDouble(10, 0, 10000, 1,
+    uiSpinnerFragTol = new UiSpinnerDouble(10, 0, 10000, 1,
         new DecimalFormat("0.###"));
     uiSpinnerFragTol.setColumns(4);
     FormEntry feFragTol = mu.feb(MsfraggerParams.PROP_fragment_mass_tolerance, uiSpinnerFragTol).create();
@@ -2007,14 +2011,14 @@ public class TabMsfragger extends JPanelBase {
       if (!uiTextNocuts.getNonGhostText().isEmpty()){
         regex += String.format("(?![%s])", uiTextNocuts.getNonGhostText());
       }
-      enzymes.add(String.format("NT=%s;CS=%s", uiTextEnzymeName.getNonGhostText(), regex));
+      enzymes.add(String.format("NT=%s;CS=%s", SDRFtable.mapEnzymeToSDRF(uiTextEnzymeName.getNonGhostText()), regex));
     }
     if (!uiTextCuts2.getNonGhostText().isEmpty()) {
       String regex = String.format("(?%s[%s])", uiComboSense2.getSelectedItem() == "C" ? "<=" : "=", uiTextCuts2.getNonGhostText());
       if (!uiTextNocuts2.getNonGhostText().isEmpty()){
         regex += String.format("(?![%s])", uiTextNocuts2.getNonGhostText());
       }
-      enzymes.add(String.format("NT=%s;CS=%s", uiTextEnzymeName2.getNonGhostText(), regex));
+      enzymes.add(String.format("NT=%s;CS=%s", SDRFtable.mapEnzymeToSDRF(uiTextEnzymeName2.getNonGhostText()), regex));
     }
     return enzymes;
   }
@@ -2111,6 +2115,50 @@ public class TabMsfragger extends JPanelBase {
       }
     } else {
       return "Anywhere";
+    }
+  }
+
+  public String getPrecTolString(){
+    Object calibration = uiComboMassCalibrate.getSelectedItem();
+    if (calibration != null) {
+      // do not write tolerances if parameter optimization is enabled, as they may be incorrect after optimization
+      if (calibration.equals(CALIBRATE_VALUE_OPTIMIZATION)) {
+        return "";
+      }
+    }
+
+    Object unit = uiComboPrecursorTolUnits.getSelectedItem();
+    if (unit == null || StringUtils.isNullOrWhitespace((String) unit)) {
+      return "";
+    }
+
+    double tolerance = uiSpinnerPrecTolHi.getActualValue() - uiSpinnerPrecTolLo.getActualValue();
+    if (unit.equals("PPM")) {
+      return String.format("%.1f %s", tolerance, unit.toString().toLowerCase());
+    } else {
+      return String.format("%.2f %s", tolerance, unit);
+    }
+  }
+
+  public String getProdTolString(){
+    Object calibration = uiComboMassCalibrate.getSelectedItem();
+    if (calibration != null) {
+      // do not write tolerances if parameter optimization is enabled, as they may be incorrect after optimization
+      if (calibration.equals(CALIBRATE_VALUE_OPTIMIZATION)) {
+        return "";
+      }
+    }
+
+    Object unit = uiComboFragTolUnits.getSelectedItem();
+    if (unit == null || StringUtils.isNullOrWhitespace((String) unit)) {
+      return "";
+    }
+
+    double tolerance = uiSpinnerFragTol.getActualValue();
+    if (unit.equals("PPM")) {
+      return String.format("%s %s", tolerance, unit.toString().toLowerCase());
+    } else {
+      return String.format("%.2f %s", tolerance, unit);
     }
   }
 

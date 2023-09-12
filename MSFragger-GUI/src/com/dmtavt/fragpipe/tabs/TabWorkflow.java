@@ -1195,7 +1195,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     });
   }
 
-  private void sdrfSave(Path path, QuantLabel label, ArrayList<String> enzymes, ArrayList<String> mods) throws IOException {
+  private void sdrfSave(Path path, QuantLabel label, ArrayList<String> enzymes, ArrayList<String> mods, String precTol, String prodTol) throws IOException {
     ArrayList<InputLcmsFile> files = tableModelRawFiles.dataCopy();
     SDRFtable table = new SDRFtable(enzymes.size(), mods.size());
 
@@ -1203,11 +1203,11 @@ public class TabWorkflow extends JPanelWithEnablement {
       if (label != null) {
         table.addSampleTMT(file.getPath().getFileName().toString(),
                 file.getReplicate() != null ? file.getReplicate().toString() : "",
-                enzymes, mods, label);
+                enzymes, mods, label, precTol, prodTol);
       } else {
         table.addSampleLFQ(file.getPath().getFileName().toString(),
                 file.getReplicate() != null ? file.getReplicate().toString() : "",
-                enzymes, mods);
+                enzymes, mods, precTol, prodTol);
       }
     }
 
@@ -1381,7 +1381,7 @@ public class TabWorkflow extends JPanelWithEnablement {
       Fragpipe.propsVarSet(ThisAppProps.CONFIG_SAVE_LOCATION, path.getParent().toString());
       TabMsfragger tabMsfragger = getStickyStrict(TabMsfragger.class);
       try {
-        sdrfSave(path, m.label, tabMsfragger.getSDRFenzymes(), tabMsfragger.getSDRFmods());
+        sdrfSave(path, m.label, tabMsfragger.getSDRFenzymes(), tabMsfragger.getSDRFmods(), tabMsfragger.getPrecTolString(), tabMsfragger.getProdTolString());
       } catch (IOException e) {
         SwingUtils.showErrorDialogWithStacktrace(e, this);
       }
