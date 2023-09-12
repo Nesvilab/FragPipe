@@ -81,7 +81,7 @@ public class CmdTmtIntegrator extends CmdBase {
     return true;
   }
 
-  public boolean configure(TmtiPanel panel, boolean isDryRun, int ramGb, String decoyTag, String pathFasta, Map<LcmsFileGroup, Path> mapGroupsToProtxml, boolean doMsstats, Map<LcmsFileGroup, Path> groupAnnotationMap, boolean isSecondUnmodRun) {
+  public boolean configure(TmtiPanel panel, boolean isDryRun, int ramGb, String decoyTag, Map<LcmsFileGroup, Path> mapGroupsToProtxml, boolean doMsstats, Map<LcmsFileGroup, Path> groupAnnotationMap, boolean isSecondUnmodRun) {
     isConfigured = false;
 
     List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Stream.of(JAR_NAME));
@@ -167,7 +167,7 @@ public class CmdTmtIntegrator extends CmdBase {
         log.debug(NAME + " config required presence of output work dir, creating: {}", pathConf.getParent());
         Files.createDirectories(pathConf.getParent());
       }
-      Map<String, String> conf = panel.formToConfig(ramGb, decoyTag, classpathJars.get(0).toString(), pathFasta, outDir.toString(), panel.getSelectedLabel(), isSecondUnmodRun);
+      Map<String, String> conf = panel.formToConfig(ramGb, decoyTag, classpathJars.get(0).toString(), outDir.toString(), panel.getSelectedLabel(), isSecondUnmodRun);
 
       // check that there is a reference channel set in each annotation file
       String refTag = conf.get("ref_tag");

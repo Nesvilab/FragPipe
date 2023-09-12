@@ -146,6 +146,8 @@ public class TmtiPanel extends JPanelBase {
         s,supplyRunEx("No matching prot_norm value")).getValInConfig());
     CONVERT_TO_FILE.put(TmtiConfProps.PROP_aggregation_method, s -> findOrThrow(false, TmtiConfProps.COMBO_AGGREGATION_METHOD,
         s,supplyRunEx("No matching prot_norm value")).getValInConfig());
+    CONVERT_TO_FILE.put(TmtiConfProps.PROP_abundance_type, s -> findOrThrow(false, TmtiConfProps.COMBO_ABUNDANCE_TYPE,
+        s,supplyRunEx("No matching abn_type value")).getValInConfig());
 
     CONVERT_TO_GUI.put(TmtiConfProps.PROP_channel_num, s -> {
       int numChannels = Integer.parseInt(s);
@@ -165,11 +167,14 @@ public class TmtiPanel extends JPanelBase {
     CONVERT_TO_GUI.put(TmtiConfProps.PROP_add_Ref, s -> findOrThrow(true, TmtiConfProps.COMBO_ADD_REF,
         s,supplyRunEx("No matching add_Ref value")).getValInUi());
     CONVERT_TO_GUI.put(TmtiConfProps.PROP_aggregation_method, s -> findOrThrow(true, TmtiConfProps.COMBO_AGGREGATION_METHOD,
-        s,supplyRunEx("No matching add_Ref value")).getValInUi());
+        s,supplyRunEx("No matching aggregation_method value")).getValInUi());
+    CONVERT_TO_GUI.put(TmtiConfProps.PROP_abundance_type, s -> findOrThrow(true, TmtiConfProps.COMBO_ABUNDANCE_TYPE,
+        s,supplyRunEx("No matching abn_type value")).getValInUi());
   }
 
   private JPanel pOptsAdvanced;
   private UiCombo uiComboAddRef;
+  private UiCombo uiComboAbnType;
   private UiCombo uiComboNorm;
   private UiCheck uiCheckDontRunFqLq;
 
@@ -342,6 +347,7 @@ public class TmtiPanel extends JPanelBase {
             + "0: None <br/>\n"
             + "1: MD (median centering) <br/>\n"
             + "2: GN (median centering variance scaling) <br/>\n"
+            + "3: SL+IRS (Only for abundance-based integration) <br/>\n"
             + "-1: generate reports with all normalization options)");
 
     uiComboAddRef = UiUtils.createUiCombo(TmtiConfProps.COMBO_ADD_REF.stream()
@@ -358,6 +364,14 @@ public class TmtiPanel extends JPanelBase {
     uiComboAddRef.setSelectedItem(null);
     uiComboAddRef.setSelectedItem(TmtiConfProps.COMBO_ADD_REF_CHANNEL);
 
+    uiComboAbnType = UiUtils.createUiCombo(TmtiConfProps.COMBO_ABUNDANCE_TYPE.stream()
+            .map(ComboValue::getValInUi).collect(Collectors.toList()));
+    FormEntry feAbnType = fe(TmtiConfProps.PROP_abundance_type,
+            "Analysis Type", uiComboAbnType,
+            "<html>Data aggregation method <br/>\n"
+                    + "0: Ratio (default). PSM ratios are computed prior to aggregation<br/>\n"
+                    + "1: Raw Abundance. No ratios are computed, summed abundances are used for all calculations<br/>\n");
+
     addRowLabelComp(p, feLabelType);
     addRowLabelComp(p, feQuantLevel);
     addRowLabelComp(p, feTolerance);
@@ -365,6 +379,7 @@ public class TmtiPanel extends JPanelBase {
     addRowLabelComp(p, feRefTag);
     addRowLabelComp(p, feGroupBy);
     addRowLabelComp(p, feProtNorm);
+    addRowLabelComp(p, feAbnType);
 
     return p;
   }
@@ -1089,7 +1104,7 @@ public class TmtiPanel extends JPanelBase {
     return null;
   }
 
-  public Map<String, String> formToConfig(int ramGb, String decoyTag, String pathTmtiJar, String pathFasta, String pathOutput, QuantLabel quantLabel, boolean isSecondUnmodRun) {
+  public Map<String, String> formToConfig(int ramGb, String decoyTag, String pathTmtiJar, String pathOutput, QuantLabel quantLabel, boolean isSecondUnmodRun) {
     Map<String, String> map = SwingUtils.valuesGet(this, null);
     final TreeMap<String, String> mapConv = new TreeMap<>();
     map.forEach((k, v) ->
@@ -1128,7 +1143,6 @@ public class TmtiPanel extends JPanelBase {
 
     mapConv.put("path", pathTmtiJar);
     mapConv.put("memory", Integer.toString(ramGb));
-    mapConv.put("protein_database", pathFasta);
     mapConv.put("output", pathOutput);
     mapConv.put("prefix", decoyTag);
 

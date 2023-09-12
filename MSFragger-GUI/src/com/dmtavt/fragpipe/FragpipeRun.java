@@ -1544,7 +1544,7 @@ public class FragpipeRun {
           SwingUtils.showWarningDialog(parent, CmdTmtIntegrator.NAME + " only supports mzML and raw files.\nPlease remove other files from the input list.", CmdTmtIntegrator.NAME + " error");
           return false;
         }
-        return cmdTmt.configure(tmtiPanel, isDryRun, ramGb, decoyTag, fastaFile, sharedMapGroupsToProtxml, doMSstats, tmtiPanel.getAnnotations(), false);
+        return cmdTmt.configure(tmtiPanel, isDryRun, ramGb, decoyTag, sharedMapGroupsToProtxml, doMSstats, tmtiPanel.getAnnotations(), false);
       }
       return true;
     });
@@ -1700,7 +1700,7 @@ public class FragpipeRun {
           SwingUtils.showWarningDialog(parent, CmdTmtIntegrator.NAME + " only supports mzML and raw files.\nPlease remove other files from the input list.", CmdTmtIntegrator.NAME + " error");
           return false;
         }
-        return cmdTmtFpop.configure(tmtiPanel, isDryRun, ramGb, decoyTag, fastaFile, sharedMapGroupsToProtxml, doMSstats, tmtiPanel.getAnnotations(), true);
+        return cmdTmtFpop.configure(tmtiPanel, isDryRun, ramGb, decoyTag, sharedMapGroupsToProtxml, doMSstats, tmtiPanel.getAnnotations(), true);
       });
     }
     addConfig.accept(cmdFpopQuant, () -> {

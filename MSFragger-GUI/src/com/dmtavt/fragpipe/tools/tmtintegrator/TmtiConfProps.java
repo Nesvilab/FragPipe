@@ -24,7 +24,6 @@ public class TmtiConfProps {
 
   public static final String PROP_path = "path";
   public static final String PROP_memory = "memory";
-  public static final String PROP_protein_database = "protein_database";
   public static final String PROP_output = "output";
   public static final String PROP_channel_num = "channel_num";
   public static final String PROP_ref_tag = "ref_tag";
@@ -53,14 +52,16 @@ public class TmtiConfProps {
   public static final String PROP_print_RefInt = "print_RefInt";
   public static final String PROP_max_pep_prob_thres = "max_pep_prob_thres";
   public static final String PROP_log2transformed = "log2transformed";
+  public static final String PROP_abundance_type = "abn_type";
 
   public static final List<String> PROPS = Arrays
-      .asList(PROP_path, PROP_memory, PROP_protein_database, PROP_output, PROP_channel_num,
+      .asList(PROP_path, PROP_memory, PROP_output, PROP_channel_num,
           PROP_ref_tag, PROP_min_pep_prob, PROP_min_purity, PROP_min_percent, PROP_min_ntt, PROP_min_site_prob,
           PROP_unique_gene, PROP_prot_exclude, PROP_mod_tag, PROP_groupby, PROP_prot_norm,
           PROP_add_Ref, PROP_psm_norm, PROP_unique_pep, PROP_outlier_removal, PROP_best_psm,
           PROP_allow_overlabel, PROP_allow_unlabeled, PROP_ms1_int, PROP_top3_pep,
-          PROP_print_RefInt, PROP_max_pep_prob_thres, PROP_aggregation_method, PROP_glyco_qval, PROP_use_glycan_composition, PROP_log2transformed);
+          PROP_print_RefInt, PROP_max_pep_prob_thres, PROP_aggregation_method, PROP_glyco_qval, PROP_use_glycan_composition,
+          PROP_log2transformed, PROP_abundance_type);
 
   public static List<ComboValue> COMBO_GROUP_BY = Arrays.asList(
       new ComboValue("0", "Gene level", "PSM aggregation to the gene level"),
@@ -75,6 +76,7 @@ public class TmtiConfProps {
       new ComboValue("0", "None", ""),
       new ComboValue("1", "MD (median centering)", ""),
       new ComboValue("2", "GN (median centering + variance scaling)", ""),
+      new ComboValue("3", "SL+IRS (Only for abundance-based integration)", ""),
       new ComboValue("-1", "All", "generate reports with all normalization options")
   );
 
@@ -92,6 +94,11 @@ public class TmtiConfProps {
   public static List<ComboValue> COMBO_AGGREGATION_METHOD = Arrays.asList(
       new ComboValue("0", "Median", "Median"),
       new ComboValue("1", "Weighted", "Weighted")
+  );
+
+  public static List<ComboValue> COMBO_ABUNDANCE_TYPE = Arrays.asList(
+          new ComboValue("0", "Ratio", "Ratio"),
+          new ComboValue("1", "Abundance", "Abundance")
   );
 
 
