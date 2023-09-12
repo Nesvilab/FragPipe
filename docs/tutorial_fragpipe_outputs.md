@@ -132,7 +132,7 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 
 **Protein End** ending position of the identified peptide within the protein sequence
 
-**Intensity** integrated precursor (MS1) abundance for each PSM/scan, calculated by Philosopher `freequant` unless IonQuant is used
+**Intensity** precursor abundance (area under the curve) for each PSM if IonQuant is used; or maximum MS1 peak intensity within the retention time tolerance if Philosopher freequant is used (not recommanded)
 
 **Ion Mobility** TIMS transit time of the precursor ion (1/K<sub>0</sub>)
 
@@ -381,7 +381,7 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 
 **[experiment] Spectral Count** count of peptide-spectrum matches (PSMs) in the sample that support the peptide identification
 
-**[experiment] Intensity** normalized peptide intensities
+**[experiment] Intensity** normalized ion intensities
 <br>
 <br>
 <br>
@@ -463,9 +463,9 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 
 **[experiment] Spectral Count** count of peptide-spectrum matches (PSMs) in the sample that support the peptide identification
 
-**[experiment] Intensity** normalized peptide intensities
+**[experiment] Intensity** normalized peptide sequence intensities
 
-**[experiment] MaxLFQ Intensity** normalized peptide intensities calculated with the MaxLFQ method (this column is only present if 'MaxLFQ' is selected)
+**[experiment] MaxLFQ Intensity** normalized peptide seqeunce intensities calculated with the MaxLFQ method (this column is only present if 'MaxLFQ' is selected)
 <br>
 <br>
 <br>
@@ -509,11 +509,11 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 
 **[experiment] Total Spectral Count** total number of PSMs in the sample with sequences mapping to the selected protein, includes shared PSMs
 
-**[experiment] Intensity** normalized protein intensity using the sequences after razor assignment (from Philosopher `freequant`; if IonQuant is used, this is calculated using either MaxLFQ or Top-N algorithm, depending on selection)
+**[experiment] Intensity** normalized protein intensity using the sequences after razor assignment (from the top-N algorithm)
 
-**[experiment] Unique Intensity** normalized protein intensity from the sequences mapping only to the selected protein (from Philosopher `freequant`; if IonQuant is used, this is calculated using the Top-N algorithm)
+**[experiment] Unique Intensity** normalized protein intensity from the sequences mapping only to the selected protein (from the top-N algorithm)
 
-**[experiment] Total Intensity** normalized protein intensity from all sequences mapping to the selected protein (from Philosopher `freequant`; if IonQuant is used, this is calculated using the Top-N algorithm)
+**[experiment] Total Intensity** normalized protein intensity from all sequences mapping to the selected protein (from the top-N algorithm)
 
 **[experiment] MaxLFQ Intensity** normalized protein intensity using the unique+razor sequences after razor assignment calculated using the MaxLFQ method
 
