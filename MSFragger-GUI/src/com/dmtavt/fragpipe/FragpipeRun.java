@@ -1583,8 +1583,14 @@ public class FragpipeRun {
 
     addCheck.accept(() -> {
       // check annotations files exist
-      if (!tmtiPanel.isRun() && (!tabDownstream.pFpop.isFpopTmt() || !tabDownstream.pFpop.isRunFpopQuant())) {
-        return true;
+      if (!tmtiPanel.isRun()) {
+        if (!tabDownstream.pFpop.isRunFpopQuant()){
+          return true;
+        } else {
+          if (!tabDownstream.pFpop.isFpopTmt()){
+            return true;
+          }
+        }
       }
       Map<LcmsFileGroup, Path> annotations = tmtiPanel.getAnnotations();
       boolean hasMissing = Seq.seq(annotations.values()).map(PathUtils::existing).anyMatch(Objects::isNull);
@@ -1673,9 +1679,21 @@ public class FragpipeRun {
 
     // run FPOP script
     final CmdFpopQuant cmdFpopQuant = new CmdFpopQuant(tabDownstream.pFpop.isRunFpopQuant(), wd);
-    final CmdTmtIntegrator cmdTmtFpop = new CmdTmtIntegrator(isTmt, wd);
+    final CmdTmtIntegrator cmdTmtFpop = new CmdTmtIntegrator(isTmt && cmdFpopQuant.isRun() && tabDownstream.pFpop.isFpopTmt(), wd);
 
     if (tabDownstream.pFpop.isFpopTmt() && cmdFpopQuant.isRun()) {
+      addCheck.accept(() -> {
+        if (!isTmt) {
+          if (Fragpipe.headless) {
+            log.error("FPOP TMT Quant was requested on Downstream tab, but TMT-Integrator is not run. Please enable TMT-Integrator");
+          } else {
+            JOptionPane.showMessageDialog(parent, "FPOP TMT Quant was requested on Downstream tab, but TMT-Integrator is not run. Please enable TMT-Integrator", "FPOP TMT Error", JOptionPane.ERROR_MESSAGE);
+          }
+          return false;
+        }
+        return true;
+      });
+
       // run TMT-Integrator a second time to provide unmodified peptide data as well as modified (does NOT rerun freequant/labelquant)
       addConfig.accept(cmdTmtFpop, () -> {
         if (sharedLcmsFiles.stream().anyMatch(f -> !f.getPath().getFileName().toString().toLowerCase().endsWith(".mzml") && !f.getPath().getFileName().toString().toLowerCase().endsWith(".raw"))) {
