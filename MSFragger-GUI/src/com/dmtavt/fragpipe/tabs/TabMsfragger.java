@@ -2043,15 +2043,19 @@ public class TabMsfragger extends JPanelBase {
     for (Mod mod : modsVariable) {
       if (mod.isEnabled) {
         // find all amino acid sites
-        StringBuilder sites = new StringBuilder();
+        ArrayList<String> sites = new ArrayList<>();
         Matcher aaMatcher = aaPattern.matcher(mod.sites);
         while (aaMatcher.find()) {
-          sites.append(aaMatcher.group());
+          sites.add(aaMatcher.group());
         }
-        String sitesTemp = sites.toString();
+        String terminal = getSDRFvarmodTerm(mod.sites);
+        ArrayList<String> sitesWithTermini = updateSitesTerm(terminal, sites);
+        String sitesTemp = String.join("", sites);
+
+        SDRFtable.SDRFUnimod matchedMod = SDRFtable.matchUnimod(mod.massDelta, sitesWithTermini);
+        String name = getModName(mod.massDelta, mod.sites, matchedMod);
         String siteStr = sitesTemp.length() == 0 ? "" : String.format(";TA=%s", sitesTemp);
-        String name = String.format("%s:%.0f", mod.sites, mod.massDelta);
-        String modStr = String.format("NT=%s;MT=Variable;PP=%s%s;MM=%.5f", name, getSDRFvarmodTerm(mod.sites), siteStr, mod.massDelta);
+        String modStr = String.format("NT=%s;MT=Variable;PP=%s%s;MM=%.5f", name, terminal, siteStr, mod.massDelta);
         mods.add(modStr);
       }
     }
@@ -2061,29 +2065,42 @@ public class TabMsfragger extends JPanelBase {
         String terminal = getSDRFfixedmodTerm(mod.sites);
         // get amino acid if not terminal
         String sitesStr;
+        ArrayList<String> sites = new ArrayList<>();
         if (terminal.matches("Anywhere")) {
-          StringBuilder sites = new StringBuilder();
           Matcher aaMatcher = aaPattern.matcher(mod.sites);
           while (aaMatcher.find()) {
-            sites.append(aaMatcher.group());
+            sites.add(aaMatcher.group());
           }
-          sitesStr = String.format(";TA=%s", sites);
+          sitesStr = String.format(";TA=%s", String.join("", sites));
         } else {
           sitesStr = "";
         }
-        String name = String.format("%s:%.0f", mod.sites, mod.massDelta);
+        ArrayList<String> sitesWithTermini = updateSitesTerm(terminal, sites);
+        SDRFtable.SDRFUnimod matchedMod = SDRFtable.matchUnimod(mod.massDelta, sitesWithTermini);
+        String name = getModName(mod.massDelta, mod.sites, matchedMod);
         String modStr = String.format("NT=%s;MT=Fixed;PP=%s%s;MM=%.5f", name, terminal, sitesStr, mod.massDelta);
         mods.add(modStr);
       }
     }
     for (float mass : offsetSet) {
       if (!(mass == 0.0)) {
-        String name = String.format("offset:%.5f", mass);
+        ArrayList<String> sites = Arrays.stream(offsetResidues.split("")).collect(Collectors.toCollection(ArrayList::new));
+        SDRFtable.SDRFUnimod matchedMod = SDRFtable.matchUnimod(mass, sites);
+        String name = matchedMod != null ? matchedMod.name : String.format("offset:%.5f", mass);
         String modStr = String.format("NT=%s;MT=Variable;PP=%s;TA=%s;MM=%.5f", name, "Anywhere", offsetResidues, mass);
         mods.add(modStr);
       }
     }
     return mods;
+  }
+
+  private String getModName(double mass, String sites, SDRFtable.SDRFUnimod matchedMod) {
+    if (matchedMod == null) {
+      // Unimod either not matched or ambiguous: use our generic format
+      return String.format("%s:%.0f", sites, mass);
+    } else {
+      return matchedMod.name;
+    }
   }
 
   private String getSDRFvarmodTerm(String modSites) {
@@ -2098,6 +2115,27 @@ public class TabMsfragger extends JPanelBase {
     } else {
       return "Anywhere";
     }
+  }
+
+  /**
+   * Add terminal site indicators to the sites list for Unimod matching
+   * @return
+   */
+  private ArrayList<String> updateSitesTerm(String terminal, ArrayList<String> sites) {
+    ArrayList<String> sitesWithTerm = new ArrayList<>(sites);
+    switch (terminal) {
+      case "Anywhere":
+        return sitesWithTerm;
+      case "Protein N-term":
+      case "Any N-term":
+        sitesWithTerm.add("N-term");
+        return sitesWithTerm;
+      case "Protein C-term":
+      case "Any C-term":
+        sitesWithTerm.add("C-term");
+        return sitesWithTerm;
+    }
+    return sitesWithTerm;
   }
 
   private String getSDRFfixedmodTerm(String modSites) {

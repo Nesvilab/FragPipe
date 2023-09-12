@@ -3,13 +3,17 @@ package com.dmtavt.fragpipe.util;
 import com.dmtavt.fragpipe.tools.tmtintegrator.QuantLabel;
 import org.apache.commons.io.FileUtils;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.regex.Pattern;
 
 public class SDRFtable {
+
+    private static final String UNIMOD_DB = "unimod_dict.json";
 
     private ArrayList<String[]> rows;
     private ArrayList<String> header;
@@ -26,6 +30,9 @@ public class SDRFtable {
     private final String COL_mods = "comment[modification parameters]";
     private final String COL_precTol = "comment[precursor mass tolerance]";
     private final String COL_prodTol = "comment[fragment mass tolerance]";
+
+    // parse unimod mods for conversion
+    public static final ArrayList<SDRFUnimod> unimodDB = parseUnimodJson();
 
     // convert our names to ontology names
     // names from https://www.ebi.ac.uk/ols4/ontologies/ms/classes/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FMS_1001045
@@ -138,6 +145,100 @@ public class SDRFtable {
             return inputEnzyme;
         }
         return converted;
+    }
+
+    private static ArrayList<SDRFUnimod> parseUnimodJson() {
+        HashMap<Integer, SDRFUnimod> modMap = new HashMap<>();
+        Pattern namePattern = Pattern.compile("NT=([^;]+);");
+        Pattern accessionPattern = Pattern.compile("AC=([\\d]+);");
+        Pattern massPattern = Pattern.compile("MM=([\\d.]+);");
+        Pattern formulaPattern = Pattern.compile("CF=([^;]+);");
+        Pattern sitesPattern = Pattern.compile("TA=([\\w-]+)");
+
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(SDRFtable.class.getResourceAsStream(UNIMOD_DB))));
+            String readline;
+            while ((readline = reader.readLine()) != null) {
+                if (readline.contains("}")){
+                    String[] splits = readline.split("\"-?[\\d\\.]+\":");     // split on mass identifier to get all mod entries at that mass
+                    for (String allMods : splits) {
+                        if (! allMods.contains("NT=")) {
+                            continue;
+                        }
+                        String[] individualMods = allMods.split(",");
+                        for (String mod : individualMods) {
+                            int accession = Integer.parseInt(accessionPattern.matcher(mod).results().map(m -> m.group(1)).findFirst().orElse("0"));
+                            if (accession == 0){
+                                continue;
+                            }
+
+                            String sites = sitesPattern.matcher(mod).results().map(m -> m.group(1)).findFirst().orElse(null);
+                            if (modMap.containsKey(accession)) {
+                                // this mod has already been found. Duplicated definitions may have new allowed sites - append these to the existing mod if so
+                                modMap.get(accession).allowedResidues.add(sites);
+                            } else {
+                                // define new mod
+                                String name = namePattern.matcher(mod).results().map(m -> m.group(1)).findFirst().orElse(null);
+                                float mass = Float.parseFloat(massPattern.matcher(mod).results().map(m -> m.group(1)).findFirst().orElse("0"));
+                                String formula = formulaPattern.matcher(mod).results().map(m -> m.group(1)).findFirst().orElse(null);
+                                modMap.put(accession, new SDRFUnimod(name, accession, formula, mass, sites));
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        return new ArrayList<>(modMap.values());
+    }
+
+    /**
+     * Match a modification against internal Unimod reference, returning the single match if there is exactly one
+     * or null if there are either 0 or >1 matches.
+     * @param mass
+     * @param sitesWithTermini
+     * @return
+     */
+    public static SDRFUnimod matchUnimod(double mass, ArrayList<String> sitesWithTermini) {
+        ArrayList<SDRFUnimod> matches = new ArrayList<>();
+        for (SDRFUnimod unimodMod : unimodDB) {
+            if (Math.abs(mass - unimodMod.mass) < 0.0001) {
+                // check if site definitions match
+                boolean allSitesMatched = true;
+                for (String site: sitesWithTermini) {
+                    if (!unimodMod.allowedResidues.contains(site)) {
+                        allSitesMatched = false;
+                        break;
+                    }
+                }
+                if (allSitesMatched) {
+                    matches.add(unimodMod);
+                }
+            }
+        }
+        if (matches.size() == 1) {
+            return matches.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    public static class SDRFUnimod {
+        public String name;
+        public int unimodAccession;
+        public String chemicalFormula;
+        public float mass;
+        HashSet<String> allowedResidues;
+
+        public SDRFUnimod(String name, int accession, String formula, float mass, String residue) {
+            this.name = name;
+            unimodAccession = accession;
+            chemicalFormula = formula;
+            this.mass = mass;
+            allowedResidues = new HashSet<>();
+            allowedResidues.add(residue);
+        }
     }
 
 }
