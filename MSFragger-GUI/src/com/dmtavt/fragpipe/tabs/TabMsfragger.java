@@ -347,6 +347,7 @@ public class TabMsfragger extends JPanelBase {
   private UiCombo uiComboLoadDefaultsNames;
   private UiText uiTextMassOffsets;
   private UiText uiTextRemainderMasses;
+  private UiCombo uiComboGlyco;
   private UiSpinnerDouble uiSpinnerPrecTolLo;
   private UiSpinnerDouble uiSpinnerPrecTolHi;
   private UiSpinnerDouble uiSpinnerFragTol;
@@ -861,7 +862,7 @@ public class TabMsfragger extends JPanelBase {
   private JPanel createPanelGlyco() {
     JPanel p = mu.newPanel("Glyco/Labile Mods", mu.lcFillXNoInsetsTopBottom());
 
-    final UiCombo uiComboGlyco = UiUtils.createUiCombo(GLYCO_OPTIONS_UI);
+    uiComboGlyco = UiUtils.createUiCombo(GLYCO_OPTIONS_UI);
     FormEntry feGlycoSearchMode = mu.feb(uiComboGlyco)
         .name(MsfraggerParams.PROP_labile_search_mode)
         .label("Labile modification search mode")
@@ -2087,7 +2088,12 @@ public class TabMsfragger extends JPanelBase {
         ArrayList<String> sites = Arrays.stream(offsetResidues.split("")).collect(Collectors.toCollection(ArrayList::new));
         SDRFtable.SDRFUnimod matchedMod = SDRFtable.matchUnimod(mass, sites);
         String name = matchedMod != null ? matchedMod.name : String.format("offset:%.5f", mass);
-        String modStr = String.format("NT=%s;MT=Variable;PP=%s;TA=%s;MM=%.5f", name, "Anywhere", offsetResidues, mass);
+        String glycoSite = "";
+        if (Objects.equals(uiComboGlyco.getSelectedItem(), GLYCO_OPTION_nglycan)) {
+          glycoSite = "TS=N[^P][ST];";
+          offsetResidues = "N";
+        }
+        String modStr = String.format("NT=%s;MT=Variable;PP=%s;TA=%s;%sMM=%.5f", name, "Anywhere", offsetResidues, glycoSite, mass);
         mods.add(modStr);
       }
     }
