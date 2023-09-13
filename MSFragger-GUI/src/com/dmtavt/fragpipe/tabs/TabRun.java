@@ -335,7 +335,7 @@ public class TabRun extends JPanelWithEnablement {
     }
 
     uiCheckSaveSDRF = new UiCheck("Save Technical SDRF", null,true);
-    uiCheckSaveSDRF.setName("workflow.asdrf.save-sdrf");
+    uiCheckSaveSDRF.setName("workflow.misc.save-sdrf");
     uiCheckSaveSDRF.setToolTipText("Save a template SDRF file with technical columns (search parameters) for this FragPipe run. \n" +
             "NOTE: this is not a complete SDRF file, information about the samples needs to be added to complete it.");
     JLabel emptySpacer = new JLabel("              ");
