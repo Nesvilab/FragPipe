@@ -307,7 +307,7 @@ tmtintegrator.top3_pep=true
 tmtintegrator.unique_gene=0
 tmtintegrator.unique_pep=false
 tmtintegrator.use_glycan_composition=false
-workflow.description=<p style\="margin-top\: 0in">Nonspecific search, with recommended settings for HLA peptides. Peptide length 7-25. MSFragger search assumes cysteines were not alkylated (i.e. samples were not treated with iodoacetamide). Cysteinylation (C+119) is specified as variable modification. MSFragger rescoring with MSBooster. PSM validation with Percolator. Protein FDR filter is not applied, so each output file (PSM, ion, peptide) is filtered to 1% FDR at that level. If needed, extend to add label-free quantifcation (using IonQuant) or spectral library building with EasyPQP.</p>
+workflow.description=<p style\="margin-top\: 0in">Nonspecific search, with recommended settings for HLA peptides. Peptide length 7-25. MSFragger search assumes cysteines were alkylated. Cysteinylation minus 57 (C+62, 62+57=119) is specified as variable modification. MSFragger rescoring with MSBooster. PSM validation with Percolator. Protein FDR filter is not applied, so each output file (PSM, ion, peptide) is filtered to 1% FDR at that level. If needed, extend to add label-free quantifcation (using IonQuant) or spectral library building with EasyPQP.</p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
 workflow.saved-with-ver=20.0-build5
