@@ -178,7 +178,7 @@ public abstract class CmdBase {
 
   public ProcessBuildersDescriptor getBuilderDescriptor() {
     if (!isConfigured)
-      throw new IllegalStateException("Call to #getBuilderDescriptor() before calling #configure()");
+      throw new IllegalStateException("Call to #getBuilderDescriptor() before calling #configure(). From command [" + getCmdName() + "]");
     return new ProcessBuildersDescriptor(getCmdName(), fileCaptureStdout,
         fileCaptureStderr).addAll(pbis);
   }
