@@ -17,6 +17,8 @@
 
 package com.dmtavt.fragpipe.cmd;
 
+import static com.dmtavt.fragpipe.cmd.ToolingUtils.getUnimodOboPath;
+
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
 import com.dmtavt.fragpipe.api.PyInfo;
@@ -151,12 +153,20 @@ public class CmdSpecLibGen extends CmdBase {
               (im_cal.equals("a tsv file") ? imCalTsvPath.toString() : im_cal)); // alignment options
       cmd.add(String.valueOf(tabWorkflow.getThreads()));
 
+      Path unimodPath;
+      try {
+        unimodPath = getUnimodOboPath("unimod_old.obo"); // Use the same old unimod file as in OpenMS to avoid an error due to mismatches of some modifications.
+      } catch (Exception ex) {
+        ex.printStackTrace();
+        return false;
+      }
+
       final double max_delta_unimod = speclibPanel.getEasypqp_max_delta_unimod(); // EasyPQP convert
       final double max_delta_ppm = speclibPanel.getEasypqp_max_delta_ppm(); // EasyPQP convert
       final String fragment_types = speclibPanel.getEasypqp_fragment_types(); // EasyPQP convert
       final double rt_lowess_fraction = speclibPanel.getEasypqpRTLowessFraction(); // EasyPQP library
 
-      cmd.add(OsUtils.asSingleArgument(String.format("--max_delta_unimod %s --max_delta_ppm %s --fragment_types %s %s", max_delta_unimod, max_delta_ppm, fragment_types.replace("'", "\\'"), speclibPanel.hasNeutralLoss() ? "--enable_unspecific_losses" : ""))); // EasyPQP convert args
+      cmd.add(OsUtils.asSingleArgument(String.format("--unimod %s --max_delta_unimod %s --max_delta_ppm %s --fragment_types %s %s", unimodPath.toAbsolutePath(), max_delta_unimod, max_delta_ppm, fragment_types.replace("'", "\\'"), speclibPanel.hasNeutralLoss() ? "--enable_unspecific_losses" : ""))); // EasyPQP convert args
 
       cmd.add(OsUtils.asSingleArgument(String.format("--rt_lowess_fraction %s", rt_lowess_fraction))); // EasyPQP library args
 
