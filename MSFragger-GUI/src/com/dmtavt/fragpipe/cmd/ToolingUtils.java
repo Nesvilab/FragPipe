@@ -20,6 +20,7 @@ package com.dmtavt.fragpipe.cmd;
 import static com.github.chhh.utils.PathUtils.testBinaryPath;
 
 import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.github.chhh.utils.FileCopy;
@@ -32,6 +33,7 @@ import java.awt.Component;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -45,6 +47,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
+import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,6 +58,14 @@ public class ToolingUtils {
   public static final String BATMASS_IO_JAR = "batmass-io-1.28.12.jar";
   public static final String JFREECHART_JAR = "jfreechart-1.5.3.jar";
   public static final String UNIMOD_OBO = "unimod.obo";
+
+  public static Path getUnimodOboPath(String unimodName) throws Exception {
+    final List<Path> tt = FragpipeLocations.checkToolsMissing(Seq.of(unimodName));
+    if (tt == null || tt.size() != 1) {
+      throw new FileNotFoundException("Could not find unimod.obo file from " + FragpipeLocations.get().getDirTools());
+    }
+    return tt.get(0);
+  }
 
   /**
    * @return Full absolute normalized path to the output combined protein file.
