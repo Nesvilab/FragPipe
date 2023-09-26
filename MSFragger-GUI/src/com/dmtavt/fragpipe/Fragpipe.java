@@ -1002,6 +1002,8 @@ public class Fragpipe extends JFrameHeadless {
     sb.append("\t--config-ionquant <string>      # (optional) specify the location of the IonQuant jar file. If not specified, using the one in the cache.\n");
     sb.append("\t--config-philosopher <string>   # (optional) specify the location of the Philosopher binary file. If not specified, using the one in the cache.\n");
     sb.append("\t--config-python <string>        # (optional) specify the location of the Python directory. If not specified, using the one in the cache.\n");
+    sb.append("To let FragPipe find the TMT annotation file, put the mzML files from the same experiment in the same folder. Then, create the annotation file with the name ending with annotation.txt in the folder.");
+    sb.append("Note: There must be only one annotation file in each folder.\n");
     return sb.toString();
   }
 }
