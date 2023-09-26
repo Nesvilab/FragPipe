@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 import glob
-import time
 
 use_philosopher_fo: bool = not True
 delete_temp_files: bool = False
 
-from common_funcs import (raise_if, raise_if_not, str_to_path, unexpanduser_quote, list_as_shell_cmd, name_no_ext, strIII, os_fspath)
+from common_funcs import (str_to_path, name_no_ext, os_fspath)
 from detect_decoy_prefix import detect_decoy_prefix
 
 import enum
@@ -16,7 +15,6 @@ import pathlib
 import re
 import shlex
 import subprocess
-import sys
 import shutil
 import numpy as np
 import pandas as pd
@@ -40,9 +38,6 @@ START = timeit.default_timer()
 if sys.version_info[:2] >= (3, 7):
 	sys.stdout.reconfigure(encoding='utf-8')
 	sys.stderr.reconfigure(encoding='utf-8')
-
-use_easypqp: bool = len(sys.argv) >= 8 and sys.argv[7].casefold() == 'use_easypqp'
-use_spectrast: bool = not use_easypqp
 
 class Irt_choice(enum.Enum):
 	no_iRT = enum.auto()
@@ -74,53 +69,46 @@ def resolve_mapped(path) -> str:
 	return os.fspath(min(mapped_paths, key=lambda x: len(str(x)), default=path))
 
 
-if use_easypqp:
-	nproc0 = int(sys.argv[9]) if len(sys.argv) >= 10 else 0
-	nproc = max(cpu_count() - 1, 1) if nproc0 <= 0 else nproc0
-	if len(sys.argv) >= 9:
-		rta, ima = sys.argv[8].split(os.pathsep)
-		no_iRT = rta.casefold() == 'noirt'
-		is_iRT = rta.casefold() == 'irt'
-		is_ciRT = rta.casefold() == 'cirt'
-		is_Pierce_iRT = rta.casefold() == 'Pierce_iRT'.casefold()
-		is_userRT = pathlib.Path(rta).exists()
-		userRT_file = pathlib.Path(rta).resolve(strict=True) if is_userRT else None
-		no_im = ima.casefold() == 'noim'
-		is_userIM = pathlib.Path(ima).exists()
-		userIM_file = pathlib.Path(ima).resolve(strict=True) if is_userIM else None
-	# no_iRT = len(sys.argv) >= 9 and sys.argv[8].casefold() == 'noirt'
-	# is_iRT = len(sys.argv) >= 9 and sys.argv[8].casefold() == 'irt'
-	# is_ciRT = len(sys.argv) >= 9 and sys.argv[8].casefold() == 'cirt'
-	# is_userRT = len(sys.argv) >= 9 and pathlib.Path(sys.argv[8]).exists()
-	# userRT_file = pathlib.Path(sys.argv[8]).resolve(strict=True) if is_userRT else None
-	irt_choice = Irt_choice.no_iRT if no_iRT else \
-		Irt_choice.iRT if is_iRT else \
-			Irt_choice.ciRT if is_ciRT else \
-				Irt_choice.Pierce_iRT if is_Pierce_iRT else \
-					Irt_choice.userRT if userRT_file else \
-						None
-	if irt_choice is None:
-		raise RuntimeError('invalid iRT')
-	im_choice = Im_choice.no_im if no_im else \
-		Im_choice.userIM if userIM_file else \
-			None
-	if im_choice is None:
-		raise RuntimeError('invalid IM')
-	easypqp_convert_extra_args = shlex.split(sys.argv[10]) if len(sys.argv) >= 11 else []
-	easypqp_library_extra_args = shlex.split(sys.argv[11]) if len(sys.argv) >= 12 else []
-	spectra_files0 = sorted(pathlib.Path(e) for e in sys.argv[3].split(os.pathsep))
-	if len(sys.argv) >= 13 and sys.argv[12] == 'delete_intermediate_files':
-		delete_temp_files = True
-	if spectra_files0 == [pathlib.Path('unused')] and len(sys.argv) >= 14:
-		spectra_files0 = [pathlib.Path(e) for e in sys.argv[13:]]
-		if len(spectra_files0) >= 1 and spectra_files0[0].name.endswith('.txt'): # check if file is a file list
-			filelist_str = pathlib.Path(spectra_files0[0]).read_text('utf-8').splitlines()
-			filelist = list(map(pathlib.Path, filelist_str))
-			if all(e.exists() for e in filelist):
-				print("File list provided")
-				spectra_files0 = filelist
+nproc0 = int(sys.argv[9]) if len(sys.argv) >= 10 else 0
+nproc = max(cpu_count() - 1, 1) if nproc0 <= 0 else nproc0
+if len(sys.argv) >= 9:
+	rta, ima = sys.argv[8].split(os.pathsep)
+	no_iRT = rta.casefold() == 'noirt'
+	is_iRT = rta.casefold() == 'irt'
+	is_ciRT = rta.casefold() == 'cirt'
+	is_Pierce_iRT = rta.casefold() == 'Pierce_iRT'.casefold()
+	is_userRT = pathlib.Path(rta).exists()
+	userRT_file = pathlib.Path(rta).resolve(strict=True) if is_userRT else None
+	no_im = ima.casefold() == 'noim'
+	is_userIM = pathlib.Path(ima).exists()
+	userIM_file = pathlib.Path(ima).resolve(strict=True) if is_userIM else None
+irt_choice = Irt_choice.no_iRT if no_iRT else \
+	Irt_choice.iRT if is_iRT else \
+		Irt_choice.ciRT if is_ciRT else \
+			Irt_choice.Pierce_iRT if is_Pierce_iRT else \
+				Irt_choice.userRT if userRT_file else \
+					None
+if irt_choice is None:
+	raise RuntimeError('invalid iRT')
+im_choice = Im_choice.no_im if no_im else \
+	Im_choice.userIM if userIM_file else \
+		None
+if im_choice is None:
+	raise RuntimeError('invalid IM')
+easypqp_convert_extra_args = shlex.split(sys.argv[10]) if len(sys.argv) >= 11 else []
+easypqp_library_extra_args = shlex.split(sys.argv[11]) if len(sys.argv) >= 12 else []
+spectra_files0 = sorted(pathlib.Path(e) for e in sys.argv[3].split(os.pathsep))
+if len(sys.argv) >= 13 and sys.argv[12] == 'delete_intermediate_files':
+	delete_temp_files = True
+if spectra_files0 == [pathlib.Path('unused')] and len(sys.argv) >= 14:
+	spectra_files0 = [pathlib.Path(e) for e in sys.argv[13:]]
+	if len(spectra_files0) >= 1 and spectra_files0[0].name.endswith('.txt'): # check if file is a file list
+		filelist_str = pathlib.Path(spectra_files0[0]).read_text('utf-8').splitlines()
+		filelist = list(map(pathlib.Path, filelist_str))
+		if all(e.exists() for e in filelist):
+			print("File list provided")
+			spectra_files0 = filelist
 
-assert use_spectrast ^ use_easypqp
 
 def get_bin_path_pip_main(dist, bin_stem):
 	'''
@@ -217,14 +205,9 @@ script_dir = pathlib.Path(__file__).resolve().parent
 if script_dir.suffix == '.pyz':
 	script_dir = script_dir.parent
 
-if use_spectrast:
-	SPECTRAST_PATH = (script_dir / {'linux': 'linux/spectrast', 'win32': 'win/spectrast.exe'}[sys.platform]).resolve(strict=True)
 fasta = str_to_path(sys.argv[1]).resolve(strict=True)
-# msproteomicstools_bin_path = str_to_path(sys.argv[3]).resolve(strict=True)
-# msproteomicstools_bin_path = str_to_path(pathlib.Path(sys.executable).parent).resolve(strict=True)
 iproph_RT_aligned = str_to_path(sys.argv[2]).resolve(strict=True)
-prot_xml_file = str_to_path(sys.argv[3]).resolve(strict=True) \
-	if use_spectrast else pathlib.Path()
+prot_xml_file = pathlib.Path()
 workdir = str_to_path(sys.argv[4])
 overwrite = False
 if len(sys.argv) >= 6:
@@ -237,38 +220,12 @@ os.environ['PATH'] = os.getcwd() + os.pathsep + os.environ['PATH']
 
 philosopher = 'philosopher'
 which_philosopher = None if len(sys.argv) >= 7 else shutil.which('philosopher')
-if use_spectrast:
-	if which_philosopher is None:
-		try:
-			philosopher = str_to_path(sys.argv[6]).resolve(strict=True)
-		except (FileNotFoundError, IndexError):
-			print("Philosopher not found on path and not provided as 6th argument. Exiting.", file=sys.stderr)
-			sys.exit(1)
-	else:
-		philosopher = pathlib.Path(which_philosopher)
 
-# msproteomicstools_path = pathlib.Path('/storage/teog/anaconda3/bin')
 align_with_iRT: bool = True
-
-if use_spectrast:
-	# spectrast2spectrast_irt_py_path = msproteomicstools_bin_path / 'spectrast2spectrast_irt.py'
-	# spectrast2tsv_py_path = msproteomicstools_bin_path / 'spectrast2tsv.py'
-	spectrast2spectrast_irt_py_path = get_bin_path('msproteomicstools', 'spectrast2spectrast_irt')
-	spectrast2tsv_py_path = get_bin_path('msproteomicstools', 'spectrast2tsv')
-
-	philosopher = philosopher.resolve(strict=True)
-	assert spectrast2spectrast_irt_py_path.exists()
-	assert spectrast2tsv_py_path.exists()
-
-	"\n".join(map(str, [SPECTRAST_PATH, fasta, iproph_RT_aligned]))
-
-if use_easypqp:
-	easypqp = get_bin_path('easypqp', 'easypqp')
+easypqp = get_bin_path('easypqp', 'easypqp')
 
 CWD = os.getcwd()
 
-# fasta = pathlib.Path("/data/nesvi/fasta/uniprot-human_20150619_iRT_rev.fasta")
-# decoy_prefix = "rev_"
 with fasta.open("rb") as f:
 	decoy_prefix = detect_decoy_prefix(f)
 
@@ -280,10 +237,6 @@ philosopher_filter_log_path = workdir / 'filter.log'
 peptide_tsv_path = workdir / 'peptide.tsv'
 use_peptide_tsv: bool = peptide_tsv_path.exists()
 skip_philosopher_filter: bool = philosopher_filter_log_path.exists()
-
-
-
-
 
 
 def get_window_setup(p: pathlib.Path):
@@ -313,16 +266,6 @@ def get_window_setup(p: pathlib.Path):
 			window_desc.append((windowcenter, windowWideness))
 		del context
 	return window_desc
-
-
-# single_mzXML_path = pathlib.Path("/home/ci/tmp/New Folder/20160801_1ug_HeLa_DIA_10Da_180min_Alexey1.mzXML")
-# tail -n+30400 '/home/ci/tmp/New Folder/20160801_1ug_HeLa_DIA_10Da_180min_Alexey1.mzXML' | head -100 > 111.mzXML
-# swathwindowssetup = [(center - wideness / 2, center + wideness / 2)
-# 					 for center, wideness in get_window_setup(single_mzXML_path)]
-
-# txt = "\n".join("{}\t{}".format(beg, end) for beg, end in swathwindowssetup) + "\n"
-# print(txt)
-
 
 iproph_pep_xmls0 = sorted(e.resolve() for e in iproph_RT_aligned.glob("*.pep.xml"))
 iproph_pep_mod_xmls = sorted(e.resolve() for e in iproph_RT_aligned.glob("*.mod.pep.xml"))
@@ -372,52 +315,6 @@ ciRT_rtkit_sorted = sorted(ciRT_rtkit.items(), key=operator.itemgetter(1))
 len(biognosys_rtkit), len(ciRT_rtkit)
 combined_rtkit_str = ",".join(a+":"+str(b) for a,b in sorted({**biognosys_rtkit,**ciRT_rtkit}.items(), key=operator.itemgetter(1)))
 rtkit_str = ",".join(a + ":" + str(b) for a, b in sorted({**biognosys_rtkit}.items(), key=operator.itemgetter(1)))
-
-TEMP_FILES = ['input000.splib', 'input000.spidx', 'input000.pepidx',
-			  'input.splib',
-			  'input_irt.pepidx', 'input_irt.splib', 'input_irt.csv',
-			  'output_file_irt_con000.splib', 'output_file_irt_con000.spidx', 'output_file_irt_con000.pepidx',
-			  'output_file_irt_con001.splib',
-			  # 'output_file_irt_con.splib', # keep splib for now, not used by OpenSWATH
-			  'output_irt_con.tsv',
-			  'con_lib_not_in_psm_tsv.tsv']
-
-if use_spectrast:
-	sq_sys_exec = subprocess.list2cmdline([sys.executable])
-	spectrast_cmds_part1= fr'''
-## Generate .pepidx file
-{sq_sys_exec} {script_dir / "spectrast_gen_pepidx.py"} -i input.splib -o input_irt.splib
-#outfiles: input_irt.splib, input_irt.csv
-
-## Consolidate the library into a single consensus spectrum entry for each peptide sequence.
-{SPECTRAST_PATH} -M spectrast.usermods -cAC -c_BIN! -cIHCD -cNoutput_file_irt_con000 input_irt.splib
-#outfile:output_file_irt_con000.splib
-
-## Unite runs
-{sq_sys_exec} {script_dir / "unite_runs.py"} output_file_irt_con000.splib output_file_irt_con001.splib
-#outfile:output_file_irt_con001.splib
-'''
-
-	spectrast_cmds_part2= fr"""
-## iRT alignment
-{sq_sys_exec} {spectrast2spectrast_irt_py_path} --kit {rtkit_str} --rsq_threshold=0.25 -r -i output_file_irt_con001.splib -o output_file_irt_con.splib
-#outfile:output_file_irt_con.splib
-"""
-
-	spectrast2tsv_additional_mods_tsv_txt = r'''modified-AA	TPP-nomenclature	Unimod-Accession	ProteinPilot-nomenclature	is_a_labeling	composition-dictionary
-C	C[222]	312	[XXX]	FALSE	"{'C': 3, 'H': 5, 'N' : 1, 'O' : 2, 'S' : 1 }"
-C	C[143]	385	[XXX]	FALSE	"{'H' : -3, 'N' : -1 }"
-C-term	c[17]	2	[XXX]	FALSE	"{'H' : 1, 'N' : 1 , 'O': -1 }"'''
-	spectrast2tsv_additional_mods_path = workdir / 'spectrast2tsv_additional_mods_path.tsv'
-
-	spectrast_cmds_part3=fr"""
-## Filter the consensus splib library into a transition list
-{sq_sys_exec} {spectrast2tsv_py_path} -m {spectrast2tsv_additional_mods_path} -g -17.03,-18.01 -l 250,2000 -s b,y -x 1,2 -o 3 -n 6 -p 0.05 -d -e -k openswath -a output_irt_con.tsv output_file_irt_con.splib
-#outfile:output_irt_con.tsv
-"""
-
-
-	spectrast_cmds = spectrast_cmds_part1 + spectrast_cmds_part2 + spectrast_cmds_part3
 
 phi_log = workdir / "philosopher.log"
 
@@ -504,109 +401,88 @@ def get_pep_ion_minprob(opt: Filter_option, philosopher_filter_log: str = None):
 	assert len(res2) == 2, res2
 	return res2[opt.value]
 
-
-if use_spectrast:
-	def spectrast_cmd(prob):
-		return [
-				   os_fspath(SPECTRAST_PATH),
-				   '-M', 'spectrast.usermods',
-				   "-c_BIN!",
-				   f"-cP{prob}",
-				   "-cIHCD", f"-cN{workdir / 'input000'}"] + \
-					 list(map(os_fspath, iproph_pep_xmls))
-
-
-	spectrast_first = '## Run spectrast to build spectral library\n' + ' '.join(spectrast_cmd('?'))
-if use_easypqp:
-	if len(spectra_files0) == 1 and not spectra_files0[0].exists():
-		mzXMLs = sorted(e.resolve() for e in iproph_RT_aligned.glob('*.mzXML'))
-		mzMLs = sorted(e.resolve() for e in iproph_RT_aligned.glob('*.mzML'))
-		mgfs = sorted(e.resolve() for e in iproph_RT_aligned.glob('*.mgf'))
-		if len(mzXMLs) > 0:
-			spectra_files = mzXMLs
-		elif len(mzMLs) > 0:
-			spectra_files = mzMLs
-		else:
-			spectra_files = mgfs
+if len(spectra_files0) == 1 and not spectra_files0[0].exists():
+	mzXMLs = sorted(e.resolve() for e in iproph_RT_aligned.glob('*.mzXML'))
+	mzMLs = sorted(e.resolve() for e in iproph_RT_aligned.glob('*.mzML'))
+	mgfs = sorted(e.resolve() for e in iproph_RT_aligned.glob('*.mgf'))
+	if len(mzXMLs) > 0:
+		spectra_files = mzXMLs
+	elif len(mzMLs) > 0:
+		spectra_files = mzMLs
 	else:
-		spectra_files = [e.resolve(strict=True) for e in spectra_files0 if e.exists()]
-		if all([os.fspath(e).endswith('calibrated.mzML') for e in spectra_files0]):
-			print('Using (un)calibrated.mzML files.')
-		if len(spectra_files) == 0:
-			raise RuntimeError([os.fspath(e) for e in iproph_RT_aligned.iterdir()])
-	psm_tsv_file = iproph_RT_aligned / 'psm.tsv'
-	peptide_tsv_file = iproph_RT_aligned / 'peptide.tsv'
-	'easypqp convert --pepxml interact.pep.xml --spectra 1.mgf --unimod unimod.xml --exclude-range -1.5,3.5'
+		spectra_files = mgfs
+else:
+	spectra_files = [e.resolve(strict=True) for e in spectra_files0 if e.exists()]
+	if all([os.fspath(e).endswith('calibrated.mzML') for e in spectra_files0]):
+		print('Using (un)calibrated.mzML files.')
+	if len(spectra_files) == 0:
+		raise RuntimeError([os.fspath(e) for e in iproph_RT_aligned.iterdir()])
+psm_tsv_file = iproph_RT_aligned / 'psm.tsv'
+peptide_tsv_file = iproph_RT_aligned / 'peptide.tsv'
+'easypqp convert --pepxml interact.pep.xml --spectra 1.mgf --unimod unimod.xml --exclude-range -1.5,3.5'
 
-	dd = [pd.DataFrame({'modified_peptide': [e[0] for e in biognosys_rtkit_sorted],
-						'precursor_charge': np.repeat(i, len(biognosys_rtkit_sorted)),
-						'irt': [e[1] for e in biognosys_rtkit_sorted]
-						# 'im':
-						})
-		  for i in range(1, 8)]
-	irt_df = pd.concat(dd).reset_index(drop=True)
-	irt_file = workdir / 'irt.tsv'
-	im_file = workdir / 'im.tsv'
-	# irt_df.to_csv(irt_file, index=False, sep='\t', lineterminator='\n')
-	'''easypqp convert --pepxml 1.pep_xml --spectra 1.mgf --exclude-range -1.5,3.5
-	easypqp convert --pepxml 2.pep_xml --spectra 2.mgf --exclude-range -1.5,3.5'''
-	'easypqp convert --pepxml interact.pep.xml --spectra 1.mgf --unimod unimod.xml --exclude-range -1.5,3.5'
-	f'easypqp library --psmtsv {psm_tsv_file} --rt_reference {irt_file} --out out.tsv *.psmpkl *.peakpkl'
-	# https://github.com/grosenberger/easypqp/blob/master/easypqp/data/unimod.xml?raw=true
-	# http://www.unimod.org/xml/unimod.xml
-	from typing import List
-	def pairing_pepxml_spectra_v3(spectras: List[pathlib.PurePath], pep_xmls: List[pathlib.PurePath]):
-		rec = re.compile('(.+?)(?:_(?:un)?calibrated)?')
-		spectra_files_basename = [rec.fullmatch(e.stem)[1] for e in spectras]
-		assert len(set(spectra_files_basename)) == len(spectras), [sorted(set(spectra_files_basename)), sorted(spectras)]
-		if len(pep_xmls) == 1:
-			return list(zip(spectra_files_basename, [''] * len(spectras), spectras, pep_xmls * len(spectras)))
-		rec2 = re.compile('(?:interact-)?(.+?)(?:_rank[0-9]+)?')
-		pepxml_basename = [
-			rec2.fullmatch(name_no_ext(e))[1] for e in
-			pep_xmls]
-		l = [[p for p, bn in zip(pep_xmls, pepxml_basename) if e.casefold() == bn.casefold()] for e in spectra_files_basename]
+dd = [pd.DataFrame({'modified_peptide': [e[0] for e in biognosys_rtkit_sorted],
+					'precursor_charge': np.repeat(i, len(biognosys_rtkit_sorted)),
+					'irt': [e[1] for e in biognosys_rtkit_sorted]
+					# 'im':
+					})
+		for i in range(1, 8)]
+irt_df = pd.concat(dd).reset_index(drop=True)
+irt_file = workdir / 'irt.tsv'
+im_file = workdir / 'im.tsv'
+'''easypqp convert --pepxml 1.pep_xml --spectra 1.mgf --exclude-range -1.5,3.5
+easypqp convert --pepxml 2.pep_xml --spectra 2.mgf --exclude-range -1.5,3.5'''
+'easypqp convert --pepxml interact.pep.xml --spectra 1.mgf --unimod unimod.xml --exclude-range -1.5,3.5'
+f'easypqp library --psmtsv {psm_tsv_file} --rt_reference {irt_file} --out out.tsv *.psmpkl *.peakpkl'
+# https://github.com/grosenberger/easypqp/blob/master/easypqp/data/unimod.xml?raw=true
+# http://www.unimod.org/xml/unimod.xml
+from typing import List
+def pairing_pepxml_spectra_v3(spectras: List[pathlib.PurePath], pep_xmls: List[pathlib.PurePath]):
+	rec = re.compile('(.+?)(?:_(?:un)?calibrated)?')
+	spectra_files_basename = [rec.fullmatch(e.stem)[1] for e in spectras]
+	assert len(set(spectra_files_basename)) == len(spectras), [sorted(set(spectra_files_basename)), sorted(spectras)]
+	if len(pep_xmls) == 1:
+		return list(zip(spectra_files_basename, [''] * len(spectras), spectras, pep_xmls * len(spectras)))
+	rec2 = re.compile('(?:interact-)?(.+?)(?:_rank[0-9]+)?')
+	pepxml_basename = [
+		rec2.fullmatch(name_no_ext(e))[1] for e in
+		pep_xmls]
+	l = [[p for p, bn in zip(pep_xmls, pepxml_basename) if e.casefold() == bn.casefold()] for e in spectra_files_basename]
 
-		def get_rank(name):
-			mo = re.compile('_rank[0-9]+$').search(name_no_ext(name))
-			return '' if mo is None else mo[0]
+	def get_rank(name):
+		mo = re.compile('_rank[0-9]+$').search(name_no_ext(name))
+		return '' if mo is None else mo[0]
 
-		l2 = [(basename, get_rank(p), s, p) for basename, s, ps in zip(spectra_files_basename, spectras, l) for p in ps]
-		return l2
-	runname_rank_spectra_pepxml = pairing_pepxml_spectra_v3(spectra_files, iproph_pep_xmls)
-	runname_rank_spectra_pepxml_collapse_rank = list((k[0], '', k[1], [ee[3] for ee in v]) for k, v in itertools.groupby(runname_rank_spectra_pepxml, key=lambda e: (e[0], e[2])))
-	convert_outs = [f'{basename}{rank}' for basename, rank, _, _ in runname_rank_spectra_pepxml_collapse_rank]
-	easypqp_convert_cmds = [[resolve_mapped(easypqp), 'convert', *easypqp_convert_extra_args,'--enable_unannotated', '--pepxml', repr([resolve_mapped(pep_xml).replace("'","\\'") for pep_xml in pep_xmls]), '--spectra', resolve_mapped(spectra), '--exclude-range', '-1.5,3.5',
-							 '--psms', f'{outfiles}.psmpkl', '--peaks', f'{outfiles}.peakpkl']
-							for (_, _, spectra, pep_xmls), outfiles in zip(runname_rank_spectra_pepxml_collapse_rank, convert_outs)]
-	easypqp_library_infiles = [workdir / (e + '.psmpkl') for e in convert_outs] + \
-														[workdir / (e + '.peakpkl') for e in convert_outs]
-	easyPQP_tempfiles = easypqp_library_infiles + \
-											[workdir / (e + '_run_peaks.tsv') for e in convert_outs] + \
-											[workdir / 'easypqp_lib_openswath.tsv']
-	filelist_easypqp_library = workdir / 'filelist_easypqp_library.txt'
-	filelist_easypqp_library.write_text('\n'.join(map(os.fspath, easypqp_library_infiles)))
-	use_iRT = irt_choice is not Irt_choice.no_iRT
-	use_im = im_choice is not Im_choice.no_im
-	filelist_arg = [resolve_mapped(filelist_easypqp_library)]
-	def easypqp_library_cmd(use_irt: bool, use_im: bool):
-	# def easypqp_library_cmd(pep_fdr: float = None, prot_fdr: float = None):
-		return [resolve_mapped(easypqp), 'library',
-				# '--peptide_fdr_threshold', str(pep_fdr), '--protein_fdr_threshold', str(prot_fdr),
-				'--psmtsv', resolve_mapped(psm_tsv_file), '--peptidetsv', resolve_mapped(peptide_tsv_file), ] + \
-			   (['--rt_reference', resolve_mapped(irt_file)] if use_irt else []) + \
-			   (['--im_reference', resolve_mapped(im_file)] if use_im else []) + \
-			   ['--out', 'easypqp_lib_openswath.tsv'] + easypqp_library_extra_args + filelist_arg
+	l2 = [(basename, get_rank(p), s, p) for basename, s, ps in zip(spectra_files_basename, spectras, l) for p in ps]
+	return l2
+runname_rank_spectra_pepxml = pairing_pepxml_spectra_v3(spectra_files, iproph_pep_xmls)
+runname_rank_spectra_pepxml_collapse_rank = list((k[0], '', k[1], [ee[3] for ee in v]) for k, v in itertools.groupby(runname_rank_spectra_pepxml, key=lambda e: (e[0], e[2])))
+convert_outs = [f'{basename}{rank}' for basename, rank, _, _ in runname_rank_spectra_pepxml_collapse_rank]
+easypqp_convert_cmds = [[resolve_mapped(easypqp), 'convert', *easypqp_convert_extra_args,'--enable_unannotated', '--pepxml', repr([resolve_mapped(pep_xml).replace("'", "\\'") for pep_xml in pep_xmls]), '--spectra', resolve_mapped(spectra), '--exclude-range', '-1.5,3.5',
+ '--psms', f'{outfiles}.psmpkl', '--peaks', f'{outfiles}.peakpkl']
+						for (_, _, spectra, pep_xmls), outfiles in zip(runname_rank_spectra_pepxml_collapse_rank, convert_outs)]
+easypqp_library_infiles = [workdir / (e + '.psmpkl') for e in convert_outs] + \
+													[workdir / (e + '.peakpkl') for e in convert_outs]
+easyPQP_tempfiles = easypqp_library_infiles + \
+										[workdir / (e + '_run_peaks.tsv') for e in convert_outs] + \
+										[workdir / 'easypqp_lib_openswath.tsv']
+filelist_easypqp_library = workdir / 'filelist_easypqp_library.txt'
+filelist_easypqp_library.write_text('\n'.join(map(os.fspath, easypqp_library_infiles)))
+use_iRT = irt_choice is not Irt_choice.no_iRT
+use_im = im_choice is not Im_choice.no_im
+filelist_arg = [resolve_mapped(filelist_easypqp_library)]
+def easypqp_library_cmd(use_irt: bool, use_im: bool):
+	return [resolve_mapped(easypqp), 'library',
+			'--psmtsv', resolve_mapped(psm_tsv_file), '--peptidetsv', resolve_mapped(peptide_tsv_file), ] + \
+			 (['--rt_reference', resolve_mapped(irt_file)] if use_irt else []) + \
+			 (['--im_reference', resolve_mapped(im_file)] if use_im else []) + \
+			 ['--out', 'easypqp_lib_openswath.tsv'] + easypqp_library_extra_args + filelist_arg
 
 
-	easypqp_cmds = '\n'.join(' '.join(map(shlex.quote, e)) for e in easypqp_convert_cmds) + '\n' + \
-				   ' '.join(map(lambda x: shlex.quote(os.fspath(x)), easypqp_library_cmd(use_iRT, use_im)))
+easypqp_cmds = '\n'.join(' '.join(map(shlex.quote, e)) for e in easypqp_convert_cmds) + '\n' + \
+				 ' '.join(map(lambda x: shlex.quote(os.fspath(x)), easypqp_library_cmd(use_iRT, use_im)))
 
-allcmds = '\n\n'.join(e.strip() for e in
-					  ([] if (skip_philosopher_filter or use_easypqp) else [phi_cmd_part1, phi_cmd_part2]) +
-					  ([spectrast_first, spectrast_cmds] if use_spectrast else []) +
-					  ([easypqp_cmds] if use_easypqp else []))
-
+allcmds = '\n\n'.join(e.strip() for e in [easypqp_cmds])
 
 
 def filter_proteins(fasta, decoy_prefix):
@@ -616,45 +492,16 @@ def filter_proteins(fasta, decoy_prefix):
 	### get the iRT protein sequences
 	gen = (e.split("\n", 1)[0].split(' ', 1)[0] for e in fasta.read_text()[1:].split("\n>"))
 	irt_prots_with_decoys = [e for e in gen if "iRT" in e]  # decoy sequences included
-	# assert len(irt_prots_with_decoys) % 2 == 0, irt_prots_with_decoys
 	irt_prots = frozenset(e for e in irt_prots_with_decoys if not e.startswith(decoy_prefix))
-	# assert len(irt_prots_with_decoys) == len(irt_prots) * 2, irt_prots
-	# print("irt_prots_with_decoys",irt_prots_with_decoys)
-	# print("irt_prots",irt_prots)
 	if use_peptide_tsv:
 		print(f'using {peptide_tsv_path} to filter the library')
 		philosopher_peptide_tsv = pd.read_csv(peptide_tsv_path, sep='\t')
 		proteins_fas = frozenset(philosopher_peptide_tsv['Protein'])
 	else:
 		fasta_file = workdir / "protein.fas"
-		# gen0 = (e.split("\n", 1)[0].split(' ', 1)[0] for e in fasta_file.read_text()[1:].split("\n>"))
-		# proteins_fas = frozenset(filter(lambda x: not x.startswith(decoy_prefix), gen0))
 		proteins_fas = frozenset(e.split("\n", 1)[0].split(' ', 1)[0] for e in fasta_file.read_text()[1:].split("\n>"))
 
-	recomp = re.compile(r"(Comment: .+\bProtein=)(?:\d+)/(\S+)(.+\n)")
-
 	from typing import List, Optional
-	def handle_unit_OLD(lines: List[str]) -> Optional[List[str]]:
-		mos = map(recomp.fullmatch, lines)
-		[(comment_idx, mo)] = [(i, mo) for i, mo in enumerate(mos) if mo is not None]
-		prot_list_str = mo.group(2)
-		prot_list = frozenset(prot_list_str.split("/"))
-		prot_list_filt = (prot_list & proteins_fas) | \
-						 frozenset(e for e in prot_list_str.split("/") if e in irt_prots)
-						# frozenset(e for e in prot_list_str.split("/") if "iRT" in e)
-		idx = lines.index(f"LibID: {libID_orig}\n")
-		lines[idx] = f"LibID: {libID}\n"
-		if prot_list != prot_list_filt:
-			prot_list_str_new = "/".join([str(len(prot_list_filt))] + sorted(prot_list_filt))
-			lines[comment_idx] = mo.group(1) + shlex.quote(prot_list_str_new) + mo.group(3)
-
-		# if len(prot_list_filt) > 0:
-		# fout.writelines(txt)
-		# fout.write("\n")
-		# libID += 1
-		return None \
-			if len(prot_list_filt) == 0 else \
-			lines
 
 	recomp3 = re.compile(r'(Comment: .+\bProtein=)'
 						 r'(?:(?:\d+)/(\S+)|"(?:\d+)/(.+?)")'  # with double quotes
@@ -687,71 +534,12 @@ def filter_proteins(fasta, decoy_prefix):
 			txt = [line]
 			for line in iter(f.readline, "\n"):
 				txt.append(line)
-			outtxt=handle_unit(txt)
+			outtxt = handle_unit(txt)
 			if outtxt is not None:
 				fout.writelines(outtxt)
 				fout.write("\n")
-				libID+=1
+				libID += 1
 			libID_orig += 1
-
-
-def main0():
-
-	workdir.mkdir(exist_ok=overwrite)
-	print(f'''Spectral library building
-Commands to execute:
-{allcmds}
-{'~' * 69}''', flush=True)
-	(workdir / "cmds.txt").write_text(allcmds)
-	pep_ion_minprob=get_pep_ion_minprob(
-		Filter_option.all
-		# Filter_option.by_2D_filtering
-		,
-		philosopher_filter_log_path.read_text() if skip_philosopher_filter else None
-	)
-	# http://tools.proteomecenter.org/wiki/index.php?title=Software:SpectraST#User-defined_Modifications
-	# http://tools.proteomecenter.org/wiki/index.php?title=Spectrast.usermods
-	(workdir / 'spectrast.usermods').write_text(
-		r'''M|+16|
-C|+57|
-n|+42|
-C|119.004099|Cysteinyl
-c|-0.02|AmidatedCorrected
-''')
-	'''
-	c|-0.984016|Amidated
-	c[c[17]]|-0.984016|Amidated
-	'''
-	cmd2 = " ".join(spectrast_cmd(pep_ion_minprob))
-	print(f'Executing:{cmd2}\n')
-	(workdir / "cmds2.txt").write_text(cmd2)
-	subprocess.run(spectrast_cmd(pep_ion_minprob), cwd=os_fspath(workdir), check=True)
-
-	# print("take only proteins from philosopher’s protein.fas")
-	filter_proteins(fasta, decoy_prefix)
-	# swathwindowssetup_file_path.write_text(txt, "ascii")
-	if is_DIA_Umpire_output:
-		print("modifying splib file to combine Q[123] from DIA-umpire")
-		modify_splib()
-
-	print(f'Executing:{spectrast_cmds_part1}\n')
-	subprocess.run(adjust_command(spectrast_cmds_part1), shell=True, cwd=os_fspath(workdir), check=True)
-	if align_with_iRT:
-		print(f'Executing:{spectrast_cmds_part2}\n')
-		cp = subprocess.run(adjust_command(spectrast_cmds_part2), shell=True, cwd=os_fspath(workdir), check=not True,
-												stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-		if cp.returncode != 0:
-			print('Skipping iRT alignment\n')
-			(workdir / 'spectrast2spectrast_irt.log').write_bytes(cp.stdout)
-			shutil.move(workdir / 'output_file_irt_con001.splib', workdir / 'output_file_irt_con.splib')
-		else:
-			print(cp.stdout.decode())
-			print('iRT alignment done\n')
-	else:
-		shutil.move(workdir / 'output_file_irt_con001.splib', workdir / 'output_file_irt_con.splib')
-	spectrast2tsv_additional_mods_path.write_text(spectrast2tsv_additional_mods_tsv_txt)
-	print(f'Executing:{spectrast_cmds_part3}\n')
-	subprocess.run(adjust_command(spectrast_cmds_part3), shell=True, cwd=os_fspath(workdir), check=True)
 
 
 def main_easypqp():
@@ -776,11 +564,6 @@ Commands to execute:
 	(output_directory / 'cmds.txt').write_text(allcmds)
 	subprocess.run([os.fspath(easypqp), '--version'], check=True)
 	procs = []
-	# for i, e in enumerate(easypqp_convert_cmds):
-	# 	while sum(p.poll() is None for p in procs) >= nproc:
-	# 		time.sleep(1)
-	# 	procs.append(subprocess.Popen(e, cwd=os_fspath(workdir), stdout=open(output_directory / f'easypqp_convert_{i}.log', 'w'), stderr=subprocess.STDOUT))
-	# 	print(f'Executing {e}')
 	for i, e in enumerate(easypqp_convert_cmds):
 		print(f'Executing {e}')
 		subprocess.run(e, cwd=os_fspath(workdir))
@@ -864,32 +647,13 @@ def format_con_lib_for_DIA_NN(t: pd.DataFrame):
 			  'ProteinName':'ProteinId'}, axis=1, inplace=False, errors='raise')
 
 def edit_raw_con_lib():
-	# p = data_directory / "ProteinProphet/interact.prot.xml"
 	p = prot_xml_file
-	import concurrent.futures
-	# with concurrent.futures.ProcessPoolExecutor(1) as exe:
-		# l = exe.submit(get_prot_group_infos2, p).result()
 	l = get_prot_group_infos2(p)
-	# l = get_prot_group_infos(p)
 	to_rep_prot_dict = {prot: representative_protein
 						for representative_protein, indistinguishable_proteins, _ in l
 						for prot in indistinguishable_proteins}
-	# for prot in [representative_protein] + indistinguishable_proteins}
-
-	def proteinName_to_list(s: str) -> List[str]:
-		numstr, *protlist = s.split("/")
-		assert int(numstr) == len(protlist)
-		# return sorted({to_rep_prot_dict[e] for e in protlist})
-		return sorted({to_rep_prot_dict.get(e, e) for e in protlist})
 
 	prot_razor_dict = get_prot_razor_dict(l)
-
-	def select_one_prot(protlist: List[str]) -> str:
-		# print(sorted([(prot_razor_dict.get(prot, (0, 0.0)), prot) for prot in protlist]))
-		return max(protlist, key=lambda x: prot_razor_dict.get(x, (0, 0.0)))
-		return max(protlist, key=prot_razor_dict.__getitem__)
-		m = max([(prot_razor_dict[prot], prot) for prot in protlist])
-		return m[1]
 
 	import pandas as pd, pathlib
 	t = pd.read_csv("output_irt_con.tsv", sep='\t')
@@ -934,27 +698,6 @@ def edit_raw_con_lib():
 		format_con_lib_for_DIA_NN(t[t["Protein"].notnull()]).to_csv(sep='\t', index=False, lineterminator='\n').replace('(UniMod:5)', '(UniMod:1)')
 	)
 
-if use_spectrast:
-	main0()
-
-	os.chdir(os_fspath(workdir))
-	edit_raw_con_lib()
-	if delete_temp_files:
-		for f in TEMP_FILES:
-			try:
-				pathlib.Path(f).unlink()
-			except FileNotFoundError as e:
-				pass
-	else:
-		print('not deleting temporary files:')
-		for f in TEMP_FILES:
-			try:
-				print(pathlib.Path(f).resolve(strict=True))
-			except FileNotFoundError as e:
-				pass
-
-	os.chdir(CWD)
-
 def easypqp_lib_export(lib_type: str):
 	import pandas as pd
 
@@ -977,19 +720,17 @@ def easypqp_lib_export(lib_type: str):
 		easypqp_lib['ModifiedPeptideSequence'] = easypqp_lib['ModifiedPeptideSequence'].str.replace('.(UniMod:', '(UniMod:', regex=False)
 	pd.concat([easypqp_lib, frag_df, avg_experimental_rt], axis=1).to_csv(f'library.tsv', sep='\t', index=False)
 
-
-if use_easypqp:
-	main_easypqp()
-	os.chdir(os_fspath(workdir))
-	easypqp_lib_export('Spectronaut')
-	cwd = pathlib.Path()
-	if delete_temp_files:
-		for f in easyPQP_tempfiles:
-			try:
-				f.unlink()
-			except FileNotFoundError as e:
-				lg.info(f'{f} does not exist')
-	os.chdir(CWD)
+main_easypqp()
+os.chdir(os_fspath(workdir))
+easypqp_lib_export('Spectronaut')
+cwd = pathlib.Path()
+if delete_temp_files:
+	for f in easyPQP_tempfiles:
+		try:
+			f.unlink()
+		except FileNotFoundError as e:
+			lg.info(f'{f} does not exist')
+os.chdir(CWD)
 
 # Move alignment PDF files to easypqp_files directory
 output_directory = os.path.join(workdir, "easypqp_files")
@@ -1005,6 +746,4 @@ for tt in glob.glob('easypqp_im_alignment_*.pdf'):
 
 print('Done generating spectral library')
 lg.info(f'took {datetime.timedelta(seconds=timeit.default_timer() - START)}')
-# if __name__=='__main__':
-# 	main()
 
