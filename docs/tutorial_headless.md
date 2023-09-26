@@ -1,6 +1,6 @@
 # Running FragPipe in command line interface (headless mode)
 
-For most desktop users, we recommend running FragPipe in GUI mode ([https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html)). Users can also use FragPipe on remote server with X forwarding ([https://fragpipe.nesvilab.org/docs/tutorial_setup_x_forwarding.html](https://fragpipe.nesvilab.org/docs/tutorial_setup_x_forwarding.html)).
+__For most desktop users, we recommend running FragPipe in GUI mode ([https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html)). Users can also use FragPipe on remote server with X forwarding ([https://fragpipe.nesvilab.org/docs/tutorial_setup_x_forwarding.html](https://fragpipe.nesvilab.org/docs/tutorial_setup_x_forwarding.html)).__
 
 To run FragPipe in command line interface, using `fragpipe` (Linux) or `fragpipe.bat` (Windows) in `fragpipe/bin` directory with the following commands:
 
@@ -22,7 +22,13 @@ Options:
         --config-ionquant <string>      # (optional) specify the location of the IonQuant jar file. If not specified, using the one in the cache.
         --config-philosopher <string>   # (optional) specify the location of the Philosopher binary file. If not specified, using the one in the cache.
         --config-python <string>        # (optional) specify the location of the Python directory. If not specified, using the one in the cache.
+To let FragPipe find the TMT annotation file, put the mzML files from the same experiment in the same folder. Then, create the annotation file with the name ending with annotation.txt in the folder.
+Note: There must be only one annotation file in each folder.
 ```
+
+To let FragPipe find the TMT annotation file in the headless mode, put the mzML files from the same experiment in the same folder. Then, create the annotation file with the name ending with `annotation.txt` in the folder.
+
+__Note: There must be only one annotation file in each folder.__
 
 To get the workflow and manifest files, running FragPipe GUI, set the parameters, save the workflow to custom folder, and save the manifest file. These two files can also be edited by any text editor.
 
