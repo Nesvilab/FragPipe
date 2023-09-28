@@ -1130,6 +1130,7 @@ public class FragpipeRun {
 
     CmdCheckCentroid cmdCheckCentroid = new CmdCheckCentroid(true, wd);
     addConfig.accept(cmdCheckCentroid, () -> {
+      cmdCheckCentroid.setRun(cmdCheckCentroid.isRun() && !sharedLcmsFiles.isEmpty());;
       if (cmdCheckCentroid.isRun()) {
         return cmdCheckCentroid.configure(jarPath, ramGb, threads, sharedLcmsFiles);
       }
@@ -1155,6 +1156,7 @@ public class FragpipeRun {
     final UmpirePanel umpirePanel = Fragpipe.getStickyStrict(UmpirePanel.class);
     final CmdUmpireSe cmdUmpire = new CmdUmpireSe(umpirePanel.isRun(), wd);
     addConfig.accept(cmdUmpire, () -> {
+      cmdUmpire.setRun(cmdUmpire.isRun() && !sharedLcmsFiles.isEmpty());
       if (cmdUmpire.isRun()) {
         if (!cmdUmpire.configure(parent, isDryRun, jarPath, ramGb, Paths.get(binMsfragger.getBin()), umpirePanel, sharedLcmsFiles)) {
           return false;
@@ -1188,6 +1190,7 @@ public class FragpipeRun {
     final TreeMap<InputLcmsFile, List<Path>> sharedPepxmlFiles = new TreeMap<>();
 
     addConfig.accept(cmdMsfragger, () -> {
+      cmdMsfragger.setRun(cmdMsfragger.isRun() && !sharedLcmsFiles.isEmpty());
       if (cmdMsfragger.isRun()) {
         if (!cmdMsfragger.configure(parent, isDryRun, jarPath, binMsfragger, fastaFile, tabMsf.getParams(), tabMsf.getNumDbSlices(), ramGb, sharedLcmsFiles, decoyTag, tabWorkflow.hasDataType("DDA"), tabWorkflow.hasDataType("DIA"), tabWorkflow.hasDataType("GPF-DIA"), tabWorkflow.hasDataType("DIA-Lib"), tabWorkflow.hasDataType("WWA"), cmdUmpire.isRun(), tabRun.isWriteSubMzml())) {
           return false;
@@ -1225,6 +1228,7 @@ public class FragpipeRun {
     final CmdCrystalc cmdCrystalc = new CmdCrystalc(crystalcPanel.isRun(), wd);
 
     addConfig.accept(cmdCrystalc, () -> {
+      cmdCrystalc.setRun(cmdCrystalc.isRun()  && !sharedPepxmlFiles.isEmpty());
       if (cmdCrystalc.isRun()) {
         CrystalcParams ccParams = crystalcPanel.toParams();
         if (threads > 0) {
@@ -1245,6 +1249,7 @@ public class FragpipeRun {
     final MSBoosterPanel MSBoosterPanel = Fragpipe.getStickyStrict(MSBoosterPanel.class);
     final CmdMSBooster cmdMSBooster = new CmdMSBooster(MSBoosterPanel.isRun(), wd);
     addConfig.accept(cmdMSBooster, () -> {
+      cmdMSBooster.setRun(cmdMSBooster.isRun() && !sharedPepxmlFilesFromMsfragger.isEmpty());
       if (cmdMSBooster.isRun()) {
         return cmdMSBooster.configure(parent, ramGb, threads, sharedPepxmlFilesFromMsfragger, MSBoosterPanel.predictRt(), MSBoosterPanel.predictSpectra(), MSBoosterPanel.useCorrelatedFeatures(), tabWorkflow.hasDataType("DDA"), tabWorkflow.hasDataType("DIA"), tabWorkflow.hasDataType("GPF-DIA"), tabWorkflow.hasDataType("DIA-Lib"), tabWorkflow.hasDataType("WWA"), cmdUmpire.isRun(), tabMsf.isOpenSearch());
       }
@@ -1269,6 +1274,7 @@ public class FragpipeRun {
 
     final Map<InputLcmsFile, List<Path>> sharedPepxmlFilesBeforePeptideValidation = new HashMap<>();
     addConfig.accept(cmdPeptideProphet, () -> {
+      cmdPeptideProphet.setRun(cmdPeptideProphet.isRun() && !sharedPepxmlFiles.isEmpty());
       sharedPepxmlFilesBeforePeptideValidation.putAll(sharedPepxmlFiles);
       if (cmdPeptideProphet.isRun()) {
         final String pepProphCmd = pepProphPanel.getCmdOpts();
@@ -1301,6 +1307,7 @@ public class FragpipeRun {
     });
 
     addConfig.accept(cmdPercolator, () -> {
+      cmdPercolator.setRun(cmdPercolator.isRun() && !sharedPepxmlFilesBeforePeptideValidation.isEmpty());
       if (cmdPercolator.isRun()) {
         final String percolatorCmd = percolatorPanel.getCmdOpts();
         if (!cmdPercolator.configure(parent, jarPath, percolatorCmd, isCombinedPepxml_percolator, sharedPepxmlFilesBeforePeptideValidation, crystalcPanel.isRun(), percolatorPanel.getMinProb(), decoyTag, tabMsf.isWriteCalMzml() && tabMsf.getMassCalibration() > 0, tabRun.isWriteSubMzml())) {
@@ -1320,13 +1327,13 @@ public class FragpipeRun {
     final PtmProphetPanel panelPtmProphet = Fragpipe.getStickyStrict(PtmProphetPanel.class);
     final CmdPtmProphet cmdPtmProphet = new CmdPtmProphet(panelPtmProphet.isRun(), wd);
     addConfig.accept(cmdPtmProphet, () -> {
-
       // PeptideProphet is run, so we run adjustments of the pepxml files.
       List<Tuple2<InputLcmsFile, Path>> lcmsToPepxml = Seq.seq(sharedPepxmlFiles)
           .flatMap(tuple -> tuple.v2.stream().map(o -> new Tuple2<>(tuple.v1, o)))
           .toList();
 
-      if (panelPtmProphet.isRun()) {
+      cmdPtmProphet.setRun(cmdPtmProphet.isRun() && !lcmsToPepxml.isEmpty());
+      if (cmdPtmProphet.isRun()) {
         return cmdPtmProphet.configure(parent, panelPtmProphet.getCmdLineOpts(), lcmsToPepxml, threads);
       }
       return true;
@@ -1339,6 +1346,7 @@ public class FragpipeRun {
     final CmdProteinProphet cmdProteinProphet = new CmdProteinProphet(isRunProteinProphet, wd);
 
     addConfig.accept(cmdProteinProphet, () -> {
+      cmdProteinProphet.setRun(cmdProteinProphet.isRun() && !sharedPepxmlFiles.isEmpty());
       final boolean isMuiltiExperimentReport = sharedLcmsFileGroups.size() > 1;
       if (cmdProteinProphet.isRun()) {
         final String protProphCmdStr = protProphPanel.getCmdOpts();
@@ -1351,17 +1359,15 @@ public class FragpipeRun {
       return true;
     });
 
-    final boolean isReport = reportPanel.isRun();
     final QuantPanelLabelfree quantPanelLabelfree = Fragpipe
         .getStickyStrict(QuantPanelLabelfree.class);
     final boolean isFreequant = quantPanelLabelfree.isRunFreeQuant();
 
     // run Report - DbAnnotate
-    final boolean isDbAnnotate = isReport;
-    final CmdPhilosopherDbAnnotate cmdPhilosopherDbAnnotate = new CmdPhilosopherDbAnnotate(
-        isDbAnnotate, wd);
+    final CmdPhilosopherDbAnnotate cmdPhilosopherDbAnnotate = new CmdPhilosopherDbAnnotate(reportPanel.isRun(), wd);
 
     addConfig.accept(cmdPhilosopherDbAnnotate, () -> {
+      cmdPhilosopherDbAnnotate.setRun(cmdPhilosopherDbAnnotate.isRun() && !sharedPepxmlFiles.isEmpty());
       if (cmdPhilosopherDbAnnotate.isRun()) {
         return cmdPhilosopherDbAnnotate
             .configure(parent, ramGb, threads, usePhi, fastaFile, decoyTag, sharedPepxmlFiles.firstKey());
@@ -1370,7 +1376,7 @@ public class FragpipeRun {
     });
 
     // run Report - Filter
-    final CmdPhilosopherFilter cmdPhilosopherFilter = new CmdPhilosopherFilter(isReport, wd);
+    final CmdPhilosopherFilter cmdPhilosopherFilter = new CmdPhilosopherFilter(reportPanel.isRun(), wd);
 
     addCheck.accept(() -> {
       if (cmdPhilosopherFilter.isRun()) {
@@ -1380,6 +1386,7 @@ public class FragpipeRun {
     });
 
     addConfig.accept(cmdPhilosopherFilter, () -> {
+      cmdPhilosopherFilter.setRun(cmdPhilosopherFilter.isRun() && !sharedPepxmlFiles.isEmpty());
       if (cmdPhilosopherFilter.isRun()) {
         final boolean isCheckFilterNoProtxml = reportPanel.isNoProtXml();
 
@@ -1435,11 +1442,12 @@ public class FragpipeRun {
     final TmtiPanel tmtiPanel = Fragpipe.getStickyStrict(TmtiPanel.class);
 
     // run Report - Report command itself
-    final CmdPhilosopherReport cmdPhilosopherReport = new CmdPhilosopherReport(isReport, wd);
+    final CmdPhilosopherReport cmdPhilosopherReport = new CmdPhilosopherReport(reportPanel.isRun(), wd);
     final boolean doPrintDecoys = reportPanel.isPrintDecoys();
     final boolean doMSstats = reportPanel.isMsstats() && !quantPanelLabelfree.isRunIonQuant(); // Don't let Philosopher generate MSstats files if IonQuant is going to run because IonQuant will generate them.
 
     addConfig.accept(cmdPhilosopherReport, () -> {
+      cmdPhilosopherReport.setRun(cmdPhilosopherReport.isRun() && !sharedMapGroupsToProtxml.isEmpty());
       if (cmdPhilosopherReport.isRun()) {
         final boolean isMultiExpReport = sharedLcmsFileGroups.size() > 1;
         return cmdPhilosopherReport.configure(parent, ramGb, threads, usePhi, doPrintDecoys, doMSstats, isMultiExpReport, reportPanel.isRemoveContaminants(), sharedMapGroupsToProtxml);
@@ -1475,8 +1483,9 @@ public class FragpipeRun {
     });
 
     // run Report - Freequant (Labelfree)
-    final CmdFreequant cmdFreequant = new CmdFreequant(isReport && isFreequant, wd);
+    final CmdFreequant cmdFreequant = new CmdFreequant(reportPanel.isRun() && isFreequant, wd);
     addConfig.accept(cmdFreequant, () -> {
+      cmdFreequant.setRun(cmdFreequant.isRun() && !sharedMapGroupsToProtxml.isEmpty());
       if (cmdFreequant.isRun()) {
         return cmdFreequant.configure(parent, usePhi, quantPanelLabelfree.getFreequantOptsAsText(), sharedMapGroupsToProtxml, tmtiPanel.isRun(), tabMsf.isOpenSearch());
       }
@@ -1487,6 +1496,7 @@ public class FragpipeRun {
     PTMSGlycanAssignPanel ptmsGlycanPanel = Fragpipe.getStickyStrict(PTMSGlycanAssignPanel.class);
     final CmdAppendFile cmdAppendFile = new CmdAppendFile(ptmsGlycanPanel.isRun() && quantPanelLabelfree.isRunIonQuant(), wd);
     addConfig.accept(cmdAppendFile,  () -> {
+      cmdAppendFile.setRun(cmdAppendFile.isRun() && !sharedPepxmlFilesFromMsfragger.isEmpty());
       if (cmdAppendFile.isRun()) {
         return cmdAppendFile.configure(parent, jarPath,"modmasses_ionquant.txt", "ptm-shepherd-output/glyco_masses_list.txt");
       }
@@ -1521,6 +1531,7 @@ public class FragpipeRun {
       modMassSet.addAll(tabMsf.getMassOffsetSet());
 
       addConfig.accept(cmdIonquant,  () -> {
+        cmdIonquant.setRun(cmdIonquant.isRun() && !sharedPepxmlFilesFromMsfragger.isEmpty());
         if (cmdIonquant.isRun()) {
           OPairPanel oPairPanel = Bus.getStickyEvent(OPairPanel.class);
           if (oPairPanel == null) {
@@ -1535,11 +1546,11 @@ public class FragpipeRun {
 
     // run TMT-Integrator
     final boolean isTmt = tmtiPanel.isRun();
-    final boolean isTmtLqFq = tmtiPanel.isRunFqLq();
+    final boolean isTmtLqFq = isTmt && tmtiPanel.isRunFqLq();
     final CmdTmtIntegrator cmdTmt = new CmdTmtIntegrator(isTmt, wd);
 
     addConfig.accept(cmdTmt, () -> {
-      if (isTmt) {
+      if (isTmt && !sharedMapGroupsToProtxml.isEmpty()) {
         if (sharedLcmsFiles.stream().anyMatch(f -> !f.getPath().getFileName().toString().toLowerCase().endsWith(".mzml") && !f.getPath().getFileName().toString().toLowerCase().endsWith(".raw"))) {
           SwingUtils.showWarningDialog(parent, CmdTmtIntegrator.NAME + " only supports mzML and raw files.\nPlease remove other files from the input list.", CmdTmtIntegrator.NAME + " error");
           return false;
@@ -1569,6 +1580,7 @@ public class FragpipeRun {
       return true;
     });
     addConfig.accept(cmdTmtFreequant, () -> {
+      cmdTmtFreequant.setRun(cmdTmtFreequant.isRun() && !sharedMapGroupsToProtxml.isEmpty());
       if (cmdTmtFreequant.isRun()) {
         return cmdTmtFreequant.configure(parent, usePhi, quantPanelLabelfree.getFreequantOptsAsText(), sharedMapGroupsToProtxml, tmtiPanel.isRun(), tabMsf.isOpenSearch());
       }
@@ -1604,6 +1616,7 @@ public class FragpipeRun {
     });
 
     addConfig.accept(cmdTmtLabelQuant, () -> {
+      cmdTmtLabelQuant.setRun(cmdTmtLabelQuant.isRun() && !sharedMapGroupsToProtxml.isEmpty());
       if (cmdTmtLabelQuant.isRun()) {
         QuantLabel label = tmtiPanel.getSelectedLabel();
         String quantLevel = tmtiPanel.getQuantLevel();
@@ -1621,6 +1634,7 @@ public class FragpipeRun {
     final OPairPanel oPairPanel = Fragpipe.getStickyStrict(OPairPanel.class);
     CmdPairScans cmdPairScans = new CmdPairScans(oPairPanel.isRun(), wd);
     addConfig.accept(cmdPairScans, () -> {
+      cmdPairScans.setRun(cmdPairScans.isRun() && !sharedLcmsFiles.isEmpty());
       if (cmdPairScans.isRun()) {
         return cmdPairScans.configure(parent, Paths.get(binMsfragger.getBin()), jarPath, ramGb, threads, sharedLcmsFiles, oPairPanel.getOPairParams());
       }
@@ -1631,6 +1645,7 @@ public class FragpipeRun {
     CmdOPair cmdOPair = new CmdOPair(oPairPanel.isRun(), wd);
     OPairParams oPairParams = oPairPanel.getOPairParams();
     addConfig.accept(cmdOPair, () -> {
+      cmdOPair.setRun(cmdOPair.isRun() && !sharedMapGroupsToProtxml.isEmpty());
       if (cmdOPair.isRun()) {
         return cmdOPair.configure(parent, wd, sharedMapGroupsToProtxml, oPairParams, isDryRun, tabMsf.isWriteCalMzml() && tabMsf.getMassCalibration() > 0, threads);
       }
@@ -1654,6 +1669,7 @@ public class FragpipeRun {
       return true;
     });
     addConfig.accept(cmdPtmshepherd, () -> {
+      cmdPtmshepherd.setRun(cmdPtmshepherd.isRun() && !sharedMapGroupsToProtxml.isEmpty());
       if (cmdPtmshepherd.isRun()) {
         Path fastaPath = Paths.get(fastaFile);
         Map<String, String> additionalShepherdParams = ptmsPanel.toPtmsParamsMap();
@@ -1696,6 +1712,7 @@ public class FragpipeRun {
 
       // run TMT-Integrator a second time to provide unmodified peptide data as well as modified (does NOT rerun freequant/labelquant)
       addConfig.accept(cmdTmtFpop, () -> {
+        cmdTmtFpop.setRun(cmdTmtFpop.isRun() && !sharedMapGroupsToProtxml.isEmpty());
         if (sharedLcmsFiles.stream().anyMatch(f -> !f.getPath().getFileName().toString().toLowerCase().endsWith(".mzml") && !f.getPath().getFileName().toString().toLowerCase().endsWith(".raw"))) {
           SwingUtils.showWarningDialog(parent, CmdTmtIntegrator.NAME + " only supports mzML and raw files.\nPlease remove other files from the input list.", CmdTmtIntegrator.NAME + " error");
           return false;
@@ -1703,7 +1720,9 @@ public class FragpipeRun {
         return cmdTmtFpop.configure(tmtiPanel, isDryRun, ramGb, decoyTag, sharedMapGroupsToProtxml, doMSstats, tmtiPanel.getAnnotations(), true);
       });
     }
+
     addConfig.accept(cmdFpopQuant, () -> {
+      cmdFpopQuant.setRun(cmdFpopQuant.isRun() && !sharedMapGroupsToProtxml.isEmpty());
       if (cmdFpopQuant.isRun()) {
         return cmdFpopQuant.configure(parent);
       }
@@ -1725,6 +1744,7 @@ public class FragpipeRun {
         return false;
       }
 
+      cmdSpecLibGen.setRun(cmdSpecLibGen.isRun() && !sharedMapGroupsToProtxml.isEmpty());
       if (cmdSpecLibGen.isRun()) {
         NoteConfigSpeclibgen speclibConf = Fragpipe.getStickyStrict(NoteConfigSpeclibgen.class);
         if (!speclibConf.isValid()) {
@@ -1757,6 +1777,7 @@ public class FragpipeRun {
     // write sub mzML files
     final CmdWriteSubMzml cmdWriteSubMzml = new CmdWriteSubMzml(tabRun.isWriteSubMzml(), wd);
     addConfig.accept(cmdWriteSubMzml, () -> {
+      cmdWriteSubMzml.setRun(cmdWriteSubMzml.isRun() && !sharedLcmsFileGroups.isEmpty());
       if (cmdWriteSubMzml.isRun()) {
         return cmdWriteSubMzml.configure(parent, jarPath, ramGb, threads, sharedLcmsFileGroups, tabRun.getSubMzmlProbThreshold(), tabMsf.isRun());
       }
