@@ -150,7 +150,7 @@ public abstract class CmdBase {
     return isRun;
   }
 
-  public void isRun(boolean doRun) {
+  public void setRun(boolean doRun) {
     isRun = doRun;
   }
 

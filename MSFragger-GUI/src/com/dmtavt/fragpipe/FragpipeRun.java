@@ -1452,7 +1452,7 @@ public class FragpipeRun {
     addConfig.accept(cmdPhilosopherAbacus, () -> {
       final boolean isMultiExpReport = sharedLcmsFileGroups.size() > 1;
       final boolean doRunAbacus = cmdPhilosopherReport.isRun() && isMultiExpReport && !quantPanelLabelfree.isRunIonQuant() && (doMSstats || (!reportPanel.isNoProtXml() && reportPanel.isProtSummary()) || reportPanel.isPepSummary());
-      cmdPhilosopherAbacus.isRun(doRunAbacus);
+      cmdPhilosopherAbacus.setRun(doRunAbacus);
       if (cmdPhilosopherAbacus.isRun()) {
         int plex = 0;
         if (tmtiPanel.isRunFqLq()) {
@@ -1467,7 +1467,7 @@ public class FragpipeRun {
 
     final CmdIprophet cmdIprophet = new CmdIprophet(false, wd);
     addConfig.accept(cmdIprophet, () -> {
-      cmdIprophet.isRun(cmdPhilosopherAbacus.isRun() && !quantPanelLabelfree.isRunIonQuant() && reportPanel.isPepSummary());
+      cmdIprophet.setRun(cmdPhilosopherAbacus.isRun() && !quantPanelLabelfree.isRunIonQuant() && reportPanel.isPepSummary());
       if (cmdIprophet.isRun()) {
         return cmdIprophet.configure(parent, usePhi, decoyTag, threads, sharedPepxmlFiles);
       }
@@ -1785,7 +1785,7 @@ public class FragpipeRun {
               return false;
             }
           }
-          incompatible.forEach(cmd -> cmd.isRun(false));
+          incompatible.forEach(cmd -> cmd.setRun(false));
         }
       }
       return true;
@@ -1858,7 +1858,7 @@ public class FragpipeRun {
           log.warn(
               "Command [{}] is a required dependency of [{}]. Will be run despite being switched off.",
               next.getCmdName(), origin.getCmdName());
-          next.isRun(true);
+          next.setRun(true);
         }
       }
     }
