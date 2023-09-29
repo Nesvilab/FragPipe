@@ -41,7 +41,7 @@ if sys.version_info[:2] >= (3, 7):
 
 class Irt_choice(enum.Enum):
 	no_iRT = enum.auto()
-	iRT = enum.auto()
+	Biognosys_iRT = enum.auto()
 	ciRT = enum.auto()
 	Pierce_iRT = enum.auto()
 	userRT = enum.auto()
@@ -74,7 +74,7 @@ nproc = max(cpu_count() - 1, 1) if nproc0 <= 0 else nproc0
 if len(sys.argv) >= 9:
 	rta, ima = sys.argv[8].split(os.pathsep)
 	no_iRT = rta.casefold() == 'noirt'
-	is_iRT = rta.casefold() == 'irt'
+	is_Biognosys_iRT = rta.casefold() == 'Biognosys_iRT'.casefold()
 	is_ciRT = rta.casefold() == 'cirt'
 	is_Pierce_iRT = rta.casefold() == 'Pierce_iRT'.casefold()
 	is_userRT = pathlib.Path(rta).exists()
@@ -83,7 +83,7 @@ if len(sys.argv) >= 9:
 	is_userIM = pathlib.Path(ima).exists()
 	userIM_file = pathlib.Path(ima).resolve(strict=True) if is_userIM else None
 irt_choice = Irt_choice.no_iRT if no_iRT else \
-	Irt_choice.iRT if is_iRT else \
+	Irt_choice.Biognosys_iRT if is_Biognosys_iRT else \
 		Irt_choice.ciRT if is_ciRT else \
 			Irt_choice.Pierce_iRT if is_Pierce_iRT else \
 				Irt_choice.userRT if userRT_file else \
@@ -427,15 +427,11 @@ dd = [pd.DataFrame({'modified_peptide': [e[0] for e in biognosys_rtkit_sorted],
 					# 'im':
 					})
 		for i in range(1, 8)]
-irt_df = pd.concat(dd).reset_index(drop=True)
+Biognosys_iRT_df = pd.concat(dd).reset_index(drop=True)
+
 irt_file = workdir / 'irt.tsv'
 im_file = workdir / 'im.tsv'
-'''easypqp convert --pepxml 1.pep_xml --spectra 1.mgf --exclude-range -1.5,3.5
-easypqp convert --pepxml 2.pep_xml --spectra 2.mgf --exclude-range -1.5,3.5'''
-'easypqp convert --pepxml interact.pep.xml --spectra 1.mgf --unimod unimod.xml --exclude-range -1.5,3.5'
-f'easypqp library --psmtsv {psm_tsv_file} --rt_reference {irt_file} --out out.tsv *.psmpkl *.peakpkl'
-# https://github.com/grosenberger/easypqp/blob/master/easypqp/data/unimod.xml?raw=true
-# http://www.unimod.org/xml/unimod.xml
+
 from typing import List
 def pairing_pepxml_spectra_v3(spectras: List[pathlib.PurePath], pep_xmls: List[pathlib.PurePath]):
 	rec = re.compile('(.+?)(?:_(?:un)?calibrated)?')
@@ -471,6 +467,8 @@ filelist_easypqp_library.write_text('\n'.join(map(os.fspath, easypqp_library_inf
 use_iRT = irt_choice is not Irt_choice.no_iRT
 use_im = im_choice is not Im_choice.no_im
 filelist_arg = [resolve_mapped(filelist_easypqp_library)]
+
+
 def easypqp_library_cmd(use_irt: bool, use_im: bool):
 	return [resolve_mapped(easypqp), 'library',
 			'--psmtsv', resolve_mapped(psm_tsv_file), '--peptidetsv', resolve_mapped(peptide_tsv_file), ] + \
@@ -547,20 +545,23 @@ def main_easypqp():
 	workdir.mkdir(exist_ok=overwrite)
 	output_directory = workdir / 'easypqp_files'
 	output_directory.mkdir(exist_ok=overwrite)
-	if irt_choice is Irt_choice.iRT:
-		irt_df.to_csv(irt_file, index=False, sep='\t', lineterminator='\n')
+	if irt_choice is Irt_choice.Biognosys_iRT:
+		Biognosys_iRT_df.to_csv(irt_file, index=False, sep='\t', lineterminator='\n')
 	elif irt_choice is Irt_choice.ciRT:
 		shutil.copyfile(script_dir / 'hela_irtkit.tsv', irt_file)
 	elif irt_choice is Irt_choice.Pierce_iRT:
 		shutil.copyfile(script_dir / 'Pierce_iRT.tsv', irt_file)
 	elif irt_choice is Irt_choice.userRT:
 		shutil.copyfile(userRT_file, irt_file)
+
 	if im_choice is Im_choice.userIM:
 		shutil.copyfile(userIM_file, im_file)
+
 	print(f'''Spectral library building
 Commands to execute:
 {allcmds}
 {'~' * 69}''', flush=True)
+
 	(output_directory / 'cmds.txt').write_text(allcmds)
 	subprocess.run([os.fspath(easypqp), '--version'], check=True)
 	procs = []

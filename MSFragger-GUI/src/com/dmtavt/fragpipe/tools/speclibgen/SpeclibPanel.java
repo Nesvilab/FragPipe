@@ -153,7 +153,7 @@ public class SpeclibPanel extends JPanelBase {
 
     final String optionAuto = "Automatic selection of a run as reference RT";
     final String optionManual = "User provided RT calibration file";
-    pqpCal = Arrays.asList(optionAuto, "iRT", "ciRT", "Pierce_iRT", optionManual);
+    pqpCal = Arrays.asList(optionAuto, "Biognosys_iRT", "ciRT", "Pierce_iRT", optionManual);
     pqpType = Arrays.asList(EASYPQP_TIMSTOF, "non-timsTOF");
 
     uiComboPqpCal = UiUtils.createUiCombo(pqpCal);
@@ -406,7 +406,7 @@ public class SpeclibPanel extends JPanelBase {
   }
 
   public String getEasypqpCalOption() {
-    return new String[]{"noiRT", "iRT", "ciRT", "Pierce_iRT", "a tsv file"}[uiComboPqpCal.getSelectedIndex()];
+    return new String[]{"noiRT", "Biognosys_iRT", "ciRT", "Pierce_iRT", "a tsv file"}[uiComboPqpCal.getSelectedIndex()];
   }
   public String getEasypqpIMCalOption() {
     return new String[]{"noIM", "a tsv file"}[uiComboPqpIMCal.getSelectedIndex()];
