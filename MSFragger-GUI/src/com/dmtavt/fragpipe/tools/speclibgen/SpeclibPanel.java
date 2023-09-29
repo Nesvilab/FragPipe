@@ -158,7 +158,13 @@ public class SpeclibPanel extends JPanelBase {
 
     uiComboPqpCal = UiUtils.createUiCombo(pqpCal);
     FormEntry fePqpCal = new FormEntry("easypqp.rt-cal",
-        "RT calibration", uiComboPqpCal);
+        "RT calibration", uiComboPqpCal, SwingUtils.makeHtml(
+        "<b>Automatic selection of a run as reference RT</b> selects the run with the most identified peptides as a reference. Overlapped peptides are used for the alignment\n"
+            + "<b>Biognosys_iRT</b>, <b>ciRT</b>, and <b>Pierce_iRT</b> uses the peptides from the Biognosys iRT kit, common human peptides, and Pierce iRT kit to perform the alignment.\n"
+            + "For unfractionated data, <b>Automatic selection of a run as reference RT</b> is recommended.\n"
+            + "When building the library from fractionated data, there may be not enough overlapped peptides for the alignment. Should consider using the other options.\n"
+            + "<b>ciRT</b> is overall the safest option for human samples.\n"
+            + "Users can also provide their own iRT peptides by using the <b>User provided RT calibration file</b> option.\n"));
     final String optionIMManual = "User provided IM calibration file";
     uiComboPqpIMCal = UiUtils.createUiCombo(Arrays.asList("Automatic selection of a run as reference IM", optionIMManual));
     FormEntry fePqpIMCal = new FormEntry("easypqp.im-cal",
