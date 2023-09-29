@@ -1459,7 +1459,7 @@ public class FragpipeRun {
     final CmdPhilosopherAbacus cmdPhilosopherAbacus = new CmdPhilosopherAbacus(false, wd);
     addConfig.accept(cmdPhilosopherAbacus, () -> {
       final boolean isMultiExpReport = sharedLcmsFileGroups.size() > 1;
-      final boolean doRunAbacus = cmdPhilosopherReport.isRun() && isMultiExpReport && !quantPanelLabelfree.isRunIonQuant() && (doMSstats || (!reportPanel.isNoProtXml() && reportPanel.isProtSummary()) || reportPanel.isPepSummary());
+      final boolean doRunAbacus = cmdPhilosopherReport.isRun() && isMultiExpReport && !quantPanelLabelfree.isRunIonQuant() && (doMSstats || (isRunProteinProphet && !reportPanel.isNoProtXml() && reportPanel.isProtSummary()) || reportPanel.isPepSummary());
       cmdPhilosopherAbacus.setRun(doRunAbacus);
       if (cmdPhilosopherAbacus.isRun()) {
         int plex = 0;
@@ -1467,7 +1467,7 @@ public class FragpipeRun {
           QuantLabel label = tmtiPanel.getSelectedLabel();
           plex = label.getReagentNames().size();
         }
-        return cmdPhilosopherAbacus.configure(parent, usePhi, reportPanel.getFilterCmdText(), reportPanel.isProtSummary(), reportPanel.isPepSummary(), reportPanel.isNoProtXml(), decoyTag, plex, sharedMapGroupsToProtxml);
+        return cmdPhilosopherAbacus.configure(parent, usePhi, reportPanel.getFilterCmdText(), reportPanel.isProtSummary(), reportPanel.isPepSummary(), isRunProteinProphet, reportPanel.isNoProtXml(), decoyTag, plex, sharedMapGroupsToProtxml);
       }
       return true;
     });
