@@ -155,7 +155,7 @@ public class CmdSpecLibGen extends CmdBase {
 
       Path unimodPath;
       try {
-        unimodPath = getUnimodOboPath("unimod_old.obo"); // Use the same old unimod file as in OpenMS to avoid an error due to mismatches of some modifications.
+        unimodPath = getUnimodOboPath("unimod_old.xml"); // Use the same old unimod file as in OpenMS to avoid an error due to mismatches of some modifications.
       } catch (Exception ex) {
         ex.printStackTrace();
         return false;
@@ -166,7 +166,7 @@ public class CmdSpecLibGen extends CmdBase {
       final String fragment_types = speclibPanel.getEasypqp_fragment_types(); // EasyPQP convert
       final double rt_lowess_fraction = speclibPanel.getEasypqpRTLowessFraction(); // EasyPQP library
 
-      cmd.add(OsUtils.asSingleArgument(String.format("--unimod %s --max_delta_unimod %s --max_delta_ppm %s --fragment_types %s %s", unimodPath.toAbsolutePath(), max_delta_unimod, max_delta_ppm, fragment_types.replace("'", "\\'"), speclibPanel.hasNeutralLoss() ? "--enable_unspecific_losses" : ""))); // EasyPQP convert args
+      cmd.add(OsUtils.asSingleArgument(String.format("--unimod %s --max_delta_unimod %s --max_delta_ppm %s --fragment_types %s %s", unimodPath.toAbsolutePath().toString().replace("\\", "/"), max_delta_unimod, max_delta_ppm, fragment_types.replace("'", "\\'"), speclibPanel.hasNeutralLoss() ? "--enable_unspecific_losses" : ""))); // EasyPQP convert args
 
       cmd.add(OsUtils.asSingleArgument(String.format("--rt_lowess_fraction %s", rt_lowess_fraction))); // EasyPQP library args
 
