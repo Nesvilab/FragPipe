@@ -1390,7 +1390,7 @@ public class FragpipeRun {
       if (cmdPhilosopherFilter.isRun()) {
         final boolean isCheckFilterNoProtxml = reportPanel.isNoProtXml();
 
-        // if ProtProph is not run but protxml is there - query the user
+        // if ProteinProphet is not run but prot.xml is there - query the user
         boolean dontUseProtxmlInFilter;
         if (!isRunProteinProphet) {
           dontUseProtxmlInFilter = true; // default, but we will ask the user if the files are already there
@@ -1411,7 +1411,7 @@ public class FragpipeRun {
             }
           }
           if (allProtxmlsExist) {
-            // ProteinProphet is not run, but all protxmls are there
+            // ProteinProphet is not run, but all prot.xml are there
             if (Fragpipe.headless) {
               log.warn("ProteinProphet is not run, but prot.xml files for all groups do already exist: " + paths);
               dontUseProtxmlInFilter = false;
@@ -1427,8 +1427,8 @@ public class FragpipeRun {
               }
             }
           }
-        } else { // if (!isRunProteinProphet) {
-          // ProteinProphet is run, respenct the checkFilterNoProtxml checkbox
+        } else {
+          // ProteinProphet is run, respect the checkFilterNoProtxml checkbox
           dontUseProtxmlInFilter = isCheckFilterNoProtxml;
         }
 
