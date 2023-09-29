@@ -296,7 +296,7 @@ public class TmtiPanel extends JPanelBase {
     colBrowse = new ButtonColumn(tmtAnnotationTable, actionBrowse, 2);
     colCreate = new ButtonColumn(tmtAnnotationTable, actionCreate, 3);
 
-    p.add(new JLabel("Sample/Channel Annotation (rows will be filled when you assign LC-MS files to experiments)"), BorderLayout.NORTH);
+    p.add(new JLabel(SwingUtils.makeHtml("Sample/Channel Annotation (rows will be filled when you assign LC-MS files to experiments). To ignore certain channel, set the <b>sample name</b> to <b>NA</b>.")), BorderLayout.NORTH);
     tmtAnnotationTable.fireInitialization();
     tmtAnnotationTable.setFillsViewportHeight(false);
     scrollPaneTmtTable = new JScrollPane();
