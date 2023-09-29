@@ -316,7 +316,7 @@ public class PercolatorOutputToPepXML {
             final int indexOf_nmc = colnames.indexOf("nmc");
             int indexOf_spectralSimilarity = -1;
             int indexOf_RTscore = -1;
-            if (colnames.contains("bray_curtis")) {
+            if (colnames.contains("bray_curtis")) { //will need to adjust in future, if more scores are allowed
                 indexOf_spectralSimilarity = colnames.indexOf("bray_curtis");
             }
             if (colnames.contains("unweighted_spectral_entropy")) {
@@ -326,30 +326,6 @@ public class PercolatorOutputToPepXML {
                 indexOf_RTscore = colnames.indexOf("delta_RT_loess");
             }
             String line;
-
-            double scoreMean = 0;
-            double scoreStd = 0;
-            if (indexOf_RTscore != -1) {
-                //get all RTscores so we can calculate z scores
-                ArrayList<Double> RTscoresArrayList = new ArrayList<>();
-
-                while ((line = brtsv.readLine()) != null) {
-                    String[] split = line.split("\t");
-                    double score = Double.parseDouble(split[indexOf_RTscore]);
-                    RTscoresArrayList.add(score);
-                    scoreMean += score;
-                }
-                scoreMean /= RTscoresArrayList.size();
-                for (double d : RTscoresArrayList) {
-                    scoreStd += Math.pow(scoreMean - d, 2) / RTscoresArrayList.size();
-                }
-                scoreStd = Math.sqrt(scoreStd);
-                RTscoresArrayList.clear();
-
-                //go to beginning of file
-                brtsv = Files.newBufferedReader(pin);
-                brtsv.readLine();
-            }
 
             while ((line = brtsv.readLine()) != null) {
                 final String[] split = line.split("\t");
@@ -365,7 +341,7 @@ public class PercolatorOutputToPepXML {
                 }
                 float RTscore = Float.NaN;
                 if (indexOf_RTscore != -1) {
-                    RTscore = (float) ((Double.parseDouble(split[indexOf_RTscore]) - scoreMean) / scoreStd);
+                    RTscore = Float.parseFloat(split[indexOf_RTscore]);
                 }
                 pinSpectrumRankNttNmc.computeIfAbsent(specId, e -> new NttNmc[max_rank])[rank - 1] = new NttNmc(ntt, nmc, spectralSimilarity, RTscore);
             }
