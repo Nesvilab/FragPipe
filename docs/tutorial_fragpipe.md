@@ -239,8 +239,12 @@ Annotation files will be named 'annotation.txt' and saved in each folder. Only o
 
 ### Spectral library generation
 Spectral libraries can be generated within closed search-based workflows. A library will be generated for each experiment specified in the 'Workflow' tab. Experiments must contain more than one spectral file.
-
-When building a library from fractionated data, using one of the fractions for reference retention time (RT) or ion mobility (IM) calibration is not recommended. Instead, select ciRT for human samples or iRT spike-in peptides for other organisms if possible.
+- __Automatic selection of a run as reference RT__ selects the run with the most identified peptides as a reference. Overlapped peptides are used for the alignment
+- __Biognosys_iRT__, __ciRT__, and __Pierce_iRT__ uses the peptides from the Biognosys iRT kit, common human peptides, and Pierce iRT kit to perform the alignment
+- For unfractionated data, __Automatic selection of a run as reference RT__ is recommended
+- When building the library from fractionated data, there may be not enough overlapped peptides for the alignment. Should consider using the other options.
+- __ciRT__ is overall the safest option for human samples
+- Users can also provide their own iRT peptides by using the __User provided RT calibration file__ option
 
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-speclib.png)
 
