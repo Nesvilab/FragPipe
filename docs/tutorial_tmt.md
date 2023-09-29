@@ -71,6 +71,8 @@ where modification masses are specified with their respective modified residues.
 ### Quantification settings
 In the 'Quant (Isobaric)' tab, click the 'Edit/Create' button in the 'Sample/Channel Annotation' section. In the pop-up window, ensure 'TMT-10' is selected from the dropdown and click 'Load into table'. Sample names can now be edited, and will be automatically saved as an annotation.txt file in the sample folder. Instead of naming samples/channels in FragPipe using Edit/Create, you can make annotation files in advance (as long as the file names end in ‘annotation.txt’), which FragPipe will load automatically if it is in the same folder as the corresponding mzML files. When creating these files, make sure the value in first column (channel) and in the second column (sample name) are separated with a space.
 
+___Note__: To ignore certain channel in the normalization and TMT report, set the corresponding __sample name__ to __NA__._
+
 If a dataset is composed of more than one multiplexed sample, reference samples should be defined so quantification information from multiple plexes can be integrated. Choose 'Virtual' reference from the 'Define reference' dropdown if no reference sample has been included in the experiment. Real pooled samples or other reference channels should be labeled with 'pool' or a different tag specified in the 'Ref sample tag' box.
 
 From the 'Group by' menu, choose the desired level for quantification reports, or select 'All' to generate reports at all levels.
