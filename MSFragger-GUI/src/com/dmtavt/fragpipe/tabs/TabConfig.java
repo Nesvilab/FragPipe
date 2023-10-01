@@ -32,6 +32,7 @@ import com.dmtavt.fragpipe.exceptions.UnexpectedException;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
 import com.dmtavt.fragpipe.messages.MessageBalloon;
 import com.dmtavt.fragpipe.messages.MessageClearCache;
+import com.dmtavt.fragpipe.messages.MessageDiannNewBin;
 import com.dmtavt.fragpipe.messages.MessageFindSystemPython;
 import com.dmtavt.fragpipe.messages.MessageInstallEasyPQP;
 import com.dmtavt.fragpipe.messages.MessageIonQuantNewBin;
@@ -43,6 +44,7 @@ import com.dmtavt.fragpipe.messages.MessagePythonNewBin;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
 import com.dmtavt.fragpipe.messages.MessageUiRevalidate;
 import com.dmtavt.fragpipe.messages.NoteConfigDbsplit;
+import com.dmtavt.fragpipe.messages.NoteConfigDiann;
 import com.dmtavt.fragpipe.messages.NoteConfigIonQuant;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
@@ -50,6 +52,7 @@ import com.dmtavt.fragpipe.messages.NoteConfigPython;
 import com.dmtavt.fragpipe.messages.NoteConfigSpeclibgen;
 import com.dmtavt.fragpipe.messages.NoteFragpipeUpdate;
 import com.dmtavt.fragpipe.params.ThisAppProps;
+import com.dmtavt.fragpipe.tools.diann.Diann;
 import com.dmtavt.fragpipe.tools.fragger.Msfragger;
 import com.dmtavt.fragpipe.tools.fragger.Msfragger.Version;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerVersionFetcherServer;
@@ -143,7 +146,9 @@ public class TabConfig extends JPanelWithEnablement {
   private HtmlStyledJEditorPane epFraggerVer;
   private HtmlStyledJEditorPane epIonQuantVer;
   private UiText uiTextBinPhi;
+  private UiText uiTextBinDiann;
   private HtmlStyledJEditorPane epPhiVer;
+  private HtmlStyledJEditorPane epDiannVer;
   private UiText uiTextBinPython;
   private HtmlStyledJEditorPane epPythonVer;
   private HtmlStyledJEditorPane epDbsplitText;
@@ -155,6 +160,7 @@ public class TabConfig extends JPanelWithEnablement {
   public static final String TIP_MSFRAGGER_BIN = "tip.msfragger.bin";
   public static final String TIP_IONQUANT_BIN = "tip.ionquant.bin";
   public static final String TIP_PHILOSOPHER_BIN = "tip.pholosopher.bin";
+  public static final String TIP_DIANN_BIN = "tip.diann.bin";
   public static final String TIP_PYTHON_BIN = "tip.python.bin";
   private static final String TIP_DBSPLIT = "tip.dbsplit";
   private static final String TIP_SPECLIBGEN = "tip.speclibgen";
@@ -194,6 +200,7 @@ public class TabConfig extends JPanelWithEnablement {
     add(createPanelFragger(), new CC().growX().wrap());
     add(createPanelIonQuant(), new CC().growX().wrap());
     add(createPanelPhilosopher(), new CC().growX().wrap());
+    add(createPanelDiann(), new CC().growX().wrap());
     add(createPanelPython(), new CC().growX().wrap());
     add(createPanelDbsplit(), new CC().growX().wrap());
     add(createPanelSpeclibgen(), new CC().growX().wrap());
@@ -546,6 +553,21 @@ public class TabConfig extends JPanelWithEnablement {
     }
   }
 
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(MessageDiannNewBin m) {
+    if (StringUtils.isBlank(m.path)) {
+      Bus.postSticky(new NoteConfigDiann());
+      return;
+    }
+    try {
+      Diann.Version v = Diann.validate(m.path);
+      Bus.postSticky(new NoteConfigDiann(m.path, v.version, null, true));
+    } catch (Exception e) {
+      e.printStackTrace();
+      Bus.postSticky(new NoteConfigDiann());
+    }
+  }
+
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteConfigPhilosopher m) {
     log.debug("Got {}", m);
@@ -566,6 +588,25 @@ public class TabConfig extends JPanelWithEnablement {
       epPhiVer.setText("Philosopher version: " + m.version);
       Notifications.tryClose(TIP_PHILOSOPHER_BIN);
       checkPhilosopherUpdateAsync(m.path);
+    }
+  }
+
+  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(NoteConfigDiann m) {
+    log.debug("Got {}", m);
+    uiTextBinDiann.setText(m.path);
+
+    Path existing = PathUtils.existing(m.path);
+    if (existing != null) {
+      Fragpipe.propsVarSet(ThisAppProps.PROP_BINARIES_IN, existing.toString());
+    }
+
+    if (m.ex != null) {
+      epDiannVer.setText("DIA-NN version: N/A");
+      showConfigError(m.ex, TIP_DIANN_BIN, uiTextBinDiann, true);
+    } else {
+      epDiannVer.setText("DIA-NN version: " + m.version);
+      Notifications.tryClose(TIP_DIANN_BIN);
     }
   }
 
@@ -762,6 +803,12 @@ public class TabConfig extends JPanelWithEnablement {
       if (StringUtils.isNotBlank(binPhi)) {
         Bus.post(new MessagePhilosopherNewBin(binPhi));
       }
+      String binDiann = uiTextBinDiann.getNonGhostText();
+      if (StringUtils.isNotBlank(binDiann)) {
+        Bus.post(new MessageDiannNewBin(binDiann));
+      } else {
+        Bus.post(new MessageDiannNewBin());
+      }
       String binPython = uiTextBinPython.getNonGhostText();
       if (StringUtils.isNotBlank(binPython)) {
         Bus.post(new MessagePythonNewBin(binPython));
@@ -953,7 +1000,6 @@ public class TabConfig extends JPanelWithEnablement {
         .append(", <a href=\"").append("https://github.com/lonelu/PTMLocalization").append("\">O-Pair</a>")
         .append(", <a href=\"").append("https://tmt-integrator.nesvilab.org/").append("\">TMT-Integrator</a>")
         .append(", <a href=\"").append("https://github.com/grosenberger/easypqp").append("\">EasyPQP</a>")
-        .append(", <a href=\"").append("https://github.com/vdemichev/DiaNN").append("\">DIA-NN</a>")
         .append(", <a href=\"").append("https://github.com/Nesvilab/FragPipe-PDV").append("\">FragPipe-PDV</a>")
         .append(", <a href=\"").append("https://saint-apms.sourceforge.net/Main.html").append("\">SAINT</a>");
     return sb.toString();
@@ -995,6 +1041,31 @@ public class TabConfig extends JPanelWithEnablement {
     epPhiVer = new HtmlStyledJEditorPane("Philosopher version: N/A");
     p.add(Fragpipe.rename(epPhiVer, "philosopher.version-info", TAB_PREFIX, true), ccL().split());
     p.add(SwingUtils.createClickableHtml(createPhilosopherCitationBody()), ccL().spanX().growX().wrap());
+    return p;
+  }
+
+  private JPanel createPanelDiann() {
+    JPanel p = newMigPanel();
+    p.setBorder(new TitledBorder("DIA-NN"));
+
+    final String tip = "Select path to DIA-NN binary";
+    uiTextBinDiann = UiUtils.uiTextBuilder().create();
+    uiTextBinDiann.addFocusListener(new ContentChangedFocusAdapter(uiTextBinDiann, (s, s2) -> {
+      Bus.post(new MessageDiannNewBin(s2));
+    }));
+    FormEntry feBin = fe(uiTextBinDiann, "bin-diann", TAB_PREFIX).tooltip(tip).create();
+    p.add(feBin.comp, ccL().split().growX());
+
+    JButton btnBrowse = feBin.browseButton("Browse", tip, this::createDiannFilechooser, paths -> paths.stream().findFirst().ifPresent(bin -> Bus.post(new MessageDiannNewBin(bin.toString()))));
+    p.add(btnBrowse, ccL());
+    JButton btnDownload = UiUtils.createButton("Download", this::actionDiannDownload);
+    p.add(btnDownload, ccL().wrap());
+
+    p.add(SwingUtils.createClickableHtml("Path to DIA-NN executable file (<b>not</b> the installer file). If not customized, use the built-in version: " + Diann.fallBackDiannVersion), ccL().spanX().growX().wrap());
+
+    epDiannVer = new HtmlStyledJEditorPane("DIA-NN version: N/A");
+    p.add(Fragpipe.rename(epDiannVer, "diann.version-info", TAB_PREFIX, true), ccL().split());
+    p.add(SwingUtils.createClickableHtml(createDiannCitationBody()), ccL().spanX().growX().wrap());
     return p;
   }
 
@@ -1138,6 +1209,15 @@ public class TabConfig extends JPanelWithEnablement {
     return fc;
   }
 
+  private JFileChooser createDiannFilechooser() {
+    JFileChooser fc = FileChooserUtils.create("Select DIA-NN binary", "Select", false, FcMode.FILES_ONLY, true);
+    if (OsUtils.isWindows()) {
+      fc.addChoosableFileFilter(new FileNameExtensionFilter("Executables", "exe"));
+    }
+    FileChooserUtils.setPath(fc, Stream.of(uiTextBinPhi.getNonGhostText(), Fragpipe.propsVarGet(ThisAppProps.PROP_BINARIES_IN), JarUtils.getCurrentJarPath()));
+    return fc;
+  }
+
   private JFileChooser createPythonFilechooser() {
     JFileChooser fc = FileChooserUtils.create("Select Python " + pythonMinVersion + "+ binary", "Select",
         false, FcMode.FILES_ONLY, true);
@@ -1173,6 +1253,12 @@ public class TabConfig extends JPanelWithEnablement {
     return sb.toString();
   }
 
+  private String createDiannCitationBody() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("&emsp;More info and docs: <a href=\"https://github.com/vdemichev/DiaNN\">DIA-NN</a>");
+    return sb.toString();
+  }
+
   private void actionPhilosopherDownload(ActionEvent e) {
     int choice = SwingUtils.showChoiceDialog(TabConfig.this, "Choose download type", "Do you want to download automatically?\nIf you choose \"Manually\", you will be redirected to the download website.", new String[]{"Automatically", "Manually", "Cancel"}, 0);
     switch (choice) {
@@ -1190,5 +1276,9 @@ public class TabConfig extends JPanelWithEnablement {
         Philosopher.downloadPhilosopherManually();
         break;
     }
+  }
+
+  private void actionDiannDownload(ActionEvent e) {
+    Diann.downloadDiannManually();
   }
 }

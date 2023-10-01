@@ -149,6 +149,7 @@ public class Fragpipe extends JFrameHeadless {
   public static String workdir = null;
   public static String msfraggerBinPath = null;
   public static String philosopherBinPath = null;
+  public static String diannBinPath = null;
   public static String pythonBinPath = null;
   public static String ionquantBinPath = null;
 
@@ -415,6 +416,9 @@ public class Fragpipe extends JFrameHeadless {
       } else if (philosopherBinPath != null && (philosopherBinPath.isEmpty() || !Files.exists(Paths.get(philosopherBinPath)) || !Files.isReadable(Paths.get(philosopherBinPath)) || !Files.isRegularFile(Paths.get(philosopherBinPath)))) {
         System.err.println("Philosopher binary file path " + philosopherBinPath + " does not seem right.");
         System.exit(1);
+      } else if (diannBinPath != null && (diannBinPath.isEmpty() || !Files.exists(Paths.get(diannBinPath)) || !Files.isReadable(Paths.get(diannBinPath)) || !Files.isRegularFile(Paths.get(diannBinPath)))) {
+      System.err.println("DIA-NN executable file path " + diannBinPath + " does not seem right.");
+      System.exit(1);
       } else if (pythonBinPath != null && (pythonBinPath.isEmpty() || !Files.exists(Paths.get(pythonBinPath)) || !Files.isReadable(Paths.get(pythonBinPath)))) {
         System.err.println("Python path " + pythonBinPath + " does not seem right.");
         System.exit(1);
@@ -428,6 +432,9 @@ public class Fragpipe extends JFrameHeadless {
         }
         if (philosopherBinPath != null) {
           philosopherBinPath = Paths.get(philosopherBinPath).toAbsolutePath().toString();
+        }
+        if (diannBinPath != null) {
+          diannBinPath = Paths.get(diannBinPath).toAbsolutePath().toString();
         }
         if (pythonBinPath != null) {
           pythonBinPath = Paths.get(pythonBinPath).toAbsolutePath().toString();
@@ -463,6 +470,9 @@ public class Fragpipe extends JFrameHeadless {
     }
     if (philosopherBinPath != null) {
       propsFile.setProperty("fragpipe-config.bin-philosopher", philosopherBinPath);
+    }
+    if (diannBinPath != null) {
+      propsFile.setProperty("fragpipe-config.bin-diann", diannBinPath);
     }
     if (pythonBinPath != null) {
       propsFile.setProperty("fragpipe-config.bin-python", pythonBinPath);
@@ -1001,6 +1011,7 @@ public class Fragpipe extends JFrameHeadless {
     sb.append("\t--config-msfragger <string>     # (optional) specify the location of the MSFragger jar file. If not specified, using the one in the cache.\n");
     sb.append("\t--config-ionquant <string>      # (optional) specify the location of the IonQuant jar file. If not specified, using the one in the cache.\n");
     sb.append("\t--config-philosopher <string>   # (optional) specify the location of the Philosopher binary file. If not specified, using the one in the cache.\n");
+    sb.append("\t--config-diann <string>         # (optional) specify the location of the DIA-NN binary file (the actual executable file `DiaNN.exe`, not the DIA-NN installation file). If not specified, using the one in the cache. It could be from the previously configured or the build-in one.\n");
     sb.append("\t--config-python <string>        # (optional) specify the location of the Python directory. If not specified, using the one in the cache.\n");
     sb.append("To let FragPipe find the TMT annotation file, put the mzML files from the same experiment in the same folder. Then, create the annotation file with the name ending with annotation.txt in the folder.");
     sb.append("Note: There must be only one annotation file in each folder.\n");

@@ -41,13 +41,13 @@ import com.dmtavt.fragpipe.messages.MessageLcmsClearFiles;
 import com.dmtavt.fragpipe.messages.MessageLcmsFilesAdded;
 import com.dmtavt.fragpipe.messages.MessageLcmsFilesList;
 import com.dmtavt.fragpipe.messages.MessageLcmsGroupAction;
-import com.dmtavt.fragpipe.messages.MessageSDRFsave;
 import com.dmtavt.fragpipe.messages.MessageLcmsGroupAction.Type;
 import com.dmtavt.fragpipe.messages.MessageLcmsRemoveSelected;
 import com.dmtavt.fragpipe.messages.MessageLoadUi;
 import com.dmtavt.fragpipe.messages.MessageManifestLoad;
 import com.dmtavt.fragpipe.messages.MessageManifestSave;
 import com.dmtavt.fragpipe.messages.MessageOpenInExplorer;
+import com.dmtavt.fragpipe.messages.MessageSDRFsave;
 import com.dmtavt.fragpipe.messages.MessageSaveAsWorkflow;
 import com.dmtavt.fragpipe.messages.MessageType;
 import com.dmtavt.fragpipe.messages.MessageUpdateWorkflows;
@@ -82,7 +82,6 @@ import com.github.chhh.utils.swing.UiCombo;
 import com.github.chhh.utils.swing.UiSpinnerInt;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
-import com.github.chhh.utils.swing.UiCheck;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -91,7 +90,6 @@ import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -1439,6 +1437,8 @@ public class TabWorkflow extends JPanelWithEnablement {
   }
 
   private void adjustToolsBasedOnDataTypes() {
+    final NoteConfigDiann noteConfigDiann = Fragpipe.getStickyStrict(NoteConfigDiann.class);
+
     if (hasDataType("DIA") || hasDataType("DIA-Lib") || hasDataType("GPF-DIA")) {
       Bus.post(new NoteConfigUmpire(true));
       UmpirePanel umpirePanel = Fragpipe.getStickyStrict(UmpirePanel.class);
@@ -1456,9 +1456,9 @@ public class TabWorkflow extends JPanelWithEnablement {
       Bus.post(new NoteConfigIonQuant(NoteConfigIonQuant.path, NoteConfigIonQuant.version, NoteConfigIonQuant.isTooOld, false, NoteConfigIonQuant.ex));
       Bus.post(new NoteConfigTmtI(false));
       if (hasDataType("DIA")) {
-        Bus.post(new NoteConfigDiann(true));
+        Bus.post(new NoteConfigDiann(noteConfigDiann, true));
       } else {
-        Bus.post(new NoteConfigDiann(false));
+        Bus.post(new NoteConfigDiann(noteConfigDiann, false));
       }
     } else if (hasDataType("WWA")) {
       Bus.post(new NoteConfigUmpire(false));
@@ -1468,7 +1468,7 @@ public class TabWorkflow extends JPanelWithEnablement {
       Bus.post(new NoteConfigPtmShepherd(false));
       Bus.post(new NoteConfigIonQuant(NoteConfigIonQuant.path, NoteConfigIonQuant.version, NoteConfigIonQuant.isTooOld, true, NoteConfigIonQuant.ex));
       Bus.post(new NoteConfigTmtI(false));
-      Bus.post(new NoteConfigDiann(false));
+      Bus.post(new NoteConfigDiann(noteConfigDiann, false));
     } else {
       Bus.post(new NoteConfigUmpire(false));
       Bus.post(new NoteConfigCrystalC(true));
@@ -1477,11 +1477,11 @@ public class TabWorkflow extends JPanelWithEnablement {
       Bus.post(new NoteConfigPtmShepherd(true));
       Bus.post(new NoteConfigIonQuant(NoteConfigIonQuant.path, NoteConfigIonQuant.version, NoteConfigIonQuant.isTooOld, true, NoteConfigIonQuant.ex));
       Bus.post(new NoteConfigTmtI(true));
-      Bus.post(new NoteConfigDiann(false));
+      Bus.post(new NoteConfigDiann(noteConfigDiann, false));
     }
 
     if (hasDataType("DIA-Quant")) {
-      Bus.post(new NoteConfigDiann(true));
+      Bus.post(new NoteConfigDiann(noteConfigDiann, true));
     }
   }
 
