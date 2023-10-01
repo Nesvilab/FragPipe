@@ -124,7 +124,7 @@ public class Diann {
     });
 
     if (sbVer.length() == 0) {
-      throw new ValidationException("Version string not found for DIA-NN");
+      throw new ValidationException("Version string not found for DIA-NN from \"" + binPath + "\"");
     }
 
     return new Version(sbVer.toString(), false, DOWNLOAD_GITHUB_PAGE_URL);
