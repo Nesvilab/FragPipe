@@ -1599,6 +1599,19 @@ public class TabWorkflow extends JPanelWithEnablement {
     return result;
   }
 
+  public Map<String, LcmsFileGroup> getLcmsFileGroups2() {
+    List<InputLcmsFile> lcmsInputs = tableModelRawFiles.dataCopy();
+    Map<String, List<InputLcmsFile>> mapGroup2Files = lcmsInputs.stream()
+        .collect(Collectors.groupingBy(InputLcmsFile::getGroup2));
+
+    Map<String, LcmsFileGroup> result = new TreeMap<>();
+    for (Entry<String, List<InputLcmsFile>> e : mapGroup2Files.entrySet()) {
+      result.put(e.getKey(), new LcmsFileGroup(e.getKey(), e.getValue()));
+    }
+
+    return result;
+  }
+
   public List<InputLcmsFile> getLcmsFiles() {
     return tableModelRawFiles.dataCopy();
   }

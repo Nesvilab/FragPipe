@@ -131,6 +131,17 @@ public class InputLcmsFile implements Comparable<InputLcmsFile> {
         return experiment;
     }
 
+    public String getGroup2() {
+        if (getReplicate() != null) {
+            if (StringUtils.isNullOrWhitespace(experiment)) {
+                return "exp_" + getReplicate();
+            } else {
+                return experiment + "_" + getReplicate();
+            }
+        }
+        return experiment;
+    }
+
     public String getExperiment() {
         return experiment;
     }
