@@ -155,7 +155,7 @@ public class OsUtils {
 
     public static String asSingleArgument(final String s) {
         String p = s.trim();
-        if (p.contains(" ") && !p.startsWith("\"") && !p.endsWith("\"")) {
+        if (isWindows() && p.contains(" ") && !p.startsWith("\"") && !p.endsWith("\"")) {
             return "\"" + p + "\"";
         } else {
             return p;
