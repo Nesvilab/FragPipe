@@ -153,10 +153,12 @@ public class OsUtils {
         }
     }
 
-    /**
-     * Make a string as a single argument, in Windows an argument with spaces need to be quoted
-     */
     public static String asSingleArgument(final String s) {
-        return isWindows() ? "\"" + s + "\"" : s;
+        String p = s.trim();
+        if (p.contains(" ") && !p.startsWith("\"") && !p.endsWith("\"")) {
+            return "\"" + p + "\"";
+        } else {
+            return p;
+        }
     }
 }
