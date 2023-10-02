@@ -19,6 +19,7 @@ package com.dmtavt.fragpipe.cmd;
 
 import static com.dmtavt.fragpipe.cmd.ToolingUtils.BATMASS_IO_JAR;
 import static com.dmtavt.fragpipe.cmd.ToolingUtils.JFREECHART_JAR;
+import static com.dmtavt.fragpipe.cmd.ToolingUtils.generateExperimentAnnotation;
 import static com.github.chhh.utils.SwingUtils.showErrorDialogWithStacktrace;
 
 import com.dmtavt.fragpipe.Fragpipe;
@@ -30,7 +31,6 @@ import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
 import java.awt.Component;
 import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
@@ -270,15 +270,7 @@ public class CmdIonquant extends CmdBase {
 
     if (!isDryRun) {
       try {
-        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(wd.resolve("experiment_annotation.tsv").toFile()));
-        bufferedWriter.write("file\tsample\tsample_name\tcondition\treplicate\n");
-        for (LcmsFileGroup lcmsFileGroup : mapGroupsToProtxml.keySet()) {
-          for (InputLcmsFile inputLcmsFile : lcmsFileGroup.lcmsFiles) {
-            String[] parts = inputLcmsFile.getExperiment().split("_");
-            bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getGroup() + "\t" + inputLcmsFile.getGroup() + "\t" + parts[0].trim() + "\t" + (inputLcmsFile.getReplicate() == null ? 1 : inputLcmsFile.getReplicate()) + "\n");
-          }
-        }
-        bufferedWriter.close();
+        generateExperimentAnnotation(wd);
       } catch (Exception ex) {
         showErrorDialogWithStacktrace(ex, comp);
         return false;

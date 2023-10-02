@@ -18,11 +18,15 @@
 package com.dmtavt.fragpipe.cmd;
 
 import static com.github.chhh.utils.PathUtils.testBinaryPath;
+import static org.apache.commons.lang3.StringUtils.getCommonPrefix;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
+import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
+import com.dmtavt.fragpipe.api.LcmsFileGroup;
 import com.dmtavt.fragpipe.params.ThisAppProps;
+import com.dmtavt.fragpipe.tabs.TabWorkflow;
 import com.github.chhh.utils.FileCopy;
 import com.github.chhh.utils.FileDelete;
 import com.github.chhh.utils.FileMove;
@@ -32,21 +36,27 @@ import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
+import org.apache.commons.io.FilenameUtils;
 import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -229,6 +239,61 @@ public class ToolingUtils {
     Pattern isPhilosopherRegex = Pattern.compile("philosopher", Pattern.CASE_INSENSITIVE);
     Matcher matcher = isPhilosopherRegex.matcher(binPathToCheck);
     return matcher.find();
+  }
+
+  static void generateExperimentAnnotation(Path wd) throws Exception {
+    BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(wd.resolve("experiment_annotation.tsv").toFile()));
+    bufferedWriter.write("file\tsample\tsample_name\tcondition\treplicate\n");
+
+    TabWorkflow tabWorkflow = Bus.getStickyEvent(TabWorkflow.class);
+    Collection<LcmsFileGroup> ttt = tabWorkflow.getLcmsFileGroups2().values();
+
+    Set<String> fileNameSet = new HashSet<>();
+    for (LcmsFileGroup lcmsFileGroup : ttt) {
+      for (InputLcmsFile inputLcmsFile : lcmsFileGroup.lcmsFiles) {
+        String baseName = FilenameUtils.getBaseName(inputLcmsFile.getPath().getFileName().toString());
+        fileNameSet.add(baseName);
+      }
+    }
+    String commonPrefix = getCommonPrefix(fileNameSet.toArray(new String[0]));
+    int a = commonPrefix.length();
+
+    if (ttt.size() == 1 && ttt.iterator().next().name.isEmpty()) { // There is no group info from the manifest. Parse from the file name.
+      for (LcmsFileGroup lcmsFileGroup : ttt) {
+        for (InputLcmsFile inputLcmsFile : lcmsFileGroup.lcmsFiles) {
+          String baseName = FilenameUtils.getBaseName(inputLcmsFile.getPath().getFileName().toString());
+          String sampleName = baseName.substring(a);
+          String[] tt = sampleName.split("_");
+          if (tt.length == 3) {
+            try {
+              int replicate = Integer.parseInt(tt[2]);
+              bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getPath().toAbsolutePath() + "\t" + tt[0] + "_" + tt[1] + "\t" + tt[1] + "\t" + replicate + "\n");
+            } catch (Exception ex) {
+              bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getPath().toAbsolutePath() + "\t" + tt[0] + "_" + tt[1] + "\t" + tt[2] + "\t1\n");
+            }
+          } else if (tt.length == 2) {
+            try {
+              int replicate = Integer.parseInt(tt[1]);
+              bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getPath().toAbsolutePath() + "\t" + sampleName + "\t" + tt[0] + "\t" + replicate + "\n");
+            } catch (Exception ex) {
+              bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getPath().toAbsolutePath() + "\t" + sampleName + "\t" + tt[1] + "\t1\n");
+            }
+          } else {
+            bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getPath().toAbsolutePath() + "\t" + sampleName + "\t\t1\n");
+          }
+        }
+      }
+    } else { // There is group info from the manifest.
+      for (LcmsFileGroup lcmsFileGroup : ttt) {
+        for (InputLcmsFile inputLcmsFile : lcmsFileGroup.lcmsFiles) {
+          String baseName = FilenameUtils.getBaseName(inputLcmsFile.getPath().getFileName().toString());
+          String sampleName = baseName.substring(a);
+          String[] parts = inputLcmsFile.getExperiment().split("_");
+          bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getPath().toAbsolutePath() + "\t" + sampleName + "\t" + parts[0].trim() + "\t" + (inputLcmsFile.getReplicate() == null ? 1 : inputLcmsFile.getReplicate()) + "\n");
+        }
+      }
+    }
+    bufferedWriter.close();
   }
 
 }
