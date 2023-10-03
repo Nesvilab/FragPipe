@@ -153,6 +153,8 @@ public class CmdPercolator extends CmdBase {
         TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
         cmdPp.add("--num-threads");
         cmdPp.add("" + tabWorkflow.getThreads());
+        cmdPp.add("--subset-max-train");
+        cmdPp.add("500000"); // https://pubs.acs.org/doi/10.1007/s13361-016-1460-7 Fig 1
         cmdPp.add("--results-psms");
         cmdPp.add(strippedBaseName + "_percolator_target_psms.tsv");
         cmdPp.add("--decoy-results-psms");
