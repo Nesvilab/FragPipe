@@ -114,6 +114,7 @@ dependencies {
     implementation 'org.apache.maven:maven-artifact:3.8.5'
     implementation 'org.jgrapht:jgrapht-core:1.5.1'
     implementation 'com.github.vlsi.mxgraph:jgraphx:4.2.2'
+    implementation 'com.google.guava:guava:31.1-jre'
 
     implementation group: 'org.apache.commons', name: 'commons-compress', version: '1.21'
 

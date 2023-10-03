@@ -2053,8 +2053,8 @@ public class TabMsfragger extends JPanelBase {
         ArrayList<String> sitesWithTermini = updateSitesTerm(terminal, sites);
         String sitesTemp = String.join("", sites);
 
-        SDRFtable.SDRFUnimod matchedMod = SDRFtable.matchUnimod(mod.massDelta, sitesWithTermini);
-        String name = getModName(mod.massDelta, mod.sites, matchedMod);
+        String unimodName = SDRFtable.matchUnimod(mod.massDelta, sitesWithTermini);
+        String name = getModName(mod.massDelta, mod.sites, unimodName);
         String siteStr = sitesTemp.length() == 0 ? "" : String.format(";TA=%s", sitesTemp);
         String modStr = String.format("NT=%s;MT=Variable;PP=%s%s;MM=%.5f", name, terminal, siteStr, mod.massDelta);
         mods.add(modStr);
@@ -2077,8 +2077,8 @@ public class TabMsfragger extends JPanelBase {
           sitesStr = "";
         }
         ArrayList<String> sitesWithTermini = updateSitesTerm(terminal, sites);
-        SDRFtable.SDRFUnimod matchedMod = SDRFtable.matchUnimod(mod.massDelta, sitesWithTermini);
-        String name = getModName(mod.massDelta, mod.sites, matchedMod);
+        String unimodName = SDRFtable.matchUnimod(mod.massDelta, sitesWithTermini);
+        String name = getModName(mod.massDelta, mod.sites, unimodName);
         String modStr = String.format("NT=%s;MT=Fixed;PP=%s%s;MM=%.5f", name, terminal, sitesStr, mod.massDelta);
         mods.add(modStr);
       }
@@ -2086,8 +2086,8 @@ public class TabMsfragger extends JPanelBase {
     for (float mass : offsetSet) {
       if (!(mass == 0.0)) {
         ArrayList<String> sites = Arrays.stream(offsetResidues.split("")).collect(Collectors.toCollection(ArrayList::new));
-        SDRFtable.SDRFUnimod matchedMod = SDRFtable.matchUnimod(mass, sites);
-        String name = matchedMod != null ? matchedMod.name : String.format("offset:%.5f", mass);
+        String unimodName = SDRFtable.matchUnimod(mass, sites);
+        String name = unimodName != null ? unimodName : String.format("offset:%.5f", mass);
         String glycoSite = "";
         if (Objects.equals(uiComboGlyco.getSelectedItem(), GLYCO_OPTION_nglycan)) {
           glycoSite = "TS=N[^P][ST];";
@@ -2100,12 +2100,12 @@ public class TabMsfragger extends JPanelBase {
     return mods;
   }
 
-  private String getModName(double mass, String sites, SDRFtable.SDRFUnimod matchedMod) {
-    if (matchedMod == null) {
+  private String getModName(double mass, String sites, String unimodName) {
+    if (unimodName == null) {
       // Unimod either not matched or ambiguous: use our generic format
       return String.format("%s:%.0f", sites, mass);
     } else {
-      return matchedMod.name;
+      return unimodName;
     }
   }
 

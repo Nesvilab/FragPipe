@@ -22,10 +22,7 @@ import com.google.common.collect.TreeBasedTable;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,12 +33,14 @@ public class UnimodOboReader {
   private static final Pattern pattern2 = Pattern.compile("xref:\\s+delta_mono_mass\\s+\"([\\d.+-]+)\"");
   private static final Pattern pattern3 = Pattern.compile("xref:\\s+spec_\\d+_site\\s+\"(\\S+)\"");
 
-  public final Map<String, Float> unimodMassMap;
-  public final Table<Float, Character, Integer> massSiteUnimodTable;
+  public final Map<String, Float> unimodMassMap;                        // unimod ID (as "unimod: ##"), mass
+  public final Table<Float, Character, Integer> massSiteUnimodTable;    // mass, allowed site, unimod ID number
+  public final ArrayList<String> unimodDB;                              // mod info string ("mass;ID;name;sites")
 
   public  UnimodOboReader(Path path) throws Exception {
     unimodMassMap = new HashMap<>();
     massSiteUnimodTable = TreeBasedTable.create();
+    unimodDB = new ArrayList<>();
 
     BufferedReader reader = new BufferedReader(new FileReader(path.toFile()));
     String line;
@@ -60,6 +59,9 @@ public class UnimodOboReader {
               massSiteUnimodTable.put(term.mass, site, term.id);
             }
           }
+          StringBuilder siteBuilder = new StringBuilder();
+          term.sites.forEach(siteBuilder::append);
+          unimodDB.add(String.format("%s;%s;%s;%s", term.mass, term.id, term.name, siteBuilder.toString()));
         }
         term = new OboTerm();
       } else if (line.startsWith("id:")) {
@@ -76,6 +78,8 @@ public class UnimodOboReader {
         } else {
           throw new RuntimeException("Unexpected xref: delta_mono_mass format: " + line);
         }
+      } else if (term != null && term.id != Integer.MIN_VALUE && line.startsWith("name: ")) {
+        term.name = line.split(": ")[1];
       } else if (term != null && term.id != Integer.MIN_VALUE) {
         Matcher matcher = pattern3.matcher(line);
         if (matcher.matches()) {
@@ -99,6 +103,9 @@ public class UnimodOboReader {
           massSiteUnimodTable.put(term.mass, site, term.id);
         }
       }
+      StringBuilder siteBuilder = new StringBuilder();
+      term.sites.forEach(siteBuilder::append);
+      unimodDB.add(String.format("%s;%s;%s;%s", term.mass, term.id, term.name, siteBuilder.toString()));
     }
 
     reader.close();
@@ -109,6 +116,7 @@ public class UnimodOboReader {
     int id = Integer.MIN_VALUE;
     float mass = Float.NaN;
     Set<Character> sites = new HashSet<>();
+    String name = "";
   }
 }
 
