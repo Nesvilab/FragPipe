@@ -2163,14 +2163,6 @@ public class TabMsfragger extends JPanelBase {
   }
 
   public String getPrecTolString(){
-    Object calibration = uiComboMassCalibrate.getSelectedItem();
-    if (calibration != null) {
-      // do not write tolerances if parameter optimization is enabled, as they may be incorrect after optimization
-      if (calibration.equals(CALIBRATE_VALUE_OPTIMIZATION)) {
-        return "";
-      }
-    }
-
     Object unit = uiComboPrecursorTolUnits.getSelectedItem();
     if (unit == null || StringUtils.isNullOrWhitespace((String) unit)) {
       return "";
