@@ -65,7 +65,7 @@ public class DiannToMsstats {
     int globalQValueColumn = -1;
     int pgQValueColumn = -1;
     int globalPgQValueColumn = -1;
-    int fragmentQuantCorrectedColumn = -1;
+    int fragmentQuantRawColumn = -1;
     int fragmentInfoColumn = -1;
     BufferedReader bufferedReader = new BufferedReader(new FileReader(diannPath));
     while ((line = bufferedReader.readLine()) != null) {
@@ -89,8 +89,8 @@ public class DiannToMsstats {
             pgQValueColumn = i;
           } else if (header[i].trim().equalsIgnoreCase("global.pg.q.value")) {
             globalPgQValueColumn = i;
-          } else if (header[i].trim().equalsIgnoreCase("fragment.quant.corrected")) {
-            fragmentQuantCorrectedColumn = i;
+          } else if (header[i].trim().equalsIgnoreCase("fragment.quant.raw")) {
+            fragmentQuantRawColumn = i;
           } else if (header[i].trim().equalsIgnoreCase("fragment.info")) {
             fragmentInfoColumn = i;
           }
@@ -104,7 +104,7 @@ public class DiannToMsstats {
             globalQValueColumn == -1 ||
             pgQValueColumn == -1 ||
             globalPgQValueColumn == -1 ||
-            fragmentQuantCorrectedColumn == -1 ||
+            fragmentQuantRawColumn == -1 ||
             fragmentInfoColumn == -1) {
           throw new RuntimeException("Could not find all the required columns in the DIA-NN output file: " + diannPath);
         }
@@ -118,7 +118,7 @@ public class DiannToMsstats {
           String[] conditionBioreplicate = runConditionBioreplicateMap.get(run);
           String fragmentInfo = row[fragmentInfoColumn].trim();
           String[] fragmentInfoSplit = fragmentInfo.split(";");
-          String fragmentIntensity = row[fragmentQuantCorrectedColumn].trim();
+          String fragmentIntensity = row[fragmentQuantRawColumn].trim();
           String[] fragmentIntensitySplit = fragmentIntensity.split(";");
 
           if (fragmentInfoSplit.length != fragmentIntensitySplit.length) {
