@@ -1061,7 +1061,7 @@ public class TabConfig extends JPanelWithEnablement {
     JButton btnDownload = UiUtils.createButton("Download", this::actionDiannDownload);
     p.add(btnDownload, ccL().wrap());
 
-    p.add(SwingUtils.createClickableHtml("Path to DIA-NN executable file (<b>not</b> the installer file). If not customized, use the built-in version: " + Diann.fallBackDiannVersion), ccL().spanX().growX().wrap());
+    p.add(SwingUtils.createClickableHtml("Path to DIA-NN executable file. The file name is <b>DiaNN.exe</b>. Do not use DIA-NN.exe or the installer file. If not customized, use the built-in version " + Diann.fallBackDiannVersion), ccL().spanX().growX().wrap());
 
     epDiannVer = new HtmlStyledJEditorPane("DIA-NN version: N/A");
     p.add(Fragpipe.rename(epDiannVer, "diann.version-info", TAB_PREFIX, true), ccL().split());
