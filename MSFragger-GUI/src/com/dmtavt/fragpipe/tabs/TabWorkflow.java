@@ -298,7 +298,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     TableModelColumn<InputLcmsFile, Integer> colRep = new TableModelColumn<>(
         "Bioreplicate (can be empty and integer)", Integer.class, true, InputLcmsFile::getReplicate);
     TableModelColumn<InputLcmsFile, String> colDataType = new TableModelColumn<>(
-        "Data type (DDA, DIA, GPF-DIA, DIA-Quant, DIA-Lib)", String.class, true, InputLcmsFile::getDataType);
+        "Data type (DDA, DIA, GPF-DIA, DIA-Quant, DIA-Lib, WWA)", String.class, true, InputLcmsFile::getDataType);
 
     cols.add(colPath);
     cols.add(colExp);
