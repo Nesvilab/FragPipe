@@ -336,12 +336,6 @@ public class FragpipeRun {
 
       saveRuntimeConfig(wd);
 
-      if (tabRun.isSaveSDRF()) {
-        final TmtiPanel tmtiPanel = Fragpipe.getStickyStrict(TmtiPanel.class);
-        QuantLabel label = tmtiPanel.isRun() ? tmtiPanel.getSelectedLabel() : null;
-        Path sdrfPath = wd.resolve("sdrf.tsv");
-        Bus.post(new MessageSDRFsave(sdrfPath, true, label));
-      }
 
       // Converting process builders descriptors to process builder infos
       final List<ProcessBuilderInfo> pbis = pbDescsBuilderDescs.stream()
@@ -406,7 +400,7 @@ public class FragpipeRun {
       toConsole("", tabRun.console);
 
       // Write top annotation files to the console.
-      TmtiPanel tmtiPanel = Fragpipe.getStickyStrict(TmtiPanel.class);
+      final TmtiPanel tmtiPanel = Fragpipe.getStickyStrict(TmtiPanel.class);
       if (tmtiPanel.isRun()) {
         toConsole("~~~~~~annotation files~~~~~~~", tabRun.console);
         for (Path p : tmtiPanel.getAnnotations().values()) {
@@ -519,6 +513,13 @@ public class FragpipeRun {
         String totalTime = String.format("%.1f", (System.nanoTime() - startTime) * 1e-9 / 60);
         toConsole(Fragpipe.COLOR_RED_DARKEST, "\n=============================================================ALL JOBS DONE IN " + totalTime + " MINUTES=============================================================", true, tabRun.console);
         Bus.post(MessageSaveLog.saveInDir(wd));
+
+        // save SDRF after run to be able to check MSFragger optimized params from log
+        if (tabRun.isSaveSDRF()) {
+          QuantLabel label = tmtiPanel.isRun() ? tmtiPanel.getSelectedLabel() : null;
+          Path sdrfPath = wd.resolve("sdrf.tsv");
+          Bus.post(new MessageSDRFsave(sdrfPath, true, label, tabRun.console.getText()));
+        }
 
         if (tabRun.isWriteSubMzml()) { // write sub workflow and manifest files for the second-pass
           try {

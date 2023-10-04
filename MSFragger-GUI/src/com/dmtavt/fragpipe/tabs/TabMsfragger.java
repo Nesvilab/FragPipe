@@ -159,7 +159,7 @@ public class TabMsfragger extends JPanelBase {
   private static final Map<String, Function<String, String>> CONVERT_TO_FILE;
   private static final Map<String, Function<String, String>> CONVERT_TO_GUI;
   private static final String CALIBRATE_VALUE_OFF = "None";
-  private static final String CALIBRATE_VALUE_OPTIMIZATION = "Mass calibration, parameter optimization";
+  public static final String CALIBRATE_VALUE_OPTIMIZATION = "Mass calibration, parameter optimization";
   private static final String[] CALIBRATE_LABELS = {CALIBRATE_VALUE_OFF, "Mass calibration", CALIBRATE_VALUE_OPTIMIZATION};
   private static final String[] MASS_DIFF_TO_VAR_MOD = {"No", "Yes, keep delta mass", "Yes, remove delta mass"};
   private static final String[] GROUP_VARIABLE = {"None", "Number of enzymatic termini", "Protein evidence from FASTA file"};
@@ -320,7 +320,7 @@ public class TabMsfragger extends JPanelBase {
   private JPanel pContent;
   private ModsTable tableVarMods;
   private ModsTable tableFixMods;
-  private UiCombo uiComboMassCalibrate;
+  public UiCombo uiComboMassCalibrate;
   public UiCombo uiComboOutputType;
   private UiCombo uiComboMassMode;
   private UiCombo uiComboFragTolUnits;
@@ -2176,23 +2176,36 @@ public class TabMsfragger extends JPanelBase {
     }
   }
 
-  public String getProdTolString(){
+  public String getProdTolString(String logText){
+    String unit = "";
+    double tolerance = -1;
+    boolean useTolFromLog = false;
+
+    // if param optimization was enabled, read the optimized fragment tolerance from log
     Object calibration = uiComboMassCalibrate.getSelectedItem();
     if (calibration != null) {
-      // do not write tolerances if parameter optimization is enabled, as they may be incorrect after optimization
       if (calibration.equals(CALIBRATE_VALUE_OPTIMIZATION)) {
-        return "";
+        Pattern newFragTolPattern = Pattern.compile("New fragment_mass_tolerance = ([0-9\\.]+) ([\\w]+)");
+        Matcher matcher = newFragTolPattern.matcher(logText);
+        if (matcher.find()) {
+          tolerance = Double.parseDouble(matcher.group(1));
+          unit = matcher.group(2);
+          useTolFromLog = true;
+        }
       }
     }
 
-    Object unit = uiComboFragTolUnits.getSelectedItem();
-    if (unit == null || StringUtils.isNullOrWhitespace((String) unit)) {
-      return "";
+    if (!useTolFromLog) {
+      // read original tolerance from MSFragger params
+      unit = (String) uiComboFragTolUnits.getSelectedItem();
+      if (unit == null || StringUtils.isNullOrWhitespace(unit)) {
+        return "";
+      }
+      tolerance = uiSpinnerFragTol.getActualValue();
     }
 
-    double tolerance = uiSpinnerFragTol.getActualValue();
     if (unit.equals("PPM")) {
-      return String.format("%s %s", tolerance, unit.toString().toLowerCase());
+      return String.format("%s %s", tolerance, unit.toLowerCase());
     } else {
       return String.format("%.2f %s", tolerance, unit);
     }
