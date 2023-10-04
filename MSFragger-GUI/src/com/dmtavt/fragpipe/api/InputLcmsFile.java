@@ -101,18 +101,18 @@ public class InputLcmsFile implements Comparable<InputLcmsFile> {
     }
 
     public int compareTo(@NotNull InputLcmsFile other) { // the sorting here must be consistent with the one in LcmsFileGroup
-        Comparator<InputLcmsFile> comparator = Comparator.comparing(InputLcmsFile::getGroup).thenComparing(InputLcmsFile::getDataType).thenComparing(p -> p.path.toAbsolutePath().toString());
+        Comparator<InputLcmsFile> comparator = Comparator.comparing(InputLcmsFile::getGroup2).thenComparing(InputLcmsFile::getDataType).thenComparing(p -> p.path.toAbsolutePath().toString());
         return comparator.compare(this, other);
     }
 
     @Override
     public int hashCode() {
-        return (getPath().toAbsolutePath() + "-" + getGroup() + "-" + getDataType()).hashCode();
+        return (getPath().toAbsolutePath() + "-" + getGroup2() + "-" + getDataType()).hashCode();
     }
 
     @Override
     public String toString() {
-        return String.format("InputLcmsFile{group: '%s', dataType: '%s', path: '%s'}", getGroup(), getDataType(), getPath());
+        return String.format("InputLcmsFile{group: '%s', dataType: '%s', path: '%s'}", getGroup2(), getDataType(), getPath());
     }
 
     public String getGroup() {
