@@ -38,7 +38,7 @@ Database splitting (to reduce the size of the in-memory fragment ion index-- hel
 **If Python 3.8 or 3.9 is not already installed**:
 1) Download and install Python 3.9
 
-Windows: download the install from [here](https://www.python.org/ftp/python/3.9.13/python-3.9.13-amd64.exe)
+Windows: download the installer from [here](https://www.python.org/ftp/python/3.9.13/python-3.9.13-amd64.exe)
 
 Linux: different Linux distributions have different commands to install Python. Please figure it out by yourself. If you are not familiar with the command line interface, please switching to Windows.
 
