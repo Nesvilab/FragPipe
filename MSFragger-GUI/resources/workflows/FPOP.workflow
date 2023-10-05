@@ -3,7 +3,7 @@
 crystalc.run-crystalc=false
 database.decoy-tag=rev_
 diann.fragpipe.cmd-opts=
-diann.generate-msstats=false
+diann.generate-msstats=true
 diann.heavy=
 diann.library=
 diann.light=

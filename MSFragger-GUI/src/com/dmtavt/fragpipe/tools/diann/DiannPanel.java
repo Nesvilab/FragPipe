@@ -168,7 +168,7 @@ public class DiannPanel extends JPanelBase {
     uiCheckUsePredictedSpectra = UiUtils.createUiCheck("Replace library spectra with predicted", true);
     FormEntry feUsePredictedSpectra = new FormEntry("use-predicted-spectra", "Replace library spectra with predicted", uiCheckUsePredictedSpectra);
 
-    uiCheckGenerateMsstats = UiUtils.createUiCheck("Generate MSstats input", false);
+    uiCheckGenerateMsstats = UiUtils.createUiCheck("Generate MSstats input", true);
     FormEntry feGenerateMsstats = new FormEntry("generate-msstats", "Generate MSstats input", uiCheckGenerateMsstats, "Convert the DIA-NN output to MSstats format.");
 
     uiCheckUnrelatedRuns = UiUtils.createUiCheck("Unrelated runs", false);
