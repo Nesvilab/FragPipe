@@ -28,6 +28,7 @@ import com.dmtavt.fragpipe.api.Notifications;
 import com.dmtavt.fragpipe.api.PyInfo;
 import com.dmtavt.fragpipe.dialogs.DownloadIonQuantPanel;
 import com.dmtavt.fragpipe.dialogs.DownloadMSFraggerPanel;
+import com.dmtavt.fragpipe.exceptions.NoStickyException;
 import com.dmtavt.fragpipe.exceptions.UnexpectedException;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
 import com.dmtavt.fragpipe.messages.MessageBalloon;
@@ -1120,19 +1121,32 @@ public class TabConfig extends JPanelWithEnablement {
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageInstallEasyPQP m) {
-    final String binPython = uiTextBinPython.getNonGhostText();
+    String binPython = "";
+    String pythonPipOutputNew = "";
+    boolean ok = true;
+    try {
+      NoteConfigPython noteConfigPython = Fragpipe.getSticky(NoteConfigPython.class);
+      if (noteConfigPython.isValid()) {
+        binPython = noteConfigPython.command;
+      } else {
+        pythonPipOutputNew += noteConfigPython.ex.toString();
+        ok = false;
+      }
+    } catch (NoStickyException ex) {
+      pythonPipOutputNew += ex.toString();
+      ok = false;
+    }
+
     if (StringUtils.isNotBlank(binPython)) {
-      String pythonPipOutputNew = "";
-      boolean ok = true;
       try {
         pythonPipOutputNew += ProcessUtils.captureOutput(new ProcessBuilder(binPython, "-m", "pip", "uninstall", "--yes", "easypqp"));
-      } catch (UnexpectedException ex) {
+      } catch (Exception ex) {
         pythonPipOutputNew += ex.toString();
         ok = false;
       }
       try {
         pythonPipOutputNew += ProcessUtils.captureOutput(new ProcessBuilder(binPython, "-m", "pip", "uninstall", "--yes", "pyopenms"));
-      } catch (UnexpectedException ex) {
+      } catch (Exception ex) {
         pythonPipOutputNew += ex.toString();
         ok = false;
       }
@@ -1140,14 +1154,17 @@ public class TabConfig extends JPanelWithEnablement {
       PyInfo.modifyEnvironmentVariablesForPythonSubprocesses(pb2); // without this, on Windows, will fail with an error related to TLS/SSL
       try {
         pythonPipOutputNew += ProcessUtils.captureOutput(pb2);
-      } catch (UnexpectedException ex) {
+      } catch (Exception ex) {
         pythonPipOutputNew += ex.toString();
         ok = false;
       }
       SwingUtils.showInfoDialog(this, pythonPipOutputNew, "EasyPQP install " + (ok ? "success" : "fail"));
-      toConsole(pythonPipOutputNew, m.console);
-      Bus.post(new MessageUiRevalidate(false, true));
+    } else {
+      SwingUtils.showInfoDialog(this, pythonPipOutputNew, "EasyPQP install fail");
     }
+
+    toConsole(pythonPipOutputNew, m.console);
+    Bus.post(new MessageUiRevalidate(false, true));
   }
 
   private JPanel createPanelDbsplit() {
