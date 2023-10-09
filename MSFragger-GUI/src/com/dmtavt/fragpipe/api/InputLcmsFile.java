@@ -82,6 +82,8 @@ public class InputLcmsFile implements Comparable<InputLcmsFile> {
             return "DDA";
         } else if (fileName.contains("DIA")) { // DIA has to be upper case.
             return "DIA";
+        } else if (fileName.contains("WWA")) {
+            return "WWA";
         } else {
             return "DDA";
         }
