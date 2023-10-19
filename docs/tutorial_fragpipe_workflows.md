@@ -32,6 +32,7 @@ Listed below are the analysis workflows provided with FragPipe. Workflows can be
 #### Open (mass-tolerant) and mass offset
 * [Basic open search (Open)](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#basic-open-search-open)
 * [Mass shift search (Mass-Offset-CommonPTMs)](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#mass-shift-search-mass-offset-commonptms)
+* [FPOP (Mass-Offset-CommonPTMs)](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#fpop)
 
 #### Labile PTM Searches
 * [Labile_phospho](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#labile-phosphopeptide-search-labile_phospho)
