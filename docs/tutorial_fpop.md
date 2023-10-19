@@ -50,7 +50,7 @@ For general instructions in how to run a FragPipe workflow and saving results, s
 While the current FPOP workflow has been optimized for the current test dataset, the user is encouraged to select appropriate parameters for their data such as enzyme (default is stricttrypsin), as well as if new oxidation modifications are expected. 
 In the figure below mass offset are separated by spaces, but they can also be separated by “/”.
 <div align="center">
-<img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/FPOP-MassOffsets.png" width="600px" align="middle"/>
+<img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/FPOP-MassOffsets.png" width="1290px" align="middle"/>
 </div>
 <br>
 
@@ -59,7 +59,7 @@ Due to the large difference in unmodified vs modified peptides (see results belo
 See **[publication](https://doi.org/10.1021/acs.analchem.3c02388)** for more details on Group-based FDR. The group FDR command divides PSMs into 3 groups for filtering: unmodified peptides, peptides with defined modifications, and peptides will any other modifications. By default, the common artifactual modifications methionine oxidation and n-terminal acetylation are defined for the second group (see figure below), but if another modification is abundant in the data, it should be added as well.  
 
 <div align="center">
-<img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/FPOP-Group-basedFDR.png" width="600px" align="middle"/>
+<img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/FPOP-Group-basedFDR.png" width="1920px" align="middle"/>
 </div>
 <br>
 
@@ -73,7 +73,7 @@ In the FPOP workflow, mass offsets are reported as variable modifications. The u
 Also, MSFragger will attempt to localize the FPOP modifications to specific site(s) within the peptide. However, there may not be sufficient evidence in all spectra to confidently locate each modification site. If multiple sites are supported by equivalent evidence, MSFragger will put the modification on the first allowed equivalent site. For modifications that were found as a mass offset, the columns MSFragger Localization, and best score with/without Delta Mass will show the best site(s) and associated scores. A future update will improve MSFragger site localization and allow the use of PTMProphet to localize FPOP modifications and provide localization probabilities for all sites. 
 
 <div align="center">
-<img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/FPOP-MSFraggerlocal.png" width="600px" align="middle"/>
+<img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/FPOP-MSFraggerlocal.png" width="1387px" align="middle"/>
 </div>
 <br>
 
