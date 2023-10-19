@@ -19,6 +19,8 @@ FragPipe is a Java Graphical User Interface (GUI) for a suite of computational t
   * [Glycoproteomics search](https://fragpipe.nesvilab.org/docs/tutorial_glyco.html)
   * [Custom mass offset workflow (RNA crosslinking example)](https://fragpipe.nesvilab.org/docs/tutorial_custom_mass_offset.html)
   * [Diagnostic ion mining](https://fragpipe.nesvilab.org/docs/tutorial_diagnostic_mining.html)
+  * [FPOP](https://fragpipe.nesvilab.org/docs/tutorial_fpop.html)
+  
 * TMT/iTRAQ quantification
   * [Single plex](https://fragpipe.nesvilab.org/docs/tutorial_tmt.html)
   * [Multiple plexes with a pooled reference sample](https://fragpipe.nesvilab.org/docs/tutorial_tmt-2plexes.html)
