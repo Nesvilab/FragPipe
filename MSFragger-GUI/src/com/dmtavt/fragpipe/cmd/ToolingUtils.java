@@ -241,7 +241,7 @@ public class ToolingUtils {
     return matcher.find();
   }
 
-  static void generateExperimentAnnotation(Path wd) throws Exception {
+  static void generateExperimentAnnotation(Path wd, int type) throws Exception {
     BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(wd.resolve("experiment_annotation.tsv").toFile()));
     bufferedWriter.write("file\tsample\tsample_name\tcondition\treplicate\n");
 
@@ -267,9 +267,9 @@ public class ToolingUtils {
           if (tt.length == 3) {
             try {
               int replicate = Integer.parseInt(tt[2]);
-              bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getPath().toAbsolutePath() + "\t" + tt[0] + "_" + tt[1] + "\t" + tt[1] + "\t" + replicate + "\n");
+              bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getPath().toAbsolutePath() + "\t" + tt[0] + "_" + tt[1] + "\t" + replicate + "\n");
             } catch (Exception ex) {
-              bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getPath().toAbsolutePath() + "\t" + tt[0] + "_" + tt[1] + "\t" + tt[2] + "\t1\n");
+              bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getPath().toAbsolutePath() + "\t" + tt[1] + "_" + tt[2] + "\t1\n");
             }
           } else if (tt.length == 2) {
             try {
@@ -279,17 +279,19 @@ public class ToolingUtils {
               bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getPath().toAbsolutePath() + "\t" + sampleName + "\t" + tt[1] + "\t1\n");
             }
           } else {
-            bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getPath().toAbsolutePath() + "\t" + sampleName + "\t\t1\n");
+            bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getPath().toAbsolutePath() + "\t" + sampleName + "\t" + sampleName + "\t1\n");
           }
         }
       }
     } else { // There is group info from the manifest.
       for (LcmsFileGroup lcmsFileGroup : ttt) {
         for (InputLcmsFile inputLcmsFile : lcmsFileGroup.lcmsFiles) {
-          String baseName = FilenameUtils.getBaseName(inputLcmsFile.getPath().getFileName().toString());
-          String sampleName = baseName.substring(a);
           String[] parts = inputLcmsFile.getExperiment().split("_");
-          bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getPath().toAbsolutePath() + "\t" + sampleName + "\t" + parts[0].trim() + "\t" + (inputLcmsFile.getReplicate() == null ? 1 : inputLcmsFile.getReplicate()) + "\n");
+          if (type == 0) {
+            bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getGroup2() + "\t" + inputLcmsFile.getGroup2() + "\t" + parts[0].trim() + "\t" + (inputLcmsFile.getReplicate() == null ? 1 : inputLcmsFile.getReplicate()) + "\n");
+          } else if (type == 1) {
+            bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getGroup2() + "\t" + parts[0].trim() + "\t" + (inputLcmsFile.getReplicate() == null ? 1 : inputLcmsFile.getReplicate()) + "\n");
+          }
         }
       }
     }

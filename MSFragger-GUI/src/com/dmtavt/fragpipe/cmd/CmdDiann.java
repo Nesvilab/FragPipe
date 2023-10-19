@@ -442,7 +442,7 @@ public class CmdDiann extends CmdBase {
 
     if (!isDryRun) {
       try {
-        generateExperimentAnnotation(wd);
+        generateExperimentAnnotation(wd, 1);
       } catch (Exception ex) {
         showErrorDialogWithStacktrace(ex, comp);
         return false;

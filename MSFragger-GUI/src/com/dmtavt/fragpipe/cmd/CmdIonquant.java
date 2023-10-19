@@ -270,7 +270,7 @@ public class CmdIonquant extends CmdBase {
 
     if (!isDryRun) {
       try {
-        generateExperimentAnnotation(wd);
+        generateExperimentAnnotation(wd, 0);
       } catch (Exception ex) {
         showErrorDialogWithStacktrace(ex, comp);
         return false;
