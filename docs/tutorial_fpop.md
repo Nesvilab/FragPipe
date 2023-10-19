@@ -73,7 +73,7 @@ In the FPOP workflow, mass offsets are reported as variable modifications. The u
 Also, MSFragger will attempt to localize the FPOP modifications to specific site(s) within the peptide. However, there may not be sufficient evidence in all spectra to confidently locate each modification site. If multiple sites are supported by equivalent evidence, MSFragger will put the modification on the first allowed equivalent site. For modifications that were found as a mass offset, the columns MSFragger Localization, and best score with/without Delta Mass will show the best site(s) and associated scores. A future update will improve MSFragger site localization and allow the use of PTMProphet to localize FPOP modifications and provide localization probabilities for all sites. 
 
 <div align="center">
-<img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/FPOP-Results.png" width="600px" align="middle"/>
+<img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/FPOP-MSFraggerlocal.png" width="600px" align="middle"/>
 </div>
 <br>
 
