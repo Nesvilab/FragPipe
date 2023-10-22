@@ -59,7 +59,7 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
     private UiCheck uiCheckGlycoAdvParams;
     private UiText uiTextGlycanDBFile;
 
-    private static final String PROP_glyco_mode = "glyco_mode";
+    private static final String PROP_run_glyco_mode = "run_glyco_mode";
     private static final String PROP_glycan_fdr = "glyco_fdr";
     private static final String PROP_glyco_mass_error_ppm = "glyco_ppm_tol";
     private static final String PROP_glyco_isotope_error_low = "glyco_isotope_min";
@@ -141,7 +141,7 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
         pGlycoAdvParams = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
 
         checkRunGlycanAssignment = UiUtils.createUiCheck("Assign Glycans with FDR", true);
-        checkRunGlycanAssignment.setName(PROP_glyco_mode);
+        checkRunGlycanAssignment.setName(PROP_run_glyco_mode);
         checkRunGlycanAssignment.setToolTipText("NOTE: requires PTM-Shepherd! Check the 'Run PTM-Shepherd' box on the PTMs tab to enable this section. Perform glycan assignment and glycan FDR on PSMs reported with a delta mass");
         uiCheckGlycoAdvParams = UiUtils.createUiCheck("Edit Advanced Parameters", false);
         uiCheckGlycoAdvParams.setName("adv_params");

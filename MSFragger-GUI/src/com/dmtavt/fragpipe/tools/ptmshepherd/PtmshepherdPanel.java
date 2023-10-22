@@ -108,7 +108,7 @@ public class PtmshepherdPanel extends JPanelBase {
 
   private static final String PROP_custom_modlist_loc = "ptmshepherd.path.modlist";
 
-  private static final String PROP_diagMine_mode = "diagmine_mode";
+  private static final String PROP_run_diagMine_mode = "run_diagmine_mode";
   private static final String PROP_diagMine_minIonsPerSpec = "diagmine_minIonsPerSpec";
   private static final String PROP_diagMine_diagMinSpecPct = "diagmine_diagMinSpecDiff";
   private static final String PROP_diagMine_diagMinFoldChange = "diagmine_diagMinFoldChange";
@@ -118,7 +118,7 @@ public class PtmshepherdPanel extends JPanelBase {
   private static final String PROP_diagMine_fragMinFoldChange = "diagmine_fragMinFoldChange";
   private static final String PROP_diagMine_fragMinPropensity = "diagmine_fragMinPropensity";
   private static final String PROP_diagMine_minIons = "diagmine_minPeps";
-  private static final String PROP_diagExtract_mode = "diagextract_mode";
+  private static final String PROP_run_diagExtract_mode = "run_diagextract_mode";
 
   private final List<BalloonTip> balloonTips = new ArrayList<>();
   private JCheckBox checkRun;
@@ -369,7 +369,7 @@ public class PtmshepherdPanel extends JPanelBase {
 
     // known diag ion params
     uiCheckDiagnostic = UiUtils.createUiCheck("Extract known diagnostic ions from spectra", false);
-    uiCheckDiagnostic.setName(PROP_diagExtract_mode);
+    uiCheckDiagnostic.setName(PROP_run_diagExtract_mode);
     uiCheckDiagnostic.setToolTipText("Look for the ions listed below in spectra. Note: required for glycan assignment");
 
     // labile/glyco main params
@@ -405,7 +405,7 @@ public class PtmshepherdPanel extends JPanelBase {
 
     // label diagnostic ion mining params
     uiCheckDiagnosticMining = UiUtils.createUiCheck("Mine for diagnostic ions and fragments", false);
-    uiCheckDiagnosticMining.setName(PROP_diagMine_mode);
+    uiCheckDiagnosticMining.setName(PROP_run_diagMine_mode);
     uiCheckDiagnosticMining.setToolTipText("Look for new diagnostic ions and fragments for each modification");
 
     // Global parameters
