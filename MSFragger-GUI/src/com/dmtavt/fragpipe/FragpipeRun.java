@@ -1783,6 +1783,17 @@ public class FragpipeRun {
       return true;
     });
 
+    // run TPP script
+    //Create a comand object for TPP
+    final CmdTpp cmdTpp = new CmdTpp(tabDownstream.paneltpp.isRunTpp(), wd);
+    addConfig.accept(cmdTpp, () -> {
+      if (cmdTpp.isRun()) {
+        Path fastaPath = Paths.get(fastaFile);
+        //the configure attribute of cmdTpp needs two parameters  *public boolean configure(Component comp,Path pathFasta)*
+        return cmdTpp.configure(parent, fastaPath);
+      }
+      return true;
+    });
 
     // run Spectral library generation
     final SpeclibPanel speclibPanel = Fragpipe.getStickyStrict(SpeclibPanel.class);
@@ -1899,6 +1910,7 @@ public class FragpipeRun {
     addToGraph(graphOrder, cmdTmt, DIRECTION.IN, cmdPhilosopherReport, cmdTmtFreequant, cmdTmtLabelQuant, cmdPhilosopherAbacus, cmdPtmshepherd, cmdTmtIonquant, cmdTmtIonquantIsobaric);
     addToGraph(graphOrder, cmdTmtFpop, DIRECTION.IN, cmdPhilosopherReport, cmdTmtFreequant, cmdTmtLabelQuant, cmdPhilosopherAbacus, cmdPtmshepherd, cmdTmtIonquant, cmdTmtIonquantIsobaric);
     addToGraph(graphOrder, cmdFpopQuant, DIRECTION.IN, cmdIonquant, cmdTmt, cmdTmtFpop);
+    addToGraph(graphOrder, cmdTpp, DIRECTION.IN);
     addToGraph(graphOrder, cmdSpecLibGen, DIRECTION.IN, cmdPhilosopherReport);
     addToGraph(graphOrder, cmdDiann, DIRECTION.IN, cmdSpecLibGen);
     addToGraph(graphOrder, cmdWriteSubMzml, DIRECTION.IN, cmdPhilosopherReport);
