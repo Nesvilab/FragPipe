@@ -36,6 +36,7 @@ import com.dmtavt.fragpipe.process.ProcessDescription.Builder;
 import com.dmtavt.fragpipe.process.RunnableDescription;
 import com.dmtavt.fragpipe.tools.downstream.SaintexpressPanel;
 import com.dmtavt.fragpipe.tools.fpop.FpopQuantPanel;
+import com.dmtavt.fragpipe.tools.tpp.TppPanel;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
@@ -92,6 +93,7 @@ public class TabDownstream extends JPanelWithEnablement {
   public JButton btnRun;
   private SaintexpressPanel pSaintExpress;
   public FpopQuantPanel pFpop;
+  public TppPanel paneltpp;
   private JPanel pBottom;
   private JPanel pConsole;
   private UiCheck uiCheckWordWrap;
@@ -257,6 +259,7 @@ public class TabDownstream extends JPanelWithEnablement {
       defTextColor = Color.BLACK;
     }
 
+    paneltpp = new TppPanel();
     pFpop = new FpopQuantPanel();
 
     pSaintExpress = new SaintexpressPanel();
@@ -267,6 +270,7 @@ public class TabDownstream extends JPanelWithEnablement {
 
     mu.layout(this).fillX();
     mu.add(this, pFpop).growX().alignY("top").wrap();
+    mu.add(this, paneltpp).growX().alignY("top").wrap();
     mu.add(this, pSaintExpress).growX().alignY("top").wrap();
     mu.add(this, pBottom).growX().alignY("top").wrap();
     mu.add(this, pConsole).grow().push().alignY("top").wrap();
