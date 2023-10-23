@@ -50,7 +50,7 @@ public class TppScript {
 
     public static final String TPP_SCRIPT_PATH = "tpp/TPP-FragPipeDownstream.py";
     public static final String[] RESOURCE_LOCATIONS = {TPP_SCRIPT_PATH};
-    public static final List<PythonModule> REQUIRED_MODULES = Arrays.asList(PythonModule.NUMPY, PythonModule.PANDAS,PythonModule.PYQTFIVE);
+    public static final List<PythonModule> REQUIRED_MODULES = Arrays.asList(PythonModule.NUMPY, PythonModule.PANDAS);
 
     private PyInfo pi;
     /*Previously scriptFpopQuant*/
