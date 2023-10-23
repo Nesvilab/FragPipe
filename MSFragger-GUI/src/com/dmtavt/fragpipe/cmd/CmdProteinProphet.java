@@ -94,6 +94,8 @@ public class CmdProteinProphet extends CmdBase {
       throw new IllegalStateException("During combined processing of Experiments/Groups "
           + "only one interact.prot.xml file should be produced. This is probably a bug, report "
           + "to developers.");
+    } else if (interactProtXmls.isEmpty()) {
+      throw new IllegalStateException("During combined processing of Experiments/Groups there are no interact.prot.xml file to be produced.");
     }
 
     return m;
@@ -138,6 +140,13 @@ public class CmdProteinProphet extends CmdBase {
           JOptionPane.showMessageDialog(comp, "[ProteinProphet]\n"
               + "Report to developers, more than one interact protxml file when\n"
               + "processing experimental groups together.");
+        }
+        return false;
+      } else if (interactProtXmls.isEmpty()) {
+        if (Fragpipe.headless) {
+          log.error("There are no interact.prot.xml file.");
+        } else {
+          JOptionPane.showMessageDialog(comp, "There are no interact.prot.xml file.");
         }
         return false;
       }
