@@ -103,6 +103,7 @@ msfragger.isotope_error=0
 msfragger.labile_search_mode=off
 msfragger.localize_delta_mass=false
 msfragger.mass_diff_to_variable_mod=0
+msfragger.mass_offset_file=
 msfragger.mass_offsets=0
 msfragger.max_fragment_charge=2
 msfragger.max_variable_mods_combinations=5000
@@ -319,4 +320,4 @@ workflow.description=<p style\="margin-top\: 0in">"Quick scan" version of the Op
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
 workflow.misc.save-sdrf=true
-workflow.saved-with-ver=20.1-build8
+workflow.saved-with-ver=20.1-build17

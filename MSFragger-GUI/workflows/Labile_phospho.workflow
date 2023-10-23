@@ -103,6 +103,7 @@ msfragger.isotope_error=0/1/2
 msfragger.labile_search_mode=labile
 msfragger.localize_delta_mass=true
 msfragger.mass_diff_to_variable_mod=1
+msfragger.mass_offset_file=
 msfragger.mass_offsets=0/79.966331
 msfragger.max_fragment_charge=2
 msfragger.max_variable_mods_combinations=5000
@@ -319,4 +320,4 @@ workflow.description=<p style\="margin-top\: 0">Searches for phosphorylation wit
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
 workflow.misc.save-sdrf=true
-workflow.saved-with-ver=20.1-build8
+workflow.saved-with-ver=20.1-build17

@@ -103,6 +103,7 @@ msfragger.isotope_error=0/1
 msfragger.labile_search_mode=off
 msfragger.localize_delta_mass=true
 msfragger.mass_diff_to_variable_mod=0
+msfragger.mass_offset_file=
 msfragger.mass_offsets=-105.0248 -89.0299 -33.9877 -32.0085 -30.0106 -18.0106 -17.0265 -2.0157 -1.007825 -0.984 0 0.984 3.9949 12.0 13.9793 14.0157 15.9949 19.9898 21.969392 21.9819 23.95806 26.0157 27.9949 28.0313 28.990164 29.9742 31.972071 31.9898 37.9469 37.955882 42.0106 42.047 43.0058 43.9898 44.985078 47.9847 53.9193 57.02146 58.0055 61.9135 61.921774 68.026215 70.041865 71.0371 79.9568 79.9663 86.000394 100.016 114.042927 119.004099 128.095 146.0579 156.1011 162.0528 173.051 176.0321 178.0477 183.035399 189.046 203.0794 204.1878 210.1984 228.111 229.014009 238.2297 301.9865 340.1006 349.1373 365.1322 365.1322 406.1587 541.06111
 msfragger.max_fragment_charge=1
 msfragger.max_variable_mods_combinations=5000
@@ -319,4 +320,4 @@ workflow.description=<p style\="margin-top\: 0in">Mass Offset (also known as Mul
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
 workflow.misc.save-sdrf=true
-workflow.saved-with-ver=20.1-build8
+workflow.saved-with-ver=20.1-build17
