@@ -352,6 +352,7 @@ public class TabMsfragger extends JPanelBase {
   private UiText uiTextMassOffsets;
   private UiText uiTextRemainderMasses;
   private UiText uiTextMassOffsetFile;
+  private UiCheck uiCheckMassOffsetFile;
   private UiCombo uiComboGlyco;
   private UiSpinnerDouble uiSpinnerPrecTolLo;
   private UiSpinnerDouble uiSpinnerPrecTolHi;
@@ -361,6 +362,8 @@ public class TabMsfragger extends JPanelBase {
   private UiText uiTextIsoErr;
   private UiText epMassOffsets;
   private UiText uiTextRestrictDeltamassTo;
+  private JPanel pOffsetRegular;
+  private JPanel pOffsetDetailed;
   private JPanel pTop;
   private JPanel pBasic;
   private JPanel pMods;
@@ -470,6 +473,10 @@ public class TabMsfragger extends JPanelBase {
         }
       }
     });
+
+    // enable/disable the mass offset file UI
+    SwingUtils.setDisablementUpdater(this, pOffsetRegular, uiCheckMassOffsetFile);
+    SwingUtils.setEnablementUpdater(this, pOffsetDetailed, uiCheckMassOffsetFile);
   }
 
   @Override
@@ -1128,6 +1135,10 @@ public class TabMsfragger extends JPanelBase {
   private JPanel createPanelMassOffsets() {
     JPanel p = mu.newPanel("Mass Offsets", true);
 
+    // create separate panels for the regular vs detailed offset mode to allow enabling only one at a time
+    pOffsetRegular = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
+    pOffsetDetailed = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
+
     uiTextRestrictDeltamassTo = UiUtils.uiTextBuilder().ghost("Restrict delta mass to certain amino acids").filter("[^A-Zall-]")
         .cols(20).create();
     FormEntry feRestrictDeltamassTo = mu.feb(uiTextRestrictDeltamassTo).name(MsfraggerParams.PROP_restrict_deltamass_to)
@@ -1157,11 +1168,10 @@ public class TabMsfragger extends JPanelBase {
     FormEntry feMassOffsets = mu.feb(MsfraggerParams.PROP_mass_offsets, epMassOffsets)
         .label("Mass Offsets")
         .tooltip(tooltipMassOffsets).create();
-    //mu.add(p, feMassOffsets.label()).wrap();
 
-    JButton btnLoadGlycanMasses = new JButton("Load Mass Offsets from File");
-    btnLoadGlycanMasses.addActionListener(this::actionBtnLoadMassOffsets);
-    btnLoadGlycanMasses.setToolTipText("Load mass offsets from a file. Supported formats: Byonic glycan csv");
+    uiCheckMassOffsetFile = UiUtils.createUiCheck("Use Mass Offset File", false);
+    uiCheckMassOffsetFile.setName("enable_offset_file");
+    uiCheckMassOffsetFile.setToolTipText("If checked, uses the provided mass offset file to perform a mass offset search with specific allowed amino acids and/or fragment ions for each offset.");
 
     String tooltipOffsetFile = "(Optional) Detailed mass offset file. Overrides mass offset information above if provided.";
     uiTextMassOffsetFile = UiUtils.uiTextBuilder().cols(85).create();
@@ -1182,14 +1192,17 @@ public class TabMsfragger extends JPanelBase {
               }
             });
 
-    mu.add(p, feMassOffsets.comp).spanX().growX().pushX().wrap();
-    mu.add(p, feRestrictDeltamassTo.label(), mu.ccR()).spanX().split(2);
-    mu.add(p, feRestrictDeltamassTo.comp).growX().pushX().wrap();
-    mu.add(p, btnLoadGlycanMasses).spanX().split(3).wrap();
+    mu.add(pOffsetRegular, feMassOffsets.comp).spanX().growX().pushX().wrap();
+    mu.add(pOffsetRegular, feRestrictDeltamassTo.label(), mu.ccR()).spanX().split(2);
+    mu.add(pOffsetRegular, feRestrictDeltamassTo.comp).growX().pushX().wrap();
 
-    mu.add(p, feOffsetFile.label()).split().spanX();
-    mu.add(p, btnBrosweOffsetFile);
-    mu.add(p, feOffsetFile.comp).wrap();
+    mu.add(pOffsetDetailed, feOffsetFile.label()).split().spanX();
+    mu.add(pOffsetDetailed, btnBrosweOffsetFile);
+    mu.add(pOffsetDetailed, feOffsetFile.comp).wrap();
+
+    mu.add(p, pOffsetRegular).growX().wrap();
+    mu.add(p, uiCheckMassOffsetFile).split();
+    mu.add(p, pOffsetDetailed).growX().wrap();
 
     return p;
   }
@@ -1920,16 +1933,6 @@ public class TabMsfragger extends JPanelBase {
         JOptionPane.showMessageDialog(parent, "<html>This is strange,<br/> "
                 + "but the file you chose to load doesn't exist anymore.", "Strange", JOptionPane.ERROR_MESSAGE);
       }
-    }
-  }
-
-  private void actionBtnLoadMassOffsets(ActionEvent actionEvent) {
-    GlycoMassLoader loader = new GlycoMassLoader(true);
-    List<String> massStrings = loader.loadOffsets(this);
-    if (massStrings.size() > 0) {
-      String offsetsText = String.join(" ", massStrings);
-      epMassOffsets.setText(offsetsText);
-      log.info(String.format("[MSFragger Load Mass Offsets Button] Loaded %d unique mass offsets from file", massStrings.size()));
     }
   }
 
