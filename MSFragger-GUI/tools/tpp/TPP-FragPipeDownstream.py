@@ -108,7 +108,7 @@ def renaming_dict(annotationfile):
     # Dictionary to "translate temperature labels {key(TMTI):value (TPPR)}
     tpprlabelsdict = {"126": "rel_fc_126", "127N": 'rel_fc_127L', "127C": 'rel_fc_127H', "128N": 'rel_fc_128L',
                       "128C": 'rel_fc_128H', "129N": 'rel_fc_129L', "129C": 'rel_fc_129H', "130N": 'rel_fc_130L',
-                      "130C": 'rel_fc_130H', "131N": 'rel_fc_131L'}
+                      "130C": 'rel_fc_130H', "131N": 'rel_fc_131'}
 
     # Open annotation file
     with open(annotationfile, 'r') as plexelabels:
