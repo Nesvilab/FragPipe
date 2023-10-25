@@ -628,30 +628,33 @@ def oneDTPP_analysis(argumentobj):
                         print("There cannot bet two experiments with the same name and replicate number. Are there two annotation files under the same {} experiment folder?".format(item))
                         sys.exit(1)
                     else:
-                        dict_filesfor_TPPR[item] = [item,fragpipeoutputfolder,tmttempdict]
+                        dict_filesfor_TPPR[item] = [item,tpprfolder,tmttempdict]
 
-                    resultDT.to_csv(f"{outputname}.txt", sep='\t', index=False)
+                    tpprinputfile = os.path.join(tpprfolder,f"{outputname}.txt")
+                    resultDT.to_csv(tpprinputfile , sep='\t', index=False)
 
-                    with open(f"{os.path.basename(subdiritem)}_descriptpmap.pickle", 'wb') as handle:
+                    pickefilefortppr = os.path.join(tpprfolder,f"{os.path.basename(subdiritem)}_descriptpmap.pickle")
+                    with open(pickefilefortppr, 'wb') as handle:
                         pickle.dump(tpmapdescriptions, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
     print(f"dict_filesfor_TPPR = {dict_filesfor_TPPR}")
-    fragpipeoutputfolder = argumentobj.fragpipeoutput_path
     #configfilepath = argumentobj.configTPPR_path
     rhomewherepath = argumentobj.rhome_path
 
     #Creating TPPR File
     configurefile = TPPR_configconstrcution(dict_filesfor_TPPR)
-    configurefile.to_excel("TPP-TR_config.xlsx", index=False)
 
-    configfilepath = os.path.join(fragpipeoutputfolder, "TPP-TR_config.xlsx")
+    configfilepath = os.path.join(tpprfolder,"TPP-TR_config.xlsx")
+    configurefile.to_excel(configfilepath, index=False)
+
+    # configfilepath = os.path.join(fragpipeoutputfolder, "TPP-TR_config.xlsx")
 
     #Runnig R package
-    runningTPPR(fragpipeoutputfolder, configfilepath,rhomewherepath)
+    runningTPPR(tpprfolder, configfilepath,rhomewherepath)
 
     #Convert TPP-R output into TP-MAP input
-    TPPR_to_TPMAP(fragpipeoutputfolder)
+    TPPR_to_TPMAP(tpprfolder)
 
 
 if __name__ == "__main__":
