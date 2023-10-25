@@ -22,12 +22,12 @@ class Parameters(object):
     fragpipeoutput_path: str
     oneDTPP_bool: bool
     rhome_path:str
-    configTPPR_path: str
+    #configTPPR_path: str
     twoDTPP_bool: bool
     fasfile_path: str
     tmtifile_path: str
 
-    def __init__(self,  preoneDTPPboo, oneDTPPboo, twoDTPPboo, mainfolderval, rlocalinstall = None, configTPPRval = None, fasfileval = None, tmtifileval = None):
+    def __init__(self,  preoneDTPPboo, oneDTPPboo, twoDTPPboo, mainfolderval, rlocalinstall = None, fasfileval = None, tmtifileval = None):
 
         #Used the print statements below to fix a postional argument conundrum
         # print(type(fasfileval))
@@ -44,7 +44,7 @@ class Parameters(object):
         self.twoDTPP_bool =  twoDTPPboo.lower().strip() == 'true'
         self.fragpipeoutput_path = mainfolderval
         self.rhome_path = rlocalinstall
-        self.configTPPR_path = configTPPRval
+        #self.configTPPR_path = configTPPRval
         self.fasfile_path =  fasfileval
         self.tmtifile_path = tmtifileval
         self.check_file_paths()
@@ -56,9 +56,9 @@ class Parameters(object):
         if self.oneDTPP_bool and not os.path.exists(self.rhome_path):
             print('Error: R path {} does not exist! Stopping analysis.'.format(self.rhome_path))
             sys.exit(1)
-        if self.oneDTPP_bool and not os.path.exists(self.configTPPR_path):
-            print('Error: TPPR configuration file {} does not exist! Stopping analysis.'.format(self.configTPPR_path))
-            sys.exit(1)
+        # if self.oneDTPP_bool and not os.path.exists(self.configTPPR_path):
+        #     print('Error: TPPR configuration file {} does not exist! Stopping analysis.'.format(self.configTPPR_path))
+        #     sys.exit(1)
         if self.twoDTPP_bool and not os.path.exists(self.fasfile_path):
             print('Error: database file {} does not exist! Stopping analysis.'.format(self.fasfile_path))
             sys.exit(1)
@@ -84,7 +84,7 @@ def main():
     argv = sys.argv[1:]
     if len(argv) == 0:
         print('Example usage:')
-        print('python3 TPP-FragPipeDownstream.py [pre1DTPP bool] [1DTPP bool] [2DTPP bool] [FragPipe Output folder] [R location] [TPPR configuration file name (1DTPP analysis only)] [database fas file name (2DTPP analysis only)] [TMTI file name (2DTPP analysis only)]')
+        print('python3 TPP-FragPipeDownstream.py [pre1DTPP bool] [1DTPP bool] [2DTPP bool] [FragPipe Output folder] [R location] [database fas file name (2DTPP analysis only)] [TMTI file name (2DTPP analysis only)]')
         sys.exit(0)
 
     params = Parameters(*argv)
@@ -585,7 +585,10 @@ def oneDTPP_analysis(argumentobj):
 
     dict_filesfor_TPPR = {}
     fragpipeoutputfolder = argumentobj.fragpipeoutput_path
-    #     os.chdir(fragpipeoutputfolder)
+
+    #Create TPP folder results
+    tpprfolder = os.path.join(fragpipeoutputfolder,"Thermal Protein Profiling")
+    os.mkdir(tpprfolder)
     print(f"folder = {fragpipeoutputfolder}")
     diritems = [x for x in os.listdir(fragpipeoutputfolder)]
     # print(f"files = {diritems}")
@@ -634,21 +637,21 @@ def oneDTPP_analysis(argumentobj):
 
 
     print(f"dict_filesfor_TPPR = {dict_filesfor_TPPR}")
-    tppr_tpmapmainfolder = argumentobj.fragpipeoutput_path
-    configfilepath = argumentobj.configTPPR_path
+    fragpipeoutputfolder = argumentobj.fragpipeoutput_path
+    #configfilepath = argumentobj.configTPPR_path
     rhomewherepath = argumentobj.rhome_path
 
     #Creating TPPR File
     configurefile = TPPR_configconstrcution(dict_filesfor_TPPR)
     configurefile.to_excel("TPP-TR_config.xlsx", index=False)
 
-    configfilepath = os.path.join(tppr_tpmapmainfolder, "TPP-TR_config.xlsx")
+    configfilepath = os.path.join(fragpipeoutputfolder, "TPP-TR_config.xlsx")
 
     #Runnig R package
-    runningTPPR(tppr_tpmapmainfolder, configfilepath,rhomewherepath)
+    runningTPPR(fragpipeoutputfolder, configfilepath,rhomewherepath)
 
     #Convert TPP-R output into TP-MAP input
-    TPPR_to_TPMAP(tppr_tpmapmainfolder)
+    TPPR_to_TPMAP(fragpipeoutputfolder)
 
 
 if __name__ == "__main__":
