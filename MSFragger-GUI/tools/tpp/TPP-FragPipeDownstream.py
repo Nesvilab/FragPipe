@@ -102,28 +102,37 @@ def renaming_dict(annotationfile):
     @return: a dictionary of labels relations
     """
 
-    # Initiate dictionary to rename column headers
+    #Initiate dictionary to rename column headers
     outputrenamingdict = {"Protein ID": "Prot_ID"}
 
-    # Dictionary to "translate temperature labels {key(TMTI):value (TPPR)}
-    tpprlabelsdict = {"126": "rel_fc_126", "127N": 'rel_fc_127L', "127C": 'rel_fc_127H', "128N": 'rel_fc_128L',
-                      "128C": 'rel_fc_128H', "129N": 'rel_fc_129L', "129C": 'rel_fc_129H', "130N": 'rel_fc_130L',
-                      "130C": 'rel_fc_130H', "131N": 'rel_fc_131'}
+    #Dictionary to "translate temperature labels {key(TMTI):value (TPPR)}
+    tpprlabelsdict = {"126": "rel_fc_126", "127N": 'rel_fc_127L', "127C": 'rel_fc_127H',"128N": 'rel_fc_128L',
+                      "128C": 'rel_fc_128H', "129N": 'rel_fc_129L', "129C": 'rel_fc_129H',"130N": 'rel_fc_130L',
+                      "130C": 'rel_fc_130H', "131N": 'rel_fc_131L'}
 
-    # Open annotation file
+    tempvalsfortppr = {}
+
+    #Open annotation file
     with open(annotationfile, 'r') as plexelabels:
         lines = list(plexelabels)
         for line in lines:
             line = line.rstrip('\n')
             splits = line.split("\t")
+
+            #Obtain TMT label and experimental label (temperature_exptype-rep)
             tmtlabel = splits[0]
             explabel = splits[1]
-            # print(f"tmt label = {tmtlabel} with {explabel}")
-            # Add the experimental label as key and tmt label as value
+
+            #Add the experimental label as key and tmt label as value
             outputrenamingdict[explabel] = tpprlabelsdict[tmtlabel]
 
-    return outputrenamingdict
-
+            #Change formating to match the one needed by TPP-R config file
+            configtmtlabel = tpprlabelsdict[tmtlabel].replace("rel_fc_","")
+            explabelspl = explabel.split("_")
+            configtemplabel = explabelspl[0]
+            tempvalsfortppr[configtmtlabel] = float(configtemplabel)
+    print(f"tempvalsfortppr={tempvalsfortppr}")
+    return outputrenamingdict, tempvalsfortppr
 
 def fragpipe_to_TPPR(filepath, annotfile):
     """
@@ -135,7 +144,7 @@ def fragpipe_to_TPPR(filepath, annotfile):
     # print(f"protein.tsv file = {filepath} with {annotfile}")
 
     # How to rename column names
-    oldcoltonewcol = renaming_dict(annotfile)
+    oldcoltonewcol, tmt_to_tempdict = renaming_dict(annotfile)
 
     # Create pandas dataframe
     DT = pd.read_csv(filepath, sep='\t')
@@ -168,7 +177,7 @@ def fragpipe_to_TPPR(filepath, annotfile):
     # Rename to TPP-R compatible columns
     finalDT = finalDT.rename(columns=oldcoltonewcol)
 
-    return finalDT
+    return finalDT, tmt_to_tempdict
 
 
 def drscriptionparser(idxval, dataf):
@@ -214,39 +223,6 @@ def descriptionfile(file_path):
     # descriptionoutdt = pd.DataFrame.from_dict(descriptionout,orient="index")
     return descriptionout
 
-
-
-# Not used as the excel file produced looks identical, but it was not read properly by TPP-R
-def TPPR_configconstrcution(filesls):
-    """
-    Function to create configuration file use by TPP-R
-    @param filesls: List of the files to input into TPPR
-    @return: dataframe converted from dict by pandas
-    """
-
-    # Initialize dictionary to turn to an excel file
-    dictcongif = {"Experiment": [], "Condition": [], "Comparison1": [], "Comparison2": [], "126": [], "127L": [],
-                  "127H": [],
-                  "128L": [], "128H": [], "129L": [], "129H": [], "130L": [], "130H": [], "131": [], "Path": []}
-
-    # List of the dictionary keys
-    keysls = list(dictcongif.keys())
-
-    # print(keysls[1:-1])
-
-    for expfiles in filesls:
-        # Only input experiment and location of input file to TPP-R
-        dictcongif['Experiment'].append(expfiles[0])
-        dictcongif['Path'].append(expfiles[1])
-
-        # Place holders for user to fill
-        for key in keysls[1:-1]:
-            dictcongif[key].append("")
-
-    # Dataframe to dictionary
-    df = pd.DataFrame.from_dict(dictcongif)
-
-    return df
 
 
 def runningTPPR(outputlocation, tpprconfiglocation, rhomelocation):
@@ -549,6 +525,65 @@ def pre_TPPR(argumentobj):
     Function transform protein.tsv files into TPPR input
     :return: void
     """
+    #TODO: Add Full TPPR option Here
+
+
+def TPPR_configconstrcution(dictoffiles):
+    """
+    Function to create configuration file use by TPP-R
+    @param filesls: List of the files to input into TPPR
+    @return: dataframe converted from dict by pandas
+    """
+
+
+    #Initialize dictionary to turn to an excel file
+    dictcongif = {"Experiment":[],"Condition":[],"Comparison1":[],"Comparison2":[],"126":[],"127L":[],"127H":[],
+                  "128L":[],"128H":[],"129L":[],"129H":[],"130L":[],"130H":[],"131L":[],"Path":[]}
+
+    #List of the dictionary keys
+    #keysls = list(dictcongif.keys())
+
+    for expfiles in dictoffiles:
+        print(expfiles)
+        #Only input experiment and location of input file to TPP-R
+        fileitems = dictoffiles[expfiles]
+        dictcongif['Experiment'].append(fileitems[0])
+        condition_str = fileitems[0].split('_')
+        dictcongif['Condition'].append(condition_str[0])
+        if "1" in condition_str[1]:
+            dictcongif["Comparison1"].append("x")
+            dictcongif["Comparison2"].append("")
+        else:
+            dictcongif["Comparison2"].append("x")
+            dictcongif["Comparison1"].append("")
+
+        tempdict = fileitems[2]
+
+        for tmtlabel in tempdict:
+            dictcongif[tmtlabel] =tempdict[tmtlabel]
+
+
+        fileloc = os.path.join(fileitems[1],f"{fileitems[0]}.txt")
+        dictcongif['Path'].append(fileloc)
+
+        #Place holders for user to fill
+        # for key in keysls[4:-1]:
+        #     dictcongif[key].append("")
+    print(dictcongif)
+    # Dataframe to dictionary
+    df = pd.DataFrame.from_dict(dictcongif)
+
+    return df
+
+def oneDTPP_analysis(argumentobj):
+    """
+    Function to run TPP-R and TP-MAP for 1DTPP analysis
+    @param tppr_tpmapmainfolder: FragPipe Output folder path
+    @param configfilename: location of the ready to input configuration file
+    @return: void
+    """
+
+    dict_filesfor_TPPR = {}
     fragpipeoutputfolder = argumentobj.fragpipeoutput_path
     #     os.chdir(fragpipeoutputfolder)
     print(f"folder = {fragpipeoutputfolder}")
@@ -581,10 +616,16 @@ def pre_TPPR(argumentobj):
 
                 if "annotation.txt" in file:
                     annotationfile = os.path.join(subdiritem, file)
-                    resultDT = fragpipe_to_TPPR(targetproteinfile, annotationfile)
+                    resultDT, tmttempdict = fragpipe_to_TPPR(targetproteinfile, annotationfile)
                     tpmapdescriptions = descriptionfile(targetproteinfile)
 
                     outputname = os.path.basename(item)
+
+                    if item in dict_filesfor_TPPR:
+                        print("There cannot bet two experiments with the same name and replicate number. Are there two annotation files under the same {} experiment folder?".format(item))
+                        sys.exit(1)
+                    else:
+                        dict_filesfor_TPPR[item] = [item,fragpipeoutputfolder,tmttempdict]
 
                     resultDT.to_csv(f"{outputname}.txt", sep='\t', index=False)
 
@@ -592,20 +633,16 @@ def pre_TPPR(argumentobj):
                         pickle.dump(tpmapdescriptions, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
-
-
-
-def oneDTPP_analysis(argumentobj):
-    """
-    Function to run TPP-R and TP-MAP for 1DTPP analysis
-    @param tppr_tpmapmainfolder: FragPipe Output folder path
-    @param configfilename: location of the ready to input configuration file
-    @return: void
-    """
-
+    print(f"dict_filesfor_TPPR = {dict_filesfor_TPPR}")
     tppr_tpmapmainfolder = argumentobj.fragpipeoutput_path
     configfilepath = argumentobj.configTPPR_path
     rhomewherepath = argumentobj.rhome_path
+
+    #Creating TPPR File
+    configurefile = TPPR_configconstrcution(dict_filesfor_TPPR)
+    configurefile.to_excel("TPP-TR_config.xlsx", index=False)
+
+    configfilepath = os.path.join(tppr_tpmapmainfolder, "TPP-TR_config.xlsx")
 
     #Runnig R package
     runningTPPR(tppr_tpmapmainfolder, configfilepath,rhomewherepath)
