@@ -169,12 +169,24 @@ public class CmdPercolator extends CmdBase {
         }
 
         if (inputLcmsFile.getPath().getFileName().toString().endsWith("_sub.mzML")) { // It is likely to be the sub mzML file from the first-pass. Find the weights file.
-          Path p = Paths.get(inputLcmsFile.getPath().toAbsolutePath().toString().replaceFirst("_sub\\.mzML$", "_percolator.weights"));
-          if (Files.exists(p) && Files.isRegularFile(p) && Files.isReadable(p)) {
-            cmdPp.add("--init-weights");
-            cmdPp.add(p.toAbsolutePath().toString());
-            cmdPp.add("--static");
-            cmdPp.add("--override");
+          String ss = inputLcmsFile.getPath().getFileName().toString().replaceFirst("_sub\\.mzML$", "_percolator.weights");
+          try {
+            List<Path> pList = Files.walk(inputLcmsFile.getPath().getParent()).filter(p -> {
+              String s = p.getFileName().toString();
+              return s.endsWith("_percolator.weights") && s.contentEquals(ss);
+            }).collect(Collectors.toList());
+
+            if (pList.size() > 1) {
+              throw new IllegalStateException("Found more than one weights file: " + pList.stream().map(p -> p.toAbsolutePath().toString()).collect(Collectors.joining(", ")));
+            } else if (pList.size() == 1) {
+              cmdPp.add("--init-weights");
+              cmdPp.add(pList.get(0).toAbsolutePath().toString());
+              cmdPp.add("--static");
+              cmdPp.add("--override");
+            }
+          } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
           }
         }
 
