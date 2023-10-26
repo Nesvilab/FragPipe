@@ -52,12 +52,10 @@ public class CmdTpp extends CmdBase{
 
         //Main FRagPipe Ouput Folder
         final Path folderpath;
-        //Configuration File for TPPR (1DTPP Analysis Only)
-        final Path configpath;
-        //"ratio_protein_None.tsv" file for 2DTPP Analysis only
+        //TMT output needed for 2DTPP Analysis
         final Path tmtipath;
         // Get file paths
-        if (tabDownstream.paneltpp.ispreoneDTpp()) {
+        if (tabDownstream.paneltpp.isoneDTppR()) {
             folderpath = wd;
             configpath = null;
             tmtipath = null;
@@ -105,32 +103,23 @@ public class CmdTpp extends CmdBase{
 
         //Here add parameters in the order needed by the command line
 
-        // 1) check pre1DTPP Analysis
-        cmd.add(String.valueOf(tabDownstream.paneltpp.ispreoneDTpp()));
+        // 1) check 1DTPP (TPP-R) Analysis
+        cmd.add(String.valueOf(tabDownstream.paneltpp.isoneDTppR()));
         //2) check 1DTPP Analysis
         cmd.add(String.valueOf(tabDownstream.paneltpp.isoneDTpp()));
         //3) check 2DTPP Analysis
         cmd.add(String.valueOf(tabDownstream.paneltpp.istwoDTpp()));
-
         //4) FragPipeoutput folder
         cmd.add(folderpath.toString());
+        //5) get path to local R installation
+        cmd.add(tabDownstream.paneltpp.getRHOME());
 
-
-        if (tabDownstream.paneltpp.isoneDTpp()) {
-            //5) get path to local R installation
-            cmd.add(tabDownstream.paneltpp.getRHOME());
-            //6) get path to TPPR configuration file
-            //assert configpath != null;
-            cmd.add(configpath.toString());
-        } else if  (tabDownstream.paneltpp.istwoDTpp()) {
+        if (tabDownstream.paneltpp.istwoDTpp()) {
             //5) get path to local R installation
             cmd.add(" ");
-            //6) get path to TPPR configuration file
-            //assert configpath != null;
-            cmd.add(" ");
-            //7) get path to database file (already in string form from CmdBase)
+            //6) get path to database file (already in string form from CmdBase)
             cmd.add(pathFasta.toString());
-            //8 Path to "ratio_protein_None.tsv", output by TMTI
+            //7 Path to "ratio_protein_None.tsv", output by TMTI
             //assert tmtipath != null;
             cmd.add(tmtipath.toString());
 
