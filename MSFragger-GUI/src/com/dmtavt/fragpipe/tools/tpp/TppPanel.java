@@ -34,7 +34,7 @@ public class TppPanel extends JPanelBase {
     private UiCheck checkTPP;
 
     /*checkpreoneDTPP, check button to tell FragPipe that data needs to get ready for 1DAnalysis*/
-    private UiCheck checkpreONEDTPP;
+    private UiCheck checkONEDTPPR;
 
     /*checkpreoneDTPP, check button to tell FragPipe that user is now ready to run 1DTPP (configuration file has been set)*/
     private UiCheck checkONEDTPP;
@@ -92,7 +92,7 @@ public class TppPanel extends JPanelBase {
         return uiTextRHOME.getNonGhostText();
     }
     public boolean isRunTpp() {return isRun(); }
-    public boolean ispreoneDTpp() {return checkpreONEDTPP.isSelected(); }
+    public boolean isoneDTppR() {return checkONEDTPPR.isSelected(); }
     public boolean isoneDTpp() {return checkONEDTPP.isSelected(); }
     public boolean istwoDTpp() {return checkTWODTPP.isSelected(); }
 
@@ -110,26 +110,26 @@ public class TppPanel extends JPanelBase {
 
     private JPanel createPanelTPP() {
         JPanel p = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
-        /*pre1DTPP*/
-        checkpreONEDTPP = UiUtils.createUiCheck("pre1DTPP", false);
-        checkpreONEDTPP.setName("tpp.preonedtpp");
-        checkpreONEDTPP.setToolTipText("If check, protein.tsv ouput will be converted to TPPR input");
-        /*1DTPP*/
-        checkONEDTPP = UiUtils.createUiCheck("1DTPP", false);
+        /*Full 1DTPP done by TPP-R*/
+        checkONEDTPPR = UiUtils.createUiCheck("1DTPP (TPP-R)", false);
+        checkONEDTPPR.setName("tpp.onetppr");
+        checkONEDTPPR.setToolTipText("If check, it will perform 1DTPP analysis by TPP-R.");
+        /*Full 1DTPP done by TP-MAP*/
+        checkONEDTPP = UiUtils.createUiCheck("1DTPP (TP-MAP)", false);
         checkONEDTPP.setName("tpp.onedtpp");
-        checkONEDTPP.setToolTipText("Only check if pre1DTPP has been run and configuration file TPP-TR_config.xlsx is ready. " +
+        checkONEDTPP.setToolTipText("If check, it will perform 1DTPP analysis by TP-MAP." +
                 "If check runs 1DTPP analysis.");
-        /*2DTPP*/
-        checkTWODTPP = UiUtils.createUiCheck("2DTPP", false);
+        /*Full 2DTPP done by TP-MAP*/
+        checkTWODTPP = UiUtils.createUiCheck("2DTPP (TP-MAP)", false);
         checkTWODTPP.setName("tpp.twodtpp");
-        checkTWODTPP.setToolTipText("If check, 2DTPP will be run");
+        checkTWODTPP.setToolTipText("If check, it will perform 2DTPP analysis by TP-MAP.\"");
         /*Path to local installation of R*/
 
 
         uiTextRHOME = UiUtils.uiTextBuilder().cols(15).create();
         FormEntry RHOME = mu.feb(uiTextRHOME).name("fpop.RHOMEPath").label("R local path").tooltip("Local installation of R.").create();
 
-        mu.add(p, checkpreONEDTPP).split();
+        mu.add(p, checkONEDTPPR).split();
         mu.add(p, checkONEDTPP).split();
         mu.add(p, checkTWODTPP).split();
         mu.add(p, RHOME.label(), mu.ccR());
