@@ -27,7 +27,7 @@ class Parameters(object):
     fasfile_path: str
     tmtifile_path: str
 
-    def __init__(self,  preoneDTPPboo, oneDTPPboo, twoDTPPboo, mainfolderval, rlocalinstall = None, fasfileval = None, tmtifileval = None):
+    def __init__(self, oneDTPPbooR, oneDTPPboo, twoDTPPboo, mainfolderval, rlocalinstall = None, fasfileval = None, tmtifileval = None):
 
         #Used the print statements below to fix a postional argument conundrum
         # print(type(fasfileval))
@@ -39,7 +39,7 @@ class Parameters(object):
         # print(rlocalinstall)
         # print(configTPPRval)
 
-        self.preoneDTPP_bool = preoneDTPPboo.lower().strip() == 'true'
+        self.oneDTPPR_bool = oneDTPPbooR.lower().strip() == 'true'
         self.oneDTPP_bool = oneDTPPboo.lower().strip() == 'true'
         self.twoDTPP_bool =  twoDTPPboo.lower().strip() == 'true'
         self.fragpipeoutput_path = mainfolderval
@@ -84,12 +84,12 @@ def main():
     argv = sys.argv[1:]
     if len(argv) == 0:
         print('Example usage:')
-        print('python3 TPP-FragPipeDownstream.py [pre1DTPP bool] [1DTPP bool] [2DTPP bool] [FragPipe Output folder] [R location] [database fas file name (2DTPP analysis only)] [TMTI file name (2DTPP analysis only)]')
+        print('python3 TPP-FragPipeDownstream.py [1DTPP (TPP_R) bool] [1DTPP (TP-MAP) bool] [2DTPP bool] [FragPipe Output folder] [R location] [database fas file name (2DTPP analysis only)] [TMTI file name (2DTPP analysis only)]')
         sys.exit(0)
 
     params = Parameters(*argv)
-    if params.preoneDTPP_bool:
-        pre_TPPR(params)
+    if params.oneDTPPR_bool:
+        oneDTPPR_analysis(params)
     elif params.oneDTPP_bool:
         oneDTPP_analysis(params)
     elif params.twoDTPP_bool:
@@ -225,7 +225,7 @@ def descriptionfile(file_path):
 
 
 
-def runningTPPR(outputlocation, tpprconfiglocation, rhomelocation):
+def runningTPPR(outputlocation, tpprconfiglocation, rhomelocation, mode = None):
     """
     Function to run R-script that normalized data using TPP_R
     @param outputlocation: where to save the TPP_R output
@@ -241,9 +241,9 @@ def runningTPPR(outputlocation, tpprconfiglocation, rhomelocation):
     from rpy2.robjects.packages import SignatureTranslatedAnonymousPackage
     # print(os.environ)
 
-    # TPPR_Normalization_rpy2.R code below
+    # Rcode
 
-    scriptRstr = """
+    RNormOnly = """
     #!/usr/bin/env Rscript
 
 #Install pacakge
@@ -283,8 +283,34 @@ tpprNormOneDTPP <- function(configurepath,resultPath){
 }
     """
 
-    tpprpack = SignatureTranslatedAnonymousPackage(scriptRstr, "tpprpack")
-    tpprpack.tpprNormOneDTPP(tpprconfiglocation,outputlocation)
+    Full_workflow = """
+    #!/usr/bin/env Rscript
+
+#Install pacakge
+if (!require("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+
+BiocManager::install("TPP", ask=FALSE)
+
+options(echo=TRUE)
+
+library(TPP)
+
+fullOneDTPP <- function(configurepath,resultPath){
+  
+  TPPTR_result <- analyzeTPPTR(configurepath,resultPath = resultPath, methods = "meltcurvefit",idVar= "Prot_ID")
+  
+  }
+
+    """
+
+    if mode == "NormOnly":
+        tpprpack = SignatureTranslatedAnonymousPackage(RNormOnly, "tpprpack")
+        tpprpack.tpprNormOneDTPP(tpprconfiglocation,outputlocation)
+    else:
+        tpprpack = SignatureTranslatedAnonymousPackage(Full_workflow, "tpprpack")
+        tpprpack.fullOneDTPP(tpprconfiglocation,outputlocation)
+
 
 
 def TPPR_to_TPMAP(froutputfolder):
@@ -520,12 +546,85 @@ def twoDTPP_analysis(argumentobj):
     tpmapDT.to_csv(f"2DTPP.tpmap.txt", sep='\t', index=False)
 
 #End of 2DTPP code
-def pre_TPPR(argumentobj):
+def oneDTPPR_analysis(argumentobj):
     """
-    Function transform protein.tsv files into TPPR input
-    :return: void
+    Function to run TPP-R and TP-MAP for 1DTPP analysis
+    @param tppr_tpmapmainfolder: FragPipe Output folder path
+    @param configfilename: location of the ready to input configuration file
+    @return: void
     """
-    #TODO: Add Full TPPR option Here
+
+    dict_filesfor_TPPR = {}
+    fragpipeoutputfolder = argumentobj.fragpipeoutput_path
+
+    #Create TPP folder results
+    tpprfolder = os.path.join(fragpipeoutputfolder,"1DTPP-TPPR")
+    if not os.path.exists(tpprfolder):
+        os.mkdir(tpprfolder)
+
+    print(f"folder = {fragpipeoutputfolder}")
+    diritems = [x for x in os.listdir(fragpipeoutputfolder)]
+    # print(f"files = {diritems}")
+
+    # For each experiments
+    for item in diritems:
+        print(f"item = {item}")
+
+        # Continue if the item is not a folder
+        if item.find(".") > -1:
+            continue
+        else:
+
+            # Go to experiment file
+            subdiritem = os.path.join(fragpipeoutputfolder, item)
+
+            # print(f"subdiritem = {subdiritem}")
+
+            subdirfiles = [x for x in os.listdir(subdiritem)]
+
+            # print(f"subdirfiles = {subdirfiles}")
+
+            for file in subdirfiles:
+
+                # It is given the protein.tsv will be here, but also requite the annotation file
+
+                targetproteinfile = os.path.join(subdiritem, "protein.tsv")
+
+                if "annotation.txt" in file:
+                    annotationfile = os.path.join(subdiritem, file)
+                    resultDT, tmttempdict = fragpipe_to_TPPR(targetproteinfile, annotationfile)
+                    tpmapdescriptions = descriptionfile(targetproteinfile)
+
+                    outputname = os.path.basename(item)
+
+                    if item in dict_filesfor_TPPR:
+                        print("There cannot bet two experiments with the same name and replicate number. Are there two annotation files under the same {} experiment folder?".format(item))
+                        sys.exit(1)
+                    else:
+                        dict_filesfor_TPPR[item] = [item,tpprfolder,tmttempdict]
+
+                    tpprinputfile = os.path.join(tpprfolder,f"{outputname}.txt")
+                    resultDT.to_csv(tpprinputfile , sep='\t', index=False)
+
+                    pickefilefortppr = os.path.join(tpprfolder,f"{os.path.basename(subdiritem)}_descriptpmap.pickle")
+                    with open(pickefilefortppr, 'wb') as handle:
+                        pickle.dump(tpmapdescriptions, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+
+    print(f"dict_filesfor_TPPR = {dict_filesfor_TPPR}")
+    #configfilepath = argumentobj.configTPPR_path
+    rhomewherepath = argumentobj.rhome_path
+
+    #Creating TPPR File
+    configurefile = TPPR_configconstrcution(dict_filesfor_TPPR)
+
+    configfilepath = os.path.join(tpprfolder,"TPP-TR_config.xlsx")
+    configurefile.to_excel(configfilepath, index=False)
+
+
+    #Runnig R package
+    runningTPPR(tpprfolder,configfilepath,rhomewherepath, mode = "Complete")
+
 
 
 def TPPR_configconstrcution(dictoffiles):
@@ -587,8 +686,9 @@ def oneDTPP_analysis(argumentobj):
     fragpipeoutputfolder = argumentobj.fragpipeoutput_path
 
     #Create TPP folder results
-    tpprfolder = os.path.join(fragpipeoutputfolder,"Thermal Protein Profiling")
-    os.mkdir(tpprfolder)
+    tppmapfolder = os.path.join(fragpipeoutputfolder,"1DTPP-TPMAP")
+    if not os.path.exists(tppmapfolder):
+        os.mkdir(tppmapfolder)
     print(f"folder = {fragpipeoutputfolder}")
     diritems = [x for x in os.listdir(fragpipeoutputfolder)]
     # print(f"files = {diritems}")
@@ -628,12 +728,12 @@ def oneDTPP_analysis(argumentobj):
                         print("There cannot bet two experiments with the same name and replicate number. Are there two annotation files under the same {} experiment folder?".format(item))
                         sys.exit(1)
                     else:
-                        dict_filesfor_TPPR[item] = [item,tpprfolder,tmttempdict]
+                        dict_filesfor_TPPR[item] = [item,tppmapfolder,tmttempdict]
 
-                    tpprinputfile = os.path.join(tpprfolder,f"{outputname}.txt")
+                    tpprinputfile = os.path.join(tppmapfolder,f"{outputname}.txt")
                     resultDT.to_csv(tpprinputfile , sep='\t', index=False)
 
-                    pickefilefortppr = os.path.join(tpprfolder,f"{os.path.basename(subdiritem)}_descriptpmap.pickle")
+                    pickefilefortppr = os.path.join(tppmapfolder,f"{os.path.basename(subdiritem)}_descriptpmap.pickle")
                     with open(pickefilefortppr, 'wb') as handle:
                         pickle.dump(tpmapdescriptions, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
@@ -645,16 +745,16 @@ def oneDTPP_analysis(argumentobj):
     #Creating TPPR File
     configurefile = TPPR_configconstrcution(dict_filesfor_TPPR)
 
-    configfilepath = os.path.join(tpprfolder,"TPP-TR_config.xlsx")
+    configfilepath = os.path.join(tppmapfolder,"TPP-TR_config.xlsx")
     configurefile.to_excel(configfilepath, index=False)
 
     # configfilepath = os.path.join(fragpipeoutputfolder, "TPP-TR_config.xlsx")
 
     #Runnig R package
-    runningTPPR(tpprfolder, configfilepath,rhomewherepath)
+    runningTPPR(tppmapfolder, configfilepath,rhomewherepath, mode = "NormOnly")
 
     #Convert TPP-R output into TP-MAP input
-    TPPR_to_TPMAP(tpprfolder)
+    TPPR_to_TPMAP(tppmapfolder)
 
 
 if __name__ == "__main__":
