@@ -17,6 +17,19 @@
 
 package com.dmtavt.fragpipe.tabs;
 
+import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.ACTIVATION_TYPES;
+import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.ACTIVATION_TYPE_ALL;
+import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.ACTIVATION_TYPE_CID;
+import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.ACTIVATION_TYPE_ECD;
+import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.ACTIVATION_TYPE_ETD;
+import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.ACTIVATION_TYPE_HCD;
+import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTIONS;
+import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTION_labile;
+import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTION_nglycan;
+import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTION_off;
+import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.PROP_group_variable;
+import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.PROP_mass_offset_file;
+
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.FragpipeCacheUtils;
@@ -43,7 +56,6 @@ import com.dmtavt.fragpipe.tools.fragger.Mod;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerEnzyme;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerProps;
-import com.dmtavt.fragpipe.util.GlycoMassLoader;
 import com.dmtavt.fragpipe.util.SDRFtable;
 import com.github.chhh.utils.MapUtils;
 import com.github.chhh.utils.StringUtils;
@@ -82,8 +94,20 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -117,7 +141,6 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.*;
 
 public class TabMsfragger extends JPanelBase {
   private static final Logger log = LoggerFactory.getLogger(TabMsfragger.class);
@@ -1650,6 +1673,9 @@ public class TabMsfragger extends JPanelBase {
     Set<Float> outputSet = new TreeSet<>();
     String[] ss = epMassOffsets.getNonGhostText().trim().split("[/\\s]+");
     for (String s : ss) {
+      if (s.isEmpty()) {
+        continue;
+      }
       float v = Float.parseFloat(s);
       if (Math.abs(v) > 0.01f) {
         outputSet.add(v);
