@@ -35,16 +35,14 @@ class Parameters(object):
         # print(fasfileval)
         # print(tmtifileval)
         # print(type(rlocalinstall))
-        # print(type(configTPPRval))
         # print(rlocalinstall)
-        # print(configTPPRval)
+
 
         self.oneDTPPR_bool = oneDTPPbooR.lower().strip() == 'true'
         self.oneDTPP_bool = oneDTPPboo.lower().strip() == 'true'
         self.twoDTPP_bool =  twoDTPPboo.lower().strip() == 'true'
         self.fragpipeoutput_path = mainfolderval
         self.rhome_path = rlocalinstall
-        #self.configTPPR_path = configTPPRval
         self.fasfile_path =  fasfileval
         self.tmtifile_path = tmtifileval
         self.check_file_paths()
@@ -56,14 +54,11 @@ class Parameters(object):
         if self.oneDTPP_bool and not os.path.exists(self.rhome_path):
             print('Error: R path {} does not exist! Stopping analysis.'.format(self.rhome_path))
             sys.exit(1)
-        # if self.oneDTPP_bool and not os.path.exists(self.configTPPR_path):
-        #     print('Error: TPPR configuration file {} does not exist! Stopping analysis.'.format(self.configTPPR_path))
-        #     sys.exit(1)
         if self.twoDTPP_bool and not os.path.exists(self.fasfile_path):
             print('Error: database file {} does not exist! Stopping analysis.'.format(self.fasfile_path))
             sys.exit(1)
         if self.twoDTPP_bool and not os.path.exists(self.tmtifile_path):
-            print('Error: TMTI file {} does not exist! Stopping analysis.'.format(self.self.tmtifile_path))
+            print('Error: TMTI file {} does not exist! Stopping analysis.'.format(self.tmtifile_path))
             sys.exit(1)
 
 def main():
@@ -392,7 +387,7 @@ def TPPR_to_TPMAP(froutputfolder):
         concatDT.loc[idxval, 'Description'] = masterdict[idxval]
 
     # Save TP-MAP compatible file
-    outname = os.path.join(froutputfolder, 'TPMAPcompatible.tpmap.txt')
+    outname = os.path.join(froutputfolder, '1DTPP.tpmap.txt')
     concatDT.to_csv(outname, sep='\t', index=True)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~2DTPP code~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
@@ -542,7 +537,11 @@ def twoDTPP_analysis(argumentobj):
     tmtifilepath = argumentobj.tmtifile_path
     tpmapDT = dataframecreator(fastadatabsefile, tmtifilepath)
     print(tpmapDT)
-    os.chdir(argumentobj.fragpipeoutput_path)
+
+    #Create folder to save 2DTPP Results
+    twodtpp_output = os.path.join(argumentobj.fragpipeoutput_path, "2DTPP")
+    os.mkdir(twodtpp_output)
+    os.chdir(twodtpp_output)
     tpmapDT.to_csv(f"2DTPP.tpmap.txt", sep='\t', index=False)
 
 #End of 2DTPP code
