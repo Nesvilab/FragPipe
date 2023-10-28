@@ -55,11 +55,10 @@ public class CmdTpp extends CmdBase{
         //TMT output needed for 2DTPP Analysis
         final Path tmtipath;
         // Get file paths
-        if (tabDownstream.paneltpp.isoneDTppR()) {
+        if (tabDownstream.paneltpp.isoneDTppR() || tabDownstream.paneltpp.isoneDTpp()) {
             folderpath = wd;
             configpath = null;
             tmtipath = null;
-
         } else if (tabDownstream.paneltpp.isoneDTpp()){
             folderpath = wd;
             configpath = wd.resolve("TPP-TR_config.xlsx");
@@ -111,10 +110,12 @@ public class CmdTpp extends CmdBase{
         cmd.add(String.valueOf(tabDownstream.paneltpp.istwoDTpp()));
         //4) FragPipeoutput folder
         cmd.add(folderpath.toString());
-        //5) get path to local R installation
-        cmd.add(tabDownstream.paneltpp.getRHOME());
 
-        if (tabDownstream.paneltpp.istwoDTpp()) {
+        if (tabDownstream.paneltpp.isoneDTppR() || tabDownstream.paneltpp.isoneDTpp()) {
+            //5) get path to local R installation
+            cmd.add(tabDownstream.paneltpp.getRHOME());
+
+        } else if (tabDownstream.paneltpp.istwoDTpp()) {
             //5) get path to local R installation
             cmd.add(" ");
             //6) get path to database file (already in string form from CmdBase)
