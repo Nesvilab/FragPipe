@@ -126,7 +126,7 @@ def renaming_dict(annotationfile):
             explabelspl = explabel.split("_")
             configtemplabel = explabelspl[0]
             tempvalsfortppr[configtmtlabel] = float(configtemplabel)
-    print(f"tempvalsfortppr={tempvalsfortppr}")
+    # print(f"tempvalsfortppr={tempvalsfortppr}")
     return outputrenamingdict, tempvalsfortppr
 
 def fragpipe_to_TPPR(filepath, annotfile):
@@ -540,7 +540,8 @@ def twoDTPP_analysis(argumentobj):
 
     #Create folder to save 2DTPP Results
     twodtpp_output = os.path.join(argumentobj.fragpipeoutput_path, "2DTPP")
-    os.mkdir(twodtpp_output)
+    if not os.path.exists(twodtpp_output):
+        os.mkdir(twodtpp_output)
     os.chdir(twodtpp_output)
     tpmapDT.to_csv(f"2DTPP.tpmap.txt", sep='\t', index=False)
 
