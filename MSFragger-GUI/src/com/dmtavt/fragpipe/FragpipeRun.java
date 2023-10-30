@@ -1910,7 +1910,7 @@ public class FragpipeRun {
     addToGraph(graphOrder, cmdTmt, DIRECTION.IN, cmdPhilosopherReport, cmdTmtFreequant, cmdTmtLabelQuant, cmdPhilosopherAbacus, cmdPtmshepherd, cmdTmtIonquant, cmdTmtIonquantIsobaric);
     addToGraph(graphOrder, cmdTmtFpop, DIRECTION.IN, cmdPhilosopherReport, cmdTmtFreequant, cmdTmtLabelQuant, cmdPhilosopherAbacus, cmdPtmshepherd, cmdTmtIonquant, cmdTmtIonquantIsobaric);
     addToGraph(graphOrder, cmdFpopQuant, DIRECTION.IN, cmdIonquant, cmdTmt, cmdTmtFpop);
-    addToGraph(graphOrder, cmdTpp, DIRECTION.IN);
+    addToGraph(graphOrder, cmdTpp, DIRECTION.IN, cmdTmt);
     addToGraph(graphOrder, cmdSpecLibGen, DIRECTION.IN, cmdPhilosopherReport);
     addToGraph(graphOrder, cmdDiann, DIRECTION.IN, cmdSpecLibGen);
     addToGraph(graphOrder, cmdWriteSubMzml, DIRECTION.IN, cmdPhilosopherReport);
