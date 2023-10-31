@@ -85,6 +85,8 @@ public class SpeclibPanel extends JPanelBase {
   private JCheckBox check_fragment_type_y;
   private JCheckBox check_fragment_type_z;
   private JCheckBox uiCheckNeutralLoss;
+  private JCheckBox uiCheckLabileMode;
+  private JCheckBox uiCheckConvertPsmtsv;
   private JPanel panelEasypqp;
   public static final String EASYPQP_TIMSTOF = "timsTOF";
   public static final String EASYPQP_EXTRAS_PREFIX = "easypqp.extras.";
@@ -150,6 +152,10 @@ public class SpeclibPanel extends JPanelBase {
 
     checkKeepIntermediateFiles = new UiCheck("keep intermediate files", null, false);
     checkKeepIntermediateFiles.setName("keep-intermediate-files");
+
+    uiCheckConvertPsmtsv = new UiCheck("convert from psm.tsv", null, false);
+    uiCheckConvertPsmtsv.setName("convert-psm");
+    uiCheckConvertPsmtsv.setToolTipText("Use psm.tsv files for library generation instead of pepxml. Required for glyco searches.");
 
     final String optionAuto = "Automatic selection of a run as reference RT";
     final String optionManual = "User provided RT calibration file";
@@ -266,7 +272,11 @@ public class SpeclibPanel extends JPanelBase {
     uiCheckNeutralLoss = new UiCheck("neutral loss", null, false);
     FormEntry feNeutralLoss = mu.feb(uiCheckNeutralLoss).name("easypqp.neutral_loss").label("neutral loss").tooltip("Add neutral loss fragments to the spectral library.").create();
 
-    mu.add(p, checkKeepIntermediateFiles).wrap();
+    uiCheckLabileMode = new UiCheck("labile mode", null, false);
+    FormEntry feLabileMode = mu.feb(uiCheckLabileMode).name("easypqp.labile_mode").label("labile mode").tooltip("Consider loss of labile modifications from fragments. Currently O-glycans only.").create();
+
+    mu.add(p, checkKeepIntermediateFiles);
+    mu.add(p, uiCheckConvertPsmtsv).wrap();
 
     mu.add(p, fePqpCal.label(), ccR());
     mu.add(p, fePqpCal.comp).split();
@@ -292,7 +302,8 @@ public class SpeclibPanel extends JPanelBase {
 
     mu.add(p, fe_max_delta_unimod.label(), mu.ccR());
     mu.add(p, fe_max_delta_unimod.comp).split();
-    mu.add(p, feNeutralLoss.comp).gapLeft("127").alignX("right").wrap();
+    mu.add(p, feNeutralLoss.comp).gapLeft("127").alignX("right");
+    mu.add(p, feLabileMode.comp).wrap();
 
     mu.add(p, fe_max_delta_ppm.label(), mu.ccR());
     mu.add(p, fe_max_delta_ppm.comp).wrap();
@@ -461,5 +472,11 @@ public class SpeclibPanel extends JPanelBase {
 
   public boolean hasNeutralLoss() {
     return uiCheckNeutralLoss.isSelected();
+  }
+  public boolean useLabileMode() {
+    return uiCheckLabileMode.isSelected();
+  }
+  public boolean isConvertPSM() {
+    return uiCheckConvertPsmtsv.isSelected();
   }
 }

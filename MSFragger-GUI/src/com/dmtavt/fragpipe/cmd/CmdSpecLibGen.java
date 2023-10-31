@@ -60,7 +60,7 @@ public class CmdSpecLibGen extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, SpecLibGen2 slg, Map<LcmsFileGroup, Path> mapGroupsToProtxml, String fastaPath, boolean isRunProteinProphet, InputDataType dataType, int threads) {
+  public boolean configure(Component comp, SpecLibGen2 slg, Map<LcmsFileGroup, Path> mapGroupsToProtxml, String fastaPath, boolean isRunProteinProphet, InputDataType dataType, int threads, String decoyTag) {
 
     initPreConfig();
 
@@ -166,7 +166,13 @@ public class CmdSpecLibGen extends CmdBase {
       final String fragment_types = speclibPanel.getEasypqp_fragment_types(); // EasyPQP convert
       final double rt_lowess_fraction = speclibPanel.getEasypqpRTLowessFraction(); // EasyPQP library
 
-      cmd.add(OsUtils.asSingleArgument(String.format("--unimod %s --max_delta_unimod %s --max_delta_ppm %s --fragment_types %s %s", unimodPath.toAbsolutePath().toString().replace("\\", "/"), max_delta_unimod, max_delta_ppm, fragment_types.replace("'", "\\'"), speclibPanel.hasNeutralLoss() ? "--enable_unspecific_losses" : ""))); // EasyPQP convert args
+      cmd.add(OsUtils.asSingleArgument(String.format("--max_delta_unimod %s --max_delta_ppm %s --fragment_types %s %s%s%s",
+              max_delta_unimod,
+              max_delta_ppm,
+              fragment_types.replace("'", "\\'"),
+              speclibPanel.hasNeutralLoss() ? "--enable_unspecific_losses " : "",
+              speclibPanel.isConvertPSM() ? "--decoy_prefix " + decoyTag + " ": "",
+              speclibPanel.useLabileMode() ? "--labile_mods True" : "--labile_mods False")));   // EasyPQP convert args
 
       cmd.add(OsUtils.asSingleArgument(String.format("--rt_lowess_fraction %s", rt_lowess_fraction))); // EasyPQP library args
 

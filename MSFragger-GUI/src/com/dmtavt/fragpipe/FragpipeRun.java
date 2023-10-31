@@ -183,6 +183,7 @@ public class FragpipeRun {
       Pattern.compile("razor\\.bin"),
       Pattern.compile("raw\\.bin"),
       Pattern.compile("lfq\\.bin"),
+      Pattern.compile("temp-psm\\.tsv")
   };
   private static final Pattern fppdvDbPattern = Pattern.compile(".+\\.db");
 
@@ -1882,7 +1883,7 @@ public class FragpipeRun {
         }
         final SpecLibGen2 slg = speclibConf.instance;
 
-        return cmdSpecLibGen.configure(parent, slg, sharedMapGroupsToProtxml, fastaFile, isRunProteinProphet, tabWorkflow.getInputDataType(), threads);
+        return cmdSpecLibGen.configure(parent, slg, sharedMapGroupsToProtxml, fastaFile, isRunProteinProphet, tabWorkflow.getInputDataType(), threads, decoyTag);
       }
       return true;
     });
@@ -1980,7 +1981,7 @@ public class FragpipeRun {
     addToGraph(graphOrder, cmdTmt, DIRECTION.IN, cmdPhilosopherReport, cmdTmtFreequant, cmdTmtLabelQuant, cmdPhilosopherAbacus, cmdPtmshepherd, cmdTmtIonquant, cmdTmtIonquantIsobaric);
     addToGraph(graphOrder, cmdTmtFpop, DIRECTION.IN, cmdPhilosopherReport, cmdTmtFreequant, cmdTmtLabelQuant, cmdPhilosopherAbacus, cmdPtmshepherd, cmdTmtIonquant, cmdTmtIonquantIsobaric);
     addToGraph(graphOrder, cmdFpopQuant, DIRECTION.IN, cmdIonquant, cmdTmt, cmdTmtFpop);
-    addToGraph(graphOrder, cmdSpecLibGen, DIRECTION.IN, cmdPhilosopherReport);
+    addToGraph(graphOrder, cmdSpecLibGen, DIRECTION.IN, cmdPhilosopherReport, cmdOPair);
     addToGraph(graphOrder, cmdDiann, DIRECTION.IN, cmdSpecLibGen);
     addToGraph(graphOrder, cmdWriteSubMzml, DIRECTION.IN, cmdPhilosopherReport);
 
