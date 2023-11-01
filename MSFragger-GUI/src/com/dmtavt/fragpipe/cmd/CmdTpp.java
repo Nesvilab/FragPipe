@@ -57,20 +57,16 @@ public class CmdTpp extends CmdBase{
         // Get file paths
         if (tabDownstream.paneltpp.isoneDTppR() || tabDownstream.paneltpp.isoneDTpp()) {
             folderpath = wd;
-            configpath = null;
             tmtipath = null;
         } else if (tabDownstream.paneltpp.isoneDTpp()){
             folderpath = wd;
-            configpath = wd.resolve("TPP-TR_config.xlsx");
             tmtipath = null;
         } else if (tabDownstream.paneltpp.istwoDTpp()){
             folderpath = wd;
             Path tmtDir = wd.resolve("tmt-report");
             tmtipath = tmtDir.resolve("ratio_protein_None.tsv");
-            configpath = null;
         }else{
             folderpath = null;
-            configpath = null;
             tmtipath = null;
 
         }
