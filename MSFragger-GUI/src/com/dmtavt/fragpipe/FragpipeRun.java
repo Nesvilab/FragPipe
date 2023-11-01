@@ -1780,7 +1780,7 @@ public class FragpipeRun {
     addConfig.accept(cmdWriteSubMzml, () -> {
       cmdWriteSubMzml.setRun(cmdWriteSubMzml.isRun() && !sharedLcmsFileGroups.isEmpty());
       if (cmdWriteSubMzml.isRun()) {
-        return cmdWriteSubMzml.configure(parent, jarPath, ramGb, threads, sharedLcmsFileGroups, tabRun.getSubMzmlProbThreshold(), tabMsf.isRun());
+        return cmdWriteSubMzml.configure(parent, jarPath, ramGb, threads, sharedLcmsFileGroups, tabRun.getSubMzmlProbThreshold(), tabMsf.isRun(), tabWorkflow.hasDataType("DIA"), tabWorkflow.hasDataType("GPF-DIA"), tabWorkflow.hasDataType("DIA-Lib"), tabWorkflow.hasDataType("WWA"));
       }
       return true;
     });
