@@ -603,6 +603,10 @@ public class FragpipeRun {
                   line = "msfragger.precursor_true_tolerance=" + newPrecursorTrueTolerance;
                 } else if (newPrecursorTrueTolerance != null && line.startsWith("msfragger.precursor_true_units")) {
                   line = "msfragger.precursor_true_units=1";
+                } else if (line.startsWith("database.db-path")) {
+                  line = "database.db-path=";
+                } else if (line.startsWith("database.decoy-tag")) {
+                  line = "database.decoy-tag=";
                 }
                 writer.write(line + "\n");
               }
