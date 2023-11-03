@@ -607,7 +607,10 @@ public class FragpipeRun {
                   line = "database.db-path=";
                 } else if (line.startsWith("database.decoy-tag")) {
                   line = "database.decoy-tag=";
+                } else if (line.startsWith("workdir=")) {
+                  line = "workdir=";
                 }
+                
                 writer.write(line + "\n");
               }
               writer.close();
