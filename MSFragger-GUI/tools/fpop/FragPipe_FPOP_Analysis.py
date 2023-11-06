@@ -161,8 +161,9 @@ def group_peptides_better(mod_pep_df, is_tmt):
                     index += 1
                     found_overlapping_peptides = False
                     for row in next_list:
-                        if row[COLUMN_NAMES['start'][col_type]] < highest_end:
-                            # found overlap, group with the others
+                        overlap = highest_end - row[COLUMN_NAMES['start'][col_type]]
+                        if overlap > len(row[COLUMN_NAMES['peptide'][col_type]]):
+                            # found overlap, group with the others. Must have at least half the peptide overlapping to be grouped together
                             row['is_grouped'] = True
                             peptide_groups[longest_pep].append(row)
                             found_overlapping_peptides = True
@@ -408,12 +409,12 @@ def compute_group_mod_ratio_tmt(filtered_dict):
                 for sample in sample_list:
                     unmod_ratios[sample].append(row[sample])
 
-        # generate ratios from sum of FPOP and non-FPOP intensities for each sample
+        # generate sums of FPOP and non-FPOP intensities for each sample
         for sample in sample_list:
-            mod_avg = np.average(mod_ratios[sample])        # todo: convert to weighted average, add option for median
-            unmod_avg = np.average(unmod_ratios[sample])
-            if unmod_avg != 0:
-                ratio_dict[sample] = mod_avg / unmod_avg
+            mod_sum = np.sum(mod_ratios[sample])
+            unmod_sum = np.sum(unmod_ratios[sample])
+            if unmod_sum != 0:
+                ratio_dict[sample] = mod_sum / unmod_sum
         output[group_name] = ratio_dict
     return output, sample_list, group_descriptions
 
