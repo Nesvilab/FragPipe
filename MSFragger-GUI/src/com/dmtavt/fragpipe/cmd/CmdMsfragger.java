@@ -662,12 +662,6 @@ public class CmdMsfragger extends CmdBase {
     paramsNew.setLabileSearchMode("off");
     paramsNew.setDeltamassAllowedResidues("all");
 
-    if (dataType.contentEquals("DIA") || dataType.contentEquals("GPF-DIA")) {
-      if (paramsNew.getCalibrateMass() > 1) {
-        paramsNew.setCalibrateMass(1);
-      }
-    }
-
     paramsNew.setMassDiffToVariableMod(0);
     paramsNew.setIsotopeError("0");
     paramsNew.setMassOffsets("0");
