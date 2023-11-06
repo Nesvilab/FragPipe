@@ -73,6 +73,7 @@ class Parameters(object):
         self.is_tmt = is_tmt.lower().strip() == 'true'
         self.unmod_tsv = unmod_tsv
         self.check_file_paths()
+        self.print_params()
 
     def check_file_paths(self):
         """
@@ -84,6 +85,24 @@ class Parameters(object):
         if self.is_tmt and not os.path.exists(self.unmod_tsv):
             print('Error: unmodified peptide file {} does not exist! Stopping analysis. Please check that the second TMT-Integrator run finished and generated report files'.format(self.unmod_tsv))
             sys.exit(1)
+
+    def print_params(self):
+        """
+        Print the parsed parameters
+        :return:
+        :rtype:
+        """
+        if self.is_tmt:
+            type_str = 'TMT'
+        else:
+            type_str = 'LFQ'
+        print(f'FPOP analysis parameters:\n'
+              f'\tAnalysis type: {type_str}\n'
+              f'\tSite Region Size: {self.region_size}\n'
+              f'\tSubtract Control Oxidation: {self.subtract_control}')
+        if self.subtract_control:
+            print(f'\tControl Label: {self.control_label}\n'
+                  f'\tFPOP Label: {self.fpop_label}')
 
 
 def parse_modified_peptide_tsv(filepath):
