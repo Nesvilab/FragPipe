@@ -636,6 +636,20 @@ public class FragpipeRun {
           }
         }
 
+        DiannPanel diannPanel = Bus.getStickyEvent(DiannPanel.class);
+        if (diannPanel != null && diannPanel.isRun()) {
+          try {
+            Files.walk(wd).filter(p -> p.getFileName().toString().endsWith(".speclib")).forEach(p -> {
+              try {
+                Path ppp = wd.resolve("diann-output");
+                if (Files.exists(ppp) && Files.isDirectory(ppp)) {
+                  Files.move(p, ppp.resolve(p.getFileName()));
+                }
+              } catch (Exception ignored) {}
+            });
+          } catch (Exception ignored) {}
+        }
+
         printReference(tabRun.console);
         String totalTime = String.format("%.1f", (System.nanoTime() - startTime) * 1e-9 / 60);
         toConsole(Fragpipe.COLOR_RED_DARKEST, "\n=============================================================ALL JOBS DONE IN " + totalTime + " MINUTES=============================================================", true, tabRun.console);
