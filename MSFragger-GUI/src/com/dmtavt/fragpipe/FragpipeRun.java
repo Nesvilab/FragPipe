@@ -32,6 +32,7 @@ import com.dmtavt.fragpipe.cmd.CmdBase;
 import com.dmtavt.fragpipe.cmd.CmdCheckCentroid;
 import com.dmtavt.fragpipe.cmd.CmdCrystalc;
 import com.dmtavt.fragpipe.cmd.CmdDiann;
+import com.dmtavt.fragpipe.cmd.CmdFpopQuant;
 import com.dmtavt.fragpipe.cmd.CmdFreequant;
 import com.dmtavt.fragpipe.cmd.CmdIonquant;
 import com.dmtavt.fragpipe.cmd.CmdIprophet;
@@ -59,18 +60,17 @@ import com.dmtavt.fragpipe.cmd.CmdWriteSubMzml;
 import com.dmtavt.fragpipe.cmd.PbiBuilder;
 import com.dmtavt.fragpipe.cmd.ProcessBuilderInfo;
 import com.dmtavt.fragpipe.cmd.ProcessBuildersDescriptor;
-import com.dmtavt.fragpipe.cmd.CmdFpopQuant;
 import com.dmtavt.fragpipe.exceptions.NoStickyException;
 import com.dmtavt.fragpipe.internal.DefEdge;
 import com.dmtavt.fragpipe.messages.MessageClearConsole;
 import com.dmtavt.fragpipe.messages.MessageManifestSave;
 import com.dmtavt.fragpipe.messages.MessageRun;
 import com.dmtavt.fragpipe.messages.MessageRunButtonEnabled;
+import com.dmtavt.fragpipe.messages.MessageSDRFsave;
 import com.dmtavt.fragpipe.messages.MessageSaveCache;
 import com.dmtavt.fragpipe.messages.MessageSaveLog;
 import com.dmtavt.fragpipe.messages.MessageSaveUiState;
 import com.dmtavt.fragpipe.messages.MessageStartProcesses;
-import com.dmtavt.fragpipe.messages.MessageSDRFsave;
 import com.dmtavt.fragpipe.messages.NoteConfigDatabase;
 import com.dmtavt.fragpipe.messages.NoteConfigIonQuant;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
@@ -81,7 +81,11 @@ import com.dmtavt.fragpipe.process.ProcessDescription;
 import com.dmtavt.fragpipe.process.ProcessDescription.Builder;
 import com.dmtavt.fragpipe.process.ProcessManager;
 import com.dmtavt.fragpipe.process.RunnableDescription;
-import com.dmtavt.fragpipe.tabs.*;
+import com.dmtavt.fragpipe.tabs.TabDatabase;
+import com.dmtavt.fragpipe.tabs.TabDownstream;
+import com.dmtavt.fragpipe.tabs.TabMsfragger;
+import com.dmtavt.fragpipe.tabs.TabRun;
+import com.dmtavt.fragpipe.tabs.TabWorkflow;
 import com.dmtavt.fragpipe.tabs.TabWorkflow.InputDataType;
 import com.dmtavt.fragpipe.tools.crystalc.CrystalcPanel;
 import com.dmtavt.fragpipe.tools.crystalc.CrystalcParams;
@@ -509,11 +513,6 @@ public class FragpipeRun {
           }
         }
 
-        printReference(tabRun.console);
-        String totalTime = String.format("%.1f", (System.nanoTime() - startTime) * 1e-9 / 60);
-        toConsole(Fragpipe.COLOR_RED_DARKEST, "\n=============================================================ALL JOBS DONE IN " + totalTime + " MINUTES=============================================================", true, tabRun.console);
-        Bus.post(MessageSaveLog.saveInDir(wd));
-
         // save SDRF after run to be able to check MSFragger optimized params from log
         if (tabRun.isSaveSDRF()) {
           QuantLabel label = tmtiPanel.isRun() ? tmtiPanel.getSelectedLabel() : null;
@@ -636,6 +635,11 @@ public class FragpipeRun {
             ex.printStackTrace();
           }
         }
+
+        printReference(tabRun.console);
+        String totalTime = String.format("%.1f", (System.nanoTime() - startTime) * 1e-9 / 60);
+        toConsole(Fragpipe.COLOR_RED_DARKEST, "\n=============================================================ALL JOBS DONE IN " + totalTime + " MINUTES=============================================================", true, tabRun.console);
+        Bus.post(MessageSaveLog.saveInDir(wd));
 
         Bus.post(new MessageRunButtonEnabled(true));
       };
