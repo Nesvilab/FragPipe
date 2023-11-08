@@ -98,7 +98,6 @@ max_fragment_charge = 2
 track_zero_topN = 0
 zero_bin_accept_expect = 0
 zero_bin_mult_expect = 1
-add_topN_complementary = 0
 
 check_spectral_files = 1
 minimum_peaks = 15

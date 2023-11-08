@@ -1498,8 +1498,6 @@ public class TabMsfragger extends JPanelBase {
     p.setBorder(new TitledBorder("Open Search Options"));
     FormEntry feTrackZeroTopN = mu.feb(MsfraggerParams.PROP_track_zero_topN,
         new UiSpinnerInt(0, 0, 1000, 5, 5)).label("Track zero top N").create();
-    FormEntry feAddTopNComplementary = mu.feb(MsfraggerParams.PROP_add_topN_complementary,
-        new UiSpinnerInt(0, 0, 1000, 2, 5)).label("Add top N complementary").create();
     UiSpinnerDouble spinnerZeroBinAcceptExpect = new UiSpinnerDouble(0, 0, Double.MAX_VALUE, 0.1, 5,
         new DecimalFormat("0.##########"));
     spinnerZeroBinAcceptExpect.setColumns(5);
@@ -1545,9 +1543,7 @@ public class TabMsfragger extends JPanelBase {
     mu.add(p, feComboMassDiffToVariableMod.comp).split().spanX().wrap();
 
     mu.add(p, feTrackZeroTopN.label(), mu.ccR());
-    mu.add(p, feTrackZeroTopN.comp);
-    mu.add(p, feAddTopNComplementary.label(), mu.ccR());
-    mu.add(p, feAddTopNComplementary.comp).pushX().wrap();
+    mu.add(p, feTrackZeroTopN.comp).wrap();
 
     mu.add(p, feZeroBinAcceptExpect.label(), mu.ccR());
     mu.add(p, feZeroBinAcceptExpect.comp);

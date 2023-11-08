@@ -138,7 +138,6 @@ public class MsfraggerParams extends AbstractParams {
     public static final String PROP_track_zero_topN = "track_zero_topN";
     public static final String PROP_zero_bin_accept_expect = "zero_bin_accept_expect";
     public static final String PROP_zero_bin_mult_expect = "zero_bin_mult_expect";
-    public static final String PROP_add_topN_complementary = "add_topN_complementary";
     public static final String PROP_localize_delta_mass = "localize_delta_mass";
     public static final String PROP_delta_mass_exclude_ranges = "delta_mass_exclude_ranges";
 
@@ -224,7 +223,6 @@ public class MsfraggerParams extends AbstractParams {
         PROP_track_zero_topN,
         PROP_zero_bin_accept_expect,
         PROP_zero_bin_mult_expect,
-        PROP_add_topN_complementary,
         PROP_localize_delta_mass,
         PROP_delta_mass_exclude_ranges,
         PROP_minimum_peaks,
@@ -384,7 +382,6 @@ public class MsfraggerParams extends AbstractParams {
         c.put(PROP_track_zero_topN, "Track top N unmodified peptide results separately from main results internally for boosting features.");
         c.put(PROP_zero_bin_accept_expect, "Ranks a zero-bin hit above all non-zero-bin hit if it has expectation less than this value.");
         c.put(PROP_zero_bin_mult_expect, "Multiplies expect value of PSMs in the zero-bin during  results ordering (set to less than 1 for boosting).");
-        c.put(PROP_add_topN_complementary, "Inserts complementary ions corresponding to the top N most intense fragments in each experimental spectra.");
         c.put(PROP_minimum_peaks, "Minimum number of peaks in experimental spectrum for matching.");
         c.put(PROP_use_topN_peaks, "Pre-process experimental spectrum to only use top N peaks.");
         c.put(PROP_deisotope, "Perform deisotoping or not (0=no, 1=yes and assume singleton peaks single charged, 2=yes and assume singleton peaks single or double charged).");
@@ -865,15 +862,6 @@ public class MsfraggerParams extends AbstractParams {
     
     public void setZeroBinMultExpect(double v) {
         props.setProp(PROP_zero_bin_mult_expect, DF.format(v));
-    }
-    
-    public int getAddTopNComplementary() {
-        int v = Integer.parseInt(props.getProp(PROP_add_topN_complementary, "0").value);
-        return v;
-    }
-    
-    public void setAddTopNComplementary(int v) {
-        props.setProp(PROP_add_topN_complementary, Integer.toString(v));
     }
     
     public int getMinimumPeaks() {

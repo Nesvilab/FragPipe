@@ -82,7 +82,6 @@ msbooster.run-msbooster=false
 msbooster.use-correlated-features=false
 msfragger.Y_type_masses=0
 msfragger.activation_types=HCD
-msfragger.add_topN_complementary=0
 msfragger.allowed_missed_cleavage_1=2
 msfragger.allowed_missed_cleavage_2=2
 msfragger.calibrate_mass=2
