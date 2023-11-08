@@ -33,6 +33,7 @@ import com.dmtavt.fragpipe.cmd.CmdCheckCentroid;
 import com.dmtavt.fragpipe.cmd.CmdCrystalc;
 import com.dmtavt.fragpipe.cmd.CmdDiann;
 import com.dmtavt.fragpipe.cmd.CmdFpopQuant;
+import com.dmtavt.fragpipe.cmd.CmdTpp;
 import com.dmtavt.fragpipe.cmd.CmdFreequant;
 import com.dmtavt.fragpipe.cmd.CmdIonquant;
 import com.dmtavt.fragpipe.cmd.CmdIprophet;
