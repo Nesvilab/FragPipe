@@ -127,7 +127,7 @@ public class TppPanel extends JPanelBase {
 
 
         uiTextRHOME = UiUtils.uiTextBuilder().cols(15).create();
-        FormEntry RHOME = mu.feb(uiTextRHOME).name("fpop.RHOMEPath").label("R local path").tooltip("Local installation of R.").create();
+        FormEntry RHOME = mu.feb(uiTextRHOME).name("tpp.RHOMEPath").label("R local path").tooltip("Local installation of R.").create();
 
         mu.add(p, checkONEDTPPR).split();
         mu.add(p, checkONEDTPP).split();
