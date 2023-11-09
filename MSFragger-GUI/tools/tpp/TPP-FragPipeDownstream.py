@@ -229,7 +229,7 @@ def runningTPPR(outputlocation, tpprconfiglocation, rhomelocation, mode = None):
     """
 
     print("Going to run R!")
-    # Add R_HOME to environmental variables (currently harcoded, but will be inputted by user once in FragPipe)
+    # Add R_HOME to environmental variables
     os.environ['R_HOME'] = rhomelocation
 
     # import rpy2 package
