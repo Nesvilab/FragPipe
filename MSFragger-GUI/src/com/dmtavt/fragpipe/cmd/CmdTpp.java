@@ -34,7 +34,6 @@ import java.util.List;
 public class CmdTpp extends CmdBase{
     private static final Logger log = LoggerFactory.getLogger(CmdFreequant.class);
     public static final String NAME = "TPP";
-    public static final String SCRIPT_TPP_QUANT = "tpp/TPP-FragPipeDownstream.py";
 
     public CmdTpp(boolean isRun, Path workDir) {
         super(isRun, workDir);
