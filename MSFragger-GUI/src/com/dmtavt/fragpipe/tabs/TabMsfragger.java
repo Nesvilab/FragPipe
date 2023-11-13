@@ -1886,6 +1886,8 @@ public class TabMsfragger extends JPanelBase {
     return uiSpinnerOutputReportTopNWwa.getActualValue();
   }
 
+  public List<Mod> getVarModsTable() { return formToMap(tableVarMods.model); }
+
   private void actionBtnConfigSave(ActionEvent e) {
     // now save the actual user's choice
     JFileChooser fc = FileChooserUtils.builder("Choose where params file should be saved")
@@ -2087,11 +2089,7 @@ public class TabMsfragger extends JPanelBase {
     ArrayList<String> mods = new ArrayList<>();
     List<Mod> modsVariable = formToMap(tableVarMods.model);
     List<Mod> modsFixed = formToMap(tableFixMods.model);
-    Set<Float> offsetSet = getMassOffsetSet();
-    String offsetResidues = uiTextRestrictDeltamassTo.getNonGhostText().replace("-", "");
-    if (offsetResidues.matches("all")) {
-      offsetResidues = "ACDEFGHIKLMNPQRSTVWY";
-    }
+    List<Mod> modsOffset = getOffsetsAsMods();
 
     Pattern aaPattern = Pattern.compile("([A-Z])");
     for (Mod mod : modsVariable) {
@@ -2136,21 +2134,41 @@ public class TabMsfragger extends JPanelBase {
         mods.add(modStr);
       }
     }
-    for (float mass : offsetSet) {
-      if (!(mass == 0.0)) {
-        ArrayList<String> sites = Arrays.stream(offsetResidues.split("")).collect(Collectors.toCollection(ArrayList::new));
-        String unimodName = SDRFtable.matchUnimod(mass, sites);
-        String name = unimodName != null ? unimodName : String.format("offset:%.5f", mass);
+    for (Mod offset : modsOffset) {
+      if (!(offset.massDelta == 0.0)) {
+        ArrayList<String> sites = Arrays.stream(offset.sites.split("")).collect(Collectors.toCollection(ArrayList::new));
+        String unimodName = SDRFtable.matchUnimod(offset.massDelta, sites);
+        String name = unimodName != null ? unimodName : String.format("offset:%.5f", offset.massDelta);
         String glycoSite = "";
+        String offsetResidues = offset.sites;
         if (Objects.equals(uiComboGlyco.getSelectedItem(), GLYCO_OPTION_nglycan)) {
           glycoSite = "TS=N[^P][ST];";
           offsetResidues = "N";
         }
-        String modStr = String.format("NT=%s;MT=Variable;PP=%s;TA=%s;%sMM=%.5f", name, "Anywhere", offsetResidues, glycoSite, mass);
+        String modStr = String.format("NT=%s;MT=Variable;PP=%s;TA=%s;%sMM=%.5f", name, "Anywhere", offsetResidues, glycoSite, offset.massDelta);
         mods.add(modStr);
       }
     }
     return mods;
+  }
+
+  /**
+   * Return a list of Mod objects from the mass offsets, including all site restrictions for regular and fancy
+   * offset modes.
+   * @return
+   */
+  public List<Mod> getOffsetsAsMods(){
+    ArrayList<Mod> offsets = new ArrayList<>();
+    // todo: add fancy offset mode
+    Set<Float> offsetSet = getMassOffsetSet();
+    String offsetResidues = uiTextRestrictDeltamassTo.getNonGhostText().replace("-", "");
+    if (offsetResidues.matches("all")) {
+      offsetResidues = "ACDEFGHIKLMNPQRSTVWY";
+    }
+    for (float mass: offsetSet){
+      offsets.add(new Mod(mass, offsetResidues, true, 1));
+    }
+    return offsets;
   }
 
   private String getModName(double mass, String sites, String unimodName) {
