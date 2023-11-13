@@ -826,7 +826,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     } else {
       // save to custom dir. Allow direct selection of file path to save
       final String propWorkflowDir = "workflow.last-save-dir";
-      savePath = getSaveFilePath(null, propWorkflowDir, workflowEndingFilter, workflowExt, false  );
+      savePath = getSaveFilePath(null, propWorkflowDir, workflowEndingFilter, workflowExt, false, this);
       if (savePath == null) {
         return;
       }
@@ -1341,7 +1341,7 @@ public class TabWorkflow extends JPanelWithEnablement {
 
   @Subscribe(threadMode = ThreadMode.POSTING)
   public void on(MessageManifestSave m) {
-    Path path = getSaveFilePath(m.path, ThisAppProps.CONFIG_SAVE_LOCATION, fileNameEndingFilter, manifestExt, m.quite);
+    Path path = getSaveFilePath(m.path, ThisAppProps.CONFIG_SAVE_LOCATION, fileNameEndingFilter, manifestExt, m.quite, this);
 
     if (path != null) {
       Fragpipe.propsVarSet(ThisAppProps.CONFIG_SAVE_LOCATION, path.getParent().toString());
@@ -1374,7 +1374,7 @@ public class TabWorkflow extends JPanelWithEnablement {
 
   @Subscribe(threadMode = ThreadMode.POSTING)
   public void on(MessageSDRFsave m) {
-    Path path = getSaveFilePath(m.path, ThisAppProps.CONFIG_SAVE_LOCATION, fileNameEndingFilter, sdrfExt, m.quiet);
+    Path path = getSaveFilePath(m.path, ThisAppProps.CONFIG_SAVE_LOCATION, fileNameEndingFilter, sdrfExt, m.quiet, this);
 
     if (path != null) {
       Fragpipe.propsVarSet(ThisAppProps.CONFIG_SAVE_LOCATION, path.getParent().toString());
@@ -1626,13 +1626,13 @@ public class TabWorkflow extends JPanelWithEnablement {
     return false;
   }
 
-  private Path getSaveFilePath(Path inputPath, String defaultSaveDir, FileNameEndingFilter filenameFilter, String fileExtension, boolean quiet) {
+  public static Path getSaveFilePath(Path inputPath, String defaultSaveDir, FileNameEndingFilter filenameFilter, String fileExtension, boolean quiet, Component parent) {
     Path path = inputPath;
     if (path == null) {
       String loc = Fragpipe.propsVarGet(defaultSaveDir);
       JFileChooser fc = FileChooserUtils.builder("Path to save file").paths(Stream.of(loc)).mode(FcMode.FILES_ONLY).approveButton("Save").multi(false).acceptAll(true).filters(Collections.singletonList(filenameFilter)).create();
       fc.setFileFilter(filenameFilter);
-      if (JFileChooser.APPROVE_OPTION == fc.showSaveDialog(this)) {
+      if (JFileChooser.APPROVE_OPTION == fc.showSaveDialog(parent)) {
         String s = fc.getSelectedFile().getAbsolutePath();
         if (!s.endsWith(fileExtension)) {
           s += fileExtension;
@@ -1647,7 +1647,7 @@ public class TabWorkflow extends JPanelWithEnablement {
         if (quiet) {
           Files.deleteIfExists(path);
         } else if (Files.exists(path)) {
-          if (!SwingUtils.showConfirmDialogShort(this, "File exists, overwrite?\n\n" + path)) {
+          if (!SwingUtils.showConfirmDialogShort(parent, "File exists, overwrite?\n\n" + path)) {
             return null;
           } else {
             Files.deleteIfExists(path);
@@ -1655,7 +1655,7 @@ public class TabWorkflow extends JPanelWithEnablement {
         }
         return path;
       } catch (IOException e) {
-        SwingUtils.showErrorDialogWithStacktrace(e, this);
+        SwingUtils.showErrorDialogWithStacktrace(e, parent);
       }
     }
     return null;

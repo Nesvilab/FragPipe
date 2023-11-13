@@ -28,7 +28,7 @@ import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTION_lab
 import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTION_nglycan;
 import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTION_off;
 import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.PROP_group_variable;
-import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.PROP_mass_offset_file;
+import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.PROP_mass_offsets_detailed;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.Bus;
@@ -56,22 +56,13 @@ import com.dmtavt.fragpipe.tools.fragger.Mod;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerEnzyme;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerProps;
+import com.dmtavt.fragpipe.util.MassOffsetUtils;
 import com.dmtavt.fragpipe.util.SDRFtable;
 import com.github.chhh.utils.MapUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
-import com.github.chhh.utils.swing.DocumentFilters;
-import com.github.chhh.utils.swing.FileChooserUtils;
+import com.github.chhh.utils.swing.*;
 import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
-import com.github.chhh.utils.swing.FormEntry;
-import com.github.chhh.utils.swing.JPanelBase;
-import com.github.chhh.utils.swing.MigUtils;
-import com.github.chhh.utils.swing.UiCheck;
-import com.github.chhh.utils.swing.UiCombo;
-import com.github.chhh.utils.swing.UiSpinnerDouble;
-import com.github.chhh.utils.swing.UiSpinnerInt;
-import com.github.chhh.utils.swing.UiText;
-import com.github.chhh.utils.swing.UiUtils;
 import com.github.chhh.utils.swing.renderers.TableCellDoubleRenderer;
 import com.github.chhh.utils.swing.renderers.TableCellIntRenderer;
 import com.github.chhh.utils.swing.renderers.TableCellIntSpinnerEditor;
@@ -86,10 +77,8 @@ import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
 import java.awt.event.ItemEvent;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -135,6 +124,7 @@ import javax.swing.table.TableCellEditor;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -281,7 +271,7 @@ public class TabMsfragger extends JPanelBase {
       }
       return String.join("/", tt);
     });
-    CONVERT_TO_FILE.put(MsfraggerParams.PROP_mass_offset_file, s -> {
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_mass_offsets_detailed, s -> {
       if (s == null || s.trim().isEmpty()) {
         return "";
       } else {
@@ -324,7 +314,7 @@ public class TabMsfragger extends JPanelBase {
       }
       return String.join(" ", text.trim().split("/"));
     });
-    CONVERT_TO_GUI.put(MsfraggerParams.PROP_mass_offset_file, text -> {
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_mass_offsets_detailed, text -> {
       if (text == null || text.trim().isEmpty()) {
         return "";
       } else {
@@ -374,7 +364,6 @@ public class TabMsfragger extends JPanelBase {
   private UiCombo uiComboLoadDefaultsNames;
   private UiText uiTextMassOffsets;
   private UiText uiTextRemainderMasses;
-  private UiText uiTextMassOffsetFile;
   private UiCheck uiCheckMassOffsetFile;
   private UiCombo uiComboGlyco;
   private UiSpinnerDouble uiSpinnerPrecTolLo;
@@ -384,6 +373,7 @@ public class TabMsfragger extends JPanelBase {
   private final Map<String, String> cache = new HashMap<>();
   private UiText uiTextIsoErr;
   private UiText epMassOffsets;
+  private UiText epDetailedMassOffsets;
   private UiText uiTextRestrictDeltamassTo;
   private JPanel pOffsetRegular;
   private JPanel pOffsetDetailed;
@@ -1192,36 +1182,32 @@ public class TabMsfragger extends JPanelBase {
         .label("Mass Offsets")
         .tooltip(tooltipMassOffsets).create();
 
-    uiCheckMassOffsetFile = UiUtils.createUiCheck("Use Mass Offset File", false);
+    uiCheckMassOffsetFile = UiUtils.createUiCheck("Use Detailed Mass Offsets", false);
     uiCheckMassOffsetFile.setName("enable_offset_file");
-    uiCheckMassOffsetFile.setToolTipText("If checked, uses the provided mass offset file to perform a mass offset search with specific allowed amino acids and/or fragment ions for each offset.");
+    uiCheckMassOffsetFile.setToolTipText("If checked, uses the provided detailed mass offset list to perform a mass offset search with specific allowed amino acids and/or fragment ions for each offset.");
 
-    String tooltipOffsetFile = "(Optional) Detailed mass offset file. Overrides mass offset information above if provided.";
-    uiTextMassOffsetFile = UiUtils.uiTextBuilder().cols(85).create();
-    List<FileFilter> tsvFilters = new ArrayList<>();
-    FileFilter filter = new FileNameExtensionFilter("Mass offset file (.tsv)", "tsv");
-    tsvFilters.add(filter);
-    FormEntry feOffsetFile = mu.feb(PROP_mass_offset_file, uiTextMassOffsetFile)
-            .label("Mass Offset File").tooltip(tooltipOffsetFile).create();
-    JButton btnBrosweOffsetFile = feOffsetFile.browseButton("Browse", tooltipOffsetFile,
-            () -> FileChooserUtils.builder("Select detailed mass offsets file")
-                    .approveButton("Select").mode(FileChooserUtils.FcMode.FILES_ONLY).acceptAll(false).multi(false).filters(tsvFilters)
-                    .paths(Stream.of(Fragpipe.propsVarGet(PROP_mass_offset_file))).create(),
-            paths -> {
-              if (paths != null && !paths.isEmpty()) {
-                String path = paths.get(0).toString();
-                Fragpipe.propsVarSet(PROP_mass_offset_file, path);
-                uiTextMassOffsetFile.setText(path);
-              }
-            });
+    epDetailedMassOffsets = new UiText();
+    epDetailedMassOffsets.setPreferredSize(new Dimension(100, 25));
+    epDetailedMassOffsets.setBorder(new LineBorder(Color.LIGHT_GRAY, 1));
+
+    String tooltipOffsetDetailed = "(Optional) Detailed mass offset list. Overrides mass offset information above if provided. Can be loaded from & saved to template files using the buttons.";
+    FormEntry feMassOffsetsDetailed = mu.feb(MsfraggerParams.PROP_mass_offsets_detailed, epDetailedMassOffsets)
+            .label("Detailed Mass Offsets")
+            .tooltip(tooltipOffsetDetailed).create();
+
+    JButton btnLoadOffsetsFile = new JButton("Load Offsets");
+    btnLoadOffsetsFile.addActionListener(this::actionBtnLoadDetailedOffsets);
+    JButton btnSaveOffsetsFile = new JButton("Save Offsets");
+    btnSaveOffsetsFile.addActionListener(this::actionBtnSaveDetailedOffsets);
 
     mu.add(pOffsetRegular, feMassOffsets.comp).spanX().growX().pushX().wrap();
     mu.add(pOffsetRegular, feRestrictDeltamassTo.label(), mu.ccR()).spanX().split(2);
     mu.add(pOffsetRegular, feRestrictDeltamassTo.comp).growX().pushX().wrap();
 
-    mu.add(pOffsetDetailed, feOffsetFile.label()).split().spanX();
-    mu.add(pOffsetDetailed, btnBrosweOffsetFile);
-    mu.add(pOffsetDetailed, feOffsetFile.comp).wrap();
+//    mu.add(pOffsetDetailed, feMassOffsetsDetailed.label()).split().spanX();
+    mu.add(pOffsetDetailed, btnLoadOffsetsFile).split();
+    mu.add(pOffsetDetailed, btnSaveOffsetsFile).split();
+    mu.add(pOffsetDetailed, feMassOffsetsDetailed.comp).growX().pushX().wrap();
 
     mu.add(p, pOffsetRegular).growX().wrap();
     mu.add(p, uiCheckMassOffsetFile).split();
@@ -1977,7 +1963,70 @@ public class TabMsfragger extends JPanelBase {
     }
   }
 
-  private void loadDefaults(SearchTypeProp type) {
+  private void actionBtnLoadDetailedOffsets(ActionEvent event) {
+    List<FileFilter> tsvFilters = new ArrayList<>();
+    FileFilter filter = new FileNameExtensionFilter("Mass offset file (.tsv)", "tsv");
+    tsvFilters.add(filter);
+
+    String loc = Fragpipe.propsVarGet(PROP_FILECHOOSER_LAST_PATH);
+    JFileChooser fc = FileChooserUtils.builder("Select the Detailed Mass Offsets file to load")
+            .approveButton("Select").mode(FileChooserUtils.FcMode.FILES_ONLY)
+            .acceptAll(false).multi(false).filters(tsvFilters)
+            .paths(Stream.of(loc)).create();
+
+
+    String selectedPath;
+    int userSelection = fc.showOpenDialog(SwingUtils.findParentFrameForDialog(this));
+    if (JFileChooser.APPROVE_OPTION == userSelection) {
+      selectedPath = fc.getSelectedFile().toString();
+      try {
+        Fragpipe.propsVarSet(PROP_FILECHOOSER_LAST_PATH, selectedPath);
+        String offsetStr = MassOffsetUtils.parseOffsetsFile(selectedPath);
+        Fragpipe.propsVarSet(PROP_mass_offsets_detailed, offsetStr);
+        epDetailedMassOffsets.setText(offsetStr);
+      } catch (IOException ex) {
+        log.error(String.format("Could not load mass offsets from file %s", selectedPath));
+        SwingUtils.showErrorDialogWithStacktrace(ex, this);
+      }
+    }
+  }
+
+  private void actionBtnSaveDetailedOffsets(ActionEvent event) {
+    // get file path to save
+    FileNameEndingFilter filter = new FileNameEndingFilter("Mass offset file (.tsv)", "tsv");
+    Path savePath = TabWorkflow.getSaveFilePath(null, PROP_FILECHOOSER_LAST_PATH, filter, ".tsv", false, this);
+
+    if (savePath == null) {
+      // user cancelled action
+      return;
+    }
+
+    // parse detailed mass offset string
+    String offsetStr = epDetailedMassOffsets.getNonGhostText();
+    ArrayList<MassOffsetUtils.MassOffset> offsets = new ArrayList<>();
+    if (!offsetStr.isEmpty()) {
+      String[] splits = offsetStr.split(";");
+      for (String split: splits) {
+        offsets.add(new MassOffsetUtils.MassOffset(split));
+      }
+    }
+
+    // save to file
+    try {
+      PrintWriter out = new PrintWriter(savePath.toFile());
+      out.print("# Mass\tAllowed sites\tDiagnostic ions\tPeptide remainder ions\tFragment remainder ions\n");
+      for (MassOffsetUtils.MassOffset offset : offsets) {
+        out.print(offset.toFileString());
+      }
+      out.flush();
+      out.close();
+    } catch (IOException ex) {
+      log.error(String.format("Could not save mass offsets to file %s", savePath));
+      SwingUtils.showErrorDialogWithStacktrace(ex, this);
+    }
+  }
+
+    private void loadDefaults(SearchTypeProp type) {
     log.debug("TabMsfragger loadDefaults() called for SearchTypeProp type={}", type.name());
     MsfraggerParams params = new MsfraggerParams();
     params.loadDefaults(type);
