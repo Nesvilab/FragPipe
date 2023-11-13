@@ -19,6 +19,7 @@ package com.dmtavt.fragpipe.tools.ptmprophet;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.tabs.TabMsfragger;
+import com.dmtavt.fragpipe.tools.fragger.Mod;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelBase;
@@ -28,6 +29,12 @@ import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.Component;
 import java.awt.ItemSelectable;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -104,6 +111,64 @@ public class PtmProphetPanel extends JPanelBase {
     return val;
   }
 
+  /**
+   * Load modification info into the command line args string for PTMProphet automatically.
+   * @return
+   */
+  private String loadMSFraggerMods() {
+    String cmdText = uiTextCmd.getNonGhostText();
+    if (cmdText.isEmpty()) {
+      // command is currently empty. Load default command as a starting point
+      cmdText = getDefaults();
+    }
+    // Find the mod argument (if present)
+    String[] splits = cmdText.split(" ");
+    Pattern modPattern = Pattern.compile("[A-Z]+:[a-z,:\\-\\d\\.]+");
+    int modIndex = -1;
+    for (int i=0; i < splits.length; i++) {
+      Matcher m = modPattern.matcher(splits[i]);
+      if (m.find()) {
+        modIndex = i;
+        break;
+      }
+    }
+    // replace the mod argument with the current MSFragger mods
+    String newMods = getMSFraggerMods();
+    if (modIndex == -1) {
+      // no previous mod argument, append to the array
+      cmdText = cmdText + " " + newMods;
+    } else {
+      splits[modIndex] = newMods;
+      cmdText = String.join(" ", splits);
+    }
+    return cmdText;
+  }
+
+  /**
+   * Helper method to get the MSFragger mods as a PTMProphet-formatted string. Considers all
+   * variable and offset mods on the MSFragger tab.
+   * @return
+   */
+  private String getMSFraggerMods(){
+    ArrayList<String> modStrings = new ArrayList<>();
+    TabMsfragger tabMsfragger = Fragpipe.getStickyStrict(TabMsfragger.class);
+    List<Mod> mods = tabMsfragger.getVarModsTable();
+    mods.addAll(tabMsfragger.getOffsetsAsMods());
+    for (Mod mod: mods) {
+      if (mod.isEnabled) {
+        // handle peptide/protein termini
+        String sites = mod.sites;
+        sites = sites.replace("n", "");
+        sites = sites.replace("c", "");
+        sites = sites.replace("[", "n-terminus");
+        sites = sites.replace("]", "c-terminus");
+        sites = sites.replace("^", "");
+        modStrings.add(String.format("%s:%.4f", sites, mod.massDelta));
+      }
+    }
+    return String.join(",", modStrings);
+  }
+
   private JPanel createPanelTop() {
 
     JPanel p = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
@@ -113,6 +178,12 @@ public class PtmProphetPanel extends JPanelBase {
     JButton btnDefaults = UiUtils.createButton("Load defaults", e -> {
       uiTextCmd.setText(getDefaults());
     });
+
+    JButton btnLoadMSFraggerMods = UiUtils.createButton("Load Mods from MSFragger Settings", e -> {
+      uiTextCmd.setText(loadMSFraggerMods());
+    });
+    btnLoadMSFraggerMods.setToolTipText("Load modifications from the current MSFragger tab setting into the Cmd line options for PTMProphet. Will load all variable mods and mass offsets. The resulting options can be edited after loading as needed.");
+
     JLabel info = new JLabel(
         "<html>Not for open searches. Mods format example: STY:79.966331,M:15.9949");
 
@@ -124,7 +195,8 @@ public class PtmProphetPanel extends JPanelBase {
     });
 
     mu.add(p, checkRun).split();
-    mu.add(p, btnDefaults).gapLeft("20px");
+    mu.add(p, btnDefaults);
+    mu.add(p, btnLoadMSFraggerMods).gapLeft("20px");
     mu.add(p, info).gapLeft("80px").wrap();
     return p;
   }
