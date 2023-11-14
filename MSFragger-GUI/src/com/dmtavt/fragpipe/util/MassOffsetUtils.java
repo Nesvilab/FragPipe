@@ -11,11 +11,11 @@ import java.util.regex.Pattern;
 public class MassOffsetUtils {
 
     private static final Pattern aaPattern = Pattern.compile("([A-Z])");
-    public static Pattern massPattern = Pattern.compile("([\\d.-]+)\\{");
-    public static Pattern diagPattern = Pattern.compile("diag=\\[([\\d.\\-,\\s]+)\\]");
-    public static Pattern fragRemPattern = Pattern.compile("fragRem=\\[([\\d.\\-,\\s]+)\\]");
-    public static Pattern pepRemPattern = Pattern.compile("pepRem=\\[([\\d.\\-,\\s]+)\\]");
-    public static Pattern resPattern = Pattern.compile("res=([A-Z]+)");
+    private static final Pattern massPattern = Pattern.compile("([\\d.-]+)\\(");
+    private static final Pattern diagPattern = Pattern.compile("d=([\\d.\\-,\\s]+)");
+    private static final Pattern fragRemPattern = Pattern.compile("f=([\\d.\\-,\\s]+)");
+    private static final Pattern pepRemPattern = Pattern.compile("p=([\\d.\\-,\\s]+)");
+    private static final Pattern resPattern = Pattern.compile("aa=([A-Z]+)");
 
 
     /**
@@ -27,7 +27,7 @@ public class MassOffsetUtils {
      */
     public static String parseOffsetsFile(String massOffsetFilePath) throws IOException, NumberFormatException {
         ArrayList<MassOffset> offsets = new ArrayList<>();
-        StringBuilder offsetStrings = new StringBuilder();
+        ArrayList<String> offsetStrs = new ArrayList<>();
 
         BufferedReader in = new BufferedReader(new FileReader(massOffsetFilePath));
         String line;
@@ -68,19 +68,18 @@ public class MassOffsetUtils {
 
             // generate the MassOffset and its string
             MassOffset offset = new MassOffset(mass, sites.toArray(new String[0]), parseFloats(splits[2]), peptideRems, fragmentRems);
-            offsetStrings.append(offset);
-            offsetStrings.append(";");
             offsets.add(offset);
+            offsetStrs.add(offset.toString());
         }
         // make sure 0 offset is included in the list
         if (!foundZero) {
             MassOffset zeroOffset = new MassOffset(0, new String[0], new float[0], new float[0], new float[0]);
             offsets.add(0, zeroOffset);
-            offsetStrings.append(zeroOffset);
+            offsetStrs.add(0, zeroOffset.toString());
             System.out.println("Warning: 0 was not included in the mass offsets file. Adding it to the offsets list.");
         }
 
-        return offsetStrings.toString();
+        return String.join(";", offsetStrs);
     }
 
     private static float[] parseFloats(String floatList) throws NumberFormatException {
@@ -141,7 +140,7 @@ public class MassOffsetUtils {
 
             Matcher diagMatch = diagPattern.matcher(offsetString);
             if (diagMatch.find()) {
-                String[] splits = diagMatch.group(1).split(", ");
+                String[] splits = diagMatch.group(1).split("[, ]+");
                 float[] diagIons = new float[splits.length];
                 for (int i=0; i < splits.length; i++) {
                     diagIons[i] = Float.parseFloat(splits[i]);
@@ -153,7 +152,7 @@ public class MassOffsetUtils {
 
             Matcher fragMatch = fragRemPattern.matcher(offsetString);
             if (fragMatch.find()) {
-                String[] splits = fragMatch.group(1).split(", ");
+                String[] splits = fragMatch.group(1).split("[, ]+");
                 float[] fragIons = new float[splits.length];
                 for (int i=0; i < splits.length; i++) {
                     fragIons[i] = Float.parseFloat(splits[i]);
@@ -165,7 +164,7 @@ public class MassOffsetUtils {
 
             Matcher pepMatch = pepRemPattern.matcher(offsetString);
             if (pepMatch.find()) {
-                String[] splits = pepMatch.group(1).split(", ");
+                String[] splits = pepMatch.group(1).split("[, ]+");
                 float[] pepIons = new float[splits.length];
                 for (int i=0; i < splits.length; i++) {
                     pepIons[i] = Float.parseFloat(splits[i]);
@@ -178,12 +177,16 @@ public class MassOffsetUtils {
 
         @Override
         public String toString() {
-            return String.format("%.4f{res=%s_diag=%s_pepRem=%s_fragRem=%s}",
+            String diagnostic = diagnosticIons.length > 0 ? "_d=" + floatArrToString(diagnosticIons) : "";
+            String peprem = peptideRemainderIons.length > 0 ? "_p=" + floatArrToString(peptideRemainderIons) : "";
+            String fragrem = fragmentRemainderIons.length > 0 ? "_f=" + floatArrToString(fragmentRemainderIons) : "";
+
+            return String.format("%.5f(aa=%s%s%s%s)",
                     mass,
                     String.join("", allowedResidues),
-                    Arrays.toString(diagnosticIons),
-                    Arrays.toString(peptideRemainderIons),
-                    Arrays.toString(fragmentRemainderIons)
+                    diagnostic,
+                    peprem,
+                    fragrem
             );
         }
 
