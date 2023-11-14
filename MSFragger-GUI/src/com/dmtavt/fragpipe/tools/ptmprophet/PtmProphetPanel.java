@@ -155,9 +155,12 @@ public class PtmProphetPanel extends JPanelBase {
     List<Mod> mods = tabMsfragger.getVarModsTable();
     mods.addAll(tabMsfragger.getOffsetsAsMods());
     for (Mod mod: mods) {
-      if (mod.isEnabled) {
+      if (mod.isEnabled && mod.massDelta != 0) {
         // handle peptide/protein termini
         String sites = mod.sites;
+        if (sites.matches("")) {
+          sites = "ACDEFGHIKLMNPQRSTVWY";   // empty sites means any AA
+        }
         sites = sites.replace("n", "");
         sites = sites.replace("c", "");
         sites = sites.replace("[", "n-terminus");
