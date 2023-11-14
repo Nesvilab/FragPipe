@@ -1654,17 +1654,46 @@ public class TabMsfragger extends JPanelBase {
 
   public Set<Float> getMassOffsetSet() {
     Set<Float> outputSet = new TreeSet<>();
-    String[] ss = epMassOffsets.getNonGhostText().trim().split("[/\\s]+");
-    for (String s : ss) {
-      if (s.isEmpty()) {
-        continue;
+    if (uiCheckMassOffsetFile.isSelected()) {
+      // detailed/fancy offset mode
+      ArrayList<MassOffsetUtils.MassOffset> offsets = getDetailedOffsets();
+      for (MassOffsetUtils.MassOffset offset: offsets) {
+        if (Math.abs(offset.mass) > 0.01f) {
+          outputSet.add(offset.mass);
+        }
       }
-      float v = Float.parseFloat(s);
-      if (Math.abs(v) > 0.01f) {
-        outputSet.add(v);
+    } else {
+      // regular offset mode
+      String[] ss = epMassOffsets.getNonGhostText().trim().split("[/\\s]+");
+      for (String s : ss) {
+        if (s.isEmpty()) {
+          continue;
+        }
+        float v = Float.parseFloat(s);
+        if (Math.abs(v) > 0.01f) {
+          outputSet.add(v);
+        }
       }
     }
     return outputSet;
+  }
+
+  public ArrayList<MassOffsetUtils.MassOffset> getDetailedOffsets() {
+    String offsetStr = epDetailedMassOffsets.getNonGhostText();
+    ArrayList<MassOffsetUtils.MassOffset> offsets = new ArrayList<>();
+    if (!offsetStr.isEmpty()) {
+      String[] splits = offsetStr.split(";");
+      for (String split: splits) {
+        offsets.add(new MassOffsetUtils.MassOffset(split));
+      }
+    }
+    return offsets;
+  }
+
+  public String getRegularOffsetStringFromDetailedOffsets() {
+    ArrayList<MassOffsetUtils.MassOffset> offsets = getDetailedOffsets();
+    String[] offsetStrs = Arrays.stream(offsets.toArray(new MassOffsetUtils.MassOffset[0])).map(offset -> Double.toString(offset.mass)).toArray(String[]::new);
+    return String.join("/", offsetStrs);
   }
 
   public void setMassOffsets(String offsetsText) {
@@ -1849,7 +1878,11 @@ public class TabMsfragger extends JPanelBase {
   }
 
   public String getMassOffsets() {
-    return uiTextMassOffsets.getNonGhostText();
+    if (uiCheckMassOffsetFile.isSelected()) {
+      return getRegularOffsetStringFromDetailedOffsets();
+    } else {
+      return uiTextMassOffsets.getNonGhostText();
+    }
   }
 
   public String getOutputFileExt() {
@@ -2208,17 +2241,25 @@ public class TabMsfragger extends JPanelBase {
    * @return
    */
   public List<Mod> getOffsetsAsMods(){
-    ArrayList<Mod> offsets = new ArrayList<>();
-    // todo: add fancy offset mode
-    Set<Float> offsetSet = getMassOffsetSet();
-    String offsetResidues = uiTextRestrictDeltamassTo.getNonGhostText().replace("-", "");
-    if (offsetResidues.matches("all")) {
-      offsetResidues = "ACDEFGHIKLMNPQRSTVWY";
+    ArrayList<Mod> offsetMods = new ArrayList<>();
+    if (uiCheckMassOffsetFile.isSelected()) {
+      // fancy/detailed offset mode
+      ArrayList<MassOffsetUtils.MassOffset> offsets = getDetailedOffsets();
+      for (MassOffsetUtils.MassOffset offset: offsets) {
+        offsetMods.add(new Mod(offset.mass, String.join("", offset.allowedResidues), true, 1));
+      }
+    } else {
+      // regular offset mode
+      Set<Float> offsetSet = getMassOffsetSet();
+      String offsetResidues = uiTextRestrictDeltamassTo.getNonGhostText().replace("-", "");
+      if (offsetResidues.matches("all")) {
+        offsetResidues = "ACDEFGHIKLMNPQRSTVWY";
+      }
+      for (float mass : offsetSet) {
+        offsetMods.add(new Mod(mass, offsetResidues, true, 1));
+      }
     }
-    for (float mass: offsetSet){
-      offsets.add(new Mod(mass, offsetResidues, true, 1));
-    }
-    return offsets;
+    return offsetMods;
   }
 
   private String getModName(double mass, String sites, String unimodName) {
