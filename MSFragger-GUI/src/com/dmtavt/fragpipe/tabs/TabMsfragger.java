@@ -278,6 +278,7 @@ public class TabMsfragger extends JPanelBase {
         return s;
       }
     });
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_use_detailed_offsets, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_Y_type_masses, s -> s.replaceAll("[\\s]+", "/"));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_diagnostic_fragments, s -> s.replaceAll("[\\s]+", "/"));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_remainder_masses, s -> s.replaceAll("[\\s]+", "/"));
@@ -321,6 +322,7 @@ public class TabMsfragger extends JPanelBase {
         return text;
       }
     });
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_use_detailed_offsets, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_Y_type_masses, text -> String.join(" ", text.split("/")));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_diagnostic_fragments, text -> String.join(" ", text.split("/")));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_remainder_masses, text -> String.join(" ", text.split("/")));
@@ -1183,8 +1185,8 @@ public class TabMsfragger extends JPanelBase {
         .tooltip(tooltipMassOffsets).create();
 
     uiCheckMassOffsetFile = UiUtils.createUiCheck("Use Detailed Mass Offsets", false);
-    uiCheckMassOffsetFile.setName("enable_offset_file");
-    uiCheckMassOffsetFile.setToolTipText("If checked, uses the provided detailed mass offset list to perform a mass offset search with specific allowed amino acids and/or fragment ions for each offset.");
+    String offsetCheckTip = "If checked, uses the provided detailed mass offset list to perform a mass offset search with specific allowed amino acids and/or fragment ions for each offset.";
+    FormEntry feCheckMassOffsetFile = mu.feb(MsfraggerParams.PROP_use_detailed_offsets, uiCheckMassOffsetFile).tooltip(offsetCheckTip).create();
 
     epDetailedMassOffsets = new UiText();
     epDetailedMassOffsets.setPreferredSize(new Dimension(100, 25));
@@ -1204,13 +1206,12 @@ public class TabMsfragger extends JPanelBase {
     mu.add(pOffsetRegular, feRestrictDeltamassTo.label(), mu.ccR()).spanX().split(2);
     mu.add(pOffsetRegular, feRestrictDeltamassTo.comp).growX().pushX().wrap();
 
-//    mu.add(pOffsetDetailed, feMassOffsetsDetailed.label()).split().spanX();
     mu.add(pOffsetDetailed, btnLoadOffsetsFile).split();
     mu.add(pOffsetDetailed, btnSaveOffsetsFile).split();
     mu.add(pOffsetDetailed, feMassOffsetsDetailed.comp).growX().pushX().wrap();
 
     mu.add(p, pOffsetRegular).growX().wrap();
-    mu.add(p, uiCheckMassOffsetFile).split();
+    mu.add(p, feCheckMassOffsetFile.comp).split();
     mu.add(p, pOffsetDetailed).growX().wrap();
 
     return p;

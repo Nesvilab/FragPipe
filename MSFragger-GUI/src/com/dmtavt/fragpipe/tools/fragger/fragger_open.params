@@ -17,6 +17,8 @@ deisotope = 1
 deneutralloss = 1
 isotope_error = 0
 mass_offsets = 0
+mass_offsets_detailed =
+use_detailed_offsets = 0
 precursor_mass_mode = corrected
 
 remove_precursor_peak = 1
