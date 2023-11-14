@@ -1,5 +1,7 @@
 # Workflow: FPOP
 
+
+
 crystalc.run-crystalc=false
 database.decoy-tag=rev_
 diann.fragpipe.cmd-opts=
@@ -102,8 +104,8 @@ msfragger.isotope_error=0/1
 msfragger.labile_search_mode=off
 msfragger.localize_delta_mass=true
 msfragger.mass_diff_to_variable_mod=1
-msfragger.mass_offsets=0 15.9949 31.989829 47.984744 13.979265 -43.053433 -22.031969 -23.015984 -10.031969 4.9735 -30.010565 -27.994915 -43.989829 -25.031631 -9.036716
-msfragger.mass_offsets_detailed=
+msfragger.mass_offsets=0
+msfragger.mass_offsets_detailed=0.00000(aa\=);-43.98983(aa\=DE);-43.05343(aa\=R);-30.01056(aa\=DE);-27.99492(aa\=DE);-23.01598(aa\=H);-22.03197(aa\=H);-10.03197(aa\=H);4.97350(aa\=H);13.97927(aa\=EIKLPQRV);15.99490(aa\=);31.98983(aa\=CFMWY);47.98475(aa\=CFWY)
 msfragger.max_fragment_charge=1
 msfragger.max_variable_mods_combinations=5000
 msfragger.max_variable_mods_per_peptide=3
@@ -156,7 +158,7 @@ msfragger.table.fix-mods=0.0,C-Term Peptide,true,-1; 0.0,N-Term Peptide,true,-1;
 msfragger.table.var-mods=15.9949,MFHILVWY,true,3; 42.0106,[^,true,1; 79.96633,STY,false,3; -17.0265,nQnC,false,1; -18.0106,nE,false,1; 4.025107,K,false,2; 6.020129,R,false,2; 8.014199,K,false,2; 10.008269,R,false,2; 0.0,site_10,false,1; 0.0,site_11,false,1; 0.0,site_12,false,1; 0.0,site_13,false,1; 0.0,site_14,false,1; 0.0,site_15,false,1; 0.0,site_16,false,1
 msfragger.track_zero_topN=0
 msfragger.use_all_mods_in_first_search=false
-msfragger.use_detailed_offsets=false
+msfragger.use_detailed_offsets=true
 msfragger.use_topN_peaks=150
 msfragger.write_calibrated_mzml=false
 msfragger.write_uncalibrated_mgf=false
