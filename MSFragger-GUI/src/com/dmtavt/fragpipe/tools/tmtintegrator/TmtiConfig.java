@@ -17,19 +17,10 @@
 
 package com.dmtavt.fragpipe.tools.tmtintegrator;
 
-import com.github.chhh.utils.StringUtils;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Writer;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -335,27 +326,5 @@ public class TmtiConfig {
     for (Entry<String, String> e : map.entrySet()) {
       w.write(String.format("%s%s: %s\n", space, e.getKey(), e.getValue()));
     }
-  }
-
-  public static Map<String, String> getDefaultAsMap() {
-    final String fn = "tmt-i_param_default.yml";
-    final String resoucePath = "com/dmtavt/fragpipe/tools/tmtintegrator/" + fn;
-    final Map<String, String> map = new LinkedHashMap<>();
-    try (InputStream is = TmtiConfig.class.getClassLoader().getResourceAsStream(resoucePath)) {
-      if (is == null)
-        throw new IllegalStateException("Resource missing: " + resoucePath);
-      List<String> lines = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))
-          .lines().filter(s -> !StringUtils.isNullOrWhitespace(s)).collect(Collectors.toList());
-      lines.forEach(l -> {
-        String[] s = l.split(":", 2);
-        if (s.length != 2 || Arrays.stream(s).anyMatch(StringUtils::isNullOrWhitespace))
-          return;
-        map.put(s[0].trim(), StringUtils.upToLastChar(s[1], '#', false).trim());
-      });
-
-    } catch (IOException e) {
-      throw new IllegalStateException(e);
-    }
-    return map;
   }
 }

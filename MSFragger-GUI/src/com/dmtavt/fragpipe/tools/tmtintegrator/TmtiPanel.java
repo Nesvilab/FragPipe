@@ -25,7 +25,6 @@ import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
 import com.dmtavt.fragpipe.dialogs.QuantLabelAnnotationDialog;
 import com.dmtavt.fragpipe.messages.MessageLcmsFilesList;
-import com.dmtavt.fragpipe.messages.MessageLoadTmtIntegratorDefaults;
 import com.dmtavt.fragpipe.messages.MessageType;
 import com.dmtavt.fragpipe.messages.NoteConfigTmtI;
 import com.dmtavt.fragpipe.params.ThisAppProps;
@@ -78,7 +77,6 @@ import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -246,8 +244,6 @@ public class TmtiPanel extends JPanelBase {
 
     checkRun = new UiCheck("Run TMT-Integrator", null, false);
     checkRun.setName("run-tmtintegrator");
-    JButton btnLoadDefaults = UiUtils.createButton("Load TMT-Integrator defaults",
-        (e) -> Bus.post(new MessageLoadTmtIntegratorDefaults(true)));
 
     uiCheckDontRunFqLq = UiUtils.createUiCheck("Skip PSM quantification (rerun TMT-Integrator only)", false);
     FormEntry feDontRunFqLq = mu.feb(uiCheckDontRunFqLq).name("dont-run-fq-lq")
@@ -263,7 +259,6 @@ public class TmtiPanel extends JPanelBase {
     }
 
     mu.add(p, checkRun);
-    mu.add(p, btnLoadDefaults).pushX();
     mu.add(p, imageLabel, mu.ccR()).gapRight("50").wrap();
     mu.add(p, feDontRunFqLq.comp).spanX().growX().wrap();
 
@@ -762,19 +757,6 @@ public class TmtiPanel extends JPanelBase {
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteConfigTmtI m) {
     updateEnabledStatus(this, m.isValid());
-  }
-
-  @Subscribe
-  public void on(MessageLoadTmtIntegratorDefaults m) {
-    log.debug("Got MessageLoadTmtIntegratorDefaults, it's an empty marker message");
-    final Map<String, String> map = TmtiConfig.getDefaultAsMap();
-    log.debug("Read tmt-i default props props: {}", map);
-    HashMap<String, String> prefixed = new HashMap<>();
-    map.forEach((k, v) -> {
-      String vConvertedToUi = CONVERT_TO_GUI.getOrDefault(k, Function.identity()).apply(v);
-      prefixed.put(StringUtils.prependOnce(k, PREFIX), vConvertedToUi);
-    });
-    SwingUtils.valuesSet(this, prefixed);
   }
 
   @Subscribe(threadMode =  ThreadMode.MAIN_ORDERED)
