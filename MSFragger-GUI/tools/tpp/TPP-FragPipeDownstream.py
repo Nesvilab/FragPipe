@@ -598,7 +598,7 @@ def oneDTPPR_analysis(argumentobj):
                     outputname = os.path.basename(item)
 
                     if item in dict_filesfor_TPPR:
-                        print("There cannot bet two experiments with the same name and replicate number. Are there two annotation files under the same {} experiment folder?".format(item))
+                        print("There cannot be two experiments with the same name and replicate number. Are there two annotation files under the same {} experiment folder?".format(item))
                         sys.exit(1)
                     else:
                         dict_filesfor_TPPR[item] = [item,tpprfolder,tmttempdict]
