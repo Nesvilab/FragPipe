@@ -902,11 +902,11 @@ public class TmtiPanel extends JPanelBase {
         return;
       }
 
-      if (!expDir.equals(selectedFile.toPath().getParent())) {
+      if (getIntensityExtractionMethod() == 2 && !expDir.equals(selectedFile.toPath().getParent())) {
         String m = String.format(
-            "Current implementation requires the annotation file to be\n"
+            "Philosopher requires the annotation file to be\n"
                 + "in the same directory as corresponding LCMS files.\n"
-                + "Please select or create a file in:\n\n%s", expDir);
+                + "Please select or create a file in: %s\n or switch to IonQuant for the intensity extraction method", expDir);
         SwingUtils.showWarningDialog(this, m, "Bad annotation file path");
         return;
       }
@@ -1011,9 +1011,10 @@ public class TmtiPanel extends JPanelBase {
       int userSelection = fc.showSaveDialog(parent);
       if (JFileChooser.APPROVE_OPTION == userSelection) {
         selectedPath = fc.getSelectedFile().toPath();
-        if (!selectedPath.getParent().equals(saveDir)) {
-          String msg = "<html>Current implementation requires annotation files to be saved<br/>\n"
-              + "in the same directory as LCMS files for that plex. Please save the file in:<br/>\n<br/>\n" + saveDir;
+        if (getIntensityExtractionMethod() == 2 && !selectedPath.getParent().equals(saveDir)) {
+          String msg = "<html>Philosopher requires annotation files to be saved<br/>\n"
+              + "in the same directory as LCMS files for that plex. Please save the file in:<br/>\n<br/>\n" + saveDir + "\n"
+              + "or switch to IonQuant for the intensity extraction method.";
           String htmlMsg = SwingUtils.makeHtml(msg);
 
           SwingUtils.showWarningDialog(this,
