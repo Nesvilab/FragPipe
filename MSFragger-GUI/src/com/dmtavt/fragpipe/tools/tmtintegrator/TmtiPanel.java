@@ -262,6 +262,7 @@ public class TmtiPanel extends JPanelBase {
 
     mu.add(p, checkRun);
     mu.add(p, imageLabel, mu.ccR()).gapRight("50").wrap();
+    mu.add(p, feIntensityExtractionMethod.label());
     mu.add(p, feIntensityExtractionMethod.comp).pushX().wrap();
 
     return p;
