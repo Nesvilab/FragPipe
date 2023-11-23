@@ -154,6 +154,11 @@ public class CmdIonquant extends CmdBase {
     cmd.add("--ionmobility");
     cmd.add(dataType == InputDataType.ImMsTimsTof ? "1" : "0");
 
+    if (performIsoQuant) {
+      cmd.add("--site-reports");
+      cmd.add("0");
+    }
+
     if (annotationMap != null && !annotationMap.isEmpty()) {
       for (Map.Entry<LcmsFileGroup, Path> annotation : annotationMap.entrySet()) {
         cmd.add("--annotation");
