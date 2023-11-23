@@ -19,7 +19,7 @@ plugins {
 
 group = 'com.github.chhh'
 version = '20.1-build22'
-def batmassio_version = '1.29.1'
+def batmassio_version = '1.30.0'
 
 description = """FragPipe - run complete proteomics analyses from the GUI"""
 
@@ -114,7 +114,7 @@ dependencies {
     implementation 'org.apache.maven:maven-artifact:3.8.5'
     implementation 'org.jgrapht:jgrapht-core:1.5.1'
     implementation 'com.github.vlsi.mxgraph:jgraphx:4.2.2'
-    implementation 'com.google.guava:guava:31.1-jre'
+    implementation 'com.google.guava:guava:32.1.1-jre'
 
     implementation group: 'org.apache.commons', name: 'commons-compress', version: '1.21'
 
