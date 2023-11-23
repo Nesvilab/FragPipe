@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
 public class CmdIonquant extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdIonquant.class);
 
-  private static final String NAME = "IonQuant";
+  public static final String NAME = "IonQuant";
   public static final String JAR_IONQUANT_MAIN_CLASS = "ionquant.IonQuant";
   public static final String[] JAR_DEPS = {JFREECHART_JAR, BATMASS_IO_JAR};
   private static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML", "mzXML");
@@ -66,6 +66,10 @@ public class CmdIonquant extends CmdBase {
   }
 
   public boolean configure(Component comp, Path binFragger, Path binIonQuant, int ramGb, Map<String, String> uiCompsRepresentation, InputDataType dataType, Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml, Map<LcmsFileGroup, Path> mapGroupsToProtxml, int nThreads, Set<Float> modMassSet, boolean isDryRun) {
+    return configure(comp, binFragger, binIonQuant, ramGb, uiCompsRepresentation, dataType, lcmsToFraggerPepxml, mapGroupsToProtxml, nThreads, modMassSet, isDryRun, true, false, 20, 2, "tmt10", null);
+  }
+
+  public boolean configure(Component comp, Path binFragger, Path binIonQuant, int ramGb, Map<String, String> uiCompsRepresentation, InputDataType dataType, Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml, Map<LcmsFileGroup, Path> mapGroupsToProtxml, int nThreads, Set<Float> modMassSet, boolean isDryRun, boolean performMS1Quant, boolean performIsoQuant, float isoTol, int isoLevel, String isoType, Map<LcmsFileGroup, Path> annotationMap) {
 
     initPreConfig();
 
@@ -137,76 +141,122 @@ public class CmdIonquant extends CmdBase {
     cmd.add(JAR_IONQUANT_MAIN_CLASS);
     cmd.add("--threads");
     cmd.add(String.valueOf(nThreads));
-
+    cmd.add("--perform-ms1quant");
+    cmd.add(performMS1Quant ? "1" : "0");
+    cmd.add("--perform-isoquant");
+    cmd.add(performIsoQuant ? "1" : "0");
+    cmd.add("--isotol");
+    cmd.add(String.valueOf(isoTol));
+    cmd.add("--isolevel");
+    cmd.add(String.valueOf(isoLevel));
+    cmd.add("--isotype");
+    cmd.add(isoType);
     cmd.add("--ionmobility");
     cmd.add(dataType == InputDataType.ImMsTimsTof ? "1" : "0");
+
+    if (annotationMap != null && !annotationMap.isEmpty()) {
+      for (Map.Entry<LcmsFileGroup, Path> annotation : annotationMap.entrySet()) {
+        cmd.add("--annotation");
+        cmd.add(wd.resolve(annotation.getKey().name).resolve("psm.tsv") + "=" + annotation.getValue().toAbsolutePath());
+      }
+    }
 
     // always set min exp to 1
     cmd.add("--minexps");
     cmd.add("1");
 
-    // add all other parameters
-    List<String> dynamicParams = Arrays.asList(
-        "mbr",
-        "maxlfq",
-        "requantify",
-        "mztol",
-        "imtol",
-        "rttol",
-        "mbrmincorr",
-        "mbrrttol",
-        "mbrimtol",
-        "mbrtoprun",
-        "ionfdr",
-        "proteinfdr",
-        "peptidefdr",
-        "normalization",
-        "minisotopes",
-        "minscans",
-        "writeindex",
-        "light",
-        "medium",
-        "heavy",
-        "tp",
-        "minfreq",
-        "minions",
-        "excludemods",
-        "locprob",
-        "uniqueness"
-        );
-
-    final long namedExpCount = mapGroupsToProtxml.keySet().stream().map(group -> group.name)
-        .filter(StringUtils::isNotBlank).distinct().count();
+    final long namedExpCount = mapGroupsToProtxml.keySet().stream().map(group -> group.name).filter(StringUtils::isNotBlank).distinct().count();
     final boolean isMultidir = namedExpCount > 0;
 
+    if (uiCompsRepresentation == null || uiCompsRepresentation.isEmpty()) { // Most sensitivity options without MBR or MaxLFQ for the Isobaric quantification
+      cmd.add("--mbr");
+      cmd.add("0");
+      cmd.add("--maxlfq");
+      cmd.add("0");
+      cmd.add("--requantify");
+      cmd.add("0");
+      cmd.add("--mztol");
+      cmd.add("10");
+      cmd.add("--imtol");
+      cmd.add("0.05");
+      cmd.add("--rttol");
+      cmd.add("0.4");
+      cmd.add("--normalization");
+      cmd.add("0");
+      cmd.add("--minisotopes");
+      cmd.add("1");
+      cmd.add("--minscans");
+      cmd.add("1");
+      cmd.add("--writeindex");
+      cmd.add("0");
+      cmd.add("--tp");
+      cmd.add("0");
+      cmd.add("--minfreq");
+      cmd.add("0");
+      cmd.add("--minions");
+      cmd.add("1");
+      cmd.add("--locprob");
+      cmd.add("0");
+      cmd.add("--uniqueness");
+      cmd.add("0");
+    } else {
+      List<String> dynamicParams = Arrays.asList(
+          "mbr",
+          "maxlfq",
+          "requantify",
+          "mztol",
+          "imtol",
+          "rttol",
+          "mbrmincorr",
+          "mbrrttol",
+          "mbrimtol",
+          "mbrtoprun",
+          "ionfdr",
+          "proteinfdr",
+          "peptidefdr",
+          "normalization",
+          "minisotopes",
+          "minscans",
+          "writeindex",
+          "light",
+          "medium",
+          "heavy",
+          "tp",
+          "minfreq",
+          "minions",
+          "excludemods",
+          "locprob",
+          "uniqueness"
+      );
 
-    for (String dynamicParam : dynamicParams) {
-      String v = getOrThrow(uiCompsRepresentation, StringUtils.prependOnce(dynamicParam, "ionquant."));
-      if ("mbr".equalsIgnoreCase(dynamicParam) && "1".equals(v)) {
-        // it's mbr
-        if (!isMultidir) {
-          // it's not multi exp
-          if (Fragpipe.headless) {
-            log.error("IonQuant with MBR requires designating LCMS runs to experiments. If in doubt how to resolve this error, just assign all LCMS runs to the same experiment name.");
-          } else {
-            JOptionPane.showMessageDialog(comp, SwingUtils.makeHtml(
-                    "IonQuant with MBR requires designating LCMS runs to experiments.\n"
-                        + "See Workflow tab.\n"
-                        + "If in doubt how to resolve this error, just assign all LCMS runs to the same experiment name."),
-                NAME + " error", JOptionPane.WARNING_MESSAGE);
-          }
-          return false;
-        }
-      }
-      if (StringUtils.isNotBlank(v)) {
-        if ((dynamicParam.contentEquals("light") || dynamicParam.contentEquals("medium") || dynamicParam.contentEquals("heavy"))) {
-          if (getOrThrow(uiCompsRepresentation, "ionquant.use-labeling").contentEquals("false")) { // IonQuant does not have use-labeling parameter. If use-labeling = false, do not write light, medium, or heavy so that IonQuant won't run in label quant model.
-            continue;
+      for (String dynamicParam : dynamicParams) {
+        String v = getOrThrow(uiCompsRepresentation, StringUtils.prependOnce(dynamicParam, "ionquant."));
+        if ("mbr".equalsIgnoreCase(dynamicParam) && "1".equals(v)) {
+          // it's mbr
+          if (!isMultidir) {
+            // it's not multi exp
+            if (Fragpipe.headless) {
+              log.error("IonQuant with MBR requires designating LCMS runs to experiments. If in doubt how to resolve this error, just assign all LCMS runs to the same experiment name.");
+            } else {
+              JOptionPane.showMessageDialog(comp, SwingUtils.makeHtml(
+                      "IonQuant with MBR requires designating LCMS runs to experiments.\n"
+                          + "See Workflow tab.\n"
+                          + "If in doubt how to resolve this error, just assign all LCMS runs to the same experiment name."),
+                  NAME + " error", JOptionPane.WARNING_MESSAGE);
+            }
+            return false;
           }
         }
+        if (StringUtils.isNotBlank(v)) {
+          if ((dynamicParam.contentEquals("light") || dynamicParam.contentEquals("medium") || dynamicParam.contentEquals("heavy"))) {
+            if (getOrThrow(uiCompsRepresentation, "ionquant.use-labeling").contentEquals("false")) { // IonQuant does not have use-labeling parameter. If use-labeling = false, do not write light, medium, or heavy so that IonQuant won't run in label quant model.
+              continue;
+            }
+          }
 
-        cmd.add("--" + dynamicParam);
-        cmd.add(v);
+          cmd.add("--" + dynamicParam);
+          cmd.add(v);
+        }
       }
     }
 

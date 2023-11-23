@@ -1385,9 +1385,7 @@ public class FragpipeRun {
       return true;
     });
 
-    final QuantPanelLabelfree quantPanelLabelfree = Fragpipe
-        .getStickyStrict(QuantPanelLabelfree.class);
-    final boolean isFreequant = quantPanelLabelfree.isRunFreeQuant();
+    final QuantPanelLabelfree quantPanelLabelfree = Fragpipe.getStickyStrict(QuantPanelLabelfree.class);
 
     // run Report - DbAnnotate
     final CmdPhilosopherDbAnnotate cmdPhilosopherDbAnnotate = new CmdPhilosopherDbAnnotate(reportPanel.isRun(), wd);
@@ -1489,7 +1487,7 @@ public class FragpipeRun {
       cmdPhilosopherAbacus.setRun(doRunAbacus);
       if (cmdPhilosopherAbacus.isRun()) {
         int plex = 0;
-        if (tmtiPanel.isRunFqLq()) {
+        if (tmtiPanel.getIntensityExtractionMethod() == 2) {
           QuantLabel label = tmtiPanel.getSelectedLabel();
           plex = label.getReagentNames().size();
         }
@@ -1509,7 +1507,7 @@ public class FragpipeRun {
     });
 
     // run Report - Freequant (Labelfree)
-    final CmdFreequant cmdFreequant = new CmdFreequant(reportPanel.isRun() && isFreequant, wd);
+    final CmdFreequant cmdFreequant = new CmdFreequant(reportPanel.isRun() && quantPanelLabelfree.isRunFreeQuant(), wd);
     addConfig.accept(cmdFreequant, () -> {
       cmdFreequant.setRun(cmdFreequant.isRun() && !sharedMapGroupsToProtxml.isEmpty());
       if (cmdFreequant.isRun()) {
@@ -1535,6 +1533,14 @@ public class FragpipeRun {
       SwingUtils.showErrorDialog(parent, "Looks like IonQuant was not configured.\nIonQuant is currently required.", "No IonQuant");
       return false;
     }
+
+    final UsageTrigger binIonQuant = new UsageTrigger(NoteConfigIonQuant.path, "IonQuant");
+
+    Set<Float> modMassSet = new TreeSet<>();
+    modMassSet.addAll(tabMsf.getVarModMassSet());
+    modMassSet.addAll(tabMsf.getFixedModMassSet());
+    modMassSet.addAll(tabMsf.getMassOffsetSet());
+
     if (cmdIonquant.isRun()) {
       final NoteConfigIonQuant configIonQuant;
       try {
@@ -1548,13 +1554,6 @@ public class FragpipeRun {
         SwingUtils.showErrorDialog(parent, "Looks like IonQuant was not configured.\nIonQuant is currently required.", "IonQuant not available");
         return false;
       }
-
-      final UsageTrigger binIonQuant = new UsageTrigger(NoteConfigIonQuant.path, "IonQuant");
-
-      Set<Float> modMassSet = new TreeSet<>();
-      modMassSet.addAll(tabMsf.getVarModMassSet());
-      modMassSet.addAll(tabMsf.getFixedModMassSet());
-      modMassSet.addAll(tabMsf.getMassOffsetSet());
 
       addConfig.accept(cmdIonquant,  () -> {
         cmdIonquant.setRun(cmdIonquant.isRun() && !sharedPepxmlFilesFromMsfragger.isEmpty());
@@ -1571,12 +1570,9 @@ public class FragpipeRun {
     }
 
     // run TMT-Integrator
-    final boolean isTmt = tmtiPanel.isRun();
-    final boolean isTmtLqFq = isTmt && tmtiPanel.isRunFqLq();
-    final CmdTmtIntegrator cmdTmt = new CmdTmtIntegrator(isTmt, wd);
-
+    final CmdTmtIntegrator cmdTmt = new CmdTmtIntegrator(tmtiPanel.isRun(), wd);
     addConfig.accept(cmdTmt, () -> {
-      if (isTmt && !sharedMapGroupsToProtxml.isEmpty()) {
+      if (tmtiPanel.isRun() && !sharedMapGroupsToProtxml.isEmpty()) {
         if (sharedLcmsFiles.stream().anyMatch(f -> !f.getPath().getFileName().toString().toLowerCase().endsWith(".mzml") && !f.getPath().getFileName().toString().toLowerCase().endsWith(".raw"))) {
           SwingUtils.showWarningDialog(parent, CmdTmtIntegrator.NAME + " only supports mzML and raw files.\nPlease remove other files from the input list.", CmdTmtIntegrator.NAME + " error");
           return false;
@@ -1586,75 +1582,106 @@ public class FragpipeRun {
       return true;
     });
 
-    // run FreeQuant - as part of TMT-I
-    final CmdFreequant cmdTmtFreequant = new CmdFreequant(isTmtLqFq, wd);
+    final CmdIonquant cmdTmtIonquant = new CmdIonquant(tmtiPanel.isRun() && tmtiPanel.getIntensityExtractionMethod() == 1, wd);
+    cmdTmtIonquant.setTitle(CmdIonquant.NAME + " MS1 (TMT)");
+
+    final CmdIonquant cmdTmtIonquantIsobaric = new CmdIonquant(tmtiPanel.isRun() && tmtiPanel.getIntensityExtractionMethod() == 1, wd);
+    cmdTmtIonquantIsobaric.setTitle(CmdIonquant.NAME + " Isobaric (TMT)");
+
+    final CmdFreequant cmdTmtFreequant = new CmdFreequant(tmtiPanel.isRun() && tmtiPanel.getIntensityExtractionMethod() == 2, wd);
     cmdTmtFreequant.setTitle(CmdFreequant.NAME + " (TMT)");
 
-    addCheck.accept(() -> {
-      if (isTmtLqFq && isFreequant) {
-        if (Fragpipe.headless) {
-          log.error("Both FreeQuant and TMT-Integrator were enabled. If you want to perform TMT analysis, please disable FreeQuant. If you want to perform LFQ analysis, please disable TMT-Integrator.");
-        } else {
-          String msg =
-              "<html>Both FreeQuant and TMT-Integrator were enabled.\n"
-                  + "If you want to perform TMT analysis, please disable FreeQuant.\n"
-                  + "If you want to perform LFQ analysis, please disable TMT-Integrator.\n";
-          JOptionPane.showMessageDialog(parent, msg, "Warning", JOptionPane.ERROR_MESSAGE);
-        }
-        return false;
-      }
-      return true;
-    });
-    addConfig.accept(cmdTmtFreequant, () -> {
-      cmdTmtFreequant.setRun(cmdTmtFreequant.isRun() && !sharedMapGroupsToProtxml.isEmpty());
-      if (cmdTmtFreequant.isRun()) {
-        return cmdTmtFreequant.configure(parent, usePhi, quantPanelLabelfree.getFreequantOptsAsText(), sharedMapGroupsToProtxml, tmtiPanel.isRun(), tabMsf.isOpenSearch());
-      }
-      return true;
-    });
-
-
-    // run LabelQuant - as part of TMT-I
-    final CmdLabelquant cmdTmtLabelQuant = new CmdLabelquant(isTmtLqFq, wd);
+    final CmdLabelquant cmdTmtLabelQuant = new CmdLabelquant(tmtiPanel.isRun() && tmtiPanel.getIntensityExtractionMethod() == 2, wd);
     cmdTmtLabelQuant.setTitle(CmdLabelquant.NAME + " (TMT)");
-    final TabDownstream tabDownstream = Fragpipe.getStickyStrict(TabDownstream.class);
 
-    addCheck.accept(() -> {
-      // check annotations files exist
-      if (!tmtiPanel.isRun()) {
-        if (!tabDownstream.pFpop.isRunFpopQuant()){
-          return true;
-        } else {
-          if (!tabDownstream.pFpop.isFpopTmt()){
+    if (tmtiPanel.isRun()) {
+      final TabDownstream tabDownstream = Fragpipe.getStickyStrict(TabDownstream.class);
+      addCheck.accept(() -> {
+        if (!tmtiPanel.isRun()) {
+          if (!tabDownstream.pFpop.isRunFpopQuant()){
             return true;
+          } else {
+            if (!tabDownstream.pFpop.isFpopTmt()){
+              return true;
+            }
           }
         }
-      }
-      Map<LcmsFileGroup, Path> annotations = tmtiPanel.getAnnotations();
-      boolean hasMissing = Seq.seq(annotations.values()).map(PathUtils::existing).anyMatch(Objects::isNull);
-      if (hasMissing) {
-        SwingUtils.showErrorDialog(parent,
-            "Not all TMT groups have annotation files set.\n"
-                + "Check <b>Quant (Isobaric)</b> tab, <b>TMT-Integrator config</b>, or <b>Downstream tab (FPOP Quant)</b>.", "TMT-Integrator config error");
-        return false;
-      }
-      return true;
-    });
-
-    addConfig.accept(cmdTmtLabelQuant, () -> {
-      cmdTmtLabelQuant.setRun(cmdTmtLabelQuant.isRun() && !sharedMapGroupsToProtxml.isEmpty());
-      if (cmdTmtLabelQuant.isRun()) {
-        QuantLabel label = tmtiPanel.getSelectedLabel();
-        String quantLevel = tmtiPanel.getQuantLevel();
-        int tolerance = tmtiPanel.getTolerance();
-        double minprob = tmtiPanel.getMinprob();
-        double purity = tmtiPanel.getPurity();
-        double minIntensityPercant = tmtiPanel.getMinIntensityPercent();
         Map<LcmsFileGroup, Path> annotations = tmtiPanel.getAnnotations();
-        return cmdTmtLabelQuant.configure(parent, isDryRun, usePhi, quantLevel, tolerance, minprob, purity, minIntensityPercant, label, annotations, sharedMapGroupsToProtxml);
+        boolean hasMissing = Seq.seq(annotations.values()).map(PathUtils::existing).anyMatch(Objects::isNull);
+        if (hasMissing) {
+          SwingUtils.showErrorDialog(parent,
+              "Not all TMT groups have annotation files set.\n"
+                  + "Check <b>Quant (Isobaric)</b> tab, <b>TMT-Integrator config</b>, or <b>Downstream tab (FPOP Quant)</b>.", "TMT-Integrator config error");
+          return false;
+        }
+        return true;
+      });
+
+      QuantLabel label = tmtiPanel.getSelectedLabel();
+      String quantLevel = tmtiPanel.getQuantLevel();
+      int tolerance = tmtiPanel.getTolerance();
+      double minprob = tmtiPanel.getMinprob();
+      double purity = tmtiPanel.getPurity();
+      double minIntensityPercant = tmtiPanel.getMinIntensityPercent();
+      Map<LcmsFileGroup, Path> annotations = tmtiPanel.getAnnotations();
+
+      if (tmtiPanel.getIntensityExtractionMethod() == 1) {
+        addConfig.accept(cmdTmtIonquant, () -> {
+          cmdTmtIonquant.setRun(!sharedPepxmlFilesFromMsfragger.isEmpty());
+          if (cmdTmtIonquant.isRun()) {
+            OPairPanel oPairPanel = Bus.getStickyEvent(OPairPanel.class);
+            if (oPairPanel == null) {
+              throw new IllegalStateException("OPairPanel has not been posted to the bus");
+            }
+            return cmdTmtIonquant.configure(parent, Paths.get(binMsfragger.getBin()), Paths.get(binIonQuant.getBin()), ramGb, null, tabWorkflow.getInputDataType(), sharedPepxmlFilesFromMsfragger, sharedMapGroupsToProtxml, threads, oPairPanel.isRun() ? null : modMassSet, isDryRun);
+          }
+          return true;
+        });
+        addConfig.accept(cmdTmtIonquantIsobaric, () -> {
+          cmdTmtIonquantIsobaric.setRun(!sharedPepxmlFilesFromMsfragger.isEmpty());
+          if (cmdTmtIonquantIsobaric.isRun()) {
+            OPairPanel oPairPanel = Bus.getStickyEvent(OPairPanel.class);
+            if (oPairPanel == null) {
+              throw new IllegalStateException("OPairPanel has not been posted to the bus");
+            }
+            return cmdTmtIonquantIsobaric.configure(parent, Paths.get(binMsfragger.getBin()), Paths.get(binIonQuant.getBin()), ramGb, null, tabWorkflow.getInputDataType(), sharedPepxmlFilesFromMsfragger, sharedMapGroupsToProtxml, threads, oPairPanel.isRun() ? null : modMassSet, isDryRun, false, true, tolerance, Integer.parseInt(quantLevel), label.getName(), annotations);
+          }
+          return true;
+        });
+      } else if (tmtiPanel.getIntensityExtractionMethod() == 2) {
+        addCheck.accept(() -> {
+          if (quantPanelLabelfree.isRunFreeQuant()) {
+            if (Fragpipe.headless) {
+              log.error("Both FreeQuant and TMT-Integrator were enabled. If you want to perform TMT analysis, please disable FreeQuant. If you want to perform LFQ analysis, please disable TMT-Integrator.");
+            } else {
+              String msg =
+                  "<html>Both FreeQuant and TMT-Integrator were enabled.\n"
+                      + "If you want to perform TMT analysis, please disable FreeQuant.\n"
+                      + "If you want to perform LFQ analysis, please disable TMT-Integrator.\n";
+              JOptionPane.showMessageDialog(parent, msg, "Warning", JOptionPane.ERROR_MESSAGE);
+            }
+            return false;
+          }
+          return true;
+        });
+
+        addConfig.accept(cmdTmtFreequant, () -> {
+          cmdTmtFreequant.setRun(cmdTmtFreequant.isRun() && !sharedMapGroupsToProtxml.isEmpty());
+          if (cmdTmtFreequant.isRun()) {
+            return cmdTmtFreequant.configure(parent, usePhi, quantPanelLabelfree.getFreequantOptsAsText(), sharedMapGroupsToProtxml, tmtiPanel.isRun(), tabMsf.isOpenSearch());
+          }
+          return true;
+        });
+
+        addConfig.accept(cmdTmtLabelQuant, () -> {
+          cmdTmtLabelQuant.setRun(cmdTmtLabelQuant.isRun() && !sharedMapGroupsToProtxml.isEmpty());
+          if (cmdTmtLabelQuant.isRun()) {
+            return cmdTmtLabelQuant.configure(parent, isDryRun, usePhi, quantLevel, tolerance, minprob, purity, minIntensityPercant, label, annotations, sharedMapGroupsToProtxml);
+          }
+          return true;
+        });
       }
-      return true;
-    });
+    }
 
     // Run scan pairing - make scan pair files if O-Pair is run
     final OPairPanel oPairPanel = Fragpipe.getStickyStrict(OPairPanel.class);
@@ -1720,12 +1747,13 @@ public class FragpipeRun {
 
 
     // run FPOP script
+    final TabDownstream tabDownstream = Fragpipe.getStickyStrict(TabDownstream.class);
     final CmdFpopQuant cmdFpopQuant = new CmdFpopQuant(tabDownstream.pFpop.isRunFpopQuant(), wd);
-    final CmdTmtIntegrator cmdTmtFpop = new CmdTmtIntegrator(isTmt && cmdFpopQuant.isRun() && tabDownstream.pFpop.isFpopTmt(), wd);
+    final CmdTmtIntegrator cmdTmtFpop = new CmdTmtIntegrator(tmtiPanel.isRun() && cmdFpopQuant.isRun() && tabDownstream.pFpop.isFpopTmt(), wd);
 
     if (tabDownstream.pFpop.isFpopTmt() && cmdFpopQuant.isRun()) {
       addCheck.accept(() -> {
-        if (!isTmt) {
+        if (!tmtiPanel.isRun()) {
           if (Fragpipe.headless) {
             log.error("FPOP TMT Quant was requested on Downstream tab, but TMT-Integrator is not run. Please enable TMT-Integrator");
           } else {
@@ -1866,8 +1894,10 @@ public class FragpipeRun {
     addToGraph(graphOrder, cmdPtmshepherd, DIRECTION.IN, cmdPhilosopherReport, cmdPhilosopherAbacus);
     addToGraph(graphOrder, cmdAppendFile, DIRECTION.IN, cmdPtmshepherd);
     addToGraph(graphOrder, cmdIonquant, DIRECTION.IN, cmdPhilosopherReport, cmdPhilosopherAbacus, cmdPtmshepherd);
-    addToGraph(graphOrder, cmdTmt, DIRECTION.IN, cmdPhilosopherReport, cmdTmtFreequant, cmdTmtLabelQuant, cmdPhilosopherAbacus, cmdPtmshepherd);
-    addToGraph(graphOrder, cmdTmtFpop, DIRECTION.IN, cmdPhilosopherReport, cmdTmtFreequant, cmdTmtLabelQuant, cmdPhilosopherAbacus, cmdPtmshepherd);
+    addToGraph(graphOrder, cmdTmtIonquant, DIRECTION.IN, cmdPhilosopherReport, cmdPhilosopherAbacus, cmdPtmshepherd);
+    addToGraph(graphOrder, cmdTmtIonquantIsobaric, DIRECTION.IN, cmdPhilosopherReport, cmdPhilosopherAbacus, cmdPtmshepherd, cmdIonquant);
+    addToGraph(graphOrder, cmdTmt, DIRECTION.IN, cmdPhilosopherReport, cmdTmtFreequant, cmdTmtLabelQuant, cmdPhilosopherAbacus, cmdPtmshepherd, cmdTmtIonquant, cmdTmtIonquantIsobaric);
+    addToGraph(graphOrder, cmdTmtFpop, DIRECTION.IN, cmdPhilosopherReport, cmdTmtFreequant, cmdTmtLabelQuant, cmdPhilosopherAbacus, cmdPtmshepherd, cmdTmtIonquant, cmdTmtIonquantIsobaric);
     addToGraph(graphOrder, cmdFpopQuant, DIRECTION.IN, cmdIonquant, cmdTmt, cmdTmtFpop);
     addToGraph(graphOrder, cmdSpecLibGen, DIRECTION.IN, cmdPhilosopherReport);
     addToGraph(graphOrder, cmdDiann, DIRECTION.IN, cmdSpecLibGen);

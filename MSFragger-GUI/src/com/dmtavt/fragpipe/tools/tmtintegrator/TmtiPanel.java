@@ -174,7 +174,7 @@ public class TmtiPanel extends JPanelBase {
   private UiCombo uiComboAddRef;
   private UiCombo uiComboAbnType;
   private UiCombo uiComboNorm;
-  private UiCheck uiCheckDontRunFqLq;
+  private UiCombo uiComboIntensityExtractionMethod;
 
   private static Supplier<? extends RuntimeException> supplyRunEx(String message) {
     return () -> new RuntimeException(message);
@@ -242,13 +242,15 @@ public class TmtiPanel extends JPanelBase {
     JPanel p = mu.newPanel(mu.lcFillXNoInsetsTopBottom());
     mu.borderEmpty(p);
 
-    checkRun = new UiCheck("Run TMT-Integrator", null, false);
+    checkRun = new UiCheck("Run Isobaric Quant", null, false);
     checkRun.setName("run-tmtintegrator");
 
-    uiCheckDontRunFqLq = UiUtils.createUiCheck("Skip PSM quantification (rerun TMT-Integrator only)", false);
-    FormEntry feDontRunFqLq = mu.feb(uiCheckDontRunFqLq).name("dont-run-fq-lq")
-        .tooltip("Only use in rare situations when you need to re-run TMT-Integrator separately")
-        .create();
+    List<String> tt = new ArrayList<>(3);
+    tt.add("Skip extraction. Run TMT-Integrator only");
+    tt.add("IonQuant");
+    tt.add("Philosopher");
+    uiComboIntensityExtractionMethod = UiUtils.createUiCombo(tt);
+    FormEntry feIntensityExtractionMethod = fe("extraction-method", "Intensity Extraction Method", uiComboIntensityExtractionMethod, "MS1 and reporter ion intensity extraction method");
 
     JLabel imageLabel = new JLabel();
     try {
@@ -260,7 +262,7 @@ public class TmtiPanel extends JPanelBase {
 
     mu.add(p, checkRun);
     mu.add(p, imageLabel, mu.ccR()).gapRight("50").wrap();
-    mu.add(p, feDontRunFqLq.comp).spanX().growX().wrap();
+    mu.add(p, feIntensityExtractionMethod.comp).pushX().wrap();
 
     return p;
   }
@@ -750,8 +752,8 @@ public class TmtiPanel extends JPanelBase {
     return SwingUtils.isEnabledAndChecked(checkRun);
   }
 
-  public boolean isRunFqLq() {
-    return isRun() && !uiCheckDontRunFqLq.isSelected();
+  public int getIntensityExtractionMethod() {
+    return uiComboIntensityExtractionMethod.getSelectedIndex();
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
