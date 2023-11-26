@@ -27,7 +27,7 @@ class Parameters(object):
     fasfile_path: str
     tmtifile_path: str
 
-    def __init__(self, oneDTPPbooR, oneDTPPboo, twoDTPPboo, mainfolderval, rlocalinstall = None, fasfileval = None, tmtifileval = None):
+    def __init__(self, twoDTPPboo, mainfolderval, rlocalinstall = None, fasfileval = None, tmtifileval = None):
 
         #Used the print statements below to fix a postional argument conundrum
         # print(type(fasfileval))
@@ -38,8 +38,8 @@ class Parameters(object):
         # print(rlocalinstall)
 
 
-        self.oneDTPPR_bool = oneDTPPbooR.lower().strip() == 'true'
-        self.oneDTPP_bool = oneDTPPboo.lower().strip() == 'true'
+        # self.oneDTPPR_bool = oneDTPPbooR.lower().strip() == 'true'
+        # self.oneDTPP_bool = oneDTPPboo.lower().strip() == 'true'
         self.twoDTPP_bool =  twoDTPPboo.lower().strip() == 'true'
         self.fragpipeoutput_path = mainfolderval
         self.rhome_path = rlocalinstall
@@ -51,9 +51,9 @@ class Parameters(object):
         """
         make sure the passed files exist and give nice error messages if not
         """
-        if self.oneDTPP_bool and not os.path.exists(self.rhome_path):
-            print('Error: R path {} does not exist! Stopping analysis.'.format(self.rhome_path))
-            sys.exit(1)
+        # if self.oneDTPP_bool and not os.path.exists(self.rhome_path):
+        #     print('Error: R path {} does not exist! Stopping analysis.'.format(self.rhome_path))
+        #     sys.exit(1)
         if self.twoDTPP_bool and not os.path.exists(self.fasfile_path):
             print('Error: database file {} does not exist! Stopping analysis.'.format(self.fasfile_path))
             sys.exit(1)
@@ -83,11 +83,11 @@ def main():
         sys.exit(0)
 
     params = Parameters(*argv)
-    if params.oneDTPPR_bool:
-        oneDTPPR_analysis(params)
-    elif params.oneDTPP_bool:
-        oneDTPP_analysis(params)
-    elif params.twoDTPP_bool:
+    # if params.oneDTPPR_bool:
+    #     oneDTPPR_analysis(params)
+    # elif params.oneDTPP_bool:
+    #     oneDTPP_analysis(params)
+    if params.twoDTPP_bool:
         twoDTPP_analysis(params)
 #End of command line adaptation
 def renaming_dict(annotationfile):
