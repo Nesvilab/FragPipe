@@ -87,13 +87,8 @@ public class TppPanel extends JPanelBase {
         return SwingUtils.isEnabledAndChecked(checkTPP);
     }
 
-    /*previously getFpopControlLabel*/
-    public String getRHOME(){
-        return uiTextRHOME.getNonGhostText();
-    }
+    
     public boolean isRunTpp() {return isRun(); }
-    public boolean isoneDTppR() {return checkONEDTPPR.isSelected(); }
-    public boolean isoneDTpp() {return checkONEDTPP.isSelected(); }
     public boolean istwoDTpp() {return checkTWODTPP.isSelected(); }
 
     private JPanel createPanelTop() {
@@ -110,31 +105,12 @@ public class TppPanel extends JPanelBase {
 
     private JPanel createPanelTPP() {
         JPanel p = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
-        /*Full 1DTPP done by TPP-R*/
-        checkONEDTPPR = UiUtils.createUiCheck("1DTPP (TPP-R)", false);
-        checkONEDTPPR.setName("tpp.onetppr");
-        checkONEDTPPR.setToolTipText("If check, it will perform 1DTPP analysis by TPP-R.");
-        /*Full 1DTPP done by TP-MAP*/
-        checkONEDTPP = UiUtils.createUiCheck("1DTPP (TP-MAP)", false);
-        checkONEDTPP.setName("tpp.onedtpp");
-        checkONEDTPP.setToolTipText("If check, it will perform 1DTPP analysis by TP-MAP." +
-                "If check runs 1DTPP analysis.");
         /*Full 2DTPP done by TP-MAP*/
         checkTWODTPP = UiUtils.createUiCheck("2DTPP (TP-MAP)", false);
         checkTWODTPP.setName("tpp.twodtpp");
         checkTWODTPP.setToolTipText("If check, it will perform 2DTPP analysis by TP-MAP.\"");
-        /*Path to local installation of R*/
 
-
-        uiTextRHOME = UiUtils.uiTextBuilder().cols(15).create();
-        FormEntry RHOME = mu.feb(uiTextRHOME).name("tpp.RHOMEPath").label("R local path").tooltip("Local installation of R.").create();
-
-        mu.add(p, checkONEDTPPR).split();
-        mu.add(p, checkONEDTPP).split();
         mu.add(p, checkTWODTPP).split();
-        mu.add(p, RHOME.label(), mu.ccR());
-        mu.add(p, RHOME.comp);
-
 
         return p;
     }
