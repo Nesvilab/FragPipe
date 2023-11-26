@@ -91,10 +91,7 @@ public class CmdTpp extends CmdBase{
 
         //Here add parameters in the order needed by the command line
 
-        // 1) check 1DTPP (TPP-R) Analysis
-        cmd.add(String.valueOf(tabDownstream.paneltpp.isoneDTppR()));
-        //2) check 1DTPP Analysis
-        cmd.add(String.valueOf(tabDownstream.paneltpp.isoneDTpp()));
+
         //3) check 2DTPP Analysis
         cmd.add(String.valueOf(tabDownstream.paneltpp.istwoDTpp()));
         //4) FragPipeoutput folder

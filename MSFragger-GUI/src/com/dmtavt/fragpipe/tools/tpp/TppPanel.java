@@ -87,7 +87,7 @@ public class TppPanel extends JPanelBase {
         return SwingUtils.isEnabledAndChecked(checkTPP);
     }
 
-    
+
     public boolean isRunTpp() {return isRun(); }
     public boolean istwoDTpp() {return checkTWODTPP.isSelected(); }
 
