@@ -18,7 +18,7 @@
 package com.dmtavt.fragpipe.cmd;
 
 import static com.dmtavt.fragpipe.cmd.ToolingUtils.BATMASS_IO_JAR;
-import static com.dmtavt.fragpipe.cmd.ToolingUtils.generateExperimentAnnotation;
+import static com.dmtavt.fragpipe.cmd.ToolingUtils.generateLFQExperimentAnnotation;
 import static com.dmtavt.fragpipe.tabs.TabWorkflow.manifestExt;
 import static com.github.chhh.utils.OsUtils.isUnix;
 import static com.github.chhh.utils.OsUtils.isWindows;
@@ -442,7 +442,7 @@ public class CmdDiann extends CmdBase {
 
     if (!isDryRun) {
       try {
-        generateExperimentAnnotation(wd, 1);
+        generateLFQExperimentAnnotation(wd, 1);
       } catch (Exception ex) {
         showErrorDialogWithStacktrace(ex, comp);
         return false;

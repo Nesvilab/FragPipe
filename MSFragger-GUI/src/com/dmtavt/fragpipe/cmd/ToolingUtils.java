@@ -36,9 +36,11 @@ import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -241,7 +243,7 @@ public class ToolingUtils {
     return matcher.find();
   }
 
-  static void generateExperimentAnnotation(Path wd, int type) throws Exception {
+  static void generateLFQExperimentAnnotation(Path wd, int type) throws Exception {
     BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(wd.resolve("experiment_annotation.tsv").toFile()));
     bufferedWriter.write("file\tsample\tsample_name\tcondition\treplicate\n");
 
@@ -294,6 +296,44 @@ public class ToolingUtils {
           }
         }
       }
+    }
+    bufferedWriter.close();
+  }
+
+  public static void writeIsobaricQuantExperimentAnnotation(Path wd, Map<LcmsFileGroup, Path> annotations) throws Exception {
+    String line;
+    BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(wd.resolve("experiment_annotation.tsv").toFile()));
+    bufferedWriter.write("plex\tchannel\tsample\tsample_name\tcondition\treplicate\n");
+    for (Map.Entry<LcmsFileGroup, Path> e : annotations.entrySet()) {
+      BufferedReader bufferedReader = new BufferedReader(new FileReader(e.getValue().toFile()));
+      while ((line = bufferedReader.readLine()) != null) {
+        line = line.trim();
+        if (!line.isEmpty()) {
+          String[] parts = line.split("\\s");
+          if (parts[1].trim().equalsIgnoreCase("na")) {
+            continue;
+          }
+          String[] parts2 = parts[1].trim().split("_");
+          if (parts2.length == 3) {
+            try {
+              int replicate = Integer.parseInt(parts2[2]);
+              bufferedWriter.write(e.getKey().name + "\t" + parts[0].trim() + "\t" + parts[1].trim() + "\t" + parts2[0].trim() + "\t" + parts2[1].trim() + "\t" + replicate + "\n");
+            } catch (Exception ex) {
+              bufferedWriter.write(e.getKey().name + "\t" + parts[0].trim() + "\t" + parts[1].trim() + "\t" + parts2[0].trim() + "_" + parts2[1].trim() + "\t" + parts2[2].trim() + "\t1\n");
+            }
+          } else if (parts2.length == 2) {
+            try {
+              int replicate = Integer.parseInt(parts2[1]);
+              bufferedWriter.write(e.getKey().name + "\t" + parts[0].trim() + "\t" + parts[1].trim() + "\t" + parts2[0].trim() + "\t" + parts2[0].trim() + "\t" + replicate + "\n");
+            } catch (NumberFormatException ex) {
+              bufferedWriter.write(e.getKey().name + "\t" + parts[0].trim() + "\t" + parts[1].trim() + "\t" + parts2[0].trim() + "\t" + parts2[1].trim() + "\t1\n");
+            }
+          } else {
+            bufferedWriter.write(e.getKey().name + "\t" + parts[0].trim() + "\t" + parts[1].trim() + "\t" + parts[1].trim() + "\t" + parts[1].trim() + "\t1\n");
+          }
+        }
+      }
+      bufferedReader.close();
     }
     bufferedWriter.close();
   }

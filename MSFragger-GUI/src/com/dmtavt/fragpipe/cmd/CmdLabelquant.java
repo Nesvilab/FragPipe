@@ -17,6 +17,7 @@
 
 package com.dmtavt.fragpipe.cmd;
 
+import static com.dmtavt.fragpipe.cmd.ToolingUtils.writeIsobaricQuantExperimentAnnotation;
 import static com.github.chhh.utils.SwingUtils.showErrorDialogWithStacktrace;
 
 import com.dmtavt.fragpipe.Fragpipe;
@@ -28,10 +29,6 @@ import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.UsageTrigger;
 import java.awt.Component;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -159,41 +156,7 @@ public class CmdLabelquant extends CmdBase {
 
     if (!isDryRun) {
       try {
-        String line;
-        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(wd.resolve("experiment_annotation.tsv").toFile()));
-        bufferedWriter.write("plex\tchannel\tsample\tsample_name\tcondition\treplicate\n");
-        for (Map.Entry<LcmsFileGroup, Path> e : annotations.entrySet()) {
-          BufferedReader bufferedReader = new BufferedReader(new FileReader(e.getValue().toFile()));
-          while ((line = bufferedReader.readLine()) != null) {
-            line = line.trim();
-            if (!line.isEmpty()) {
-              String[] parts = line.split("\\s");
-              if (parts[1].trim().equalsIgnoreCase("na")) {
-                continue;
-              }
-              String[] parts2 = parts[1].trim().split("_");
-              if (parts2.length == 3) {
-                try {
-                  int replicate = Integer.parseInt(parts2[2]);
-                  bufferedWriter.write(e.getKey().name + "\t" + parts[0].trim() + "\t" + parts[1].trim() + "\t" + parts2[0].trim() + "\t" + parts2[1].trim() + "\t" + replicate + "\n");
-                } catch (Exception ex) {
-                  bufferedWriter.write(e.getKey().name + "\t" + parts[0].trim() + "\t" + parts[1].trim() + "\t" + parts2[0].trim() + "_" + parts2[1].trim() + "\t" + parts2[2].trim() + "\t1\n");
-                }
-              } else if (parts2.length == 2) {
-                try {
-                  int replicate = Integer.parseInt(parts2[1]);
-                  bufferedWriter.write(e.getKey().name + "\t" + parts[0].trim() + "\t" + parts[1].trim() + "\t" + parts2[0].trim() + "\t" + parts2[0].trim() + "\t" + replicate + "\n");
-                } catch (NumberFormatException ex) {
-                  bufferedWriter.write(e.getKey().name + "\t" + parts[0].trim() + "\t" + parts[1].trim() + "\t" + parts2[0].trim() + "\t" + parts2[1].trim() + "\t1\n");
-                }
-              } else {
-                bufferedWriter.write(e.getKey().name + "\t" + parts[0].trim() + "\t" + parts[1].trim() + "\t" + parts[1].trim() + "\t" + parts[1].trim() + "\t1\n");
-              }
-            }
-          }
-          bufferedReader.close();
-        }
-        bufferedWriter.close();
+        writeIsobaricQuantExperimentAnnotation(wd, annotations);
       } catch (Exception ex) {
         showErrorDialogWithStacktrace(ex, comp);
         return false;

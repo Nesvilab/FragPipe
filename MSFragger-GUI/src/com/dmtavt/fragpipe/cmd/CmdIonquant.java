@@ -19,7 +19,8 @@ package com.dmtavt.fragpipe.cmd;
 
 import static com.dmtavt.fragpipe.cmd.ToolingUtils.BATMASS_IO_JAR;
 import static com.dmtavt.fragpipe.cmd.ToolingUtils.JFREECHART_JAR;
-import static com.dmtavt.fragpipe.cmd.ToolingUtils.generateExperimentAnnotation;
+import static com.dmtavt.fragpipe.cmd.ToolingUtils.generateLFQExperimentAnnotation;
+import static com.dmtavt.fragpipe.cmd.ToolingUtils.writeIsobaricQuantExperimentAnnotation;
 import static com.github.chhh.utils.SwingUtils.showErrorDialogWithStacktrace;
 
 import com.dmtavt.fragpipe.Fragpipe;
@@ -65,11 +66,11 @@ public class CmdIonquant extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, Path binFragger, Path binIonQuant, int ramGb, Map<String, String> uiCompsRepresentation, InputDataType dataType, Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml, Map<LcmsFileGroup, Path> mapGroupsToProtxml, int nThreads, Set<Float> modMassSet, boolean isDryRun) {
-    return configure(comp, binFragger, binIonQuant, ramGb, uiCompsRepresentation, dataType, lcmsToFraggerPepxml, mapGroupsToProtxml, nThreads, modMassSet, isDryRun, true, false, 20, 2, "tmt10", null);
+  public boolean configure(Component comp, Path binFragger, Path binIonQuant, int ramGb, Map<String, String> uiCompsRepresentation, InputDataType dataType, Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml, Map<LcmsFileGroup, Path> mapGroupsToProtxml, int nThreads, Set<Float> modMassSet, boolean isDryRun, boolean writeExperimentAnnotation) {
+    return configure(comp, binFragger, binIonQuant, ramGb, uiCompsRepresentation, dataType, lcmsToFraggerPepxml, mapGroupsToProtxml, nThreads, modMassSet, isDryRun, true, false, 20, 2, "tmt10", null, writeExperimentAnnotation);
   }
 
-  public boolean configure(Component comp, Path binFragger, Path binIonQuant, int ramGb, Map<String, String> uiCompsRepresentation, InputDataType dataType, Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml, Map<LcmsFileGroup, Path> mapGroupsToProtxml, int nThreads, Set<Float> modMassSet, boolean isDryRun, boolean performMS1Quant, boolean performIsoQuant, float isoTol, int isoLevel, String isoType, Map<LcmsFileGroup, Path> annotationMap) {
+  public boolean configure(Component comp, Path binFragger, Path binIonQuant, int ramGb, Map<String, String> uiCompsRepresentation, InputDataType dataType, Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml, Map<LcmsFileGroup, Path> mapGroupsToProtxml, int nThreads, Set<Float> modMassSet, boolean isDryRun, boolean performMS1Quant, boolean performIsobaricQuant, float isoTol, int isoLevel, String isoType, Map<LcmsFileGroup, Path> annotationMap, boolean writeExperimentAnnotation) {
 
     initPreConfig();
 
@@ -144,7 +145,7 @@ public class CmdIonquant extends CmdBase {
     cmd.add("--perform-ms1quant");
     cmd.add(performMS1Quant ? "1" : "0");
     cmd.add("--perform-isoquant");
-    cmd.add(performIsoQuant ? "1" : "0");
+    cmd.add(performIsobaricQuant ? "1" : "0");
     cmd.add("--isotol");
     cmd.add(String.valueOf(isoTol));
     cmd.add("--isolevel");
@@ -154,7 +155,7 @@ public class CmdIonquant extends CmdBase {
     cmd.add("--ionmobility");
     cmd.add(dataType == InputDataType.ImMsTimsTof ? "1" : "0");
 
-    if (performIsoQuant) {
+    if (performIsobaricQuant) {
       cmd.add("--site-reports");
       cmd.add("0");
     }
@@ -323,9 +324,13 @@ public class CmdIonquant extends CmdBase {
     pb.directory(wd.toFile());
     pbis.add(PbiBuilder.from(pb));
 
-    if (!isDryRun) {
+    if (!isDryRun && writeExperimentAnnotation) {
       try {
-        generateExperimentAnnotation(wd, 0);
+        if (performIsobaricQuant && annotationMap != null) {
+          writeIsobaricQuantExperimentAnnotation(wd, annotationMap);
+        } else if (performMS1Quant) {
+          generateLFQExperimentAnnotation(wd, 0);
+        }
       } catch (Exception ex) {
         showErrorDialogWithStacktrace(ex, comp);
         return false;
