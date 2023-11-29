@@ -53,7 +53,7 @@ public class TabGlyco extends JPanelWithEnablement {
     private UiText textLoadGlycans;
     private UiCombo uiComboLoadBuiltinGlycans;
     private LinkedHashMap<String, File> glycanDBs;
-    private static final String glycanDBfolder = "Glycan_Databases";
+    public static final String glycanDBfolder = "Glycan_Databases";
 
     public TabGlyco() {
         init();

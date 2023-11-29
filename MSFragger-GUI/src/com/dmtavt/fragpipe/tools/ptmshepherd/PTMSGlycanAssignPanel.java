@@ -18,6 +18,8 @@
 package com.dmtavt.fragpipe.tools.ptmshepherd;
 
 import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.FragpipeLocations;
+import com.dmtavt.fragpipe.tabs.TabGlyco;
 import com.github.chhh.utils.MapUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
@@ -32,6 +34,8 @@ import com.github.chhh.utils.swing.UiUtils;
 import java.awt.Component;
 import java.awt.ItemSelectable;
 import java.awt.image.BufferedImage;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -126,6 +130,13 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
     public Map<String, String> getGlycanAssignParams() {
         Map<String, String> map0 = super.toMap();
         Map<String, String> map1 = MapUtils.remapKeys(map0, s -> StringUtils.stripLeading(s, PREFIX));
+
+        // add glycan residue/mods databases to PTM-Shepherd params
+        final Path dirTools = FragpipeLocations.get().getDirTools();
+        map1.put("glyco_residue_list", Paths.get(dirTools.toString(), TabGlyco.glycanDBfolder, "glycan_residues.txt").toString());
+        map1.put("glyco_mod_list", Paths.get(dirTools.toString(), TabGlyco.glycanDBfolder, "glycan_mods.txt").toString());
+        map1.put("glyco_oxonium_list", Paths.get(dirTools.toString(), TabGlyco.glycanDBfolder, "oxonium_ion_list.txt").toString());
+
         return map1;
     }
 

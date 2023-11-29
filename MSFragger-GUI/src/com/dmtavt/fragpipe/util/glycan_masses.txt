@@ -19,3 +19,4 @@ Formyl = 27.99491
 HexPh = 242.01915
 Acetyl = 42.01056
 SuccinylHex = 262.06890
+Pseudaminic = 232.10592

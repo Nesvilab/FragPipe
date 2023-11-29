@@ -1,0 +1,10 @@
+#Name	mass	yProb +	yProb -	alt names
+HexNAc	203.07937	5	0.5	N,GlcNAc,GalNAc
+Hex	162.05282	5	0.5	H,hexose,glucose,galactose,glc,gal
+Fuc	146.057909	2	0.5	F,dhex,fucose
+NeuAc	291.095417			A
+NeuGc	307.090334			G
+Pent	132.0423	5	0.5	pentose,X,xylose,xyl,rib,ribose,ara,arabinose,lyx
+KDN	250.0689	5	0.5	Ketodeoxynonulosonic acid
+HexA	176.03209	5	0.5	hexuronic acid,hexuronate
+pseudaminic	232.10592	5	0.5	pseudaminic acid
