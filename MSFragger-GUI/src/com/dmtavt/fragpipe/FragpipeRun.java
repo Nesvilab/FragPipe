@@ -1487,7 +1487,7 @@ public class FragpipeRun {
       cmdPhilosopherAbacus.setRun(doRunAbacus);
       if (cmdPhilosopherAbacus.isRun()) {
         int plex = 0;
-        if (tmtiPanel.getIntensityExtractionMethod() == 2) {
+        if (tmtiPanel.isRun() && tmtiPanel.getIntensityExtractionMethod() == 2) {
           QuantLabel label = tmtiPanel.getSelectedLabel();
           plex = label.getReagentNames().size();
         }
