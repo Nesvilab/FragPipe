@@ -16,7 +16,9 @@ RUN apt-get -y install \
     tar \
     unzip \
     wget \
-    openjdk-11-jdk
+    openjdk-11-jdk \
+	vim \
+	dotnet-runtime-6.0
 	
 # install python packages
 RUN pip uninstall easypqp \
