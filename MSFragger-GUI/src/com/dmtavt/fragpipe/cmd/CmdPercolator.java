@@ -138,8 +138,8 @@ public class CmdPercolator extends CmdBase {
           continue;
         // Percolator
         List<String> cmdPp = new ArrayList<>();
-        final String percolator_bin = OsUtils.isUnix() ? "percolator-305/percolator" :
-                OsUtils.isWindows() ? "percolator-306/percolator.exe" : null;
+        final String percolator_bin = OsUtils.isUnix() ? "percolator_3_6_4/linux/percolator" :
+                OsUtils.isWindows() ? "percolator_3_6_4/windows/percolator.exe" : null;
         cmdPp.add(FragpipeLocations.checkToolsMissing(Seq.of(percolator_bin)).get(0).toString());
 
         String strippedBaseName;
@@ -157,11 +157,8 @@ public class CmdPercolator extends CmdBase {
         cmdPp.add(strippedBaseName + "_percolator_target_psms.tsv");
         cmdPp.add("--decoy-results-psms");
         cmdPp.add(strippedBaseName + "_percolator_decoy_psms.tsv");
-
-        if (OsUtils.isWindows()) { // The Windows version is 3.06 which needs this flag to avoid a warning. The Linux version is 3.05 which does not need this flag. TODO: change it after upgrading the Linux version.
-          cmdPp.add("--protein-decoy-pattern");
-          cmdPp.add(decoyTag);
-        }
+        cmdPp.add("--protein-decoy-pattern");
+        cmdPp.add(decoyTag);
 
         if (writeSubMzml) { // This is the first-pass and there will be a second-pass. Let Percolator save the weights for the second-pass.
           cmdPp.add("--weights");
