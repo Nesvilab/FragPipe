@@ -153,7 +153,34 @@ public class PtmProphetPanel extends JPanelBase {
     ArrayList<String> modStrings = new ArrayList<>();
     TabMsfragger tabMsfragger = Fragpipe.getStickyStrict(TabMsfragger.class);
     List<Mod> mods = tabMsfragger.getVarModsTable();
-    mods.addAll(tabMsfragger.getOffsetsAsMods());
+
+    // merge mass offsets with var mods if the mass is equal to avoid duplicate entries (which crash PTMProphet)
+    for (Mod offsetMod: tabMsfragger.getOffsetsAsMods()) {
+      if (offsetMod.isEnabled && offsetMod.massDelta != 0) {
+        boolean foundMatchingVarmod = false;
+        for (Mod varMod : mods) {
+          if (varMod.isEnabled && Math.abs(varMod.massDelta - offsetMod.massDelta) < 0.0001) {
+            foundMatchingVarmod = true;
+            // merge sites and replace the varmod with a new merged offset+var mod
+            StringBuilder finalSites = new StringBuilder(varMod.sites);
+            for (int i=0; i < offsetMod.sites.length(); i++) {
+              if (!varMod.sites.contains(String.valueOf(offsetMod.sites.charAt(i)))) {
+                finalSites.append(offsetMod.sites.charAt(i));
+              }
+            }
+            Mod newMod = new Mod(varMod.massDelta, finalSites.toString(), true, varMod.maxOccurrences);
+            mods.remove(varMod);
+            mods.add(newMod);
+            break;
+          }
+        }
+        if (!foundMatchingVarmod) {
+          // add offset as normal
+          mods.add(offsetMod);
+        }
+      }
+    }
+
     for (Mod mod: mods) {
       if (mod.isEnabled && mod.massDelta != 0) {
         // handle peptide/protein termini
