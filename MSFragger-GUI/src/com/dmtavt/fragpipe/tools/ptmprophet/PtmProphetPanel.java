@@ -188,6 +188,9 @@ public class PtmProphetPanel extends JPanelBase {
         if (sites.matches("")) {
           sites = "ACDEFGHIKLMNPQRSTVWY";   // empty sites means any AA
         }
+        // handle terminal characters
+        sites = sites.replace("n^", "n-terminus");
+        sites = sites.replace("c^", "c-terminus");
         sites = sites.replace("n", "");
         sites = sites.replace("c", "");
         sites = sites.replace("[", "n-terminus");
