@@ -18,6 +18,7 @@
 package com.dmtavt.fragpipe.util;
 
 import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.dialogs.MassOffsetLoaderPanel;
 import com.dmtavt.fragpipe.tabs.TabMsfragger;
 import com.github.chhh.utils.SwingUtils;
@@ -44,9 +45,12 @@ public class GlycoMassLoader {
     public String glycoFilePath;
     public List<Double> glycoMasses;
     public MassOffsetLoaderPanel optionsPanel;
+    public ArrayList<GlycanResidue> supportedGlycans;
+    private final HashMap<String, Double> glycanMasses;
 
     private static final Logger log = LoggerFactory.getLogger(TabMsfragger.class);
-    private static final String MASSES_FILE = "glycan_masses.txt";
+    private static final String GLYCAN_RESIDUES_NAME = "glycan_residues.txt";
+    private static final String GLYCAN_MODS_NAME = "glycan_mods.txt";
 
     private static final Pattern numberPattern = Pattern.compile("[0-9]");
     private static final Pattern letterPattern = Pattern.compile("[a-zA-Z]+");
@@ -69,7 +73,6 @@ public class GlycoMassLoader {
         pGlycoTokenMap.put("H", "Hex");
         pGlycoTokenMap.put("N", "HexNAc");
         pGlycoTokenMap.put("X", "Xyl");
-        pGlycoTokenMap.put("P", "HexPh");
 
         MMGlycoTokenMap = new HashMap<>();
         MMGlycoTokenMap.put("A", "NeuAc");
@@ -82,30 +85,51 @@ public class GlycoMassLoader {
         MMGlycoTokenMap.put("Y", "Na");
         MMGlycoTokenMap.put("C", "Acetyl");
         MMGlycoTokenMap.put("X", "Xyl");
-        MMGlycoTokenMap.put("U", "SuccinylHex");
         MMGlycoTokenMap.put("M", "Formyl");
-    }
-
-    private static final HashMap<String, Double> glycanMasses;
-    static
-    {
-        glycanMasses = new HashMap<>();
-        try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(GlycoMassLoader.class.getResourceAsStream(MASSES_FILE))));
-            String readline;
-            while ((readline = reader.readLine()) != null) {
-                String[] splits = readline.split("=");
-                glycanMasses.put(splits[0].trim().toLowerCase(), Double.parseDouble(splits[1].trim()));
-            }
-        } catch (IOException | NullPointerException e) {
-            throw new IllegalStateException("Error reading internal glycan masses file");
-        }
     }
 
     public GlycoMassLoader(boolean msfraggerOnly) {
         optionsPanel = new MassOffsetLoaderPanel(msfraggerOnly);
         glycoMasses = new ArrayList<>();
+
+        supportedGlycans = parseGlycoResiduesDB(FragpipeLocations.get().getDirTools().resolve("Glycan_Databases").resolve(GLYCAN_RESIDUES_NAME).toString());
+        supportedGlycans.addAll(parseGlycoResiduesDB(FragpipeLocations.get().getDirTools().resolve("Glycan_Databases").resolve(GLYCAN_MODS_NAME).toString()));
+
+        glycanMasses = new HashMap<>();
+        for (GlycanResidue glycan: supportedGlycans) {
+            glycanMasses.put(glycan.name, glycan.mass);
+        }
     }
+
+    private ArrayList<GlycanResidue> parseGlycoResiduesDB(String glycanResiduesPath) {
+        ArrayList<GlycanResidue> residues = new ArrayList<>();
+        BufferedReader in;
+        try {
+            in = new BufferedReader(new FileReader(glycanResiduesPath));
+            // header
+            String line = in.readLine();
+            String[] splits = line.split("\t");
+            int altIndex = 4;       // default value
+            for (int i=0; i < splits.length; i++) {
+                if (splits[i].toLowerCase().contains("alt name") || splits[i].toLowerCase().contains("alternate name")) {
+                    altIndex = i;
+                    break;
+                }
+            }
+            // parse file
+            while ((line = in.readLine()) != null) {
+                if (line.startsWith("#")) {
+                    continue;
+                }
+                GlycanResidue residue = GlycanResidue.parseResidue(line, altIndex);
+                residues.add(residue);
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        return residues;
+    }
+
 
     public List<Double> loadMassesFile(Component parent) {
         List<javax.swing.filechooser.FileFilter> glycFilters = new ArrayList<>();
@@ -131,7 +155,7 @@ public class GlycoMassLoader {
 
     private List<Double> loadMassesFromFile(String selectedPath) {
         DatabaseType dbType = detectDBtype(selectedPath);
-        glycoMasses = GlycoMassLoader.loadTextOffsets(selectedPath, dbType);
+        glycoMasses = loadTextOffsets(selectedPath, dbType);
         return glycoMasses;
     }
 
@@ -273,7 +297,7 @@ public class GlycoMassLoader {
      * @param filePath
      * @return
      */
-    public static ArrayList<Double> loadTextOffsets(String filePath, DatabaseType dbType) {
+    public ArrayList<Double> loadTextOffsets(String filePath, DatabaseType dbType) {
         ArrayList<Double> massOffsets = new ArrayList<>();
         HashMap<Long, Boolean> existingMasses = new HashMap<>();
         try {
@@ -332,7 +356,7 @@ public class GlycoMassLoader {
      * @param glycanString Byonic format glycan string
      * @return mass of glycan
      */
-    public static double parseGlycanString(String glycanString, Matcher glycanRegexMatcher) {
+    public double parseGlycanString(String glycanString, Matcher glycanRegexMatcher) {
         double mass = 0;
         while(glycanRegexMatcher.find()) {
             String glycanToken = glycanRegexMatcher.group();
@@ -357,7 +381,7 @@ public class GlycoMassLoader {
         return mass;
     }
 
-    public static double parsePGlycoGlycan(String readline, HashMap<Long, Boolean> existingMasses) {
+    public double parsePGlycoGlycan(String readline, HashMap<Long, Boolean> existingMasses) {
         // parse glycans from tokens
         String line = readline.replace("Hp", "P");      // remove the only double character, if present
         Matcher matcher = pGlycoPattern.matcher(line);
@@ -366,7 +390,10 @@ public class GlycoMassLoader {
         while(matcher.find()) {
             String glycanToken = matcher.group();
             String glycan = glycanToken.replace("(", "").replace(")", "");
-            if (pGlycoTokenMap.containsKey(glycan)) {
+            // handle double residue P = phospho+hex
+            if (glycan.matches("P")) {
+                glycanMass += glycanMasses.get(findResidueName("Hex").name) + glycanMasses.get(findResidueName("Phospho").name);
+            } else if (pGlycoTokenMap.containsKey(glycan)) {
                 glycanMass += glycanMasses.get(pGlycoTokenMap.get(glycan).toLowerCase());
             } else {
                 log.warn(String.format("Invalid token %s in line %s. This line will be skipped", glycanToken, line));
@@ -390,14 +417,17 @@ public class GlycoMassLoader {
      * @param glycanString MM format glycan kind string
      * @return mass of glycan
      */
-    public static double parseMMKindGlycanString(String glycanString) {
+    public double parseMMKindGlycanString(String glycanString) {
         Matcher matcher = MMGlycoPattern.matcher(glycanString);
         double glycanMass = 0;
         while(matcher.find()) {
             String glycanToken = matcher.group();
             String glycanType = glycanToken.substring(0, 1);
             int glycanCount = Integer.parseInt(glycanToken.substring(1));
-            if (MMGlycoTokenMap.containsKey(glycanType)) {
+            // handle double residue U = Hex + succinylation
+            if (glycanToken.matches("U")) {
+                glycanMass += glycanMasses.get(findResidueName("Hex").name) + glycanMasses.get(findResidueName("Succinyl").name);
+            } else if (MMGlycoTokenMap.containsKey(glycanType)) {
                 glycanMass += (glycanMasses.get(MMGlycoTokenMap.get(glycanType).toLowerCase()) * glycanCount);
             } else {
                 log.warn(String.format("Invalid token %s in line %s. This line will be skipped", glycanToken, glycanString));
@@ -408,12 +438,16 @@ public class GlycoMassLoader {
         return glycanMass;
     }
 
-    private static double getResidueMass(String glycanName) {
-        glycanName = glycanName.toLowerCase();
+    private double getResidueMass(String glycanName) {
         if (glycanMasses.containsKey(glycanName)) {
             return glycanMasses.get(glycanName);
         } else {
-            log.error(String.format("Invalid glycan %s is not in the internal database and was ignored. Please add its mass to the database file and retry.", glycanName));
+            GlycanResidue altName = findResidueName(glycanName);
+            if (altName != null) {
+                return glycanMasses.get(findResidueName(glycanName).name);
+            } else {
+                log.error(String.format("Invalid glycan %s is not in the internal database and was ignored. Please add its mass to the database file and retry.", glycanName));
+            }
         }
         return 0;
     }
@@ -437,6 +471,29 @@ public class GlycoMassLoader {
         }
     }
 
+    /**
+     * Search all GlycanResidue names and alternate names to try to match this input to one of them.
+     * @param inputName string
+     * @return
+     */
+    public GlycanResidue findResidueName(String inputName) {
+        for (GlycanResidue residue: supportedGlycans) {
+            if (residue.name.equalsIgnoreCase(inputName)) {
+                return residue;
+            }
+        }
+        // no exact match: check alternate names
+        for (GlycanResidue residue: supportedGlycans) {
+            for (String altName : residue.alternateNames) {
+                if (altName.equalsIgnoreCase(inputName)) {
+                    return residue;
+                }
+            }
+        }
+        // no match - return null and warn user
+        return null;
+    }
+
     public enum DatabaseType {
         /**
          * Possible glycan atabase types that can be parsed
@@ -446,5 +503,29 @@ public class GlycoMassLoader {
         oldPTMShepherd,
         metamorpheus,
         unknown
+    }
+
+    public static class GlycanResidue {
+        // base characteristics
+        public String name;
+        public double mass;
+        public String[] alternateNames;
+
+        public GlycanResidue(String name, double mass, String[] alternateNames) {
+            this.name = name;
+            this.mass = mass;
+            this.alternateNames = alternateNames;
+        }
+
+        public static GlycanResidue parseResidue(String line, int altIndex) {
+            String[] splits = line.replace("\"", "").split("\t");
+            double mass = Double.parseDouble(splits[1]);
+            String[] altNames = splits[altIndex].split(",");
+            return new GlycanResidue(splits[0],
+                    mass,
+                    altNames
+            );
+        }
+
     }
 }

@@ -6,3 +6,7 @@ Na	21.981944	2	0.5	sodium adduct,sodium,Na+		0	FALSE
 Fe	52.911462	2	0.5	Fe3,iron,iron adduct,Fe3+		0	FALSE
 Ca	37.946938	2	0.5	calcium,calcium adduct,Ca2+		0	FALSE
 Al	23.958062	2	0.5	Al3,aluminum,aluminum adduct,Al3+		0	FALSE
+K	38.963707	2	0.5	K+,potassium,potassium adduct		0	FALSE
+Formyl	27.99491	2	0.5	formylation,M		0	FALSE
+Acetyl	42.01056	2	0.5	acetylation,Ac,C		0	FALSE
+Succinyl	100.01608	2	0.5	succinylation,U		0	FALSE
