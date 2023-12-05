@@ -377,7 +377,7 @@ public class TmtiPanel extends JPanelBase {
     addRowLabelComp(p, feRefTag);
     addRowLabelComp(p, feGroupBy);
     addRowLabelComp(p, feProtNorm);
-    addRowLabelComp(p, feAbnType);
+//    addRowLabelComp(p, feAbnType);
 
     return p;
   }
