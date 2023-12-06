@@ -95,6 +95,7 @@ FragPipe is open source and the output is currently supported by the following s
 - [directLFQ](https://github.com/MannLabs/directlfq)
 - [DIA-NN](https://github.com/vdemichev/DiaNN)
 - [MSstats](http://msstats.org/)
+- [picked_group_fdr](https://github.com/kusterlab/picked_group_fdr)
 - [FragPipe-Analyst](http://fragpipe-analyst.nesvilab.org/)
 
 
