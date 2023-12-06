@@ -1223,7 +1223,7 @@ public class FragpipeRun {
         }
 
         String warn = Fragpipe.propsVarGet(ThisAppProps.PROP_MGF_WARNING, Boolean.TRUE.toString());
-        if (Boolean.parseBoolean(warn)) {
+        if (!Fragpipe.headless && Boolean.parseBoolean(warn)) {
           for (InputLcmsFile f : sharedLcmsFiles) {
             if (f.getPath().toString().toLowerCase().endsWith(".mgf")) {
               JCheckBox checkbox = new JCheckBox("Do not show this message again.");
