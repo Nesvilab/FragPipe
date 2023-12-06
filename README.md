@@ -85,6 +85,19 @@ For other tools developed by Nesvizhskii lab, visit our website
   - Run the `fragpipe` shell script (can double-click to run)  
   or execute the following command:
   - Or execute `java -jar FragPipe-x.x.jar`
+ 
+#### Integration
+FragPipe is open source and the output is currently supported by the following software projects:
+- [Skyline](https://skyline.ms/project/home/software/Skyline/begin.view)
+- [AlphaPeptDeep](https://github.com/MannLabs/alphapeptdeep)
+- [AlphaPeptStats](https://github.com/MannLabs/alphapeptstats)
+- [AlphaMap](https://github.com/MannLabs/alphamap)
+- [directLFQ](https://github.com/MannLabs/directlfq)
+- [DIA-NN](https://github.com/vdemichev/DiaNN)
+- [MSstats](http://msstats.org/)
+- [FragPipe-Analyst](http://fragpipe-analyst.nesvilab.org/)
+
+
 
 #### Cite
 - Kong, A. T., Leprevost, F. V., Avtonomov, D. M., Mellacheruvu, D., & Nesvizhskii, A. I. (2017). MSFragger: ultrafast and comprehensive peptide identification in mass spectrometry–based proteomics. Nature Methods, 14(5), 513-520.
