@@ -1313,13 +1313,12 @@ public class TabMsfragger extends JPanelBase {
                 + "<b>Use spaces, commas or semicolons as delimiters</b>, e.g. \"b,y\"\n"
                 + "This mostly depends on fragmentation method.\n"
                 + "Typically \"b,y\" are used for CID and \"c,z\" for ECD.\n"
-                + "MSFragger can generate \"a,b,c,x,y,z\" ion series by default,\n"
-                + "Y refers to capital Y ions for glyco mode\n"
+                + "MSFragger supports \"a,b,c,x,y,z,b-18,y-18,Y,b~,y~\" ion series.\n"
+                + "Y refers to capital Y ions for glyco mode.\n"
+                + "b~ and y~ refer to b and y ions with 203 modification for glyco mode.\n"
                 + "<b>you can define your own in 'Define custom ion series' field</b>.\n"
-                + "If you define custom series, you will need to include the name you\n"
-                + "gave it here.").create();
+                + "If you define custom series, you do not need to include the name here.").create();
     uiTextCustomIonSeries = new UiText(10);
-    String tooltipCustomIonSeriesDisabled = "This feature is currently disabled";
     String tooltipCustomIonSeriesOriginal = "Custom ion series allow specification of arbitrary mass gains/losses\n"
         + "for N- and C-terminal ions. Separate multiple definitions by commas or semicolons.\n"
         + "<b>Format:</b> name terminus mass-delta\n"
@@ -1327,7 +1326,8 @@ public class TabMsfragger extends JPanelBase {
         + "b* N -17.026548;b0 N -18.010565\n"
         + "This would define two new ion types named <i>b*</i> and <i>b0</i>,\n"
         + "you can name them whatever you fancy. <i>b*</i> is the equivalent of an\n"
-        + "N terminal b-ion with ammonia loss, <i>b0</i> is the same with water loss.\n";
+        + "N terminal b-ion with ammonia loss, <i>b0</i> is the same with water loss.\n"
+        + "After defining the new type, you do not need to put them to the 'Fragment ion series' box.\n";
     FormEntry feCustomSeries = mu.feb(MsfraggerParams.PROP_ion_series_definitions, uiTextCustomIonSeries)
         .label("Define custom ion series").tooltip(tooltipCustomIonSeriesOriginal).create();
     labelCustomIonSeries = feCustomSeries.label();
