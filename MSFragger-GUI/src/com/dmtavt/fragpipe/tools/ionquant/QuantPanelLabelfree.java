@@ -318,7 +318,7 @@ public class QuantPanelLabelfree extends JPanelBase {
     UiText uiTextHeavy = UiUtils.uiTextBuilder().cols(40).create();
     UiText uiTextExcludemods = UiUtils.uiTextBuilder().cols(90).create();
 
-    FormEntry feMaxLfq = mu.feb("ionquant.maxlfq", UiUtils.createUiCheck("Add MaxLFQ", true)).tooltip("Calculate MaxLFQ intensity. Requires at least 3 experimental groups.").create();
+    FormEntry feMaxLfq = mu.feb("ionquant.maxlfq", UiUtils.createUiCheck("Add MaxLFQ", true)).tooltip("Calculate MaxLFQ intensity. Requires at least 3 experiment+bioreplicate combinations.").create();
 
     FormEntry feRequant = mu.feb("ionquant.requantify", UiUtils.createUiCheck("Re-quantify", true)).tooltip("Re-quantify unidentified ions in labeling quantification").create();
 
