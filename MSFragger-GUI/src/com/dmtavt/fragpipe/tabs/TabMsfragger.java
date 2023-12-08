@@ -1329,7 +1329,7 @@ public class TabMsfragger extends JPanelBase {
         + "N terminal b-ion with ammonia loss, <i>b0</i> is the same with water loss.\n"
         + "After defining the new type, you do not need to put them to the 'Fragment ion series' box.\n";
     FormEntry feCustomSeries = mu.feb(MsfraggerParams.PROP_ion_series_definitions, uiTextCustomIonSeries)
-        .label("Define custom ion series").tooltip(tooltipCustomIonSeriesOriginal).create();
+        .label("Add custom ion series").tooltip(tooltipCustomIonSeriesOriginal).create();
     labelCustomIonSeries = feCustomSeries.label();
 
     FormEntry feTrueTolUnits = mu.feb(MsfraggerParams.PROP_precursor_true_units, UiUtils.createUiCombo(
