@@ -876,7 +876,7 @@ public class MsfraggerParams extends AbstractParams {
     }
     
     public int getUseTopNPeaks() {
-        return Integer.parseInt(props.getProp(PROP_use_topN_peaks, "100").value);
+        return Integer.parseInt(props.getProp(PROP_use_topN_peaks, "150").value);
     }
     
     public void setUseTopNPeaks(int v) {
