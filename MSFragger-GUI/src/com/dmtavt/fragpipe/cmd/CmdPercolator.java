@@ -153,10 +153,27 @@ public class CmdPercolator extends CmdBase {
         TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
         cmdPp.add("--num-threads");
         cmdPp.add("" + tabWorkflow.getThreads());
-        cmdPp.add("--results-psms");
-        cmdPp.add(strippedBaseName + "_percolator_target_psms.tsv");
-        cmdPp.add("--decoy-results-psms");
-        cmdPp.add(strippedBaseName + "_percolator_decoy_psms.tsv");
+
+        boolean onlyPsms = false;
+        for(String cmd : cmdPp) {
+          if (cmd.contentEquals("--only-psms")) {
+            onlyPsms = true;
+            break;
+          }
+        }
+
+        if (onlyPsms) {
+          cmdPp.add("--results-psms");
+          cmdPp.add(strippedBaseName + "_percolator_target_psms.tsv");
+          cmdPp.add("--decoy-results-psms");
+          cmdPp.add(strippedBaseName + "_percolator_decoy_psms.tsv");
+        } else {
+          cmdPp.add("--results-peptides");
+          cmdPp.add(strippedBaseName + "_percolator_target_psms.tsv");
+          cmdPp.add("--decoy-results-peptides");
+          cmdPp.add(strippedBaseName + "_percolator_decoy_psms.tsv");
+        }
+
         cmdPp.add("--protein-decoy-pattern");
         cmdPp.add(decoyTag);
 
