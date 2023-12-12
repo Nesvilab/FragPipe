@@ -1254,7 +1254,7 @@ public class FragpipeRun {
     final CmdCrystalc cmdCrystalc = new CmdCrystalc(crystalcPanel.isRun(), wd);
 
     addConfig.accept(cmdCrystalc, () -> {
-      cmdCrystalc.setRun(cmdCrystalc.isRun()  && !sharedPepxmlFiles.isEmpty());
+      cmdCrystalc.setRun(cmdCrystalc.isRun() && !sharedPepxmlFiles.isEmpty());
       if (cmdCrystalc.isRun()) {
         CrystalcParams ccParams = crystalcPanel.toParams();
         if (threads > 0) {
