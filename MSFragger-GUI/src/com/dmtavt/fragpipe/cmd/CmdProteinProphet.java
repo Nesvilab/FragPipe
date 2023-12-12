@@ -90,8 +90,6 @@ public class CmdProteinProphet extends CmdBase {
       throw new IllegalStateException("During combined processing of Experiments/Groups "
           + "only one interact.prot.xml file should be produced. This is probably a bug, report "
           + "to developers.");
-    } else if (interactProtXmls.isEmpty()) {
-      throw new IllegalStateException("During combined processing of Experiments/Groups there are no interact.prot.xml file to be produced.");
     }
 
     return m;
