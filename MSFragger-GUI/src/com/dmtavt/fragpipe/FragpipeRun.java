@@ -1373,14 +1373,13 @@ public class FragpipeRun {
 
     addConfig.accept(cmdProteinProphet, () -> {
       cmdProteinProphet.setRun(cmdProteinProphet.isRun() && !sharedPepxmlFiles.isEmpty());
-      final boolean isMuiltiExperimentReport = sharedLcmsFileGroups.size() > 1;
       if (cmdProteinProphet.isRun()) {
         final String protProphCmdStr = protProphPanel.getCmdOpts();
-        if (!cmdProteinProphet.configure(parent, usePhi, protProphCmdStr, isMuiltiExperimentReport, sharedPepxmlFiles)) {
+        if (!cmdProteinProphet.configure(parent, usePhi, protProphCmdStr, sharedPepxmlFiles)) {
           return false;
         }
       }
-      Map<LcmsFileGroup, Path> outputs = cmdProteinProphet.outputs(sharedPepxmlFiles, isMuiltiExperimentReport);
+      Map<LcmsFileGroup, Path> outputs = cmdProteinProphet.outputs(sharedPepxmlFiles);
       MapUtils.refill(sharedMapGroupsToProtxml, outputs);
       return true;
     });
@@ -1473,8 +1472,7 @@ public class FragpipeRun {
     addConfig.accept(cmdPhilosopherReport, () -> {
       cmdPhilosopherReport.setRun(cmdPhilosopherReport.isRun() && !sharedMapGroupsToProtxml.isEmpty());
       if (cmdPhilosopherReport.isRun()) {
-        final boolean isMultiExpReport = sharedLcmsFileGroups.size() > 1;
-        return cmdPhilosopherReport.configure(parent, ramGb, threads, usePhi, doPrintDecoys, doMSstats, isMultiExpReport, reportPanel.isRemoveContaminants(), sharedMapGroupsToProtxml);
+        return cmdPhilosopherReport.configure(parent, ramGb, threads, usePhi, doPrintDecoys, doMSstats, sharedLcmsFileGroups.size() > 1, reportPanel.isRemoveContaminants(), sharedMapGroupsToProtxml);
       }
       return true;
     });
@@ -1482,8 +1480,7 @@ public class FragpipeRun {
     // run Report - Multi-Experiment report
     final CmdPhilosopherAbacus cmdPhilosopherAbacus = new CmdPhilosopherAbacus(false, wd);
     addConfig.accept(cmdPhilosopherAbacus, () -> {
-      final boolean isMultiExpReport = sharedLcmsFileGroups.size() > 1;
-      final boolean doRunAbacus = cmdPhilosopherReport.isRun() && isMultiExpReport && !quantPanelLabelfree.isRunIonQuant() && (doMSstats || (!reportPanel.isNoProtXml() && reportPanel.isProtSummary()) || reportPanel.isPepSummary());
+      final boolean doRunAbacus = cmdPhilosopherReport.isRun() && (sharedLcmsFileGroups.size() > 1) && !quantPanelLabelfree.isRunIonQuant() && (doMSstats || (!reportPanel.isNoProtXml() && reportPanel.isProtSummary()) || reportPanel.isPepSummary());
       cmdPhilosopherAbacus.setRun(doRunAbacus);
       if (cmdPhilosopherAbacus.isRun()) {
         int plex = 0;

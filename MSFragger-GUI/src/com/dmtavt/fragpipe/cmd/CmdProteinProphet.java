@@ -54,9 +54,6 @@ public class CmdProteinProphet extends CmdBase {
 
   public static final String NAME = "ProteinProphet";
 
-  private static final String INTERACT_FN = "combined.prot.xml";
-  private static final String COMBINED_FN = "combined.prot.xml";
-
   public CmdProteinProphet(boolean isRun, Path workDir) {
     super(isRun, workDir);
   }
@@ -70,7 +67,7 @@ public class CmdProteinProphet extends CmdBase {
    * @return Mapping from Experiment/Group name to interact.prot.xml file location.
    * 'interact' has been renamed to 'combined'.
    */
-  public Map<LcmsFileGroup, Path> outputs(Map<InputLcmsFile, List<Path>> pepxmlFiles, boolean isMultiExperimentReport) {
+  public Map<LcmsFileGroup, Path> outputs(Map<InputLcmsFile, List<Path>> pepxmlFiles) {
 
     Map<String, List<InputLcmsFile>> lcmsByExp = pepxmlFiles.keySet().stream()
         .collect(Collectors.groupingBy(f -> f.getGroup()));
@@ -85,8 +82,7 @@ public class CmdProteinProphet extends CmdBase {
             + "developers.");
       }
       LcmsFileGroup group = new LcmsFileGroup(groupName, lcmsFiles);
-      String fn = isMultiExperimentReport ? COMBINED_FN : INTERACT_FN;
-      m.put(group, wd.resolve(fn));
+      m.put(group, wd.resolve("combined.prot.xml"));
     }
 
     Set<Path> interactProtXmls = new HashSet<>(m.values());
@@ -115,12 +111,12 @@ public class CmdProteinProphet extends CmdBase {
   }
 
   public boolean configure(Component comp, UsageTrigger usePhilosopher,
-      String txtProteinProphetCmdLineOpts, boolean isMultiExperiment, Map<InputLcmsFile, List<Path>> pepxmlFiles) {
+      String txtProteinProphetCmdLineOpts, Map<InputLcmsFile, List<Path>> pepxmlFiles) {
 
     initPreConfig();
 
     // check for existence of old files
-    final Map<LcmsFileGroup, Path> outputs = outputs(pepxmlFiles, isMultiExperiment);
+    final Map<LcmsFileGroup, Path> outputs = outputs(pepxmlFiles);
     final Set<Path> oldFilesForDeletion = findOldFilesForDeletion(new ArrayList<>(outputs.values()));
     if (!deleteFiles(comp, oldFilesForDeletion, "prot.xml")) {
       return false;
@@ -129,7 +125,7 @@ public class CmdProteinProphet extends CmdBase {
     ProteinProphetParams proteinProphetParams = new ProteinProphetParams();
     proteinProphetParams.setCmdLineParams(txtProteinProphetCmdLineOpts);
 
-    Map<LcmsFileGroup, Path> groupToProtxml = outputs(pepxmlFiles, isMultiExperiment);
+    Map<LcmsFileGroup, Path> groupToProtxml = outputs(pepxmlFiles);
 
     {
       Set<Path> interactProtXmls = new HashSet<>(groupToProtxml.values());
