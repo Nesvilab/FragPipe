@@ -107,7 +107,6 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
@@ -116,7 +115,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
@@ -141,7 +139,6 @@ import javax.swing.table.DefaultTableModel;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.RandomUtils;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.jooq.lambda.Seq;
@@ -478,26 +475,6 @@ public class TabWorkflow extends JPanelWithEnablement {
     add(createPanelWorkflows(), mu.ccGx().wrap());
     add(createPanelOptions(), mu.ccGx().wrap());
     add(createPanelLcmsFiles(), mu.ccGx().wrap());
-  }
-
-  private String genSentence() {
-    int numWords = RandomUtils.nextInt(10, 120);
-    return IntStream.range(0, numWords)
-        .mapToObj(i -> genWord())
-        .collect(StringBuilder::new, (s1, s2) -> s1.append(" ").append(s2),
-            (s1, s2) -> s1.append(" ").append(s2))
-        .toString();
-  }
-
-  private String genWord() {
-    int lo = 97;  // letter 'a'
-    int hi = 122; // letter 'z'
-    int targetStringLength = RandomUtils.nextInt(2, 12);
-    Random random = new Random();
-    return random.ints(lo, hi + 1)
-        .limit(targetStringLength)
-        .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
-        .toString();
   }
 
   private FormEntry.Builder fe(JComponent comp, String name) {
