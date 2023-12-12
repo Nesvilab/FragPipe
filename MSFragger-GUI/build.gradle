@@ -11,10 +11,10 @@ plugins {
     id 'java'
     id 'application'
     id 'idea'
-    id 'edu.sc.seis.launch4j' version '2.5.0'
-    id "com.github.johnrengelman.shadow" version "5.2.0"
-    id "com.github.ben-manes.versions" version "0.28.0"
-    id 'nebula.lint' version '17.7.1'
+    id 'edu.sc.seis.launch4j' version '3.0.5'
+    id "com.github.johnrengelman.shadow" version "7.1.2"
+    id "com.github.ben-manes.versions" version "0.50.0"
+    id 'nebula.lint' version '19.0.1'
 }
 
 group = 'com.github.chhh'
@@ -108,36 +108,34 @@ distributions {
 dependencies {
     implementation 'com.github.albfernandez:juniversalchardet:2.4.0'
     compileOnly files("tools/batmass-io-${batmassio_version}.jar")
-    implementation 'com.google.code.gson:gson:2.10'
-    implementation 'one.util:streamex:0.8.1'
-    implementation 'org.jooq:jool-java-8:0.9.14'
-    implementation 'org.apache.maven:maven-artifact:3.8.5'
-    implementation 'org.jgrapht:jgrapht-core:1.5.1'
+    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'one.util:streamex:0.8.2'
+    implementation 'org.jooq:jool-java-8:0.9.15'
+    implementation 'org.apache.maven:maven-artifact:3.9.6'
+    implementation 'org.jgrapht:jgrapht-core:1.5.2'
     implementation 'com.github.vlsi.mxgraph:jgraphx:4.2.2'
     implementation 'com.google.guava:guava:32.1.1-jre'
 
-    implementation group: 'org.apache.commons', name: 'commons-compress', version: '1.21'
+    implementation group: 'org.apache.commons', name: 'commons-compress', version: '1.25.0'
 
-    implementation 'org.apache.commons:commons-lang3:3.12.0'
-    implementation 'com.miglayout:miglayout-swing:11.0'
-    implementation 'org.apache.commons:commons-text:1.10.0'
+    implementation 'org.apache.commons:commons-lang3:3.14.0'
+    implementation 'com.miglayout:miglayout-swing:11.3'
+    implementation 'org.apache.commons:commons-text:1.11.0'
 
     implementation 'io.reactivex:rxjava:1.3.8'
 
     implementation 'org.greenrobot:eventbus-java:3.3.1'
-    implementation 'org.jsoup:jsoup:1.15.3'
-    implementation 'com.squareup.okio:okio:3.2.0'
-    implementation 'com.squareup.okhttp3:okhttp:4.10.0'
+    implementation 'org.jsoup:jsoup:1.17.1'
+    implementation 'com.squareup.okio:okio:3.6.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
 
     // logging
-    implementation 'ch.qos.logback:logback-classic:1.4.4'
-    implementation 'org.slf4j:slf4j-api:2.0.3'
+    implementation 'ch.qos.logback:logback-classic:1.4.14'
+    implementation 'org.slf4j:slf4j-api:2.0.9'
 
     implementation 'net.java.balloontip:balloontip:1.2.4.1'
-    implementation group: 'org.netbeans.api', name: 'org-netbeans-swing-outline', version: 'RELEASE130'
-    implementation 'commons-io:commons-io:2.11.0'
-
-    testImplementation 'org.yaml:snakeyaml:1.33' // TMT-Integrator config parsing
+    implementation group: 'org.netbeans.api', name: 'org-netbeans-swing-outline', version: 'RELEASE200'
+    implementation 'commons-io:commons-io:2.15.1'
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.13.2'
@@ -252,8 +250,6 @@ void createTaskMakeReleaseZip(boolean withJre, String releaseDir, String startCl
                 dontWrapJar = true
                 downloadUrl = 'https://www.oracle.com/java/technologies/javase/jdk11-archive-downloads.html'
                 bundledJrePath = "../jre"
-                bundledJre64Bit = true
-                bundledJreAsFallback = false
             }
         }
         //tasks.findByName('makeExeAndCopyToScripts').mustRunAfter 'clean'
