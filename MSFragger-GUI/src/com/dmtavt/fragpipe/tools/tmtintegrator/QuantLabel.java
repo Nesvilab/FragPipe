@@ -43,6 +43,7 @@ public class QuantLabel {
 
   static {
     List<QuantLabel> labels = new ArrayList<>();
+    labels.add(new QuantLabel(TYPE_TMT, "TMT-0", List.of("126")));
     labels.add(new QuantLabel(TYPE_TMT, "TMT-6", Arrays.asList("126, 127N, 128C, 129N, 130C, 131N".split("[,\\s]+"))));
     labels.add(new QuantLabel(TYPE_TMT, "TMT-10", Arrays.asList("126, 127N, 127C, 128N, 128C, 129N, 129C, 130N, 130C, 131N".split("[,\\s]+"))));
     labels.add(new QuantLabel(TYPE_TMT, "TMT-11", Arrays.asList("126, 127N, 127C, 128N, 128C, 129N, 129C, 130N, 130C, 131N, 131C".split("[,\\s]+"))));
