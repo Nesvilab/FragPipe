@@ -296,7 +296,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     TableModelColumn<InputLcmsFile, Integer> colRep = new TableModelColumn<>(
         "Bioreplicate (can be empty and integer)", Integer.class, true, InputLcmsFile::getReplicate);
     TableModelColumn<InputLcmsFile, String> colDataType = new TableModelColumn<>(
-        "Data type (DDA, DIA, GPF-DIA, DIA-Quant, DIA-Lib, WWA)", String.class, true, InputLcmsFile::getDataType);
+        "Data type (DDA, DDA+, DIA, DIA-Quant, DIA-Lib)", String.class, true, InputLcmsFile::getDataType);
 
     cols.add(colPath);
     cols.add(colExp);
@@ -989,8 +989,6 @@ public class TabWorkflow extends JPanelWithEnablement {
         () -> new MessageLcmsGroupAction(Type.SET_DDA));
     btnSetDia = button("Set DIA",
         () -> new MessageLcmsGroupAction(Type.SET_DIA));
-    btnSetGpfDia = button("Set GPF-DIA",
-        () -> new MessageLcmsGroupAction(Type.SET_GPF_DIA));
     btnSetDiaQuant = button("Set DIA-Quant",
         () -> new MessageLcmsGroupAction(Type.SET_DIA_QUANT));
     btnSetDiaLib = button("Set DIA-Lib",
@@ -1047,8 +1045,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     mu.add(p, emptySpace).growX().pushX();
 
     mu.add(p, btnSetDda);
-    mu.add(p, btnSetDia);
-    mu.add(p, btnSetGpfDia).wrap();
+    mu.add(p, btnSetDia).wrap();
 
     UiText emptySpace2 = UiUtils.uiTextBuilder().cols(1).text("").create();
     emptySpace2.setVisible(false);

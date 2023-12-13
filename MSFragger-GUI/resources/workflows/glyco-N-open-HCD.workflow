@@ -128,7 +128,6 @@ msfragger.output_format=tsv_pepXML
 msfragger.output_max_expect=50
 msfragger.output_report_topN=1
 msfragger.output_report_topN_dia1=5
-msfragger.output_report_topN_dia2=3
 msfragger.output_report_topN_wwa=5
 msfragger.override_charge=false
 msfragger.precursor_mass_lower=-200

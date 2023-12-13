@@ -71,18 +71,16 @@ public class CmdMsfragger extends CmdBase {
   private static final List<String> timsdataPattern = Arrays.asList("^timsdata.*\\.dll", "^libtimsdata.*\\.so");
   private final FraggerOutputType fraggerOutputType;
   private final int outputReportTopNDia1;
-  private final int outputReportTopNDia2;
   private final int outputReportTopNWwa;
   private MsfraggerParams paramsDda;
   private MsfraggerParams paramsWwa;
   private MsfraggerParams paramsDia;
   private MsfraggerParams paramsGpfDia;
 
-  public CmdMsfragger(boolean isRun, Path workDir, FraggerOutputType fraggerOutputType, int outputReportTopNDia1, int outputReportTopNDia2, int outputReportTopNWwa) {
+  public CmdMsfragger(boolean isRun, Path workDir, FraggerOutputType fraggerOutputType, int outputReportTopNDia1, int outputReportTopNWwa) {
     super(isRun, workDir);
     this.fraggerOutputType = fraggerOutputType;
     this.outputReportTopNDia1 = outputReportTopNDia1;
-    this.outputReportTopNDia2 = outputReportTopNDia2;
     this.outputReportTopNWwa = outputReportTopNWwa;
   }
 
@@ -112,7 +110,7 @@ public class CmdMsfragger extends CmdBase {
           }
         } else if (f.getDataType().contentEquals("GPF-DIA")) {
           if (paramsGpfDia == null) {
-            maxRank = outputReportTopNDia2;
+            maxRank = 3;
           } else {
             maxRank = paramsGpfDia.getOutputReportTopN();
           }
@@ -322,9 +320,9 @@ public class CmdMsfragger extends CmdBase {
       }
 
       if (!isRunDiaU && (hasDia || hasGpfDia || hasDiaLib || hasWwa)) {
-        SwingUtils.showErrorDialog(comp, "<html>MSFrgger-DIA <code>split database</code> is incompatible with DIA, GPF-DIA, DIA-Lib, or WWA data types.\n"
+        SwingUtils.showErrorDialog(comp, "<html>MSFrgger-DIA <code>split database</code> is incompatible with DIA, DIA-Lib, or WWA data types.\n"
             + "Please set the split database to 1.\n"
-            + "For DIA, GPF-DIA, and DIA-Lib data types, you can also use the DIA-Umpire based DIA workflow (DIA_DIA-Umpire_SpecLib_Quant workflow), which supports the split database option.", "Incompatible options");
+            + "For DIA and DIA-Lib data types, you can also use the DIA-Umpire based DIA workflow (DIA_DIA-Umpire_SpecLib_Quant workflow), which supports the split database option.", "Incompatible options");
         return false;
       }
 
@@ -544,7 +542,7 @@ public class CmdMsfragger extends CmdBase {
         }
         cmd.add(binFragger.useBin());
 
-        // Execution order after sorting: DDA, DIA, GPF-DIA, WWA. MSFragger would stop if there were wide isolation windows in DDA mode, which makes it better to let DDA be executed first.
+        // Execution order after sorting: DDA, DIA, WWA. MSFragger would stop if there were wide isolation windows in DDA mode, which makes it better to let DDA be executed first.
         if (e.getKey().contentEquals("DDA")) {
           cmd.add(savedDdaParamsPath.toString());
         } else if (e.getKey().contentEquals("DIA")) {
@@ -687,7 +685,7 @@ public class CmdMsfragger extends CmdBase {
       }
     } else if (dataType.contentEquals("GPF-DIA")) {
       paramsNew.setDataType(2);
-      paramsNew.setOutputReportTopN(outputReportTopNDia2);
+      paramsNew.setOutputReportTopN(3);
     } else if (dataType.contentEquals("WWA")) {
       paramsNew.setDataType(3);
       paramsNew.setOutputReportTopN(outputReportTopNWwa);

@@ -1210,7 +1210,7 @@ public class FragpipeRun {
 
     final String decoyTag = tabDatabase.getDecoyTag();
     MsfraggerParams p = tabMsf.getParams();
-    final CmdMsfragger cmdMsfragger = new CmdMsfragger(tabMsf.isRun(), wd, p.getOutputFormat(), tabMsf.getOutputReportTopNDia1(), tabMsf.getOutputReportTopNDia2(), tabMsf.getOutputReportTopNWwa());
+    final CmdMsfragger cmdMsfragger = new CmdMsfragger(tabMsf.isRun(), wd, p.getOutputFormat(), tabMsf.getOutputReportTopNDia1(), tabMsf.getOutputReportTopNWwa());
 
     final Map<InputLcmsFile, List<Path>> sharedPepxmlFilesFromMsfragger = new TreeMap<>();
     final TreeMap<InputLcmsFile, List<Path>> sharedPepxmlFiles = new TreeMap<>();
