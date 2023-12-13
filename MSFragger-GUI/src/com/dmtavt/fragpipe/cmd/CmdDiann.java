@@ -169,13 +169,13 @@ public class CmdDiann extends CmdBase {
     for (LcmsFileGroup group : lcmsFileGroups) {
       final Path groupWd = group.outputDir(wd);
 
-      Set<Path> inputLcmsPaths = group.lcmsFiles.stream().filter(f -> !f.getDataType().contentEquals("DDA") && !f.getDataType().contentEquals("GPF-DIA") && !f.getDataType().contentEquals("DIA-Lib") && !f.getDataType().contentEquals("WWA")).map(InputLcmsFile::getPath).collect(Collectors.toSet());
+      Set<Path> inputLcmsPaths = group.lcmsFiles.stream().filter(f -> !f.getDataType().contentEquals("DDA") && !f.getDataType().contentEquals("GPF-DIA") && !f.getDataType().contentEquals("DIA-Lib") && !f.getDataType().contentEquals("DDA+")).map(InputLcmsFile::getPath).collect(Collectors.toSet());
 
       if (inputLcmsPaths.isEmpty()) {
         continue;
       }
 
-      List<InputLcmsFile> inputLcmsFiles = group.lcmsFiles.stream().filter(f -> !f.getDataType().contentEquals("DDA") && !f.getDataType().contentEquals("GPF-DIA") && !f.getDataType().contentEquals("DIA-Lib") && !f.getDataType().contentEquals("WWA")).collect(Collectors.toList());
+      List<InputLcmsFile> inputLcmsFiles = group.lcmsFiles.stream().filter(f -> !f.getDataType().contentEquals("DDA") && !f.getDataType().contentEquals("GPF-DIA") && !f.getDataType().contentEquals("DIA-Lib") && !f.getDataType().contentEquals("DDA+")).collect(Collectors.toList());
 
       if (!checkCompatibleFormats(comp, inputLcmsFiles, sup)) {
         return false;

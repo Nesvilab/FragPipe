@@ -72,7 +72,7 @@ public class CmdMSBooster extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, int ramGb, int threads, Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml, boolean predictRT, boolean predictSpectra, boolean useCorrelatedFeatures, boolean hasDda, boolean hasDia, boolean hasGpfDia, boolean hasDiaLib, boolean hasWwa, boolean isRunDiaU, boolean isOpenSearch) {
+  public boolean configure(Component comp, int ramGb, int threads, Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml, boolean predictRT, boolean predictSpectra, boolean useCorrelatedFeatures, boolean hasDda, boolean hasDia, boolean hasGpfDia, boolean hasDiaLib, boolean hasDdaPlus, boolean isRunDiaU, boolean isOpenSearch) {
     initPreConfig();
 
     // MSBooster does not compatible with open search and mass-offset search.
@@ -97,10 +97,10 @@ public class CmdMSBooster extends CmdBase {
       fraggerParams = wd.resolve("fragger_dia.params").toAbsolutePath().toString();
     } else if (hasGpfDia) {
       fraggerParams = wd.resolve("fragger_gpfdia.params").toAbsolutePath().toString();
-    } else if (hasWwa) {
-      fraggerParams = wd.resolve("fragger_wwa.params").toAbsolutePath().toString();
+    } else if (hasDdaPlus) {
+      fraggerParams = wd.resolve("fragger_dda_plus.params").toAbsolutePath().toString();
     } else {
-      System.err.println("There are no DDA, DIA, GPF-DIA, GPF-Lib, or WWA data.");
+      System.err.println("There are no DDA, DIA, GPF-DIA, GPF-Lib, or DDA+ data.");
       return false;
     }
 

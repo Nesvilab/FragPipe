@@ -1210,7 +1210,7 @@ public class FragpipeRun {
 
     final String decoyTag = tabDatabase.getDecoyTag();
     MsfraggerParams p = tabMsf.getParams();
-    final CmdMsfragger cmdMsfragger = new CmdMsfragger(tabMsf.isRun(), wd, p.getOutputFormat(), tabMsf.getOutputReportTopNDia1(), tabMsf.getOutputReportTopNWwa());
+    final CmdMsfragger cmdMsfragger = new CmdMsfragger(tabMsf.isRun(), wd, p.getOutputFormat(), tabMsf.getOutputReportTopNDia1(), tabMsf.getOutputReportTopNDdaPlus());
 
     final Map<InputLcmsFile, List<Path>> sharedPepxmlFilesFromMsfragger = new TreeMap<>();
     final TreeMap<InputLcmsFile, List<Path>> sharedPepxmlFiles = new TreeMap<>();
@@ -1218,7 +1218,7 @@ public class FragpipeRun {
     addConfig.accept(cmdMsfragger, () -> {
       cmdMsfragger.setRun(cmdMsfragger.isRun() && !sharedLcmsFiles.isEmpty());
       if (cmdMsfragger.isRun()) {
-        if (!cmdMsfragger.configure(parent, isDryRun, jarPath, binMsfragger, fastaFile, tabMsf.getParams(), tabMsf.getNumDbSlices(), ramGb, sharedLcmsFiles, decoyTag, tabWorkflow.hasDataType("DDA"), tabWorkflow.hasDataType("DIA"), tabWorkflow.hasDataType("GPF-DIA"), tabWorkflow.hasDataType("DIA-Lib"), tabWorkflow.hasDataType("WWA"), cmdUmpire.isRun(), tabRun.isWriteSubMzml())) {
+        if (!cmdMsfragger.configure(parent, isDryRun, jarPath, binMsfragger, fastaFile, tabMsf.getParams(), tabMsf.getNumDbSlices(), ramGb, sharedLcmsFiles, decoyTag, tabWorkflow.hasDataType("DDA"), tabWorkflow.hasDataType("DIA"), tabWorkflow.hasDataType("GPF-DIA"), tabWorkflow.hasDataType("DIA-Lib"), tabWorkflow.hasDataType("DDA+"), cmdUmpire.isRun(), tabRun.isWriteSubMzml())) {
           return false;
         }
 
@@ -1277,7 +1277,7 @@ public class FragpipeRun {
     addConfig.accept(cmdMSBooster, () -> {
       cmdMSBooster.setRun(cmdMSBooster.isRun() && !sharedPepxmlFilesFromMsfragger.isEmpty());
       if (cmdMSBooster.isRun()) {
-        return cmdMSBooster.configure(parent, ramGb, threads, sharedPepxmlFilesFromMsfragger, MSBoosterPanel.predictRt(), MSBoosterPanel.predictSpectra(), MSBoosterPanel.useCorrelatedFeatures(), tabWorkflow.hasDataType("DDA"), tabWorkflow.hasDataType("DIA"), tabWorkflow.hasDataType("GPF-DIA"), tabWorkflow.hasDataType("DIA-Lib"), tabWorkflow.hasDataType("WWA"), cmdUmpire.isRun(), tabMsf.isOpenSearch());
+        return cmdMSBooster.configure(parent, ramGb, threads, sharedPepxmlFilesFromMsfragger, MSBoosterPanel.predictRt(), MSBoosterPanel.predictSpectra(), MSBoosterPanel.useCorrelatedFeatures(), tabWorkflow.hasDataType("DDA"), tabWorkflow.hasDataType("DIA"), tabWorkflow.hasDataType("GPF-DIA"), tabWorkflow.hasDataType("DIA-Lib"), tabWorkflow.hasDataType("DDA+"), cmdUmpire.isRun(), tabMsf.isOpenSearch());
       }
       return true;
     });
@@ -1830,7 +1830,7 @@ public class FragpipeRun {
     addConfig.accept(cmdWriteSubMzml, () -> {
       cmdWriteSubMzml.setRun(cmdWriteSubMzml.isRun() && !sharedLcmsFileGroups.isEmpty());
       if (cmdWriteSubMzml.isRun()) {
-        return cmdWriteSubMzml.configure(parent, jarPath, ramGb, threads, sharedLcmsFileGroups, tabRun.getSubMzmlProbThreshold(), tabMsf.isRun(), tabWorkflow.hasDataType("DIA"), tabWorkflow.hasDataType("GPF-DIA"), tabWorkflow.hasDataType("DIA-Lib"), tabWorkflow.hasDataType("WWA"));
+        return cmdWriteSubMzml.configure(parent, jarPath, ramGb, threads, sharedLcmsFileGroups, tabRun.getSubMzmlProbThreshold(), tabMsf.isRun(), tabWorkflow.hasDataType("DIA"), tabWorkflow.hasDataType("GPF-DIA"), tabWorkflow.hasDataType("DIA-Lib"), tabWorkflow.hasDataType("DDA+"));
       }
       return true;
     });

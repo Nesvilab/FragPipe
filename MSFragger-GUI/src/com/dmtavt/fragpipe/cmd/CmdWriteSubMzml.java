@@ -52,7 +52,7 @@ public class CmdWriteSubMzml extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, Path jarFragpipe, int ramGb, int nThreads, Map<String, LcmsFileGroup> lcmsFileGroups, float probabilityThreshold, boolean isRunMSFragger, boolean hasDia, boolean hasGpfDia, boolean hasDiaLib, boolean hasWwa) {
+  public boolean configure(Component comp, Path jarFragpipe, int ramGb, int nThreads, Map<String, LcmsFileGroup> lcmsFileGroups, float probabilityThreshold, boolean isRunMSFragger, boolean hasDia, boolean hasGpfDia, boolean hasDiaLib, boolean hasDdaPlus) {
     initPreConfig();
 
     if (!isRunMSFragger) {
@@ -60,7 +60,7 @@ public class CmdWriteSubMzml extends CmdBase {
       return false;
     }
 
-    if (hasDia || hasGpfDia || hasDiaLib || hasWwa) {
+    if (hasDia || hasGpfDia || hasDiaLib || hasDdaPlus) {
       SwingUtils.showErrorDialog(comp, "<html><b>Write sub mzML</b> was enabled but there are non-DDA data types.<br>Please disable <b>Write sub mzML</b> in the <b>Run</b> tab.</html>", "Error");
       return false;
     }

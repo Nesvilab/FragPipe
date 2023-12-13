@@ -67,8 +67,8 @@ public class InputLcmsFile implements Comparable<InputLcmsFile> {
                 case "dia-lib":
                     this.dataType = "DIA-Lib";
                     break;
-                case "wwa":
-                    this.dataType = "WWA";
+                case "dda+":
+                    this.dataType = "DDA+";
                     break;
                 default:
                     this.dataType = "DDA";
@@ -83,7 +83,7 @@ public class InputLcmsFile implements Comparable<InputLcmsFile> {
         } else if (fileName.contains("DIA")) { // DIA has to be upper case.
             return "DIA";
         } else if (fileName.contains("WWA")) {
-            return "WWA";
+            return "DDA+";
         } else {
             return "DDA";
         }

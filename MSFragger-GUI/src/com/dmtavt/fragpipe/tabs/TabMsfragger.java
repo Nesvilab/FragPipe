@@ -401,7 +401,7 @@ public class TabMsfragger extends JPanelBase {
   private UiCombo uiComboGroupVariable;
   private UiSpinnerInt uiSpinnerOutputReportTopNDda;
   private UiSpinnerInt uiSpinnerOutputReportTopNDia1;
-  private UiSpinnerInt uiSpinnerOutputReportTopNWwa;
+  private UiSpinnerInt uiSpinnerOutputReportTopNDdaPlus;
 
   @Override
   protected ItemSelectable getRunCheckbox() {
@@ -1419,7 +1419,7 @@ public class TabMsfragger extends JPanelBase {
 
     uiSpinnerOutputReportTopNDda = new UiSpinnerInt(1, 1, 10000, 1, 4);
     uiSpinnerOutputReportTopNDia1 = new UiSpinnerInt(5, 1, 10000, 1, 4);
-    uiSpinnerOutputReportTopNWwa = new UiSpinnerInt(5, 1, 7, 1, 4);
+    uiSpinnerOutputReportTopNDdaPlus = new UiSpinnerInt(5, 1, 7, 1, 4);
 
     FormEntry feReportTopNDda = mu.feb(MsfraggerParams.PROP_output_report_topN, uiSpinnerOutputReportTopNDda)
         .label("Report top N for DDA")
@@ -1429,9 +1429,9 @@ public class TabMsfragger extends JPanelBase {
         .label("Report top N for DIA")
         .tooltip("Report top N PSMs per input spectrum for DIA and DIA-Lib data type.").create();
 
-    FormEntry feReportTopNWwa = mu.feb(MsfraggerParams.PROP_output_report_topN_wwa, uiSpinnerOutputReportTopNWwa)
-        .label("Report top N for WWA")
-        .tooltip("Report top N PSMs per input spectrum for WWA data type.").create();
+    FormEntry feReportTopNDdaPlus = mu.feb(MsfraggerParams.PROP_output_report_topN_dda_plus, uiSpinnerOutputReportTopNDdaPlus)
+        .label("Report top N for DDA+")
+        .tooltip("Report top N PSMs per input spectrum for DDA+ data type.").create();
 
     UiSpinnerDouble uiSpinnerOutputMaxExpect = new UiSpinnerDouble(50, 0, Double.MAX_VALUE, 1,
         new DecimalFormat("0.#"));
@@ -1469,18 +1469,17 @@ public class TabMsfragger extends JPanelBase {
     mu.add(p, feOutputType.label(), mu.ccR()).gapLeft("10px");
     mu.add(p, feOutputType.comp).pushX().wrap();
 
-    mu.add(p, feReportTopNDia1.label(), mu.ccR());
-    mu.add(p, feReportTopNDia1.comp);
+    mu.add(p, feReportTopNDdaPlus.label(), mu.ccR());
+    mu.add(p, feReportTopNDdaPlus.comp);
     mu.add(p, feCheckWriteCalibratedMzml.comp).gapLeft("20px");
     mu.add(p, feGroupVariable.label()).gapLeft("10px");
     mu.add(p, feGroupVariable.comp).wrap();
 
+    mu.add(p, feReportTopNDia1.label(), mu.ccR());
+    mu.add(p, feReportTopNDia1.comp);
     mu.add(p, feCheckWriteUncalibratedMgf.comp).gapLeft("20px");
     mu.add(p, feOutputMaxExpect.label()).gapLeft("10px");
     mu.add(p, feOutputMaxExpect.comp).pushX().wrap();
-
-    mu.add(p, feReportTopNWwa.label(), mu.ccR());
-    mu.add(p, feReportTopNWwa.comp).growX().wrap();
 
     return p;
   }
@@ -1903,8 +1902,9 @@ public class TabMsfragger extends JPanelBase {
     return uiSpinnerOutputReportTopNDia1.getActualValue();
   }
 
-  public int getOutputReportTopNWwa() {
-    return uiSpinnerOutputReportTopNWwa.getActualValue();
+
+  public int getOutputReportTopNDdaPlus() {
+    return uiSpinnerOutputReportTopNDdaPlus.getActualValue();
   }
 
   public List<Mod> getVarModsTable() { return formToMap(tableVarMods.model); }

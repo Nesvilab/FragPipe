@@ -34,12 +34,15 @@ public class LcmsInputFileTable extends SimpleETable {
       "<html>Replicate number. <b>Integers only. Can be left blank.</b><br/>"
           + "If blank, files from the same experiment will be combined.<br/>"
           + "Leave it blank if it is fractionated data.",
-      "<html>Data types (DDA, DIA, DIA-Quant, DIA-Lib, WWA).<br/>"
+      "<html>Data types (DDA, DIA, DDA+, DIA-Quant, DIA-Lib).<br/>"
           + "<b>DIA</b> is for wide window DIA.<br/>"
-          + "<b>DIA-Quant</b> is for quantification.<br/>"
-          + "<b>DIA-Lib</b> is for spectral library generation.<br/>"
-          + "<b>WWA</b> is for wide-window DDA.<br/>"
-          + "Runs with <b>DDA</b> and <b>DIA</b> will be used from identification to quantification.<br/>"
+          + "<b>DDA+</b> is a DDA chimera spectra closed search.<br/>"
+          + "<b>DIA-Quant</b> is for DIA quantification.<br/>"
+          + "<b>DIA-Lib</b> is for DIA spectral library generation.<br/>"
+          + "<b>DDA+/b> data type supports the Default, WWA, LFQ-MBR,<br/>"
+          + "LFQ-phospho, LFQ-ubiquitin, Nonspecific-HLA, Nonspecific-HLA-C57,<br/>"
+          + "Nonspecific-HLA-phospho, SILAC3, and SILAC3-phospho workflows"
+          + "Runs with <b>DDA</b>, <b>DDA+</b>, and <b>DIA</b> will be used in both identification and quantification.<br/>"
           + "Runs with <b>DIA-Quant</b> will only be used in quantification.<br/>"
           + "Runs with <b>DIA-Lib</b> will only be used in spectral library generation."};
 
