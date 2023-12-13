@@ -2012,7 +2012,7 @@ public class TabMsfragger extends JPanelBase {
 
   private void actionBtnLoadDetailedOffsets(ActionEvent event) {
     List<FileFilter> tsvFilters = new ArrayList<>();
-    FileFilter filter = new FileNameExtensionFilter("Mass offset file (.tsv)", "tsv");
+    FileFilter filter = new FileNameExtensionFilter("Mass offset file (.tsv or .txt)", "tsv", "txt");
     tsvFilters.add(filter);
 
     String loc = Fragpipe.propsVarGet(PROP_FILECHOOSER_LAST_PATH);
@@ -2028,7 +2028,7 @@ public class TabMsfragger extends JPanelBase {
       selectedPath = fc.getSelectedFile().toString();
       try {
         Fragpipe.propsVarSet(PROP_FILECHOOSER_LAST_PATH, selectedPath);
-        String offsetStr = MassOffsetUtils.parseOffsetsFile(selectedPath);
+        String offsetStr = MassOffsetUtils.parseOffsetsFile(selectedPath, this);
         Fragpipe.propsVarSet(PROP_mass_offsets_detailed, offsetStr);
         epDetailedMassOffsets.setText(offsetStr);
       } catch (IOException ex) {

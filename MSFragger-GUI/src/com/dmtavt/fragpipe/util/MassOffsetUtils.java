@@ -1,10 +1,14 @@
 package com.dmtavt.fragpipe.util;
 
+import com.dmtavt.fragpipe.tabs.TabMsfragger;
+import com.github.chhh.utils.SwingUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,6 +20,7 @@ public class MassOffsetUtils {
     private static final Pattern fragRemPattern = Pattern.compile("f=([\\d.\\-,\\s]+)");
     private static final Pattern pepRemPattern = Pattern.compile("p=([\\d.\\-,\\s]+)");
     private static final Pattern resPattern = Pattern.compile("aa=([A-Z]+)");
+    private static final Logger log = LoggerFactory.getLogger(TabMsfragger.class);
 
 
     /**
@@ -25,7 +30,7 @@ public class MassOffsetUtils {
      * @return
      * @throws IOException
      */
-    public static String parseOffsetsFile(String massOffsetFilePath) throws IOException, NumberFormatException {
+    public static String parseOffsetsFile(String massOffsetFilePath, Component parent) throws IOException, NumberFormatException {
         ArrayList<MassOffset> offsets = new ArrayList<>();
         ArrayList<String> offsetStrs = new ArrayList<>();
 
@@ -36,6 +41,10 @@ public class MassOffsetUtils {
             line = line.replace("\"", "");	// in case user saved tsv with Excel
             if (line.startsWith("#")) {
                 continue;
+            }
+            while (line.startsWith("\t")) {
+                // can happen when saving from Excel. Correct silently by removing starting tab(s)
+                line = line.replaceFirst("\t", "");
             }
             String[] splits = line.split("\t");
             final int EXPECTED_LENGTH = 5;
@@ -52,7 +61,14 @@ public class MassOffsetUtils {
                 splits = newSplits;
             }
             // Get mass and sites
-            float mass = Float.parseFloat(splits[0]);
+            float mass;
+            try {
+                mass = Float.parseFloat(splits[0]);
+            } catch (NumberFormatException ex) {
+                log.error(String.format("The mass '%s' could not be parsed as a number from line '%s'. Please check that the offsets file is formatted correctly and retry.", splits[0], line));
+                SwingUtils.showErrorDialog(parent, String.format("The mass '%s' could not be parsed as a number from line '%s'. Please check that the offsets file is formatted correctly and retry.", splits[0], line), "Error");
+                continue;
+            }
             if (mass == 0.0) {
                 foundZero = true;
             }
@@ -63,11 +79,11 @@ public class MassOffsetUtils {
             }
 
             // keep track of all unique fragment and peptide remainder ions for later indexing. Rounded to 6 decimal places
-            float[] peptideRems = parseFloats(splits[3]);
-            float[] fragmentRems = parseFloats(splits[4]);
+            float[] peptideRems = parseFloats(splits[3], parent);
+            float[] fragmentRems = parseFloats(splits[4], parent);
 
             // generate the MassOffset and its string
-            MassOffset offset = new MassOffset(mass, sites.toArray(new String[0]), parseFloats(splits[2]), peptideRems, fragmentRems);
+            MassOffset offset = new MassOffset(mass, sites.toArray(new String[0]), parseFloats(splits[2], parent), peptideRems, fragmentRems);
             offsets.add(offset);
             offsetStrs.add(offset.toString());
         }
@@ -76,13 +92,13 @@ public class MassOffsetUtils {
             MassOffset zeroOffset = new MassOffset(0, new String[0], new float[0], new float[0], new float[0]);
             offsets.add(0, zeroOffset);
             offsetStrs.add(0, zeroOffset.toString());
-            System.out.println("Warning: 0 was not included in the mass offsets file. Adding it to the offsets list.");
+            log.warn("Warning: 0 was not included in the mass offsets file. Adding it to the offsets list.");
         }
 
         return String.join(";", offsetStrs);
     }
 
-    private static float[] parseFloats(String floatList) throws NumberFormatException {
+    private static float[] parseFloats(String floatList, Component parent) throws NumberFormatException {
         if (floatList.isEmpty()) {
             return new float[0];
         }
@@ -90,7 +106,12 @@ public class MassOffsetUtils {
         String[] splits = floatList.split("[,\\s/]+");
         float[] values = new float[splits.length];
         for (int i=0; i < splits.length; i++) {
-            values[i] = Float.parseFloat(splits[i].trim());
+            try {
+                values[i] = Float.parseFloat(splits[i].trim());
+            } catch (NumberFormatException ex) {
+                log.error(String.format("The mass '%s' could not be parsed as a number from entry '%s'. Please check that the offsets file is formatted correctly and retry.", splits[0], floatList));
+                SwingUtils.showErrorDialog(parent, String.format("The mass '%s' could not be parsed as a number from entry '%s'. Please check that the offsets file is formatted correctly and retry.", splits[i], floatList), "Error");
+            }
         }
         return values;
     }
