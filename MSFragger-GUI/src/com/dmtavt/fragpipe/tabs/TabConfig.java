@@ -556,10 +556,16 @@ public class TabConfig extends JPanelWithEnablement {
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageDiannNewBin m) {
-    if (StringUtils.isBlank(m.path)) {
+    if (StringUtils.isBlank(m.path) || !Files.exists(Paths.get(m.path))) {
       Bus.postSticky(new NoteConfigDiann());
       return;
     }
+
+    if (m.path.contains(" ")) {
+      Bus.postSticky(new NoteConfigDiann());
+      return;
+    }
+
     try {
       Diann.Version v = Diann.validate(m.path);
       Bus.postSticky(new NoteConfigDiann(m.path, v.version, null, true));
@@ -629,11 +635,17 @@ public class TabConfig extends JPanelWithEnablement {
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageMsfraggerNewBin m) {
     if (StringUtils.isBlank(m.binPath) || !Files.exists(Paths.get(m.binPath))) {
+      Bus.postSticky(new NoteConfigMsfragger(m.binPath, "N/A", false, new ValidationException(m.binPath + " does not exist.")));
       return;
     }
 
     if (!validateMsfraggerJarContents(Paths.get(m.binPath))) {
       Bus.postSticky(new NoteConfigMsfragger(m.binPath, "N/A", false, new ValidationException("Not a MSFragger jar.")));
+      return;
+    }
+
+    if (m.binPath.contains(" ")) {
+      Bus.postSticky(new NoteConfigMsfragger(m.binPath, "N/A", false, new ValidationException("There are spaces in the path: \"" + m.binPath + "\"")));
       return;
     }
 
@@ -657,11 +669,17 @@ public class TabConfig extends JPanelWithEnablement {
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageIonQuantNewBin m) {
     if (StringUtils.isBlank(m.binPath) || !Files.exists(Paths.get(m.binPath))) {
+      Bus.postSticky(new NoteConfigIonQuant(m.binPath, "N/A", false, false, new ValidationException(m.binPath + " does not exist.")));
       return;
     }
 
     if (!validateIonQuantJarContents(Paths.get(m.binPath))) {
       Bus.postSticky(new NoteConfigIonQuant(m.binPath, "N/A", false, false, new ValidationException("Not an IonQuant jar.")));
+      return;
+    }
+
+    if (m.binPath.contains(" ")) {
+      Bus.postSticky(new NoteConfigIonQuant(m.binPath, "N/A", false, false, new ValidationException("There are spaces in the path: \"" + m.binPath + "\"")));
       return;
     }
 
@@ -845,6 +863,10 @@ public class TabConfig extends JPanelWithEnablement {
       final boolean fileExists = Files.exists(path) || (OsUtils.isWindows() && Files.exists(Paths.get(path + ".exe")));
       if ((path.isAbsolute() && !fileExists) || StringUtils.isBlank(path.toString())) {
         throw new ValidationException("File does not exist: \"" + path + "\"");
+      }
+
+      if (path.toAbsolutePath().toString().contains(" ")) {
+        throw new ValidationException("There are spaces in the path: \"" + path.toAbsolutePath() + "\"");
       }
 
       // if paths.get didn't throw, we can try the binary, it might be on PATH
