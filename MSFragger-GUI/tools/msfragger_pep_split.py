@@ -146,7 +146,7 @@ def write_combined_scores_histo():
 ##########
 
 def get_expect_functions(infile):
-	expect_table = np.loadtxt(tempdir / (infile.stem +'_expectscore.tsv'))
+	expect_table = np.loadtxt(tempdir / (infile.stem +'_expectscore.tsv'), ndmin=2)
 	def expect_function(row):
 		m_fA0, m_fA1, m_dLimit = row
 		def expect(under_f: float):
