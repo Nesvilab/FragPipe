@@ -1579,10 +1579,10 @@ public class FragpipeRun {
       return true;
     });
 
-    final CmdIonquant cmdTmtIonquant = new CmdIonquant(tmtiPanel.isRun() && tmtiPanel.getIntensityExtractionTool() == 1, wd);
+    final CmdIonquant cmdTmtIonquant = new CmdIonquant(tmtiPanel.isRun() && tmtiPanel.getIntensityExtractionTool() == 0, wd);
     cmdTmtIonquant.setTitle(CmdIonquant.NAME + " MS1 (TMT)");
 
-    final CmdIonquant cmdTmtIonquantIsobaric = new CmdIonquant(tmtiPanel.isRun() && tmtiPanel.getIntensityExtractionTool() == 1, wd);
+    final CmdIonquant cmdTmtIonquantIsobaric = new CmdIonquant(tmtiPanel.isRun() && tmtiPanel.getIntensityExtractionTool() == 0, wd);
     cmdTmtIonquantIsobaric.setTitle(CmdIonquant.NAME + " Isobaric (TMT)");
 
     final CmdFreequant cmdTmtFreequant = new CmdFreequant(tmtiPanel.isRun() && tmtiPanel.getIntensityExtractionTool() == 2, wd);
@@ -1622,7 +1622,7 @@ public class FragpipeRun {
       double minIntensityPercant = tmtiPanel.getMinIntensityPercent();
       Map<LcmsFileGroup, Path> annotations = tmtiPanel.getAnnotations();
 
-      if (tmtiPanel.getIntensityExtractionTool() == 1) {
+      if (tmtiPanel.getIntensityExtractionTool() == 0) {
         addConfig.accept(cmdTmtIonquant, () -> {
           cmdTmtIonquant.setRun(!sharedPepxmlFilesFromMsfragger.isEmpty());
           if (cmdTmtIonquant.isRun()) {

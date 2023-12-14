@@ -246,8 +246,8 @@ public class TmtiPanel extends JPanelBase {
     checkRun.setName("run-tmtintegrator");
 
     List<String> tt = new ArrayList<>(3);
-    tt.add("Skip extraction. Run TMT-Integrator only");
     tt.add("IonQuant");
+    tt.add("Skip extraction. Run TMT-Integrator only");
     tt.add("Philosopher (deprecated)");
     uiComboIntensityExtractionTool = UiUtils.createUiCombo(tt);
     FormEntry feIntensityExtractionTool = fe("extraction_tool", "Intensity Extraction Tool", uiComboIntensityExtractionTool, "MS1 and reporter ion intensity extraction tool");
