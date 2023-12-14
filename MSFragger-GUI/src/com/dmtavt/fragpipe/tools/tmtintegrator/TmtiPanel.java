@@ -174,7 +174,7 @@ public class TmtiPanel extends JPanelBase {
   private UiCombo uiComboAddRef;
   private UiCombo uiComboAbnType;
   private UiCombo uiComboNorm;
-  private UiCombo uiComboIntensityExtractionMethod;
+  private UiCombo uiComboIntensityExtractionTool;
 
   private static Supplier<? extends RuntimeException> supplyRunEx(String message) {
     return () -> new RuntimeException(message);
@@ -248,9 +248,9 @@ public class TmtiPanel extends JPanelBase {
     List<String> tt = new ArrayList<>(3);
     tt.add("Skip extraction. Run TMT-Integrator only");
     tt.add("IonQuant");
-    tt.add("Philosopher");
-    uiComboIntensityExtractionMethod = UiUtils.createUiCombo(tt);
-    FormEntry feIntensityExtractionMethod = fe("extraction-method", "Intensity Extraction Method", uiComboIntensityExtractionMethod, "MS1 and reporter ion intensity extraction method");
+    tt.add("Philosopher (deprecated)");
+    uiComboIntensityExtractionTool = UiUtils.createUiCombo(tt);
+    FormEntry feIntensityExtractionTool = fe("extraction_tool", "Intensity Extraction Tool", uiComboIntensityExtractionTool, "MS1 and reporter ion intensity extraction tool");
 
     JLabel imageLabel = new JLabel();
     try {
@@ -262,8 +262,8 @@ public class TmtiPanel extends JPanelBase {
 
     mu.add(p, checkRun);
     mu.add(p, imageLabel, mu.ccR()).gapRight("50").wrap();
-    mu.add(p, feIntensityExtractionMethod.label());
-    mu.add(p, feIntensityExtractionMethod.comp).pushX().wrap();
+    mu.add(p, feIntensityExtractionTool.label());
+    mu.add(p, feIntensityExtractionTool.comp).pushX().wrap();
 
     return p;
   }
@@ -753,8 +753,8 @@ public class TmtiPanel extends JPanelBase {
     return SwingUtils.isEnabledAndChecked(checkRun);
   }
 
-  public int getIntensityExtractionMethod() {
-    return uiComboIntensityExtractionMethod.getSelectedIndex();
+  public int getIntensityExtractionTool() {
+    return uiComboIntensityExtractionTool.getSelectedIndex();
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
@@ -902,7 +902,7 @@ public class TmtiPanel extends JPanelBase {
         return;
       }
 
-      if (getIntensityExtractionMethod() == 2 && !expDir.equals(selectedFile.toPath().getParent())) {
+      if (getIntensityExtractionTool() == 2 && !expDir.equals(selectedFile.toPath().getParent())) {
         String m = String.format(
             "Philosopher requires the annotation file to be\n"
                 + "in the same directory as corresponding LCMS files.\n"
@@ -1011,7 +1011,7 @@ public class TmtiPanel extends JPanelBase {
       int userSelection = fc.showSaveDialog(parent);
       if (JFileChooser.APPROVE_OPTION == userSelection) {
         selectedPath = fc.getSelectedFile().toPath();
-        if (getIntensityExtractionMethod() == 2 && !selectedPath.getParent().equals(saveDir)) {
+        if (getIntensityExtractionTool() == 2 && !selectedPath.getParent().equals(saveDir)) {
           String msg = "<html>Philosopher requires annotation files to be saved<br/>\n"
               + "in the same directory as LCMS files for that plex. Please save the file in:<br/>\n<br/>\n" + saveDir + "\n"
               + "or switch to IonQuant for the intensity extraction method.";

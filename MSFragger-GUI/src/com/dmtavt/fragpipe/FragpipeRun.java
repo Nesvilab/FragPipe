@@ -1484,7 +1484,7 @@ public class FragpipeRun {
       cmdPhilosopherAbacus.setRun(doRunAbacus);
       if (cmdPhilosopherAbacus.isRun()) {
         int plex = 0;
-        if (tmtiPanel.isRun() && tmtiPanel.getIntensityExtractionMethod() == 2) {
+        if (tmtiPanel.isRun() && tmtiPanel.getIntensityExtractionTool() == 2) {
           QuantLabel label = tmtiPanel.getSelectedLabel();
           plex = label.getReagentNames().size();
         }
@@ -1579,16 +1579,16 @@ public class FragpipeRun {
       return true;
     });
 
-    final CmdIonquant cmdTmtIonquant = new CmdIonquant(tmtiPanel.isRun() && tmtiPanel.getIntensityExtractionMethod() == 1, wd);
+    final CmdIonquant cmdTmtIonquant = new CmdIonquant(tmtiPanel.isRun() && tmtiPanel.getIntensityExtractionTool() == 1, wd);
     cmdTmtIonquant.setTitle(CmdIonquant.NAME + " MS1 (TMT)");
 
-    final CmdIonquant cmdTmtIonquantIsobaric = new CmdIonquant(tmtiPanel.isRun() && tmtiPanel.getIntensityExtractionMethod() == 1, wd);
+    final CmdIonquant cmdTmtIonquantIsobaric = new CmdIonquant(tmtiPanel.isRun() && tmtiPanel.getIntensityExtractionTool() == 1, wd);
     cmdTmtIonquantIsobaric.setTitle(CmdIonquant.NAME + " Isobaric (TMT)");
 
-    final CmdFreequant cmdTmtFreequant = new CmdFreequant(tmtiPanel.isRun() && tmtiPanel.getIntensityExtractionMethod() == 2, wd);
+    final CmdFreequant cmdTmtFreequant = new CmdFreequant(tmtiPanel.isRun() && tmtiPanel.getIntensityExtractionTool() == 2, wd);
     cmdTmtFreequant.setTitle(CmdFreequant.NAME + " (TMT)");
 
-    final CmdLabelquant cmdTmtLabelQuant = new CmdLabelquant(tmtiPanel.isRun() && tmtiPanel.getIntensityExtractionMethod() == 2, wd);
+    final CmdLabelquant cmdTmtLabelQuant = new CmdLabelquant(tmtiPanel.isRun() && tmtiPanel.getIntensityExtractionTool() == 2, wd);
     cmdTmtLabelQuant.setTitle(CmdLabelquant.NAME + " (TMT)");
 
     if (tmtiPanel.isRun()) {
@@ -1622,7 +1622,7 @@ public class FragpipeRun {
       double minIntensityPercant = tmtiPanel.getMinIntensityPercent();
       Map<LcmsFileGroup, Path> annotations = tmtiPanel.getAnnotations();
 
-      if (tmtiPanel.getIntensityExtractionMethod() == 1) {
+      if (tmtiPanel.getIntensityExtractionTool() == 1) {
         addConfig.accept(cmdTmtIonquant, () -> {
           cmdTmtIonquant.setRun(!sharedPepxmlFilesFromMsfragger.isEmpty());
           if (cmdTmtIonquant.isRun()) {
@@ -1645,7 +1645,7 @@ public class FragpipeRun {
           }
           return true;
         });
-      } else if (tmtiPanel.getIntensityExtractionMethod() == 2) {
+      } else if (tmtiPanel.getIntensityExtractionTool() == 2) {
         addCheck.accept(() -> {
           if (quantPanelLabelfree.isRunFreeQuant()) {
             if (Fragpipe.headless) {
