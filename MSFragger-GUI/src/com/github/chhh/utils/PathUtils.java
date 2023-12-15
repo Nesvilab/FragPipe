@@ -16,23 +16,19 @@
  */
 package com.github.chhh.utils;
 
-import com.dmtavt.fragpipe.api.PropsFile;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.logging.Level;
@@ -40,8 +36,6 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.swing.filechooser.FileFilter;
-import org.jooq.lambda.Unchecked;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -396,53 +390,4 @@ public class PathUtils {
             }
         }
     }
-
-    public static void traverseDirectoriesAcceptingFiles(File dir, FileFilter filter, List<Path> accepted) {
-        if (!dir.isDirectory()) {
-            if (filter.accept(dir)) {
-                accepted.add(Paths.get(dir.getAbsolutePath()));
-            }
-        }
-        Path dirPath = Paths.get(dir.getAbsolutePath());
-        try {
-            DirectoryStream<Path> ds = Files.newDirectoryStream(dirPath);
-            Iterator<Path> it = ds.iterator();
-            while (it.hasNext()) {
-                File next = it.next().toFile();
-                boolean isDir = next.isDirectory();
-                if (isDir) {
-                    traverseDirectoriesAcceptingFiles(next, filter, accepted);
-                } else {
-                    if (filter.accept(next)) {
-                        accepted.add(Paths.get(next.getAbsolutePath()));
-                    }
-                }
-            }
-        } catch (IOException ex) {
-            log.error("Error traversing directories", ex);
-        }
-    }
-
-
-    private PathUtils() {}
-
-    public static String quotePath(String s, boolean useSingleQuotes) {
-
-        return useSingleQuotes
-            ? com.github.chhh.utils.StringUtils.surround(s, "'")
-            : com.github.chhh.utils.StringUtils.surround(s, "\"");
-    }
-
-  /**
-   * Get the name of the file less the provided suffix.
-   *
-   * @param path the filename component will be taken
-   * @param suffix lowercase suffix
-   * @return filename less suffix
-   */
-  public static String getFileNameLessSuffix(Path path, String suffix) {
-    String name = path.getFileName().toString();
-    int indexOf = name.toLowerCase().indexOf(suffix);
-    return indexOf >= 0 ? name.substring(0, indexOf) : name;
-  }
 }

@@ -22,7 +22,6 @@ import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
 import com.dmtavt.fragpipe.tools.ptmshepherd.PtmshepherdParams;
-import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.SwingUtils;
 import java.awt.Component;
 import java.io.BufferedWriter;
@@ -148,7 +147,7 @@ public class CmdPtmshepherd extends CmdBase {
     cmd.add("-cp");
     cmd.add(constructClasspathString(classpathJars));
     cmd.add(JAR_SHEPHERD_MAIN_CLASS);
-    cmd.add(PathUtils.quotePath(pathConfig.toString(), false));
+    cmd.add("\"" + pathConfig.toAbsolutePath() + "\"");
     ProcessBuilder pb = new ProcessBuilder(cmd);
     pb.directory(wd.toFile());
     pbis.add(PbiBuilder.from(pb));

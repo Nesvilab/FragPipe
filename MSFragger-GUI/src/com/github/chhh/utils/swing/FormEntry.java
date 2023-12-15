@@ -19,7 +19,6 @@ package com.github.chhh.utils.swing;
 
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
-import java.awt.Component;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.nio.file.Path;
