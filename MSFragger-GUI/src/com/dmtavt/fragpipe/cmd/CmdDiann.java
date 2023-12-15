@@ -33,6 +33,7 @@ import com.dmtavt.fragpipe.api.LcmsFileGroup;
 import com.dmtavt.fragpipe.messages.NoteConfigDiann;
 import com.dmtavt.fragpipe.tools.diann.Diann;
 import com.dmtavt.fragpipe.tools.diann.DiannToMsstats;
+import com.dmtavt.fragpipe.tools.diann.Localization;
 import com.dmtavt.fragpipe.tools.diann.PlexDiaHelper;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.StringUtils;
@@ -330,6 +331,45 @@ public class CmdDiann extends CmdBase {
         pb2.directory(groupWd.toFile());
         pbis.add(PbiBuilder.from(pb2));
       }
+    }
+
+    {
+      Path root = FragpipeLocations.get().getDirFragpipeRoot();
+      Path libsDir = root.resolve("lib");
+      if (Files.isDirectory(jarFragpipe)) {
+        libsDir = jarFragpipe.getParent().getParent().getParent().getParent().resolve("build/install/fragpipe/lib");
+        log.debug("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
+      }
+
+      List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(BATMASS_IO_JAR));
+      if (classpathJars == null) {
+        return false;
+      }
+
+      List<String> toJoin = classpathJars.stream().map(p -> p.toAbsolutePath().normalize().toString()).collect(Collectors.toList());
+
+      try {
+        toJoin.addAll(Files.walk(libsDir).filter(p -> p.getFileName().toString().endsWith(".jar")).filter(p -> {
+          String t = p.getFileName().toString();
+          return t.startsWith("fragpipe-");
+        }).map(p -> p.toAbsolutePath().normalize().toString()).collect(Collectors.toList()));
+      } catch (Exception ex) {
+        ex.printStackTrace();
+        return false;
+      }
+
+      toJoin.add(jarFragpipe.toAbsolutePath().normalize().toString());
+      final String classpath = OsUtils.asSingleArgument(String.join(System.getProperties().getProperty("path.separator"), toJoin));
+
+      List<String> cmd = new ArrayList<>();
+      cmd.add(Fragpipe.getBinJava());
+      cmd.add("-cp");
+      cmd.add(classpath);
+      cmd.add(Localization.class.getCanonicalName());
+      cmd.add(wd.toAbsolutePath().toString());
+      ProcessBuilder pb = new ProcessBuilder(cmd);
+      pb.directory(wd.resolve("diann-output").toFile());
+      pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + ": Propagate localization").create());
     }
 
     if (generateMsstats) {
