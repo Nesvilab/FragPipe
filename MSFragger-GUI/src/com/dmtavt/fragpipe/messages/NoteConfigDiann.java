@@ -21,6 +21,7 @@ import static com.dmtavt.fragpipe.tools.diann.Diann.fallBackDiannVersion;
 import static com.dmtavt.fragpipe.tools.diann.Diann.fallbackDiannPath;
 
 import java.util.StringJoiner;
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 
 public class NoteConfigDiann implements INoteConfig {
 
@@ -28,12 +29,18 @@ public class NoteConfigDiann implements INoteConfig {
   public final String version;
   public final Throwable ex;
   private final boolean isValid;
+  private final DefaultArtifactVersion versionObj;
 
   public NoteConfigDiann(String path, String version, Throwable ex, boolean isValid) {
     this.path = path;
     this.version = version;
     this.ex = ex;
     this.isValid = isValid;
+    if (version != null) {
+      this.versionObj = new DefaultArtifactVersion(version);
+    } else {
+      this.versionObj = null;
+    }
   }
 
   public NoteConfigDiann() {
@@ -41,6 +48,11 @@ public class NoteConfigDiann implements INoteConfig {
     this.version = fallBackDiannVersion;
     this.ex = null;
     this.isValid = true;
+    if (version != null) {
+      this.versionObj = new DefaultArtifactVersion(version);
+    } else {
+      this.versionObj = null;
+    }
   }
 
   public NoteConfigDiann(NoteConfigDiann other, boolean isValid) {
@@ -48,6 +60,11 @@ public class NoteConfigDiann implements INoteConfig {
     this.version = other.version;
     this.ex = other.ex;
     this.isValid = isValid;
+    if (version != null) {
+      this.versionObj = new DefaultArtifactVersion(version);
+    } else {
+      this.versionObj = null;
+    }
   }
 
   @Override
@@ -62,5 +79,17 @@ public class NoteConfigDiann implements INoteConfig {
         .add("version='" + version + "'")
         .add("validation=" + (ex == null ? "null" : ex.getMessage()))
         .toString();
+  }
+
+  public int compareVersion(String other) {
+    if (versionObj == null && other == null) {
+      return 0;
+    } else if (versionObj == null) {
+      return -1;
+    } else if (other == null) {
+      return 1;
+    } else {
+      return versionObj.compareTo(new DefaultArtifactVersion(other));
+    }
   }
 }
