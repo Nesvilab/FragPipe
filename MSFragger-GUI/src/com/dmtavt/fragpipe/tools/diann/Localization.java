@@ -107,7 +107,7 @@ public class Localization {
             chargeColumnIdx = i;
           } else {
             Matcher matcher = pattern.matcher(parts[i].trim());
-            if (matcher.matches()) {
+            if (matcher.matches() && !parts[i].trim().startsWith("M:15.99")) {
               modificationColumnIdxMap.put(parts[i].trim(), i);
             }
           }
