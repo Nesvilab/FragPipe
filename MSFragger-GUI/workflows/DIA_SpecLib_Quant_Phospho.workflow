@@ -1,4 +1,4 @@
-# Workflow: DIA-SpecLib-Quant-Phospho
+# Workflow: DIA_SpecLib_Quant_Phospho
 
 crystalc.run-crystalc=false
 database.decoy-tag=rev_

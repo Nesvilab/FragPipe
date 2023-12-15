@@ -265,7 +265,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     builtInWorkflows.add("TMT10-ubiquitination-K_tmt_plus_ubiq");
     builtInWorkflows.add("Open-quickscan");
     builtInWorkflows.add("WWA");
-    builtInWorkflows.add("DIA-SpecLib-Quant-Phospho");
+    builtInWorkflows.add("DIA_SpecLib_Quant_Phospho");
     builtInWorkflows.add("TMT16-ubiquitination-K_tmt_or_ubiq");
     builtInWorkflows.add("TMT16-ubiquitination-K_tmt_plus_ubiq");
   }
