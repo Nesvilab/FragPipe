@@ -21,7 +21,7 @@ import java.util.StringJoiner;
 
 public class MessageDiannNewBin {
 
-  public final String path;
+  public String path;
 
   public MessageDiannNewBin(String path) {
     this.path = path;

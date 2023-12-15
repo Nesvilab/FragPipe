@@ -562,8 +562,7 @@ public class TabConfig extends JPanelWithEnablement {
     }
 
     if (m.path.contains(" ")) {
-      Bus.postSticky(new NoteConfigDiann());
-      return;
+      m.path = "\"" + m.path + "\"";
     }
 
     try {

@@ -107,7 +107,7 @@ public class Diann {
     if (binPath.toLowerCase().endsWith(".exe") && !isWindows()) {
       throw new ValidationException("The DIA-NN binary file is a windows version");
     }
-    if (!binPath.toLowerCase().endsWith(".exe") && isWindows()) {
+    if (!binPath.toLowerCase().endsWith(".exe") && !binPath.toLowerCase().endsWith(".exe\"") && isWindows()) {
       throw new ValidationException("The DIA-NN binary file is not a windows version");
     }
 
