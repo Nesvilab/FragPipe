@@ -556,12 +556,12 @@ public class TabConfig extends JPanelWithEnablement {
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageDiannNewBin m) {
-    if (StringUtils.isBlank(m.path) || !Files.exists(Paths.get(m.path))) {
+    if (StringUtils.isBlank(m.path) || !Files.exists(Paths.get(m.path.replaceAll("\"", "")))) {
       Bus.postSticky(new NoteConfigDiann());
       return;
     }
 
-    if (m.path.contains(" ")) {
+    if (m.path.contains(" ") && !m.path.startsWith("\"") && !m.path.endsWith("\"")) {
       m.path = "\"" + m.path + "\"";
     }
 
