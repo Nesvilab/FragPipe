@@ -30,14 +30,18 @@ public class LocalizedPeptide implements Comparable<LocalizedPeptide> {
   private static final Pattern pattern2 = Pattern.compile("[cn()0-9.]+");
 
   final String localizedPeptide;
+  final String scanName;
   final List<Float> probabilities;
   final int[] bestSites;
   final int localizedSites;
   final float sumOfBestProbabilities;
 
 
-  LocalizedPeptide(String localizedPeptide, float localizationProbT) {
+
+  LocalizedPeptide(String localizedPeptide, String scanName, float localizationProbT) {
     this.localizedPeptide = localizedPeptide;
+    this.scanName = scanName;
+
     probabilities = new ArrayList<>();
 
     int length = 0;

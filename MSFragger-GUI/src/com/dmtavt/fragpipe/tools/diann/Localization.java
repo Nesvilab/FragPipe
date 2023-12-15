@@ -80,6 +80,7 @@ public class Localization {
   public void propagate(Path psm_path, Path diann_directory) throws Exception {
     TreeBasedTable<String, String, LocalizedPeptide> precursorModificationLocalizationTable = TreeBasedTable.create();
 
+    int scanNameColumnIdx = -1;
     int peptideColumnIdx = -1;
     int assignedModificationsColumnIdx = -1;
     int chargeColumnIdx = -1;
@@ -96,7 +97,9 @@ public class Localization {
       String[] parts = line.split("\t");
       if (line.startsWith("Spectrum\tSpectrum File\t")) {
         for (int i = 0; i < parts.length; ++i) {
-          if (parts[i].trim().contentEquals("Peptide")) {
+          if (parts[i].trim().contentEquals("Spectrum")) {
+            scanNameColumnIdx = i;
+          } else if (parts[i].trim().contentEquals("Peptide")) {
             peptideColumnIdx = i;
           } else if (parts[i].trim().contentEquals("Assigned Modifications")) {
             assignedModificationsColumnIdx = i;
@@ -115,8 +118,8 @@ public class Localization {
           System.exit(0);
         }
 
-        if (peptideColumnIdx < 0 || assignedModificationsColumnIdx < 0 || chargeColumnIdx < 0) {
-          System.err.printf("Missing %s, %s, %s, or modification localization columns in %s.", "Peptide", "Assigned Modifications", "Charge", psm_path);
+        if (scanNameColumnIdx < 0 || peptideColumnIdx < 0 || assignedModificationsColumnIdx < 0 || chargeColumnIdx < 0) {
+          System.err.printf("Missing %s, %s, %s, or %s in %s.", "Spectrum", "Peptide", "Assigned Modifications", "Charge", psm_path);
           System.exit(1);
         }
 
@@ -126,7 +129,7 @@ public class Localization {
           if (parts[e.getValue()].trim().isEmpty()) {
             continue;
           }
-          LocalizedPeptide localizedPeptide1 = new LocalizedPeptide(parts[e.getValue()].trim(), 0.75f); // Use 0.75 to get the number of confidently localized sites
+          LocalizedPeptide localizedPeptide1 = new LocalizedPeptide(parts[e.getValue()].trim(), parts[scanNameColumnIdx].trim(), 0.75f); // Use 0.75 to get the number of confidently localized sites
           LocalizedPeptide localizedPeptide2 = precursorModificationLocalizationTable.get(precursor, e.getKey());
           if (localizedPeptide2 == null || localizedPeptide2.compareTo(localizedPeptide1) < 0) {
             precursorModificationLocalizationTable.put(precursor, e.getKey(), localizedPeptide1);
@@ -183,6 +186,8 @@ public class Localization {
           writer.write(modification);
           writer.write("\t");
           writer.write(modification + " Best Localization");
+          writer.write("\t");
+          writer.write(modification + " Best Scan");
         }
         writer.write("\n");
       } else {
@@ -200,18 +205,20 @@ public class Localization {
         Map<String, LocalizedPeptide> tt = precursorModificationLocalizationTable.row(precursor);
         if (tt.isEmpty()) {
           for (int i = 0; i < modificationArray.length; ++i) {
-            writer.write("\t\t");
+            writer.write("\t\t\t");
           }
         } else {
           for (String modification : modificationArray) {
             writer.write("\t");
             LocalizedPeptide localizedPeptide = tt.get(modification);
             if (localizedPeptide == null) {
-              writer.write("\t");
+              writer.write("\t\t");
             } else {
               writer.write(localizedPeptide.localizedPeptide);
               writer.write("\t");
               writer.write(String.valueOf(localizedPeptide.getBestLocalization()));
+              writer.write("\t");
+              writer.write(localizedPeptide.scanName);
             }
           }
         }
