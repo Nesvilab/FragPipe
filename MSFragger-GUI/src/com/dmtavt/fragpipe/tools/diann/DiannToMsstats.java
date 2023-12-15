@@ -33,6 +33,8 @@ public class DiannToMsstats {
   private static final Pattern pattern = Pattern.compile("([\\w-]+)\\^(\\d+)\\/([\\d.]+)");
 
   public static void main(String[] args) {
+    long startTime = System.nanoTime();
+
     try {
       String manifestPath = args[6].trim();
       Map<String, String[]> runConditionBioreplicateMap = new HashMap<>();
@@ -50,6 +52,8 @@ public class DiannToMsstats {
       ex.printStackTrace();
       System.exit(1);
     }
+
+    System.out.printf("Done in %.2f seconds.\n", (System.nanoTime() - startTime) * 1e-9);
   }
 
   public DiannToMsstats(String diannPath, String msstatsPath, float globalProteinFdrT, float runProteinFdrT, float globalPrecursorFdrT, float runPrecursorFdrT, Map<String, String[]> runConditionBioreplicateMap) throws Exception {
