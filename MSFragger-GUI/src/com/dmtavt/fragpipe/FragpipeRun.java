@@ -90,6 +90,7 @@ import com.dmtavt.fragpipe.tabs.TabWorkflow.InputDataType;
 import com.dmtavt.fragpipe.tools.crystalc.CrystalcPanel;
 import com.dmtavt.fragpipe.tools.crystalc.CrystalcParams;
 import com.dmtavt.fragpipe.tools.diann.DiannPanel;
+import com.dmtavt.fragpipe.tools.fpop.FpopQuantPanel;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
 import com.dmtavt.fragpipe.tools.ionquant.QuantPanelLabelfree;
 import com.dmtavt.fragpipe.tools.msbooster.MSBoosterPanel;
@@ -687,12 +688,14 @@ public class FragpipeRun {
       toConsole(Fragpipe.COLOR_BLACK, "MSFragger: ultrafast and comprehensive peptide identification in mass spectrometry–based proteomics. Nat Methods 14:513 (2017)", true, console);
       toConsole(Fragpipe.COLOR_CMDLINE, "(Any searches) ", false, console);
       toConsole(Fragpipe.COLOR_BLACK, "Fast deisotoping algorithm and its implementation in the MSFragger search engine. J. Proteome Res. 20:498 (2021)", true, console);
-      toConsole(Fragpipe.COLOR_CMDLINE, "(Open search) ", false, console);
-      toConsole(Fragpipe.COLOR_BLACK, "Identification of modified peptides using localization-aware open search. Nat Commun. 11:4065 (2020)", true, console);
-      toConsole(Fragpipe.COLOR_CMDLINE, "(Glyco/labile search) ", false, console);
-      toConsole(Fragpipe.COLOR_BLACK, "Fast and comprehensive N- and O-glycoproteomics analysis with MSFragger-Glyco. Nat Methods 17:1125 (2020)", true, console);
       toConsole(Fragpipe.COLOR_CMDLINE, "(timsTOF PASEF) ", false, console);
       toConsole(Fragpipe.COLOR_BLACK, "Fast quantitative analysis of timsTOF PASEF data with MSFragger and IonQuant. Mol Cell Proteomics 19:1575 (2020)", true, console);
+      toConsole(Fragpipe.COLOR_CMDLINE, "(Open search) ", false, console);
+      toConsole(Fragpipe.COLOR_BLACK, "Identification of modified peptides using localization-aware open search. Nat Commun. 11:4065 (2020)", true, console);
+      toConsole(Fragpipe.COLOR_CMDLINE, "(Glyco search) ", false, console);
+      toConsole(Fragpipe.COLOR_BLACK, "Fast and comprehensive N- and O-glycoproteomics analysis with MSFragger-Glyco. Nat Methods 17:1125 (2020)", true, console);
+      toConsole(Fragpipe.COLOR_CMDLINE, "(Labile search) ", false, console);
+      toConsole(Fragpipe.COLOR_BLACK, "MSFragger-Labile: A Flexible Method to Improve Labile PTM Analysis in Proteomics. Mol Cell Proteomics 22:100538 (2023)", true, console);
     }
 
     CrystalcPanel crystalcPanel = Bus.getStickyEvent(CrystalcPanel.class);
@@ -703,7 +706,8 @@ public class FragpipeRun {
 
     MSBoosterPanel msBoosterPanel = Bus.getStickyEvent(MSBoosterPanel.class);
     if (msBoosterPanel != null && msBoosterPanel.isRun()) {
-
+      toConsole(Fragpipe.COLOR_CMDLINE, "(MSBooster) ", false, console);
+      toConsole(Fragpipe.COLOR_BLACK, "MSBooster: improving peptide identification rates using deep learning-based features. Nat Commun. 14:4539 (2023)", true, console);
     }
 
     PepProphPanel pepProphPanel = Bus.getStickyEvent(PepProphPanel.class);
@@ -740,6 +744,8 @@ public class FragpipeRun {
     if (ptmshepherdPanel != null && ptmshepherdPanel.isRun()) {
       toConsole(Fragpipe.COLOR_CMDLINE, "(Open search) ", false, console);
       toConsole(Fragpipe.COLOR_BLACK, "PTM-Shepherd: analysis and summarization of post-translational and chemical modifications from open search results. Mol Cell Proteomics 20:100018 (2020)", true, console);
+      toConsole(Fragpipe.COLOR_CMDLINE, "(Diagnostic ion mining) ", false, console);
+      toConsole(Fragpipe.COLOR_BLACK, "Detecting diagnostic features in MS/MS spectra of post-translationally modified peptides. Nat Commun. 14:4132 (2023)", true, console);
     }
 
     PTMSGlycanAssignPanel ptmsGlycanAssignPanel = Bus.getStickyEvent(PTMSGlycanAssignPanel.class);
@@ -766,10 +772,23 @@ public class FragpipeRun {
       toConsole(Fragpipe.COLOR_BLACK, "Quantitative proteomic landscape of metaplastic breast carcinoma pathological subtypes and their relationship to triple-negative tumors. Nat Commun. 11:1723 (2020)", true, console);
     }
 
+    SpeclibPanel speclibPanel = Bus.getStickyEvent(SpeclibPanel.class);
     DiannPanel diannPanel = Bus.getStickyEvent(DiannPanel.class);
+
+    if ((speclibPanel != null && speclibPanel.isRun()) || (diannPanel != null && diannPanel.isRun())) {
+      toConsole(Fragpipe.COLOR_CMDLINE, "(Spectral library generation and DIA analysis) ", false, console);
+      toConsole(Fragpipe.COLOR_BLACK, "Analysis of DIA proteomics data using MSFragger-DIA and FragPipe computational platform. Nat Commun. 14:4154 (2023)", true, console);
+    }
+
     if (diannPanel != null && diannPanel.isRun()) {
       toConsole(Fragpipe.COLOR_CMDLINE, "(DIA quantification with DIA-NN) ", false, console);
       toConsole(Fragpipe.COLOR_BLACK, "dia-PASEF data analysis using FragPipe and DIA-NN for deep proteomics of low sample amounts. Nat Commun. 13:3944 (2022)", true, console);
+    }
+
+    FpopQuantPanel fpopQuantPanel = Bus.getStickyEvent(FpopQuantPanel.class);
+    if (fpopQuantPanel != null && fpopQuantPanel.isRun()) {
+      toConsole(Fragpipe.COLOR_CMDLINE, "(FPOP) ", false, console);
+      toConsole(Fragpipe.COLOR_BLACK, "Efficient Analysis of Proteome-Wide FPOP Data by FragPipe. Anal Chem. 95:16131 (2023)", true, console);
     }
 
     toConsole(Fragpipe.COLOR_CMDLINE, "(Visualization with FragPipe-PDV) ", false, console);

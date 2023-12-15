@@ -68,7 +68,7 @@ public class FpopQuantPanel extends JPanelBase {
         return PREFIX;
     }
 
-    protected boolean isRun() {
+    public boolean isRun() {
         return SwingUtils.isEnabledAndChecked(checkFPOP);
     }
 
