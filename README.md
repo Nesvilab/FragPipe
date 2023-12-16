@@ -76,15 +76,11 @@ For other tools developed by Nesvizhskii lab, visit our website
 
 #### How to Run
 - **Windows**:
-  - Run the Windows executable (*.exe*) from the "bin" folder
-  - Or start the `FragPipe.bat` from the *.zip* distribution  
-  or execute one of the following commands:
-  - `start javaw -jar FragPipe-x.x.jar`
-  - `java -jar FragPipe-x.x.jar`
+  - Double click the `FragPipe.exe` or `FragPipe.bat` from the `bin` folder
+  - Or execute the command: `java -jar FragPipe-x.x.jar`
 - **Linux**:
   - Run the `fragpipe` shell script (can double-click to run)  
-  or execute the following command:
-  - Or execute `java -jar FragPipe-x.x.jar`
+  - Or execute the command: `java -jar FragPipe-x.x.jar`
  
 #### Integration
 FragPipe is open source and the output is currently supported by the following software projects:
