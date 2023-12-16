@@ -1,4 +1,4 @@
-![Release](https://img.shields.io/github/release/Nesvilab/FragPipe.svg) ![Downloads](https://img.shields.io/github/downloads/Nesvilab/FragPipe/total.svg) ![Downloads](https://img.shields.io/github/downloads/Nesvilab/FragPipe/latest/total.svg)
+![Release](https://img.shields.io/github/release/Nesvilab/FragPipe.svg) ![Downloads](https://img.shields.io/github/downloads/Nesvilab/FragPipe/total.svg) ![Docker pulls](https://img.shields.io/docker/pulls/fcyucn/fragpipe) ![Downloads](https://img.shields.io/github/downloads/Nesvilab/FragPipe/latest/total.svg)
 
 <div align="center">
 <img src="frag-pipe/images/fragpipe-01.png" width="350px"/>
@@ -8,6 +8,7 @@ FragPipe is a Java Graphical User Interface (GUI) for a suite of computational t
 
 
 ### [Download](https://github.com/Nesvilab/FragPipe/releases)
+#### [Docker image](https://hub.docker.com/r/fcyucn/fragpipe)
 
 #### FragPipe tutorials
 * [Using FragPipe](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html) (general tutorial covering all FragPipe modules)
@@ -81,6 +82,10 @@ For other tools developed by Nesvizhskii lab, visit our website
 - **Linux**:
   - Run the `fragpipe` shell script (can double-click to run)  
   - Or execute the command: `java -jar FragPipe-x.x.jar`
+- **Mac OS** (command line interface only):
+  - Install docker by following the [instruction](https://docs.docker.com/desktop/install/mac-install/)
+  - Open terminal and pull the docker image by running `docker pull fcyucn/fragpipe`
+  - Execute the `fragpipe --headless` in the terminal
  
 #### Integration
 FragPipe is open source and the output is currently supported by the following software projects:
