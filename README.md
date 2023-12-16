@@ -1,4 +1,4 @@
-![Release](https://img.shields.io/github/release/Nesvilab/FragPipe.svg) ![Downloads](https://img.shields.io/github/downloads/Nesvilab/FragPipe/total.svg) ![Downloads](https://img.shields.io/github/downloads/Nesvilab/FragPipe/latest/total.svg)
+![Release](https://img.shields.io/github/release/Nesvilab/FragPipe.svg) ![Downloads](https://img.shields.io/github/downloads/Nesvilab/FragPipe/total.svg) ![Docker pulls](https://img.shields.io/docker/pulls/fcyucn/fragpipe) ![Downloads](https://img.shields.io/github/downloads/Nesvilab/FragPipe/latest/total.svg)
 
 <div align="center">
 <img src="frag-pipe/images/fragpipe-01.png" width="350px"/>
@@ -8,6 +8,7 @@ FragPipe is a Java Graphical User Interface (GUI) for a suite of computational t
 
 
 ### [Download](https://github.com/Nesvilab/FragPipe/releases)
+#### [Docker image](https://hub.docker.com/r/fcyucn/fragpipe)
 
 #### FragPipe tutorials
 * [Using FragPipe](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html) (general tutorial covering all FragPipe modules)
@@ -17,7 +18,7 @@ FragPipe is a Java Graphical User Interface (GUI) for a suite of computational t
   * [Mass offset search](https://fragpipe.nesvilab.org/docs/tutorial_offset.html)
   * [Labile PTM search](https://fragpipe.nesvilab.org/docs/tutorial_labile.html)
   * [Glycoproteomics search](https://fragpipe.nesvilab.org/docs/tutorial_glyco.html)
-  * [Custom mass offset workflow (RNA crosslinking example)](https://fragpipe.nesvilab.org/docs/tutorial_custom_mass_offset.html)
+  * [Custom mass offset workflow (RNA crosslinking example)](https://fragpipe.nesvilab.org/docs/tutorial_custom_mass_offset.html) 
   * [Diagnostic ion mining](https://fragpipe.nesvilab.org/docs/tutorial_diagnostic_mining.html)
   * [FPOP](https://fragpipe.nesvilab.org/docs/tutorial_fpop.html)
   
@@ -76,15 +77,29 @@ For other tools developed by Nesvizhskii lab, visit our website
 
 #### How to Run
 - **Windows**:
-  - Run the Windows executable (*.exe*) from the "bin" folder
-  - Or start the `FragPipe.bat` from the *.zip* distribution  
-  or execute one of the following commands:
-  - `start javaw -jar FragPipe-x.x.jar`
-  - `java -jar FragPipe-x.x.jar`
+  - Double click the `FragPipe.exe` or `FragPipe.bat` from the `bin` folder
+  - Or execute the command: `java -jar FragPipe-x.x.jar`
 - **Linux**:
   - Run the `fragpipe` shell script (can double-click to run)  
-  or execute the following command:
-  - Or execute `java -jar FragPipe-x.x.jar`
+  - Or execute the command: `java -jar FragPipe-x.x.jar`
+- **Mac OS** (command line interface only):
+  - Install docker by following the [instruction](https://docs.docker.com/desktop/install/mac-install/)
+  - Open terminal and pull the docker image by running `docker pull fcyucn/fragpipe`
+  - Execute the `fragpipe --headless` in the terminal
+ 
+#### Integration
+FragPipe is open source and the output is currently supported by the following software projects:
+- [Skyline](https://skyline.ms/project/home/software/Skyline/begin.view)
+- [AlphaPeptDeep](https://github.com/MannLabs/alphapeptdeep)
+- [AlphaPeptStats](https://github.com/MannLabs/alphapeptstats)
+- [AlphaMap](https://github.com/MannLabs/alphamap)
+- [directLFQ](https://github.com/MannLabs/directlfq)
+- [DIA-NN](https://github.com/vdemichev/DiaNN)
+- [MSstats](http://msstats.org/)
+- [picked_group_fdr](https://github.com/kusterlab/picked_group_fdr)
+- [FragPipe-Analyst](http://fragpipe-analyst.nesvilab.org/)
+
+
 
 #### Cite
 - Kong, A. T., Leprevost, F. V., Avtonomov, D. M., Mellacheruvu, D., & Nesvizhskii, A. I. (2017). MSFragger: ultrafast and comprehensive peptide identification in mass spectrometry–based proteomics. Nature Methods, 14(5), 513-520.
