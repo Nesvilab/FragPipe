@@ -1,7 +1,7 @@
 ![Release](https://img.shields.io/github/release/Nesvilab/FragPipe.svg) ![Downloads](https://img.shields.io/github/downloads/Nesvilab/FragPipe/total.svg) ![Docker pulls](https://img.shields.io/docker/pulls/fcyucn/fragpipe) ![Downloads](https://img.shields.io/github/downloads/Nesvilab/FragPipe/latest/total.svg)
 
 <div align="center">
-<img src="frag-pipe/images/fragpipe-01.png" width="350px"/>
+<img src="https://github.com/Nesvilab/FragPipe/blob/gh-pages/frag-pipe/images/fragpipe-01.png" width="350px"/>
 </div>
 
 FragPipe is a Java Graphical User Interface (GUI) for a suite of computational tools enabling comprehensive analysis of mass spectrometry-based proteomics data. It is powered by [MSFragger](https://msfragger.nesvilab.org/) - an ultrafast proteomic search engine suitable for both conventional and "open" (wide precursor mass tolerance) peptide identification. FragPipe includes the [Philosopher](https://nesvilab.github.io/philosopher/) toolkit for downstream post-processing of MSFragger search results (PeptideProphet, iProphet, ProteinProphet), FDR filtering, label-based quantification, and multi-experiment summary report generation. [Crystal-C](https://www.nesvilab.org/Crystal-C/) and [PTM-Shepherd](https://github.com/Nesvilab/PTM-Shepherd) are included to aid interpretation of open search results. Also included in FragPipe binary are [TMT-Integrator](http://tmt-integrator.nesvilab.org/) for TMT/iTRAQ isobaric labeling-based quantification, [IonQuant](http://ionquant.nesvilab.org/) for label-free quantification with FDR-controlled match-between-run (MBR) functionality, spectral library building with EasyPQP, and MSFragger-DIA and DIA-Umpire SE modules for direct analysis of data independent acquisition (DIA) data. 
@@ -51,7 +51,19 @@ The table below shows the compatibility of FragPipe workflow components with dif
 
 _Bruker .d indicates ddaPASEF files from timsTOF, other Bruker .d files should be converted to .mzML. Please also note that timsTOF data requires [Visual C++ Redistributable for Visual Studio 2017](https://aka.ms/vs/16/release/VC_redist.x64.exe) in Windows. If you see an error saying cannot find Bruker native library, please try to install the Visual C++ redistibutable._
 
-<img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/workflow_support.png" width="500px" align="middle"/>
+| Workflow Step                    | .mzML | Thermo (.raw) | Bruker (.d) |  .mgf |
+|----------------------------------|:-----:|:-------------:|:-----------:|:-----:|
+| MSFragger search                 | ✔     | ✔             | ✔           | ✔     | 
+| MSFragger-DIA                    | ✔     | ✔             |             |       | 
+| Label-free quantification        | ✔     | ✔             | ✔           |       | 
+| SILAC/dimethyl quantification    | ✔     | ✔             | ✔           |       | 
+| TMT/iTRAQ quantification         | ✔     | ✔             |             |       | 
+| Crystal-C artifact removal       | ✔     | ✔             |             |       | 
+| PTMProphet localization          | ✔     | ✔             | ✔           |       | 
+| PTM-Shepherd summarization       | ✔     | ✔             | ✔           |       | 
+| DIA-Umpire signal extraction     | ✔     | ✔             |             |       | 
+| Spectral library generation      | ✔     | ✔             | ✔           | ✔     | 
+| DIA-NN quantification            | ✔     | ✔*            | ✔           |       | 
 
 _DIA data acquired with overlapping/staggered windows must be [converted to mzML with demultiplexing](https://fragpipe.nesvilab.org/docs/tutorial_convert.html#convert-thermo-dia-raw-files-with-overlappingstaggered-windows)._
 _Quantification from Thermo .raw files with DIA-NN requires installation of Thermo MS File Reader, see the [DIA-NN documentation](https://github.com/vdemichev/DiaNN#raw-data-formats) for details._

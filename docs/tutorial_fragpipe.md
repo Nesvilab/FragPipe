@@ -6,9 +6,19 @@ Complete workflows are available for a variety of experiment types, we recommend
 
 Before you get started, make sure your LC-MS file format is compatible with the workflows you want to perform. For Thermo data (with or without FAIMS), we recommend [converting .raw files to mzML with peak picking](https://fragpipe.nesvilab.org/docs/tutorial_convert.html). DIA data acquired with overlapping/staggered windows must be [converted to mzML with demultiplexing](https://fragpipe.nesvilab.org/docs/tutorial_convert.html#convert-thermo-dia-raw-files-with-overlappingstaggered-windows). Bruker .d indicates ddaPASEF files from timsTOF (diaPASEF can only be quantified with DIA-NN, this format is not currently supported in MSFragger or other parts of FragPipe), other Bruker .d files should be converted to .mzML. Please also note that timsTOF data requires [Visual C++ Redistributable for Visual Studio 2017](https://aka.ms/vs/16/release/VC_redist.x64.exe) in Windows. If you see an error saying cannot find Bruker native library, please try to install the Visual C++ redistibutable.
 
-<div align="center">
-<img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/workflow_support.png" width="500px"/>
-</div>
+| Workflow Step                    | .mzML | Thermo (.raw) | Bruker (.d) |  .mgf |
+|----------------------------------|:-----:|:-------------:|:-----------:|:-----:|
+| MSFragger search                 | ✔     | ✔             | ✔           | ✔     | 
+| MSFragger-DIA                    | ✔     | ✔             |             |       | 
+| Label-free quantification        | ✔     | ✔             | ✔           |       | 
+| SILAC/dimethyl quantification    | ✔     | ✔             | ✔           |       | 
+| TMT/iTRAQ quantification         | ✔     | ✔             |             |       | 
+| Crystal-C artifact removal       | ✔     | ✔             |             |       | 
+| PTMProphet localization          | ✔     | ✔             | ✔           |       | 
+| PTM-Shepherd summarization       | ✔     | ✔             | ✔           |       | 
+| DIA-Umpire signal extraction     | ✔     | ✔             |             |       | 
+| Spectral library generation      | ✔     | ✔             | ✔           | ✔     | 
+| DIA-NN quantification            | ✔     | ✔*            | ✔           |       | 
 
 FragPipe runs on Windows and Linux operating systems. While very simple analyses may only require 8 GB RAM, large-scale/complex analyses or timsTOF data will likely need 24 GB memory or more. Free disk space is needed to run FragPipe analyses and save reports, typically +20-50% of spectral file size for non-ion mobility data. Disk space requirements for quantification of timsTOF data are greater, +60% spectral file size if .d files are uncompressed, but up to +250% if Bruker's compression function has been used.
 
