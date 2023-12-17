@@ -30,6 +30,7 @@ FragPipe is a Java Graphical User Interface (GUI) for a suite of computational t
 * [SILAC (or other MS1-labeled) data](https://fragpipe.nesvilab.org/docs/tutorial_silac.html)
 * [DIA analysis](https://fragpipe.nesvilab.org/docs/tutorial_DIA.html)
 * [Novel/variant peptide detection](https://fragpipe.nesvilab.org/docs/tutorial_two_pass_search.html)
+* [Group FDR estimation](https://fragpipe.nesvilab.org/docs/tutorial_group_fdr.html)
 
 #### Resources
 * [Interpreting output files](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_outputs.html)
