@@ -63,6 +63,43 @@ public class Version {
       new VersionComparator());
 
   static {
+    CHANGELOG.put("21.0", Arrays.asList(
+        "Add support for the new MSFragger-DDA+ search mode (introduced in MSFragger 4.0). Data acquired in DDA mode (including wide-window DDA data) can now be annotated as `DDA+` (Workflow tab). MSFragger will perform full isolation window search, identifying multiple co-fragmented peptides from chimeric DDA spectra. This mode significantly boosts the number of IDs compared to conventional DDA search. DDA+ mode is compatible with close search-based DDA workflows (e.g., Default, LFQ-MBR, etc.).",
+        "Add support for the detailed mass offset search mode (introduced in MSFragger 4.0). Each specified mass offset can have their own modification sites, neutral losses, and diagnostic ions. The detailed mass offsets are loaded from an external file (MSFragger tab). A sample mass offset file (mass_offset_template.tsv file) is available in the FragPipe/tools folder.",
+        "Add new workflow for DIA-based phosphoproteomics: `DIA_SpecLib_Quant_Phospho`. This workflow includes site localization analysis via PTMProphet. The site localization information is then propagated to the precursor-level quantification tables (additional columns with site localization added to the DIA-NN generated report.pr_matrix.tsv file).",
+        "In isobaric quantification workflows, switch to IonQuant for extraction of reporter ion intensities, MS1 intensities, and precursor purity calculation (Quant(Isobaric) tab). These steps were previously done using Philosopher LabelQuant and FreeQuant modules (now available as an option). As an additional benefit of using IonQuant, isobaric quantification workflows can now be used with Thermo’s RAW files (i.e., without first converting to mzML).",
+        "Significantly improve the speed of spectral library building",
+        "Significantly improve the timsTOF ddaPASEF .d folder loading speed",
+        "Add new module for downstream analysis of FPOP data (Downstream tab)",
+        "Add `MT16-ubiquitination-K_tmt_or_ubiq` and `TMT16-ubiquitination-K_tmt_plus_ubiq` workflows",
+        "Adjust parameters in DIA workflows for improved analysis of Thermo Fisher’s Astral narrow-window DIA data",
+        "Enable MSBooster and Percolator in the analysis of endogenous peptidome data (nonspecific_peptidome workflow).",
+        "Add the DIA-NN executable file box (Config tab) to support custom (user-downloaded) DIA-NN versions. If the path is left empty, FragPipe uses the default DIA-NN version 1.8.2_beta_8 included in the FragPipe.",
+        "Generate MSstats formatted output files in DIA workflows",
+        "Generate MSstatsPTM formatted files in DDA label-free-quantification workflows",
+        "Rename DIA-NN output files (`diann-output` to `report`)",
+        "Add support for DIA-NN's QuantUMS quantification option (DIA-NN tab)",
+        "Add support for TMT-0 and TMT-2 isobaric labelling (Quant(Isobaric) tab)",
+        "The isobaric quant annotation files can be in different folders",
+        "Add SDRF table writer",
+        "Add a button to load variable modifications specified in MSFragger to PTMProphet command box (Validation tab)",
+        "Add a docker image: https://hub.docker.com/r/fcyucn/fragpipe",
+        "Improve generation of the annotation files for FragPipe-Analyst: http://fragpipe-analyst.nesvilab.org/",
+        "Remove `add top N complementary` option (MSFragger tab)",
+        "Mark Philosopher FreeQuant and LabelQuant as deprecated",
+        "Require MSFragger 4.0+",
+        "Require Philosopher 5.1.0+",
+        "Require IonQuant 1.10.12+",
+        "Require Python 3.9",
+        "Require EasyPQP 0.1.41+",
+        "Upgrade Percolator to 3.6.4",
+        "Upgrade PTMShepherd to 2.0.6-rc3",
+        "Upgrade FragPipe-PDV to 1.1.5",
+        "Upgrade O-Pair to 1.1-rc2",
+        "Upgrade TMT-Integrator to 5.0.2",
+        "Various bug fixes and improvements"
+    ));
+
     CHANGELOG.put("20.0", Arrays.asList(
         "Require MSFragger 3.8+",
         "Require Philosopher 5.0.0+",
