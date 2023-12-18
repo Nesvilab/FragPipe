@@ -98,7 +98,6 @@ tmtintegrator.groupby :: All <=> -1
 tmtintegrator.prot_norm :: None <=> 0
 tmtintegrator.prot_norm :: MD (median centering) <=> 1
 tmtintegrator.prot_norm :: GN (median centering + variance scaling) <=> 2
-tmtintegrator.prot_norm :: SL+IRS (Only for abundance-based integration) <=> 3
 tmtintegrator.prot_norm :: All <=> -1
 tmtintegrator.abn_type :: Ratio <=> 0
 tmtintegrator.abn_type :: Abundance <=> 1

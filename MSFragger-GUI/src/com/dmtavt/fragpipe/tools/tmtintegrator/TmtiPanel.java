@@ -345,7 +345,6 @@ public class TmtiPanel extends JPanelBase {
             + "0: None <br/>\n"
             + "1: MD (median centering) <br/>\n"
             + "2: GN (median centering variance scaling) <br/>\n"
-            + "3: SL+IRS (Only for abundance-based integration) <br/>\n"
             + "-1: generate reports with all normalization options)");
 
     uiComboAddRef = UiUtils.createUiCombo(TmtiConfProps.COMBO_ADD_REF.stream()
