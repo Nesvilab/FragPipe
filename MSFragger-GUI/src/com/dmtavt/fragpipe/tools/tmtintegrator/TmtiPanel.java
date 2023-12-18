@@ -247,8 +247,8 @@ public class TmtiPanel extends JPanelBase {
 
     List<String> tt = new ArrayList<>(3);
     tt.add("IonQuant");
-    tt.add("Skip extraction. Run TMT-Integrator only");
     tt.add("Philosopher");
+    tt.add("Skip extraction. Run TMT-Integrator only");
     uiComboIntensityExtractionTool = UiUtils.createUiCombo(tt);
     FormEntry feIntensityExtractionTool = fe("extraction_tool", "Intensity Extraction Tool", uiComboIntensityExtractionTool, "MS1 and reporter ion intensity extraction tool");
 
@@ -901,7 +901,7 @@ public class TmtiPanel extends JPanelBase {
         return;
       }
 
-      if (getIntensityExtractionTool() == 2 && !expDir.equals(selectedFile.toPath().getParent())) {
+      if (getIntensityExtractionTool() == 1 && !expDir.equals(selectedFile.toPath().getParent())) {
         String m = String.format(
             "Philosopher requires the annotation file to be\n"
                 + "in the same directory as corresponding LCMS files.\n"
@@ -1010,7 +1010,7 @@ public class TmtiPanel extends JPanelBase {
       int userSelection = fc.showSaveDialog(parent);
       if (JFileChooser.APPROVE_OPTION == userSelection) {
         selectedPath = fc.getSelectedFile().toPath();
-        if (getIntensityExtractionTool() == 2 && !selectedPath.getParent().equals(saveDir)) {
+        if (getIntensityExtractionTool() == 1 && !selectedPath.getParent().equals(saveDir)) {
           String msg = "<html>Philosopher requires annotation files to be saved<br/>\n"
               + "in the same directory as LCMS files for that plex. Please save the file in:<br/>\n<br/>\n" + saveDir + "\n"
               + "or switch to IonQuant for the intensity extraction method.";

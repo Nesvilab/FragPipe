@@ -1505,7 +1505,7 @@ public class FragpipeRun {
       cmdPhilosopherAbacus.setRun(doRunAbacus);
       if (cmdPhilosopherAbacus.isRun()) {
         int plex = 0;
-        if (tmtiPanel.isRun() && tmtiPanel.getIntensityExtractionTool() == 2) {
+        if (tmtiPanel.isRun() && tmtiPanel.getIntensityExtractionTool() == 1) {
           QuantLabel label = tmtiPanel.getSelectedLabel();
           plex = label.getReagentNames().size();
         }
@@ -1606,10 +1606,10 @@ public class FragpipeRun {
     final CmdIonquant cmdTmtIonquantIsobaric = new CmdIonquant(tmtiPanel.isRun() && tmtiPanel.getIntensityExtractionTool() == 0, wd);
     cmdTmtIonquantIsobaric.setTitle(CmdIonquant.NAME + " Isobaric (TMT)");
 
-    final CmdFreequant cmdTmtFreequant = new CmdFreequant(tmtiPanel.isRun() && tmtiPanel.getIntensityExtractionTool() == 2, wd);
+    final CmdFreequant cmdTmtFreequant = new CmdFreequant(tmtiPanel.isRun() && tmtiPanel.getIntensityExtractionTool() == 1, wd);
     cmdTmtFreequant.setTitle(CmdFreequant.NAME + " (TMT)");
 
-    final CmdLabelquant cmdTmtLabelQuant = new CmdLabelquant(tmtiPanel.isRun() && tmtiPanel.getIntensityExtractionTool() == 2, wd);
+    final CmdLabelquant cmdTmtLabelQuant = new CmdLabelquant(tmtiPanel.isRun() && tmtiPanel.getIntensityExtractionTool() == 1, wd);
     cmdTmtLabelQuant.setTitle(CmdLabelquant.NAME + " (TMT)");
 
     if (tmtiPanel.isRun()) {
@@ -1666,7 +1666,7 @@ public class FragpipeRun {
           }
           return true;
         });
-      } else if (tmtiPanel.getIntensityExtractionTool() == 2) {
+      } else if (tmtiPanel.getIntensityExtractionTool() == 1) {
         addCheck.accept(() -> {
           if (quantPanelLabelfree.isRunFreeQuant()) {
             if (Fragpipe.headless) {
