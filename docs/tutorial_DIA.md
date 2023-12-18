@@ -70,7 +70,7 @@ Follow the same steps as above to run the 'DIA_DIA-Umpire_SpecLib_Quant' workflo
 
 
 #### Key References
-Yu F, Teo GC, Kong AT, Li GX, Demichev V, Nesvizhskii AI. [One-stop analysis of DIA proteomics data using MSFragger-DIA and FragPipe computational platform](https://doi.org/10.1101/2022.10.28.514272), biorxiv (2022).
+Yu F, Teo GC, Kong AT, Fröhlich K, Li GX, Demichev V, Nesvizhskii AI. [Analysis of DIA proteomics data using MSFragger-DIA and FragPipe computational platform](https://doi.org/10.1038/s41467-023-39869-5), Nature Communications 14:4154 (2023).
 
 Tsou CC, Avtonomov D, Larsen B, Tucholska M, Choi H, Gingras AC, Nesvizhskii AI. [DIA-Umpire: comprehensive computational framework for data-independent acquisition proteomics](https://doi.org/10.1021/acs.analchem.9b04418), Nature Methods 12:258-64 (2015).
 
