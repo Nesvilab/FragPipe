@@ -86,7 +86,7 @@ public class Version {
         "Add a docker image: https://hub.docker.com/r/fcyucn/fragpipe",
         "Improve generation of the annotation files for FragPipe-Analyst: http://fragpipe-analyst.nesvilab.org/",
         "Remove `add top N complementary` option (MSFragger tab)",
-        "Mark Philosopher FreeQuant and LabelQuant as deprecated",
+        "Mark Philosopher FreeQuant as deprecated",
         "Require MSFragger 4.0+",
         "Require Philosopher 5.1.0+",
         "Require IonQuant 1.10.12+",
