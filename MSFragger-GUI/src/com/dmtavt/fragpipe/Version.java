@@ -92,6 +92,7 @@ public class Version {
         "Require IonQuant 1.10.12+",
         "Require Python 3.9",
         "Require EasyPQP 0.1.41+",
+        "Upgrade MSBooster to 1.1.27",
         "Upgrade Percolator to 3.6.4",
         "Upgrade PTMShepherd to 2.0.6-rc3",
         "Upgrade FragPipe-PDV to 1.1.5",
