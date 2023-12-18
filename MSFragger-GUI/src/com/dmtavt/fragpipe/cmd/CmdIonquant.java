@@ -183,7 +183,7 @@ public class CmdIonquant extends CmdBase {
       cmd.add("--imtol");
       cmd.add("0.05");
       cmd.add("--rttol");
-      cmd.add("0.4");
+      cmd.add("1");
       cmd.add("--normalization");
       cmd.add("0");
       cmd.add("--minisotopes");
