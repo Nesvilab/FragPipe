@@ -132,9 +132,9 @@ import rx.schedulers.Schedulers;
 public class TabConfig extends JPanelWithEnablement {
 
   private static final Logger log = LoggerFactory.getLogger(TabConfig.class);
-  private static final DefaultArtifactVersion msfraggerMinVersion = new DefaultArtifactVersion("3.8");
-  private static final DefaultArtifactVersion ionquantMinVersion = new DefaultArtifactVersion("1.10.6");
-  private static final DefaultArtifactVersion philosopherMinVersion = new DefaultArtifactVersion("5.0.0");
+  private static final DefaultArtifactVersion msfraggerMinVersion = new DefaultArtifactVersion("4.0");
+  private static final DefaultArtifactVersion ionquantMinVersion = new DefaultArtifactVersion("1.10.12");
+  private static final DefaultArtifactVersion philosopherMinVersion = new DefaultArtifactVersion("5.1.0");
   public static final DefaultArtifactVersion pythonMinVersion = new DefaultArtifactVersion("3.9");
 
   private static final MigUtils mu = MigUtils.get();
