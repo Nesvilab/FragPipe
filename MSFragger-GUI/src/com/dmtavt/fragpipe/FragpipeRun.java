@@ -1534,9 +1534,9 @@ public class FragpipeRun {
       return true;
     });
 
-    // PTM-S glycan assignment can assign additional masses to PSMs. Append those masses to the mass list file after PTM-S is run for IonQuant
+    // PTM-S glycan assignment can assign additional masses to PSMs. Append those masses to the mass list file after PTM-S is run for IonQuant (including IonQuant for MS2 quant extraction)
     PTMSGlycanAssignPanel ptmsGlycanPanel = Fragpipe.getStickyStrict(PTMSGlycanAssignPanel.class);
-    final CmdAppendFile cmdAppendFile = new CmdAppendFile(ptmsGlycanPanel.isRun() && quantPanelLabelfree.isRunIonQuant(), wd);
+    final CmdAppendFile cmdAppendFile = new CmdAppendFile(ptmsGlycanPanel.isRun() && (quantPanelLabelfree.isRunIonQuant() || (tmtiPanel.isRun() && tmtiPanel.getIntensityExtractionTool() == 0)), wd);
     addConfig.accept(cmdAppendFile,  () -> {
       cmdAppendFile.setRun(cmdAppendFile.isRun() && !sharedPepxmlFilesFromMsfragger.isEmpty());
       if (cmdAppendFile.isRun()) {
