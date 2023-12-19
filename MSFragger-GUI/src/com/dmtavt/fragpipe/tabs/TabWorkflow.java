@@ -174,7 +174,8 @@ public class TabWorkflow extends JPanelWithEnablement {
   private JButton btnSetDiaQuant;
   private JButton btnSetDiaLib;
   private JButton btnSetDdaPlus;
-  private JButton btnGroupsClear;
+  private JButton btnGroupsClearExperiment;
+  private JButton btnGroupsClearBioreplicate;
   private JButton btnManifestSave;
   private JButton btnManifestLoad;
 
@@ -1001,7 +1002,8 @@ public class TabWorkflow extends JPanelWithEnablement {
         () -> new MessageLcmsGroupAction(Type.SET_DIA_LIB));
     btnSetDdaPlus = button("Set DDA+",
         () -> new MessageLcmsGroupAction(Type.SET_DDA_PLUS));
-    btnGroupsClear = button("Clear groups", () -> new MessageLcmsGroupAction(Type.CLEAR_GROUPS));
+    btnGroupsClearExperiment = button("Clear", () -> new MessageLcmsGroupAction(Type.CLEAR_EXP));
+    btnGroupsClearBioreplicate = button("Clear", () -> new MessageLcmsGroupAction(Type.CLEAR_REP));
 
     btnManifestSave = button("Save as manifest", MessageManifestSave::new);
     btnManifestLoad = button("Load manifest", MessageManifestLoad::new);
@@ -1049,6 +1051,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     mu.add(p, btnGroupsByParentDir);
     mu.add(p, btnGroupsByFilename);
     mu.add(p, btnSetExp);
+    mu.add(p, btnGroupsClearExperiment);
 
     UiText emptySpace = UiUtils.uiTextBuilder().cols(1).text("").create();
     emptySpace.setVisible(false);
@@ -1061,8 +1064,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     mu.add(p, new JLabel("Set bioreplicates")).split();
     mu.add(p, btnGroupsConsecutiveBioreplicate);
     mu.add(p, btnSetRep);
-
-    mu.add(p, btnGroupsClear).gapLeft("300");
+    mu.add(p, btnGroupsClearBioreplicate);
 
     UiText emptySpace2 = UiUtils.uiTextBuilder().cols(1).text("").create();
     emptySpace2.setVisible(false);
@@ -1098,7 +1100,8 @@ public class TabWorkflow extends JPanelWithEnablement {
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnSetDiaQuant);
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnSetDiaLib);
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnSetDdaPlus);
-    tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsClear);
+    tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsClearExperiment);
+    tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsClearBioreplicate);
 
     tableRawFiles.addComponentsEnabledOnNonEmptySelection(btnFilesRemove);
     tableRawFiles.addComponentsEnabledOnNonEmptySelection(btnSetExp);
@@ -1421,8 +1424,11 @@ public class TabWorkflow extends JPanelWithEnablement {
       case SET_DDA_PLUS:
         this.actionSetDataType("DDA+");
         break;
-      case CLEAR_GROUPS:
-        this.actionClearGroups();
+      case CLEAR_EXP:
+        this.actionClearGroupsExperiment();
+        break;
+      case CLEAR_REP:
+        this.actionClearGroupsBioreplicate();
         break;
       default:
         throw new IllegalStateException("Unknown enum option: " + m.type);
@@ -1481,12 +1487,21 @@ public class TabWorkflow extends JPanelWithEnablement {
     }
   }
 
-  private void actionClearGroups() {
+  private void actionClearGroupsExperiment() {
     UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
 
     for (int i = 0, sz = m.dataSize(); i < sz; i++) {
       InputLcmsFile f = m.dataGet(i);
-      m.dataSet(i, new InputLcmsFile(f.getPath(), ThisAppProps.DEFAULT_LCMS_EXP_NAME, null, f.getDataType()));
+      m.dataSet(i, new InputLcmsFile(f.getPath(), ThisAppProps.DEFAULT_LCMS_EXP_NAME, f.getReplicate(), f.getDataType()));
+    }
+  }
+
+  private void actionClearGroupsBioreplicate() {
+    UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
+
+    for (int i = 0, sz = m.dataSize(); i < sz; i++) {
+      InputLcmsFile f = m.dataGet(i);
+      m.dataSet(i, new InputLcmsFile(f.getPath(), f.getExperiment(), null, f.getDataType()));
     }
   }
 
