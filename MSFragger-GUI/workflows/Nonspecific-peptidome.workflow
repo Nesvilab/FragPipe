@@ -10,6 +10,7 @@ diann.light=
 diann.medium=
 diann.q-value=0.01
 diann.quantification-strategy=3
+diann.quantification-strategy-2=QuantUMS (high accuracy)
 diann.run-dia-nn=false
 diann.run-dia-plex=false
 diann.run-specific-protein-q-value=false
@@ -318,4 +319,4 @@ workflow.description=<p style\="margin-top\: 0in">Nonspecific search, with recom
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
 workflow.misc.save-sdrf=true
-workflow.saved-with-ver=21.0-build01
+workflow.saved-with-ver=21.0-build07

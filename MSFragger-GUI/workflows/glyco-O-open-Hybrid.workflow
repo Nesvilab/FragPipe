@@ -1,7 +1,5 @@
 # Workflow: glyco-O-open-Hybrid
 
-
-
 crystalc.run-crystalc=true
 database.decoy-tag=rev_
 diann.fragpipe.cmd-opts=
@@ -12,6 +10,7 @@ diann.light=
 diann.medium=
 diann.q-value=0.01
 diann.quantification-strategy=3
+diann.quantification-strategy-2=QuantUMS (high accuracy)
 diann.run-dia-nn=false
 diann.run-dia-plex=false
 diann.run-specific-protein-q-value=false
@@ -129,8 +128,8 @@ msfragger.num_enzyme_termini=2
 msfragger.output_format=tsv_pepXML
 msfragger.output_max_expect=50
 msfragger.output_report_topN=1
-msfragger.output_report_topN_dia1=5
 msfragger.output_report_topN_dda_plus=5
+msfragger.output_report_topN_dia1=5
 msfragger.override_charge=false
 msfragger.precursor_mass_lower=-200
 msfragger.precursor_mass_mode=corrected
@@ -320,4 +319,4 @@ workflow.description=<p style\="margin-top\: 0">For hybrid activation open searc
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
 workflow.misc.save-sdrf=true
-workflow.saved-with-ver=20.1-build26
+workflow.saved-with-ver=21.0-build07
