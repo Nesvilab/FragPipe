@@ -162,7 +162,7 @@ public class TabWorkflow extends JPanelWithEnablement {
   private UniqueLcmsFilesTableModel tableModelRawFiles;
   private FileDrop tableRawFilesFileDrop;
   private JScrollPane scrollPaneRawFiles;
-  private JButton btnGroupsConsecutive;
+  private JButton btnGroupsConsecutiveExperiment;
   private JButton btnGroupsConsecutiveBioreplicate;
   private JButton btnGroupsByParentDir;
   private JButton btnGroupsByFilename;
@@ -979,17 +979,17 @@ public class TabWorkflow extends JPanelWithEnablement {
     mu.add(p, btnTypeRegularMs);
     mu.add(p, btnTypeIms).wrap();
 
-    btnGroupsConsecutive = button("Consecutive",
-        () -> new MessageLcmsGroupAction(Type.CONSECUTIVE));
-    btnGroupsConsecutiveBioreplicate = button("Consecutive bioreplicates",
-        () -> new MessageLcmsGroupAction(Type.CONSECUTIVE_BIOREPLICATE));
+    btnGroupsConsecutiveExperiment = button("Consecutive",
+        () -> new MessageLcmsGroupAction(Type.CONSECUTIVE_EXP));
+    btnGroupsConsecutiveBioreplicate = button("Consecutive",
+        () -> new MessageLcmsGroupAction(Type.CONSECUTIVE_REP));
     btnGroupsByParentDir = button("By parent directory",
         () -> new MessageLcmsGroupAction(Type.BY_PARENT_DIR));
     btnGroupsByFilename = button("By file name",
         () -> new MessageLcmsGroupAction(Type.BY_FILE_NAME));
-    btnSetExp = button("Set experiment",
+    btnSetExp = button("Custom",
         () -> new MessageLcmsGroupAction(Type.SET_EXP));
-    btnSetRep = button("Set replicate",
+    btnSetRep = button("Custom",
         () -> new MessageLcmsGroupAction(Type.SET_REP));
     btnSetDda = button("Set DDA",
         () -> new MessageLcmsGroupAction(Type.SET_DDA));
@@ -1034,18 +1034,21 @@ public class TabWorkflow extends JPanelWithEnablement {
     }
 
     mu.add(p, btnManifestSave).split();
-    mu.add(p, btnManifestLoad).split();
+    mu.add(p, btnManifestLoad).split().wrap();
 
-    mu.add(p,
-        new JLabel("Assign files to Experiments/Groups (select rows to activate action buttons):"))
-        .spanX().wrap();
-    mu.add(p, btnGroupsConsecutive).split();
+
+    JLabel x = new JLabel("Assign files to Experiments/Bioreplicates:");
+    Font font2 = x.getFont();
+    Font fontBigger2 = font2.deriveFont(font2.getSize2D() * 1.2f);
+    x.setFont(fontBigger2);
+
+    mu.add(p, x).spanX().wrap();
+
+    mu.add(p, new JLabel("Set experiments")).split();
+    mu.add(p, btnGroupsConsecutiveExperiment);
     mu.add(p, btnGroupsByParentDir);
     mu.add(p, btnGroupsByFilename);
-    mu.add(p, btnGroupsConsecutiveBioreplicate);
     mu.add(p, btnSetExp);
-    mu.add(p, btnSetRep);
-    mu.add(p, btnGroupsClear);
 
     UiText emptySpace = UiUtils.uiTextBuilder().cols(1).text("").create();
     emptySpace.setVisible(false);
@@ -1054,6 +1057,12 @@ public class TabWorkflow extends JPanelWithEnablement {
     mu.add(p, btnSetDda);
     mu.add(p, btnSetDdaPlus);
     mu.add(p, btnSetDia).wrap();
+
+    mu.add(p, new JLabel("Set bioreplicates")).split();
+    mu.add(p, btnGroupsConsecutiveBioreplicate);
+    mu.add(p, btnSetRep);
+
+    mu.add(p, btnGroupsClear).gapLeft("300");
 
     UiText emptySpace2 = UiUtils.uiTextBuilder().cols(1).text("").create();
     emptySpace2.setVisible(false);
@@ -1079,7 +1088,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     });
     tableRawFiles = new LcmsInputFileTable(tableModelRawFiles);
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnFilesClear);
-    tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsConsecutive);
+    tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsConsecutiveExperiment);
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsConsecutiveBioreplicate);
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsByParentDir);
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsByFilename);
@@ -1376,10 +1385,10 @@ public class TabWorkflow extends JPanelWithEnablement {
 
     switch (m.type) {
 
-      case CONSECUTIVE:
-        this.actionConsecutive();
+      case CONSECUTIVE_EXP:
+        this.actionConsecutiveExperiment();
         break;
-      case CONSECUTIVE_BIOREPLICATE:
+      case CONSECUTIVE_REP:
         this.actionConsecutiveBioreplicate();
         break;
       case BY_PARENT_DIR:
@@ -1565,11 +1574,11 @@ public class TabWorkflow extends JPanelWithEnablement {
     }
   }
 
-  private void actionConsecutive() {
+  private void actionConsecutiveExperiment() {
     UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
     for (int i = 0, sz = m.dataSize(); i < sz; i++) {
       InputLcmsFile f = m.dataGet(i);
-      m.dataSet(i, new InputLcmsFile(f.getPath(), "exp", i + 1, f.getDataType()));
+      m.dataSet(i, new InputLcmsFile(f.getPath(), String.valueOf(i + 1), f.getReplicate(), f.getDataType()));
     }
   }
 
