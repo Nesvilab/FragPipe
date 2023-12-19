@@ -67,12 +67,12 @@ public class Version {
         "Add support for the new MSFragger-DDA+ search mode (introduced in MSFragger 4.0). Data acquired in DDA mode (including wide-window DDA data) can now be annotated as `DDA+` (Workflow tab). MSFragger will perform full isolation window search, identifying multiple co-fragmented peptides from chimeric DDA spectra. This mode significantly boosts the number of IDs compared to conventional DDA search. DDA+ mode is compatible with close search-based DDA workflows (e.g., Default, LFQ-MBR, etc.).",
         "Add support for the detailed mass offset search mode (introduced in MSFragger 4.0). Each specified mass offset can have their own modification sites, neutral losses, and diagnostic ions. The detailed mass offsets are loaded from an external file (MSFragger tab). A sample mass offset file (mass_offset_template.tsv file) is available in the FragPipe/tools folder.",
         "Add new workflow for DIA-based phosphoproteomics: `DIA_SpecLib_Quant_Phospho`. This workflow includes site localization analysis via PTMProphet. The site localization information is then propagated to the precursor-level quantification tables (additional columns with site localization added to the DIA-NN generated report.pr_matrix.tsv file).",
-        "In isobaric quantification workflows, switch to IonQuant for extraction of reporter ion intensities, MS1 intensities, and precursor purity calculation (Quant(Isobaric) tab). These steps were previously done using Philosopher LabelQuant and FreeQuant modules (now available as an option). As an additional benefit of using IonQuant, isobaric quantification workflows can now be used with Thermo’s RAW files (i.e., without first converting to mzML).",
+        "In isobaric quantification workflows, switch to IonQuant for extraction of reporter ion intensities, MS1 intensities, and precursor purity calculation (Quant(Isobaric) tab). These steps were previously done using Philosopher LabelQuant and FreeQuant modules (now available as an option). As an additional benefit of using IonQuant, isobaric quantification workflows can now be used with Thermo's RAW files (i.e., without first converting to mzML).",
         "Significantly improve the speed of spectral library building",
         "Significantly improve the timsTOF ddaPASEF .d folder loading speed",
         "Add new module for downstream analysis of FPOP data (Downstream tab)",
         "Add `MT16-ubiquitination-K_tmt_or_ubiq` and `TMT16-ubiquitination-K_tmt_plus_ubiq` workflows",
-        "Adjust parameters in DIA workflows for improved analysis of Thermo Fisher’s Astral narrow-window DIA data",
+        "Adjust parameters in DIA workflows for improved analysis of Thermo Fisher's Astral narrow-window DIA data",
         "Enable MSBooster and Percolator in the analysis of endogenous peptidome data (nonspecific_peptidome workflow).",
         "Add the DIA-NN executable file box (Config tab) to support custom (user-downloaded) DIA-NN versions. If the path is left empty, FragPipe uses the default DIA-NN version 1.8.2_beta_8 included in the FragPipe.",
         "Generate MSstats formatted output files in DIA workflows",
@@ -97,7 +97,7 @@ public class Version {
         "Upgrade PTMShepherd to 2.0.6",
         "Upgrade FragPipe-PDV to 1.1.5",
         "Upgrade O-Pair to 1.1.0",
-        "Upgrade TMT-Integrator to 5.0.5",
+        "Upgrade TMT-Integrator to 5.0.6",
         "Various bug fixes and improvements"
     ));
 
@@ -553,10 +553,9 @@ public class Version {
       final String zipUrlWithJre = String.format("%s/download/%s/%s", url, version, zipFnWithJre);
       String githubReleaseMessage =
           "## Downloading\n"
-          + "- The zip (<a href='" + zipUrl + "'>" + zipFn
-          + "</a>) doesn't contain Java, you will need Java 9+ to run.\n\n"
-          + "- The other zip with `-jre-` in its name (<a href='" + zipUrlWithJre + "'>"
-          + zipFnWithJre + "</a>) contains a Java runtime **for Windows only**.\n"
+          + "- The zip (<a href='" + zipUrl + "' target='_blank'>" + zipFn + "</a>) doesn't contain Java, you will need Java 9+ to run.\n"
+          + "- The other zip with `-jre-` in its name (<a href='" + zipUrlWithJre + "' target='_blank'>" + zipFnWithJre + "</a>) contains a Java runtime **for Windows only**.\n"
+          + "- The docker image is available at <a href='https://hub.docker.com/r/fcyucn/fragpipe' target='_blank'>https://hub.docker.com/r/fcyucn/fragpipe</a>\n"
           + "## Running\n"
           + "- Unzip the file\n"
           + "- In `/bin` subdirectory you will find a `shell script for Linux`, `bat file for Windows`, and an `exe file for Windows`\n"
