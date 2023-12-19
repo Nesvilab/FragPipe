@@ -35,16 +35,16 @@ public class LcmsInputFileTable extends SimpleETable {
           + "If blank, files from the same experiment will be combined.<br/>"
           + "Leave it blank if it is fractionated data.",
       "<html>Data types (DDA, DIA, DDA+, DIA-Quant, DIA-Lib).<br/>"
-          + "<b>DIA</b> is for wide window DIA.<br/>"
-          + "<b>DDA+</b> is a DDA chimera spectra closed search.<br/>"
-          + "<b>DIA-Quant</b> is for DIA quantification.<br/>"
-          + "<b>DIA-Lib</b> is for DIA spectral library generation.<br/>"
-          + "<b>DDA+/b> data type supports the Default, WWA, LFQ-MBR,<br/>"
-          + "LFQ-phospho, LFQ-ubiquitin, Nonspecific-HLA, Nonspecific-HLA-C57,<br/>"
-          + "Nonspecific-HLA-phospho, SILAC3, and SILAC3-phospho workflows"
-          + "Runs with <b>DDA</b>, <b>DDA+</b>, and <b>DIA</b> will be used in both identification and quantification.<br/>"
-          + "Runs with <b>DIA-Quant</b> will only be used in quantification.<br/>"
-          + "Runs with <b>DIA-Lib</b> will only be used in spectral library generation."};
+          + "<br>"
+          + "<b>DDA+:</b> DDA files, full isolation window (chimeric spectrum) search.<br/>"
+          + "This data type is compatible with DDA closed search workflows only<br/>"
+          + "(e.g. Default, LFQ-MBR, LFQ-phospho, Nonspecific-HLA, etc).<br>"
+          + "<b>DIA-Quant:</b> DIA files used for quantification only.<br/>"
+          + "<b>DIA-Lib:</b> DIA files used for spectral library generation only<br/>"
+          + "(e.g. GPF-DIA or DIA runs from \"boosting\" samples).<br/>"
+          + "<br>"
+          + "Analysis of diaPASEF data requires ddaPASEF data for building the spectral library.<br/>"
+  };
 
   public LcmsInputFileTable() {
     super();
