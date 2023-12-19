@@ -32,9 +32,9 @@ WORKDIR /root
 RUN mkdir tmp
 	
 # download and install fragPipe
-RUN wget https://github.com/Nesvilab/FragPipe/releases/download/20.0/FragPipe-20.0.zip -P fragPipe-20.0
-RUN unzip fragPipe-20.0/FragPipe-20.0.zip -d fragPipe-20.0
-RUN chmod -R 770 fragPipe-20.0
+RUN wget https://github.com/Nesvilab/FragPipe/releases/download/21.0/FragPipe-21.0.zip -P fragPipe-21.0
+RUN unzip fragPipe-21.0/FragPipe-21.0.zip -d fragPipe-21.0
+RUN chmod -R 770 fragPipe-21.0
 
 # set environment variables
 ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64/
