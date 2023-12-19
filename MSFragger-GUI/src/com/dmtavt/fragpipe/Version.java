@@ -94,10 +94,10 @@ public class Version {
         "Require EasyPQP 0.1.41+",
         "Upgrade MSBooster to 1.1.27",
         "Upgrade Percolator to 3.6.4",
-        "Upgrade PTMShepherd to 2.0.6-rc3",
+        "Upgrade PTMShepherd to 2.0.6",
         "Upgrade FragPipe-PDV to 1.1.5",
         "Upgrade O-Pair to 1.1-rc2",
-        "Upgrade TMT-Integrator to 5.0.3",
+        "Upgrade TMT-Integrator to 5.0.4",
         "Various bug fixes and improvements"
     ));
 
