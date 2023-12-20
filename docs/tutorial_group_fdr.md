@@ -31,6 +31,7 @@ Go to the `FDR Filter and Report` panel in the `Validation` tab, add the modific
 
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/group_fdr_4.png)
 
+Philosopher will create 3 groups: unmodified peptides, peptides with the specified modifications only, and all other modifications. In the above example, the specified modifications are oxidation and protein N-term acetylation. Then, FDR will be computed separately for 3 groups: unmodified, specified common modifications, and rare modifications that are not specified.
 
 <br>
 <br>
