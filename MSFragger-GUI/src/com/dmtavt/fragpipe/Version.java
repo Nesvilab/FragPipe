@@ -63,6 +63,18 @@ public class Version {
       new VersionComparator());
 
   static {
+    CHANGELOG.put("21.1", Arrays.asList(
+        "Fix a bug in TMT-Integrator that in the single/multi-site reports, the site, protein start, and protein end are off by 1",
+        "Fix a bug in MSBooster that using `,` as the decimal points in some regions",
+        "Require MSFragger 4.0+",
+        "Require Philosopher 5.1.0+",
+        "Require IonQuant 1.10.12+",
+        "Require Python 3.9",
+        "Require EasyPQP 0.1.41+",
+        "Upgrade MSBooster to 1.1.28",
+        "Upgrade TMT-Integrator to 5.0.7"
+    ));
+
     CHANGELOG.put("21.0", Arrays.asList(
         "Add support for the new MSFragger-DDA+ search mode (introduced in MSFragger 4.0). Data acquired in DDA mode (including wide-window DDA data) can now be annotated as `DDA+` (Workflow tab). MSFragger will perform full isolation window search, identifying multiple co-fragmented peptides from chimeric DDA spectra. This mode significantly boosts the number of IDs compared to conventional DDA search. DDA+ mode is compatible with close search-based DDA workflows (e.g., Default, LFQ-MBR, etc.).",
         "Add support for the detailed mass offset search mode (introduced in MSFragger 4.0). Each specified mass offset can have their own modification sites, neutral losses, and diagnostic ions. The detailed mass offsets are loaded from an external file (MSFragger tab). A sample mass offset file (mass_offset_template.tsv file) is available in the FragPipe/tools folder.",
@@ -558,9 +570,7 @@ public class Version {
           + "- The docker image is available at <a href='https://hub.docker.com/r/fcyucn/fragpipe' target='_blank'>https://hub.docker.com/r/fcyucn/fragpipe</a>\n"
           + "## Running\n"
           + "- Unzip the file\n"
-          + "- In `/bin` subdirectory you will find a `shell script for Linux`, `bat file for Windows`, and an `exe file for Windows`\n"
-          + "### Note to Windows users\n"
-          + "Windows 10 might show a UAC prompt, saying that this is not a trusted program, it's up to you whether to run it or not.\n";
+          + "- In `/bin` subdirectory you will find a `shell script for Linux`, `bat file for Windows`, and an `exe file for Windows`\n";
 
       System.out.println(githubReleaseMessage);
       System.out.println();
