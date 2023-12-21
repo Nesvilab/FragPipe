@@ -1,0 +1,7 @@
+# lines starting with '#' are ignored				
+# mass	allowed site(s)	diagnostic ions	peptide remainder ions	fragment remainder ions
+0				
+15.9949	MW			
+79.96633	ST			-18.01056
+79.96633	Y	216.043		79.96633
+203.07937	N	"204.087,186.076,168.066,138.055"	203.07937	203.07937

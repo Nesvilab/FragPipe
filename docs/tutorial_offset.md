@@ -1,17 +1,45 @@
 ### Offset search for PTMs with FragPipe
-Traditional closed search requires that precursor masses match the identified peptide within a small mass tolerance (e.g., +/-20 ppm), often with variable modifications allowed on only one or a few amino acid residues. In contrast, the open search strategy allows precursor masses to differ from the identified peptide by any mass within a large range (e.g., -100 to +150). Mass offset search is an intermediate strategy, allowing selected mass differences (within a tolerance, e.g. 20 ppm) on any peptide match, with no residue restriction (far right, below).
+Traditional closed search requires that precursor masses match the identified peptide within a small mass tolerance (e.g., +/-20 ppm), often with variable modifications allowed on only one or a few amino acid residues. In contrast, the open search strategy allows precursor masses to differ from the identified peptide by any mass within a large range (e.g., -100 to +150). Mass offset search is an intermediate strategy, allowing selected mass differences (within a tolerance, e.g. 20 ppm) on any peptide match (far right, below).
 
 <div align="center">
 <img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/closed-open-offset_search.png" width="600px" align="middle"/>
 </div>
 
-Parthenolide is a protein-reactive compound frequently used by cytoskeleton researchers to inhibit tubulin detyrosinases, but it is suspected to hit more than just those enzymes. Labeled peptides should have a +248.14125 Da mass shift, and we want to allow modification of any amino acid so we can learn more about parthenolide's specificity. This is a case for mass offset search.
+The key difference between mass offset (and open) searches vs closed search is that only one mass offset is allowed per peptide, whereas multiple variable modifications
+can be searched on a peptide. This prevents combinatorial expansion of the search space and allows searching for many masses (e.g., PTMs) at once. 
+
+### Types of Mass Offset Searches
+Mass offset searches in MSFragger can be done without restriction, allowing offsets on any amino acid in any peptide, or with offsets restricted to specific
+amino acid(s). Labile mode diagnostic and remainder ions can also be specified (see the [labile](https://fragpipe.nesvilab.org/docs/tutorial_labile.html) mode tutorial for more details). 
+
+There are 3 types of mass offset searches:
+* **Unrestricted**: the traditional mass offset search
+* **Restricted**: all offsets share the same restrictions (introducted in MSFragger v3.8)
+* **Restricted-detailed**: each offset has its own set of restrictions (introduced in MSFragger v4.0)
+
+**Unrestricted**: To perform a regular unrestricted offset search, enter the mass offset masses of interest in the mass offsets box on the MSFragger tab (box 1, below).
+
+**Restricted**: To perform a restricted offset search, enter the amino acid site(s) at which to allow mass offsets in the "Restrict delta mass to" box on the MSFragger
+tab (box 2, below). Note that ALL OFFSETS will have the same site restriction if multiple are entered. Labile mode ions can also be specified for offsets in the Glyco/labile Mods
+box below. NOTE: "Localize mass shift (LOS)" in the Open Search Options box must be checked for offsets to be localized to specific amino acids.  
+
+**Restricted-detailed**: To perform a detailed restricted offset search, check the "Use Detailed Mass Offsets" box (box 3, below). This will disable the regular mass offsets
+boxes 1 and 2, and enable the Load Offsets and Save Offsets buttons (4 and 5, below). Offsets can be loaded from a template file, which is a tab separated text file containing
+the offset mass, allowed amino acid(s), labile diagnostic ions, labile peptide remainder masses, and labile fragment remainder masses. Any field except mass can be left empty
+to ignore it. An example template file is shown below, and can be downloaded and used as a starting point. 
+
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/offsets_settings.png)
+<br>
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/offset_template_example.png)
+<br>
+[Example template file](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/offsets_example.tsv)
+
+### Example Mass Offset Search Tutorial
+An example walking through a traditional mass offset search is shown here. Parthenolide is a protein-reactive compound frequently used by cytoskeleton researchers to inhibit tubulin detyrosinases, but it is suspected to hit more than just those enzymes. Labeled peptides should have a +248.14125 Da mass shift, and we want to allow modification of any amino acid so we can learn more about parthenolide's specificity. This is a case for mass offset search.
 
 The samples we will use for this tutorial are purified tubulin treated with either DMSO (control) or parthenolide, download `PRF_Q_2019_R_OHI_51_47069.mzML` and `PRF_Q_2019_R_OHI_51_47070.mzML` from [PRIDE](https://www.ebi.ac.uk/pride/archive/projects/PXD020113). Citation: Hotta, Takashi, et al. "Parthenolide Destabilizes Microtubules by Covalently Modifying Tubulin." Current Biology 31.4 (2021): 900-907.
 
-
-
-##### Tutorial contents
+### Example contents
 * [Add the data](https://fragpipe.nesvilab.org/docs/tutorial_offset.html#add-the-data)
 * [Load the offset workflow](https://fragpipe.nesvilab.org/docs/tutorial_offset.html#load-the-offset-workflow)
 * [Fetch a sequence database](https://fragpipe.nesvilab.org/docs/tutorial_offset.html#fetch-a-sequence-database)
