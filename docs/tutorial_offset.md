@@ -30,6 +30,7 @@ to ignore it. An example template file is shown below, and can be downloaded and
 
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/offsets_settings.png)
 <br>
+Example detailed offset template file screenshot and link. Use "save link as" to download the example template file from the link below the image.  
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/offset_template_example.png)
 <br>
 [Example template file](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/offsets_example.tsv)
