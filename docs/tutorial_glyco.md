@@ -5,11 +5,17 @@ a variety of capabilities and options. Glyco searches use the following tools:
 * MSFragger-Glyco search: identifies candidate PSMs as a peptide sequence and total glycan mass
 * Philosopher: PSM/protein FDR, filters to confident peptide sequence identifications
 * PTM-Shepherd Glycan Composition Assignment: matches glycan mass to a single glycan composition with FDR control (not needed if using O-Pair)
-* O-Pair: localizes O-glycans (paired-scan data only)
+* O-Pair: localizes O-glycans
 
 There are several template glyco workflows (described in the [workflows](https://fragpipe.nesvilab.org/docs/tutorial_glyco.html#load-a-glyco-workflow) 
 section) for a variety of search types and instrument activation methods. This tutorial covers each step of the process starting
 from loading raw data to validation and quantation of the results.
+
+Glycoproteomics results are best viewed from the psm.tsv results files. If glycan composition assignment
+or O-Pair search have been performed, there will be glyco-specific columns in the psm.tsv, including the 
+Total Glycan Composition assigned. If only MSFragger search has been done, glycans will appear as masses
+in the Delta Mass column. Make sure you are looking in the right place for the glycans depending on the type
+of search performed! 
 
 ## Tutorial contents
 * [Load the data](https://fragpipe.nesvilab.org/docs/tutorial_glyco.html#load-the-data)
@@ -231,7 +237,7 @@ for a complete guide to the visualization tool, see the associated tutorial.
 - MSFragger localization column is the same as if using glycan assignment in PTM-Shepherd.
 
 *If using Glycan Assignment in PTM-Shepherd:*
-- Observed Modifications: contains the assigned glycan composition from PTM-Shepherd
+- Total Glycan Composition: contains the assigned glycan composition from PTM-Shepherd
 - Assigned Modifications: the mass and location glycan assigned will also be written to the Assigned Modifications column by PTM-Shepherd to enable processing by quant tools. 
 - Glycan Score: contains the score associated with the glycan composition (higher is better). Scores may be negative, particularly if using higher energy fragmentation that reduces the number of glycan fragment ions present.
 - Glycan q-value: contains the q-value (FDR) associated with the glycan assignment. Use this column to filter glycoPSMs to a desired FDR level (e.g., q < 0.01 for 1% FDR)
@@ -244,8 +250,8 @@ first allowed site will be used as the site for site-level quantitation.
 - Assigned Modifications: the mass and location of glycans found by O-Pair will be written to Assigned Modifications to allow for quantitation of glycopeptides. **NOTE: unlocalized glycans will be placed on the first available site**. Use the Confidence Level column to filter confidently localized glycans.
 - O-Pair Score: Localization score from O-Pair
 - Number of Glycans: Number of glycans on the peptide determined by O-Pair localization
-- Total Glycan Composition: Summed composition of all glycans present at all sites (H=Hex, N=HexNAc, A=NeuAc, etc.)
-- Glycan Site Composition(s): The compositions of individual glycans determined by O-Pair
+- Total Glycan Composition: Summed composition of all glycans present at all sites 
+- Glycan Site Composition(s): The compositions of individual glycans determined by O-Pair (H=Hex, N=HexNAc, A=NeuAc, etc.)
 - Confidence Level: Confidence in the localization for this PSM. Level 1 means all glycans localized, Level 1b means all glycans localized by process of elimination (rather than direct fragment ion evidence), Level 2 means some glycans localized but not all, Level 3 means no glycans localized. 
 - Site Probabilities: Each localized glycan is shown here in the format (position, composition, probability). Position refers to position in the peptide, composition is the monosaccharide makeup, and probability is the O-Pair localization probability for that glycan.
 - 138/144 Ratio: ratio of 138 to 144 oxonium ions, can be useful for distinguishing types of glycans
