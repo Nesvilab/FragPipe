@@ -18,12 +18,16 @@ Please note:
 * If iRT peptides were spiked-in to the samples, change the 'RT calibration' option on the 'Spec Lib' tab to 'iRT'. EasyPQP will use the [ciRT](https://www.mcponline.org/article/S1535-9476(20)32633-5/fulltext) option by default.
 * Skyline users may also choose to import interact-.pep.xml files into Skyline for spectral library building and further analysis of DIA experiments, see this [tutorial](https://fragpipe.nesvilab.org/docs/tutorial_skyline.html).
  
-<br>
+
+In this tutorial, We will analyse a subset of the dataset published in [Integrated Proteogenomic Characterization of Clear Cell Renal Cell Carcinoma](https://doi.org/10.1016/j.cell.2019.10.007). In the original studies, researchers from the CPTAC (Clinical Proteomic Tumor Analysis Consortium) profiled tumor (T) samples, together with normal adjacent tissue (NAT) samples from each cancer patient, to understand the tumorigenesis of ccRCC. 110 tumor and 83 NAT samples were
+collected from patients and their proteomes were profiled via mass spectrometry. These samples were originally profiled using: i) tandem mass tag (TMT), and ii) data-independent acquisition (DIA). The DIA set was generated on an Orbitrap Lumos mass spectrometer with a variable window acquisition scheme. 
+
+Here, we will use just 10 DIA runs from 5 ccRCC patients, one tumor and one paired NAT sample for each patient. To make the data processing faster, we will use only data in two isolation windows (613 to 650 Th mass range) from each original mzML file. The files can be downloaded from [here](https://www.dropbox.com/scl/fo/zpd2rxlh6uzg0ewyhqtir/h?rlkey=25fgtzhckw9q8adu12kd7mjnp&dl=1).
+
 
 ### Configure FragPipe
 Python (with EasyPQP installed) is needed for spectral library generation. On the Config tab, check that a valid Python path is provided (Python version will be shown) and that EasyPQP is 'Available'. If Python is installed but EasyPQP is missing, click the 'Install/Upgrade EasyPQP' button and wait a minute or so for installation. For help installing Python, see [this page](https://fragpipe.nesvilab.org/docs/tutorial_setup_fragpipe.html#optional-install-update-or-use-an-already-installed-version-of-python).
 
-<br>
 
 ### DIA_SpecLib_Quant
 1. In the Workflow tab, select the 'DIA_SpecLib_Quant' workflow from the dropdown menu and click 'Load'.
@@ -45,7 +49,6 @@ Python (with EasyPQP installed) is needed for spectral library generation. On th
 5. On the 'Run' tab, set the output directory and click 'Run'.
 
 
-<br>
 
 ### DIA_DIA-Umpire_SpecLib_Quant
 
@@ -63,20 +66,14 @@ Follow the same steps as above to run the 'DIA_DIA-Umpire_SpecLib_Quant' workflo
 
 The tutorial file can be found from [here](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/docs/Tutorial-5-DIA-Fragpipe.pdf). 
 
-The mzML ans FASTA files can be downloaded from [here](https://www.dropbox.com/scl/fo/zpd2rxlh6uzg0ewyhqtir/h?rlkey=25fgtzhckw9q8adu12kd7mjnp&dl=1).
 
-<br>
-<br>
-
-
-#### Key References
+### Key References
 Yu F, Teo GC, Kong AT, Fröhlich K, Li GX, Demichev V, Nesvizhskii AI. [Analysis of DIA proteomics data using MSFragger-DIA and FragPipe computational platform](https://doi.org/10.1038/s41467-023-39869-5), Nature Communications 14:4154 (2023).
 
 Tsou CC, Avtonomov D, Larsen B, Tucholska M, Choi H, Gingras AC, Nesvizhskii AI. [DIA-Umpire: comprehensive computational framework for data-independent acquisition proteomics](https://doi.org/10.1021/acs.analchem.9b04418), Nature Methods 12:258-64 (2015).
 
 Demichev V, Szyrwiel L, Yu F, Teo GC, Rosenberger G, Niewienda A, Ludwig D, Decker J, Kaspar-Schoenefeld S, Lilley KS, Mülleder M, Nesvizhskii AI, Ralser M. [dia-PASEF data analysis using FragPipe and DIA-NN for deep proteomics of low sample amounts](https://doi.org/10.1038/s41467-022-31492-0), Nature Communications 13:3944 (2022).
 
-<br>
-<br>
+
 
 #### [Back to FragPipe homepage](https://fragpipe.nesvilab.org/)
