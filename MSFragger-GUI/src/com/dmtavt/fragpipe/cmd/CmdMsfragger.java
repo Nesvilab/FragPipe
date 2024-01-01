@@ -384,15 +384,6 @@ public class CmdMsfragger extends CmdBase {
       return false;
     }
 
-    if ((hasDia || hasGpfDia || hasDiaLib) && !isRunDiaU && params.getNumEnzymeTermini() == CleavageType.NONSPECIFIC) {
-      if (Fragpipe.headless) {
-        log.error("MSFragger cannot perform nonspecific search for DIA, GPF-DIA, or DIA-Lib data. Please enable DIA-Umpire instead.");
-      } else {
-        JOptionPane.showMessageDialog(comp, "MSFragger cannot perform nonspecific search for DIA, GPF-DIA, or DIA-Lib data.\nPlease enable DIA-Umpire instead.", "Error", JOptionPane.ERROR_MESSAGE);
-      }
-      return false;
-    }
-
     // localize delta mass is required for fragment remainder ions (relevant in labile modes only)
     if (!params.getLabileSearchMode().equals(MsfraggerParams.GLYCO_OPTION_off)) {
       if (params.getRemainderMasses().length() > 0 && !params.getShiftedIons()) {
