@@ -149,7 +149,7 @@ public class RewritePepxml {
               }
 
               if (correctRaw == null) {
-                System.err.printf("Didn't find correct mapping for raw file path in pepxml: %s", origPath);
+                System.err.printf("Didn't find correct mapping for raw file path in pepxml: %s\n", origPath);
                 System.exit(1);
               }
 
