@@ -449,6 +449,10 @@ public class TabMsfragger extends JPanelBase {
     return MASS_DIFF_TO_VAR_MOD_MAP[uiComboMassDiffToVariableMod.getSelectedIndex()];
   }
 
+  public boolean isLocalizeDeltaMass() {
+    return SwingUtils.isEnabledAndChecked(uiCheckLocalizeDeltaMass);
+  }
+
   private static void actionChangeMassMode(ItemEvent e) {
     if (e.getStateChange() == ItemEvent.SELECTED) {
 

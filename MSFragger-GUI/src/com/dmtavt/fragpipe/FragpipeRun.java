@@ -23,6 +23,7 @@ import static com.dmtavt.fragpipe.tabs.TabWorkflow.manifestExt;
 import static com.dmtavt.fragpipe.tabs.TabWorkflow.workflowExt;
 import static com.dmtavt.fragpipe.tools.diann.DiannPanel.NEW_VERSION;
 import static com.github.chhh.utils.FileDelete.deleteFileOrFolder;
+import static com.github.chhh.utils.SwingUtils.wrapInScrollForDialog;
 
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.IConfig;
@@ -1241,6 +1242,20 @@ public class FragpipeRun {
       if (cmdMsfragger.isRun()) {
         if (!cmdMsfragger.configure(parent, isDryRun, jarPath, binMsfragger, fastaFile, tabMsf.getParams(), tabMsf.getNumDbSlices(), ramGb, sharedLcmsFiles, decoyTag, tabWorkflow.hasDataType("DDA"), tabWorkflow.hasDataType("DIA"), tabWorkflow.hasDataType("GPF-DIA"), tabWorkflow.hasDataType("DIA-Lib"), tabWorkflow.hasDataType("DDA+"), cmdUmpire.isRun(), tabRun.isWriteSubMzml())) {
           return false;
+        }
+
+        if (!tabMsf.isLocalizeDeltaMass() && (tabMsf.isMassOffsetSearch() || tabMsf.isOpenSearch())) {
+          if (Fragpipe.headless) {
+            log.error("Mass-offset or open search with 'Localize mass shift (LOS)` was disabled. It is recommended to enable 'Localize mass shift (LOS)`.");
+          } else {
+            int confirmCreation = SwingUtils.showChoiceDialog(parent, "Warning",
+                wrapInScrollForDialog(new JLabel("<html>Mass-offset or open search with <b>Localize mass shift (LOS)</b> disabled.<br>"
+                + "It is recommended to enable it.<br><br>"
+                + "Do you want to continue?")), new String[]{"Yes", "No"}, 1);
+            if (confirmCreation == JOptionPane.NO_OPTION) {
+              return false;
+            }
+          }
         }
 
         String warn = Fragpipe.propsVarGet(ThisAppProps.PROP_MGF_WARNING, Boolean.TRUE.toString());
