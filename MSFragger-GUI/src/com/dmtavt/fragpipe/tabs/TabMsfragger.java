@@ -423,6 +423,10 @@ public class TabMsfragger extends JPanelBase {
   }
 
   public boolean isMassOffsetSearch() {
+    if (SwingUtils.isEnabledAndChecked(uiCheckMassOffsetFile)) {
+      return true;
+    }
+
     Object selected = uiComboPrecursorTolUnits.getSelectedItem();
     if (selected == null || StringUtils.isNullOrWhitespace((String) selected)) {
       return false;
