@@ -19,6 +19,7 @@ package com.dmtavt.fragpipe.tabs;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
+import com.dmtavt.fragpipe.tools.mbg.MBGPanel;
 import com.dmtavt.fragpipe.dialogs.GlycanModEditDialog;
 import com.dmtavt.fragpipe.dialogs.GlycanResidueEditDialog;
 import umich.ms.glyco.*;
@@ -54,6 +55,7 @@ public class TabGlyco extends JPanelWithEnablement {
     private OPairPanel panelOPair;
     private PTMSGlycanAssignPanel panelGlycanAssign;
     private JPanel panelLoadGlycans;
+    private MBGPanel panelMBG;
     private static final Logger log = LoggerFactory.getLogger(TabGlyco.class);
     private UiText textLoadGlycans;
     private UiCombo uiComboLoadBuiltinGlycans;
@@ -80,10 +82,12 @@ public class TabGlyco extends JPanelWithEnablement {
         panelLoadGlycans = createPanelLoadGlycans();
         panelGlycanAssign = new PTMSGlycanAssignPanel();
         panelOPair = new OPairPanel();
+        panelMBG = new MBGPanel();
 
         mu.add(this, panelLoadGlycans).spanX().growX().wrap();
         mu.add(this, panelGlycanAssign).spanX().growX().wrap();
         mu.add(this, panelOPair).spanX().growX().wrap();
+        mu.add(this, panelMBG).spanX().growX().wrap();
     }
 
     private void initMore() {
