@@ -1244,7 +1244,7 @@ public class FragpipeRun {
           return false;
         }
 
-        if (!tabMsf.isLocalizeDeltaMass() && (tabMsf.isMassOffsetSearch() || tabMsf.isOpenSearch())) {
+        if (!tabMsf.isLocalizeDeltaMass() && (tabMsf.isMassOffsetSearch() || tabMsf.isOpenSearch()) && !tabWorkflow.hasDataType("DIA") && !tabWorkflow.hasDataType("GPF-DIA") && !tabWorkflow.hasDataType("DDA+")) {
           if (Fragpipe.headless) {
             log.error("Mass-offset or open search with 'Localize mass shift (LOS)` was disabled. It is recommended to enable 'Localize mass shift (LOS)`.");
           } else {
