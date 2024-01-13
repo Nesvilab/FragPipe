@@ -363,7 +363,7 @@ def replace_prot_list(sh: bytes, prot_list: typing.List[Prot]) -> bytes:
 	sh = re.compile(b'<alternative_protein.*(?:\n<alternative_protein.*)*').sub(b'', sh)
 	sh = re.compile(b'num_tot_proteins="(.+?)"').sub(f'num_tot_proteins="{len(prot_list)}"'.encode(), sh)
 	search_hit_tag, rest = sh.split(b'\n', 1)
-	return search_hit_tag + b'\n' + altprot.encode() + rest
+	return search_hit_tag + b'\n' + altprot.encode() + b'\n' + rest
 
 
 def write_pepxml(infile: pathlib.Path) -> None:
