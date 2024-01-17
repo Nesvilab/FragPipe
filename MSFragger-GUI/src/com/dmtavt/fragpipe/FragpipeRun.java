@@ -43,6 +43,7 @@ import com.dmtavt.fragpipe.cmd.CmdFreequant;
 import com.dmtavt.fragpipe.cmd.CmdIonquant;
 import com.dmtavt.fragpipe.cmd.CmdIprophet;
 import com.dmtavt.fragpipe.cmd.CmdLabelquant;
+import com.dmtavt.fragpipe.cmd.CmdMBGCleanup;
 import com.dmtavt.fragpipe.cmd.CmdMBGMatch;
 import com.dmtavt.fragpipe.cmd.CmdMSBooster;
 import com.dmtavt.fragpipe.cmd.CmdMsfragger;
@@ -1672,12 +1673,23 @@ public class FragpipeRun {
       return true;
     });
 
+    // match-between-glycans (aka glycoform inference) - first part
     MBGPanel mbgPanel = Fragpipe.getStickyStrict(MBGPanel.class);
     final CmdMBGMatch cmdMBGMatch = new CmdMBGMatch(mbgPanel.isRun(), wd);
     addConfig.accept(cmdMBGMatch, () -> {
       cmdMBGMatch.setRun(cmdMBGMatch.isRun() && !sharedMapGroupsToProtxml.isEmpty());
       if (cmdMBGMatch.isRun()) {
         return cmdMBGMatch.configure(parent, wd, sharedMapGroupsToProtxml, mbgPanel.getMBGParams(), isDryRun, tabMsf.isWriteCalMzml() && tabMsf.getMassCalibration() > 0, threads);
+      }
+      return true;
+    });
+
+    // match-between-glycans cleanup (run after quant)
+    final CmdMBGCleanup cmdMBGCleanup = new CmdMBGCleanup(mbgPanel.isRun(), wd);
+    addConfig.accept(cmdMBGCleanup, () -> {
+      cmdMBGCleanup.setRun(cmdMBGCleanup.isRun() && !sharedMapGroupsToProtxml.isEmpty());
+      if (cmdMBGCleanup.isRun()) {
+        return cmdMBGCleanup.configure(parent, wd, sharedMapGroupsToProtxml, mbgPanel.getMBGParams(), isDryRun, tabMsf.isWriteCalMzml() && tabMsf.getMassCalibration() > 0, threads);
       }
       return true;
     });
@@ -2125,6 +2137,7 @@ public class FragpipeRun {
     addToGraph(graphOrder, cmdAppendFile, DIRECTION.IN, cmdPtmshepherd);
     addToGraph(graphOrder, cmdMBGMatch, DIRECTION.IN, cmdPhilosopherReport, cmdPhilosopherAbacus, cmdPtmshepherd, cmdOPair);
     addToGraph(graphOrder, cmdIonquant, DIRECTION.IN, cmdPhilosopherReport, cmdPhilosopherAbacus, cmdPtmshepherd, cmdMBGMatch);
+    addToGraph(graphOrder, cmdMBGCleanup, DIRECTION.IN, cmdIonquant, cmdPhilosopherReport, cmdPhilosopherAbacus, cmdPtmshepherd, cmdOPair);
     addToGraph(graphOrder, cmdTmtIonquant, DIRECTION.IN, cmdPhilosopherReport, cmdPhilosopherAbacus, cmdPtmshepherd);
     addToGraph(graphOrder, cmdTmtIonquantIsobaric, DIRECTION.IN, cmdPhilosopherReport, cmdPhilosopherAbacus, cmdPtmshepherd, cmdIonquant);
     addToGraph(graphOrder, cmdTmt, DIRECTION.IN, cmdPhilosopherReport, cmdTmtFreequant, cmdTmtLabelQuant, cmdPhilosopherAbacus, cmdPtmshepherd, cmdTmtIonquant, cmdTmtIonquantIsobaric);
