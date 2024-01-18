@@ -43,6 +43,7 @@ import com.dmtavt.fragpipe.messages.MessageMsfraggerUpdateAvailable;
 import com.dmtavt.fragpipe.messages.MessagePhilosopherNewBin;
 import com.dmtavt.fragpipe.messages.MessagePythonNewBin;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
+import com.dmtavt.fragpipe.messages.MessageSkylineNewBin;
 import com.dmtavt.fragpipe.messages.MessageUiRevalidate;
 import com.dmtavt.fragpipe.messages.NoteConfigDbsplit;
 import com.dmtavt.fragpipe.messages.NoteConfigDiann;
@@ -50,6 +51,7 @@ import com.dmtavt.fragpipe.messages.NoteConfigIonQuant;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.dmtavt.fragpipe.messages.NoteConfigPython;
+import com.dmtavt.fragpipe.messages.NoteConfigSkyline;
 import com.dmtavt.fragpipe.messages.NoteConfigSpeclibgen;
 import com.dmtavt.fragpipe.messages.NoteFragpipeUpdate;
 import com.dmtavt.fragpipe.params.ThisAppProps;
@@ -61,6 +63,7 @@ import com.dmtavt.fragpipe.tools.ionquant.IonQuant;
 import com.dmtavt.fragpipe.tools.ionquant.IonQuantVersionFetcherServer;
 import com.dmtavt.fragpipe.tools.philosopher.Philosopher;
 import com.dmtavt.fragpipe.tools.philosopher.Philosopher.UpdateInfo;
+import com.dmtavt.fragpipe.tools.skyline.Skyline;
 import com.dmtavt.fragpipe.util.GitHubJson;
 import com.github.chhh.utils.JarUtils;
 import com.github.chhh.utils.OsUtils;
@@ -91,6 +94,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -117,6 +121,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
@@ -148,8 +153,10 @@ public class TabConfig extends JPanelWithEnablement {
   private HtmlStyledJEditorPane epIonQuantVer;
   private UiText uiTextBinPhi;
   private UiText uiTextBinDiann;
+  private UiText uiTextBinSkyline;
   private HtmlStyledJEditorPane epPhiVer;
   private HtmlStyledJEditorPane epDiannVer;
+  private HtmlStyledJEditorPane epSkylineVer;
   private UiText uiTextBinPython;
   private HtmlStyledJEditorPane epPythonVer;
   private HtmlStyledJEditorPane epDbsplitText;
@@ -162,6 +169,7 @@ public class TabConfig extends JPanelWithEnablement {
   public static final String TIP_IONQUANT_BIN = "tip.ionquant.bin";
   public static final String TIP_PHILOSOPHER_BIN = "tip.pholosopher.bin";
   public static final String TIP_DIANN_BIN = "tip.diann.bin";
+  public static final String TIP_SKYLINE_BIN = "tip.skyline.bin";
   public static final String TIP_PYTHON_BIN = "tip.python.bin";
   private static final String TIP_DBSPLIT = "tip.dbsplit";
   private static final String TIP_SPECLIBGEN = "tip.speclibgen";
@@ -202,6 +210,7 @@ public class TabConfig extends JPanelWithEnablement {
     add(createPanelIonQuant(), new CC().growX().wrap());
     add(createPanelPhilosopher(), new CC().growX().wrap());
     add(createPanelDiann(), new CC().growX().wrap());
+    add(createPanelSkyline(), new CC().growX().wrap());
     add(createPanelPython(), new CC().growX().wrap());
     add(createPanelDbsplit(), new CC().growX().wrap());
     add(createPanelSpeclibgen(), new CC().growX().wrap());
@@ -574,6 +583,26 @@ public class TabConfig extends JPanelWithEnablement {
     }
   }
 
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(MessageSkylineNewBin m) {
+    if (StringUtils.isBlank(m.path) || !Files.exists(Paths.get(m.path.replaceAll("\"", "")))) {
+      Bus.postSticky(new NoteConfigSkyline(new NullPointerException("Skyline path is null.")));
+      return;
+    }
+
+    if (m.path.contains(" ") && !m.path.startsWith("\"") && !m.path.endsWith("\"")) {
+      m.path = "\"" + m.path + "\"";
+    }
+
+    try {
+      Skyline.Version v = Skyline.validate(m.path);
+      Bus.postSticky(new NoteConfigSkyline(m.path, v.version, null, true));
+    } catch (Exception e) {
+      e.printStackTrace();
+      Bus.postSticky(new NoteConfigSkyline(e));
+    }
+  }
+
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteConfigPhilosopher m) {
     log.debug("Got {}", m);
@@ -613,6 +642,32 @@ public class TabConfig extends JPanelWithEnablement {
     } else {
       epDiannVer.setText("DIA-NN version: " + m.version);
       Notifications.tryClose(TIP_DIANN_BIN);
+    }
+  }
+
+  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(NoteConfigSkyline m) {
+    log.debug("Got {}", m);
+    uiTextBinSkyline.setText(m.path);
+
+    Path existing = PathUtils.existing(m.path);
+    if (existing != null) {
+      Fragpipe.propsVarSet(ThisAppProps.PROP_BINARIES_IN, existing.toString());
+    }
+
+    if (m.ex != null) {
+      epSkylineVer.setText("Skyline version: N/A");
+      TabRun tabRun = Bus.getStickyEvent(TabRun.class);
+      if (tabRun != null) {
+        tabRun.btnOpenSkyline.setEnabled(false);
+      }
+    } else {
+      epSkylineVer.setText("Skyline version: " + m.version);
+      TabRun tabRun = Bus.getStickyEvent(TabRun.class);
+      if (tabRun != null) {
+        tabRun.btnOpenSkyline.setEnabled(true);
+      }
+      Notifications.tryClose(TIP_SKYLINE_BIN);
     }
   }
 
@@ -826,6 +881,12 @@ public class TabConfig extends JPanelWithEnablement {
         Bus.post(new MessageDiannNewBin(binDiann));
       } else {
         Bus.post(new MessageDiannNewBin());
+      }
+      String binSkyline = uiTextBinSkyline.getNonGhostText();
+      if (StringUtils.isNotBlank(binSkyline)) {
+        Bus.post(new MessageSkylineNewBin(binSkyline));
+      } else {
+        Bus.post(new MessageSkylineNewBin());
       }
       String binPython = uiTextBinPython.getNonGhostText();
       if (StringUtils.isNotBlank(binPython)) {
@@ -1091,6 +1152,31 @@ public class TabConfig extends JPanelWithEnablement {
     return p;
   }
 
+  private JPanel createPanelSkyline() {
+    JPanel p = newMigPanel();
+    p.setBorder(new TitledBorder("Skyline (optional)"));
+
+    final String tip = "Select path to SkylineCmd.exe";
+    uiTextBinSkyline = UiUtils.uiTextBuilder().create();
+    uiTextBinSkyline.addFocusListener(new ContentChangedFocusAdapter(uiTextBinSkyline, (s, s2) -> {
+      Bus.post(new MessageSkylineNewBin(s2));
+    }));
+    FormEntry feBin = fe(uiTextBinSkyline, "bin-skyline", TAB_PREFIX).tooltip(tip).create();
+    p.add(feBin.comp, ccL().split().growX());
+
+    JButton btnBrowse = feBin.browseButton("Browse", tip, this::createSkylineFilechooser, paths -> paths.stream().findFirst().ifPresent(bin -> Bus.post(new MessageSkylineNewBin(bin.toString()))));
+    p.add(btnBrowse, ccL());
+    JButton btnDownload = UiUtils.createButton("Download", this::actionSkylineDownload);
+    p.add(btnDownload, ccL().wrap());
+
+    p.add(SwingUtils.createClickableHtml("Path to SkylineCmd.exe."), ccL().spanX().growX().wrap());
+
+    epSkylineVer = new HtmlStyledJEditorPane("Skyline version: N/A");
+    p.add(Fragpipe.rename(epSkylineVer, "skyline.version-info", TAB_PREFIX, true), ccL().split());
+    p.add(SwingUtils.createClickableHtml(createSkylineCitationBody()), ccL().spanX().growX().wrap());
+    return p;
+  }
+
   private JPanel createPanelPython() {
     JPanel p = newMigPanel();
     p.setBorder(new TitledBorder("Python"));
@@ -1256,6 +1342,25 @@ public class TabConfig extends JPanelWithEnablement {
     return fc;
   }
 
+  private JFileChooser createSkylineFilechooser() {
+    FileFilter filter = new FileFilter() {
+      public boolean accept(File file) {
+        if (file.isDirectory()) {
+          return true;
+        }
+        return file.getName().equals("SkylineCmd.exe");
+      }
+      public String getDescription() {
+        return "SkylineCmd.exe";
+      }
+    };
+
+    JFileChooser fc = FileChooserUtils.create("Select SkylineCmd.exe", "Select", false, FcMode.FILES_ONLY, true);
+    fc.setFileFilter(filter);
+    FileChooserUtils.setPath(fc, System.getenv("ProgramFiles"));
+    return fc;
+  }
+
   private JFileChooser createPythonFilechooser() {
     JFileChooser fc = FileChooserUtils.create("Select Python " + pythonMinVersion + "+ binary", "Select",
         false, FcMode.FILES_ONLY, true);
@@ -1297,6 +1402,12 @@ public class TabConfig extends JPanelWithEnablement {
     return sb.toString();
   }
 
+  private String createSkylineCitationBody() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("&emsp;More info and docs: <a href=\"https://skyline.ms/project/home/software/Skyline/begin.view\">Skyline</a>");
+    return sb.toString();
+  }
+
   private void actionPhilosopherDownload(ActionEvent e) {
     int choice = SwingUtils.showChoiceDialog(TabConfig.this, "Choose download type", "Do you want to download automatically?\nIf you choose \"Manually\", you will be redirected to the download website.", new String[]{"Automatically", "Manually", "Cancel"}, 0);
     switch (choice) {
@@ -1318,5 +1429,9 @@ public class TabConfig extends JPanelWithEnablement {
 
   private void actionDiannDownload(ActionEvent e) {
     Diann.downloadDiannManually();
+  }
+
+  private void actionSkylineDownload(ActionEvent e) {
+    Skyline.downloadSkylineManually();
   }
 }
