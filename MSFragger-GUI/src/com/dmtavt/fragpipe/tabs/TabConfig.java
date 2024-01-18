@@ -1252,7 +1252,7 @@ public class TabConfig extends JPanelWithEnablement {
     if (OsUtils.isWindows()) {
       fc.addChoosableFileFilter(new FileNameExtensionFilter("Executables", "exe"));
     }
-    FileChooserUtils.setPath(fc, Stream.of(uiTextBinPhi.getNonGhostText(), Fragpipe.propsVarGet(ThisAppProps.PROP_BINARIES_IN), JarUtils.getCurrentJarPath()));
+    FileChooserUtils.setPath(fc, Stream.of(uiTextBinDiann.getNonGhostText(), Fragpipe.propsVarGet(ThisAppProps.PROP_BINARIES_IN), JarUtils.getCurrentJarPath()));
     return fc;
   }
 

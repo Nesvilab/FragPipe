@@ -94,7 +94,7 @@ public class Diann {
     try {
       Desktop.getDesktop().browse(URI.create(DOWNLOAD_GITHUB_PAGE_URL));
     } catch (IOException ex) {
-      log.error("Error opening browser to download philosopher", ex);
+      log.error("Error opening browser to download DIA-NN", ex);
       SwingUtils.showErrorDialogWithStacktrace(ex, null);
     }
   }
