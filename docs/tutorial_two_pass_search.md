@@ -1,11 +1,11 @@
-## Perform two-pass search to analyze variant peptides
+## Perform two-pass search to analyze novel peptides and PTMs
 
 ##### [FragPipe](https://fragpipe.nesvilab.org) can be downloaded [here](https://github.com/Nesvilab/FragPipe/releases). Follow the instructions on that same Releases page to launch the program. See [here](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html#configure-fragpipe) for help configuring FragPipe.
 
-FragPipe has the ability to perform the "two-pass search" to detect novel/variant peptides semi-automatically. It performs the following three steps.
-1. Perform the first search to identify the canonical peptides
-2. Generate new "sub mzML" files by excluding the scans matching to the canonical peptides
-3. Perform the second search to identify the novel/variant peptides
+FragPipe has the ability to perform the "two-pass search" to detect novel peptides and PTMs semi-automatically. It performs the following three steps.
+1. Perform the first search to identify the canonical peptides and/or common PTMs
+2. Generate new "sub mzML" files by excluding the scans having good matches
+3. Perform the second search to identify the novel peptides and/or PTMs
 
 #### Common issues of two-pass search approaches due to the limited high-quality scans in the second search
 1. The spectra are not mass calibrated or the mass calibration does not work well
@@ -15,7 +15,10 @@ FragPipe has the ability to perform the "two-pass search" to detect novel/varian
 1. performs mass calibration in the first search, and then generates sub mzML files using the calibrated spectra
 2. writes the Percolator models (`*_percolator.weights` files) to the result directory after the first search. These models will be used in the second search.
 
-The two-pass search approach supports the `Default`, `LFQ-MBR`, and TMT-related workflows.
+##### _An alternaive approach to analyze novel/variant peptides_
+FragPipe can also perform group FDR estimation for the peptides with different levels of evidences. Please check [Perform group FDR estimation for different identification groups](https://fragpipe.nesvilab.org/docs/tutorial_group_fdr.html) for details.
+
+### The two-pass search approach supports the `Default`, `LFQ-MBR`, and TMT-related workflows.
 
 ### Perform two-pass search for the label-free quantification data
 1. Load the `LFQ-MBR` workflow in the `Workflow` tab
