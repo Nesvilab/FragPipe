@@ -115,9 +115,7 @@ public class CmdPercolator extends CmdBase {
     PeptideProphetParams percolatorParams = new PeptideProphetParams();
     percolatorParams.setCmdLineParams(percolatorCmd);
 
-    // check for existing pepxml files and delete them
-    final Map<InputLcmsFile, List<Path>> outputs = outputs(pepxmlFiles, "pepxml", combine);
-    final Set<Path> forDeletion = findOldFilesForDeletion(outputs);
+    final Set<Path> forDeletion = findOldFilesForDeletion(wd);
     if (!deleteFiles(comp, forDeletion, "pep.xml")) {
       return false;
     }
