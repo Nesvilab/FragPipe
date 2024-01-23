@@ -138,7 +138,7 @@ public class DiannToMsstats {
               bufferedWriter.write(row[proteinGroupColumn].trim() + "," +
                   row[modifiedSequenceColumn].trim() + "," +
                   row[precursorChargeColumn].trim() + "," +
-                  matcher.group(1) + "," +
+                  matcher.group(1).replace("-unknown", "") + "," +
                   matcher.group(2) + ",L," +
                   conditionBioreplicate[0] + "," +
                   conditionBioreplicate[1] + "," +
