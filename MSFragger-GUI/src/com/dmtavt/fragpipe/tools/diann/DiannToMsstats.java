@@ -23,6 +23,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.io.FilenameUtils;
@@ -31,6 +32,7 @@ import org.apache.commons.io.FilenameUtils;
 public class DiannToMsstats {
 
   private static final Pattern pattern = Pattern.compile("([\\w-]+)\\^(\\d+)\\/([\\d.]+)");
+  private static final Pattern pattern2 = Pattern.compile("([A-Z]+):([\\d.-]+)"); // Do not extract N/C-term modifications.
 
   public static void main(String[] args) {
     long startTime = System.nanoTime();
@@ -58,7 +60,7 @@ public class DiannToMsstats {
 
   public DiannToMsstats(String diannPath, String msstatsPath, float globalProteinFdrT, float runProteinFdrT, float globalPrecursorFdrT, float runPrecursorFdrT, Map<String, String[]> runConditionBioreplicateMap) throws Exception {
     BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(msstatsPath));
-    bufferedWriter.write("ProteinName,PeptideSequence,PrecursorCharge,FragmentIon,ProductCharge,IsotopeLabelType,Condition,BioReplicate,Run,Intensity\n");
+    bufferedWriter.write("ProteinName,PeptideSequence,PrecursorCharge,FragmentIon,ProductCharge,IsotopeLabelType,Condition,BioReplicate,Run,Intensity");
 
     String line;
     int runColumn = -1;
@@ -71,6 +73,8 @@ public class DiannToMsstats {
     int globalPgQValueColumn = -1;
     int fragmentQuantRawColumn = -1;
     int fragmentInfoColumn = -1;
+    Map<String, Integer> modificationColumnIdxMap = new TreeMap<>();
+
     BufferedReader bufferedReader = new BufferedReader(new FileReader(diannPath));
     while ((line = bufferedReader.readLine()) != null) {
       line = line.trim();
@@ -97,8 +101,21 @@ public class DiannToMsstats {
             fragmentQuantRawColumn = i;
           } else if (header[i].trim().equalsIgnoreCase("fragment.info")) {
             fragmentInfoColumn = i;
+          } else {
+            Matcher matcher = pattern2.matcher(header[i].trim());
+            if (matcher.matches()) {
+              modificationColumnIdxMap.put(header[i].trim(), i);
+            }
           }
         }
+
+        if (!modificationColumnIdxMap.isEmpty()) {
+          for (Map.Entry<String, Integer> entry : modificationColumnIdxMap.entrySet()) {
+            bufferedWriter.write("," + entry.getKey());
+          }
+        }
+
+        bufferedWriter.write("\n");
       } else {
         if (runColumn == -1 ||
             proteinGroupColumn == -1 ||
@@ -143,7 +160,21 @@ public class DiannToMsstats {
                   conditionBioreplicate[0] + "," +
                   conditionBioreplicate[1] + "," +
                   run + "," +
-                  fragmentIntensitySplit[i] + "\n");
+                  fragmentIntensitySplit[i]);
+
+              if (!modificationColumnIdxMap.isEmpty()) {
+                for (Map.Entry<String, Integer> entry : modificationColumnIdxMap.entrySet()) {
+                  int idx = entry.getValue();
+                  bufferedWriter.write(",");
+                  if (idx < row.length && row[idx] != null && !row[idx].trim().isEmpty()) {
+                    bufferedWriter.write(row[entry.getValue()].trim());
+                  } else {
+                    bufferedWriter.write("NA");
+                  }
+                }
+              }
+
+              bufferedWriter.write("\n");
             } else {
               throw new RuntimeException("Could not parse fragment info: " + fragmentInfoSplit[i]);
             }
