@@ -172,7 +172,7 @@ public class CmdSpecLibGen extends CmdBase {
               fragment_types.replace("'", "\\'"),
               speclibPanel.hasNeutralLoss() ? "--enable_unspecific_losses " : "",
               speclibPanel.isConvertPSM() ? "--decoy_prefix " + decoyTag + " ": "",
-              speclibPanel.useLabileMode() ? "--labile_mods True" : "--labile_mods False")));   // EasyPQP convert args
+              speclibPanel.getEasypqpGlycoOption().isEmpty() ? "" : "--labile_mods " + speclibPanel.getEasypqpGlycoOption())));   // EasyPQP convert args
 
       cmd.add(OsUtils.asSingleArgument(String.format("--rt_lowess_fraction %s", rt_lowess_fraction))); // EasyPQP library args
 
