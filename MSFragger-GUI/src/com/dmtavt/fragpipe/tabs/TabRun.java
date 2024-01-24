@@ -337,10 +337,12 @@ public class TabRun extends JPanelWithEnablement {
         TreeSet<String> lcmsFiles = new TreeSet<>();
         TreeSet<Path> pepxmlFiles = new TreeSet<>();
         float probThreshold = 0.8f;
+        List<String> cmd = new ArrayList<>();
 
         try {
           pf.load();
 
+          String dataType = "None";
           String line;
           BufferedReader reader = Files.newBufferedReader(wd.resolve("fragpipe-files.fp-manifest"));
           while ((line = reader.readLine()) != null) {
@@ -348,7 +350,11 @@ public class TabRun extends JPanelWithEnablement {
             if (line.isEmpty()) {
               continue;
             }
-            lcmsFiles.add(line.split("\t")[0]);
+            String[] parts = line.split("\t");
+            lcmsFiles.add(parts[0]);
+            if (parts[3].contains("DIA")) {
+              dataType = "DIA";
+            }
           }
           reader.close();
 
@@ -368,80 +374,87 @@ public class TabRun extends JPanelWithEnablement {
 
           pepxmlFiles = Files.walk(wd).filter(p -> p.getFileName().toString().startsWith("interact-") && p.getFileName().toString().endsWith(".pep.xml")).collect(Collectors.toCollection(TreeSet::new));
           speclibFiles = Files.walk(wd).filter(p -> p.getFileName().toString().endsWith(".speclib")).collect(Collectors.toList());
+
+          Path pp = wd.resolve("filelist_skyline.txt");
+
+          BufferedWriter writer = Files.newBufferedWriter(pp);
+          writer.write("--overwrite ");
+          writer.write("--new=fragpipe.sky ");
+          writer.write("--import-search-add-mods ");
+          writer.write("--full-scan-acquisition-method=" + dataType + " ");
+
+          if (speclibFiles.isEmpty()) {
+            writer.write("--import-search-cutoff-score=" + probThreshold + " ");
+            for (Path p : pepxmlFiles) {
+              writer.write("--import-search-file=" + p.toAbsolutePath() + " ");
+            }
+          } else {
+            writer.write("--import-search-cutoff-score=0.01 ");
+            writer.write("--import-search-file=" + speclibFiles.get(0).toAbsolutePath() + " ");
+          }
+
+          writer.write("--pep-max-missed-cleavages=" + pf.getProperty("msfragger.allowed_missed_cleavage_1") + " ");
+          writer.write("--pep-min-length=" + pf.getProperty("msfragger.digest_min_length") + " ");
+          writer.write("--pep-max-length=" + pf.getProperty("msfragger.digest_max_length") + " ");
+          writer.write("--pep-exclude-nterminal-aas=0 ");
+          writer.write("--tran-precursor-ion-charges=\"2,3,4,5,6\" ");
+          writer.write("--tran-product-ion-charges=\"1,2\" ");
+          writer.write("--tran-product-ion-types=\"y,b,p\" ");
+          writer.write("--tran-product-start-ion=\"ion 3\" ");
+          writer.write("--tran-product-end-ion=\"last ion\" ");
+          writer.write("--tran-product-clear-special-ions ");
+          if (pf.getProperty("msfragger.fragment_mass_units").contentEquals("1")) {
+            writer.write("--library-match-tolerance=" + pf.getProperty("msfragger.fragment_mass_tolerance") + "ppm ");
+          } else {
+            writer.write("--library-match-tolerance=" + pf.getProperty("msfragger.fragment_mass_tolerance") + "mz ");
+          }
+          writer.write("--library-product-ions=12 ");
+          writer.write("--library-min-product-ions=" + pf.getProperty("msfragger.min_matched_fragments") + " ");
+          writer.write("--library-pick-product-ions=filter ");
+          writer.write("--full-scan-precursor-analyzer=centroided ");
+          writer.write("--full-scan-precursor-isotopes=Count ");
+          writer.write("--full-scan-precursor-threshold=3 ");
+          writer.write("--full-scan-product-analyzer=centroided ");
+
+          if (pf.getProperty("msfragger.precursor_true_units").contentEquals("1")) {
+            writer.write("--full-scan-precursor-res=" + pf.getProperty("msfragger.precursor_true_tolerance") + " ");
+          } else {
+            writer.write("--full-scan-precursor-res=" + (Float.parseFloat(pf.getProperty("msfragger.precursor_true_tolerance")) * 1000) + " ");
+          }
+
+          if (pf.getProperty("msfragger.fragment_mass_units").contentEquals("1")) {
+            writer.write("--full-scan-product-res=" + pf.getProperty("msfragger.fragment_mass_units") + " ");
+          } else {
+            writer.write("--full-scan-product-res=" + (Float.parseFloat(pf.getProperty("msfragger.fragment_mass_units")) * 1000) + " ");
+          }
+
+          writer.write("--full-scan-rt-filter=ms2_ids ");
+          writer.write("--full-scan-rt-filter-tolerance=2 ");
+          writer.write("--instrument-min-mz=50 ");
+          writer.write("--instrument-max-mz=2000 ");
+          writer.write("--full-scan-precursor-isotopes=Count ");
+          writer.write("--full-scan-isolation-scheme=\"Results only\" ");
+          for (String s : lcmsFiles) {
+            writer.write("--import-file=" + s + " ");
+          }
+          writer.write("--import-search-exclude-library-sources ");
+          writer.write("--import-fasta=" + wd.resolve("protein.fas") + " ");
+          writer.write("--associate-proteins-shared-peptides=DuplicatedBetweenProteins ");
+
+          writer.close();
+
+          cmd.add(skylinePath);
+          cmd.add("--timestamp");
+          cmd.add("--dir=" + wd.toAbsolutePath());
+          cmd.add("--batch-commands=" + pp.toAbsolutePath());
+
+          toConsole("Executing: " + String.join(" ", cmd), console);
         } catch (Exception ex) {
           toConsole(Color.red, ExceptionUtils.getStackTrace(ex), true, console);
           btnOpenSkyline.setEnabled(true);
           return;
         }
 
-        List<String> cmd = new ArrayList<>();
-        cmd.add(skylinePath);
-        cmd.add("--timestamp");
-        cmd.add("--dir=" + wd.toAbsolutePath());
-        cmd.add("--overwrite");
-        cmd.add("--new=fragpipe.sky");
-        cmd.add("--import-search-add-mods");
-        cmd.add("--full-scan-acquisition-method=DIA"); // todo: what about DDA data?
-
-        if (speclibFiles.isEmpty()) {
-          cmd.add("--import-search-cutoff-score=" + probThreshold);
-          for (Path p : pepxmlFiles) {
-            cmd.add("--import-search-file=" + p.toAbsolutePath());
-          }
-        } else {
-          cmd.add("--import-search-cutoff-score=0.01");
-          cmd.add("--import-search-file=" + speclibFiles.get(0).toAbsolutePath());
-        }
-
-        cmd.add("--pep-max-missed-cleavages=" + pf.getProperty("msfragger.allowed_missed_cleavage_1"));
-        cmd.add("--pep-min-length=" + pf.getProperty("msfragger.digest_min_length"));
-        cmd.add("--pep-max-length=" + pf.getProperty("msfragger.digest_max_length"));
-        cmd.add("--pep-exclude-nterminal-aas=0");
-        cmd.add("--tran-precursor-ion-charges=2,3,4,5,6");
-        cmd.add("--tran-product-ion-charges=1,2");
-        cmd.add("--tran-product-ion-types=y,b,p");
-        cmd.add("--tran-product-start-ion=ion 3");
-        cmd.add("--tran-product-end-ion=last ion");
-        cmd.add("--tran-product-clear-special-ions");
-        if (pf.getProperty("msfragger.fragment_mass_units").contentEquals("1")) {
-          cmd.add("--library-match-tolerance=" + pf.getProperty("msfragger.fragment_mass_tolerance") + "ppm");
-        } else {
-          cmd.add("--library-match-tolerance=" + pf.getProperty("msfragger.fragment_mass_tolerance") + "Da"); // todo: check if Da is the correct value. Check if using the fragment tolerance is correct.
-        }
-        cmd.add("--library-product-ions=12");
-        cmd.add("--library-min-product-ions=" + pf.getProperty("msfragger.min_matched_fragments"));
-        cmd.add("--library-pick-product-ions=filter");
-        cmd.add("--full-scan-precursor-analyzer=centroided");
-        cmd.add("--full-scan-precursor-isotopes=Count");
-        cmd.add("--full-scan-precursor-threshold=3");
-        cmd.add("--full-scan-product-analyzer=centroided");
-
-        if (pf.getProperty("msfragger.precursor_true_units").contentEquals("1")) {
-          cmd.add("--full-scan-precursor-res=" + pf.getProperty("msfragger.precursor_true_tolerance"));
-        } else {
-          cmd.add("--full-scan-precursor-res=" + (Float.parseFloat(pf.getProperty("msfragger.precursor_true_tolerance")) * 1000));
-        }
-
-        if (pf.getProperty("msfragger.fragment_mass_units").contentEquals("1")) {
-          cmd.add("--full-scan-product-res=" + pf.getProperty("msfragger.fragment_mass_units"));
-        } else {
-          cmd.add("--full-scan-product-res=" + (Float.parseFloat(pf.getProperty("msfragger.fragment_mass_units")) * 1000));
-        }
-
-        cmd.add("--full-scan-rt-filter=ms2_ids");
-        cmd.add("--full-scan-rt-filter-tolerance=2");
-        cmd.add("--instrument-min-mz=50");
-        cmd.add("--instrument-max-mz=2000");
-        cmd.add("--full-scan-precursor-isotopes=Count");
-        cmd.add("--full-scan-isolation-scheme=Results only");
-        for (String s : lcmsFiles) {
-          cmd.add("--import-file=" + s);
-        }
-        cmd.add("--import-search-exclude-library-sources");
-        cmd.add("--import-fasta=" + pf.getProperty("database.db-path"));
-        cmd.add("--associate-proteins-shared-peptides=DuplicatedBetweenProteins");
-
-        toConsole("Executing: " + String.join(" ", cmd), console);
         skylineThread = new Thread(() -> {
           try {
             btnOpenSkyline.setEnabled(false);
