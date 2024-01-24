@@ -38,7 +38,7 @@ public class DiannToMsstats {
     long startTime = System.nanoTime();
 
     try {
-      String manifestPath = args[6].trim();
+      String manifestPath = args[7].trim();
       Map<String, String[]> runConditionBioreplicateMap = new HashMap<>();
       String line;
       BufferedReader bufferedReader = new BufferedReader(new FileReader(manifestPath));
@@ -49,7 +49,7 @@ public class DiannToMsstats {
       }
       bufferedReader.close();
 
-      new DiannToMsstats(args[0], args[1], Float.parseFloat(args[2]), Float.parseFloat(args[3]), Float.parseFloat(args[4]), Float.parseFloat(args[5]), runConditionBioreplicateMap);
+      new DiannToMsstats(args[0], args[1], args[2], Float.parseFloat(args[3]), Float.parseFloat(args[4]), Float.parseFloat(args[5]), Float.parseFloat(args[6]), runConditionBioreplicateMap);
     } catch (Exception ex) {
       ex.printStackTrace();
       System.exit(1);
@@ -58,13 +58,53 @@ public class DiannToMsstats {
     System.out.printf("Done in %.2f seconds.\n", (System.nanoTime() - startTime) * 1e-9);
   }
 
-  public DiannToMsstats(String diannPath, String msstatsPath, float globalProteinFdrT, float runProteinFdrT, float globalPrecursorFdrT, float runPrecursorFdrT, Map<String, String[]> runConditionBioreplicateMap) throws Exception {
-    BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(msstatsPath));
-    bufferedWriter.write("ProteinName,PeptideSequence,PrecursorCharge,FragmentIon,ProductCharge,IsotopeLabelType,Condition,BioReplicate,Run,Intensity");
+  public DiannToMsstats(String diannPath, String msstatsPath, String psmPath, float globalProteinFdrT, float runProteinFdrT, float globalPrecursorFdrT, float runPrecursorFdrT, Map<String, String[]> runConditionBioreplicateMap) throws Exception {
+    Map<String, int[]> peptideStartEntryMap = new HashMap<>();
 
     String line;
+
+    int peptideColumn = -1;
+    int startColumn = -1;
+    int endColumn = -1;
+    BufferedReader bufferedReader = new BufferedReader(new FileReader(psmPath));
+    while ((line = bufferedReader.readLine()) != null) {
+      line = line.trim();
+      if (line.isEmpty()) {
+        continue;
+      }
+      if (line.startsWith("Spectrum\tSpectrum File\t")) {
+        String[] header = line.split("\t");
+        for (int i = 0; i < header.length; ++i) {
+          if (header[i].trim().equalsIgnoreCase("Peptide")) {
+            peptideColumn = i;
+          } else if (header[i].trim().equalsIgnoreCase("Protein Start")) {
+            startColumn = i;
+          } else if (header[i].trim().equalsIgnoreCase("Protein End")) {
+            endColumn = i;
+          }
+        }
+      } else {
+        if (peptideColumn == -1 || startColumn == -1 || endColumn == -1) {
+          throw new RuntimeException("Could not find all the required columns in the PSM file: " + psmPath);
+        }
+
+        String[] split = line.split("\t");
+        String peptide = split[peptideColumn].trim();
+        int start = Integer.parseInt(split[startColumn]);
+        int end = Integer.parseInt(split[endColumn]);
+        if (!peptideStartEntryMap.containsKey(peptide)) {
+          peptideStartEntryMap.put(peptide, new int[]{start, end});
+        }
+      }
+    }
+    bufferedReader.close();
+
+    BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(msstatsPath));
+    bufferedWriter.write("ProteinName,PeptideSequence,Protein.Start,Protein.End,PrecursorCharge,FragmentIon,ProductCharge,IsotopeLabelType,Condition,BioReplicate,Run,Intensity");
+
     int runColumn = -1;
     int proteinGroupColumn = -1;
+    int strippedSequenceColumn = -1;
     int modifiedSequenceColumn = -1;
     int precursorChargeColumn = -1;
     int qValueColumn = -1;
@@ -75,7 +115,7 @@ public class DiannToMsstats {
     int fragmentInfoColumn = -1;
     Map<String, Integer> modificationColumnIdxMap = new TreeMap<>();
 
-    BufferedReader bufferedReader = new BufferedReader(new FileReader(diannPath));
+    bufferedReader = new BufferedReader(new FileReader(diannPath));
     while ((line = bufferedReader.readLine()) != null) {
       line = line.trim();
       if (line.startsWith("File.Name\t")) {
@@ -85,6 +125,8 @@ public class DiannToMsstats {
             runColumn = i;
           } else if (header[i].trim().equalsIgnoreCase("protein.group")) {
             proteinGroupColumn = i;
+          } else if (header[i].trim().equalsIgnoreCase("stripped.sequence")) {
+            strippedSequenceColumn = i;
           } else if (header[i].trim().equalsIgnoreCase("modified.sequence")) {
             modifiedSequenceColumn = i;
           } else if (header[i].trim().equalsIgnoreCase("precursor.charge")) {
@@ -119,6 +161,7 @@ public class DiannToMsstats {
       } else {
         if (runColumn == -1 ||
             proteinGroupColumn == -1 ||
+            strippedSequenceColumn == -1 ||
             modifiedSequenceColumn == -1 ||
             precursorChargeColumn == -1 ||
             qValueColumn == -1 ||
@@ -146,6 +189,12 @@ public class DiannToMsstats {
             throw new RuntimeException("There are different number of fragment quant and fragment info: " + fragmentInfo + " vs " + fragmentIntensity);
           }
 
+          int[] startEnd = peptideStartEntryMap.get(row[strippedSequenceColumn].trim());
+
+          if (startEnd == null) {
+            throw new RuntimeException("Could not find the peptide in the PSM file: " + row[strippedSequenceColumn].trim());
+          }
+
           for (int i = 0; i < fragmentInfoSplit.length; ++i) {
             if (Math.abs(Float.parseFloat(fragmentIntensitySplit[i])) < 0.0001f) {
               continue;
@@ -154,9 +203,11 @@ public class DiannToMsstats {
             if (matcher.matches()) {
               bufferedWriter.write(row[proteinGroupColumn].trim() + "," +
                   row[modifiedSequenceColumn].trim() + "," +
+                  startEnd[0] + "," +
+                  startEnd[1] + "," +
                   row[precursorChargeColumn].trim() + "," +
                   matcher.group(1).replace("-unknown", "") + "," +
-                  matcher.group(2) + ",L," +
+                  matcher.group(2) + ",L," + // todo: support plexDIA
                   conditionBioreplicate[0] + "," +
                   conditionBioreplicate[1] + "," +
                   run + "," +

@@ -42,7 +42,7 @@ public class DiannToMsstatsTest {
     t.put("run1", new String[]{"a", "1"});
     t.put("run2", new String[]{"b", "2"});
 
-    new DiannToMsstats(diannPath.toAbsolutePath().toString(), diannPath.getParent().resolve("msstats.csv").toAbsolutePath().toString(), 0.01f, 0.01f, 0.01f, 0.01f, t);
+    new DiannToMsstats(diannPath.toAbsolutePath().toString(), diannPath.getParent().resolve("msstats.csv").toAbsolutePath().toString(), diannPath.getParent().resolve("psm.tsv").toAbsolutePath().toString(), 0.01f, 0.01f, 0.01f, 0.01f, t);
 
     BufferedReader brExpected = new BufferedReader(Files.newBufferedReader(diannPath.getParent().resolve("msstats_expected.csv")));
     BufferedReader brActual = new BufferedReader(Files.newBufferedReader(diannPath.getParent().resolve("msstats.csv")));
@@ -54,7 +54,7 @@ public class DiannToMsstatsTest {
       assertEquals(a.length, b.length);
 
       for (int i = 0; i < a.length; ++i) {
-        if (i == 9 && !a[i].equalsIgnoreCase("intensity") && !b[i].equalsIgnoreCase("intensity")) {
+        if (i == 11 && !a[i].equalsIgnoreCase("intensity") && !b[i].equalsIgnoreCase("intensity")) {
           assertEquals(Float.parseFloat(a[i]), Float.parseFloat(b[i]), 0.1f);
         } else {
           assertEquals(a[i], b[i]);
