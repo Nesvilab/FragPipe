@@ -647,7 +647,7 @@ public class FragpipeRun {
               try {
                 Path ppp = wd.resolve("diann-output");
                 if (Files.exists(ppp) && Files.isDirectory(ppp)) {
-                  Files.move(p, ppp.resolve(p.getFileName()));
+                  Files.move(p, ppp.resolve("report.tsv.speclib"));
                 }
               } catch (Exception ignored) {}
             });
