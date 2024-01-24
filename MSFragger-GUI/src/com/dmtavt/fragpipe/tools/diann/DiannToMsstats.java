@@ -32,7 +32,7 @@ import org.apache.commons.io.FilenameUtils;
 public class DiannToMsstats {
 
   private static final Pattern pattern = Pattern.compile("([\\w-]+)\\^(\\d+)\\/([\\d.]+)");
-  private static final Pattern pattern2 = Pattern.compile("([A-Z]+):([\\d.-]+)"); // Do not extract N/C-term modifications.
+  private static final Pattern pattern2 = Pattern.compile("([ncA-Z]+):([\\d.-]+)");
 
   public static void main(String[] args) {
     long startTime = System.nanoTime();

@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 
 public class Localization {
 
-  private static final Pattern pattern = Pattern.compile("([A-Z]+):([\\d.-]+)"); // Do not extract N/C-term modifications.
+  private static final Pattern pattern = Pattern.compile("([ncA-Z]+):([\\d.-]+)");
 
   private final UnimodOboReader unimodOboReader;
 
@@ -107,7 +107,7 @@ public class Localization {
             chargeColumnIdx = i;
           } else {
             Matcher matcher = pattern.matcher(parts[i].trim());
-            if (matcher.matches() && !parts[i].trim().startsWith("M:15.99")) {
+            if (matcher.matches()) {
               modificationColumnIdxMap.put(parts[i].trim(), i);
             }
           }
