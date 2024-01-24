@@ -469,8 +469,9 @@ public class TabRun extends JPanelWithEnablement {
             if (exitValue != 0) {
               String errStr = pr.appendErr(pr.pollStdErr());
               toConsole(Color.red, "Process " + pb + " returned non zero value. Message:\n" + (errStr == null ? "" : errStr), true, console);
+            } else {
+              toConsole("DONE! The Skyline files locate in " + wd.toAbsolutePath(), console);
             }
-            toConsole("DONE! The Skyline files locate in " + wd.toAbsolutePath(), console);
           } catch (Exception ex) {
             toConsole(Color.red, ExceptionUtils.getStackTrace(ex), true, console);
             if (skylineProcess != null) {
