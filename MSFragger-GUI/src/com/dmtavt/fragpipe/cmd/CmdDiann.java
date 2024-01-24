@@ -404,7 +404,7 @@ public class CmdDiann extends CmdBase {
       cmd.add(classpath);
       cmd.add(DiannToMsstats.class.getCanonicalName());
       cmd.add("report.tsv");
-      cmd.add("msstats.csv");
+      cmd.add("./");
       cmd.add(wd.resolve("psm.tsv").toAbsolutePath().toString());
       cmd.add(String.valueOf(qvalue));
       if (useRunSpecificProteinQvalue) {

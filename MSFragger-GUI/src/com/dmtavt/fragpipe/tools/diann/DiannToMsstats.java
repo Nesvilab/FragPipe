@@ -58,7 +58,7 @@ public class DiannToMsstats {
     System.out.printf("Done in %.2f seconds.\n", (System.nanoTime() - startTime) * 1e-9);
   }
 
-  public DiannToMsstats(String diannPath, String msstatsPath, String psmPath, float globalProteinFdrT, float runProteinFdrT, float globalPrecursorFdrT, float runPrecursorFdrT, Map<String, String[]> runConditionBioreplicateMap) throws Exception {
+  public DiannToMsstats(String diannPath, String workdir, String psmPath, float globalProteinFdrT, float runProteinFdrT, float globalPrecursorFdrT, float runPrecursorFdrT, Map<String, String[]> runConditionBioreplicateMap) throws Exception {
     Map<String, int[]> peptideStartEntryMap = new HashMap<>();
 
     String line;
@@ -99,7 +99,13 @@ public class DiannToMsstats {
     }
     bufferedReader.close();
 
-    BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(msstatsPath));
+    write(workdir, diannPath, globalProteinFdrT, runProteinFdrT, globalPrecursorFdrT, runPrecursorFdrT, runConditionBioreplicateMap, peptideStartEntryMap, false);
+    write(workdir, diannPath, globalProteinFdrT, runProteinFdrT, globalPrecursorFdrT, runPrecursorFdrT, runConditionBioreplicateMap, peptideStartEntryMap, true);
+  }
+
+  private void write(String workdir, String diannPath, float globalProteinFdrT, float runProteinFdrT, float globalPrecursorFdrT, float runPrecursorFdrT, Map<String, String[]> runConditionBioreplicateMap, Map<String, int[]> peptideStartEntryMap, boolean isMSstatsPTM) throws Exception {
+    String line;
+    BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(workdir + "/msstats" + (isMSstatsPTM ? "_ptm" : "") + ".csv"));
     bufferedWriter.write("ProteinName,PeptideSequence,Protein.Start,Protein.End,PrecursorCharge,FragmentIon,ProductCharge,IsotopeLabelType,Condition,BioReplicate,Run,Intensity");
 
     int runColumn = -1;
@@ -115,7 +121,7 @@ public class DiannToMsstats {
     int fragmentInfoColumn = -1;
     Map<String, Integer> modificationColumnIdxMap = new TreeMap<>();
 
-    bufferedReader = new BufferedReader(new FileReader(diannPath));
+    BufferedReader bufferedReader = new BufferedReader(new FileReader(diannPath));
     while ((line = bufferedReader.readLine()) != null) {
       line = line.trim();
       if (line.startsWith("File.Name\t")) {
@@ -143,7 +149,7 @@ public class DiannToMsstats {
             fragmentQuantRawColumn = i;
           } else if (header[i].trim().equalsIgnoreCase("fragment.info")) {
             fragmentInfoColumn = i;
-          } else {
+          } else if (isMSstatsPTM) {
             Matcher matcher = pattern2.matcher(header[i].trim());
             if (matcher.matches()) {
               modificationColumnIdxMap.put(header[i].trim(), i);
