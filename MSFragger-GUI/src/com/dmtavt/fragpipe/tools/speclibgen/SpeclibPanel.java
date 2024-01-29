@@ -87,6 +87,7 @@ public class SpeclibPanel extends JPanelBase {
   private JCheckBox uiCheckNeutralLoss;
   private UiCombo uiComboGlycoMode;
   private JCheckBox uiCheckConvertPsmtsv;
+  private JCheckBox checkIgnoreUnannotated;
   private JPanel panelEasypqp;
   public static final String EASYPQP_TIMSTOF = "timsTOF";
   public static final String EASYPQP_EXTRAS_PREFIX = "easypqp.extras.";
@@ -272,6 +273,9 @@ public class SpeclibPanel extends JPanelBase {
     uiCheckNeutralLoss = new UiCheck("neutral loss", null, false);
     FormEntry feNeutralLoss = mu.feb(uiCheckNeutralLoss).name("easypqp.neutral_loss").label("neutral loss").tooltip("Add neutral loss fragments to the spectral library.").create();
 
+    checkIgnoreUnannotated = new UiCheck("Ignore non-Unimod", null, false);
+    FormEntry feIgnoreUnannotated = mu.feb(checkIgnoreUnannotated).name("easypqp.ignore_unannotated").label("Ignore non-Unimod").tooltip("Remove PSMs not matching Unimod from input files prior to library building.\nCan make Skyline import easier (e.g., for glyco)").create();
+
     uiComboGlycoMode = UiUtils.createUiCombo(Arrays.asList("Regular (not glyco)", "O-glyco", "N-glyco", "N-glyco+HexNAc"));
     String glycoTooltip = "Labile glyco search modes:\n" +
             "Regular = standard, non-glyco search (all modifications included intact on fragment ions in the library)\n" +
@@ -303,11 +307,12 @@ public class SpeclibPanel extends JPanelBase {
     mu.add(p, feFragmentTypeC.comp);
     mu.add(p, feFragmentTypeX.comp);
     mu.add(p, feFragmentTypeY.comp);
-    mu.add(p, feFragmentTypeZ.comp).wrap();
+    mu.add(p, feFragmentTypeZ.comp);
+    mu.add(p, feNeutralLoss.comp).wrap();
 
     mu.add(p, fe_max_delta_unimod.label(), mu.ccR());
     mu.add(p, fe_max_delta_unimod.comp).split();
-    mu.add(p, feNeutralLoss.comp).gapLeft("127").alignX("right").wrap();
+    mu.add(p, checkIgnoreUnannotated).gapLeft("35").wrap();
 
     mu.add(p, fe_max_delta_ppm.label(), mu.ccR());
     mu.add(p, fe_max_delta_ppm.comp).wrap();
@@ -482,6 +487,9 @@ public class SpeclibPanel extends JPanelBase {
 
   public boolean hasNeutralLoss() {
     return uiCheckNeutralLoss.isSelected();
+  }
+  public boolean getEasyPQPignoreUnannotatedOption() {
+    return checkIgnoreUnannotated.isSelected();
   }
   public boolean isConvertPSM() {
     return uiCheckConvertPsmtsv.isSelected();
