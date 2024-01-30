@@ -99,7 +99,8 @@ For other tools developed by Nesvizhskii lab, visit our website
 - **Mac OS** (command line interface only):
   - Install docker by following the [instruction](https://docs.docker.com/desktop/install/mac-install/)
   - Open terminal and pull the docker image by running `docker pull fcyucn/fragpipe`
-  - Execute the `fragpipe --headless` in the terminal
+  - FragPipe is located in `/fragpipe_bin`
+  - Go to `/fragpipe_bin/fragPipe-x.x/fragpipe/bin` directory and execute `./fragpipe --help` in the terminal
  
 #### Integration
 FragPipe is open source and the output is currently supported by the following software projects:
