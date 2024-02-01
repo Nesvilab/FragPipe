@@ -127,20 +127,17 @@ ionquant.maxlfq::true <=> 1
 ionquant.uniqueness::unique+razor <=> 0
 ionquant.uniqueness::unique only <=> 1
 
-# ionquant.mztol :: M/Z window (ppm) <=> 10 (1 - 1000, step: 1)
-# ionquant.imtol :: IM window (1/k0) <=> 0.05 (0.001 - 0.5, step: 0.001)
-# ionquant.rttol :: RT window (minutes) <=> 0.4 (0.01 - 100, step: 0.1)
-#
-# ionquant.threads:: <take from the Threads>
-# ionquant.psm :: <take from Philosopher's psm.tsv. Check implementation in the old FragPipe>
-# ionquant.multidir :: <take from multiple experimental settings. Check implementation in the old sFragPipe>
-#
-# ionquant.mbrrttol:: MBR RT window (minutes) <=> 1.0  (0.01 - 100, step: 0.1)
-# ionquant.mbrimtol :: MBR IM window (1/k0) <=> 0.05 (0.001 - 0.5, step: 0.001)
-# ionquant.mbrtoprun :: MBR top runs <=> 10 (1 - a very large number, step: 1)
-# ionquant.mbrmincorr :: MBR min correlation <=> 0.5 (0 - 1, step: 0.1)
-# ionquant.ionfdr :: MBR ion FDR <=> 0.01 (0.001 - 1, step: 0.01)
-# ionquant.peptidefdr :: MBR peptide FDR <=> 1 (0.001 - 1, step: 0.01)
-# ionquant.proteinfdr :: MBR protein FDR <=> 1 (0.001 - 1, step: 0.01)
-#
-# ionquant.label :: Labels <=> <string>
+msbooster.rt-model::DIA-NN <=> DIA-NN
+msbooster.rt-model::DeepLC HeLa HF <=> Deeplc_hela_hf
+msbooster.rt-model::AlphaPept RT Generic <=> AlphaPept_rt_generic
+msbooster.rt-model::Prosit 2019 iRT <=> Prosit_2019_irt
+msbooster.rt-model::Prosit 2020 iRT TMT <=> Prosit_2020_irt_TMT
+msbooster.spectra-model::DIA-NN <=> DIA-NN
+msbooster.spectra-model::MS2PIP 2021 HCD <=> ms2pip_2021_hcd
+msbooster.spectra-model::AlphaPept MS2 Generic <=> AlphaPept_ms2_generic
+msbooster.spectra-model::Prosit 2019 Intensity <=> Prosit_2019_intensity
+msbooster.spectra-model::Prosit 2023 Intensity timsTOF <=> Prosit_2023_intensity_timsTOF
+msbooster.spectra-model::Prosit 2020 Intensity CID <=> Prosit_2020_intensity_CID
+msbooster.spectra-model::Prosit 2020 Intensity TMT <=> Prosit_2020_intensity_TMT
+msbooster.spectra-model::Prosit 2020 Intensity HCD <=> Prosit_2020_intensity_HCD
+

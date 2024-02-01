@@ -47,7 +47,7 @@ public class CmdMSBooster extends CmdBase {
 
   private static final Logger log = LoggerFactory.getLogger(CmdMSBooster.class);
   public static String NAME = "MSBooster";
-  public static final String JAR_MSBOOSTER_NAME = "msbooster-1.1.28.jar";
+  public static final String JAR_MSBOOSTER_NAME = "msbooster-1.2.1.jar";
   public static final String JAR_MSBOOSTER_MAIN_CLASS = "Features.MainClass";
   private static final String[] JAR_DEPS = {BATMASS_IO_JAR};
   private static final Pattern pattern1 = Pattern.compile("\\.pepXML$");
@@ -72,7 +72,7 @@ public class CmdMSBooster extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, int ramGb, int threads, Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml, boolean predictRT, boolean predictSpectra, boolean useCorrelatedFeatures, boolean hasDda, boolean hasDia, boolean hasGpfDia, boolean hasDiaLib, boolean hasDdaPlus, boolean isRunDiaU, boolean isOpenSearch) {
+  public boolean configure(Component comp, int ramGb, int threads, Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml, boolean predictRT, boolean predictSpectra, boolean useCorrelatedFeatures, boolean hasDda, boolean hasDia, boolean hasGpfDia, boolean hasDiaLib, boolean hasDdaPlus, boolean isRunDiaU, boolean isOpenSearch, String rtModel, String spectraModel) {
     initPreConfig();
 
     // MSBooster does not compatible with open search and mass-offset search.
@@ -117,6 +117,8 @@ public class CmdMSBooster extends CmdBase {
         bufferedWriter.write("useSpectra = " + (predictSpectra ? "true" : "false") + "\n");
         bufferedWriter.write("fragger = " + fraggerParams + "\n");
         bufferedWriter.write("deletePreds = false\n"); // FragPipe-PDV need the prediction files.
+        bufferedWriter.write("rtModel = " + rtModel + "\n");
+        bufferedWriter.write("spectraModel = " + spectraModel + "\n");
 
         // compute unique lcms file directories
         bufferedWriter.write("mzmlDirectory = ");
