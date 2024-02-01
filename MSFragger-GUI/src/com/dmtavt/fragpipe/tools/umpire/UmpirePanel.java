@@ -164,6 +164,7 @@ public class UmpirePanel extends JPanelBase {
     icon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/dmtavt/fragpipe/icons/dia-umpire-16x16.png")));
 
     this.setLayout(new MigLayout(new LC().flowY().fillX()));
+    this.setBorder(new TitledBorder("DIA-Umpire"));
 
     LC lc = new LC();//.debug();
 

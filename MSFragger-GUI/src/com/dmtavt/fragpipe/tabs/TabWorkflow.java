@@ -60,6 +60,7 @@ import com.dmtavt.fragpipe.messages.NoteConfigPtmShepherd;
 import com.dmtavt.fragpipe.messages.NoteConfigTmtI;
 import com.dmtavt.fragpipe.messages.NoteConfigUmpire;
 import com.dmtavt.fragpipe.params.ThisAppProps;
+import com.dmtavt.fragpipe.tools.diapasefscentric.DiaPasefSCentricPanel;
 import com.dmtavt.fragpipe.tools.tmtintegrator.QuantLabel;
 import com.dmtavt.fragpipe.tools.umpire.UmpirePanel;
 import com.dmtavt.fragpipe.util.SDRFtable;
@@ -1444,7 +1445,8 @@ public class TabWorkflow extends JPanelWithEnablement {
     if (hasDataType("DIA") || hasDataType("DIA-Lib") || hasDataType("GPF-DIA")) {
       Bus.post(new NoteConfigUmpire(true));
       UmpirePanel umpirePanel = Fragpipe.getStickyStrict(UmpirePanel.class);
-      if (umpirePanel.isRun()) {
+      DiaPasefSCentricPanel diaPasefSCentricPanel = Fragpipe.getStickyStrict(DiaPasefSCentricPanel.class);
+      if (umpirePanel.isRun() || diaPasefSCentricPanel.isRun()) {
         Bus.post(new NoteConfigCrystalC(true));
         Bus.post(new NoteConfigPeptideProphet(true));
         Bus.post(new NoteConfigPtmProphet(true));
@@ -1559,8 +1561,8 @@ public class TabWorkflow extends JPanelWithEnablement {
   }
 
   private boolean checkDataTypeCompatibility(InputLcmsFile f, String dataType) {
-    if ((dataType.contentEquals("DIA") || dataType.contentEquals("GPF-DIA") || dataType.contentEquals("DIA-Lib") || dataType.contentEquals("DDA+")) && f.getPath().toString().endsWith(".d")) {
-      SwingUtils.showErrorDialog(this, "timsTOF data is only compatible with DDA and DIA-Quant data type.", "Incompatible data type");
+    if ((dataType.contentEquals("GPF-DIA") || dataType.contentEquals("DIA-Lib") || dataType.contentEquals("DDA+")) && f.getPath().toString().endsWith(".d")) {
+      SwingUtils.showErrorDialog(this, "timsTOF data is only compatible with DIA, DDA, and DIA-Quant data type.", "Incompatible data type");
       return false;
     }
     return true;

@@ -25,7 +25,6 @@ import com.dmtavt.fragpipe.api.PyInfo;
 import com.dmtavt.fragpipe.exceptions.NoStickyException;
 import com.dmtavt.fragpipe.messages.NoteConfigPython;
 import com.dmtavt.fragpipe.tools.dbsplit.DbSplit2;
-import com.dmtavt.fragpipe.tools.enums.CleavageType;
 import com.dmtavt.fragpipe.tools.enums.FraggerOutputType;
 import com.dmtavt.fragpipe.tools.enums.MassTolUnits;
 import com.dmtavt.fragpipe.tools.enums.PrecursorMassTolUnits;
@@ -301,7 +300,7 @@ public class CmdMsfragger extends CmdBase {
     return locs;
   }
 
-  public boolean configure(Component comp, boolean isDryRun, Path jarFragpipe, UsageTrigger binFragger, String pathFasta, MsfraggerParams params, int numSlices, int ramGb, List<InputLcmsFile> lcmsFiles, final String decoyTag, boolean hasDda, boolean hasDia, boolean hasGpfDia, boolean hasDiaLib, boolean hasDdaPlus, boolean isRunDiaU, boolean writeMzbinAll) {
+  public boolean configure(Component comp, boolean isDryRun, Path jarFragpipe, UsageTrigger binFragger, String pathFasta, MsfraggerParams params, int numSlices, int ramGb, List<InputLcmsFile> lcmsFiles, final String decoyTag, boolean hasDda, boolean hasDia, boolean hasGpfDia, boolean hasDiaLib, boolean hasDdaPlus, boolean isRunDiaU, boolean isRunDiaPasefSCentric, boolean writeMzbinAll) {
 
     initPreConfig();
 
@@ -319,7 +318,7 @@ public class CmdMsfragger extends CmdBase {
         return false;
       }
 
-      if (!isRunDiaU && (hasDia || hasGpfDia || hasDiaLib || hasDdaPlus)) {
+      if ((!isRunDiaU || !isRunDiaPasefSCentric) && (hasDia || hasGpfDia || hasDiaLib || hasDdaPlus)) {
         SwingUtils.showErrorDialog(comp, "<html>MSFrgger-DIA <code>split database</code> is incompatible with DIA, GPF-DIA, DIA-Lib, or DDA+ data types.\n"
             + "Please set the split database to 1.\n"
             + "For DIA and DIA-Lib data types, you can also use the DIA-Umpire based DIA workflow (DIA_DIA-Umpire_SpecLib_Quant workflow), which supports the split database option.", "Incompatible options");

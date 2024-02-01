@@ -60,7 +60,7 @@ import com.dmtavt.fragpipe.tabs.TabQuantificationLabeling;
 import com.dmtavt.fragpipe.tabs.TabQuantificationLfq;
 import com.dmtavt.fragpipe.tabs.TabRun;
 import com.dmtavt.fragpipe.tabs.TabSpecLib;
-import com.dmtavt.fragpipe.tabs.TabUmpire;
+import com.dmtavt.fragpipe.tabs.TabDiaPseudoMs2;
 import com.dmtavt.fragpipe.tabs.TabValidation;
 import com.dmtavt.fragpipe.tabs.TabWorkflow;
 import com.dmtavt.fragpipe.tools.dbsplit.DbSplit2;
@@ -199,7 +199,7 @@ public class Fragpipe extends JFrameHeadless {
 
   private UiTab uiTabConfig;
   private UiTab uiTabWorkflow;
-  private UiTab uiTabUmpire;
+  private UiTab uiTabDiaPseudoMS2;
   private UiTab uiTabDb;
   private UiTab uiTabFragger;
   private UiTab uiTabValidation;
@@ -627,7 +627,7 @@ public class Fragpipe extends JFrameHeadless {
 
     TabConfig tabConfig = new TabConfig(console);
     TabWorkflow tabWorkflow = new TabWorkflow();
-    TabUmpire tabUmpire = new TabUmpire();
+    TabDiaPseudoMs2 tabDiaPseudoMs2 = new TabDiaPseudoMs2();
     TabDatabase tabDatabase = new TabDatabase();
     TabMsfragger tabMsfragger = new TabMsfragger();
     TabValidation tabValidation = new TabValidation();
@@ -643,7 +643,7 @@ public class Fragpipe extends JFrameHeadless {
     uiTabConfig = new UiTab(TabConfig.TAB_NAME, tabConfig, "/com/dmtavt/fragpipe/icons/150-cogs.png", null, true);
     uiTabWorkflow = new UiTab(TAB_NAME_LCMS, tabWorkflow,
       "/com/dmtavt/fragpipe/icons/icon-workflow-16.png", null, false);
-    uiTabUmpire = new UiTab("Umpire", tabUmpire,
+    uiTabDiaPseudoMS2 = new UiTab("DIA Pseudo MS2", tabDiaPseudoMs2,
       "/com/dmtavt/fragpipe/icons/dia-umpire-16x16.png", null, true);
     uiTabDb = new UiTab("Database", tabDatabase,
         "/com/dmtavt/fragpipe/icons/icon-dna-helix-16.png", null, true);
@@ -666,7 +666,7 @@ public class Fragpipe extends JFrameHeadless {
 
     addTab(tp, uiTabConfig);
     addTab(tp, uiTabWorkflow);
-    addTab(tp, uiTabUmpire);
+    addTab(tp, uiTabDiaPseudoMS2);
     addTab(tp, uiTabDb);
     addTab(tp, uiTabFragger);
     addTab(tp, uiTabValidation);

@@ -33,6 +33,7 @@ import com.dmtavt.fragpipe.cmd.CmdAppendFile;
 import com.dmtavt.fragpipe.cmd.CmdBase;
 import com.dmtavt.fragpipe.cmd.CmdCheckCentroid;
 import com.dmtavt.fragpipe.cmd.CmdCrystalc;
+import com.dmtavt.fragpipe.cmd.CmdDiaPasefSCentric;
 import com.dmtavt.fragpipe.cmd.CmdDiann;
 import com.dmtavt.fragpipe.cmd.CmdFpopQuant;
 import com.dmtavt.fragpipe.cmd.CmdFreequant;
@@ -93,6 +94,7 @@ import com.dmtavt.fragpipe.tabs.TabWorkflow.InputDataType;
 import com.dmtavt.fragpipe.tools.crystalc.CrystalcPanel;
 import com.dmtavt.fragpipe.tools.crystalc.CrystalcParams;
 import com.dmtavt.fragpipe.tools.diann.DiannPanel;
+import com.dmtavt.fragpipe.tools.diapasefscentric.DiaPasefSCentricPanel;
 import com.dmtavt.fragpipe.tools.fpop.FpopQuantPanel;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
 import com.dmtavt.fragpipe.tools.ionquant.QuantPanelLabelfree;
@@ -1136,7 +1138,7 @@ public class FragpipeRun {
 
       // Don't include DIA-Quant and diaPASEF.
       for (Map.Entry<String, LcmsFileGroup> e : tabWorkflow.getLcmsFileGroups().entrySet()) {
-        List<InputLcmsFile> ttt = e.getValue().lcmsFiles.stream().filter(f -> !f.getDataType().contentEquals("DIA-Quant") && (f.getDataType().contentEquals("DDA") || !f.getPath().toString().endsWith(".d"))).collect(Collectors.toList());
+        List<InputLcmsFile> ttt = e.getValue().lcmsFiles.stream().filter(f -> !f.getDataType().contentEquals("DIA-Quant")).collect(Collectors.toList());
         if (!ttt.isEmpty()) {
           sharedLcmsFileGroups.put(e.getKey(), new LcmsFileGroup(e.getValue().name, ttt));
         }
@@ -1146,10 +1148,10 @@ public class FragpipeRun {
       if (sharedLcmsFiles.isEmpty()) {
         DiannPanel diannPanel = Fragpipe.getStickyStrict(DiannPanel.class);
         if (!diannPanel.isRun()) {
-          SwingUtils.showErrorDialog(parent, "There are only DIA-Quant or diaPASEF runs, but the DIA-NN quant was not enabled.", "Add LCMS files");
+          SwingUtils.showErrorDialog(parent, "There are only DIA-Quant runs, but the DIA-NN quant was not enabled.", "Add LCMS files");
           return false;
         } else if (diannPanel.getLibraryPath().isEmpty()) {
-          SwingUtils.showErrorDialog(parent, "There are only DIA-Quant or diaPASEF runs, but there is no spectral library provided to the DIA-NN quant.", "Add LCMS files");
+          SwingUtils.showErrorDialog(parent, "There are only DIA-Quant runs, but there is no spectral library provided to the DIA-NN quant.", "Add LCMS files");
           return false;
         }
       }
@@ -1202,6 +1204,33 @@ public class FragpipeRun {
       return true;
     });
 
+    final DiaPasefSCentricPanel diaPasefSCentricPanel = Fragpipe.getStickyStrict(DiaPasefSCentricPanel.class);
+    final CmdDiaPasefSCentric cmdDiaPasefSCentric = new CmdDiaPasefSCentric(diaPasefSCentricPanel.isRun(), wd);
+    addConfig.accept(cmdDiaPasefSCentric, () -> {
+      cmdDiaPasefSCentric.setRun(cmdDiaPasefSCentric.isRun() && !sharedLcmsFiles.isEmpty());
+      if (cmdDiaPasefSCentric.isRun()) {
+        if (!cmdDiaPasefSCentric.configure(
+            parent,
+            ramGb,
+            threads,
+            Paths.get(binMsfragger.getBin()),
+            diaPasefSCentricPanel.writeIntermediateFiles(),
+            diaPasefSCentricPanel.imTolerance(),
+            diaPasefSCentricPanel.mzToleranceUnit(),
+            diaPasefSCentricPanel.mzTolerance(),
+            diaPasefSCentricPanel.apexScanDeltaRange(),
+            diaPasefSCentricPanel.imToleranceMs1Ms2(),
+            diaPasefSCentricPanel.apexScanDeltaRangeMs1Ms2(),
+            sharedLcmsFiles)) {
+          return false;
+        }
+        List<InputLcmsFile> outputs = cmdDiaPasefSCentric.outputs(sharedLcmsFiles);
+        sharedLcmsFiles.clear();
+        sharedLcmsFiles.addAll(outputs);
+      }
+      return true;
+    });
+
     final TabRun tabRun = Bus.getStickyEvent(TabRun.class);
     if (tabRun == null) {
       throw new IllegalStateException("TabRun has not been posted to the bus");
@@ -1226,7 +1255,7 @@ public class FragpipeRun {
     addConfig.accept(cmdMsfragger, () -> {
       cmdMsfragger.setRun(cmdMsfragger.isRun() && !sharedLcmsFiles.isEmpty());
       if (cmdMsfragger.isRun()) {
-        if (!cmdMsfragger.configure(parent, isDryRun, jarPath, binMsfragger, fastaFile, tabMsf.getParams(), tabMsf.getNumDbSlices(), ramGb, sharedLcmsFiles, decoyTag, tabWorkflow.hasDataType("DDA"), tabWorkflow.hasDataType("DIA"), tabWorkflow.hasDataType("GPF-DIA"), tabWorkflow.hasDataType("DIA-Lib"), tabWorkflow.hasDataType("DDA+"), cmdUmpire.isRun(), tabRun.isWriteSubMzml())) {
+        if (!cmdMsfragger.configure(parent, isDryRun, jarPath, binMsfragger, fastaFile, tabMsf.getParams(), tabMsf.getNumDbSlices(), ramGb, sharedLcmsFiles, decoyTag, tabWorkflow.hasDataType("DDA"), tabWorkflow.hasDataType("DIA"), tabWorkflow.hasDataType("GPF-DIA"), tabWorkflow.hasDataType("DIA-Lib"), tabWorkflow.hasDataType("DDA+"), cmdUmpire.isRun(), cmdDiaPasefSCentric.isRun(), tabRun.isWriteSubMzml())) {
           return false;
         }
 
@@ -1897,7 +1926,9 @@ public class FragpipeRun {
     addToGraph(graphOrder, cmdStart, DIRECTION.IN);
     addToGraph(graphOrder, cmdCheckCentroid, DIRECTION.IN, cmdStart);
     addToGraph(graphOrder, cmdUmpire, DIRECTION.IN, cmdCheckCentroid);
+    addToGraph(graphOrder, cmdDiaPasefSCentric, DIRECTION.IN, cmdCheckCentroid);
     addToGraph(graphOrder, cmdMsfragger, DIRECTION.IN, cmdCheckCentroid, cmdUmpire);
+    addToGraph(graphOrder, cmdMsfragger, DIRECTION.IN, cmdCheckCentroid, cmdDiaPasefSCentric);
 
     addToGraph(graphOrder, cmdCrystalc, DIRECTION.IN, cmdMsfragger);
     addToGraph(graphOrder, cmdMSBooster, DIRECTION.IN, cmdMsfragger);
