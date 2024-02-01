@@ -427,13 +427,13 @@ public class CmdMsfragger extends CmdBase {
 
     if (!isDryRun) {
       try {
-        if (hasDda || isRunDiaU) {
+        if (hasDda || isRunDiaU || isRunDiaPasefSCentric) {
           paramsDda.save(Files.newOutputStream(savedDdaParamsPath));
         }
-        if ((hasDia || hasDiaLib) && !isRunDiaU) {
+        if ((hasDia || hasDiaLib) && !isRunDiaU && !isRunDiaPasefSCentric) {
           paramsDia.save(Files.newOutputStream(savedDiaParamsPath));
         }
-        if (hasGpfDia && !isRunDiaU) {
+        if (hasGpfDia && !isRunDiaU && !isRunDiaPasefSCentric) {
           paramsGpfDia.save(Files.newOutputStream(savedGpfDiaParamsPath));
         }
         if (hasDdaPlus) {

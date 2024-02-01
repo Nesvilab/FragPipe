@@ -72,7 +72,7 @@ public class CmdMSBooster extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, int ramGb, int threads, Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml, boolean predictRT, boolean predictSpectra, boolean useCorrelatedFeatures, boolean hasDda, boolean hasDia, boolean hasGpfDia, boolean hasDiaLib, boolean hasDdaPlus, boolean isRunDiaU, boolean isOpenSearch, String rtModel, String spectraModel) {
+  public boolean configure(Component comp, int ramGb, int threads, Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml, boolean predictRT, boolean predictSpectra, boolean useCorrelatedFeatures, boolean hasDda, boolean hasDia, boolean hasGpfDia, boolean hasDiaLib, boolean hasDdaPlus, boolean isRunDiaU, boolean isRunDiaPasefSCentric, boolean isOpenSearch, String rtModel, String spectraModel) {
     initPreConfig();
 
     // MSBooster does not compatible with open search and mass-offset search.
@@ -87,7 +87,7 @@ public class CmdMSBooster extends CmdBase {
     }
 
     String fraggerParams;
-    if (hasDda || isRunDiaU) {
+    if (hasDda || isRunDiaU || isRunDiaPasefSCentric) {
       if (hasDia || hasDiaLib || hasGpfDia) {
         fraggerParams = wd.resolve("fragger_dda.params").toAbsolutePath().toString();
       } else {
