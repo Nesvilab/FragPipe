@@ -174,9 +174,7 @@ public class TabMsfragger extends JPanelBase {
   private static final Set<String> PROPS_MISC_NAMES;
   private static final Map<String, Function<String, String>> CONVERT_TO_FILE;
   private static final Map<String, Function<String, String>> CONVERT_TO_GUI;
-  private static final String CALIBRATE_VALUE_OFF = "None";
-  public static final String CALIBRATE_VALUE_OPTIMIZATION = "Mass calibration, parameter optimization";
-  private static final String[] CALIBRATE_LABELS = {CALIBRATE_VALUE_OFF, "Mass calibration", CALIBRATE_VALUE_OPTIMIZATION};
+  private static final String[] CALIBRATE_LABELS = {"None", "Mass calibration", "Mass calibration, parameter optimization", "Mass calibration, mass tol optimization"};
   private static final String[] MASS_DIFF_TO_VAR_MOD = {"No", "Yes, keep delta mass", "Yes, remove delta mass"};
   private static final String[] GROUP_VARIABLE = {"None", "Number of enzymatic termini", "Protein evidence from FASTA file"};
   private static final String[] DEISOTOPE = {"No", "Yes", "Yes, use charge 1 and 2 for undeisotoped peaks"};
@@ -254,7 +252,19 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_fragment_mass_units, s -> itos(MassTolUnits.valueOf(s).valueInParamsFile()));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_precursor_true_units, s -> itos(
         MassTolUnits.valueOf(s).valueInParamsFile()));
-    CONVERT_TO_FILE.put(MsfraggerParams.PROP_calibrate_mass, s -> itos(Arrays.asList(CALIBRATE_LABELS).indexOf(s)));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_calibrate_mass, s -> {
+      if (s.contentEquals(CALIBRATE_LABELS[0])) {
+        return "0";
+      } else if (s.contentEquals(CALIBRATE_LABELS[1])) {
+        return "1";
+      } else if (s.contentEquals(CALIBRATE_LABELS[2])) {
+        return "2";
+      } else if (s.contentEquals(CALIBRATE_LABELS[3])) {
+        return "4";
+      } else {
+        return "0";
+      }
+    });
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_use_all_mods_in_first_search, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_num_enzyme_termini, s -> itos(
         CleavageType.valueOf(s).valueInParamsFile()));
@@ -306,7 +316,19 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_precursor_mass_units, s -> PrecursorMassTolUnits.fromParamsFileRepresentation(s).name());
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_fragment_mass_units, s -> MassTolUnits.fromFileToUi(s).name());
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_precursor_true_units, s -> MassTolUnits.fromFileToUi(s).name());
-    CONVERT_TO_GUI.put(MsfraggerParams.PROP_calibrate_mass, s -> CALIBRATE_LABELS[Integer.parseInt(s)]);
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_calibrate_mass, s -> {
+      if (s.contentEquals("0")) {
+        return CALIBRATE_LABELS[0];
+      } else if (s.contentEquals("1")) {
+        return CALIBRATE_LABELS[1];
+      } else if (s.contentEquals("2")) {
+        return CALIBRATE_LABELS[2];
+      } else if (s.contentEquals("4")) {
+        return CALIBRATE_LABELS[3];
+      } else {
+        return CALIBRATE_LABELS[0];
+      }
+    });
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_use_all_mods_in_first_search, s -> Boolean.toString(Integer.parseInt(s) == 1));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_num_enzyme_termini, s -> CleavageType.fromValueInParamsFile(s).name());
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_remove_precursor_peak, s -> RemovePrecursorPeak.get(Integer.parseInt(s)));
@@ -607,7 +629,7 @@ public class TabMsfragger extends JPanelBase {
         if (oldVal != null) {
           cache.put(MsfraggerParams.PROP_calibrate_mass, oldVal);
         }
-        uiComboMassCalibrate.setSelectedItem(CALIBRATE_VALUE_OFF);
+        uiComboMassCalibrate.setSelectedItem("None");
         uiComboMassCalibrate.setEnabled(false);
       } else if (!wasEnabled && !isDisabled) { // switching from disabled to enabled
         String cachedVal = cache.get(MsfraggerParams.PROP_calibrate_mass);
@@ -1870,7 +1892,17 @@ public class TabMsfragger extends JPanelBase {
   }
 
   public int getMassCalibration() {
-    return uiComboMassCalibrate.getSelectedIndex(); // 0 = None; 1 = Mass calibration; 2 = Mass calibration, parameter optimization;
+    if (uiComboMassCalibrate.getSelectedIndex() == 0) {
+      return 0;
+    } else if (uiComboMassCalibrate.getSelectedIndex() == 1) {
+      return 1;
+    } else if (uiComboMassCalibrate.getSelectedIndex() == 2) {
+      return 2;
+    } else if (uiComboMassCalibrate.getSelectedIndex() == 3) {
+      return 4;
+    } else {
+      return 0;
+    }
   }
 
   public boolean isWriteCalMzml() {
@@ -2355,7 +2387,7 @@ public class TabMsfragger extends JPanelBase {
     // if param optimization was enabled, read the optimized fragment tolerance from log
     Object calibration = uiComboMassCalibrate.getSelectedItem();
     if (calibration != null) {
-      if (calibration.equals(CALIBRATE_VALUE_OPTIMIZATION)) {
+      if (calibration.equals("Mass calibration, parameter optimization")) {
         Pattern newFragTolPattern = Pattern.compile("New fragment_mass_tolerance = ([0-9\\.]+) ([\\w]+)");
         Matcher matcher = newFragTolPattern.matcher(logText);
         if (matcher.find()) {

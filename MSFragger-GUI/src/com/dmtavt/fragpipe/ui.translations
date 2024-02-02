@@ -11,6 +11,7 @@ msfragger.calibrate_mass :: None <=> 0
 msfragger.calibrate_mass :: Off <=> 0
 msfragger.calibrate_mass :: Mass calibration <=> 1
 msfragger.calibrate_mass :: Mass calibration, parameter optimization <=> 2
+msfragger.calibrate_mass :: Mass calibration, mass tol optimization <=> 4
 msfragger.fragment_mass_units :: PPM <=> 1
 msfragger.fragment_mass_units :: Da <=> 0
 
