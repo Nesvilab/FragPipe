@@ -21,6 +21,7 @@ import static com.dmtavt.fragpipe.cmd.ToolingUtils.UNIMOD_OBO;
 import static com.dmtavt.fragpipe.cmd.ToolingUtils.getUnimodOboPath;
 
 import com.dmtavt.fragpipe.util.UnimodOboReader;
+import com.dmtavt.fragpipe.util.UnimodOboReader.Precursor;
 import com.google.common.collect.Table;
 import com.google.common.collect.TreeBasedTable;
 import java.io.BufferedReader;
@@ -78,7 +79,7 @@ public class Localization {
   }
 
   public void propagate(Path psm_path, Path diann_directory) throws Exception {
-    TreeBasedTable<String, String, LocalizedPeptide> precursorModificationLocalizationTable = TreeBasedTable.create();
+    TreeBasedTable<Precursor, String, LocalizedPeptide> precursorModificationLocalizationTable = TreeBasedTable.create();
 
     int scanNameColumnIdx = -1;
     int peptideColumnIdx = -1;
@@ -123,7 +124,7 @@ public class Localization {
           System.exit(1);
         }
 
-        String precursor = unimodOboReader.convertPeptide(parts[peptideColumnIdx].trim(), parts[assignedModificationsColumnIdx].trim()) + parts[chargeColumnIdx].trim();
+        Precursor precursor = unimodOboReader.convertPrecursor(parts[peptideColumnIdx].trim(), parts[assignedModificationsColumnIdx].trim(), Integer.parseInt(parts[chargeColumnIdx]));
 
         for (Map.Entry<String, Integer> e : modificationColumnIdxMap.entrySet()) {
           if (parts[e.getValue()].trim().isEmpty()) {
@@ -143,7 +144,7 @@ public class Localization {
     editReport(diann_directory.resolve("report.pr_matrix.tsv"), precursorModificationLocalizationTable, 2);
   }
 
-  private void editReport(Path p, Table<String, String, LocalizedPeptide> precursorModificationLocalizationTable, int type) throws Exception {
+  private void editReport(Path p, Table<Precursor, String, LocalizedPeptide> precursorModificationLocalizationTable, int type) throws Exception {
     String s = "";
     String firstLineMarker = "";
     if (type == 1) {
@@ -156,7 +157,9 @@ public class Localization {
     Path p2 = p.getParent().resolve(s);
 
     String[] modificationArray = precursorModificationLocalizationTable.columnKeySet().toArray(new String[0]);
-    int precursorIdColumnIdx = -1;
+    int strippedSequenceColumnIdx = -1;
+    int modifiedSequenceColumnIdx = -1;
+    int chargeColumnIdx = -1;
 
     String line;
     String[] columnArray = null;
@@ -171,9 +174,12 @@ public class Localization {
       String[] parts = line.split("\t");
       if (line.startsWith(firstLineMarker)) {
         for (int i = 0; i < parts.length; ++i) {
-          if (parts[i].trim().contentEquals("Precursor.Id")) {
-            precursorIdColumnIdx = i;
-            break;
+          if (parts[i].trim().contentEquals("Stripped.Sequence")) {
+            strippedSequenceColumnIdx = i;
+          } else if (parts[i].trim().contentEquals("Modified.Sequence")) {
+            modifiedSequenceColumnIdx = i;
+          } else if (parts[i].trim().contentEquals("Precursor.Charge")) {
+            chargeColumnIdx = i;
           }
         }
 
@@ -191,8 +197,8 @@ public class Localization {
         }
         writer.write("\n");
       } else {
-        if (precursorIdColumnIdx < 0) {
-          System.err.printf("Missing %s column in %s.", "Precursor.Id", p);
+        if (strippedSequenceColumnIdx < 0 || modifiedSequenceColumnIdx < 0 || chargeColumnIdx < 0) {
+          System.err.printf("Missing %s, %s, or %s in %s.", "Stripped.Sequence", "Modified.Sequence", "Charge", p);
           System.exit(1);
         }
 
@@ -201,7 +207,7 @@ public class Localization {
         System.arraycopy(line.split("\t"), 0, columnArray, 0, parts.length);
         writer.write(String.join("\t", columnArray));
 
-        String precursor = parts[precursorIdColumnIdx].trim();
+        Precursor precursor = new Precursor(parts[modifiedSequenceColumnIdx], parts[strippedSequenceColumnIdx].length(), Integer.parseInt(parts[chargeColumnIdx]), unimodOboReader.unimodMassMap);
         Map<String, LocalizedPeptide> tt = precursorModificationLocalizationTable.row(precursor);
         if (tt.isEmpty()) {
           for (int i = 0; i < modificationArray.length; ++i) {
