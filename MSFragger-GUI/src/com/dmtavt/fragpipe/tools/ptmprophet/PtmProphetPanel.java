@@ -29,10 +29,8 @@ import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.Component;
 import java.awt.ItemSelectable;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.JButton;
@@ -105,7 +103,7 @@ public class PtmProphetPanel extends JPanelBase {
     final String prop = "ptmprophet.cmdline.default";
     String val = Fragpipe.getPropFix(prop);
     if (val == null) {
-      val = "KEEPOLD STATIC EM=1 NIONS=b STY:79.966331,M:15.9949 MINPROB=0.5";
+      val = "NOSTACK KEEPOLD STATIC EM=1 NIONS=b STY:79.966331,M:15.9949 MINPROB=0.5";
       log.warn("Property [{}] not found in Bundle.properties, default to hardcoded value: {}", prop, val);
     }
     return val;
