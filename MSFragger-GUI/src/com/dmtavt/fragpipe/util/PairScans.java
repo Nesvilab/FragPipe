@@ -139,17 +139,19 @@ public class PairScans {
                     // only check against the primary (first) activation type in the scan, so always take filterSplits[1] and not any additional if present
                     String activationStr = filterSplits[1].substring(0, 3);
                     double precursorMZ = scan.getPrecursor().getMzTarget();
+                    String actualFirstActivation = reverseOrder ? secondActivation.getText() : firstActivation.getText();
+                    String actualSecondActivation = reverseOrder ? firstActivation.getText() : secondActivation.getText();
 
-                    if (activationStr.equalsIgnoreCase(firstActivation.getText())) {
+                    if (activationStr.equalsIgnoreCase(actualFirstActivation)) {
                         // first activation - record precursor to look for follow-up scans
                         unpairedPrecursorMap.put(precursorMZ, scanNum);
                         multipairedPrecursorMap.put(precursorMZ, scanNum);
-                    } else if (activationStr.equalsIgnoreCase(secondActivation.getText())) {
+                    } else if (activationStr.equalsIgnoreCase(actualSecondActivation)) {
                         // second activation - find paired precursor and record the pairing, remove precursor from unpaired
                         scanPairingHelper(scanNum, precursorMZ, reverseOrder);
                     } else {
                         // unexpected activation - ignore
-                        System.out.printf("Unspecified activation %s in scan %d", activationStr, scanNum);
+                        System.out.printf("Unspecified activation %s in scan %d\n", activationStr, scanNum);
                     }
                 }
             }
@@ -190,9 +192,10 @@ public class PairScans {
                     pairedScans.add(String.format("%d\t%d\n", scanNum, multipairedPrecursorMap.get(precursorMZ)));
                 } else {
                     pairedScans.add(String.format("%d\t%d\n", multipairedPrecursorMap.get(precursorMZ), scanNum));
-                }            } else {
+                }
+            } else {
                 // unexpected second activation without first
-                System.out.printf("Unpaired precursor %.4f in scan %d", precursorMZ, scanNum);
+                System.out.printf("Unpaired precursor %.4f in scan %d\n", precursorMZ, scanNum);
             }
         }
     }
@@ -203,7 +206,7 @@ public class PairScans {
                 return activation;
             }
         }
-        System.err.printf("Activation filter string %s not recognized, pairing will not be performed", input);
+        System.err.printf("Activation filter string %s not recognized, pairing will not be performed\n", input);
         return null;
     }
 
