@@ -18,23 +18,24 @@
 package com.dmtavt.fragpipe.messages;
 
 import java.util.StringJoiner;
+import com.dmtavt.fragpipe.tools.skyline.Skyline;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 
 public class NoteConfigSkyline implements INoteConfig {
 
   public final String path;
-  public final String version;
+  public final Skyline.Version version;
   public final Throwable ex;
   private final boolean isValid;
   private final DefaultArtifactVersion versionObj;
 
-  public NoteConfigSkyline(String path, String version, Throwable ex, boolean isValid) {
+  public NoteConfigSkyline(String path, Skyline.Version version, Throwable ex, boolean isValid) {
     this.path = path;
     this.version = version;
     this.ex = ex;
     this.isValid = isValid;
-    if (version != null) {
-      this.versionObj = new DefaultArtifactVersion(version);
+    if (version.strippedVersion != null) {
+      this.versionObj = new DefaultArtifactVersion(version.strippedVersion);
     } else {
       this.versionObj = null;
     }
@@ -50,14 +51,14 @@ public class NoteConfigSkyline implements INoteConfig {
 
   @Override
   public boolean isValid() {
-    return isValid && ex == null && version != null && path != null && !version.isEmpty() && !path.isEmpty() && !version.trim().equalsIgnoreCase("n/a") && !path.trim().equalsIgnoreCase("n/a");
+    return isValid && ex == null && version != null && path != null && !version.versionStr.isEmpty() && !path.isEmpty() && !version.versionStr.trim().equalsIgnoreCase("n/a") && !path.trim().equalsIgnoreCase("n/a");
   }
 
   @Override
   public String toString() {
     return new StringJoiner(", ", NoteConfigSkyline.class.getSimpleName() + "[", "]")
         .add("path='" + path + "'")
-        .add("version='" + version + "'")
+        .add("version='" + (version != null ? version.versionStr : "n/a") + "'")
         .add("validation=" + (ex == null ? "null" : ex.getMessage()))
         .toString();
   }

@@ -25,6 +25,9 @@ import com.github.chhh.utils.SwingUtils;
 import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +35,8 @@ public class Skyline {
 
   private static final Logger log = LoggerFactory.getLogger(Skyline.class);
   private static final String DOWNLOAD_URL = "https://skyline.ms/project/home/software/Skyline/begin.view";
+  private static final Pattern versionWithSpacesPattern = Pattern.compile(" ([\\d.]+) ?");
+  private static final Pattern versionNoSpacesPattern = Pattern.compile("([\\d.]+)");
 
   public static void downloadSkylineManually() {
     try {
@@ -66,14 +71,30 @@ public class Skyline {
 
   public static class Version {
 
-    public final String version;
+    public final String versionStr;
+    public final String strippedVersion;
     public final boolean isNewVersionFound;
     public final String downloadUrl;
 
-    public Version(String version, boolean isNewVersionFound, String downloadUrl) {
-      this.version = version;
+    public Version(String versionStr, boolean isNewVersionFound, String downloadUrl) {
+      this.versionStr = versionStr;
       this.isNewVersionFound = isNewVersionFound;
       this.downloadUrl = downloadUrl;
+      this.strippedVersion = getStrippedVersion(versionStr);
+    }
+
+    private String getStrippedVersion(String version) {
+      Matcher match;
+      if (version.contains(" ")) {
+        match = versionWithSpacesPattern.matcher(version);
+      } else {
+        match = versionNoSpacesPattern.matcher(version);
+      }
+      if (match.find()) {
+        return match.group(1);
+      } else {
+        return version;
+      }
     }
   }
 }

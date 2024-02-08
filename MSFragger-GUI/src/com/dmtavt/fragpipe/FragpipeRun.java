@@ -80,6 +80,7 @@ import com.dmtavt.fragpipe.messages.NoteConfigIonQuant;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.dmtavt.fragpipe.messages.NoteConfigSpeclibgen;
+import com.dmtavt.fragpipe.messages.NoteConfigSkyline;
 import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.dmtavt.fragpipe.process.ProcessDescription;
 import com.dmtavt.fragpipe.process.ProcessDescription.Builder;
@@ -639,6 +640,28 @@ public class FragpipeRun {
             }
           } catch (Exception ex) {
             ex.printStackTrace();
+          }
+        }
+
+        NoteConfigSkyline noteConfigSkyline = Bus.getStickyEvent(NoteConfigSkyline.class);
+        if (noteConfigSkyline.isValid()) {
+          if (noteConfigSkyline.compareVersion("23.1.0.380") <= 0) {
+            // 23.1 released version of Skyline requires moving the speclib file to where the DIANN report.tsv is located
+            DiannPanel diannPanel = Bus.getStickyEvent(DiannPanel.class);
+            if (diannPanel != null && diannPanel.isRun()) {
+              try {
+                Files.walk(wd).filter(p -> p.getFileName().toString().endsWith(".speclib")).forEach(p -> {
+                  try {
+                    Path ppp = wd.resolve("diann-output");
+                    if (Files.exists(ppp) && Files.isDirectory(ppp)) {
+                      Files.move(p, ppp.resolve("report.tsv.speclib"));
+                    }
+                  } catch (Exception ignored) {
+                  }
+                });
+              } catch (Exception ignored) {
+              }
+            }
           }
         }
 

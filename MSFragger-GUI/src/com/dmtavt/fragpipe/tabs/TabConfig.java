@@ -596,7 +596,7 @@ public class TabConfig extends JPanelWithEnablement {
 
     try {
       Skyline.Version v = Skyline.validate(m.path);
-      Bus.postSticky(new NoteConfigSkyline(m.path, v.version, null, true));
+      Bus.postSticky(new NoteConfigSkyline(m.path, v, null, true));
     } catch (Exception e) {
       e.printStackTrace();
       Bus.postSticky(new NoteConfigSkyline(e));

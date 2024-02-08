@@ -393,10 +393,13 @@ public class TabRun extends JPanelWithEnablement {
             writer.write("--import-search-file=" + speclibFiles.get(0).toAbsolutePath() + " ");
           }
 
-          writer.write("--pep-max-missed-cleavages=" + pf.getProperty("msfragger.allowed_missed_cleavage_1") + " ");
-          writer.write("--pep-min-length=" + pf.getProperty("msfragger.digest_min_length") + " ");
-          writer.write("--pep-max-length=" + pf.getProperty("msfragger.digest_max_length") + " ");
-          writer.write("--pep-exclude-nterminal-aas=0 ");
+          if (noteConfigSkyline.compareVersion("23.1.0.380") > 0) {
+            // parameters added after released 23.1 version
+            writer.write("--pep-max-missed-cleavages=" + pf.getProperty("msfragger.allowed_missed_cleavage_1") + " ");
+            writer.write("--pep-min-length=" + pf.getProperty("msfragger.digest_min_length") + " ");
+            writer.write("--pep-max-length=" + pf.getProperty("msfragger.digest_max_length") + " ");
+            writer.write("--pep-exclude-nterminal-aas=0 ");
+          }
           writer.write("--tran-precursor-ion-charges=\"2,3,4,5,6\" ");
           writer.write("--tran-product-ion-charges=\"1,2\" ");
           writer.write("--tran-product-ion-types=\"y,b,p\" ");
