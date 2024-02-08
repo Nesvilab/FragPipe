@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
 public class CmdDiaPasefSCentric extends CmdBase {
 
   private static final Logger log = LoggerFactory.getLogger(CmdDiaPasefSCentric.class);
-  public static final String JAR_NAME = "diaPASEFScentric-1.0.3.jar";
+  public static final String JAR_NAME = "diaPASEFScentric-1.0.4.jar";
   public static String NAME = "diaPASEFSCentric";
   private static final String[] JAR_DEPS = {BATMASS_IO_JAR};
 
