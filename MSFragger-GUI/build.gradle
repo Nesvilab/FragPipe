@@ -19,7 +19,7 @@ plugins {
 
 group = 'com.github.chhh'
 version = '21.2-build10'
-def batmassio_version = '1.30.2'
+def batmassio_version = '1.31.0'
 
 description = """FragPipe - run complete proteomics analyses from the GUI"""
 
