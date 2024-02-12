@@ -397,7 +397,7 @@ def sort_psm_spectra_files(psm_files, spectra_file_basenames, params):
 				try:
 					spectra_files_dict[spectra_file].append(line)
 				except KeyError:
-					print("Spectra file %s not found! PSM %s ignored!".format(spectra_file, line.split('\t')[0]))
+					print("Spectra file {} not found! PSM {} ignored!\n".format(spectra_file, line.split('\t')[0]))
 
 		# save temp psm.tsv for each spectra file. Can do it inside the loop because spectra files cannot be in separate PSM tables (experiments)
 		for spectra_file, psm_list in spectra_files_dict.items():
