@@ -183,7 +183,7 @@ public class FragpipeRun {
       Pattern.compile("razor\\.bin"),
       Pattern.compile("raw\\.bin"),
       Pattern.compile("lfq\\.bin"),
-      Pattern.compile("temp-psm\\.tsv")
+      Pattern.compile(".+temp-psm\\.tsv")
   };
   private static final Pattern fppdvDbPattern = Pattern.compile(".+\\.db");
 
