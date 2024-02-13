@@ -53,7 +53,6 @@ import com.dmtavt.fragpipe.messages.MessageType;
 import com.dmtavt.fragpipe.messages.MessageUpdateWorkflows;
 import com.dmtavt.fragpipe.messages.NoteConfigCrystalC;
 import com.dmtavt.fragpipe.messages.NoteConfigDiann;
-import com.dmtavt.fragpipe.messages.NoteConfigIonQuant;
 import com.dmtavt.fragpipe.messages.NoteConfigPeptideProphet;
 import com.dmtavt.fragpipe.messages.NoteConfigPtmProphet;
 import com.dmtavt.fragpipe.messages.NoteConfigPtmShepherd;
@@ -1457,7 +1456,6 @@ public class TabWorkflow extends JPanelWithEnablement {
         Bus.post(new NoteConfigPtmProphet(false));
         Bus.post(new NoteConfigPtmShepherd(false));
       }
-      Bus.post(new NoteConfigIonQuant(NoteConfigIonQuant.path, NoteConfigIonQuant.version, NoteConfigIonQuant.isTooOld, false, NoteConfigIonQuant.ex));
       Bus.post(new NoteConfigTmtI(false));
       if (hasDataType("DIA")) {
         Bus.post(new NoteConfigDiann(noteConfigDiann, true));
@@ -1470,7 +1468,6 @@ public class TabWorkflow extends JPanelWithEnablement {
       Bus.post(new NoteConfigPeptideProphet(false));
       Bus.post(new NoteConfigPtmProphet(true));
       Bus.post(new NoteConfigPtmShepherd(false));
-      Bus.post(new NoteConfigIonQuant(NoteConfigIonQuant.path, NoteConfigIonQuant.version, NoteConfigIonQuant.isTooOld, true, NoteConfigIonQuant.ex));
       Bus.post(new NoteConfigTmtI(false));
       Bus.post(new NoteConfigDiann(noteConfigDiann, false));
     } else {
@@ -1479,7 +1476,6 @@ public class TabWorkflow extends JPanelWithEnablement {
       Bus.post(new NoteConfigPeptideProphet(true));
       Bus.post(new NoteConfigPtmProphet(true));
       Bus.post(new NoteConfigPtmShepherd(true));
-      Bus.post(new NoteConfigIonQuant(NoteConfigIonQuant.path, NoteConfigIonQuant.version, NoteConfigIonQuant.isTooOld, true, NoteConfigIonQuant.ex));
       Bus.post(new NoteConfigTmtI(true));
       Bus.post(new NoteConfigDiann(noteConfigDiann, false));
     }
