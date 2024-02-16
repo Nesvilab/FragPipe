@@ -48,6 +48,8 @@ import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.ButtonGroup;
+import javax.swing.JRadioButton;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import net.miginfocom.layout.CC;
@@ -86,7 +88,9 @@ public class SpeclibPanel extends JPanelBase {
   private JCheckBox check_fragment_type_z;
   private JCheckBox uiCheckNeutralLoss;
   private UiCombo uiComboGlycoMode;
-  private JCheckBox uiCheckConvertPsmtsv;
+  private ButtonGroup convertButtonGroup;
+  private JRadioButton psmConvertButton;
+  private JRadioButton pepxmlConvertButton;
   private JCheckBox checkIgnoreUnannotated;
   private JPanel panelEasypqp;
   public static final String EASYPQP_TIMSTOF = "timsTOF";
@@ -154,9 +158,17 @@ public class SpeclibPanel extends JPanelBase {
     checkKeepIntermediateFiles = new UiCheck("keep intermediate files", null, false);
     checkKeepIntermediateFiles.setName("keep-intermediate-files");
 
-    uiCheckConvertPsmtsv = new UiCheck("convert from psm.tsv", null, false);
-    uiCheckConvertPsmtsv.setName("convert-psm");
-    uiCheckConvertPsmtsv.setToolTipText("Use psm.tsv files for library generation instead of pepxml. Required for glyco searches.");
+    convertButtonGroup = new ButtonGroup();
+    pepxmlConvertButton = new JRadioButton("pepXML");
+    pepxmlConvertButton.setName("convert-pepxml");
+    pepxmlConvertButton.setSelected(true);
+    psmConvertButton = new JRadioButton("psm.tsv");
+    psmConvertButton.setName("convert-psm");
+    psmConvertButton.setSelected(false);
+    convertButtonGroup.add(pepxmlConvertButton);
+    convertButtonGroup.add(psmConvertButton);
+    JLabel convertTypeLabel = new JLabel("Filetype to Convert:");
+    convertTypeLabel.setToolTipText("Use pepXML or psm.tsv files as input to library conversion. Note: Glyco mode requires psm.tsv conversion");
 
     final String optionAuto = "Automatic selection of a run as reference RT";
     final String optionManual = "User provided RT calibration file";
@@ -284,8 +296,10 @@ public class SpeclibPanel extends JPanelBase {
             "N-glyco+HexNAc = modifications larger than 140 Da on N residues have a HexNAc fragment remainder ion (203.08 Da) placed instead of the intact modification mass";
     FormEntry feComboGlycoMode = mu.feb(uiComboGlycoMode).name("easypqp.labile_mode").label("Glyco Mode").tooltip(glycoTooltip).create();
 
-    mu.add(p, checkKeepIntermediateFiles);
-    mu.add(p, uiCheckConvertPsmtsv).wrap();
+    mu.add(p, convertTypeLabel);
+    mu.add(p, pepxmlConvertButton).split();
+    mu.add(p, psmConvertButton).split();
+    mu.add(p, checkKeepIntermediateFiles).gapLeft("80").wrap();
 
     mu.add(p, fePqpCal.label(), ccR());
     mu.add(p, fePqpCal.comp).split();
@@ -492,6 +506,14 @@ public class SpeclibPanel extends JPanelBase {
     return checkIgnoreUnannotated.isSelected();
   }
   public boolean isConvertPSM() {
-    return uiCheckConvertPsmtsv.isSelected();
+    return psmConvertButton.isSelected();
+  }
+  public boolean checkGlycoMode() {
+    if (!getEasypqpGlycoOption().equals("")) {
+      // glyco mode enabled -> require psm.tsv conversion
+      return isConvertPSM();
+    } else {
+      return true;
+    }
   }
 }

@@ -100,6 +100,16 @@ public class CmdSpecLibGen extends CmdBase {
       }
     }
 
+    final SpeclibPanel speclibPanel = Fragpipe.getStickyStrict(SpeclibPanel.class);
+    if (!speclibPanel.checkGlycoMode()) {
+      if (Fragpipe.headless) {
+        log.error("EasyPQP glyco modes are only supported for psm.tsv conversion. Please change conversion filetype to psm.tsv and try again.");
+      } else {
+        JOptionPane.showMessageDialog(comp, "EasyPQP glyco modes are only supported for psm.tsv conversion. Please change conversion filetype to psm.tsv and try again.", "Conversion type error", JOptionPane.WARNING_MESSAGE);
+      }
+      return false;
+    }
+
     for (Entry<LcmsFileGroup, Path> e : mapGroupsToProtxml.entrySet()) {
       final LcmsFileGroup group = e.getKey();
       final Path protxml = e.getValue();
@@ -118,7 +128,6 @@ public class CmdSpecLibGen extends CmdBase {
         return false;
       }
 
-      final SpeclibPanel speclibPanel = Fragpipe.getStickyStrict(SpeclibPanel.class);
       // for current implementation of speclibgen scripts mzml files need to be
       // located next to pepxml files
       final List<ProcessBuilder> pbsDeleteLcmsFiles = new ArrayList<>();
