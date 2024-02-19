@@ -263,8 +263,6 @@ public class CmdDiann extends CmdBase {
       cmd.add("diann-output" + File.separator + "report.tsv");
       cmd.add("--qvalue");
       cmd.add(String.valueOf(qvalue));
-      cmd.add("--matrix-qvalue");
-      cmd.add(String.valueOf(qvalue));
       if (useRunSpecificProteinQvalue) {
         cmd.add("--matrix-spec-q");
       }
