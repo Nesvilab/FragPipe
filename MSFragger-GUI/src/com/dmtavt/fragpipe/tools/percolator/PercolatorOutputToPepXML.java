@@ -314,8 +314,9 @@ public class PercolatorOutputToPepXML {
             final int indexOf_SpecId = colnames.indexOf("SpecId");
             final int indexOf_ntt = colnames.indexOf("ntt");
             final int indexOf_nmc = colnames.indexOf("nmc");
+            final int indexOf_expRT = colnames.indexOf("retentiontime");
             int indexOf_spectralSimilarity = -1;
-            int indexOf_RTscore = -1;
+            int indexOf_predRT = -1;
             if (colnames.contains("bray_curtis")) { //will need to adjust in future, if more scores are allowed
                 indexOf_spectralSimilarity = colnames.indexOf("bray_curtis");
             }
@@ -323,7 +324,7 @@ public class PercolatorOutputToPepXML {
                 indexOf_spectralSimilarity = colnames.indexOf("unweighted_spectral_entropy");
             }
             if (colnames.contains("delta_RT_loess")) {
-                indexOf_RTscore = colnames.indexOf("delta_RT_loess");
+                indexOf_predRT = colnames.indexOf("pred_RT_real_units");
             }
             String line;
 
@@ -340,8 +341,9 @@ public class PercolatorOutputToPepXML {
                     spectralSimilarity = Float.parseFloat(split[indexOf_spectralSimilarity]);
                 }
                 float RTscore = Float.NaN;
-                if (indexOf_RTscore != -1) {
-                    RTscore = Float.parseFloat(split[indexOf_RTscore]);
+                if (indexOf_predRT != -1) {
+                    RTscore = Math.abs(Float.parseFloat(split[indexOf_predRT]) -
+                            Float.parseFloat(split[indexOf_expRT]));
                 }
                 pinSpectrumRankNttNmc.computeIfAbsent(specId, e -> new NttNmc[max_rank])[rank - 1] = new NttNmc(ntt, nmc, spectralSimilarity, RTscore);
             }
