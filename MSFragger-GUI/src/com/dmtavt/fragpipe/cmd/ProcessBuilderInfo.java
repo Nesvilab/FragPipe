@@ -150,13 +150,18 @@ public class ProcessBuilderInfo {
       } finally {
         // grab the exit code of the process to use for System.exit() if operating in headless mode
         int overallExitCode = 0;
-        if (started != null && started.exitValue() != 0) {
-          overallExitCode = started.exitValue();
+        try {
+          if (started != null && !started.isAlive() && started.exitValue() != 0) {
+            overallExitCode = started.exitValue();
+          }
+        } catch (Exception ex) {
+          log.debug("Could not get the exit code: {}", ex.getMessage());
         }
         // in the end whatever happens always try to kill the process
         if (started != null && started.isAlive()) {
           log.debug("Killing underlying external process");
           started.destroyForcibly();
+          overallExitCode = 1;
         }
         try {
           pr.close();

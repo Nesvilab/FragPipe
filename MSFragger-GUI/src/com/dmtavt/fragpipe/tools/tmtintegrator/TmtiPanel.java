@@ -25,7 +25,6 @@ import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
 import com.dmtavt.fragpipe.dialogs.QuantLabelAnnotationDialog;
 import com.dmtavt.fragpipe.messages.MessageLcmsFilesList;
-import com.dmtavt.fragpipe.messages.MessageLoadTmtIntegratorDefaults;
 import com.dmtavt.fragpipe.messages.MessageType;
 import com.dmtavt.fragpipe.messages.NoteConfigTmtI;
 import com.dmtavt.fragpipe.params.ThisAppProps;
@@ -78,7 +77,6 @@ import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -176,7 +174,7 @@ public class TmtiPanel extends JPanelBase {
   private UiCombo uiComboAddRef;
   private UiCombo uiComboAbnType;
   private UiCombo uiComboNorm;
-  private UiCheck uiCheckDontRunFqLq;
+  private UiCombo uiComboIntensityExtractionTool;
 
   private static Supplier<? extends RuntimeException> supplyRunEx(String message) {
     return () -> new RuntimeException(message);
@@ -244,15 +242,15 @@ public class TmtiPanel extends JPanelBase {
     JPanel p = mu.newPanel(mu.lcFillXNoInsetsTopBottom());
     mu.borderEmpty(p);
 
-    checkRun = new UiCheck("Run TMT-Integrator", null, false);
+    checkRun = new UiCheck("Run Isobaric Quant", null, false);
     checkRun.setName("run-tmtintegrator");
-    JButton btnLoadDefaults = UiUtils.createButton("Load TMT-Integrator defaults",
-        (e) -> Bus.post(new MessageLoadTmtIntegratorDefaults(true)));
 
-    uiCheckDontRunFqLq = UiUtils.createUiCheck("Skip PSM quantification (rerun TMT-Integrator only)", false);
-    FormEntry feDontRunFqLq = mu.feb(uiCheckDontRunFqLq).name("dont-run-fq-lq")
-        .tooltip("Only use in rare situations when you need to re-run TMT-Integrator separately")
-        .create();
+    List<String> tt = new ArrayList<>(3);
+    tt.add("IonQuant");
+    tt.add("Philosopher");
+    tt.add("Skip extraction. Run TMT-Integrator only");
+    uiComboIntensityExtractionTool = UiUtils.createUiCombo(tt);
+    FormEntry feIntensityExtractionTool = fe("extraction_tool", "Intensity Extraction Tool", uiComboIntensityExtractionTool, "MS1 and reporter ion intensity extraction tool");
 
     JLabel imageLabel = new JLabel();
     try {
@@ -263,9 +261,9 @@ public class TmtiPanel extends JPanelBase {
     }
 
     mu.add(p, checkRun);
-    mu.add(p, btnLoadDefaults).pushX();
     mu.add(p, imageLabel, mu.ccR()).gapRight("50").wrap();
-    mu.add(p, feDontRunFqLq.comp).spanX().growX().wrap();
+    mu.add(p, feIntensityExtractionTool.label());
+    mu.add(p, feIntensityExtractionTool.comp).pushX().wrap();
 
     return p;
   }
@@ -296,7 +294,7 @@ public class TmtiPanel extends JPanelBase {
     colBrowse = new ButtonColumn(tmtAnnotationTable, actionBrowse, 2);
     colCreate = new ButtonColumn(tmtAnnotationTable, actionCreate, 3);
 
-    p.add(new JLabel("Sample/Channel Annotation (rows will be filled when you assign LC-MS files to experiments)"), BorderLayout.NORTH);
+    p.add(new JLabel(SwingUtils.makeHtml("Sample/Channel Annotation (rows will be filled when you assign LC-MS files to experiments). To ignore certain channel, set the <b>sample name</b> to <b>NA</b>.")), BorderLayout.NORTH);
     tmtAnnotationTable.fireInitialization();
     tmtAnnotationTable.setFillsViewportHeight(false);
     scrollPaneTmtTable = new JScrollPane();
@@ -347,7 +345,6 @@ public class TmtiPanel extends JPanelBase {
             + "0: None <br/>\n"
             + "1: MD (median centering) <br/>\n"
             + "2: GN (median centering variance scaling) <br/>\n"
-            + "3: SL+IRS (Only for abundance-based integration) <br/>\n"
             + "-1: generate reports with all normalization options)");
 
     uiComboAddRef = UiUtils.createUiCombo(TmtiConfProps.COMBO_ADD_REF.stream()
@@ -379,7 +376,7 @@ public class TmtiPanel extends JPanelBase {
     addRowLabelComp(p, feRefTag);
     addRowLabelComp(p, feGroupBy);
     addRowLabelComp(p, feProtNorm);
-    addRowLabelComp(p, feAbnType);
+//    addRowLabelComp(p, feAbnType);
 
     return p;
   }
@@ -755,26 +752,13 @@ public class TmtiPanel extends JPanelBase {
     return SwingUtils.isEnabledAndChecked(checkRun);
   }
 
-  public boolean isRunFqLq() {
-    return isRun() && !uiCheckDontRunFqLq.isSelected();
+  public int getIntensityExtractionTool() {
+    return uiComboIntensityExtractionTool.getSelectedIndex();
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteConfigTmtI m) {
     updateEnabledStatus(this, m.isValid());
-  }
-
-  @Subscribe
-  public void on(MessageLoadTmtIntegratorDefaults m) {
-    log.debug("Got MessageLoadTmtIntegratorDefaults, it's an empty marker message");
-    final Map<String, String> map = TmtiConfig.getDefaultAsMap();
-    log.debug("Read tmt-i default props props: {}", map);
-    HashMap<String, String> prefixed = new HashMap<>();
-    map.forEach((k, v) -> {
-      String vConvertedToUi = CONVERT_TO_GUI.getOrDefault(k, Function.identity()).apply(v);
-      prefixed.put(StringUtils.prependOnce(k, PREFIX), vConvertedToUi);
-    });
-    SwingUtils.valuesSet(this, prefixed);
   }
 
   @Subscribe(threadMode =  ThreadMode.MAIN_ORDERED)
@@ -917,11 +901,11 @@ public class TmtiPanel extends JPanelBase {
         return;
       }
 
-      if (!expDir.equals(selectedFile.toPath().getParent())) {
+      if (getIntensityExtractionTool() == 1 && !expDir.equals(selectedFile.toPath().getParent())) {
         String m = String.format(
-            "Current implementation requires the annotation file to be\n"
+            "Philosopher requires the annotation file to be\n"
                 + "in the same directory as corresponding LCMS files.\n"
-                + "Please select or create a file in:\n\n%s", expDir);
+                + "Please select or create a file in: %s\n or switch to IonQuant for the intensity extraction method", expDir);
         SwingUtils.showWarningDialog(this, m, "Bad annotation file path");
         return;
       }
@@ -1026,9 +1010,10 @@ public class TmtiPanel extends JPanelBase {
       int userSelection = fc.showSaveDialog(parent);
       if (JFileChooser.APPROVE_OPTION == userSelection) {
         selectedPath = fc.getSelectedFile().toPath();
-        if (!selectedPath.getParent().equals(saveDir)) {
-          String msg = "<html>Current implementation requires annotation files to be saved<br/>\n"
-              + "in the same directory as LCMS files for that plex. Please save the file in:<br/>\n<br/>\n" + saveDir;
+        if (getIntensityExtractionTool() == 1 && !selectedPath.getParent().equals(saveDir)) {
+          String msg = "<html>Philosopher requires annotation files to be saved<br/>\n"
+              + "in the same directory as LCMS files for that plex. Please save the file in:<br/>\n<br/>\n" + saveDir + "\n"
+              + "or switch to IonQuant for the intensity extraction method.";
           String htmlMsg = SwingUtils.makeHtml(msg);
 
           SwingUtils.showWarningDialog(this,

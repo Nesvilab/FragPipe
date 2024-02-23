@@ -17,6 +17,8 @@
 
 package com.dmtavt.fragpipe.cmd;
 
+import static com.dmtavt.fragpipe.cmd.ToolingUtils.getUnimodOboPath;
+
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
 import com.dmtavt.fragpipe.api.PyInfo;
@@ -58,7 +60,7 @@ public class CmdSpecLibGen extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, SpecLibGen2 slg, Map<LcmsFileGroup, Path> mapGroupsToProtxml, String fastaPath, boolean isRunProteinProphet, InputDataType dataType, int threads) {
+  public boolean configure(Component comp, SpecLibGen2 slg, Map<LcmsFileGroup, Path> mapGroupsToProtxml, String fastaPath, boolean isRunProteinProphet, InputDataType dataType, int threads, String decoyTag) {
 
     initPreConfig();
 
@@ -98,6 +100,16 @@ public class CmdSpecLibGen extends CmdBase {
       }
     }
 
+    final SpeclibPanel speclibPanel = Fragpipe.getStickyStrict(SpeclibPanel.class);
+    if (!speclibPanel.checkGlycoMode()) {
+      if (Fragpipe.headless) {
+        log.error("EasyPQP glyco modes are only supported for psm.tsv conversion. Please change conversion filetype to psm.tsv and try again.");
+      } else {
+        JOptionPane.showMessageDialog(comp, "EasyPQP glyco modes are only supported for psm.tsv conversion. Please change conversion filetype to psm.tsv and try again.", "Conversion type error", JOptionPane.WARNING_MESSAGE);
+      }
+      return false;
+    }
+
     for (Entry<LcmsFileGroup, Path> e : mapGroupsToProtxml.entrySet()) {
       final LcmsFileGroup group = e.getKey();
       final Path protxml = e.getValue();
@@ -116,7 +128,6 @@ public class CmdSpecLibGen extends CmdBase {
         return false;
       }
 
-      final SpeclibPanel speclibPanel = Fragpipe.getStickyStrict(SpeclibPanel.class);
       // for current implementation of speclibgen scripts mzml files need to be
       // located next to pepxml files
       final List<ProcessBuilder> pbsDeleteLcmsFiles = new ArrayList<>();
@@ -151,12 +162,27 @@ public class CmdSpecLibGen extends CmdBase {
               (im_cal.equals("a tsv file") ? imCalTsvPath.toString() : im_cal)); // alignment options
       cmd.add(String.valueOf(tabWorkflow.getThreads()));
 
+      Path unimodPath;
+      try {
+        unimodPath = getUnimodOboPath("unimod_old.xml"); // Use the same old unimod file as in OpenMS to avoid an error due to mismatches of some modifications.
+      } catch (Exception ex) {
+        ex.printStackTrace();
+        return false;
+      }
+
       final double max_delta_unimod = speclibPanel.getEasypqp_max_delta_unimod(); // EasyPQP convert
       final double max_delta_ppm = speclibPanel.getEasypqp_max_delta_ppm(); // EasyPQP convert
       final String fragment_types = speclibPanel.getEasypqp_fragment_types(); // EasyPQP convert
       final double rt_lowess_fraction = speclibPanel.getEasypqpRTLowessFraction(); // EasyPQP library
 
-      cmd.add(OsUtils.asSingleArgument(String.format("--max_delta_unimod %s --max_delta_ppm %s --fragment_types %s %s", max_delta_unimod, max_delta_ppm, fragment_types.replace("'", "\\'"), speclibPanel.hasNeutralLoss() ? "--enable_unspecific_losses" : ""))); // EasyPQP convert args
+      cmd.add(OsUtils.asSingleArgument(String.format("--max_delta_unimod %s --max_delta_ppm %s --fragment_types %s %s%s%s%s",
+              max_delta_unimod,
+              max_delta_ppm,
+              fragment_types.replace("'", "\\'"),
+              speclibPanel.hasNeutralLoss() ? "--enable_unspecific_losses " : "",
+              speclibPanel.getEasyPQPignoreUnannotatedOption() ? "--ignore_unannotated " : "",
+              speclibPanel.isConvertPSM() ? "--decoy_prefix " + decoyTag + " ": "",
+              speclibPanel.getEasypqpGlycoOption().isEmpty() ? "" : "--labile_mods " + speclibPanel.getEasypqpGlycoOption())));   // EasyPQP convert args
 
       cmd.add(OsUtils.asSingleArgument(String.format("--rt_lowess_fraction %s", rt_lowess_fraction))); // EasyPQP library args
 

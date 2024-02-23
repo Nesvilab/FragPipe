@@ -21,6 +21,7 @@ import java.util.Map;
 
 public class GitHubJson implements Comparable<GitHubJson> {
 
+  private String tagName;
   private String name;
   private String zipballUrl;
   private String tarballUrl;
@@ -41,6 +42,10 @@ public class GitHubJson implements Comparable<GitHubJson> {
     }
   }
 
+  public void setTagName(String tagName) {
+    this.tagName = tagName;
+  }
+
   public void setName(String name) {
     this.name = name;
   }
@@ -59,6 +64,10 @@ public class GitHubJson implements Comparable<GitHubJson> {
 
   public void setNodeId(String nodeId) {
     this.nodeId = nodeId;
+  }
+
+  public String getTagName() {
+    return tagName;
   }
 
   public String getName() {

@@ -19,7 +19,6 @@ package com.github.chhh.utils.swing;
 
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
-import java.awt.Component;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.nio.file.Path;
@@ -75,7 +74,7 @@ public class FormEntry {
   public JLabel label() {
     JLabel l = new JLabel(labelText);
     l.setLabelFor(comp);
-    l.setToolTipText(tooltip);
+    l.setToolTipText(SwingUtils.makeHtml(tooltip));
     return l;
   }
 
@@ -98,7 +97,7 @@ public class FormEntry {
     registerGhost(comp, ghostText);
 
     final JButton btn = new JButton(buttonText);
-    btn.setToolTipText(tooltip);
+    btn.setToolTipText(SwingUtils.makeHtml(tooltip));
     btn.addActionListener(onClick);
     return btn;
   }
@@ -125,7 +124,7 @@ public class FormEntry {
     }
 
     final JButton btn = new JButton(buttonText);
-    btn.setToolTipText(tooltip);
+    btn.setToolTipText(SwingUtils.makeHtml(tooltip));
     btn.addActionListener(e -> {
       JFileChooser fc = fcProvider.get();
 

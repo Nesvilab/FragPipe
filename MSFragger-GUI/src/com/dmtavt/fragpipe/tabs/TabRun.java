@@ -18,12 +18,15 @@
 package com.dmtavt.fragpipe.tabs;
 
 import static com.dmtavt.fragpipe.cmd.CmdBase.constructClasspathString;
+import static com.dmtavt.fragpipe.messages.MessagePrintToConsole.toConsole;
+import static com.dmtavt.fragpipe.tabs.TabWorkflow.workflowExt;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.FragpipeRun;
 import com.dmtavt.fragpipe.Version;
 import com.dmtavt.fragpipe.api.Bus;
+import com.dmtavt.fragpipe.api.PropsFile;
 import com.dmtavt.fragpipe.cmd.PbiBuilder;
 import com.dmtavt.fragpipe.cmd.ProcessBuilderInfo;
 import com.dmtavt.fragpipe.cmd.ToolingUtils;
@@ -36,15 +39,22 @@ import com.dmtavt.fragpipe.messages.MessageRun;
 import com.dmtavt.fragpipe.messages.MessageRunButtonEnabled;
 import com.dmtavt.fragpipe.messages.MessageSaveLog;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
+import com.dmtavt.fragpipe.messages.NoteConfigSkyline;
 import com.dmtavt.fragpipe.process.ProcessResult;
 import com.dmtavt.fragpipe.tools.philosopher.ReportPanel;
-import com.dmtavt.fragpipe.util.SDRFtable;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
-import com.github.chhh.utils.swing.*;
+import com.github.chhh.utils.swing.FileChooserUtils;
 import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
-
+import com.github.chhh.utils.swing.FormEntry;
+import com.github.chhh.utils.swing.JPanelWithEnablement;
+import com.github.chhh.utils.swing.MigUtils;
+import com.github.chhh.utils.swing.TextConsole;
+import com.github.chhh.utils.swing.UiCheck;
+import com.github.chhh.utils.swing.UiSpinnerDouble;
+import com.github.chhh.utils.swing.UiText;
+import com.github.chhh.utils.swing.UiUtils;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Desktop;
@@ -53,9 +63,12 @@ import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
@@ -63,7 +76,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.imageio.ImageIO;
@@ -91,8 +110,9 @@ public class TabRun extends JPanelWithEnablement {
   public static final String TAB_PREFIX = "tab-run.";
   private static final String LAST_WORK_DIR = "workdir.last-path";
   private static final String PROP_FILECHOOSER_LAST_PATH = TAB_PREFIX + "filechooser.last-path";
-  private static final String PDV_NAME = "/FP-PDV/FP-PDV-1.1.1.jar";
+  private static final String PDV_NAME = "/FP-PDV/FP-PDV-1.1.8.jar";
   private static final String FRAGPIPE_ANALYST_URL = Fragpipe.propsFix().getProperty("fragpipe-analyst-url", "http://fragpipe-analyst.nesvilab.org/");
+  private static final Pattern pattern = Pattern.compile("Converged to [\\d.]+ % FDR with \\d+ Ions\\s+decoy=\\d+ threshold=([\\d.]+) total=\\d+");
 
   public final TextConsole console;
   Color defTextColor;
@@ -106,11 +126,14 @@ public class TabRun extends JPanelWithEnablement {
   private JButton btnStop;
   private JButton btnOpenPdv;
   private JButton btnOpenFragPipeAnalyst;
+  public JButton btnOpenSkyline;
   private Thread pdvThread = null;
+  private Thread skylineThread = null;
   private JPanel pTop;
   private JPanel pConsole;
   private UiCheck uiCheckWordWrap;
   private Process pdvProcess = null;
+  private Process skylineProcess = null;
   private TabDownstream tabDownstream;
   private UiCheck uiCheckSaveSDRF;
 
@@ -217,7 +240,9 @@ public class TabRun extends JPanelWithEnablement {
     FormEntry feWriteSubMzml = mu.feb(uiCheckWriteSubMzml).name(TAB_PREFIX + "write_sub_mzml").label("Write sub mzML").tooltip("Write unidentified scans to mzML files. Need to run MSFragger.").create();
 
     uiSpinnerProbThreshold = UiUtils.spinnerDouble(0.5, 0.0, 1.0, 0.01).setCols(4).setFormat("#.##").create();
-    FormEntry feProbThreshold = mu.feb(uiSpinnerProbThreshold).name(TAB_PREFIX + "sub_mzml_prob_threshold").label("Probability threshold").tooltip("Scans with the probability larger than the threshold <b>and</b> passing the FDR cut-off will be discarded.").create();
+    FormEntry feProbThreshold = mu.feb(uiSpinnerProbThreshold).name(TAB_PREFIX + "sub_mzml_prob_threshold").label("Probability threshold").tooltip(
+        "Used for generating the sub mzML files that contains unidentified scans.<br>"
+            + "Scans with the probability larger than the threshold <b>and</b> passing the FDR filtering will be written to the sub mzML files.").create();
 
     ReportPanel reportPanel = Bus.getStickyEvent(ReportPanel.class);
     if (reportPanel == null) {
@@ -297,6 +322,167 @@ public class TabRun extends JPanelWithEnablement {
       SwingUtils.openBrowserOrThrow(FRAGPIPE_ANALYST_URL);
     });
 
+    btnOpenSkyline = UiUtils.createButton("Generate Skyline files", e -> {
+      NoteConfigSkyline noteConfigSkyline = Bus.getStickyEvent(NoteConfigSkyline.class);
+      String skylinePath = noteConfigSkyline.path;
+
+      if (skylinePath == null || skylinePath.isEmpty()) {
+        SwingUtils.showErrorDialog(this, "Cannot find SkylineCmd.exe.", "No SkylineCmd.exe");
+      } else {
+        Path wd = Paths.get(uiTextWorkdir.getNonGhostText());
+        Path workflowPath = wd.resolve("fragpipe" + workflowExt);
+        PropsFile pf = new PropsFile(workflowPath, "for Skyline");
+
+        List<Path> speclibFiles = new ArrayList<>(1);
+        TreeSet<String> lcmsFiles = new TreeSet<>();
+        TreeSet<Path> pepxmlFiles = new TreeSet<>();
+        float probThreshold = 0.8f;
+        List<String> cmd = new ArrayList<>();
+
+        try {
+          pf.load();
+
+          String dataType = "None";
+          String line;
+          BufferedReader reader = Files.newBufferedReader(wd.resolve("fragpipe-files.fp-manifest"));
+          while ((line = reader.readLine()) != null) {
+            line = line.trim();
+            if (line.isEmpty()) {
+              continue;
+            }
+            String[] parts = line.split("\t");
+            lcmsFiles.add(parts[0]);
+            if (parts[3].contains("DIA")) {
+              dataType = "DIA";
+            }
+          }
+          reader.close();
+
+          List<Path> logFiles = Files.walk(wd).filter(p -> p.getFileName().toString().startsWith("log_") && p.getFileName().toString().endsWith(".txt")).sorted().collect(Collectors.toList());
+          reader = Files.newBufferedReader(logFiles.get(logFiles.size() - 1));
+          while ((line = reader.readLine()) != null) {
+            line = line.trim();
+            if (line.isEmpty()) {
+              continue;
+            }
+            Matcher matcher = pattern.matcher(line);
+            if (matcher.find()) {
+              probThreshold = Float.parseFloat(matcher.group(1));
+            }
+          }
+          reader.close();
+
+          pepxmlFiles = Files.walk(wd).filter(p -> p.getFileName().toString().startsWith("interact-") && p.getFileName().toString().endsWith(".pep.xml")).collect(Collectors.toCollection(TreeSet::new));
+          speclibFiles = Files.walk(wd).filter(p -> p.getFileName().toString().endsWith(".speclib")).collect(Collectors.toList());
+
+          Path pp = wd.resolve("filelist_skyline.txt");
+
+          BufferedWriter writer = Files.newBufferedWriter(pp);
+          writer.write("--overwrite ");
+          writer.write("--new=fragpipe.sky ");
+          writer.write("--import-search-add-mods ");
+          writer.write("--full-scan-acquisition-method=" + dataType + " ");
+
+          if (speclibFiles.isEmpty()) {
+            writer.write("--import-search-cutoff-score=" + probThreshold + " ");
+            for (Path p : pepxmlFiles) {
+              writer.write("--import-search-file=" + p.toAbsolutePath() + " ");
+            }
+          } else {
+            writer.write("--import-search-cutoff-score=0.01 ");
+            writer.write("--import-search-file=" + speclibFiles.get(0).toAbsolutePath() + " ");
+          }
+
+          if (noteConfigSkyline.compareVersion("23.1.0.380") > 0) {
+            // parameters added after released 23.1 version
+            writer.write("--pep-max-missed-cleavages=" + pf.getProperty("msfragger.allowed_missed_cleavage_1") + " ");
+            writer.write("--pep-min-length=" + pf.getProperty("msfragger.digest_min_length") + " ");
+            writer.write("--pep-max-length=" + pf.getProperty("msfragger.digest_max_length") + " ");
+            writer.write("--pep-exclude-nterminal-aas=0 ");
+          }
+          writer.write("--tran-precursor-ion-charges=\"2,3,4,5,6\" ");
+          writer.write("--tran-product-ion-charges=\"1,2\" ");
+          writer.write("--tran-product-ion-types=\"y,b,p\" ");
+          writer.write("--tran-product-start-ion=\"ion 3\" ");
+          writer.write("--tran-product-end-ion=\"last ion\" ");
+          writer.write("--tran-product-clear-special-ions ");
+          if (pf.getProperty("msfragger.fragment_mass_units").contentEquals("1")) {
+            writer.write("--library-match-tolerance=" + pf.getProperty("msfragger.fragment_mass_tolerance") + "ppm ");
+          } else {
+            writer.write("--library-match-tolerance=" + pf.getProperty("msfragger.fragment_mass_tolerance") + "mz ");
+          }
+          writer.write("--library-product-ions=12 ");
+          writer.write("--library-min-product-ions=" + pf.getProperty("msfragger.min_matched_fragments") + " ");
+          writer.write("--library-pick-product-ions=filter ");
+          writer.write("--full-scan-precursor-analyzer=centroided ");
+          writer.write("--full-scan-precursor-isotopes=Count ");
+          writer.write("--full-scan-precursor-threshold=3 ");
+          writer.write("--full-scan-product-analyzer=centroided ");
+
+          if (pf.getProperty("msfragger.precursor_true_units").contentEquals("1")) {
+            writer.write("--full-scan-precursor-res=" + pf.getProperty("msfragger.precursor_true_tolerance") + " ");
+          } else {
+            writer.write("--full-scan-precursor-res=" + (Float.parseFloat(pf.getProperty("msfragger.precursor_true_tolerance")) * 1000) + " ");
+          }
+
+          writer.write("--full-scan-rt-filter=ms2_ids ");
+          writer.write("--full-scan-rt-filter-tolerance=2 ");
+          writer.write("--instrument-min-mz=50 ");
+          writer.write("--instrument-max-mz=2000 ");
+          writer.write("--full-scan-precursor-isotopes=Count ");
+          writer.write("--full-scan-isolation-scheme=\"Results only\" ");
+          for (String s : lcmsFiles) {
+            writer.write("--import-file=" + s + " ");
+          }
+          writer.write("--import-search-exclude-library-sources ");
+          writer.write("--import-fasta=" + wd.resolve("protein.fas") + " ");
+          writer.write("--associate-proteins-shared-peptides=DuplicatedBetweenProteins ");
+
+          writer.close();
+
+          cmd.add(skylinePath);
+          cmd.add("--timestamp");
+          cmd.add("--dir=" + wd.toAbsolutePath());
+          cmd.add("--batch-commands=" + pp.toAbsolutePath());
+
+          toConsole("Executing: " + String.join(" ", cmd), console);
+        } catch (Exception ex) {
+          toConsole(Color.red, ExceptionUtils.getStackTrace(ex), true, console);
+          btnOpenSkyline.setEnabled(true);
+          return;
+        }
+
+        skylineThread = new Thread(() -> {
+          try {
+            btnOpenSkyline.setEnabled(false);
+            ProcessBuilder pb = new ProcessBuilder(cmd);
+            ProcessBuilderInfo pbi = new PbiBuilder().setPb(pb).setName(pb.toString()).setFnStdOut(null).setFnStdErr(null).setParallelGroup(null).create();
+            ProcessResult pr = new ProcessResult(pbi);
+            skylineProcess = pr.start();
+
+            redirectOutputToConsole(skylineProcess.getInputStream(), console);
+
+            int exitValue = skylineProcess.waitFor();
+            if (exitValue != 0) {
+              String errStr = pr.appendErr(pr.pollStdErr());
+              toConsole(Color.red, "Process " + pb + " returned non zero value. Message:\n" + (errStr == null ? "" : errStr), true, console);
+            } else {
+              toConsole("DONE! The Skyline files locate in " + wd.toAbsolutePath(), console);
+            }
+          } catch (Exception ex) {
+            toConsole(Color.red, ExceptionUtils.getStackTrace(ex), true, console);
+            if (skylineProcess != null) {
+              skylineProcess.destroyForcibly();
+            }
+            btnOpenSkyline.setEnabled(true);
+          } finally {
+            btnOpenSkyline.setEnabled(true);
+          }
+        });
+        skylineThread.start();
+      }
+    });
+
     JButton btnExport = UiUtils.createButton("Export Log", e -> Bus.post(new MessageExportLog()));
     JButton btnReportErrors = UiUtils.createButton("Report Errors", e -> {
       final String prop = Version.isDevBuild() ? Version.PROP_ISSUE_TRACKER_URL_DEV : Version.PROP_ISSUE_TRACKER_URL;
@@ -337,7 +523,7 @@ public class TabRun extends JPanelWithEnablement {
     uiCheckSaveSDRF = new UiCheck("Save Technical SDRF", null,true);
     uiCheckSaveSDRF.setName("workflow.misc.save-sdrf");
     uiCheckSaveSDRF.setToolTipText("Save a template SDRF file with technical columns (search parameters) for this FragPipe run. \n" +
-            "NOTE: this is not a complete SDRF file, information about the samples needs to be added to complete it.");
+        "NOTE: this is not a complete SDRF file, information about the samples needs to be added to complete it.");
     JLabel emptySpacer = new JLabel("              ");
 
     JPanel p = mu.newPanel(null, true);
@@ -358,11 +544,13 @@ public class TabRun extends JPanelWithEnablement {
     mu.add(p, btnClearConsole);
     mu.add(p, uiCheckWordWrap).wrap();
 
-    mu.add(p, imageLabel).split(4);
+    mu.add(p, imageLabel).split(5);
     mu.add(p, btnOpenPdv).pushX();
 
-    mu.add(p, imageLabel2).gapLeft("50px");
+    mu.add(p, imageLabel2).gapLeft("30px");
     mu.add(p, btnOpenFragPipeAnalyst);
+
+    mu.add(p, btnOpenSkyline);
 
     mu.add(p, uiCheckDeleteCalibratedFiles, false).split();
     mu.add(p, uiCheckDeleteTempFiles).gapRight("20px");
@@ -371,6 +559,19 @@ public class TabRun extends JPanelWithEnablement {
     mu.add(p, feProbThreshold.comp, false).wrap();
 
     return p;
+  }
+
+  private void redirectOutputToConsole(InputStream inputStream, TextConsole console) {
+    new Thread(() -> {
+      try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+        String line;
+        while ((line = reader.readLine()) != null) {
+          toConsole(line, console);
+        }
+      } catch (IOException e) {
+        toConsole(Color.red, ExceptionUtils.getStackTrace(e), true, console);
+      }
+    }).start();
   }
 
   public boolean isDryRun() {

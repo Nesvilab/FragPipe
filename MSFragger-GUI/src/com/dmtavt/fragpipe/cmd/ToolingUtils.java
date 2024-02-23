@@ -18,10 +18,15 @@
 package com.dmtavt.fragpipe.cmd;
 
 import static com.github.chhh.utils.PathUtils.testBinaryPath;
+import static org.apache.commons.lang3.StringUtils.getCommonPrefix;
 
 import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.FragpipeLocations;
+import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
+import com.dmtavt.fragpipe.api.LcmsFileGroup;
 import com.dmtavt.fragpipe.params.ThisAppProps;
+import com.dmtavt.fragpipe.tabs.TabWorkflow;
 import com.github.chhh.utils.FileCopy;
 import com.github.chhh.utils.FileDelete;
 import com.github.chhh.utils.FileMove;
@@ -31,20 +36,30 @@ import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
+import org.apache.commons.io.FilenameUtils;
+import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,9 +67,17 @@ public class ToolingUtils {
   private static final Logger log = LoggerFactory.getLogger(ToolingUtils.class);
   private ToolingUtils() {}
 
-  public static final String BATMASS_IO_JAR = "batmass-io-1.28.12.jar";
+  public static final String BATMASS_IO_JAR = "batmass-io-1.31.2.jar";
   public static final String JFREECHART_JAR = "jfreechart-1.5.3.jar";
   public static final String UNIMOD_OBO = "unimod.obo";
+
+  public static Path getUnimodOboPath(String unimodName) throws Exception {
+    final List<Path> tt = FragpipeLocations.checkToolsMissing(Seq.of(unimodName));
+    if (tt == null || tt.size() != 1) {
+      throw new FileNotFoundException("Could not find unimod.obo file from " + FragpipeLocations.get().getDirTools());
+    }
+    return tt.get(0);
+  }
 
   /**
    * @return Full absolute normalized path to the output combined protein file.
@@ -218,6 +241,101 @@ public class ToolingUtils {
     Pattern isPhilosopherRegex = Pattern.compile("philosopher", Pattern.CASE_INSENSITIVE);
     Matcher matcher = isPhilosopherRegex.matcher(binPathToCheck);
     return matcher.find();
+  }
+
+  static void generateLFQExperimentAnnotation(Path wd, int type) throws Exception {
+    BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(wd.resolve("experiment_annotation.tsv").toFile()));
+    bufferedWriter.write("file\tsample\tsample_name\tcondition\treplicate\n");
+
+    TabWorkflow tabWorkflow = Bus.getStickyEvent(TabWorkflow.class);
+    Collection<LcmsFileGroup> ttt = tabWorkflow.getLcmsFileGroups2().values();
+
+    Set<String> fileNameSet = new HashSet<>();
+    for (LcmsFileGroup lcmsFileGroup : ttt) {
+      for (InputLcmsFile inputLcmsFile : lcmsFileGroup.lcmsFiles) {
+        String baseName = FilenameUtils.getBaseName(inputLcmsFile.getPath().getFileName().toString());
+        fileNameSet.add(baseName);
+      }
+    }
+    String commonPrefix = getCommonPrefix(fileNameSet.toArray(new String[0]));
+    int a = commonPrefix.length();
+
+    if (ttt.size() == 1 && ttt.iterator().next().name.isEmpty()) { // There is no group info from the manifest. Parse from the file name.
+      for (LcmsFileGroup lcmsFileGroup : ttt) {
+        for (InputLcmsFile inputLcmsFile : lcmsFileGroup.lcmsFiles) {
+          String baseName = FilenameUtils.getBaseName(inputLcmsFile.getPath().getFileName().toString());
+          String sampleName = baseName.substring(a);
+          String[] tt = sampleName.split("_");
+          if (tt.length == 3) {
+            try {
+              int replicate = Integer.parseInt(tt[2]);
+              bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getPath().toAbsolutePath() + "\t" + tt[0] + "_" + tt[1] + "\t" + replicate + "\n");
+            } catch (Exception ex) {
+              bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getPath().toAbsolutePath() + "\t" + tt[1] + "_" + tt[2] + "\t1\n");
+            }
+          } else if (tt.length == 2) {
+            try {
+              int replicate = Integer.parseInt(tt[1]);
+              bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getPath().toAbsolutePath() + "\t" + sampleName + "\t" + tt[0] + "\t" + replicate + "\n");
+            } catch (Exception ex) {
+              bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getPath().toAbsolutePath() + "\t" + sampleName + "\t" + tt[1] + "\t1\n");
+            }
+          } else {
+            bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getPath().toAbsolutePath() + "\t" + sampleName + "\t" + sampleName + "\t1\n");
+          }
+        }
+      }
+    } else { // There is group info from the manifest.
+      for (LcmsFileGroup lcmsFileGroup : ttt) {
+        for (InputLcmsFile inputLcmsFile : lcmsFileGroup.lcmsFiles) {
+          String[] parts = inputLcmsFile.getExperiment().split("_");
+          if (type == 0) {
+            bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getGroup2() + "\t" + inputLcmsFile.getGroup2() + "\t" + parts[0].trim() + "\t" + (inputLcmsFile.getReplicate() == null ? 1 : inputLcmsFile.getReplicate()) + "\n");
+          } else if (type == 1) {
+            bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getGroup2() + "\t" + parts[0].trim() + "\t" + (inputLcmsFile.getReplicate() == null ? 1 : inputLcmsFile.getReplicate()) + "\n");
+          }
+        }
+      }
+    }
+    bufferedWriter.close();
+  }
+
+  public static void writeIsobaricQuantExperimentAnnotation(Path wd, Map<LcmsFileGroup, Path> annotations) throws Exception {
+    String line;
+    BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(wd.resolve("experiment_annotation.tsv").toFile()));
+    bufferedWriter.write("plex\tchannel\tsample\tsample_name\tcondition\treplicate\n");
+    for (Map.Entry<LcmsFileGroup, Path> e : annotations.entrySet()) {
+      BufferedReader bufferedReader = new BufferedReader(new FileReader(e.getValue().toFile()));
+      while ((line = bufferedReader.readLine()) != null) {
+        line = line.trim();
+        if (!line.isEmpty()) {
+          String[] parts = line.split("\\s");
+          if (parts[1].trim().equalsIgnoreCase("na")) {
+            continue;
+          }
+          String[] parts2 = parts[1].trim().split("_");
+          if (parts2.length == 3) {
+            try {
+              int replicate = Integer.parseInt(parts2[2]);
+              bufferedWriter.write(e.getKey().name + "\t" + parts[0].trim() + "\t" + parts[1].trim() + "\t" + parts2[0].trim() + "\t" + parts2[1].trim() + "\t" + replicate + "\n");
+            } catch (Exception ex) {
+              bufferedWriter.write(e.getKey().name + "\t" + parts[0].trim() + "\t" + parts[1].trim() + "\t" + parts2[0].trim() + "_" + parts2[1].trim() + "\t" + parts2[2].trim() + "\t1\n");
+            }
+          } else if (parts2.length == 2) {
+            try {
+              int replicate = Integer.parseInt(parts2[1]);
+              bufferedWriter.write(e.getKey().name + "\t" + parts[0].trim() + "\t" + parts[1].trim() + "\t" + parts2[0].trim() + "\t" + parts2[0].trim() + "\t" + replicate + "\n");
+            } catch (NumberFormatException ex) {
+              bufferedWriter.write(e.getKey().name + "\t" + parts[0].trim() + "\t" + parts[1].trim() + "\t" + parts2[0].trim() + "\t" + parts2[1].trim() + "\t1\n");
+            }
+          } else {
+            bufferedWriter.write(e.getKey().name + "\t" + parts[0].trim() + "\t" + parts[1].trim() + "\t" + parts[1].trim() + "\t" + parts[1].trim() + "\t1\n");
+          }
+        }
+      }
+      bufferedReader.close();
+    }
+    bufferedWriter.close();
   }
 
 }

@@ -1,0 +1,6 @@
+Spectrum	Spectrum File	Peptide	Protein Start	Protein End
+run1.1.1.2	run1.pep.xml	AAAAAAAAAVSR	1	3
+run1.2.2.2	run1.pep.xml	AAAAAAALQAK	4	6
+run1.3.3.2	run1.pep.xml	AAAEIYEEFLAAFEGSDGNK	7	9
+run1.4.4.2	run1.pep.xml	AAAEQAISVR	10	12
+run1.5.5.2	run1.pep.xml	AAAEVAGQFVIK	13	15

@@ -26,6 +26,7 @@ public class MessageSDRFsave {
     public final Path path;
     public final boolean quiet;
     public final QuantLabel label;
+    public String logText;
 
     public MessageSDRFsave() {
         path = null;
@@ -33,9 +34,10 @@ public class MessageSDRFsave {
         label = null;
     }
 
-    public MessageSDRFsave(Path path, boolean quiet, QuantLabel label) {
+    public MessageSDRFsave(Path path, boolean quiet, QuantLabel label, String logText) {
         this.path = path;
         this.quiet = quiet;
         this.label = label;
+        this.logText = logText;
     }
 }

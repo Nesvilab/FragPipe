@@ -45,6 +45,8 @@ public class FragPipeMain {
           Fragpipe.msfraggerBinPath = args[++i].trim();
         } else if (args[i].equalsIgnoreCase("--config-philosopher")) {
           Fragpipe.philosopherBinPath = args[++i].trim();
+        } else if (args[i].equalsIgnoreCase("--config-diann")) {
+          Fragpipe.diannBinPath = args[++i].trim();
         } else if (args[i].equalsIgnoreCase("--config-python")) {
           Fragpipe.pythonBinPath = args[++i].trim();
         } else if (args[i].equalsIgnoreCase("--config-ionquant")){

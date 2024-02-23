@@ -1,13 +1,14 @@
-![Release](https://img.shields.io/github/release/Nesvilab/FragPipe.svg) ![Downloads](https://img.shields.io/github/downloads/Nesvilab/FragPipe/total.svg) ![Downloads](https://img.shields.io/github/downloads/Nesvilab/FragPipe/latest/total.svg)
+![Release](https://img.shields.io/github/release/Nesvilab/FragPipe.svg) ![Downloads](https://img.shields.io/github/downloads/Nesvilab/FragPipe/total.svg) ![Docker pulls](https://img.shields.io/docker/pulls/fcyucn/fragpipe) ![Downloads](https://img.shields.io/github/downloads/Nesvilab/FragPipe/latest/total.svg)
 
 <div align="center">
-<img src="frag-pipe/images/fragpipe-01.png" width="350px"/>
+<img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/develop/frag-pipe/images/fragpipe-01.png" width="350px"/>
 </div>
 
 FragPipe is a Java Graphical User Interface (GUI) for a suite of computational tools enabling comprehensive analysis of mass spectrometry-based proteomics data. It is powered by [MSFragger](https://msfragger.nesvilab.org/) - an ultrafast proteomic search engine suitable for both conventional and "open" (wide precursor mass tolerance) peptide identification. FragPipe includes the [Philosopher](https://nesvilab.github.io/philosopher/) toolkit for downstream post-processing of MSFragger search results (PeptideProphet, iProphet, ProteinProphet), FDR filtering, label-based quantification, and multi-experiment summary report generation. [Crystal-C](https://www.nesvilab.org/Crystal-C/) and [PTM-Shepherd](https://github.com/Nesvilab/PTM-Shepherd) are included to aid interpretation of open search results. Also included in FragPipe binary are [TMT-Integrator](http://tmt-integrator.nesvilab.org/) for TMT/iTRAQ isobaric labeling-based quantification, [IonQuant](http://ionquant.nesvilab.org/) for label-free quantification with FDR-controlled match-between-run (MBR) functionality, spectral library building with EasyPQP, and MSFragger-DIA and DIA-Umpire SE modules for direct analysis of data independent acquisition (DIA) data. 
 
 
 ### [Download](https://github.com/Nesvilab/FragPipe/releases)
+#### [Docker image](https://hub.docker.com/r/fcyucn/fragpipe)
 
 #### FragPipe tutorials
 * [Using FragPipe](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html) (general tutorial covering all FragPipe modules)
@@ -15,8 +16,12 @@ FragPipe is a Java Graphical User Interface (GUI) for a suite of computational t
 * PTM discovery
   * [Open search](https://fragpipe.nesvilab.org/docs/tutorial_open.html)
   * [Mass offset search](https://fragpipe.nesvilab.org/docs/tutorial_offset.html)
+  * [Labile PTM search](https://fragpipe.nesvilab.org/docs/tutorial_labile.html)
   * [Glycoproteomics search](https://fragpipe.nesvilab.org/docs/tutorial_glyco.html)
   * [Custom mass offset workflow (RNA crosslinking example)](https://fragpipe.nesvilab.org/docs/tutorial_custom_mass_offset.html) 
+  * [Diagnostic ion mining](https://fragpipe.nesvilab.org/docs/tutorial_diagnostic_mining.html)
+  * [FPOP](https://fragpipe.nesvilab.org/docs/tutorial_fpop.html)
+  
 * TMT/iTRAQ quantification
   * [Single plex](https://fragpipe.nesvilab.org/docs/tutorial_tmt.html)
   * [Multiple plexes with a pooled reference sample](https://fragpipe.nesvilab.org/docs/tutorial_tmt-2plexes.html)
@@ -24,6 +29,8 @@ FragPipe is a Java Graphical User Interface (GUI) for a suite of computational t
 * [Label-free quantification](https://fragpipe.nesvilab.org/docs/tutorial_lfq.html)
 * [SILAC (or other MS1-labeled) data](https://fragpipe.nesvilab.org/docs/tutorial_silac.html)
 * [DIA analysis](https://fragpipe.nesvilab.org/docs/tutorial_DIA.html)
+* [Novel/variant peptide detection using two-pass search](https://fragpipe.nesvilab.org/docs/tutorial_two_pass_search.html)
+* [Group FDR estimation for novel/variant peptide analysis](https://fragpipe.nesvilab.org/docs/tutorial_group_fdr.html)
 
 #### Resources
 * [Interpreting output files](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_outputs.html)
@@ -44,7 +51,19 @@ The table below shows the compatibility of FragPipe workflow components with dif
 
 _Bruker .d indicates ddaPASEF files from timsTOF, other Bruker .d files should be converted to .mzML. Please also note that timsTOF data requires [Visual C++ Redistributable for Visual Studio 2017](https://aka.ms/vs/16/release/VC_redist.x64.exe) in Windows. If you see an error saying cannot find Bruker native library, please try to install the Visual C++ redistibutable._
 
-<img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/workflow_support.png" width="500px" align="middle"/>
+| Workflow Step                    | .mzML | Thermo (.raw) | Bruker (.d) |  .mgf |
+|----------------------------------|:-----:|:-------------:|:-----------:|:-----:|
+| MSFragger search                 | ✔     | ✔             | ✔           | ✔     | 
+| MSFragger-DIA                    | ✔     | ✔             |             |       | 
+| Label-free quantification        | ✔     | ✔             | ✔           |       | 
+| SILAC/dimethyl quantification    | ✔     | ✔             | ✔           |       | 
+| TMT/iTRAQ quantification         | ✔     | ✔             |             |       | 
+| Crystal-C artifact removal       | ✔     | ✔             |             |       | 
+| PTMProphet localization          | ✔     | ✔             | ✔           |       | 
+| PTM-Shepherd summarization       | ✔     | ✔             | ✔           |       | 
+| DIA-Umpire signal extraction     | ✔     | ✔             |             |       | 
+| Spectral library generation      | ✔     | ✔             | ✔           | ✔     | 
+| DIA-NN quantification            | ✔     | ✔*            | ✔           |       | 
 
 _DIA data acquired with overlapping/staggered windows must be [converted to mzML with demultiplexing](https://fragpipe.nesvilab.org/docs/tutorial_convert.html#convert-thermo-dia-raw-files-with-overlappingstaggered-windows)._
 _Quantification from Thermo .raw files with DIA-NN requires installation of Thermo MS File Reader, see the [DIA-NN documentation](https://github.com/vdemichev/DiaNN#raw-data-formats) for details._
@@ -72,29 +91,68 @@ For other tools developed by Nesvizhskii lab, visit our website
 
 #### How to Run
 - **Windows**:
-  - Run the Windows executable (*.exe*) from the "bin" folder
-  - Or start the `FragPipe.bat` from the *.zip* distribution  
-  or execute one of the following commands:
-  - `start javaw -jar FragPipe-x.x.jar`
-  - `java -jar FragPipe-x.x.jar`
+  - Double click the `FragPipe.exe` or `FragPipe.bat` from the `bin` folder
+  - Or execute the command: `java -jar FragPipe-x.x.jar`
 - **Linux**:
   - Run the `fragpipe` shell script (can double-click to run)  
-  or execute the following command:
-  - Or execute `java -jar FragPipe-x.x.jar`
+  - Or execute the command: `java -jar FragPipe-x.x.jar`
+- **Mac OS** (command line interface only):
+  - Install docker by following the [instruction](https://docs.docker.com/desktop/install/mac-install/)
+  - Open terminal and pull the docker image by running `docker pull fcyucn/fragpipe`
+  - FragPipe is located in `/fragpipe_bin`
+  - Go to `/fragpipe_bin/fragPipe-x.x/fragpipe/bin` directory and execute `./fragpipe --help` in the terminal
+ 
+#### Integration
+FragPipe is open source and the output is currently supported by the following software projects:
+- [Skyline](https://skyline.ms/project/home/software/Skyline/begin.view)
+- [AlphaPeptDeep](https://github.com/MannLabs/alphapeptdeep)
+- [AlphaPeptStats](https://github.com/MannLabs/alphapeptstats)
+- [AlphaMap](https://github.com/MannLabs/alphamap)
+- [directLFQ](https://github.com/MannLabs/directlfq)
+- [DIA-NN](https://github.com/vdemichev/DiaNN)
+- [MSstats](http://msstats.org/)
+- [picked_group_fdr](https://github.com/kusterlab/picked_group_fdr)
+- [FragPipe-Analyst](http://fragpipe-analyst.nesvilab.org/)
 
-#### Cite
+
+
+#### Key references
+##### Database search
 - Kong, A. T., Leprevost, F. V., Avtonomov, D. M., Mellacheruvu, D., & Nesvizhskii, A. I. (2017). MSFragger: ultrafast and comprehensive peptide identification in mass spectrometry–based proteomics. Nature Methods, 14(5), 513-520.
 - Yu, F., Teo, G. C., Kong, A. T., Haynes, S. E., Avtonomov, D. M., Geiszler, D. J., & Nesvizhskii, A. I. (2020). Identification of modified peptides using localization-aware open search. Nature Communications, 11(1), 1-9.
-- Polasky, D. A., Yu, F., Teo, G. C., & Nesvizhskii, A. I. (2020). Fast and Comprehensive N-and O-glycoproteomics analysis with MSFragger-Glyco. Nature Methods, 17, 1125-1132.
-- Chang, H. Y., Kong, A. T., da Veiga Leprevost, F., Avtonomov, D. M., Haynes, S. E., & Nesvizhskii, A. I. (2020). Crystal-C: A computational tool for refinement of open search results. Journal of Proteome Research, 19(6), 2511-2515.
-- Geiszler, D. J., Kong, A. T., Avtonomov, D. M., Yu, F., da Veiga Leprevost, F., & Nesvizhskii, A. I. (2020). PTM-Shepherd: analysis and summarization of post-translational and chemical modifications from open search results. Molecular & Cellular Proteomics.
-- da Veiga Leprevost, F., Haynes, S. E., Avtonomov, D. M., Chang, H. Y., Shanmugam, A. K., Mellacheruvu, D., Kong, A. T., & Nesvizhskii, A. I. (2020). Philosopher: a versatile toolkit for shotgun proteomics data analysis. Nature Methods, 17(9), 869-870.
-- Yu, F., Haynes, S. E., Teo, G. C., Avtonomov, D. M., Polasky, D. A., & Nesvizhskii, A. I. (2020). Fast quantitative analysis of timsTOF PASEF data with MSFragger and IonQuant. Molecular & Cellular Proteomics.
-- Yu, F., Haynes, S. E., & Nesvizhskii, A. I. (2021). IonQuant enables accurate and sensitive label-free quantification with FDR-controlled match-between-runs. Molecular & Cellular Proteomics, 20.
-- Teo, G. C., Polasky, D. A., Yu, F., Nesvizhskii, A. I. (2020). A fast deisotoping algorithm and its implementation in the MSFragger search engine. Journal of Proteome Research.
-- Tsou, C. C., Avtonomov, D., Larsen, B., Tucholska, M., Choi, H., Gingras, A. C., & Nesvizhskii, A. I. (2015). DIA-Umpire: comprehensive computational framework for data-independent acquisition proteomics. Nature methods, 12(3), 258-264.
+- Yu, F., Haynes, S. E., Teo, G. C., Avtonomov, D. M., Polasky, D. A., & Nesvizhskii, A. I. (2020). Fast quantitative analysis of timsTOF PASEF data with MSFragger and IonQuant. Molecular & Cellular Proteomics, 10(9), 1575-1585.
+- Teo, G. C., Polasky, D. A., Yu, F., Nesvizhskii, A. I. (2020). A fast deisotoping algorithm and its implementation in the MSFragger search engine. Journal of Proteome Research, 20(1), 498-505.
 
-##### Building from scratch
+
+##### Glyco/Labile search
+- Polasky, D. A., Yu, F., Teo, G. C., & Nesvizhskii, A. I. (2020). Fast and Comprehensive N-and O-glycoproteomics analysis with MSFragger-Glyco. Nature Methods, 17, 1125-1132.
+- Polasky, D. A., Geiszler, D. J., Yu, F., & Nesvizhskii, A. I. (2022). Multiattribute Glycan Identification and FDR Control for Glycoproteomics. Molecular & Cellular Proteomics, 21(3), 100205.
+- Polasky, D. A., Geiszler, D. J., Yu, F., Kai, Li., Teo, G. C., & Nesvizhskii, A. I. (2023). MSFragger-Labile: A Flexible Method to Improve Labile PTM Analysis in Proteomics. Molecular & Cellular Proteomics, 22(5), 100538.
+
+
+##### PTM
+- Chang, H. Y., Kong, A. T., da Veiga Leprevost, F., Avtonomov, D. M., Haynes, S. E., & Nesvizhskii, A. I. (2020). Crystal-C: A computational tool for refinement of open search results. Journal of Proteome Research, 19(6), 2511-2515.
+- Geiszler, D. J., Kong, A. T., Avtonomov, D. M., Yu, F., da Veiga Leprevost, F., & Nesvizhskii, A. I. (2020). PTM-Shepherd: analysis and summarization of post-translational and chemical modifications from open search results. Molecular & Cellular Proteomics, 20, 100018.
+- Geiszler, D. J., Polasky, D. A., Yu, F., & Nesvizhskii, A. I. (2023). Detecting diagnostic features in MS/MS spectra of post-translationally modified peptides. Nature Communications, 14, 4132.
+
+
+##### DIA
+- Tsou, C. C., Avtonomov, D., Larsen, B., Tucholska, M., Choi, H., Gingras, A. C., & Nesvizhskii, A. I. (2015). DIA-Umpire: comprehensive computational framework for data-independent acquisition proteomics. Nature methods, 12(3), 258-264.
+- Yu, F, Teo, G. C., Kong, A. T., Fröhlich, K., Li, G. X. , Demichev, V, Nesvizhskii, A..I. (2023). Analysis of DIA proteomics data using MSFragger-DIA and FragPipe computational platform, Nature Communications 14:4154.
+
+
+##### DDA quantification
+- Yu, F., Haynes, S. E., & Nesvizhskii, A. I. (2021). IonQuant enables accurate and sensitive label-free quantification with FDR-controlled match-between-runs. Molecular & Cellular Proteomics, 20, 100077.
+
+
+##### Miscellaneous
+
+- da Veiga Leprevost, F., Haynes, S. E., Avtonomov, D. M., Chang, H. Y., Shanmugam, A. K., Mellacheruvu, D., Kong, A. T., & Nesvizhskii, A. I. (2020). Philosopher: a versatile toolkit for shotgun proteomics data analysis. Nature Methods, 17(9), 869-870.
+- Yang, K. L., Yu, F., Teo, G. C., Kai, L., Demichev, V., Ralser, M., & Nesvizhskii, A. I. (2023). MSBooster: improving peptide identification rates using deep learning-based features. Nature Communications, 14, 4539.
+
+
+
+#### Building from scratch
 
 1. Update build version:  
 The version of the build is stored in 3 separate places:  

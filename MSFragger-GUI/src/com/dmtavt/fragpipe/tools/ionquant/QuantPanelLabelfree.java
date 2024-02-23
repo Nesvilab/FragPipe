@@ -239,7 +239,7 @@ public class QuantPanelLabelfree extends JPanelBase {
 
   private JPanel createPanelFreequant(ButtonGroup buttonGroup) {
     JPanel p = mu.newPanel(null, true);
-    uiRadioUseFreequant = new UiRadio("FreeQuant (alternative tool)", null, true);
+    uiRadioUseFreequant = new UiRadio("FreeQuant (deprecated)", null, true);
     buttonGroup.add(uiRadioUseFreequant);
     FormEntry feRadioFreequant = new FormEntry("freequant.run-freequant", "Not shown",
         uiRadioUseFreequant);
@@ -318,7 +318,7 @@ public class QuantPanelLabelfree extends JPanelBase {
     UiText uiTextHeavy = UiUtils.uiTextBuilder().cols(40).create();
     UiText uiTextExcludemods = UiUtils.uiTextBuilder().cols(90).create();
 
-    FormEntry feMaxLfq = mu.feb("ionquant.maxlfq", UiUtils.createUiCheck("Add MaxLFQ", true)).tooltip("Calculate MaxLFQ intensity. Requires at least 3 experimental groups.").create();
+    FormEntry feMaxLfq = mu.feb("ionquant.maxlfq", UiUtils.createUiCheck("Add MaxLFQ", true)).tooltip("Calculate MaxLFQ intensity. Requires at least 3 experiment+bioreplicate combinations.").create();
 
     FormEntry feRequant = mu.feb("ionquant.requantify", UiUtils.createUiCheck("Re-quantify", true)).tooltip("Re-quantify unidentified ions in labeling quantification").create();
 

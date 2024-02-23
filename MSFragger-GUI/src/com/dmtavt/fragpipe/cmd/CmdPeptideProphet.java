@@ -46,7 +46,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -116,20 +115,12 @@ public class CmdPeptideProphet extends CmdBase {
     return m;
   }
 
-  public static Set<Path> findOldFilesForDeletion(Map<InputLcmsFile, List<Path>> outputs) {
-//    final Set<Path> outputPaths = pepxmlFiles.keySet().stream()
-//        .map(f -> f.outputDir(wd)).collect(Collectors.toSet());
-    final Set<Path> outputPaths = outputs.values().stream().flatMap(List::stream)
-        .map(Path::getParent).collect(Collectors.toSet());
-    final Set<Path> pepxmlsToDelete = new TreeSet<>();
-    for (Path outputPath : outputPaths) {
-      if (Files.exists(outputPath) && Files.isDirectory(outputPath)) {
-        try {
-          pepxmlsToDelete.addAll(Files.list(outputPath).filter(Files::isRegularFile).filter(p -> pattern.matcher(p.getFileName().toString()).matches()).collect(Collectors.toList()));
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-      }
+  public static Set<Path> findOldFilesForDeletion(Path wd) {
+    Set<Path> pepxmlsToDelete = new HashSet<>();
+    try {
+      pepxmlsToDelete = Files.walk(wd).filter(p -> p.getFileName().toString().startsWith("interact-") && p.getFileName().toString().endsWith(".pep.xml")).collect(Collectors.toSet());
+    } catch (Exception ex) {
+      ex.printStackTrace();
     }
     return pepxmlsToDelete;
   }
@@ -209,9 +200,7 @@ public class CmdPeptideProphet extends CmdBase {
     }
     combine = combine || cmdLineContainsCombine;
 
-    // check for existing pepxml files and delete them
-    final Map<InputLcmsFile, List<Path>> outputs = outputs(pepxmlFiles, "pepxml", combine);
-    final Set<Path> forDeletion = findOldFilesForDeletion(outputs);
+    final Set<Path> forDeletion = findOldFilesForDeletion(wd);
     if (!deleteFiles(comp, forDeletion, "pep.xml")) {
       return false;
     }

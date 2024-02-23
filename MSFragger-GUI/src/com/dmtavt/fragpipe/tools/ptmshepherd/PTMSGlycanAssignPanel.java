@@ -59,7 +59,7 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
     private UiCheck uiCheckGlycoAdvParams;
     private UiText uiTextGlycanDBFile;
 
-    private static final String PROP_glyco_mode = "glyco_mode";
+    private static final String PROP_run_glyco_mode = "run_glyco_mode";
     private static final String PROP_glycan_fdr = "glyco_fdr";
     private static final String PROP_glyco_mass_error_ppm = "glyco_ppm_tol";
     private static final String PROP_glyco_isotope_error_low = "glyco_isotope_min";
@@ -140,8 +140,8 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
         pGlycoAssignContent = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
         pGlycoAdvParams = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
 
-        checkRunGlycanAssignment = UiUtils.createUiCheck("Assign Glycans with FDR", true);
-        checkRunGlycanAssignment.setName(PROP_glyco_mode);
+        checkRunGlycanAssignment = UiUtils.createUiCheck("Assign Glycans with FDR", false);
+        checkRunGlycanAssignment.setName(PROP_run_glyco_mode);
         checkRunGlycanAssignment.setToolTipText("NOTE: requires PTM-Shepherd! Check the 'Run PTM-Shepherd' box on the PTMs tab to enable this section. Perform glycan assignment and glycan FDR on PSMs reported with a delta mass");
         uiCheckGlycoAdvParams = UiUtils.createUiCheck("Edit Advanced Parameters", false);
         uiCheckGlycoAdvParams.setName("adv_params");
@@ -246,11 +246,11 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
                 .tooltip("By default, the best target glycan is printed to the PSM table for PSMs assigned to a decoy glycan (with q-value = 1)\n" +
                         "Check this box to instead print the decoy glycan (identified by 'Decoy_[glycan name])")
                 .create();
-        FormEntry feRemoveGlycoDeltaMass = mu.feb(PROP_remove_glyco_deltamass, UiUtils.createUiCheck("Remove Glycan Delta Mass", true))
+        FormEntry feRemoveGlycoDeltaMass = mu.feb(PROP_remove_glyco_deltamass, UiUtils.createUiCheck("Remove Glycan Delta Mass", false))
                 .tooltip("Removes glycan mass from Delta Mass column in PSM table, even for PSMs that do not pass glycan FDR.\n" +
                         "Required for processing by IonQuant and for PSM table integrity, but prevents re-analysis by PTM-Shepherd.")
                 .create();
-        FormEntry feNGlycanMode = mu.feb(PROP_nglyco_mode, UiUtils.createUiCheck("N-Glycan Mode", true))
+        FormEntry feNGlycanMode = mu.feb(PROP_nglyco_mode, UiUtils.createUiCheck("N-Glycan Mode", false))
                 .tooltip("Sets localization to N-X-S/T sequon if enabled and uses default N-glycan database if custom glycan database is not provided\n. " +
                         "If disabled, localization settings are taken from 'Restrict localization to' parameter above\n" +
                         "and O-glycan default database used.")

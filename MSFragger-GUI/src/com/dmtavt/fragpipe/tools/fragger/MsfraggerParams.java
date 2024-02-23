@@ -95,6 +95,8 @@ public class MsfraggerParams extends AbstractParams {
     public static final String PROP_deisotope = "deisotope";
     public static final String PROP_deneutralloss = "deneutralloss";
     public static final String PROP_mass_offsets = "mass_offsets";
+    public static final String PROP_mass_offsets_detailed = "mass_offsets_detailed";
+    public static final String PROP_use_detailed_offsets = "use_detailed_offsets";
     public static final String PROP_precursor_mass_mode = "precursor_mass_mode";
     public static final String PROP_search_enzyme_name_1 = "search_enzyme_name_1";
     public static final String PROP_search_enzyme_name_2 = "search_enzyme_name_2";
@@ -117,8 +119,7 @@ public class MsfraggerParams extends AbstractParams {
     public static final String PROP_output_format = "output_format";
     public static final String PROP_output_report_topN = "output_report_topN";
     public static final String PROP_output_report_topN_dia1 = "output_report_topN_dia1";
-    public static final String PROP_output_report_topN_dia2 = "output_report_topN_dia2";
-    public static final String PROP_output_report_topN_wwa = "output_report_topN_wwa";
+    public static final String PROP_output_report_topN_dda_plus = "output_report_topN_dda_plus";
     public static final String PROP_report_alternative_proteins = "report_alternative_proteins";
     public static final String PROP_output_max_expect = "output_max_expect";
     public static final String PROP_precursor_charge = "precursor_charge";
@@ -137,7 +138,6 @@ public class MsfraggerParams extends AbstractParams {
     public static final String PROP_track_zero_topN = "track_zero_topN";
     public static final String PROP_zero_bin_accept_expect = "zero_bin_accept_expect";
     public static final String PROP_zero_bin_mult_expect = "zero_bin_mult_expect";
-    public static final String PROP_add_topN_complementary = "add_topN_complementary";
     public static final String PROP_localize_delta_mass = "localize_delta_mass";
     public static final String PROP_delta_mass_exclude_ranges = "delta_mass_exclude_ranges";
 
@@ -190,6 +190,8 @@ public class MsfraggerParams extends AbstractParams {
         PROP_deisotope,
         PROP_deneutralloss,
         PROP_mass_offsets,
+        PROP_mass_offsets_detailed,
+        PROP_use_detailed_offsets,
         PROP_precursor_mass_mode,
         PROP_search_enzyme_name_1,
         PROP_search_enzyme_name_2,
@@ -222,7 +224,6 @@ public class MsfraggerParams extends AbstractParams {
         PROP_track_zero_topN,
         PROP_zero_bin_accept_expect,
         PROP_zero_bin_mult_expect,
-        PROP_add_topN_complementary,
         PROP_localize_delta_mass,
         PROP_delta_mass_exclude_ranges,
         PROP_minimum_peaks,
@@ -338,13 +339,15 @@ public class MsfraggerParams extends AbstractParams {
         c.put(PROP_fragment_mass_tolerance, "Fragment mass tolerance (window is +/- this value).");
         c.put(PROP_fragment_mass_units, "Fragment mass tolerance units (0 for Da, 1 for ppm).");
         c.put(PROP_data_type, "Data type (0 for DDA, 1 for DIA, 2 for gas-phase fractionation DIA, 3 for wide-window acquisition DDA).");
-        c.put(PROP_calibrate_mass, "Perform mass calibration (0 for OFF, 1 for ON, 2 for ON and find optimal parameters).");
+        c.put(PROP_calibrate_mass, "Perform mass calibration (0 for OFF, 1 for ON, 2 for ON and find optimal parameters, 4 for ON and find the optimal fragment mass tolerance).");
         c.put(PROP_use_all_mods_in_first_search, "Use all variable modifications in first search (0 for No, 1 for Yes).");
         c.put(PROP_write_calibrated_mzml, "Write calibrated MS2 scan to a mzML file (0 for No, 1 for Yes).");
         c.put(PROP_write_uncalibrated_mgf, "Write uncalibrated MS2 scan to a MGF file (0 for No, 1 for Yes). Only for .raw and .d formats.");
         c.put(PROP_decoy_prefix, "Prefix of the decoy protein entries. Used for parameter optimization only.");
         c.put(PROP_isotope_error, "Also search for MS/MS events triggered on specified isotopic peaks.");
         c.put(PROP_mass_offsets, "Creates multiple precursor tolerance windows with specified mass offsets.");
+        c.put(PROP_mass_offsets_detailed, "Optional detailed mass offset list. Overrides mass_offsets if use_detailed_offsets = 1.");
+        c.put(PROP_use_detailed_offsets, "Whether to use the regular (0) or detailed (1) mass offset list.");
         c.put(PROP_restrict_deltamass_to, "Specify amino acids on which delta masses (mass offsets or search modifications) can occur. Allowed values are single letter codes (e.g. ACD) and '-', must be capitalized. Use 'all' to allow any amino acid.");
         c.put(PROP_labile_search_mode, "type of search (nglycan, labile, or off). Off means non-labile/typical search.");
         c.put(PROP_precursor_mass_mode, "One of isolated/selected/corrected.");
@@ -381,7 +384,6 @@ public class MsfraggerParams extends AbstractParams {
         c.put(PROP_track_zero_topN, "Track top N unmodified peptide results separately from main results internally for boosting features.");
         c.put(PROP_zero_bin_accept_expect, "Ranks a zero-bin hit above all non-zero-bin hit if it has expectation less than this value.");
         c.put(PROP_zero_bin_mult_expect, "Multiplies expect value of PSMs in the zero-bin during  results ordering (set to less than 1 for boosting).");
-        c.put(PROP_add_topN_complementary, "Inserts complementary ions corresponding to the top N most intense fragments in each experimental spectra.");
         c.put(PROP_minimum_peaks, "Minimum number of peaks in experimental spectrum for matching.");
         c.put(PROP_use_topN_peaks, "Pre-process experimental spectrum to only use top N peaks.");
         c.put(PROP_deisotope, "Perform deisotoping or not (0=no, 1=yes and assume singleton peaks single charged, 2=yes and assume singleton peaks single or double charged).");
@@ -864,15 +866,6 @@ public class MsfraggerParams extends AbstractParams {
         props.setProp(PROP_zero_bin_mult_expect, DF.format(v));
     }
     
-    public int getAddTopNComplementary() {
-        int v = Integer.parseInt(props.getProp(PROP_add_topN_complementary, "0").value);
-        return v;
-    }
-    
-    public void setAddTopNComplementary(int v) {
-        props.setProp(PROP_add_topN_complementary, Integer.toString(v));
-    }
-    
     public int getMinimumPeaks() {
         return Integer.parseInt(props.getProp(PROP_minimum_peaks, "6").value);
     }
@@ -882,7 +875,7 @@ public class MsfraggerParams extends AbstractParams {
     }
     
     public int getUseTopNPeaks() {
-        return Integer.parseInt(props.getProp(PROP_use_topN_peaks, "100").value);
+        return Integer.parseInt(props.getProp(PROP_use_topN_peaks, "150").value);
     }
     
     public void setUseTopNPeaks(int v) {

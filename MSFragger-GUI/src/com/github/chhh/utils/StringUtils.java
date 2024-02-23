@@ -23,7 +23,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -253,10 +252,6 @@ public final class StringUtils {
       }
     }
     return true;
-  }
-
-  public static String surround(String s, String surroundWith) {
-      return surroundWith + s + surroundWith;
   }
 }
 

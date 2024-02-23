@@ -146,7 +146,7 @@ def write_combined_scores_histo():
 ##########
 
 def get_expect_functions(infile):
-	expect_table = np.loadtxt(tempdir / (infile.stem +'_expectscore.tsv'))
+	expect_table = np.loadtxt(tempdir / (infile.stem +'_expectscore.tsv'), ndmin=2)
 	def expect_function(row):
 		m_fA0, m_fA1, m_dLimit = row
 		def expect(under_f: float):
@@ -186,7 +186,7 @@ def step1(spec_queries: typing.Tuple[bytes]) -> typing.Tuple[typing.List[bytes],
 	# spec_queries = (b'<spectrum_query start_scan="44013" uncalibrated_precursor_neutral_mass="3586.6064" assumed_charge="44" spectrum="23aug2017_hela_serum_timecourse_4mz_narrow_6.44013.44013.0" end_scan="44013" index="35357" precursor_neutral_mass="3586.6172" retention_time_sec="2101.7882537841797">\n<search_result>\n<search_hit peptide="ESASSPQQERSVEQSFSSEAAGTNGEGSNQSDAAR" massdiff="2.069091796875" calc_neutral_pep_mass="3584.548" peptide_next_aa="H" num_missed_cleavages="1" num_tol_term="2" protein_descr="Nucleoprotein TPR OS=Homo sapiens OX=9606 GN=TPR PE=1 SV=3" num_tot_proteins="1" tot_num_ions="136" hit_rank="1" num_matched_ions="4" protein="rev_sp|P12270|TPR_HUMAN" peptide_prev_aa="R" is_rejected="0">\n<search_score name="hyperscore" value="9.074"/>\n<search_score name="nextscore" value="8.892"/>\n<search_score name="expect" value="2.272479e+00"/>\n</search_hit>\n</search_result>\n</spectrum_query>', b'<spectrum_query start_scan="44013" uncalibrated_precursor_neutral_mass="3586.6064" assumed_charge="4" spectrum="23aug2017_hela_serum_timecourse_4mz_narrow_6.44013.44013.0" end_scan="44013" index="35357" precursor_neutral_mass="3586.6172" retention_time_sec="2101.7882537841797">\n<search_result>\n<search_hit peptide="LPMKVALMMSDFAGGASGFPMTFSGGKFTEEWK" massdiff="-0.047119140625" calc_neutral_pep_mass="3586.6643" peptide_next_aa="A" num_missed_cleavages="2" num_tol_term="2" protein_descr="Inactive cytidine monophosphate-N-acetylneuraminic acid hydroxylase OS=Homo sapiens OX=9606 GN=CMAHP PE=1 SV=4" num_tot_proteins="1" tot_num_ions="128" hit_rank="1" num_matched_ions="4" protein="sp|Q9Y471|CMAH_HUMAN" peptide_prev_aa="R" is_rejected="0">\n<modification_info modified_peptide="LPM[147]KVALMM[147]SDFAGGASGFPMTFSGGKFTEEWK">\n<mod_aminoacid_mass mass="147.0354" position="3"/>\n<mod_aminoacid_mass mass="147.0354" position="9"/>\n</modification_info>\n<search_score name="hyperscore" value="9.873"/>\n<search_score name="nextscore" value="0.0"/>\n<search_score name="expect" value="1.434663e+00"/>\n</search_hit>\n</search_result>\n</spectrum_query>')
 	spec_query_heads = [(spectrum_query.splitlines()[0] if len(spectrum_query) > 0 else spectrum_query)
 						for spectrum_query in spec_queries]
-	search_hits = [(part if i == 0 else None, e)
+	search_hits = [(part, e)
 				   for part, spectrum_query in enumerate(spec_queries)
 				   for i, e in enumerate(re_search_hit.findall(spectrum_query))]
 	search_hit_start_tags = [re_search_hit_first_line.sub(b'{}', search_hit.splitlines()[0]) for _, search_hit in search_hits]
@@ -242,7 +242,7 @@ def new_spec(expect_func, spectrum_query_parts, pep_to_prot: typing.Mapping[byte
 		search_hit_with_massdiff_and_scores = (specinfo._make(get_massdiff_and_scores(search_hit) + (part, search_hit))
 											   for part, search_hit in search_hits)
 		# sort by hyperscore and massdiff
-		sorted_search_hits0 = sorted(search_hit_with_massdiff_and_scores, key=lambda x: (1 / x.hyperscore, abs(x.massdiff)))[:output_report_topN]
+		sorted_search_hits0 = sorted(search_hit_with_massdiff_and_scores, key=lambda x: (x.expectscore, 1 / x.hyperscore, abs(x.massdiff)))[:output_report_topN]
 		sorted_search_hits1 = list(itertools.takewhile(lambda x: x.expectscore <= output_max_expect, sorted_search_hits0))
 		if len(sorted_search_hits1) == 0:
 			return [b'']
@@ -363,7 +363,7 @@ def replace_prot_list(sh: bytes, prot_list: typing.List[Prot]) -> bytes:
 	sh = re.compile(b'<alternative_protein.*(?:\n<alternative_protein.*)*').sub(b'', sh)
 	sh = re.compile(b'num_tot_proteins="(.+?)"').sub(f'num_tot_proteins="{len(prot_list)}"'.encode(), sh)
 	search_hit_tag, rest = sh.split(b'\n', 1)
-	return search_hit_tag + b'\n' + altprot.encode() + rest
+	return search_hit_tag + b'\n' + altprot.encode() + b'\n' + rest
 
 
 def write_pepxml(infile: pathlib.Path) -> None:

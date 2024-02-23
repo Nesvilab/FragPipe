@@ -17,11 +17,13 @@
 
 package com.dmtavt.fragpipe.util;
 
-import com.google.common.collect.Table;
+import static com.dmtavt.fragpipe.util.Utils.AAMasses;
+
 import com.google.common.collect.TreeBasedTable;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -35,13 +37,20 @@ public class UnimodOboReader {
   private static final Pattern pattern1 = Pattern.compile("id:\\s+UNIMOD:(\\d+)");
   private static final Pattern pattern2 = Pattern.compile("xref:\\s+delta_mono_mass\\s+\"([\\d.+-]+)\"");
   private static final Pattern pattern3 = Pattern.compile("xref:\\s+spec_\\d+_site\\s+\"(\\S+)\"");
+  private static final Pattern pattern4 = Pattern.compile("([A-Z])(\\(([^()]+)\\))?");
+  private static final Pattern pattern5 = Pattern.compile("^\\(([^()]+)\\)");
+  private static final Pattern varModPattern = Pattern.compile("([\\d]+)([A-Z])\\(([\\d.-]+)\\)");
+  private static final Pattern nTermModPattern = Pattern.compile("N-term\\(([\\d.-]+)\\)");
+  private static final Pattern cTermModPattern = Pattern.compile("C-term\\(([\\d.-]+)\\)");
 
-  public final Map<String, Float> unimodMassMap;
-  public final Table<Float, Character, Integer> massSiteUnimodTable;
+  public final Map<String, Float> unimodMassMap;                        // unimod ID (as "unimod: ##"), mass
+  public final TreeBasedTable<Float, Character, Integer> massSiteUnimodTable;    // mass, allowed site, unimod ID number
+  public final ArrayList<String> unimodDB;                              // mod info string ("mass;ID;name;sites")
 
-  public  UnimodOboReader(Path path) throws Exception {
+  public UnimodOboReader(Path path) throws Exception {
     unimodMassMap = new HashMap<>();
     massSiteUnimodTable = TreeBasedTable.create();
+    unimodDB = new ArrayList<>();
 
     BufferedReader reader = new BufferedReader(new FileReader(path.toFile()));
     String line;
@@ -60,6 +69,9 @@ public class UnimodOboReader {
               massSiteUnimodTable.put(term.mass, site, term.id);
             }
           }
+          StringBuilder siteBuilder = new StringBuilder();
+          term.sites.forEach(siteBuilder::append);
+          unimodDB.add(String.format("%s;%s;%s;%s", term.mass, term.id, term.name, siteBuilder));
         }
         term = new OboTerm();
       } else if (line.startsWith("id:")) {
@@ -76,6 +88,8 @@ public class UnimodOboReader {
         } else {
           throw new RuntimeException("Unexpected xref: delta_mono_mass format: " + line);
         }
+      } else if (term != null && term.id != Integer.MIN_VALUE && line.startsWith("name: ")) {
+        term.name = line.split(": ")[1];
       } else if (term != null && term.id != Integer.MIN_VALUE) {
         Matcher matcher = pattern3.matcher(line);
         if (matcher.matches()) {
@@ -99,9 +113,51 @@ public class UnimodOboReader {
           massSiteUnimodTable.put(term.mass, site, term.id);
         }
       }
+      StringBuilder siteBuilder = new StringBuilder();
+      term.sites.forEach(siteBuilder::append);
+      unimodDB.add(String.format("%s;%s;%s;%s", term.mass, term.id, term.name, siteBuilder));
     }
 
     reader.close();
+  }
+
+  public Precursor convertPrecursor(String peptide, String assignedModifications, int charge) {
+    float[] modifications = new float[peptide.length()];
+    float nTermMod = 0, cTermMod = 0;
+    Matcher matcher = nTermModPattern.matcher(assignedModifications);
+    if (matcher.find()) {
+      nTermMod = Float.parseFloat(matcher.group(1));
+    }
+
+    matcher = cTermModPattern.matcher(assignedModifications);
+    if (matcher.find()) {
+      cTermMod = Float.parseFloat(matcher.group(1));
+    }
+
+    matcher = varModPattern.matcher(assignedModifications);
+    while (matcher.find()) {
+      modifications[Integer.parseInt(matcher.group(1)) - 1] = Float.parseFloat(matcher.group(3));
+    }
+
+    return new Precursor(peptide, modifications, nTermMod, cTermMod, charge);
+  }
+
+  public String convertModifications(float mass, char site) {
+    float gap = Float.MAX_VALUE;
+    int unimodId = -1;
+    for (Map.Entry<Float, Map<Character, Integer>> e1 : massSiteUnimodTable.rowMap().subMap(mass - 0.001f, mass + 0.001f).entrySet()) {
+      Integer tt = e1.getValue().get(site);
+      if (tt != null && Math.abs(e1.getKey() - mass) < gap) {
+        gap = Math.abs(e1.getKey() - mass);
+        unimodId = tt;
+      }
+    }
+
+    if (unimodId > 0) {
+      return "UniMod:" + unimodId;
+    } else {
+      return String.valueOf(mass);
+    }
   }
 
 
@@ -109,6 +165,129 @@ public class UnimodOboReader {
     int id = Integer.MIN_VALUE;
     float mass = Float.NaN;
     Set<Character> sites = new HashSet<>();
+    String name = "";
+  }
+
+
+  public static class Precursor implements Comparable<Precursor> {
+
+    final String sequence;
+    final float[] modifications;
+    final float nTermMod, cTermMod;
+    final int charge;
+
+    public Precursor(String sequence, float[] modifications, float nTermMod, float cTermMod, int charge) {
+      this.sequence = sequence;
+      this.modifications = modifications;
+      this.nTermMod = nTermMod;
+      this.cTermMod = cTermMod;
+      this.charge = charge;
+    }
+    
+    public Precursor(String modifiedSequence, int length, int charge, Map<String, Float> unimodMassMap) {
+      modifications = new float[length];
+      this.charge = charge;
+      cTermMod = 0; // DIA-NN seems not support C-term modification
+      float a = 0;
+      String s = modifiedSequence;
+
+      Matcher matcher = pattern5.matcher(s);
+      if (matcher.find()) {
+        a = getModMass(matcher.group(1), unimodMassMap);
+        s = s.substring(matcher.end());
+      }
+
+      int idx = 0;
+      StringBuilder sb = new StringBuilder(length);
+      matcher = pattern4.matcher(s);
+      while (matcher.find()) {
+        if (matcher.group(2) == null) {
+          modifications[idx++] = 0;
+          sb.append(matcher.group(1));
+        } else {
+          modifications[idx++] = getModMass(matcher.group(3), matcher.group(1).charAt(0), unimodMassMap);
+          sb.append(matcher.group(1));
+        }
+      }
+
+      sequence = sb.toString();
+      nTermMod = a;
+    }
+
+    private static float getModMass(String s, char site, Map<String, Float> unimodMassMap) {
+      if (s.startsWith("UniMod:")) {
+        return unimodMassMap.get(s.toLowerCase());
+      } else {
+        return Float.parseFloat(s) - AAMasses[site - 'A'];
+      }
+    }
+
+    private static float getModMass(String s, Map<String, Float> unimodMassMap) {
+      if (s.startsWith("UniMod:")) {
+        return unimodMassMap.get(s.toLowerCase());
+      } else {
+        return Float.parseFloat(s);
+      }
+    }
+
+    @Override
+    public int compareTo(Precursor o) {
+      if (sequence.contentEquals(o.sequence)) {
+        for (int i = 0; i < modifications.length; ++i) {
+          if (modifications[i] - o.modifications[i] > 0.01f) {
+            return 1;
+          } else if (modifications[i] - o.modifications[i] < -0.01f) {
+            return -1;
+          }
+          if (nTermMod - o.nTermMod > 0.01f) {
+            return 1;
+          } else if (nTermMod - o.nTermMod < -0.01f) {
+            return -1;
+          }
+          if (cTermMod - o.cTermMod > 0.01f) {
+            return 1;
+          } else if (cTermMod - o.cTermMod < -0.01f) {
+            return -1;
+          }
+        }
+        if (charge > o.charge) {
+          return 1;
+        } else if (charge < o.charge) {
+          return -1;
+        }
+        return 0;
+      } else {
+        return sequence.compareTo(o.sequence);
+      }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (o instanceof Precursor) {
+        return this.compareTo((Precursor) o) == 0;
+      } else {
+        return false;
+      }
+    }
+
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder(sequence);
+      for (float m : modifications) {
+        if (m == 0) {
+          sb.append(",0");
+        } else {
+          sb.append(String.format(",%.2f", m));
+        }
+      }
+      sb.append(String.format(",%.2f,%.2f,%d", nTermMod, cTermMod, charge));
+      return sb.toString();
+    }
+
+    @Override
+    public int hashCode() {
+      return toString().hashCode();
+    }
   }
 }
 

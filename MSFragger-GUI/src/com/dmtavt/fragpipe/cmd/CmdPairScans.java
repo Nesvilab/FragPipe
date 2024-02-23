@@ -94,8 +94,12 @@ public class CmdPairScans extends CmdBase {
             List<String> cmd = new ArrayList<>();
             cmd.add(Fragpipe.getBinJava());
             cmd.add("-Xmx" + ramGb + "G");
-            cmd.add(brukerLib);
-            cmd.add(thermoLib);
+            if (!brukerLib.equals("")) {
+                cmd.add(brukerLib);
+            }
+            if (!thermoLib.equals("")) {
+                cmd.add(thermoLib);
+            }
             cmd.add("-cp");
             cmd.add(constructClasspathString(classpathJars));
             cmd.add(PairScans.class.getCanonicalName());

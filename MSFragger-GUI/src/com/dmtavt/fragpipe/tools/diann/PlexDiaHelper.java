@@ -18,6 +18,7 @@
 package com.dmtavt.fragpipe.tools.diann;
 
 import static com.dmtavt.fragpipe.cmd.ToolingUtils.UNIMOD_OBO;
+import static com.dmtavt.fragpipe.cmd.ToolingUtils.getUnimodOboPath;
 import static com.dmtavt.fragpipe.util.Utils.AAMasses;
 import static com.dmtavt.fragpipe.util.Utils.correctModMass;
 import static com.dmtavt.fragpipe.util.Utils.removeClosedModifications;
@@ -175,11 +176,7 @@ public class PlexDiaHelper {
     this.mediumAaMassMap = mediumAaMassMap;
     this.heavyAaMassMap = heavyAaMassMap;
 
-    final List<Path> tt = FragpipeLocations.checkToolsMissing(Seq.of(UNIMOD_OBO));
-    if (tt == null || tt.size() != 1) {
-      throw new FileNotFoundException("Could not find unimod.obo file from " + FragpipeLocations.get().getDirTools());
-    }
-    Path unimodPath = tt.get(0);
+    Path unimodPath = getUnimodOboPath(UNIMOD_OBO);
     UnimodOboReader unimodOboReader = new UnimodOboReader(unimodPath);
     unimodMassMap = unimodOboReader.unimodMassMap;
     massSiteUnimodTable = unimodOboReader.massSiteUnimodTable;

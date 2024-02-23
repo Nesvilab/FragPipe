@@ -19,6 +19,7 @@ package com.dmtavt.fragpipe.util;
 
 import com.github.chhh.utils.StringUtils;
 import java.io.BufferedReader;
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -28,12 +29,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import umich.ms.datatypes.LCMSDataSubset;
 import umich.ms.datatypes.lcmsrun.MsSoftware;
 import umich.ms.datatypes.scan.IScan;
+import umich.ms.datatypes.scan.StorageStrategy;
 import umich.ms.datatypes.scan.props.Instrument;
+import umich.ms.datatypes.scan.props.PrecursorInfo;
+import umich.ms.datatypes.scancollection.impl.ScanCollectionDefault;
+import umich.ms.fileio.filetypes.AbstractLCMSDataSource;
 import umich.ms.fileio.filetypes.mzbin.MZBINFile;
+import umich.ms.fileio.filetypes.mzbin.MZBINFile.MZBINSpectrum;
+import umich.ms.fileio.filetypes.mzml.MZMLFile;
 import umich.ms.fileio.filetypes.mzml.MZMLWriter;
 import umich.ms.fileio.filetypes.mzml.MZMLWriter.ProcessingMethod;
 import umich.ms.fileio.filetypes.mzml.jaxb.ProcessingMethodType;
@@ -54,20 +63,20 @@ public class WriteSubMzml {
   }
 
   private static void writeSubMzml(String lcmsPathStr, Path psmPath, Path outputPath, float probabilityThreshold, boolean deleteMzbinAll) throws Exception {
-    Path lcmsPath = Paths.get(StringUtils.upToLastDot(lcmsPathStr) + ".mzBIN_all");
+    Path mzBINPath = Paths.get(StringUtils.upToLastDot(lcmsPathStr) + ".mzBIN_all");
 
     if (deleteMzbinAll) {
-      lcmsPath.toFile().deleteOnExit();
+      mzBINPath.toFile().deleteOnExit();
     }
 
-    if (!Files.exists(lcmsPath) || !Files.isRegularFile(lcmsPath) || !Files.isReadable(lcmsPath)) {
-      System.err.println("Failed to find " + lcmsPath.toAbsolutePath());
+    if (!Files.exists(mzBINPath) || !Files.isRegularFile(mzBINPath) || !Files.isReadable(mzBINPath)) {
+      System.err.println("Failed to find " + mzBINPath.toAbsolutePath());
       System.exit(1);
     }
 
-    System.out.println("Found " + lcmsPath.toAbsolutePath() + ".");
+    System.out.println("Found " + mzBINPath.toAbsolutePath() + ".");
 
-    String runName = StringUtils.upToLastDot(lcmsPath.getFileName().toString());
+    String runName = StringUtils.upToLastDot(mzBINPath.getFileName().toString());
 
     if (!Files.exists(psmPath) || !Files.isRegularFile(psmPath) || !Files.isReadable(psmPath)) {
       System.err.println(psmPath.toAbsolutePath() + " does not exist. Failed to write " + outputPath.toAbsolutePath());
@@ -78,15 +87,75 @@ public class WriteSubMzml {
 
     System.out.println("Found " + scanNumsToExclude.size() + " scans to exclude.");
 
-    List<IScan> iScans = new ArrayList<>();
-    MZBINFile mzbinFile = new MZBINFile(1, lcmsPath.toFile(), true);
-    for (MZBINFile.MZBINSpectrum mzbinSpectrum : mzbinFile.specs) {
-      if (!scanNumsToExclude.contains(mzbinSpectrum.scanNum)) {
-        iScans.add(mzbinSpectrum.toIScan());
+    List<IScan> iScans =  removeScans(lcmsPathStr, mzBINPath.toFile(), scanNumsToExclude);
+
+    writeMzML(lcmsPathStr, runName, outputPath.toAbsolutePath().toString(), iScans);
+  }
+
+  private static List<IScan> removeScans(String lcmsPathStr, File mzBINFile, Set<Integer> scanNumsToExclude) throws Exception {
+    File f = new File(lcmsPathStr);
+    ScanCollectionDefault scanCollectionDefault = new ScanCollectionDefault();
+    scanCollectionDefault.setDefaultStorageStrategy(StorageStrategy.STRONG);
+    scanCollectionDefault.isAutoloadSpectra(true);
+    AbstractLCMSDataSource<?> source = new MZMLFile(f.getAbsolutePath());
+    source.setNumThreadsForParsing(1);
+    source.setExcludeEmptyScans(false);
+    scanCollectionDefault.setDataSource(source);
+    scanCollectionDefault.loadData(LCMSDataSubset.WHOLE_RUN);
+    Map<Integer, IScan> originalScans = scanCollectionDefault.getMapNum2scan();
+    source.close();
+
+    MZBINFile mzbinFile = new MZBINFile(1, mzBINFile, true);
+    Map<Integer, MZBINSpectrum> calibratedScans = new TreeMap<>();
+    for (MZBINSpectrum t : mzbinFile.specs) {
+      calibratedScans.put(t.scanNum, t);
+    }
+
+    List<IScan> newScans = new ArrayList<>();
+
+    int uncalibratedScans = 0;
+
+    for (Map.Entry<Integer, IScan> e : originalScans.entrySet()) {
+      IScan scan = e.getValue();
+      if (scan.getMsLevel() == 1) {
+        if (calibratedScans.containsKey(scan.getNum())) {
+          updateScanFields(scan, calibratedScans.get(scan.getNum()));
+        } else {
+          ++uncalibratedScans;
+        }
+        newScans.add(scan);
+      } else if (scan.getMsLevel() == 2) {
+        if (!scanNumsToExclude.contains(scan.getNum())) {
+          if (calibratedScans.containsKey(scan.getNum())) {
+            updateScanFields(scan, calibratedScans.get(scan.getNum()));
+          } else {
+            ++uncalibratedScans;
+          }
+          newScans.add(scan);
+        }
+      } else if (scan.getMsLevel() == 3) {
+        boolean ok = true;
+        for (PrecursorInfo pi : scan.getPrecursors()) {
+          if (scanNumsToExclude.contains(pi.getParentScanNum())) {
+            ok = false;
+            break;
+          }
+        }
+        if (ok) {
+          newScans.add(scan);
+        }
       }
     }
 
-    writeMzML(lcmsPathStr, runName, outputPath.toAbsolutePath().toString(), iScans);
+    if (uncalibratedScans > 0) {
+      System.out.println("There are " + uncalibratedScans + " scans could not be found from " + mzBINFile.getAbsolutePath() + ". Those scans will not be mass calibrated.");
+    }
+
+    return newScans;
+  }
+
+  private static void updateScanFields(IScan scan, MZBINSpectrum calibratedScan) throws Exception {
+    scan.setSpectrum(calibratedScan.toIScan().fetchSpectrum(), true);
   }
 
   private static Set<Integer> readPsm(Path psmPath, String runName, float probabilityThreshold) throws Exception {

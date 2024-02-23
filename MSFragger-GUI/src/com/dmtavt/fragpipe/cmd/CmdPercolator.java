@@ -115,9 +115,7 @@ public class CmdPercolator extends CmdBase {
     PeptideProphetParams percolatorParams = new PeptideProphetParams();
     percolatorParams.setCmdLineParams(percolatorCmd);
 
-    // check for existing pepxml files and delete them
-    final Map<InputLcmsFile, List<Path>> outputs = outputs(pepxmlFiles, "pepxml", combine);
-    final Set<Path> forDeletion = findOldFilesForDeletion(outputs);
+    final Set<Path> forDeletion = findOldFilesForDeletion(wd);
     if (!deleteFiles(comp, forDeletion, "pep.xml")) {
       return false;
     }
@@ -138,8 +136,8 @@ public class CmdPercolator extends CmdBase {
           continue;
         // Percolator
         List<String> cmdPp = new ArrayList<>();
-        final String percolator_bin = OsUtils.isUnix() ? "percolator-305/percolator" :
-                OsUtils.isWindows() ? "percolator-306/percolator.exe" : null;
+        final String percolator_bin = OsUtils.isUnix() ? "percolator_3_6_5/linux/percolator" :
+                OsUtils.isWindows() ? "percolator_3_6_5/windows/percolator.exe" : null;
         cmdPp.add(FragpipeLocations.checkToolsMissing(Seq.of(percolator_bin)).get(0).toString());
 
         String strippedBaseName;
@@ -153,15 +151,29 @@ public class CmdPercolator extends CmdBase {
         TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
         cmdPp.add("--num-threads");
         cmdPp.add("" + tabWorkflow.getThreads());
-        cmdPp.add("--results-psms");
-        cmdPp.add(strippedBaseName + "_percolator_target_psms.tsv");
-        cmdPp.add("--decoy-results-psms");
-        cmdPp.add(strippedBaseName + "_percolator_decoy_psms.tsv");
 
-        if (OsUtils.isWindows()) { // The Windows version is 3.06 which needs this flag to avoid a warning. The Linux version is 3.05 which does not need this flag. TODO: change it after upgrading the Linux version.
-          cmdPp.add("--protein-decoy-pattern");
-          cmdPp.add(decoyTag);
+        boolean onlyPsms = false;
+        for(String cmd : cmdPp) {
+          if (cmd.contentEquals("--only-psms")) {
+            onlyPsms = true;
+            break;
+          }
         }
+
+        if (onlyPsms) {
+          cmdPp.add("--results-psms");
+          cmdPp.add(strippedBaseName + "_percolator_target_psms.tsv");
+          cmdPp.add("--decoy-results-psms");
+          cmdPp.add(strippedBaseName + "_percolator_decoy_psms.tsv");
+        } else {
+          cmdPp.add("--results-peptides");
+          cmdPp.add(strippedBaseName + "_percolator_target_psms.tsv");
+          cmdPp.add("--decoy-results-peptides");
+          cmdPp.add(strippedBaseName + "_percolator_decoy_psms.tsv");
+        }
+
+        cmdPp.add("--protein-decoy-pattern");
+        cmdPp.add(decoyTag);
 
         if (writeSubMzml) { // This is the first-pass and there will be a second-pass. Let Percolator save the weights for the second-pass.
           cmdPp.add("--weights");
@@ -169,12 +181,24 @@ public class CmdPercolator extends CmdBase {
         }
 
         if (inputLcmsFile.getPath().getFileName().toString().endsWith("_sub.mzML")) { // It is likely to be the sub mzML file from the first-pass. Find the weights file.
-          Path p = Paths.get(inputLcmsFile.getPath().toAbsolutePath().toString().replaceFirst("_sub\\.mzML$", "_percolator.weights"));
-          if (Files.exists(p) && Files.isRegularFile(p) && Files.isReadable(p)) {
-            cmdPp.add("--init-weights");
-            cmdPp.add(p.toAbsolutePath().toString());
-            cmdPp.add("--static");
-            cmdPp.add("--override");
+          String ss = inputLcmsFile.getPath().getFileName().toString().replaceFirst("_sub\\.mzML$", "_percolator.weights");
+          try {
+            List<Path> pList = Files.walk(inputLcmsFile.getPath().getParent()).filter(p -> {
+              String s = p.getFileName().toString();
+              return s.endsWith("_percolator.weights") && s.contentEquals(ss);
+            }).collect(Collectors.toList());
+
+            if (pList.size() > 1) {
+              throw new IllegalStateException("Found more than one weights file: " + pList.stream().map(p -> p.toAbsolutePath().toString()).collect(Collectors.joining(", ")));
+            } else if (pList.size() == 1) {
+              cmdPp.add("--init-weights");
+              cmdPp.add(pList.get(0).toAbsolutePath().toString());
+              cmdPp.add("--static");
+              cmdPp.add("--override");
+            }
+          } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
           }
         }
 

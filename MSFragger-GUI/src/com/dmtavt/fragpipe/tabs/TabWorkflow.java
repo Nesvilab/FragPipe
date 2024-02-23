@@ -41,25 +41,25 @@ import com.dmtavt.fragpipe.messages.MessageLcmsClearFiles;
 import com.dmtavt.fragpipe.messages.MessageLcmsFilesAdded;
 import com.dmtavt.fragpipe.messages.MessageLcmsFilesList;
 import com.dmtavt.fragpipe.messages.MessageLcmsGroupAction;
-import com.dmtavt.fragpipe.messages.MessageSDRFsave;
 import com.dmtavt.fragpipe.messages.MessageLcmsGroupAction.Type;
 import com.dmtavt.fragpipe.messages.MessageLcmsRemoveSelected;
 import com.dmtavt.fragpipe.messages.MessageLoadUi;
 import com.dmtavt.fragpipe.messages.MessageManifestLoad;
 import com.dmtavt.fragpipe.messages.MessageManifestSave;
 import com.dmtavt.fragpipe.messages.MessageOpenInExplorer;
+import com.dmtavt.fragpipe.messages.MessageSDRFsave;
 import com.dmtavt.fragpipe.messages.MessageSaveAsWorkflow;
 import com.dmtavt.fragpipe.messages.MessageType;
 import com.dmtavt.fragpipe.messages.MessageUpdateWorkflows;
 import com.dmtavt.fragpipe.messages.NoteConfigCrystalC;
 import com.dmtavt.fragpipe.messages.NoteConfigDiann;
-import com.dmtavt.fragpipe.messages.NoteConfigIonQuant;
 import com.dmtavt.fragpipe.messages.NoteConfigPeptideProphet;
 import com.dmtavt.fragpipe.messages.NoteConfigPtmProphet;
 import com.dmtavt.fragpipe.messages.NoteConfigPtmShepherd;
 import com.dmtavt.fragpipe.messages.NoteConfigTmtI;
 import com.dmtavt.fragpipe.messages.NoteConfigUmpire;
 import com.dmtavt.fragpipe.params.ThisAppProps;
+import com.dmtavt.fragpipe.tools.diapasefscentric.DiaPasefSCentricPanel;
 import com.dmtavt.fragpipe.tools.tmtintegrator.QuantLabel;
 import com.dmtavt.fragpipe.tools.umpire.UmpirePanel;
 import com.dmtavt.fragpipe.util.SDRFtable;
@@ -82,7 +82,6 @@ import com.github.chhh.utils.swing.UiCombo;
 import com.github.chhh.utils.swing.UiSpinnerInt;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
-import com.github.chhh.utils.swing.UiCheck;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -91,7 +90,6 @@ import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -109,7 +107,6 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
@@ -118,7 +115,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
@@ -143,7 +139,6 @@ import javax.swing.table.DefaultTableModel;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.RandomUtils;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.jooq.lambda.Seq;
@@ -167,7 +162,8 @@ public class TabWorkflow extends JPanelWithEnablement {
   private UniqueLcmsFilesTableModel tableModelRawFiles;
   private FileDrop tableRawFilesFileDrop;
   private JScrollPane scrollPaneRawFiles;
-  private JButton btnGroupsConsecutive;
+  private JButton btnGroupsConsecutiveExperiment;
+  private JButton btnGroupsConsecutiveBioreplicate;
   private JButton btnGroupsByParentDir;
   private JButton btnGroupsByFilename;
   private JButton btnSetExp;
@@ -177,8 +173,9 @@ public class TabWorkflow extends JPanelWithEnablement {
   private JButton btnSetGpfDia;
   private JButton btnSetDiaQuant;
   private JButton btnSetDiaLib;
-  private JButton btnSetWwa;
-  private JButton btnGroupsClear;
+  private JButton btnSetDdaPlus;
+  private JButton btnGroupsClearExperiment;
+  private JButton btnGroupsClearBioreplicate;
   private JButton btnManifestSave;
   private JButton btnManifestLoad;
 
@@ -269,6 +266,10 @@ public class TabWorkflow extends JPanelWithEnablement {
     builtInWorkflows.add("TMT10-ubiquitination-K_tmt_or_ubiq");
     builtInWorkflows.add("TMT10-ubiquitination-K_tmt_plus_ubiq");
     builtInWorkflows.add("Open-quickscan");
+    builtInWorkflows.add("WWA");
+    builtInWorkflows.add("DIA_SpecLib_Quant_Phospho");
+    builtInWorkflows.add("TMT16-ubiquitination-K_tmt_or_ubiq");
+    builtInWorkflows.add("TMT16-ubiquitination-K_tmt_plus_ubiq");
   }
 
   // Ok, if we could keep some workflows pinned toward the top,  I would say Default, SpecLib, Open, Common-mass-offset, LFQ-MBR,  then the rest
@@ -300,7 +301,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     TableModelColumn<InputLcmsFile, Integer> colRep = new TableModelColumn<>(
         "Bioreplicate (can be empty and integer)", Integer.class, true, InputLcmsFile::getReplicate);
     TableModelColumn<InputLcmsFile, String> colDataType = new TableModelColumn<>(
-        "Data type (DDA, DIA, GPF-DIA, DIA-Quant, DIA-Lib)", String.class, true, InputLcmsFile::getDataType);
+        "Data type (DDA, DDA+, DIA, DIA-Quant, DIA-Lib)", String.class, true, InputLcmsFile::getDataType);
 
     cols.add(colPath);
     cols.add(colExp);
@@ -479,26 +480,6 @@ public class TabWorkflow extends JPanelWithEnablement {
     add(createPanelWorkflows(), mu.ccGx().wrap());
     add(createPanelOptions(), mu.ccGx().wrap());
     add(createPanelLcmsFiles(), mu.ccGx().wrap());
-  }
-
-  private String genSentence() {
-    int numWords = RandomUtils.nextInt(10, 120);
-    return IntStream.range(0, numWords)
-        .mapToObj(i -> genWord())
-        .collect(StringBuilder::new, (s1, s2) -> s1.append(" ").append(s2),
-            (s1, s2) -> s1.append(" ").append(s2))
-        .toString();
-  }
-
-  private String genWord() {
-    int lo = 97;  // letter 'a'
-    int hi = 122; // letter 'z'
-    int targetStringLength = RandomUtils.nextInt(2, 12);
-    Random random = new Random();
-    return random.ints(lo, hi + 1)
-        .limit(targetStringLength)
-        .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
-        .toString();
   }
 
   private FormEntry.Builder fe(JComponent comp, String name) {
@@ -827,7 +808,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     } else {
       // save to custom dir. Allow direct selection of file path to save
       final String propWorkflowDir = "workflow.last-save-dir";
-      savePath = getSaveFilePath(null, propWorkflowDir, workflowEndingFilter, workflowExt, false  );
+      savePath = getSaveFilePath(null, propWorkflowDir, workflowEndingFilter, workflowExt, false, this);
       if (savePath == null) {
         return;
       }
@@ -999,29 +980,30 @@ public class TabWorkflow extends JPanelWithEnablement {
     mu.add(p, btnTypeRegularMs);
     mu.add(p, btnTypeIms).wrap();
 
-    btnGroupsConsecutive = button("Consecutive",
-        () -> new MessageLcmsGroupAction(Type.CONSECUTIVE));
+    btnGroupsConsecutiveExperiment = button("Consecutive",
+        () -> new MessageLcmsGroupAction(Type.CONSECUTIVE_EXP));
+    btnGroupsConsecutiveBioreplicate = button("Consecutive",
+        () -> new MessageLcmsGroupAction(Type.CONSECUTIVE_REP));
     btnGroupsByParentDir = button("By parent directory",
         () -> new MessageLcmsGroupAction(Type.BY_PARENT_DIR));
     btnGroupsByFilename = button("By file name",
         () -> new MessageLcmsGroupAction(Type.BY_FILE_NAME));
-    btnSetExp = button("Set experiment",
+    btnSetExp = button("Custom",
         () -> new MessageLcmsGroupAction(Type.SET_EXP));
-    btnSetRep = button("Set replicate",
+    btnSetRep = button("Custom",
         () -> new MessageLcmsGroupAction(Type.SET_REP));
     btnSetDda = button("Set DDA",
         () -> new MessageLcmsGroupAction(Type.SET_DDA));
     btnSetDia = button("Set DIA",
         () -> new MessageLcmsGroupAction(Type.SET_DIA));
-    btnSetGpfDia = button("Set GPF-DIA",
-        () -> new MessageLcmsGroupAction(Type.SET_GPF_DIA));
     btnSetDiaQuant = button("Set DIA-Quant",
         () -> new MessageLcmsGroupAction(Type.SET_DIA_QUANT));
     btnSetDiaLib = button("Set DIA-Lib",
         () -> new MessageLcmsGroupAction(Type.SET_DIA_LIB));
-    btnSetWwa = button("Set WWA",
-        () -> new MessageLcmsGroupAction(Type.SET_WWA));
-    btnGroupsClear = button("Clear groups", () -> new MessageLcmsGroupAction(Type.CLEAR_GROUPS));
+    btnSetDdaPlus = button("Set DDA+",
+        () -> new MessageLcmsGroupAction(Type.SET_DDA_PLUS));
+    btnGroupsClearExperiment = button("Clear", () -> new MessageLcmsGroupAction(Type.CLEAR_EXP));
+    btnGroupsClearBioreplicate = button("Clear", () -> new MessageLcmsGroupAction(Type.CLEAR_REP));
 
     btnManifestSave = button("Save as manifest", MessageManifestSave::new);
     btnManifestLoad = button("Load manifest", MessageManifestLoad::new);
@@ -1054,32 +1036,42 @@ public class TabWorkflow extends JPanelWithEnablement {
     }
 
     mu.add(p, btnManifestSave).split();
-    mu.add(p, btnManifestLoad).split();
+    mu.add(p, btnManifestLoad).split().wrap();
 
-    mu.add(p,
-        new JLabel("Assign files to Experiments/Groups (select rows to activate action buttons):"))
-        .spanX().wrap();
-    mu.add(p, btnGroupsConsecutive).split();
+
+    JLabel x = new JLabel("Assign files to Experiments/Bioreplicates:");
+    Font font2 = x.getFont();
+    Font fontBigger2 = font2.deriveFont(font2.getSize2D() * 1.2f);
+    x.setFont(fontBigger2);
+
+    mu.add(p, x).spanX().wrap();
+
+    mu.add(p, new JLabel("Set experiments")).split();
+    mu.add(p, btnGroupsConsecutiveExperiment);
     mu.add(p, btnGroupsByParentDir);
     mu.add(p, btnGroupsByFilename);
     mu.add(p, btnSetExp);
-    mu.add(p, btnSetRep);
-    mu.add(p, btnGroupsClear);
+    mu.add(p, btnGroupsClearExperiment);
 
     UiText emptySpace = UiUtils.uiTextBuilder().cols(1).text("").create();
     emptySpace.setVisible(false);
     mu.add(p, emptySpace).growX().pushX();
 
     mu.add(p, btnSetDda);
-    mu.add(p, btnSetDia);
-    mu.add(p, btnSetGpfDia).wrap();
+    mu.add(p, btnSetDdaPlus);
+    mu.add(p, btnSetDia).wrap();
+
+    mu.add(p, new JLabel("Set bioreplicates")).split();
+    mu.add(p, btnGroupsConsecutiveBioreplicate);
+    mu.add(p, btnSetRep);
+    mu.add(p, btnGroupsClearBioreplicate);
 
     UiText emptySpace2 = UiUtils.uiTextBuilder().cols(1).text("").create();
     emptySpace2.setVisible(false);
     mu.add(p, emptySpace2).growX().pushX().split();
     mu.add(p, btnSetDiaQuant);
-    mu.add(p, btnSetDiaLib);
-    mu.add(p, btnSetWwa).wrap();
+    mu.add(p, btnSetDiaLib).wrap();
+
 
     p.add(scrollPaneRawFiles, mu.ccGx().wrap());
 
@@ -1098,7 +1090,8 @@ public class TabWorkflow extends JPanelWithEnablement {
     });
     tableRawFiles = new LcmsInputFileTable(tableModelRawFiles);
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnFilesClear);
-    tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsConsecutive);
+    tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsConsecutiveExperiment);
+    tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsConsecutiveBioreplicate);
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsByParentDir);
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsByFilename);
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnSetDda);
@@ -1106,8 +1099,9 @@ public class TabWorkflow extends JPanelWithEnablement {
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnSetGpfDia);
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnSetDiaQuant);
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnSetDiaLib);
-    tableRawFiles.addComponentsEnabledOnNonEmptyData(btnSetWwa);
-    tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsClear);
+    tableRawFiles.addComponentsEnabledOnNonEmptyData(btnSetDdaPlus);
+    tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsClearExperiment);
+    tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsClearBioreplicate);
 
     tableRawFiles.addComponentsEnabledOnNonEmptySelection(btnFilesRemove);
     tableRawFiles.addComponentsEnabledOnNonEmptySelection(btnSetExp);
@@ -1342,7 +1336,7 @@ public class TabWorkflow extends JPanelWithEnablement {
 
   @Subscribe(threadMode = ThreadMode.POSTING)
   public void on(MessageManifestSave m) {
-    Path path = getSaveFilePath(m.path, ThisAppProps.CONFIG_SAVE_LOCATION, fileNameEndingFilter, manifestExt, m.quite);
+    Path path = getSaveFilePath(m.path, ThisAppProps.CONFIG_SAVE_LOCATION, fileNameEndingFilter, manifestExt, m.quite, this);
 
     if (path != null) {
       Fragpipe.propsVarSet(ThisAppProps.CONFIG_SAVE_LOCATION, path.getParent().toString());
@@ -1375,13 +1369,13 @@ public class TabWorkflow extends JPanelWithEnablement {
 
   @Subscribe(threadMode = ThreadMode.POSTING)
   public void on(MessageSDRFsave m) {
-    Path path = getSaveFilePath(m.path, ThisAppProps.CONFIG_SAVE_LOCATION, fileNameEndingFilter, sdrfExt, m.quiet);
+    Path path = getSaveFilePath(m.path, ThisAppProps.CONFIG_SAVE_LOCATION, fileNameEndingFilter, sdrfExt, m.quiet, this);
 
     if (path != null) {
       Fragpipe.propsVarSet(ThisAppProps.CONFIG_SAVE_LOCATION, path.getParent().toString());
       TabMsfragger tabMsfragger = getStickyStrict(TabMsfragger.class);
       try {
-        sdrfSave(path, m.label, tabMsfragger.getSDRFenzymes(), tabMsfragger.getSDRFmods(), tabMsfragger.getPrecTolString(), tabMsfragger.getProdTolString());
+        sdrfSave(path, m.label, tabMsfragger.getSDRFenzymes(), tabMsfragger.getSDRFmods(), tabMsfragger.getPrecTolString(), tabMsfragger.getProdTolString(m.logText));
       } catch (IOException e) {
         SwingUtils.showErrorDialogWithStacktrace(e, this);
       }
@@ -1394,8 +1388,11 @@ public class TabWorkflow extends JPanelWithEnablement {
 
     switch (m.type) {
 
-      case CONSECUTIVE:
-        this.actionConsecutive();
+      case CONSECUTIVE_EXP:
+        this.actionConsecutiveExperiment();
+        break;
+      case CONSECUTIVE_REP:
+        this.actionConsecutiveBioreplicate();
         break;
       case BY_PARENT_DIR:
         this.actionByParentDir();
@@ -1424,11 +1421,14 @@ public class TabWorkflow extends JPanelWithEnablement {
       case SET_DIA_LIB:
         this.actionSetDataType("DIA-Lib");
         break;
-      case SET_WWA:
-        this.actionSetDataType("WWA");
+      case SET_DDA_PLUS:
+        this.actionSetDataType("DDA+");
         break;
-      case CLEAR_GROUPS:
-        this.actionClearGroups();
+      case CLEAR_EXP:
+        this.actionClearGroupsExperiment();
+        break;
+      case CLEAR_REP:
+        this.actionClearGroupsBioreplicate();
         break;
       default:
         throw new IllegalStateException("Unknown enum option: " + m.type);
@@ -1439,10 +1439,13 @@ public class TabWorkflow extends JPanelWithEnablement {
   }
 
   private void adjustToolsBasedOnDataTypes() {
+    final NoteConfigDiann noteConfigDiann = Fragpipe.getStickyStrict(NoteConfigDiann.class);
+
     if (hasDataType("DIA") || hasDataType("DIA-Lib") || hasDataType("GPF-DIA")) {
       Bus.post(new NoteConfigUmpire(true));
       UmpirePanel umpirePanel = Fragpipe.getStickyStrict(UmpirePanel.class);
-      if (umpirePanel.isRun()) {
+      DiaPasefSCentricPanel diaPasefSCentricPanel = Fragpipe.getStickyStrict(DiaPasefSCentricPanel.class);
+      if (umpirePanel.isRun() || diaPasefSCentricPanel.isRun()) {
         Bus.post(new NoteConfigCrystalC(true));
         Bus.post(new NoteConfigPeptideProphet(true));
         Bus.post(new NoteConfigPtmProphet(true));
@@ -1453,44 +1456,50 @@ public class TabWorkflow extends JPanelWithEnablement {
         Bus.post(new NoteConfigPtmProphet(false));
         Bus.post(new NoteConfigPtmShepherd(false));
       }
-      Bus.post(new NoteConfigIonQuant(NoteConfigIonQuant.path, NoteConfigIonQuant.version, NoteConfigIonQuant.isTooOld, false, NoteConfigIonQuant.ex));
       Bus.post(new NoteConfigTmtI(false));
       if (hasDataType("DIA")) {
-        Bus.post(new NoteConfigDiann(true));
+        Bus.post(new NoteConfigDiann(noteConfigDiann, true));
       } else {
-        Bus.post(new NoteConfigDiann(false));
+        Bus.post(new NoteConfigDiann(noteConfigDiann, false));
       }
-    } else if (hasDataType("WWA")) {
+    } else if (hasDataType("DDA+")) {
       Bus.post(new NoteConfigUmpire(false));
       Bus.post(new NoteConfigCrystalC(false));
       Bus.post(new NoteConfigPeptideProphet(false));
       Bus.post(new NoteConfigPtmProphet(true));
       Bus.post(new NoteConfigPtmShepherd(false));
-      Bus.post(new NoteConfigIonQuant(NoteConfigIonQuant.path, NoteConfigIonQuant.version, NoteConfigIonQuant.isTooOld, true, NoteConfigIonQuant.ex));
       Bus.post(new NoteConfigTmtI(false));
-      Bus.post(new NoteConfigDiann(false));
+      Bus.post(new NoteConfigDiann(noteConfigDiann, false));
     } else {
       Bus.post(new NoteConfigUmpire(false));
       Bus.post(new NoteConfigCrystalC(true));
       Bus.post(new NoteConfigPeptideProphet(true));
       Bus.post(new NoteConfigPtmProphet(true));
       Bus.post(new NoteConfigPtmShepherd(true));
-      Bus.post(new NoteConfigIonQuant(NoteConfigIonQuant.path, NoteConfigIonQuant.version, NoteConfigIonQuant.isTooOld, true, NoteConfigIonQuant.ex));
       Bus.post(new NoteConfigTmtI(true));
-      Bus.post(new NoteConfigDiann(false));
+      Bus.post(new NoteConfigDiann(noteConfigDiann, false));
     }
 
     if (hasDataType("DIA-Quant")) {
-      Bus.post(new NoteConfigDiann(true));
+      Bus.post(new NoteConfigDiann(noteConfigDiann, true));
     }
   }
 
-  private void actionClearGroups() {
+  private void actionClearGroupsExperiment() {
     UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
 
     for (int i = 0, sz = m.dataSize(); i < sz; i++) {
       InputLcmsFile f = m.dataGet(i);
-      m.dataSet(i, new InputLcmsFile(f.getPath(), ThisAppProps.DEFAULT_LCMS_EXP_NAME, null, f.getDataType()));
+      m.dataSet(i, new InputLcmsFile(f.getPath(), ThisAppProps.DEFAULT_LCMS_EXP_NAME, f.getReplicate(), f.getDataType()));
+    }
+  }
+
+  private void actionClearGroupsBioreplicate() {
+    UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
+
+    for (int i = 0, sz = m.dataSize(); i < sz; i++) {
+      InputLcmsFile f = m.dataGet(i);
+      m.dataSet(i, new InputLcmsFile(f.getPath(), f.getExperiment(), null, f.getDataType()));
     }
   }
 
@@ -1548,8 +1557,8 @@ public class TabWorkflow extends JPanelWithEnablement {
   }
 
   private boolean checkDataTypeCompatibility(InputLcmsFile f, String dataType) {
-    if ((dataType.contentEquals("DIA") || dataType.contentEquals("GPF-DIA") || dataType.contentEquals("DIA-Lib") || dataType.contentEquals("WWA")) && f.getPath().toString().endsWith(".d")) {
-      SwingUtils.showErrorDialog(this, "timsTOF data is only compatible with DDA and DIA-Quant data type.", "Incompatible data type");
+    if ((dataType.contentEquals("GPF-DIA") || dataType.contentEquals("DIA-Lib") || dataType.contentEquals("DDA+")) && f.getPath().toString().endsWith(".d")) {
+      SwingUtils.showErrorDialog(this, "timsTOF data is only compatible with DIA, DDA, and DIA-Quant data type.", "Incompatible data type");
       return false;
     }
     return true;
@@ -1578,11 +1587,19 @@ public class TabWorkflow extends JPanelWithEnablement {
     }
   }
 
-  private void actionConsecutive() {
+  private void actionConsecutiveExperiment() {
     UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
     for (int i = 0, sz = m.dataSize(); i < sz; i++) {
       InputLcmsFile f = m.dataGet(i);
-      m.dataSet(i, new InputLcmsFile(f.getPath(), "exp", i + 1, f.getDataType()));
+      m.dataSet(i, new InputLcmsFile(f.getPath(), String.valueOf(i + 1), f.getReplicate(), f.getDataType()));
+    }
+  }
+
+  private void actionConsecutiveBioreplicate() {
+    UniqueLcmsFilesTableModel m = this.tableModelRawFiles;
+    for (int i = 0, sz = m.dataSize(); i < sz; i++) {
+      InputLcmsFile f = m.dataGet(i);
+      m.dataSet(i, new InputLcmsFile(f.getPath(), f.getExperiment(), i + 1, f.getDataType()));
     }
   }
 
@@ -1590,6 +1607,19 @@ public class TabWorkflow extends JPanelWithEnablement {
     List<InputLcmsFile> lcmsInputs = tableModelRawFiles.dataCopy();
     Map<String, List<InputLcmsFile>> mapGroup2Files = lcmsInputs.stream()
         .collect(Collectors.groupingBy(InputLcmsFile::getGroup));
+
+    Map<String, LcmsFileGroup> result = new TreeMap<>();
+    for (Entry<String, List<InputLcmsFile>> e : mapGroup2Files.entrySet()) {
+      result.put(e.getKey(), new LcmsFileGroup(e.getKey(), e.getValue()));
+    }
+
+    return result;
+  }
+
+  public Map<String, LcmsFileGroup> getLcmsFileGroups2() {
+    List<InputLcmsFile> lcmsInputs = tableModelRawFiles.dataCopy();
+    Map<String, List<InputLcmsFile>> mapGroup2Files = lcmsInputs.stream()
+        .collect(Collectors.groupingBy(InputLcmsFile::getGroup2));
 
     Map<String, LcmsFileGroup> result = new TreeMap<>();
     for (Entry<String, List<InputLcmsFile>> e : mapGroup2Files.entrySet()) {
@@ -1612,13 +1642,13 @@ public class TabWorkflow extends JPanelWithEnablement {
     return false;
   }
 
-  private Path getSaveFilePath(Path inputPath, String defaultSaveDir, FileNameEndingFilter filenameFilter, String fileExtension, boolean quiet) {
+  public static Path getSaveFilePath(Path inputPath, String defaultSaveDir, FileNameEndingFilter filenameFilter, String fileExtension, boolean quiet, Component parent) {
     Path path = inputPath;
     if (path == null) {
       String loc = Fragpipe.propsVarGet(defaultSaveDir);
       JFileChooser fc = FileChooserUtils.builder("Path to save file").paths(Stream.of(loc)).mode(FcMode.FILES_ONLY).approveButton("Save").multi(false).acceptAll(true).filters(Collections.singletonList(filenameFilter)).create();
       fc.setFileFilter(filenameFilter);
-      if (JFileChooser.APPROVE_OPTION == fc.showSaveDialog(this)) {
+      if (JFileChooser.APPROVE_OPTION == fc.showSaveDialog(parent)) {
         String s = fc.getSelectedFile().getAbsolutePath();
         if (!s.endsWith(fileExtension)) {
           s += fileExtension;
@@ -1633,7 +1663,7 @@ public class TabWorkflow extends JPanelWithEnablement {
         if (quiet) {
           Files.deleteIfExists(path);
         } else if (Files.exists(path)) {
-          if (!SwingUtils.showConfirmDialogShort(this, "File exists, overwrite?\n\n" + path)) {
+          if (!SwingUtils.showConfirmDialogShort(parent, "File exists, overwrite?\n\n" + path)) {
             return null;
           } else {
             Files.deleteIfExists(path);
@@ -1641,7 +1671,7 @@ public class TabWorkflow extends JPanelWithEnablement {
         }
         return path;
       } catch (IOException e) {
-        SwingUtils.showErrorDialogWithStacktrace(e, this);
+        SwingUtils.showErrorDialogWithStacktrace(e, parent);
       }
     }
     return null;

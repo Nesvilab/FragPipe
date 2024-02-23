@@ -17,6 +17,8 @@ deisotope = 1
 deneutralloss = 1
 isotope_error = 0
 mass_offsets = 0
+mass_offsets_detailed =
+use_detailed_offsets = 0
 precursor_mass_mode = corrected
 
 remove_precursor_peak = 1
@@ -98,7 +100,6 @@ max_fragment_charge = 2
 track_zero_topN = 0
 zero_bin_accept_expect = 0
 zero_bin_mult_expect = 1
-add_topN_complementary = 0
 
 check_spectral_files = 1
 minimum_peaks = 15

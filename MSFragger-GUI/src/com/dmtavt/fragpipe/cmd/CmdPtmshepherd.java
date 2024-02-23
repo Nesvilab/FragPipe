@@ -22,7 +22,6 @@ import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
 import com.dmtavt.fragpipe.tools.ptmshepherd.PtmshepherdParams;
-import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.SwingUtils;
 import java.awt.Component;
 import java.io.BufferedWriter;
@@ -47,7 +46,7 @@ public class CmdPtmshepherd extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdPtmshepherd.class);
   public static final String NAME = "PTMShepherd";
   public static final String CONFIG_FN = "shepherd.config";
-  public static final String JAR_SHEPHERD_NAME = "ptmshepherd-2.0.6-rc1.jar";
+  public static final String JAR_SHEPHERD_NAME = "ptmshepherd-2.0.6.jar";
   /** Fully qualified name, such as one you'd use for `java -cp my.jar com.example.MyClass`. */
   public static final String JAR_SHEPHERD_MAIN_CLASS = "edu.umich.andykong.ptmshepherd.PTMShepherd";
   public static final String[] JAR_DEPS = {ToolingUtils.BATMASS_IO_JAR, "commons-math3-3.6.1.jar", "hipparchus-1.8/hipparchus-core-1.8.jar", "hipparchus-1.8/hipparchus-stat-1.8.jar"};
@@ -148,7 +147,7 @@ public class CmdPtmshepherd extends CmdBase {
     cmd.add("-cp");
     cmd.add(constructClasspathString(classpathJars));
     cmd.add(JAR_SHEPHERD_MAIN_CLASS);
-    cmd.add(PathUtils.quotePath(pathConfig.toString(), false));
+    cmd.add("\"" + pathConfig.toAbsolutePath() + "\"");
     ProcessBuilder pb = new ProcessBuilder(cmd);
     pb.directory(wd.toFile());
     pbis.add(PbiBuilder.from(pb));

@@ -436,6 +436,15 @@ public class SwingUtils {
         () -> p.updateEnabledStatus(toToggle, false));
   }
 
+  // Disable a component when the provided toggle component is checked. Same as setEnablementUpdater,
+  // but disabling when the toggle is activated instead of enabling.
+  public static void setDisablementUpdater(JPanelWithEnablement p, final Component toToggle,
+                                          ItemSelectable check) {
+    addSelectedStateChangeListener(check, true,
+            () -> p.updateEnabledStatus(toToggle, false),
+            () -> p.updateEnabledStatus(toToggle, true));
+  }
+
   public static void enableComponents(Container container, boolean enabled) {
     enableComponents(container, enabled, false);
   }

@@ -48,6 +48,8 @@ import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.ButtonGroup;
+import javax.swing.JRadioButton;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import net.miginfocom.layout.CC;
@@ -85,6 +87,11 @@ public class SpeclibPanel extends JPanelBase {
   private JCheckBox check_fragment_type_y;
   private JCheckBox check_fragment_type_z;
   private JCheckBox uiCheckNeutralLoss;
+  private UiCombo uiComboGlycoMode;
+  private ButtonGroup convertButtonGroup;
+  private JRadioButton psmConvertButton;
+  private JRadioButton pepxmlConvertButton;
+  private JCheckBox checkIgnoreUnannotated;
   private JPanel panelEasypqp;
   public static final String EASYPQP_TIMSTOF = "timsTOF";
   public static final String EASYPQP_EXTRAS_PREFIX = "easypqp.extras.";
@@ -151,14 +158,32 @@ public class SpeclibPanel extends JPanelBase {
     checkKeepIntermediateFiles = new UiCheck("keep intermediate files", null, false);
     checkKeepIntermediateFiles.setName("keep-intermediate-files");
 
+    convertButtonGroup = new ButtonGroup();
+    pepxmlConvertButton = new JRadioButton("pepXML");
+    pepxmlConvertButton.setName("convert-pepxml");
+    pepxmlConvertButton.setSelected(true);
+    psmConvertButton = new JRadioButton("psm.tsv");
+    psmConvertButton.setName("convert-psm");
+    psmConvertButton.setSelected(false);
+    convertButtonGroup.add(pepxmlConvertButton);
+    convertButtonGroup.add(psmConvertButton);
+    JLabel convertTypeLabel = new JLabel("Filetype to Convert:");
+    convertTypeLabel.setToolTipText("Use pepXML or psm.tsv files as input to library conversion. Note: Glyco mode requires psm.tsv conversion");
+
     final String optionAuto = "Automatic selection of a run as reference RT";
     final String optionManual = "User provided RT calibration file";
-    pqpCal = Arrays.asList(optionAuto, "iRT", "ciRT", "Pierce_iRT", optionManual);
+    pqpCal = Arrays.asList(optionAuto, "Biognosys_iRT", "ciRT", "Pierce_iRT", optionManual);
     pqpType = Arrays.asList(EASYPQP_TIMSTOF, "non-timsTOF");
 
     uiComboPqpCal = UiUtils.createUiCombo(pqpCal);
     FormEntry fePqpCal = new FormEntry("easypqp.rt-cal",
-        "RT calibration", uiComboPqpCal);
+        "RT calibration", uiComboPqpCal, SwingUtils.makeHtml(
+        "<b>Automatic selection of a run as reference RT</b> selects the run with the most identified peptides as a reference. Overlapped peptides are used for the alignment\n"
+            + "<b>Biognosys_iRT</b>, <b>ciRT</b>, and <b>Pierce_iRT</b> uses the peptides from the Biognosys iRT kit, common human peptides, and Pierce iRT kit to perform the alignment.\n"
+            + "For unfractionated data, <b>Automatic selection of a run as reference RT</b> is recommended.\n"
+            + "When building the library from fractionated data, there may be not enough overlapped peptides for the alignment. Should consider using the other options.\n"
+            + "<b>ciRT</b> is overall the safest option for human samples.\n"
+            + "Users can also provide their own iRT peptides by using the <b>User provided RT calibration file</b> option.\n"));
     final String optionIMManual = "User provided IM calibration file";
     uiComboPqpIMCal = UiUtils.createUiCombo(Arrays.asList("Automatic selection of a run as reference IM", optionIMManual));
     FormEntry fePqpIMCal = new FormEntry("easypqp.im-cal",
@@ -260,7 +285,21 @@ public class SpeclibPanel extends JPanelBase {
     uiCheckNeutralLoss = new UiCheck("neutral loss", null, false);
     FormEntry feNeutralLoss = mu.feb(uiCheckNeutralLoss).name("easypqp.neutral_loss").label("neutral loss").tooltip("Add neutral loss fragments to the spectral library.").create();
 
-    mu.add(p, checkKeepIntermediateFiles).wrap();
+    checkIgnoreUnannotated = new UiCheck("Make library Skyline compatible", null, false);
+    FormEntry feIgnoreUnannotated = mu.feb(checkIgnoreUnannotated).name("easypqp.ignore_unannotated").label("Make library Skyline compatible").tooltip("Remove PSMs not matching Unimod modifications from input files prior to library building.\nMakes Skyline import easier if searches contain non-Unimod modifications (e.g., open or glyco search)").create();
+
+    uiComboGlycoMode = UiUtils.createUiCombo(Arrays.asList("Regular (not glyco)", "O-glyco", "N-glyco", "N-glyco+HexNAc"));
+    String glycoTooltip = "Labile glyco search modes:\n" +
+            "Regular = standard, non-glyco search (all modifications included intact on fragment ions in the library)\n" +
+            "O-glyco = modifications larger than 140 Da on S,T residues are considered labile and are not placed on fragment ions\n" +
+            "N-glyco = modifications larger than 140 Da on N residues are considered labile and are not placed on fragment ions\n" +
+            "N-glyco+HexNAc = modifications larger than 140 Da on N residues have a HexNAc fragment remainder ion (203.08 Da) placed instead of the intact modification mass";
+    FormEntry feComboGlycoMode = mu.feb(uiComboGlycoMode).name("easypqp.labile_mode").label("Glyco Mode").tooltip(glycoTooltip).create();
+
+    mu.add(p, convertTypeLabel);
+    mu.add(p, pepxmlConvertButton).split();
+    mu.add(p, psmConvertButton).split();
+    mu.add(p, checkKeepIntermediateFiles).gapLeft("80").wrap();
 
     mu.add(p, fePqpCal.label(), ccR());
     mu.add(p, fePqpCal.comp).split();
@@ -282,14 +321,18 @@ public class SpeclibPanel extends JPanelBase {
     mu.add(p, feFragmentTypeC.comp);
     mu.add(p, feFragmentTypeX.comp);
     mu.add(p, feFragmentTypeY.comp);
-    mu.add(p, feFragmentTypeZ.comp).wrap();
+    mu.add(p, feFragmentTypeZ.comp);
+    mu.add(p, feNeutralLoss.comp).wrap();
 
     mu.add(p, fe_max_delta_unimod.label(), mu.ccR());
     mu.add(p, fe_max_delta_unimod.comp).split();
-    mu.add(p, feNeutralLoss.comp).gapLeft("127").alignX("right").wrap();
+    mu.add(p, feIgnoreUnannotated.comp).gapLeft("35").wrap();
 
     mu.add(p, fe_max_delta_ppm.label(), mu.ccR());
     mu.add(p, fe_max_delta_ppm.comp).wrap();
+
+    mu.add(p, feComboGlycoMode.label(), mu.ccR());
+    mu.add(p, feComboGlycoMode.comp).wrap();
 
     uiComboPqpCal.addItemListener(e -> {
       String selected = (String) e.getItem();
@@ -406,10 +449,13 @@ public class SpeclibPanel extends JPanelBase {
   }
 
   public String getEasypqpCalOption() {
-    return new String[]{"noiRT", "iRT", "ciRT", "Pierce_iRT", "a tsv file"}[uiComboPqpCal.getSelectedIndex()];
+    return new String[]{"noiRT", "Biognosys_iRT", "ciRT", "Pierce_iRT", "a tsv file"}[uiComboPqpCal.getSelectedIndex()];
   }
   public String getEasypqpIMCalOption() {
     return new String[]{"noIM", "a tsv file"}[uiComboPqpIMCal.getSelectedIndex()];
+  }
+  public String getEasypqpGlycoOption() {
+    return new String[]{"", "oglyc", "nglyc", "nglyc+"}[uiComboGlycoMode.getSelectedIndex()];
   }
 
   public Path getEasypqpCalFilePath() {
@@ -455,5 +501,19 @@ public class SpeclibPanel extends JPanelBase {
 
   public boolean hasNeutralLoss() {
     return uiCheckNeutralLoss.isSelected();
+  }
+  public boolean getEasyPQPignoreUnannotatedOption() {
+    return checkIgnoreUnannotated.isSelected();
+  }
+  public boolean isConvertPSM() {
+    return psmConvertButton.isSelected();
+  }
+  public boolean checkGlycoMode() {
+    if (!getEasypqpGlycoOption().equals("")) {
+      // glyco mode enabled -> require psm.tsv conversion
+      return isConvertPSM();
+    } else {
+      return true;
+    }
   }
 }

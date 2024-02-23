@@ -23,8 +23,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -34,7 +32,6 @@ public class FileDelete {
     // If logger is added, this will require SLF4J to be on classpath. Which is undesirable
     // for simplicity of use of this class from command line as
     // `java -cp fragpipe.jar com.github.chhh.utils.FileDelete`
-//    private static final org.slf4j.Logger log = LoggerFactory.getLogger(FileDelete.class);
 
     public static void main(String[] args) throws IOException {
         if (args.length != 1)
@@ -46,7 +43,7 @@ public class FileDelete {
     }
 
     public static void deleteFileOrFolder(final Path path) throws IOException {
-        Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
+        Files.walkFileTree(path, new SimpleFileVisitor<>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 Files.delete(file);
@@ -59,8 +56,6 @@ public class FileDelete {
             }
 
             private FileVisitResult handleException(IOException e) {
-                System.err.println("Error traversing directory for deletion:\n" + e.getMessage());
-//                log.error("Error deleting file tree at: " + path.toString(), e);
                 return FileVisitResult.TERMINATE;
             }
 

@@ -17,16 +17,14 @@
 
 package com.dmtavt.fragpipe.cmd;
 
-import static com.dmtavt.fragpipe.cmd.CmdDiann.DIANN_LINUX;
-import static com.dmtavt.fragpipe.cmd.CmdDiann.DIANN_WIN;
-import static com.dmtavt.fragpipe.cmd.CmdDiann.getLDPRELOAD;
 import static com.dmtavt.fragpipe.cmd.ToolingUtils.BATMASS_IO_JAR;
-import static com.github.chhh.utils.OsUtils.isUnix;
-import static com.github.chhh.utils.OsUtils.isWindows;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
+import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
+import com.dmtavt.fragpipe.messages.NoteConfigDiann;
+import com.dmtavt.fragpipe.tools.diann.Diann;
 import com.github.chhh.utils.SwingUtils;
 import java.awt.Component;
 import java.io.BufferedWriter;
@@ -46,16 +44,27 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CmdMSBooster extends CmdBase {
+
   private static final Logger log = LoggerFactory.getLogger(CmdMSBooster.class);
   public static String NAME = "MSBooster";
-  public static final String JAR_MSBOOSTER_NAME = "msbooster-1.1.11.jar";
+  public static final String JAR_MSBOOSTER_NAME = "msbooster-1.2.2.jar";
   public static final String JAR_MSBOOSTER_MAIN_CLASS = "Features.MainClass";
   private static final String[] JAR_DEPS = {BATMASS_IO_JAR};
   private static final Pattern pattern1 = Pattern.compile("\\.pepXML$");
   private static final Pattern pattern2 = Pattern.compile("_rank[0-9]+\\.pepXML$");
 
+  private final String diannPath;
+  private final String LD_PRELOAD_str;
+
   public CmdMSBooster(boolean isRun, Path workDir) {
     super(isRun, workDir);
+    NoteConfigDiann noteConfigDiann = Bus.getStickyEvent(NoteConfigDiann.class);
+    if (noteConfigDiann == null) {
+      diannPath = Diann.fallbackDiannPath;
+    } else {
+      diannPath = noteConfigDiann.path;
+    }
+    LD_PRELOAD_str = Diann.LD_PRELOAD_str;
   }
 
   @Override
@@ -63,7 +72,7 @@ public class CmdMSBooster extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, int ramGb, int threads, Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml, boolean predictRT, boolean predictSpectra, boolean useCorrelatedFeatures, boolean hasDda, boolean hasDia, boolean hasGpfDia, boolean hasDiaLib, boolean hasWwa, boolean isRunDiaU, boolean isOpenSearch) {
+  public boolean configure(Component comp, int ramGb, int threads, Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml, boolean predictRT, boolean predictSpectra, boolean useCorrelatedFeatures, boolean hasDda, boolean hasDia, boolean hasGpfDia, boolean hasDiaLib, boolean hasDdaPlus, boolean isRunDiaU, boolean isRunDiaPasefSCentric, boolean isOpenSearch, String rtModel, String spectraModel) {
     initPreConfig();
 
     // MSBooster does not compatible with open search and mass-offset search.
@@ -77,34 +86,8 @@ public class CmdMSBooster extends CmdBase {
       return false;
     }
 
-    final List<Path> diannPath;
-    if (isWindows()) {
-      diannPath = FragpipeLocations.checkToolsMissing(Seq.of(DIANN_WIN));
-    } else if (isUnix()) {
-      diannPath = FragpipeLocations.checkToolsMissing(Seq.of(DIANN_LINUX));
-    } else {
-      System.err.println("DIA-NN only works in Windows and Linux.");
-      return false;
-    }
-
-    if (diannPath == null || diannPath.isEmpty()) {
-      System.err.println("Cannot find DIA-NN executable file.");
-      return false;
-    }
-
-    if (diannPath.size() > 1) {
-      System.err.print("There are more than one DIA-NN executable file: ");
-      for (Path p : diannPath) {
-        System.err.print(p.toAbsolutePath() + "; ");
-      }
-      System.err.println();
-      return false;
-    }
-
-    String LD_PRELOAD_str = getLDPRELOAD(diannPath);
-
     String fraggerParams;
-    if (hasDda || isRunDiaU) {
+    if (hasDda || isRunDiaU || isRunDiaPasefSCentric) {
       if (hasDia || hasDiaLib || hasGpfDia) {
         fraggerParams = wd.resolve("fragger_dda.params").toAbsolutePath().toString();
       } else {
@@ -114,10 +97,10 @@ public class CmdMSBooster extends CmdBase {
       fraggerParams = wd.resolve("fragger_dia.params").toAbsolutePath().toString();
     } else if (hasGpfDia) {
       fraggerParams = wd.resolve("fragger_gpfdia.params").toAbsolutePath().toString();
-    } else if (hasWwa) {
-      fraggerParams = wd.resolve("fragger_wwa.params").toAbsolutePath().toString();
+    } else if (hasDdaPlus) {
+      fraggerParams = wd.resolve("fragger_dda_plus.params").toAbsolutePath().toString();
     } else {
-      System.err.println("There are no DDA, DIA, GPF-DIA, GPF-Lib, or WWA data.");
+      System.err.println("There are no DDA, DIA, GPF-DIA, GPF-Lib, or DDA+ data.");
       return false;
     }
 
@@ -128,12 +111,14 @@ public class CmdMSBooster extends CmdBase {
         BufferedWriter bufferedWriter = Files.newBufferedWriter(paramPath);
         bufferedWriter.write("useDetect = false\n");
         bufferedWriter.write("numThreads = " + threads + "\n");
-        bufferedWriter.write("DiaNN = " + diannPath.get(0) + "\n");
+        bufferedWriter.write("DiaNN = " + diannPath + "\n");
         bufferedWriter.write("renamePin = 1\n");
         bufferedWriter.write("useRT = " + (predictRT ? "true" : "false") + "\n");
         bufferedWriter.write("useSpectra = " + (predictSpectra ? "true" : "false") + "\n");
         bufferedWriter.write("fragger = " + fraggerParams + "\n");
         bufferedWriter.write("deletePreds = false\n"); // FragPipe-PDV need the prediction files.
+        bufferedWriter.write("rtModel = " + rtModel + "\n");
+        bufferedWriter.write("spectraModel = " + spectraModel + "\n");
 
         // compute unique lcms file directories
         bufferedWriter.write("mzmlDirectory = ");

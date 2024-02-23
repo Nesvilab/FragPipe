@@ -67,8 +67,8 @@ public class InputLcmsFile implements Comparable<InputLcmsFile> {
                 case "dia-lib":
                     this.dataType = "DIA-Lib";
                     break;
-                case "wwa":
-                    this.dataType = "WWA";
+                case "dda+":
+                    this.dataType = "DDA+";
                     break;
                 default:
                     this.dataType = "DDA";
@@ -82,6 +82,8 @@ public class InputLcmsFile implements Comparable<InputLcmsFile> {
             return "DDA";
         } else if (fileName.contains("DIA")) { // DIA has to be upper case.
             return "DIA";
+        } else if (fileName.contains("WWA")) {
+            return "DDA+";
         } else {
             return "DDA";
         }
@@ -101,18 +103,18 @@ public class InputLcmsFile implements Comparable<InputLcmsFile> {
     }
 
     public int compareTo(@NotNull InputLcmsFile other) { // the sorting here must be consistent with the one in LcmsFileGroup
-        Comparator<InputLcmsFile> comparator = Comparator.comparing(InputLcmsFile::getGroup).thenComparing(InputLcmsFile::getDataType).thenComparing(p -> p.path.toAbsolutePath().toString());
+        Comparator<InputLcmsFile> comparator = Comparator.comparing(InputLcmsFile::getGroup2).thenComparing(InputLcmsFile::getDataType).thenComparing(p -> p.path.toAbsolutePath().toString());
         return comparator.compare(this, other);
     }
 
     @Override
     public int hashCode() {
-        return (getPath().toAbsolutePath() + "-" + getGroup() + "-" + getDataType()).hashCode();
+        return (getPath().toAbsolutePath() + "-" + getGroup2() + "-" + getDataType()).hashCode();
     }
 
     @Override
     public String toString() {
-        return String.format("InputLcmsFile{group: '%s', dataType: '%s', path: '%s'}", getGroup(), getDataType(), getPath());
+        return String.format("InputLcmsFile{group: '%s', dataType: '%s', path: '%s'}", getGroup2(), getDataType(), getPath());
     }
 
     public String getGroup() {
@@ -121,6 +123,17 @@ public class InputLcmsFile implements Comparable<InputLcmsFile> {
         if (speclibPanel.isRun() || diannPanel.isRun()) {
             return "";
         }
+        if (getReplicate() != null) {
+            if (StringUtils.isNullOrWhitespace(experiment)) {
+                return "exp_" + getReplicate();
+            } else {
+                return experiment + "_" + getReplicate();
+            }
+        }
+        return experiment;
+    }
+
+    public String getGroup2() {
         if (getReplicate() != null) {
             if (StringUtils.isNullOrWhitespace(experiment)) {
                 return "exp_" + getReplicate();

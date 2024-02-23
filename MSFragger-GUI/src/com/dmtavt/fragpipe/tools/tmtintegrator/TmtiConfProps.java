@@ -76,7 +76,6 @@ public class TmtiConfProps {
       new ComboValue("0", "None", ""),
       new ComboValue("1", "MD (median centering)", ""),
       new ComboValue("2", "GN (median centering + variance scaling)", ""),
-      new ComboValue("3", "SL+IRS (Only for abundance-based integration)", ""),
       new ComboValue("-1", "All", "generate reports with all normalization options")
   );
 

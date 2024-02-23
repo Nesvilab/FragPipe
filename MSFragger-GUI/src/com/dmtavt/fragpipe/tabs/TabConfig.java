@@ -28,10 +28,12 @@ import com.dmtavt.fragpipe.api.Notifications;
 import com.dmtavt.fragpipe.api.PyInfo;
 import com.dmtavt.fragpipe.dialogs.DownloadIonQuantPanel;
 import com.dmtavt.fragpipe.dialogs.DownloadMSFraggerPanel;
+import com.dmtavt.fragpipe.exceptions.NoStickyException;
 import com.dmtavt.fragpipe.exceptions.UnexpectedException;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
 import com.dmtavt.fragpipe.messages.MessageBalloon;
 import com.dmtavt.fragpipe.messages.MessageClearCache;
+import com.dmtavt.fragpipe.messages.MessageDiannNewBin;
 import com.dmtavt.fragpipe.messages.MessageFindSystemPython;
 import com.dmtavt.fragpipe.messages.MessageInstallEasyPQP;
 import com.dmtavt.fragpipe.messages.MessageIonQuantNewBin;
@@ -41,15 +43,19 @@ import com.dmtavt.fragpipe.messages.MessageMsfraggerUpdateAvailable;
 import com.dmtavt.fragpipe.messages.MessagePhilosopherNewBin;
 import com.dmtavt.fragpipe.messages.MessagePythonNewBin;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
+import com.dmtavt.fragpipe.messages.MessageSkylineNewBin;
 import com.dmtavt.fragpipe.messages.MessageUiRevalidate;
 import com.dmtavt.fragpipe.messages.NoteConfigDbsplit;
+import com.dmtavt.fragpipe.messages.NoteConfigDiann;
 import com.dmtavt.fragpipe.messages.NoteConfigIonQuant;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.dmtavt.fragpipe.messages.NoteConfigPython;
+import com.dmtavt.fragpipe.messages.NoteConfigSkyline;
 import com.dmtavt.fragpipe.messages.NoteConfigSpeclibgen;
 import com.dmtavt.fragpipe.messages.NoteFragpipeUpdate;
 import com.dmtavt.fragpipe.params.ThisAppProps;
+import com.dmtavt.fragpipe.tools.diann.Diann;
 import com.dmtavt.fragpipe.tools.fragger.Msfragger;
 import com.dmtavt.fragpipe.tools.fragger.Msfragger.Version;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerVersionFetcherServer;
@@ -57,6 +63,7 @@ import com.dmtavt.fragpipe.tools.ionquant.IonQuant;
 import com.dmtavt.fragpipe.tools.ionquant.IonQuantVersionFetcherServer;
 import com.dmtavt.fragpipe.tools.philosopher.Philosopher;
 import com.dmtavt.fragpipe.tools.philosopher.Philosopher.UpdateInfo;
+import com.dmtavt.fragpipe.tools.skyline.Skyline;
 import com.dmtavt.fragpipe.util.GitHubJson;
 import com.github.chhh.utils.JarUtils;
 import com.github.chhh.utils.OsUtils;
@@ -87,6 +94,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -113,6 +121,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
@@ -128,9 +137,9 @@ import rx.schedulers.Schedulers;
 public class TabConfig extends JPanelWithEnablement {
 
   private static final Logger log = LoggerFactory.getLogger(TabConfig.class);
-  private static final DefaultArtifactVersion msfraggerMinVersion = new DefaultArtifactVersion("3.8");
-  private static final DefaultArtifactVersion ionquantMinVersion = new DefaultArtifactVersion("1.9.8");
-  private static final DefaultArtifactVersion philosopherMinVersion = new DefaultArtifactVersion("5.0.0");
+  private static final DefaultArtifactVersion msfraggerMinVersion = new DefaultArtifactVersion("4.0");
+  private static final DefaultArtifactVersion ionquantMinVersion = new DefaultArtifactVersion("1.10.12");
+  private static final DefaultArtifactVersion philosopherMinVersion = new DefaultArtifactVersion("5.1.0");
   public static final DefaultArtifactVersion pythonMinVersion = new DefaultArtifactVersion("3.9");
 
   private static final MigUtils mu = MigUtils.get();
@@ -143,7 +152,11 @@ public class TabConfig extends JPanelWithEnablement {
   private HtmlStyledJEditorPane epFraggerVer;
   private HtmlStyledJEditorPane epIonQuantVer;
   private UiText uiTextBinPhi;
+  private UiText uiTextBinDiann;
+  private UiText uiTextBinSkyline;
   private HtmlStyledJEditorPane epPhiVer;
+  private HtmlStyledJEditorPane epDiannVer;
+  private HtmlStyledJEditorPane epSkylineVer;
   private UiText uiTextBinPython;
   private HtmlStyledJEditorPane epPythonVer;
   private HtmlStyledJEditorPane epDbsplitText;
@@ -155,6 +168,8 @@ public class TabConfig extends JPanelWithEnablement {
   public static final String TIP_MSFRAGGER_BIN = "tip.msfragger.bin";
   public static final String TIP_IONQUANT_BIN = "tip.ionquant.bin";
   public static final String TIP_PHILOSOPHER_BIN = "tip.pholosopher.bin";
+  public static final String TIP_DIANN_BIN = "tip.diann.bin";
+  public static final String TIP_SKYLINE_BIN = "tip.skyline.bin";
   public static final String TIP_PYTHON_BIN = "tip.python.bin";
   private static final String TIP_DBSPLIT = "tip.dbsplit";
   private static final String TIP_SPECLIBGEN = "tip.speclibgen";
@@ -194,6 +209,8 @@ public class TabConfig extends JPanelWithEnablement {
     add(createPanelFragger(), new CC().growX().wrap());
     add(createPanelIonQuant(), new CC().growX().wrap());
     add(createPanelPhilosopher(), new CC().growX().wrap());
+    add(createPanelDiann(), new CC().growX().wrap());
+    add(createPanelSkyline(), new CC().growX().wrap());
     add(createPanelPython(), new CC().growX().wrap());
     add(createPanelDbsplit(), new CC().growX().wrap());
     add(createPanelSpeclibgen(), new CC().growX().wrap());
@@ -546,6 +563,46 @@ public class TabConfig extends JPanelWithEnablement {
     }
   }
 
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(MessageDiannNewBin m) {
+    if (StringUtils.isBlank(m.path) || !Files.exists(Paths.get(m.path.replaceAll("\"", "")))) {
+      Bus.postSticky(new NoteConfigDiann());
+      return;
+    }
+
+    if (m.path.contains(" ") && !m.path.startsWith("\"") && !m.path.endsWith("\"")) {
+      m.path = "\"" + m.path + "\"";
+    }
+
+    try {
+      Diann.Version v = Diann.validate(m.path);
+      Bus.postSticky(new NoteConfigDiann(m.path, v.version, null, true));
+    } catch (Exception e) {
+      e.printStackTrace();
+      Bus.postSticky(new NoteConfigDiann());
+    }
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(MessageSkylineNewBin m) {
+    if (StringUtils.isBlank(m.path) || !Files.exists(Paths.get(m.path.replaceAll("\"", "")))) {
+      Bus.postSticky(new NoteConfigSkyline(new NullPointerException("Skyline path is null.")));
+      return;
+    }
+
+    if (m.path.contains(" ") && !m.path.startsWith("\"") && !m.path.endsWith("\"")) {
+      m.path = "\"" + m.path + "\"";
+    }
+
+    try {
+      Skyline.Version v = Skyline.validate(m.path);
+      Bus.postSticky(new NoteConfigSkyline(m.path, v, null, true));
+    } catch (Exception e) {
+      e.printStackTrace();
+      Bus.postSticky(new NoteConfigSkyline(e));
+    }
+  }
+
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteConfigPhilosopher m) {
     log.debug("Got {}", m);
@@ -569,6 +626,51 @@ public class TabConfig extends JPanelWithEnablement {
     }
   }
 
+  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(NoteConfigDiann m) {
+    log.debug("Got {}", m);
+    uiTextBinDiann.setText(m.path);
+
+    Path existing = PathUtils.existing(m.path);
+    if (existing != null) {
+      Fragpipe.propsVarSet(ThisAppProps.PROP_BINARIES_IN, existing.toString());
+    }
+
+    if (m.ex != null) {
+      epDiannVer.setText("DIA-NN version: N/A");
+      showConfigError(m.ex, TIP_DIANN_BIN, uiTextBinDiann, true);
+    } else {
+      epDiannVer.setText("DIA-NN version: " + m.version);
+      Notifications.tryClose(TIP_DIANN_BIN);
+    }
+  }
+
+  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(NoteConfigSkyline m) {
+    log.debug("Got {}", m);
+    uiTextBinSkyline.setText(m.path);
+
+    Path existing = PathUtils.existing(m.path);
+    if (existing != null) {
+      Fragpipe.propsVarSet(ThisAppProps.PROP_BINARIES_IN, existing.toString());
+    }
+
+    if (m.ex != null) {
+      epSkylineVer.setText("Skyline version: N/A");
+      TabRun tabRun = Bus.getStickyEvent(TabRun.class);
+      if (tabRun != null) {
+        tabRun.btnOpenSkyline.setEnabled(false);
+      }
+    } else {
+      epSkylineVer.setText("Skyline version: " + m.version);
+      TabRun tabRun = Bus.getStickyEvent(TabRun.class);
+      if (tabRun != null) {
+        tabRun.btnOpenSkyline.setEnabled(true);
+      }
+      Notifications.tryClose(TIP_SKYLINE_BIN);
+    }
+  }
+
   private void checkPhilosopherUpdateAsync(String path) {
     Observable<UpdateInfo> obs = Observable
         .fromCallable(() -> Philosopher.checkUpdates(path))
@@ -587,11 +689,17 @@ public class TabConfig extends JPanelWithEnablement {
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageMsfraggerNewBin m) {
     if (StringUtils.isBlank(m.binPath) || !Files.exists(Paths.get(m.binPath))) {
+      Bus.postSticky(new NoteConfigMsfragger(m.binPath, "N/A", false, new ValidationException(m.binPath + " does not exist.")));
       return;
     }
 
     if (!validateMsfraggerJarContents(Paths.get(m.binPath))) {
       Bus.postSticky(new NoteConfigMsfragger(m.binPath, "N/A", false, new ValidationException("Not a MSFragger jar.")));
+      return;
+    }
+
+    if (m.binPath.contains(" ")) {
+      Bus.postSticky(new NoteConfigMsfragger(m.binPath, "N/A", false, new ValidationException("There are spaces in the path: \"" + m.binPath + "\"")));
       return;
     }
 
@@ -615,11 +723,17 @@ public class TabConfig extends JPanelWithEnablement {
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageIonQuantNewBin m) {
     if (StringUtils.isBlank(m.binPath) || !Files.exists(Paths.get(m.binPath))) {
+      Bus.postSticky(new NoteConfigIonQuant(m.binPath, "N/A", false, false, new ValidationException(m.binPath + " does not exist.")));
       return;
     }
 
     if (!validateIonQuantJarContents(Paths.get(m.binPath))) {
       Bus.postSticky(new NoteConfigIonQuant(m.binPath, "N/A", false, false, new ValidationException("Not an IonQuant jar.")));
+      return;
+    }
+
+    if (m.binPath.contains(" ")) {
+      Bus.postSticky(new NoteConfigIonQuant(m.binPath, "N/A", false, false, new ValidationException("There are spaces in the path: \"" + m.binPath + "\"")));
       return;
     }
 
@@ -762,6 +876,18 @@ public class TabConfig extends JPanelWithEnablement {
       if (StringUtils.isNotBlank(binPhi)) {
         Bus.post(new MessagePhilosopherNewBin(binPhi));
       }
+      String binDiann = uiTextBinDiann.getNonGhostText();
+      if (StringUtils.isNotBlank(binDiann)) {
+        Bus.post(new MessageDiannNewBin(binDiann));
+      } else {
+        Bus.post(new MessageDiannNewBin());
+      }
+      String binSkyline = uiTextBinSkyline.getNonGhostText();
+      if (StringUtils.isNotBlank(binSkyline)) {
+        Bus.post(new MessageSkylineNewBin(binSkyline));
+      } else {
+        Bus.post(new MessageSkylineNewBin());
+      }
       String binPython = uiTextBinPython.getNonGhostText();
       if (StringUtils.isNotBlank(binPython)) {
         Bus.post(new MessagePythonNewBin(binPython));
@@ -797,6 +923,10 @@ public class TabConfig extends JPanelWithEnablement {
       final boolean fileExists = Files.exists(path) || (OsUtils.isWindows() && Files.exists(Paths.get(path + ".exe")));
       if ((path.isAbsolute() && !fileExists) || StringUtils.isBlank(path.toString())) {
         throw new ValidationException("File does not exist: \"" + path + "\"");
+      }
+
+      if (path.toAbsolutePath().toString().contains(" ")) {
+        throw new ValidationException("There are spaces in the path: \"" + path.toAbsolutePath() + "\"");
       }
 
       // if paths.get didn't throw, we can try the binary, it might be on PATH
@@ -951,10 +1081,8 @@ public class TabConfig extends JPanelWithEnablement {
         .append(", <a href=\"").append("http://www.tppms.org/tools/ptm/").append("\">PTMProphet</a>")
         .append(", <a href=\"").append("https://ptmshepherd.nesvilab.org/").append("\">PTM-Shepherd</a>")
         .append(", <a href=\"").append("https://github.com/lonelu/PTMLocalization").append("\">O-Pair</a>")
-        .append(", <a href=\"").append("https://ionquant.nesvilab.org/").append("\">IonQuant</a>")
         .append(", <a href=\"").append("https://tmt-integrator.nesvilab.org/").append("\">TMT-Integrator</a>")
         .append(", <a href=\"").append("https://github.com/grosenberger/easypqp").append("\">EasyPQP</a>")
-        .append(", <a href=\"").append("https://github.com/vdemichev/DiaNN").append("\">DIA-NN</a>")
         .append(", <a href=\"").append("https://github.com/Nesvilab/FragPipe-PDV").append("\">FragPipe-PDV</a>")
         .append(", <a href=\"").append("https://saint-apms.sourceforge.net/Main.html").append("\">SAINT</a>");
     return sb.toString();
@@ -996,6 +1124,56 @@ public class TabConfig extends JPanelWithEnablement {
     epPhiVer = new HtmlStyledJEditorPane("Philosopher version: N/A");
     p.add(Fragpipe.rename(epPhiVer, "philosopher.version-info", TAB_PREFIX, true), ccL().split());
     p.add(SwingUtils.createClickableHtml(createPhilosopherCitationBody()), ccL().spanX().growX().wrap());
+    return p;
+  }
+
+  private JPanel createPanelDiann() {
+    JPanel p = newMigPanel();
+    p.setBorder(new TitledBorder("DIA-NN"));
+
+    final String tip = "Select path to DIA-NN binary";
+    uiTextBinDiann = UiUtils.uiTextBuilder().create();
+    uiTextBinDiann.addFocusListener(new ContentChangedFocusAdapter(uiTextBinDiann, (s, s2) -> {
+      Bus.post(new MessageDiannNewBin(s2));
+    }));
+    FormEntry feBin = fe(uiTextBinDiann, "bin-diann", TAB_PREFIX).tooltip(tip).create();
+    p.add(feBin.comp, ccL().split().growX());
+
+    JButton btnBrowse = feBin.browseButton("Browse", tip, this::createDiannFilechooser, paths -> paths.stream().findFirst().ifPresent(bin -> Bus.post(new MessageDiannNewBin(bin.toString()))));
+    p.add(btnBrowse, ccL());
+    JButton btnDownload = UiUtils.createButton("Download", this::actionDiannDownload);
+    p.add(btnDownload, ccL().wrap());
+
+    p.add(SwingUtils.createClickableHtml("Path to DIA-NN executable file. The file name is <b>DiaNN.exe</b>. Do not use DIA-NN.exe or the installer file. If not customized, use the built-in version " + Diann.fallBackDiannVersion), ccL().spanX().growX().wrap());
+
+    epDiannVer = new HtmlStyledJEditorPane("DIA-NN version: N/A");
+    p.add(Fragpipe.rename(epDiannVer, "diann.version-info", TAB_PREFIX, true), ccL().split());
+    p.add(SwingUtils.createClickableHtml(createDiannCitationBody()), ccL().spanX().growX().wrap());
+    return p;
+  }
+
+  private JPanel createPanelSkyline() {
+    JPanel p = newMigPanel();
+    p.setBorder(new TitledBorder("Skyline (optional)"));
+
+    final String tip = "Select path to SkylineCmd.exe";
+    uiTextBinSkyline = UiUtils.uiTextBuilder().create();
+    uiTextBinSkyline.addFocusListener(new ContentChangedFocusAdapter(uiTextBinSkyline, (s, s2) -> {
+      Bus.post(new MessageSkylineNewBin(s2));
+    }));
+    FormEntry feBin = fe(uiTextBinSkyline, "bin-skyline", TAB_PREFIX).tooltip(tip).create();
+    p.add(feBin.comp, ccL().split().growX());
+
+    JButton btnBrowse = feBin.browseButton("Browse", tip, this::createSkylineFilechooser, paths -> paths.stream().findFirst().ifPresent(bin -> Bus.post(new MessageSkylineNewBin(bin.toString()))));
+    p.add(btnBrowse, ccL());
+    JButton btnDownload = UiUtils.createButton("Download", this::actionSkylineDownload);
+    p.add(btnDownload, ccL().wrap());
+
+    p.add(SwingUtils.createClickableHtml("Path to SkylineCmd.exe."), ccL().spanX().growX().wrap());
+
+    epSkylineVer = new HtmlStyledJEditorPane("Skyline version: N/A");
+    p.add(Fragpipe.rename(epSkylineVer, "skyline.version-info", TAB_PREFIX, true), ccL().split());
+    p.add(SwingUtils.createClickableHtml(createSkylineCitationBody()), ccL().spanX().growX().wrap());
     return p;
   }
 
@@ -1050,19 +1228,32 @@ public class TabConfig extends JPanelWithEnablement {
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageInstallEasyPQP m) {
-    final String binPython = uiTextBinPython.getNonGhostText();
+    String binPython = "";
+    String pythonPipOutputNew = "";
+    boolean ok = true;
+    try {
+      NoteConfigPython noteConfigPython = Fragpipe.getSticky(NoteConfigPython.class);
+      if (noteConfigPython.isValid()) {
+        binPython = noteConfigPython.command;
+      } else {
+        pythonPipOutputNew += noteConfigPython.ex.toString();
+        ok = false;
+      }
+    } catch (NoStickyException ex) {
+      pythonPipOutputNew += ex.toString();
+      ok = false;
+    }
+
     if (StringUtils.isNotBlank(binPython)) {
-      String pythonPipOutputNew = "";
-      boolean ok = true;
       try {
         pythonPipOutputNew += ProcessUtils.captureOutput(new ProcessBuilder(binPython, "-m", "pip", "uninstall", "--yes", "easypqp"));
-      } catch (UnexpectedException ex) {
+      } catch (Exception ex) {
         pythonPipOutputNew += ex.toString();
         ok = false;
       }
       try {
         pythonPipOutputNew += ProcessUtils.captureOutput(new ProcessBuilder(binPython, "-m", "pip", "uninstall", "--yes", "pyopenms"));
-      } catch (UnexpectedException ex) {
+      } catch (Exception ex) {
         pythonPipOutputNew += ex.toString();
         ok = false;
       }
@@ -1070,14 +1261,17 @@ public class TabConfig extends JPanelWithEnablement {
       PyInfo.modifyEnvironmentVariablesForPythonSubprocesses(pb2); // without this, on Windows, will fail with an error related to TLS/SSL
       try {
         pythonPipOutputNew += ProcessUtils.captureOutput(pb2);
-      } catch (UnexpectedException ex) {
+      } catch (Exception ex) {
         pythonPipOutputNew += ex.toString();
         ok = false;
       }
       SwingUtils.showInfoDialog(this, pythonPipOutputNew, "EasyPQP install " + (ok ? "success" : "fail"));
-      toConsole(pythonPipOutputNew, m.console);
-      Bus.post(new MessageUiRevalidate(false, true));
+    } else {
+      SwingUtils.showInfoDialog(this, pythonPipOutputNew, "EasyPQP install fail");
     }
+
+    toConsole(pythonPipOutputNew, m.console);
+    Bus.post(new MessageUiRevalidate(false, true));
   }
 
   private JPanel createPanelDbsplit() {
@@ -1139,6 +1333,34 @@ public class TabConfig extends JPanelWithEnablement {
     return fc;
   }
 
+  private JFileChooser createDiannFilechooser() {
+    JFileChooser fc = FileChooserUtils.create("Select DIA-NN binary", "Select", false, FcMode.FILES_ONLY, true);
+    if (OsUtils.isWindows()) {
+      fc.addChoosableFileFilter(new FileNameExtensionFilter("Executables", "exe"));
+    }
+    FileChooserUtils.setPath(fc, Stream.of(uiTextBinDiann.getNonGhostText(), Fragpipe.propsVarGet(ThisAppProps.PROP_BINARIES_IN), JarUtils.getCurrentJarPath()));
+    return fc;
+  }
+
+  private JFileChooser createSkylineFilechooser() {
+    FileFilter filter = new FileFilter() {
+      public boolean accept(File file) {
+        if (file.isDirectory()) {
+          return true;
+        }
+        return file.getName().equals("SkylineCmd.exe");
+      }
+      public String getDescription() {
+        return "SkylineCmd.exe";
+      }
+    };
+
+    JFileChooser fc = FileChooserUtils.create("Select SkylineCmd.exe", "Select", false, FcMode.FILES_ONLY, true);
+    fc.setFileFilter(filter);
+    FileChooserUtils.setPath(fc, System.getenv("ProgramFiles"));
+    return fc;
+  }
+
   private JFileChooser createPythonFilechooser() {
     JFileChooser fc = FileChooserUtils.create("Select Python " + pythonMinVersion + "+ binary", "Select",
         false, FcMode.FILES_ONLY, true);
@@ -1174,6 +1396,18 @@ public class TabConfig extends JPanelWithEnablement {
     return sb.toString();
   }
 
+  private String createDiannCitationBody() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("&emsp;More info and docs: <a href=\"https://github.com/vdemichev/DiaNN\">DIA-NN</a>");
+    return sb.toString();
+  }
+
+  private String createSkylineCitationBody() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("&emsp;More info and docs: <a href=\"https://skyline.ms/project/home/software/Skyline/begin.view\">Skyline</a>");
+    return sb.toString();
+  }
+
   private void actionPhilosopherDownload(ActionEvent e) {
     int choice = SwingUtils.showChoiceDialog(TabConfig.this, "Choose download type", "Do you want to download automatically?\nIf you choose \"Manually\", you will be redirected to the download website.", new String[]{"Automatically", "Manually", "Cancel"}, 0);
     switch (choice) {
@@ -1191,5 +1425,13 @@ public class TabConfig extends JPanelWithEnablement {
         Philosopher.downloadPhilosopherManually();
         break;
     }
+  }
+
+  private void actionDiannDownload(ActionEvent e) {
+    Diann.downloadDiannManually();
+  }
+
+  private void actionSkylineDownload(ActionEvent e) {
+    Skyline.downloadSkylineManually();
   }
 }

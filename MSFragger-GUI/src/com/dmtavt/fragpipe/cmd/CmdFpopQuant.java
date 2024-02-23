@@ -120,11 +120,11 @@ public class CmdFpopQuant extends CmdBase{
         switch (normalizationMethod) {
             case "None":
             case "All":
-                return tmtDir.resolve("ratio_peptide_None.tsv");
+                return tmtDir.resolve("abundance_peptide_None.tsv");
             case "MD (median centering)":
-                return tmtDir.resolve("ratio_peptide_MD.tsv");
+                return tmtDir.resolve("abundance_peptide_MD.tsv");
             case "GN (median centering + variance scaling)":
-                return tmtDir.resolve("ratio_peptide_GN.tsv");
+                return tmtDir.resolve("abundance_peptide_GN.tsv");
         }
         return null;
     }
@@ -139,11 +139,11 @@ public class CmdFpopQuant extends CmdBase{
         switch (normalizationMethod) {
             case "None":
             case "All":
-                return tmtDir.resolve("ratio_multi-site_None.tsv");
+                return tmtDir.resolve("abundance_multi-site_None.tsv");
             case "MD (median centering)":
-                return tmtDir.resolve("ratio_multi-site_MD.tsv");
+                return tmtDir.resolve("abundance_multi-site_MD.tsv");
             case "GN (median centering + variance scaling)":
-                return tmtDir.resolve("ratio_multi-site_GN.tsv");
+                return tmtDir.resolve("abundance_multi-site_GN.tsv");
         }
         return null;
     }

@@ -18,18 +18,22 @@
 package com.dmtavt.fragpipe.cmd;
 
 import static com.dmtavt.fragpipe.cmd.ToolingUtils.BATMASS_IO_JAR;
+import static com.dmtavt.fragpipe.cmd.ToolingUtils.generateLFQExperimentAnnotation;
 import static com.dmtavt.fragpipe.tabs.TabWorkflow.manifestExt;
 import static com.github.chhh.utils.OsUtils.isUnix;
 import static com.github.chhh.utils.OsUtils.isWindows;
 import static com.github.chhh.utils.SwingUtils.createClickableHtml;
 import static com.github.chhh.utils.SwingUtils.showErrorDialogWithStacktrace;
-import static org.apache.commons.lang3.StringUtils.getCommonPrefix;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
+import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
+import com.dmtavt.fragpipe.messages.NoteConfigDiann;
+import com.dmtavt.fragpipe.tools.diann.Diann;
 import com.dmtavt.fragpipe.tools.diann.DiannToMsstats;
+import com.dmtavt.fragpipe.tools.diann.Localization;
 import com.dmtavt.fragpipe.tools.diann.PlexDiaHelper;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.StringUtils;
@@ -37,7 +41,6 @@ import com.github.chhh.utils.SwingUtils;
 import java.awt.Component;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
@@ -47,7 +50,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -56,7 +58,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
-import org.apache.commons.io.FilenameUtils;
 import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,17 +66,22 @@ public class CmdDiann extends CmdBase {
 
   private static final Logger log = LoggerFactory.getLogger(CmdDiann.class);
   private static final String NAME = "DIA-NN";
-  private static final String[] DIANN_SO_DEPS = {"diann_so/libm.so.6", "diann_so/libstdc++.so.6"};
-  private static final String[] DIANN_SO_DEPS_libgomp = {"diann_so/libgomp.so.1.0.0"};
-  public static final String DIANN_VERSION = "1.8.2_beta_8";
-  public static final String DIANN_WIN = "diann/1.8.2_beta_8/win/DiaNN.exe";
-  public static final String DIANN_LINUX = "diann/1.8.2_beta_8/linux/diann-1.8.1.8";
   private static final List<String> SUPPORTED_FORMATS_WIN = Arrays.asList("mzML", "d", "dia", "wiff", "raw");
   private static final List<String> SUPPORTED_FORMATS_LINUX = Arrays.asList("mzML", "d", "dia");
   private static final Pattern labelPattern = Pattern.compile("([A-Znc*]+)([\\d.+-]+)");
 
+  private final String diannPath;
+  private final String LD_PRELOAD_str;
+
   public CmdDiann(boolean isRun, Path workDir) {
     super(isRun, workDir);
+    NoteConfigDiann noteConfigDiann = Bus.getStickyEvent(NoteConfigDiann.class);
+    if (noteConfigDiann == null) {
+      diannPath = Diann.fallbackDiannPath;
+    } else {
+      diannPath = noteConfigDiann.path;
+    }
+    LD_PRELOAD_str = Diann.LD_PRELOAD_str;
   }
 
   @Override
@@ -161,42 +167,16 @@ public class CmdDiann extends CmdBase {
       return false;
     }
 
-    final List<Path> diannPath;
-    if (isWindows()) {
-      diannPath = FragpipeLocations.checkToolsMissing(Seq.of(DIANN_WIN));
-    } else if (isUnix()) {
-      diannPath = FragpipeLocations.checkToolsMissing(Seq.of(DIANN_LINUX));
-    } else {
-      System.err.println("DIA-NN only works in Windows and Linux.");
-      return false;
-    }
-
-    if (diannPath == null || diannPath.isEmpty()) {
-      System.err.println("Cannot find DIA-NN executable file.");
-      return false;
-    }
-
-    if (diannPath.size() > 1) {
-      System.err.print("There are more than one DIA-NN executable file: ");
-      for (Path p : diannPath) {
-        System.err.print(p.toAbsolutePath() + "; ");
-      }
-      System.err.println();
-      return false;
-    }
-
-    String LD_PRELOAD_str = getLDPRELOAD(diannPath);
-
     for (LcmsFileGroup group : lcmsFileGroups) {
       final Path groupWd = group.outputDir(wd);
 
-      Set<Path> inputLcmsPaths = group.lcmsFiles.stream().filter(f -> !f.getDataType().contentEquals("DDA") && !f.getDataType().contentEquals("GPF-DIA") && !f.getDataType().contentEquals("DIA-Lib") && !f.getDataType().contentEquals("WWA")).map(InputLcmsFile::getPath).collect(Collectors.toSet());
+      Set<Path> inputLcmsPaths = group.lcmsFiles.stream().filter(f -> !f.getDataType().contentEquals("DDA") && !f.getDataType().contentEquals("GPF-DIA") && !f.getDataType().contentEquals("DIA-Lib") && !f.getDataType().contentEquals("DDA+")).map(InputLcmsFile::getPath).collect(Collectors.toSet());
 
       if (inputLcmsPaths.isEmpty()) {
         continue;
       }
 
-      List<InputLcmsFile> inputLcmsFiles = group.lcmsFiles.stream().filter(f -> !f.getDataType().contentEquals("DDA") && !f.getDataType().contentEquals("GPF-DIA") && !f.getDataType().contentEquals("DIA-Lib") && !f.getDataType().contentEquals("WWA")).collect(Collectors.toList());
+      List<InputLcmsFile> inputLcmsFiles = group.lcmsFiles.stream().filter(f -> !f.getDataType().contentEquals("DDA") && !f.getDataType().contentEquals("GPF-DIA") && !f.getDataType().contentEquals("DIA-Lib") && !f.getDataType().contentEquals("DDA+")).collect(Collectors.toList());
 
       if (!checkCompatibleFormats(comp, inputLcmsFiles, sup)) {
         return false;
@@ -272,7 +252,7 @@ public class CmdDiann extends CmdBase {
       }
 
       List<String> cmd = new ArrayList<>();
-      cmd.add(diannPath.get(0).toAbsolutePath().toString());
+      cmd.add(diannPath);
       cmd.add("--lib");
       cmd.add((!isRunPlex && libraryPath != null && !libraryPath.isEmpty()) ? libraryPath : (isRunPlex ? "library_2.tsv" : "library.tsv"));
       cmd.add("--threads");
@@ -282,8 +262,6 @@ public class CmdDiann extends CmdBase {
       cmd.add("--out");
       cmd.add("diann-output" + File.separator + "report.tsv");
       cmd.add("--qvalue");
-      cmd.add(String.valueOf(qvalue));
-      cmd.add("--matrix-qvalue");
       cmd.add(String.valueOf(qvalue));
       if (useRunSpecificProteinQvalue) {
         cmd.add("--matrix-spec-q");
@@ -343,7 +321,7 @@ public class CmdDiann extends CmdBase {
       if (isWindows()) {
         // Plotting
         List<String> cmd2 = new ArrayList<>();
-        cmd2.add(diannPath.get(0).toAbsolutePath().toString().replaceAll("DiaNN\\.exe$", "dia-nn-plotter.exe"));
+        cmd2.add(diannPath.replaceAll("DiaNN\\.exe$", "dia-nn-plotter.exe"));
         cmd2.add("diann-output" + File.separator + "report.stats.tsv");
         cmd2.add("diann-output" + File.separator + "report.tsv");
         cmd2.add("diann-output" + File.separator + "report.pdf");
@@ -351,6 +329,45 @@ public class CmdDiann extends CmdBase {
         pb2.directory(groupWd.toFile());
         pbis.add(PbiBuilder.from(pb2));
       }
+    }
+
+    {
+      Path root = FragpipeLocations.get().getDirFragpipeRoot();
+      Path libsDir = root.resolve("lib");
+      if (Files.isDirectory(jarFragpipe)) {
+        libsDir = jarFragpipe.getParent().getParent().getParent().getParent().resolve("build/install/fragpipe/lib");
+        log.debug("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
+      }
+
+      List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(BATMASS_IO_JAR));
+      if (classpathJars == null) {
+        return false;
+      }
+
+      List<String> toJoin = classpathJars.stream().map(p -> p.toAbsolutePath().normalize().toString()).collect(Collectors.toList());
+
+      try {
+        toJoin.addAll(Files.walk(libsDir).filter(p -> p.getFileName().toString().endsWith(".jar")).filter(p -> {
+          String t = p.getFileName().toString();
+          return t.startsWith("fragpipe-");
+        }).map(p -> p.toAbsolutePath().normalize().toString()).collect(Collectors.toList()));
+      } catch (Exception ex) {
+        ex.printStackTrace();
+        return false;
+      }
+
+      toJoin.add(jarFragpipe.toAbsolutePath().normalize().toString());
+      final String classpath = OsUtils.asSingleArgument(String.join(System.getProperties().getProperty("path.separator"), toJoin));
+
+      List<String> cmd = new ArrayList<>();
+      cmd.add(Fragpipe.getBinJava());
+      cmd.add("-cp");
+      cmd.add(classpath);
+      cmd.add(Localization.class.getCanonicalName());
+      cmd.add(wd.toAbsolutePath().toString());
+      ProcessBuilder pb = new ProcessBuilder(cmd);
+      pb.directory(wd.resolve("diann-output").toFile());
+      pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + ": Propagate localization").create());
     }
 
     if (generateMsstats) {
@@ -385,7 +402,8 @@ public class CmdDiann extends CmdBase {
       cmd.add(classpath);
       cmd.add(DiannToMsstats.class.getCanonicalName());
       cmd.add("report.tsv");
-      cmd.add("msstats.csv");
+      cmd.add("./");
+      cmd.add(wd.resolve("psm.tsv").toAbsolutePath().toString());
       cmd.add(String.valueOf(qvalue));
       if (useRunSpecificProteinQvalue) {
         cmd.add(String.valueOf(qvalue));
@@ -463,44 +481,7 @@ public class CmdDiann extends CmdBase {
 
     if (!isDryRun) {
       try {
-        Set<String> fileNameSet = new HashSet<>();
-        for (LcmsFileGroup lcmsFileGroup : lcmsFileGroups) {
-          for (InputLcmsFile inputLcmsFile : lcmsFileGroup.lcmsFiles) {
-            String baseName = FilenameUtils.getBaseName(inputLcmsFile.getPath().getFileName().toString());
-            fileNameSet.add(baseName);
-          }
-        }
-
-        String commonPrefix = getCommonPrefix(fileNameSet.toArray(new String[0]));
-        int a = commonPrefix.length();
-
-        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(wd.resolve("experiment_annotation.tsv").toFile()));
-        bufferedWriter.write("file\tsample\tsample_name\tcondition\treplicate\n");
-        for (LcmsFileGroup lcmsFileGroup : lcmsFileGroups) {
-          for (InputLcmsFile inputLcmsFile : lcmsFileGroup.lcmsFiles) {
-            String baseName = FilenameUtils.getBaseName(inputLcmsFile.getPath().getFileName().toString());
-            String sampleName = baseName.substring(a);
-            String[] tt = sampleName.split("_");
-            if (tt.length == 3) {
-              try {
-                int replicate = Integer.parseInt(tt[2]);
-                bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getPath().toAbsolutePath() + "\t" + tt[0] + "_" + tt[1] + "\t" + tt[1] + "\t" + replicate + "\n");
-              } catch (Exception ex) {
-                bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getPath().toAbsolutePath() + "\t" + tt[0] + "_" + tt[1] + "\t" + tt[2] + "\t1\n");
-              }
-            } else if (tt.length == 2) {
-              try {
-                int replicate = Integer.parseInt(tt[1]);
-                bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getPath().toAbsolutePath() + "\t" + sampleName + "\t" + tt[0] + "\t" + replicate + "\n");
-              } catch (Exception ex) {
-                bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getPath().toAbsolutePath() + "\t" + sampleName + "\t" + tt[1] + "\t1\n");
-              }
-            } else {
-              bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getPath().toAbsolutePath() + "\t" + sampleName + "\t\t1\n");
-            }
-          }
-        }
-        bufferedWriter.close();
+        generateLFQExperimentAnnotation(wd, 1);
       } catch (Exception ex) {
         showErrorDialogWithStacktrace(ex, comp);
         return false;
@@ -640,43 +621,5 @@ public class CmdDiann extends CmdBase {
       return false;
     }
     return true;
-  }
-
-  public static String getLDPRELOAD(List<Path> diannPath) {
-    String LD_PRELOAD_str = null;
-    if (isUnix()) {
-      try {
-        final ProcessBuilder pb = new ProcessBuilder(diannPath.get(0).toAbsolutePath().toString());
-        if (checkExitCode(pb) != 0) {
-          final List<Path> diann_so_path = FragpipeLocations.checkToolsMissing(Seq.of(DIANN_SO_DEPS));
-          if (diann_so_path == null || diann_so_path.size() != DIANN_SO_DEPS.length) {
-            System.err.print(".so files missing");
-            return null;
-          }
-          LD_PRELOAD_str = diann_so_path.get(0).toString() + ":" + diann_so_path.get(1).toString();
-          final ProcessBuilder pb2 = new ProcessBuilder(diannPath.get(0).toAbsolutePath().toString());
-          pb2.environment().put("LD_PRELOAD", LD_PRELOAD_str);
-          if (checkExitCode(pb2) != 0) {
-            final List<Path> diann_so_path2 = FragpipeLocations.checkToolsMissing(Seq.of(DIANN_SO_DEPS_libgomp));
-            if (diann_so_path2 == null || diann_so_path2.size() != DIANN_SO_DEPS_libgomp.length) {
-              System.err.print(".so files missing");
-              return null;
-            }
-            LD_PRELOAD_str += ":" + diann_so_path2.get(0).toString();
-          }
-        }
-      } catch (Exception ex) {
-        System.err.println("Failed in checking " + diannPath.get(0).toAbsolutePath());
-        ex.printStackTrace();
-        return null;
-      }
-    }
-    return LD_PRELOAD_str;
-  }
-
-  private static int checkExitCode(final ProcessBuilder pb) throws Exception {
-    final Process proc;
-    proc = pb.start();
-    return proc.waitFor();
   }
 }

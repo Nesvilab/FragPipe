@@ -17,10 +17,14 @@
 
 package com.dmtavt.fragpipe.tools.msbooster;
 
+import static com.github.chhh.utils.swing.UiUtils.createUiCombo;
+
 import com.github.chhh.utils.SwingUtils;
+import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelBase;
 import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiCheck;
+import com.github.chhh.utils.swing.UiCombo;
 import java.awt.Component;
 import java.awt.ItemSelectable;
 import javax.swing.JLabel;
@@ -38,6 +42,8 @@ public class MSBoosterPanel extends JPanelBase {
   private UiCheck uiCheckPredictRT;
   private UiCheck uiCheckPredictSpectra;
   private UiCheck uiUseCorrelatedFeatures;
+  private UiCombo uiComboRTModel;
+  private UiCombo uiComboSpectraModel;
 
   public MSBoosterPanel() {
     super();
@@ -78,9 +84,40 @@ public class MSBoosterPanel extends JPanelBase {
     uiUseCorrelatedFeatures = new UiCheck("Use correlated features", null, false);
     uiUseCorrelatedFeatures.setName("use-correlated-features");
 
+    uiComboRTModel = createUiCombo(new String[]{
+        "DIA-NN",
+        "DeepLC HeLa HF",
+        "AlphaPept RT Generic",
+        "Prosit 2019 iRT",
+        "Prosit 2020 iRT TMT"
+    });
+    FormEntry feRTModel = mu.feb("rt-model", uiComboRTModel)
+        .label("Model: ")
+        .tooltip("If using the model other than 'DIA-NN', MSBooster will query the Koina server to get the prediction.")
+        .create();
+
+    uiComboSpectraModel = createUiCombo(new String[]{
+        "DIA-NN",
+        "MS2PIP 2021 HCD",
+        "AlphaPept MS2 Generic",
+        "Prosit 2019 Intensity",
+        "Prosit 2023 Intensity timsTOF",
+        "Prosit 2020 Intensity CID",
+        "Prosit 2020 Intensity TMT",
+        "Prosit 2020 Intensity HCD"
+    });
+    FormEntry feSpectraModel = mu.feb("spectra-model", uiComboSpectraModel)
+        .label("Model: ")
+        .tooltip("If using the model other than 'DIA-NN', MSBooster will query the Koina server to get the prediction.")
+        .create();
+
     pContent = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
-    mu.add(pContent, uiCheckPredictRT).split();
-    mu.add(pContent, uiCheckPredictSpectra);
+    mu.add(pContent, uiCheckPredictRT).split(3);
+    mu.add(pContent, feRTModel.label());
+    mu.add(pContent, feRTModel.comp);
+    mu.add(pContent, uiCheckPredictSpectra).split(3);
+    mu.add(pContent, feSpectraModel.label());
+    mu.add(pContent, feSpectraModel.comp);
     mu.add(pContent, uiUseCorrelatedFeatures);
 
     mu.add(this, pTop).growX().wrap();
@@ -110,6 +147,42 @@ public class MSBoosterPanel extends JPanelBase {
 
   public boolean predictSpectra() {
     return uiCheckPredictSpectra.isSelected();
+  }
+
+  public String rtModel() {
+    switch (uiComboRTModel.getSelectedIndex()) {
+      case 1:
+        return "Deeplc_hela_hf";
+      case 2:
+        return "AlphaPept_rt_generic";
+      case 3:
+        return "Prosit_2019_irt";
+      case 4:
+        return "Prosit_2020_irt_TMT";
+      default:
+        return "DIA-NN";
+    }
+  }
+
+  public String spectraModel() {
+    switch (uiComboSpectraModel.getSelectedIndex()) {
+      case 1:
+        return "ms2pip_2021_hcd";
+      case 2:
+        return "AlphaPept_ms2_generic";
+      case 3:
+        return "Prosit_2019_intensity";
+      case 4:
+        return "Prosit_2023_intensity_timsTOF";
+      case 5:
+        return "Prosit_2020_intensity_CID";
+      case 6:
+        return "Prosit_2020_intensity_TMT";
+      case 7:
+        return "Prosit_2020_intensity_HCD";
+      default:
+        return "DIA-NN";
+    }
   }
 
   public boolean useCorrelatedFeatures() {

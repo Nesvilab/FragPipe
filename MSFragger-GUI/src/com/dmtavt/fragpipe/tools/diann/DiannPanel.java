@@ -18,7 +18,6 @@
 package com.dmtavt.fragpipe.tools.diann;
 
 import static com.dmtavt.fragpipe.Fragpipe.fe;
-import static com.dmtavt.fragpipe.cmd.CmdDiann.DIANN_VERSION;
 import static com.github.chhh.utils.SwingUtils.createClickableHtml;
 import static com.github.chhh.utils.SwingUtils.isEnabledAndChecked;
 
@@ -63,12 +62,16 @@ import org.greenrobot.eventbus.ThreadMode;
 public class DiannPanel extends JPanelBase {
 
   private static final String PREFIX = "diann.";
+  public static final String NEW_VERSION = "1.8.2 beta 27";
 
   private JCheckBox checkRun;
   private JCheckBox checkRunPlex;
   private JPanel pContent;
   private JPanel pTop;
   private UiCombo uiComboQuantificationStrategy;
+  private UiCombo uiComboQuantificationStrategy2;
+  private JLabel labelQuantificationStrategy;
+  private JLabel labelQuantificationStrategy2;
   private UiText uiTextCmdOpts;
   private UiSpinnerDouble uiSpinnerQvalue;
   private UiText uiTextLibrary;
@@ -92,6 +95,18 @@ public class DiannPanel extends JPanelBase {
   public void on(NoteConfigDiann m) {
     if (m.isValid()) {
       updateEnabledStatus(this, true);
+
+      if (m.compareVersion(NEW_VERSION) < 0) {
+        uiComboQuantificationStrategy.setVisible(true);
+        uiComboQuantificationStrategy2.setVisible(false);
+        labelQuantificationStrategy.setVisible(true);
+        labelQuantificationStrategy2.setVisible(false);
+      } else {
+        uiComboQuantificationStrategy.setVisible(false);
+        uiComboQuantificationStrategy2.setVisible(true);
+        labelQuantificationStrategy.setVisible(false);
+        labelQuantificationStrategy2.setVisible(true);
+      }
     } else {
       updateEnabledStatus(this, false);
     }
@@ -117,7 +132,7 @@ public class DiannPanel extends JPanelBase {
     JPanel p = new JPanel(new MigLayout(new LC().insetsAll("0px")));
     mu.borderEmpty(p);
 
-    checkRun = new UiCheck("Quantify with DIA-NN (version " + DIANN_VERSION + ")", null, false);
+    checkRun = new UiCheck("Quantify with DIA-NN", null, false);
     checkRun.setName("run-dia-nn");
 
     String message = "The stand-alone DIA-NN program (with full functionality) can be downloaded from the <a href=\"https://github.com/vdemichev/DiaNN/releases\">DIA-NN GitHub repository</a>. <a href=\"https://doi.org/10.1038/s41592-019-0638-x\">Reference</a><br/>";
@@ -165,11 +180,17 @@ public class DiannPanel extends JPanelBase {
     uiComboQuantificationStrategy = UiUtils.createUiCombo(Arrays.asList("Any LC (high accuracy)", "Any LC (high precision)", "Robust LC (high accuracy)", "Robust LC (high precision)"));
     FormEntry feQuantificationStrategy = new FormEntry("quantification-strategy", "Quantification strategy", uiComboQuantificationStrategy);
     uiComboQuantificationStrategy.setSelectedIndex(3);
+    labelQuantificationStrategy = feQuantificationStrategy.label();
+
+    uiComboQuantificationStrategy2 = UiUtils.createUiCombo(Arrays.asList("Legacy (direct)", "QuantUMS (high accuracy)", "QuantUMS (high precision)"));
+    FormEntry feQuantificationStrategy2 = new FormEntry("quantification-strategy-2", "Quantification strategy (" + NEW_VERSION + ")+", uiComboQuantificationStrategy2);
+    uiComboQuantificationStrategy2.setSelectedIndex(2);
+    labelQuantificationStrategy2 = feQuantificationStrategy2.label();
 
     uiCheckUsePredictedSpectra = UiUtils.createUiCheck("Replace library spectra with predicted", true);
     FormEntry feUsePredictedSpectra = new FormEntry("use-predicted-spectra", "Replace library spectra with predicted", uiCheckUsePredictedSpectra);
 
-    uiCheckGenerateMsstats = UiUtils.createUiCheck("Generate MSstats input", false);
+    uiCheckGenerateMsstats = UiUtils.createUiCheck("Generate MSstats input", true);
     FormEntry feGenerateMsstats = new FormEntry("generate-msstats", "Generate MSstats input", uiCheckGenerateMsstats, "Convert the DIA-NN output to MSstats format.");
 
     uiCheckUnrelatedRuns = UiUtils.createUiCheck("Unrelated runs", false);
@@ -199,8 +220,10 @@ public class DiannPanel extends JPanelBase {
     mu.add(panelBasic, feQvalue.label(), mu.ccL());
     mu.add(panelBasic, feQvalue.comp).wrap();
     mu.add(panelBasic, feUseRunSpecificProteinQvalue.comp).wrap();
-    mu.add(panelBasic, feQuantificationStrategy.label(), mu.ccL());
+    mu.add(panelBasic, labelQuantificationStrategy, mu.ccL());
     mu.add(panelBasic, feQuantificationStrategy.comp).wrap();
+    mu.add(panelBasic, labelQuantificationStrategy2, mu.ccL());
+    mu.add(panelBasic, feQuantificationStrategy2.comp).wrap();
     mu.add(panelBasic, feUnrelatedRuns.comp).wrap();
     mu.add(panelBasic, feUsePredictedSpectra.comp).wrap();
     mu.add(panelBasic, feGenerateMsstats.comp).wrap();
@@ -316,16 +339,27 @@ public class DiannPanel extends JPanelBase {
     return uiTextCmdOpts.getNonGhostText().trim();
   }
 
-  public Set<String> getDiannQuantificationStrategy() {
-    switch (uiComboQuantificationStrategy.getSelectedIndex()) {
-      case 1:
-        return Stream.of("--no-ifs-removal").collect(Collectors.toSet());
-      case 2:
-        return Stream.of("--peak-center").collect(Collectors.toSet());
-      case 3:
-        return Stream.of("--peak-center", "--no-ifs-removal").collect(Collectors.toSet());
-      default:
-        return new HashSet<>();
+  public Set<String> getDiannQuantificationStrategy(boolean isNew) {
+    if (isNew) {
+      switch (uiComboQuantificationStrategy2.getSelectedIndex()) {
+        case 0:
+          return Stream.of("--direct-quant").collect(Collectors.toSet());
+        case 1:
+          return Stream.of("--high-acc").collect(Collectors.toSet());
+        default:
+          return new HashSet<>();
+      }
+    } else {
+      switch (uiComboQuantificationStrategy.getSelectedIndex()) {
+        case 1:
+          return Stream.of("--no-ifs-removal").collect(Collectors.toSet());
+        case 2:
+          return Stream.of("--peak-center").collect(Collectors.toSet());
+        case 3:
+          return Stream.of("--peak-center", "--no-ifs-removal").collect(Collectors.toSet());
+        default:
+          return new HashSet<>();
+      }
     }
   }
 

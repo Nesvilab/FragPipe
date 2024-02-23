@@ -28,6 +28,7 @@ import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTION_lab
 import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTION_nglycan;
 import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTION_off;
 import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.PROP_group_variable;
+import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.PROP_mass_offsets_detailed;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.Bus;
@@ -55,7 +56,7 @@ import com.dmtavt.fragpipe.tools.fragger.Mod;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerEnzyme;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerProps;
-import com.dmtavt.fragpipe.util.GlycoMassLoader;
+import com.dmtavt.fragpipe.util.MassOffsetUtils;
 import com.dmtavt.fragpipe.util.SDRFtable;
 import com.github.chhh.utils.MapUtils;
 import com.github.chhh.utils.StringUtils;
@@ -63,6 +64,7 @@ import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.DocumentFilters;
 import com.github.chhh.utils.swing.FileChooserUtils;
 import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
+import com.github.chhh.utils.swing.FileNameEndingFilter;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelBase;
 import com.github.chhh.utils.swing.MigUtils;
@@ -90,12 +92,25 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -117,6 +132,7 @@ import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.TableCellEditor;
 import net.miginfocom.layout.CC;
@@ -158,9 +174,7 @@ public class TabMsfragger extends JPanelBase {
   private static final Set<String> PROPS_MISC_NAMES;
   private static final Map<String, Function<String, String>> CONVERT_TO_FILE;
   private static final Map<String, Function<String, String>> CONVERT_TO_GUI;
-  private static final String CALIBRATE_VALUE_OFF = "None";
-  private static final String CALIBRATE_VALUE_OPTIMIZATION = "Mass calibration, parameter optimization";
-  private static final String[] CALIBRATE_LABELS = {CALIBRATE_VALUE_OFF, "Mass calibration", CALIBRATE_VALUE_OPTIMIZATION};
+  private static final String[] CALIBRATE_LABELS = {"None", "Mass calibration", "Mass calibration, parameter optimization", "Mass calibration, mass tol optimization"};
   private static final String[] MASS_DIFF_TO_VAR_MOD = {"No", "Yes, keep delta mass", "Yes, remove delta mass"};
   private static final String[] GROUP_VARIABLE = {"None", "Number of enzymatic termini", "Protein evidence from FASTA file"};
   private static final String[] DEISOTOPE = {"No", "Yes", "Yes, use charge 1 and 2 for undeisotoped peaks"};
@@ -238,7 +252,19 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_fragment_mass_units, s -> itos(MassTolUnits.valueOf(s).valueInParamsFile()));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_precursor_true_units, s -> itos(
         MassTolUnits.valueOf(s).valueInParamsFile()));
-    CONVERT_TO_FILE.put(MsfraggerParams.PROP_calibrate_mass, s -> itos(Arrays.asList(CALIBRATE_LABELS).indexOf(s)));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_calibrate_mass, s -> {
+      if (s.contentEquals(CALIBRATE_LABELS[0])) {
+        return "0";
+      } else if (s.contentEquals(CALIBRATE_LABELS[1])) {
+        return "1";
+      } else if (s.contentEquals(CALIBRATE_LABELS[2])) {
+        return "2";
+      } else if (s.contentEquals(CALIBRATE_LABELS[3])) {
+        return "4";
+      } else {
+        return "0";
+      }
+    });
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_use_all_mods_in_first_search, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_num_enzyme_termini, s -> itos(
         CleavageType.valueOf(s).valueInParamsFile()));
@@ -268,6 +294,14 @@ public class TabMsfragger extends JPanelBase {
       }
       return String.join("/", tt);
     });
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_mass_offsets_detailed, s -> {
+      if (s == null || s.trim().isEmpty()) {
+        return "";
+      } else {
+        return s;
+      }
+    });
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_use_detailed_offsets, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_Y_type_masses, s -> s.replaceAll("[\\s]+", "/"));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_diagnostic_fragments, s -> s.replaceAll("[\\s]+", "/"));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_remainder_masses, s -> s.replaceAll("[\\s]+", "/"));
@@ -282,7 +316,19 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_precursor_mass_units, s -> PrecursorMassTolUnits.fromParamsFileRepresentation(s).name());
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_fragment_mass_units, s -> MassTolUnits.fromFileToUi(s).name());
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_precursor_true_units, s -> MassTolUnits.fromFileToUi(s).name());
-    CONVERT_TO_GUI.put(MsfraggerParams.PROP_calibrate_mass, s -> CALIBRATE_LABELS[Integer.parseInt(s)]);
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_calibrate_mass, s -> {
+      if (s.contentEquals("0")) {
+        return CALIBRATE_LABELS[0];
+      } else if (s.contentEquals("1")) {
+        return CALIBRATE_LABELS[1];
+      } else if (s.contentEquals("2")) {
+        return CALIBRATE_LABELS[2];
+      } else if (s.contentEquals("4")) {
+        return CALIBRATE_LABELS[3];
+      } else {
+        return CALIBRATE_LABELS[0];
+      }
+    });
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_use_all_mods_in_first_search, s -> Boolean.toString(Integer.parseInt(s) == 1));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_num_enzyme_termini, s -> CleavageType.fromValueInParamsFile(s).name());
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_remove_precursor_peak, s -> RemovePrecursorPeak.get(Integer.parseInt(s)));
@@ -304,6 +350,14 @@ public class TabMsfragger extends JPanelBase {
       }
       return String.join(" ", text.trim().split("/"));
     });
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_mass_offsets_detailed, text -> {
+      if (text == null || text.trim().isEmpty()) {
+        return "";
+      } else {
+        return text;
+      }
+    });
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_use_detailed_offsets, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_Y_type_masses, text -> String.join(" ", text.split("/")));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_diagnostic_fragments, text -> String.join(" ", text.split("/")));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_remainder_masses, text -> String.join(" ", text.split("/")));
@@ -320,7 +374,7 @@ public class TabMsfragger extends JPanelBase {
   private JPanel pContent;
   private ModsTable tableVarMods;
   private ModsTable tableFixMods;
-  private UiCombo uiComboMassCalibrate;
+  public UiCombo uiComboMassCalibrate;
   public UiCombo uiComboOutputType;
   private UiCombo uiComboMassMode;
   private UiCombo uiComboFragTolUnits;
@@ -347,6 +401,7 @@ public class TabMsfragger extends JPanelBase {
   private UiCombo uiComboLoadDefaultsNames;
   private UiText uiTextMassOffsets;
   private UiText uiTextRemainderMasses;
+  private UiCheck uiCheckMassOffsetFile;
   private UiCombo uiComboGlyco;
   private UiSpinnerDouble uiSpinnerPrecTolLo;
   private UiSpinnerDouble uiSpinnerPrecTolHi;
@@ -355,7 +410,10 @@ public class TabMsfragger extends JPanelBase {
   private final Map<String, String> cache = new HashMap<>();
   private UiText uiTextIsoErr;
   private UiText epMassOffsets;
+  private UiText epDetailedMassOffsets;
   private UiText uiTextRestrictDeltamassTo;
+  private JPanel pOffsetRegular;
+  private JPanel pOffsetDetailed;
   private JPanel pTop;
   private JPanel pBasic;
   private JPanel pMods;
@@ -365,8 +423,7 @@ public class TabMsfragger extends JPanelBase {
   private UiCombo uiComboGroupVariable;
   private UiSpinnerInt uiSpinnerOutputReportTopNDda;
   private UiSpinnerInt uiSpinnerOutputReportTopNDia1;
-  private UiSpinnerInt uiSpinnerOutputReportTopNDia2;
-  private UiSpinnerInt uiSpinnerOutputReportTopNWwa;
+  private UiSpinnerInt uiSpinnerOutputReportTopNDdaPlus;
 
   @Override
   protected ItemSelectable getRunCheckbox() {
@@ -388,6 +445,10 @@ public class TabMsfragger extends JPanelBase {
   }
 
   public boolean isMassOffsetSearch() {
+    if (SwingUtils.isEnabledAndChecked(uiCheckMassOffsetFile)) {
+      return true;
+    }
+
     Object selected = uiComboPrecursorTolUnits.getSelectedItem();
     if (selected == null || StringUtils.isNullOrWhitespace((String) selected)) {
       return false;
@@ -408,6 +469,10 @@ public class TabMsfragger extends JPanelBase {
 
   public int getMassDiffToVariableMod() {
     return MASS_DIFF_TO_VAR_MOD_MAP[uiComboMassDiffToVariableMod.getSelectedIndex()];
+  }
+
+  public boolean isLocalizeDeltaMass() {
+    return SwingUtils.isEnabledAndChecked(uiCheckLocalizeDeltaMass);
   }
 
   private static void actionChangeMassMode(ItemEvent e) {
@@ -465,6 +530,10 @@ public class TabMsfragger extends JPanelBase {
         }
       }
     });
+
+    // enable/disable the mass offset file UI
+    SwingUtils.setDisablementUpdater(this, pOffsetRegular, uiCheckMassOffsetFile);
+    SwingUtils.setEnablementUpdater(this, pOffsetDetailed, uiCheckMassOffsetFile);
   }
 
   @Override
@@ -560,7 +629,7 @@ public class TabMsfragger extends JPanelBase {
         if (oldVal != null) {
           cache.put(MsfraggerParams.PROP_calibrate_mass, oldVal);
         }
-        uiComboMassCalibrate.setSelectedItem(CALIBRATE_VALUE_OFF);
+        uiComboMassCalibrate.setSelectedItem("None");
         uiComboMassCalibrate.setEnabled(false);
       } else if (!wasEnabled && !isDisabled) { // switching from disabled to enabled
         String cachedVal = cache.get(MsfraggerParams.PROP_calibrate_mass);
@@ -1123,6 +1192,10 @@ public class TabMsfragger extends JPanelBase {
   private JPanel createPanelMassOffsets() {
     JPanel p = mu.newPanel("Mass Offsets", true);
 
+    // create separate panels for the regular vs detailed offset mode to allow enabling only one at a time
+    pOffsetRegular = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
+    pOffsetDetailed = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
+
     uiTextRestrictDeltamassTo = UiUtils.uiTextBuilder().ghost("Restrict delta mass to certain amino acids").filter("[^A-Zall-]")
         .cols(20).create();
     FormEntry feRestrictDeltamassTo = mu.feb(uiTextRestrictDeltamassTo).name(MsfraggerParams.PROP_restrict_deltamass_to)
@@ -1152,16 +1225,36 @@ public class TabMsfragger extends JPanelBase {
     FormEntry feMassOffsets = mu.feb(MsfraggerParams.PROP_mass_offsets, epMassOffsets)
         .label("Mass Offsets")
         .tooltip(tooltipMassOffsets).create();
-    //mu.add(p, feMassOffsets.label()).wrap();
 
-    JButton btnLoadGlycanMasses = new JButton("Load Mass Offsets from File");
-    btnLoadGlycanMasses.addActionListener(this::actionBtnLoadMassOffsets);
-    btnLoadGlycanMasses.setToolTipText("Load mass offsets from a file. Supported formats: Byonic glycan csv");
+    uiCheckMassOffsetFile = UiUtils.createUiCheck("Use Detailed Mass Offsets", false);
+    String offsetCheckTip = "If checked, uses the provided detailed mass offset list to perform a mass offset search with specific allowed amino acids and/or fragment ions for each offset.";
+    FormEntry feCheckMassOffsetFile = mu.feb(MsfraggerParams.PROP_use_detailed_offsets, uiCheckMassOffsetFile).tooltip(offsetCheckTip).create();
 
-    mu.add(p, feMassOffsets.comp).spanX().growX().pushX().wrap();
-    mu.add(p, feRestrictDeltamassTo.label(), mu.ccR()).spanX().split(2);
-    mu.add(p, feRestrictDeltamassTo.comp).growX().pushX().wrap();
-    mu.add(p, btnLoadGlycanMasses).spanX().split(3);
+    epDetailedMassOffsets = new UiText();
+    epDetailedMassOffsets.setPreferredSize(new Dimension(100, 25));
+    epDetailedMassOffsets.setBorder(new LineBorder(Color.LIGHT_GRAY, 1));
+
+    String tooltipOffsetDetailed = "(Optional) Detailed mass offset list. Overrides mass offset information above if provided. Can be loaded from & saved to template files using the buttons.";
+    FormEntry feMassOffsetsDetailed = mu.feb(MsfraggerParams.PROP_mass_offsets_detailed, epDetailedMassOffsets)
+            .label("Detailed Mass Offsets")
+            .tooltip(tooltipOffsetDetailed).create();
+
+    JButton btnLoadOffsetsFile = new JButton("Load Offsets");
+    btnLoadOffsetsFile.addActionListener(this::actionBtnLoadDetailedOffsets);
+    JButton btnSaveOffsetsFile = new JButton("Save Offsets");
+    btnSaveOffsetsFile.addActionListener(this::actionBtnSaveDetailedOffsets);
+
+    mu.add(pOffsetRegular, feMassOffsets.comp).spanX().growX().pushX().wrap();
+    mu.add(pOffsetRegular, feRestrictDeltamassTo.label(), mu.ccR()).spanX().split(2);
+    mu.add(pOffsetRegular, feRestrictDeltamassTo.comp).growX().pushX().wrap();
+
+    mu.add(pOffsetDetailed, btnLoadOffsetsFile).split();
+    mu.add(pOffsetDetailed, btnSaveOffsetsFile).split();
+    mu.add(pOffsetDetailed, feMassOffsetsDetailed.comp).growX().pushX().wrap();
+
+    mu.add(p, pOffsetRegular).growX().wrap();
+    mu.add(p, feCheckMassOffsetFile.comp).split();
+    mu.add(p, pOffsetDetailed).growX().wrap();
 
     return p;
   }
@@ -1171,7 +1264,7 @@ public class TabMsfragger extends JPanelBase {
 
     FormEntry feMinPeaks = mu.feb(MsfraggerParams.PROP_minimum_peaks, new UiSpinnerInt(15, 0, 1000, 1, 4))
         .label("Min peaks").create();
-    FormEntry feUseTopN = mu.feb(MsfraggerParams.PROP_use_topN_peaks, new UiSpinnerInt(100, 0, 1000000, 10, 4)).label("Use top N peaks").create();
+    FormEntry feUseTopN = mu.feb(MsfraggerParams.PROP_use_topN_peaks, new UiSpinnerInt(150, 0, 1000000, 10, 4)).label("Use top N peaks").create();
     UiSpinnerDouble spinnerMinRatio = new UiSpinnerDouble(0.01, 0, 1, 0.01, 2, new DecimalFormat("0.00"));
     spinnerMinRatio.setColumns(4);
     FormEntry feMinRatio = mu.feb(MsfraggerParams.PROP_minimum_ratio, spinnerMinRatio).label("Min ratio").create();
@@ -1262,13 +1355,12 @@ public class TabMsfragger extends JPanelBase {
                 + "<b>Use spaces, commas or semicolons as delimiters</b>, e.g. \"b,y\"\n"
                 + "This mostly depends on fragmentation method.\n"
                 + "Typically \"b,y\" are used for CID and \"c,z\" for ECD.\n"
-                + "MSFragger can generate \"a,b,c,x,y,z\" ion series by default,\n"
-                + "Y refers to capital Y ions for glyco mode\n"
+                + "MSFragger supports \"a,b,c,x,y,z,b-18,y-18,Y,b~,y~\" ion series.\n"
+                + "Y refers to capital Y ions for glyco mode.\n"
+                + "b~ and y~ refer to b and y ions with 203 modification for glyco mode.\n"
                 + "<b>you can define your own in 'Define custom ion series' field</b>.\n"
-                + "If you define custom series, you will need to include the name you\n"
-                + "gave it here.").create();
+                + "If you define custom series, you do not need to include the name here.").create();
     uiTextCustomIonSeries = new UiText(10);
-    String tooltipCustomIonSeriesDisabled = "This feature is currently disabled";
     String tooltipCustomIonSeriesOriginal = "Custom ion series allow specification of arbitrary mass gains/losses\n"
         + "for N- and C-terminal ions. Separate multiple definitions by commas or semicolons.\n"
         + "<b>Format:</b> name terminus mass-delta\n"
@@ -1276,9 +1368,10 @@ public class TabMsfragger extends JPanelBase {
         + "b* N -17.026548;b0 N -18.010565\n"
         + "This would define two new ion types named <i>b*</i> and <i>b0</i>,\n"
         + "you can name them whatever you fancy. <i>b*</i> is the equivalent of an\n"
-        + "N terminal b-ion with ammonia loss, <i>b0</i> is the same with water loss.\n";
+        + "N terminal b-ion with ammonia loss, <i>b0</i> is the same with water loss.\n"
+        + "After defining the new type, you do not need to put them to the 'Fragment ion series' box.\n";
     FormEntry feCustomSeries = mu.feb(MsfraggerParams.PROP_ion_series_definitions, uiTextCustomIonSeries)
-        .label("Define custom ion series").tooltip(tooltipCustomIonSeriesOriginal).create();
+        .label("Add custom ion series").tooltip(tooltipCustomIonSeriesOriginal).create();
     labelCustomIonSeries = feCustomSeries.label();
 
     FormEntry feTrueTolUnits = mu.feb(MsfraggerParams.PROP_precursor_true_units, UiUtils.createUiCombo(
@@ -1356,8 +1449,7 @@ public class TabMsfragger extends JPanelBase {
 
     uiSpinnerOutputReportTopNDda = new UiSpinnerInt(1, 1, 10000, 1, 4);
     uiSpinnerOutputReportTopNDia1 = new UiSpinnerInt(5, 1, 10000, 1, 4);
-    uiSpinnerOutputReportTopNDia2 = new UiSpinnerInt(3, 1, 10000, 1, 4);
-    uiSpinnerOutputReportTopNWwa = new UiSpinnerInt(5, 1, 7, 1, 4);
+    uiSpinnerOutputReportTopNDdaPlus = new UiSpinnerInt(5, 1, 7, 1, 4);
 
     FormEntry feReportTopNDda = mu.feb(MsfraggerParams.PROP_output_report_topN, uiSpinnerOutputReportTopNDda)
         .label("Report top N for DDA")
@@ -1367,13 +1459,9 @@ public class TabMsfragger extends JPanelBase {
         .label("Report top N for DIA")
         .tooltip("Report top N PSMs per input spectrum for DIA and DIA-Lib data type.").create();
 
-    FormEntry feReportTopNDia2 = mu.feb(MsfraggerParams.PROP_output_report_topN_dia2, uiSpinnerOutputReportTopNDia2)
-        .label("Report top N for GPF-DIA")
-        .tooltip("Report top N PSMs per input spectrum for GPF-DIA data type.").create();
-
-    FormEntry feReportTopNWwa = mu.feb(MsfraggerParams.PROP_output_report_topN_wwa, uiSpinnerOutputReportTopNWwa)
-        .label("Report top N for WWA")
-        .tooltip("Report top N PSMs per input spectrum for WWA data type.").create();
+    FormEntry feReportTopNDdaPlus = mu.feb(MsfraggerParams.PROP_output_report_topN_dda_plus, uiSpinnerOutputReportTopNDdaPlus)
+        .label("Report top N for DDA+")
+        .tooltip("Report top N PSMs per input spectrum for DDA+ data type.").create();
 
     UiSpinnerDouble uiSpinnerOutputMaxExpect = new UiSpinnerDouble(50, 0, Double.MAX_VALUE, 1,
         new DecimalFormat("0.#"));
@@ -1411,20 +1499,17 @@ public class TabMsfragger extends JPanelBase {
     mu.add(p, feOutputType.label(), mu.ccR()).gapLeft("10px");
     mu.add(p, feOutputType.comp).pushX().wrap();
 
-    mu.add(p, feReportTopNDia1.label(), mu.ccR());
-    mu.add(p, feReportTopNDia1.comp);
+    mu.add(p, feReportTopNDdaPlus.label(), mu.ccR());
+    mu.add(p, feReportTopNDdaPlus.comp);
     mu.add(p, feCheckWriteCalibratedMzml.comp).gapLeft("20px");
     mu.add(p, feGroupVariable.label()).gapLeft("10px");
     mu.add(p, feGroupVariable.comp).wrap();
 
-    mu.add(p, feReportTopNDia2.label(), mu.ccR());
-    mu.add(p, feReportTopNDia2.comp).growX();
+    mu.add(p, feReportTopNDia1.label(), mu.ccR());
+    mu.add(p, feReportTopNDia1.comp);
     mu.add(p, feCheckWriteUncalibratedMgf.comp).gapLeft("20px");
     mu.add(p, feOutputMaxExpect.label()).gapLeft("10px");
     mu.add(p, feOutputMaxExpect.comp).pushX().wrap();
-
-    mu.add(p, feReportTopNWwa.label(), mu.ccR());
-    mu.add(p, feReportTopNWwa.comp).growX().wrap();
 
     return p;
   }
@@ -1434,8 +1519,6 @@ public class TabMsfragger extends JPanelBase {
     p.setBorder(new TitledBorder("Open Search Options"));
     FormEntry feTrackZeroTopN = mu.feb(MsfraggerParams.PROP_track_zero_topN,
         new UiSpinnerInt(0, 0, 1000, 5, 5)).label("Track zero top N").create();
-    FormEntry feAddTopNComplementary = mu.feb(MsfraggerParams.PROP_add_topN_complementary,
-        new UiSpinnerInt(0, 0, 1000, 2, 5)).label("Add top N complementary").create();
     UiSpinnerDouble spinnerZeroBinAcceptExpect = new UiSpinnerDouble(0, 0, Double.MAX_VALUE, 0.1, 5,
         new DecimalFormat("0.##########"));
     spinnerZeroBinAcceptExpect.setColumns(5);
@@ -1481,9 +1564,7 @@ public class TabMsfragger extends JPanelBase {
     mu.add(p, feComboMassDiffToVariableMod.comp).split().spanX().wrap();
 
     mu.add(p, feTrackZeroTopN.label(), mu.ccR());
-    mu.add(p, feTrackZeroTopN.comp);
-    mu.add(p, feAddTopNComplementary.label(), mu.ccR());
-    mu.add(p, feAddTopNComplementary.comp).pushX().wrap();
+    mu.add(p, feTrackZeroTopN.comp).wrap();
 
     mu.add(p, feZeroBinAcceptExpect.label(), mu.ccR());
     mu.add(p, feZeroBinAcceptExpect.comp);
@@ -1607,14 +1688,46 @@ public class TabMsfragger extends JPanelBase {
 
   public Set<Float> getMassOffsetSet() {
     Set<Float> outputSet = new TreeSet<>();
-    String[] ss = epMassOffsets.getNonGhostText().trim().split("[/\\s]+");
-    for (String s : ss) {
-      float v = Float.parseFloat(s);
-      if (Math.abs(v) > 0.01f) {
-        outputSet.add(v);
+    if (uiCheckMassOffsetFile.isSelected()) {
+      // detailed/fancy offset mode
+      ArrayList<MassOffsetUtils.MassOffset> offsets = getDetailedOffsets();
+      for (MassOffsetUtils.MassOffset offset: offsets) {
+        if (Math.abs(offset.mass) > 0.01f) {
+          outputSet.add(offset.mass);
+        }
+      }
+    } else {
+      // regular offset mode
+      String[] ss = epMassOffsets.getNonGhostText().trim().split("[/\\s]+");
+      for (String s : ss) {
+        if (s.isEmpty()) {
+          continue;
+        }
+        float v = Float.parseFloat(s);
+        if (Math.abs(v) > 0.01f) {
+          outputSet.add(v);
+        }
       }
     }
     return outputSet;
+  }
+
+  public ArrayList<MassOffsetUtils.MassOffset> getDetailedOffsets() {
+    String offsetStr = epDetailedMassOffsets.getNonGhostText();
+    ArrayList<MassOffsetUtils.MassOffset> offsets = new ArrayList<>();
+    if (!offsetStr.isEmpty()) {
+      String[] splits = offsetStr.split(";");
+      for (String split: splits) {
+        offsets.add(new MassOffsetUtils.MassOffset(split));
+      }
+    }
+    return offsets;
+  }
+
+  public String getRegularOffsetStringFromDetailedOffsets() {
+    ArrayList<MassOffsetUtils.MassOffset> offsets = getDetailedOffsets();
+    String[] offsetStrs = Arrays.stream(offsets.toArray(new MassOffsetUtils.MassOffset[0])).map(offset -> Double.toString(offset.mass)).toArray(String[]::new);
+    return String.join("/", offsetStrs);
   }
 
   public void setMassOffsets(String offsetsText) {
@@ -1779,7 +1892,17 @@ public class TabMsfragger extends JPanelBase {
   }
 
   public int getMassCalibration() {
-    return uiComboMassCalibrate.getSelectedIndex(); // 0 = None; 1 = Mass calibration; 2 = Mass calibration, parameter optimization;
+    if (uiComboMassCalibrate.getSelectedIndex() == 0) {
+      return 0;
+    } else if (uiComboMassCalibrate.getSelectedIndex() == 1) {
+      return 1;
+    } else if (uiComboMassCalibrate.getSelectedIndex() == 2) {
+      return 2;
+    } else if (uiComboMassCalibrate.getSelectedIndex() == 3) {
+      return 4;
+    } else {
+      return 0;
+    }
   }
 
   public boolean isWriteCalMzml() {
@@ -1799,7 +1922,11 @@ public class TabMsfragger extends JPanelBase {
   }
 
   public String getMassOffsets() {
-    return uiTextMassOffsets.getNonGhostText();
+    if (uiCheckMassOffsetFile.isSelected()) {
+      return getRegularOffsetStringFromDetailedOffsets();
+    } else {
+      return uiTextMassOffsets.getNonGhostText();
+    }
   }
 
   public String getOutputFileExt() {
@@ -1815,13 +1942,12 @@ public class TabMsfragger extends JPanelBase {
     return uiSpinnerOutputReportTopNDia1.getActualValue();
   }
 
-  public int getOutputReportTopNDia2() {
-    return uiSpinnerOutputReportTopNDia2.getActualValue();
+
+  public int getOutputReportTopNDdaPlus() {
+    return uiSpinnerOutputReportTopNDdaPlus.getActualValue();
   }
 
-  public int getOutputReportTopNWwa() {
-    return uiSpinnerOutputReportTopNWwa.getActualValue();
-  }
+  public List<Mod> getVarModsTable() { return formToMap(tableVarMods.model); }
 
   private void actionBtnConfigSave(ActionEvent e) {
     // now save the actual user's choice
@@ -1895,16 +2021,6 @@ public class TabMsfragger extends JPanelBase {
     }
   }
 
-  private void actionBtnLoadMassOffsets(ActionEvent actionEvent) {
-    GlycoMassLoader loader = new GlycoMassLoader(true);
-    List<String> massStrings = loader.loadOffsets(this);
-    if (massStrings.size() > 0) {
-      String offsetsText = String.join(" ", massStrings);
-      epMassOffsets.setText(offsetsText);
-      log.info(String.format("[MSFragger Load Mass Offsets Button] Loaded %d unique mass offsets from file", massStrings.size()));
-    }
-  }
-
   private void actionBtnConfigLoad(ActionEvent actionEvent) {
     String option = (String)uiComboLoadDefaultsNames.getSelectedItem();
 
@@ -1922,7 +2038,70 @@ public class TabMsfragger extends JPanelBase {
     }
   }
 
-  private void loadDefaults(SearchTypeProp type) {
+  private void actionBtnLoadDetailedOffsets(ActionEvent event) {
+    List<FileFilter> tsvFilters = new ArrayList<>();
+    FileFilter filter = new FileNameExtensionFilter("Mass offset file (.tsv or .txt)", "tsv", "txt");
+    tsvFilters.add(filter);
+
+    String loc = Fragpipe.propsVarGet(PROP_FILECHOOSER_LAST_PATH);
+    JFileChooser fc = FileChooserUtils.builder("Select the Detailed Mass Offsets file to load")
+            .approveButton("Select").mode(FileChooserUtils.FcMode.FILES_ONLY)
+            .acceptAll(false).multi(false).filters(tsvFilters)
+            .paths(Stream.of(loc)).create();
+
+
+    String selectedPath;
+    int userSelection = fc.showOpenDialog(SwingUtils.findParentFrameForDialog(this));
+    if (JFileChooser.APPROVE_OPTION == userSelection) {
+      selectedPath = fc.getSelectedFile().toString();
+      try {
+        Fragpipe.propsVarSet(PROP_FILECHOOSER_LAST_PATH, selectedPath);
+        String offsetStr = MassOffsetUtils.parseOffsetsFile(selectedPath, this);
+        Fragpipe.propsVarSet(PROP_mass_offsets_detailed, offsetStr);
+        epDetailedMassOffsets.setText(offsetStr);
+      } catch (IOException ex) {
+        log.error(String.format("Could not load mass offsets from file %s", selectedPath));
+        SwingUtils.showErrorDialogWithStacktrace(ex, this);
+      }
+    }
+  }
+
+  private void actionBtnSaveDetailedOffsets(ActionEvent event) {
+    // get file path to save
+    FileNameEndingFilter filter = new FileNameEndingFilter("Mass offset file (.tsv)", "tsv");
+    Path savePath = TabWorkflow.getSaveFilePath(null, PROP_FILECHOOSER_LAST_PATH, filter, ".tsv", false, this);
+
+    if (savePath == null) {
+      // user cancelled action
+      return;
+    }
+
+    // parse detailed mass offset string
+    String offsetStr = epDetailedMassOffsets.getNonGhostText();
+    ArrayList<MassOffsetUtils.MassOffset> offsets = new ArrayList<>();
+    if (!offsetStr.isEmpty()) {
+      String[] splits = offsetStr.split(";");
+      for (String split: splits) {
+        offsets.add(new MassOffsetUtils.MassOffset(split));
+      }
+    }
+
+    // save to file
+    try {
+      PrintWriter out = new PrintWriter(savePath.toFile());
+      out.print("# Mass\tAllowed sites\tDiagnostic ions\tPeptide remainder ions\tFragment remainder ions\n");
+      for (MassOffsetUtils.MassOffset offset : offsets) {
+        out.print(offset.toFileString());
+      }
+      out.flush();
+      out.close();
+    } catch (IOException ex) {
+      log.error(String.format("Could not save mass offsets to file %s", savePath));
+      SwingUtils.showErrorDialogWithStacktrace(ex, this);
+    }
+  }
+
+    private void loadDefaults(SearchTypeProp type) {
     log.debug("TabMsfragger loadDefaults() called for SearchTypeProp type={}", type.name());
     MsfraggerParams params = new MsfraggerParams();
     params.loadDefaults(type);
@@ -2034,11 +2213,7 @@ public class TabMsfragger extends JPanelBase {
     ArrayList<String> mods = new ArrayList<>();
     List<Mod> modsVariable = formToMap(tableVarMods.model);
     List<Mod> modsFixed = formToMap(tableFixMods.model);
-    Set<Float> offsetSet = getMassOffsetSet();
-    String offsetResidues = uiTextRestrictDeltamassTo.getNonGhostText().replace("-", "");
-    if (offsetResidues.matches("all")) {
-      offsetResidues = "ACDEFGHIKLMNPQRSTVWY";
-    }
+    List<Mod> modsOffset = getOffsetsAsMods();
 
     Pattern aaPattern = Pattern.compile("([A-Z])");
     for (Mod mod : modsVariable) {
@@ -2053,8 +2228,8 @@ public class TabMsfragger extends JPanelBase {
         ArrayList<String> sitesWithTermini = updateSitesTerm(terminal, sites);
         String sitesTemp = String.join("", sites);
 
-        SDRFtable.SDRFUnimod matchedMod = SDRFtable.matchUnimod(mod.massDelta, sitesWithTermini);
-        String name = getModName(mod.massDelta, mod.sites, matchedMod);
+        String unimodName = SDRFtable.matchUnimod(mod.massDelta, sitesWithTermini);
+        String name = getModName(mod.massDelta, mod.sites, unimodName);
         String siteStr = sitesTemp.length() == 0 ? "" : String.format(";TA=%s", sitesTemp);
         String modStr = String.format("NT=%s;MT=Variable;PP=%s%s;MM=%.5f", name, terminal, siteStr, mod.massDelta);
         mods.add(modStr);
@@ -2077,35 +2252,63 @@ public class TabMsfragger extends JPanelBase {
           sitesStr = "";
         }
         ArrayList<String> sitesWithTermini = updateSitesTerm(terminal, sites);
-        SDRFtable.SDRFUnimod matchedMod = SDRFtable.matchUnimod(mod.massDelta, sitesWithTermini);
-        String name = getModName(mod.massDelta, mod.sites, matchedMod);
+        String unimodName = SDRFtable.matchUnimod(mod.massDelta, sitesWithTermini);
+        String name = getModName(mod.massDelta, mod.sites, unimodName);
         String modStr = String.format("NT=%s;MT=Fixed;PP=%s%s;MM=%.5f", name, terminal, sitesStr, mod.massDelta);
         mods.add(modStr);
       }
     }
-    for (float mass : offsetSet) {
-      if (!(mass == 0.0)) {
-        ArrayList<String> sites = Arrays.stream(offsetResidues.split("")).collect(Collectors.toCollection(ArrayList::new));
-        SDRFtable.SDRFUnimod matchedMod = SDRFtable.matchUnimod(mass, sites);
-        String name = matchedMod != null ? matchedMod.name : String.format("offset:%.5f", mass);
+    for (Mod offset : modsOffset) {
+      if (!(offset.massDelta == 0.0)) {
+        ArrayList<String> sites = Arrays.stream(offset.sites.split("")).collect(Collectors.toCollection(ArrayList::new));
+        String unimodName = SDRFtable.matchUnimod(offset.massDelta, sites);
+        String name = unimodName != null ? unimodName : String.format("offset:%.5f", offset.massDelta);
         String glycoSite = "";
+        String offsetResidues = offset.sites;
         if (Objects.equals(uiComboGlyco.getSelectedItem(), GLYCO_OPTION_nglycan)) {
           glycoSite = "TS=N[^P][ST];";
           offsetResidues = "N";
         }
-        String modStr = String.format("NT=%s;MT=Variable;PP=%s;TA=%s;%sMM=%.5f", name, "Anywhere", offsetResidues, glycoSite, mass);
+        String modStr = String.format("NT=%s;MT=Variable;PP=%s;TA=%s;%sMM=%.5f", name, "Anywhere", offsetResidues, glycoSite, offset.massDelta);
         mods.add(modStr);
       }
     }
     return mods;
   }
 
-  private String getModName(double mass, String sites, SDRFtable.SDRFUnimod matchedMod) {
-    if (matchedMod == null) {
+  /**
+   * Return a list of Mod objects from the mass offsets, including all site restrictions for regular and fancy
+   * offset modes.
+   * @return
+   */
+  public List<Mod> getOffsetsAsMods(){
+    ArrayList<Mod> offsetMods = new ArrayList<>();
+    if (uiCheckMassOffsetFile.isSelected()) {
+      // fancy/detailed offset mode
+      ArrayList<MassOffsetUtils.MassOffset> offsets = getDetailedOffsets();
+      for (MassOffsetUtils.MassOffset offset: offsets) {
+        offsetMods.add(new Mod(offset.mass, String.join("", offset.allowedResidues), true, 1));
+      }
+    } else {
+      // regular offset mode
+      Set<Float> offsetSet = getMassOffsetSet();
+      String offsetResidues = uiTextRestrictDeltamassTo.getNonGhostText().replace("-", "");
+      if (offsetResidues.matches("all")) {
+        offsetResidues = "ACDEFGHIKLMNPQRSTVWY";
+      }
+      for (float mass : offsetSet) {
+        offsetMods.add(new Mod(mass, offsetResidues, true, 1));
+      }
+    }
+    return offsetMods;
+  }
+
+  private String getModName(double mass, String sites, String unimodName) {
+    if (unimodName == null) {
       // Unimod either not matched or ambiguous: use our generic format
       return String.format("%s:%.0f", sites, mass);
     } else {
-      return matchedMod.name;
+      return unimodName;
     }
   }
 
@@ -2163,14 +2366,6 @@ public class TabMsfragger extends JPanelBase {
   }
 
   public String getPrecTolString(){
-    Object calibration = uiComboMassCalibrate.getSelectedItem();
-    if (calibration != null) {
-      // do not write tolerances if parameter optimization is enabled, as they may be incorrect after optimization
-      if (calibration.equals(CALIBRATE_VALUE_OPTIMIZATION)) {
-        return "";
-      }
-    }
-
     Object unit = uiComboPrecursorTolUnits.getSelectedItem();
     if (unit == null || StringUtils.isNullOrWhitespace((String) unit)) {
       return "";
@@ -2184,23 +2379,36 @@ public class TabMsfragger extends JPanelBase {
     }
   }
 
-  public String getProdTolString(){
+  public String getProdTolString(String logText){
+    String unit = "";
+    double tolerance = -1;
+    boolean useTolFromLog = false;
+
+    // if param optimization was enabled, read the optimized fragment tolerance from log
     Object calibration = uiComboMassCalibrate.getSelectedItem();
     if (calibration != null) {
-      // do not write tolerances if parameter optimization is enabled, as they may be incorrect after optimization
-      if (calibration.equals(CALIBRATE_VALUE_OPTIMIZATION)) {
-        return "";
+      if (calibration.equals("Mass calibration, parameter optimization")) {
+        Pattern newFragTolPattern = Pattern.compile("New fragment_mass_tolerance = ([0-9\\.]+) ([\\w]+)");
+        Matcher matcher = newFragTolPattern.matcher(logText);
+        if (matcher.find()) {
+          tolerance = Double.parseDouble(matcher.group(1));
+          unit = matcher.group(2);
+          useTolFromLog = true;
+        }
       }
     }
 
-    Object unit = uiComboFragTolUnits.getSelectedItem();
-    if (unit == null || StringUtils.isNullOrWhitespace((String) unit)) {
-      return "";
+    if (!useTolFromLog) {
+      // read original tolerance from MSFragger params
+      unit = (String) uiComboFragTolUnits.getSelectedItem();
+      if (unit == null || StringUtils.isNullOrWhitespace(unit)) {
+        return "";
+      }
+      tolerance = uiSpinnerFragTol.getActualValue();
     }
 
-    double tolerance = uiSpinnerFragTol.getActualValue();
     if (unit.equals("PPM")) {
-      return String.format("%s %s", tolerance, unit.toString().toLowerCase());
+      return String.format("%s %s", tolerance, unit.toLowerCase());
     } else {
       return String.format("%.2f %s", tolerance, unit);
     }
