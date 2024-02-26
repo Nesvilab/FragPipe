@@ -47,7 +47,7 @@ public class CmdMSBooster extends CmdBase {
 
   private static final Logger log = LoggerFactory.getLogger(CmdMSBooster.class);
   public static String NAME = "MSBooster";
-  public static final String JAR_MSBOOSTER_NAME = "msbooster-1.2.2.jar";
+  public static final String JAR_MSBOOSTER_NAME = "MSBooster-1.2.11.jar";
   public static final String JAR_MSBOOSTER_MAIN_CLASS = "Features.MainClass";
   private static final String[] JAR_DEPS = {BATMASS_IO_JAR};
   private static final Pattern pattern1 = Pattern.compile("\\.pepXML$");
