@@ -394,7 +394,7 @@ public class CmdPeptideProphet extends CmdBase {
     if (nonspecific.equals(enzymeName) || !StringUtils.isNullOrWhitespace(tabMsfragger.getEnzymeCut2())) {
       addToListIfNotThere(cmd, optNontt);
       addToListIfNotThere(cmd, optNonmc);
-    } else if ("custom".equals(enzymeName)) {
+    } else if ("custom".equals(enzymeName) || "nocleavage".equals(enzymeName)) {
       addToListIfNotThere(cmd, optNontt);
       addToListIfNotThere(cmd, optNonmc);
       if (addToListIfNotThere(cmd, optEnzyme)) {

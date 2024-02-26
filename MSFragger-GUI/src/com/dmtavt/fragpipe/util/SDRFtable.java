@@ -71,6 +71,7 @@ public class SDRFtable {
         enzymesMap.put("trypsin_k", "Lys-C");
         enzymesMap.put("trypsin_r", "Arg-C");
         enzymesMap.put("thermolysin", "Thermolysin");
+        enzymesMap.put("nocleavage ", "no cleavage");
     }
 
     // init Unimod DB for mod matching
