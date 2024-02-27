@@ -180,11 +180,16 @@ public class GlycoMassLoader {
                     masses.add(0, 0.0);
                 }
 
-                // clean up masses before returning final strings (round off floating point errors at 12 decimal places)
+                // clean up masses before returning final strings (round off floating point errors at and remove duplicates)
                 List<String> massStrings = new ArrayList<>();
+                Set<Long> previousMasses = new HashSet<>();
                 for (double mass : masses) {
-                    BigDecimal decimal = new BigDecimal(mass).setScale(12, RoundingMode.HALF_EVEN).stripTrailingZeros();
-                    massStrings.add(decimal.toPlainString());
+                    long massKey = Math.round(mass * 10000);
+                    if (!previousMasses.contains(massKey)) {
+                        previousMasses.add(massKey);
+                        BigDecimal decimal = new BigDecimal(mass).setScale(10, RoundingMode.HALF_EVEN).stripTrailingZeros();
+                        massStrings.add(decimal.toPlainString());
+                    }
                 }
                 return massStrings;
             } else {
