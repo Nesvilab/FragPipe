@@ -425,6 +425,12 @@ public class TabRun extends JPanelWithEnablement {
             writer.write("--full-scan-precursor-res=" + (Float.parseFloat(pf.getProperty("msfragger.precursor_true_tolerance")) * 1000) + " ");
           }
 
+          if (pf.getProperty("msfragger.fragment_mass_units").contentEquals("1")) {
+            writer.write("--full-scan-product-res=" + pf.getProperty("msfragger.fragment_mass_tolerance") + " ");
+          } else {
+            writer.write("--full-scan-product-res=" + (Float.parseFloat(pf.getProperty("msfragger.fragment_mass_tolerance")) * 1000) + " ");
+          }
+
           writer.write("--full-scan-rt-filter=ms2_ids ");
           writer.write("--full-scan-rt-filter-tolerance=2 ");
           writer.write("--instrument-min-mz=50 ");
