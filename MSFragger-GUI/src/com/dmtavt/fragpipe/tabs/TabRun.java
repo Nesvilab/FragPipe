@@ -447,7 +447,14 @@ public class TabRun extends JPanelWithEnablement {
             writer.write("--import-file=" + s + " ");
           }
           writer.write("--import-search-exclude-library-sources ");
-          writer.write("--import-fasta=" + wd.resolve("protein.fas") + " ");
+
+          Files.walk(wd).filter(p -> p.getFileName().toString().contentEquals("protein.fas")).forEach(p -> {
+            try {
+              writer.write("--import-fasta=" + p.toAbsolutePath() + " ");
+            } catch (IOException ex) {
+              throw new RuntimeException(ex);
+            }
+          });
           writer.write("--associate-proteins-shared-peptides=DuplicatedBetweenProteins ");
 
           writer.close();
