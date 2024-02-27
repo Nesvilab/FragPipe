@@ -393,7 +393,7 @@ public class GlycoMassLoader {
             if (glycan.matches("P")) {
                 glycanMass += glycanMasses.get(findResidueName("Hex").name) + glycanMasses.get(findResidueName("Phospho").name);
             } else if (pGlycoTokenMap.containsKey(glycan)) {
-                glycanMass += glycanMasses.get(pGlycoTokenMap.get(glycan).toLowerCase());
+                glycanMass += glycanMasses.get(findResidueName(pGlycoTokenMap.get(glycan)).name);
             } else {
                 log.warn(String.format("Invalid token %s in line %s. This line will be skipped", glycanToken, line));
                 valid = false;
@@ -427,7 +427,7 @@ public class GlycoMassLoader {
             if (glycanToken.matches("U")) {
                 glycanMass += glycanMasses.get(findResidueName("Hex").name) + glycanMasses.get(findResidueName("Succinyl").name);
             } else if (MMGlycoTokenMap.containsKey(glycanType)) {
-                glycanMass += (glycanMasses.get(MMGlycoTokenMap.get(glycanType).toLowerCase()) * glycanCount);
+                glycanMass += (glycanMasses.get(findResidueName(MMGlycoTokenMap.get(glycanType)).name) * glycanCount);
             } else {
                 log.warn(String.format("Invalid token %s in line %s. This line will be skipped", glycanToken, glycanString));
                 glycanMass = 0;
