@@ -337,7 +337,7 @@ public class TabRun extends JPanelWithEnablement {
         List<Path> speclibFiles = new ArrayList<>(1);
         TreeSet<String> lcmsFiles = new TreeSet<>();
         TreeSet<Path> pepxmlFiles = new TreeSet<>();
-        float probThreshold = 0.8f;
+        float probThreshold = 1;
         List<String> cmd = new ArrayList<>();
 
         try {
@@ -373,10 +373,17 @@ public class TabRun extends JPanelWithEnablement {
             }
             Matcher matcher = pattern.matcher(line);
             if (matcher.find()) {
-              probThreshold = Float.parseFloat(matcher.group(1));
+              float f = Float.parseFloat(matcher.group(1));
+              if (f < probThreshold) {
+                probThreshold = f;
+              }
             }
           }
           reader.close();
+
+          if (probThreshold == 1) {
+            throw new RuntimeException("Could not find the probability threshold in the log file.");
+          }
 
           pepxmlFiles = Files.walk(wd).filter(p -> p.getFileName().toString().startsWith("interact-") && p.getFileName().toString().endsWith(".pep.xml")).collect(Collectors.toCollection(TreeSet::new));
           speclibFiles = Files.walk(wd).filter(p -> p.getFileName().toString().endsWith(".speclib")).collect(Collectors.toList());
