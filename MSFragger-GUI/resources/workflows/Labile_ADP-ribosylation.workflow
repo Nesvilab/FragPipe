@@ -93,6 +93,7 @@ msfragger.Y_type_masses=0/114.03169/193.99802/291.97492/406.00661
 msfragger.activation_types=all
 msfragger.allowed_missed_cleavage_1=2
 msfragger.allowed_missed_cleavage_2=2
+msfragger.analyzer_types=all
 msfragger.calibrate_mass=2
 msfragger.check_spectral_files=true
 msfragger.clip_nTerm_M=true
