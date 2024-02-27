@@ -130,8 +130,14 @@ public class GlycoMassLoader {
         return residues;
     }
 
+    private List<Double> loadMassesFromFile(String selectedPath) {
+        DatabaseType dbType = detectDBtype(selectedPath);
+        glycoMasses = loadTextOffsets(selectedPath, dbType);
+        return glycoMasses;
+    }
 
-    public List<Double> loadMassesFile(Component parent) {
+    public List<String> loadCustomOffsets(Component parent) {
+        List<Double> masses = new ArrayList<>();
         List<javax.swing.filechooser.FileFilter> glycFilters = new ArrayList<>();
         FileFilter filter = new FileNameExtensionFilter("Glycan or Mod Database (.txt, .csv, .tsv, .glyc, .gdb)", "txt", "csv", "tsv", "glyc", "gdb");
         glycFilters.add(filter);
@@ -147,20 +153,8 @@ public class GlycoMassLoader {
             selectedPath = fc.getSelectedFile().toString();
             Fragpipe.propsVarSet(PROP_FILECHOOSER_LAST_PATH, selectedPath);
             glycoFilePath = selectedPath;
-            return loadMassesFromFile(selectedPath);
-        } else {
-            return new ArrayList<>();
+            masses = loadMassesFromFile(selectedPath);
         }
-    }
-
-    private List<Double> loadMassesFromFile(String selectedPath) {
-        DatabaseType dbType = detectDBtype(selectedPath);
-        glycoMasses = loadTextOffsets(selectedPath, dbType);
-        return glycoMasses;
-    }
-
-    public List<String> loadOffsets(Component parent) {
-        List<Double> masses = loadMassesFile(parent);
         return loadOffsetsHelper(parent, masses);
     }
 

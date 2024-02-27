@@ -25,14 +25,11 @@ import com.dmtavt.fragpipe.util.GlycoMassLoader;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.swing.*;
 import com.dmtavt.fragpipe.api.Bus;
-import net.miginfocom.layout.LC;
-import net.miginfocom.swing.MigLayout;
 import org.jooq.lambda.Unchecked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
@@ -108,7 +105,7 @@ public class TabGlyco extends JPanelWithEnablement {
         List<String> massStrings;
         if (uiComboLoadBuiltinGlycans.getSelectedItem().toString().equals("Custom")) {
             // load a custom (user-defined) glycan database
-            massStrings = loader.loadOffsets(this);
+            massStrings = loader.loadCustomOffsets(this);
         } else {
             // load the built-in glycan database specified by the UiCombo
             String name = (String) uiComboLoadBuiltinGlycans.getSelectedItem();
