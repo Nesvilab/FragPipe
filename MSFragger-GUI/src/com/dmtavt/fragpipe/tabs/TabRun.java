@@ -66,6 +66,7 @@ import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -359,6 +360,11 @@ public class TabRun extends JPanelWithEnablement {
           reader.close();
 
           List<Path> logFiles = Files.walk(wd).filter(p -> p.getFileName().toString().startsWith("log_") && p.getFileName().toString().endsWith(".txt")).sorted().collect(Collectors.toList());
+
+          if (logFiles.isEmpty()) {
+            throw new FileNotFoundException("No log files found in " + wd);
+          }
+
           reader = Files.newBufferedReader(logFiles.get(logFiles.size() - 1));
           while ((line = reader.readLine()) != null) {
             line = line.trim();
