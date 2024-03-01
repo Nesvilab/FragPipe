@@ -22,6 +22,7 @@ import static com.dmtavt.fragpipe.tabs.TabDatabase.databaseSizeLimit;
 import static com.dmtavt.fragpipe.tabs.TabWorkflow.manifestExt;
 import static com.dmtavt.fragpipe.tabs.TabWorkflow.workflowExt;
 import static com.dmtavt.fragpipe.tools.diann.DiannPanel.NEW_VERSION;
+import static com.dmtavt.fragpipe.tools.skyline.Skyline.skylineVersionT;
 import static com.github.chhh.utils.FileDelete.deleteFileOrFolder;
 import static com.github.chhh.utils.SwingUtils.wrapInScrollForDialog;
 
@@ -80,7 +81,6 @@ import com.dmtavt.fragpipe.messages.NoteConfigIonQuant;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
 import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.dmtavt.fragpipe.messages.NoteConfigSpeclibgen;
-import com.dmtavt.fragpipe.messages.NoteConfigSkyline;
 import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.dmtavt.fragpipe.process.ProcessDescription;
 import com.dmtavt.fragpipe.process.ProcessDescription.Builder;
@@ -109,6 +109,7 @@ import com.dmtavt.fragpipe.tools.protproph.ProtProphPanel;
 import com.dmtavt.fragpipe.tools.ptmprophet.PtmProphetPanel;
 import com.dmtavt.fragpipe.tools.ptmshepherd.PTMSGlycanAssignPanel;
 import com.dmtavt.fragpipe.tools.ptmshepherd.PtmshepherdPanel;
+import com.dmtavt.fragpipe.tools.skyline.Skyline;
 import com.dmtavt.fragpipe.tools.speclibgen.SpecLibGen2;
 import com.dmtavt.fragpipe.tools.speclibgen.SpeclibPanel;
 import com.dmtavt.fragpipe.tools.tmtintegrator.QuantLabel;
@@ -154,6 +155,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 import org.jgrapht.traverse.ClosestFirstIterator;
@@ -644,24 +646,22 @@ public class FragpipeRun {
           }
         }
 
-        NoteConfigSkyline noteConfigSkyline = Bus.getStickyEvent(NoteConfigSkyline.class);
-        if (noteConfigSkyline.isValid()) {
-          if (noteConfigSkyline.compareVersion("23.1.0.380") <= 0) {
-            // 23.1 released version of Skyline requires moving the speclib file to where the DIANN report.tsv is located
-            DiannPanel diannPanel = Bus.getStickyEvent(DiannPanel.class);
-            if (diannPanel != null && diannPanel.isRun()) {
-              try {
-                Files.walk(wd).filter(p -> p.getFileName().toString().endsWith(".speclib")).forEach(p -> {
-                  try {
-                    Path ppp = wd.resolve("diann-output");
-                    if (Files.exists(ppp) && Files.isDirectory(ppp)) {
-                      Files.move(p, ppp.resolve("report.tsv.speclib"));
-                    }
-                  } catch (Exception ignored) {
+        DefaultArtifactVersion v = Skyline.getSkylineVersion();
+        if (v != null && v.compareTo(skylineVersionT) <= 0) {
+          // 23.1 released version of Skyline requires moving the speclib file to where the DIANN report.tsv is located
+          DiannPanel diannPanel = Bus.getStickyEvent(DiannPanel.class);
+          if (diannPanel != null && diannPanel.isRun()) {
+            try {
+              Files.walk(wd).filter(p -> p.getFileName().toString().endsWith(".speclib")).forEach(p -> {
+                try {
+                  Path ppp = wd.resolve("diann-output");
+                  if (Files.exists(ppp) && Files.isDirectory(ppp)) {
+                    Files.move(p, ppp.resolve("report.tsv.speclib"));
                   }
-                });
-              } catch (Exception ignored) {
-              }
+                } catch (Exception ignored) {
+                }
+              });
+            } catch (Exception ignored) {
             }
           }
         }

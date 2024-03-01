@@ -20,6 +20,7 @@ package com.dmtavt.fragpipe.tabs;
 import static com.dmtavt.fragpipe.cmd.CmdBase.constructClasspathString;
 import static com.dmtavt.fragpipe.messages.MessagePrintToConsole.toConsole;
 import static com.dmtavt.fragpipe.tabs.TabWorkflow.workflowExt;
+import static com.dmtavt.fragpipe.tools.skyline.Skyline.skylineVersionT;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
@@ -39,9 +40,9 @@ import com.dmtavt.fragpipe.messages.MessageRun;
 import com.dmtavt.fragpipe.messages.MessageRunButtonEnabled;
 import com.dmtavt.fragpipe.messages.MessageSaveLog;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
-import com.dmtavt.fragpipe.messages.NoteConfigSkyline;
 import com.dmtavt.fragpipe.process.ProcessResult;
 import com.dmtavt.fragpipe.tools.philosopher.ReportPanel;
+import com.dmtavt.fragpipe.tools.skyline.Skyline;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
@@ -98,6 +99,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.UIManager;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.jooq.lambda.Seq;
@@ -324,8 +326,7 @@ public class TabRun extends JPanelWithEnablement {
     });
 
     btnOpenSkyline = UiUtils.createButton("Generate Skyline files", e -> {
-      NoteConfigSkyline noteConfigSkyline = Bus.getStickyEvent(NoteConfigSkyline.class);
-      String skylinePath = noteConfigSkyline.path;
+      String skylinePath = Skyline.getSkylineRunnerPath();
 
       if (skylinePath == null || skylinePath.isEmpty()) {
         SwingUtils.showErrorDialog(this, "Cannot find SkylineCmd.exe.", "No SkylineCmd.exe");
@@ -406,7 +407,8 @@ public class TabRun extends JPanelWithEnablement {
             writer.write("--import-search-file=" + speclibFiles.get(0).toAbsolutePath() + " ");
           }
 
-          if (noteConfigSkyline.compareVersion("23.1.0.380") > 0) {
+          DefaultArtifactVersion v = Skyline.getSkylineVersion();
+          if (v.compareTo(skylineVersionT) > 0) {
             // parameters added after released 23.1 version
             writer.write("--pep-max-missed-cleavages=" + pf.getProperty("msfragger.allowed_missed_cleavage_1") + " ");
             writer.write("--pep-min-length=" + pf.getProperty("msfragger.digest_min_length") + " ");

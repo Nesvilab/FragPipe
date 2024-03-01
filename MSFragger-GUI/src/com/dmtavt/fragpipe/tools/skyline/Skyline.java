@@ -17,33 +17,62 @@
 
 package com.dmtavt.fragpipe.tools.skyline;
 
+import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.exceptions.UnexpectedException;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.ProcessUtils;
-import com.github.chhh.utils.SwingUtils;
-import java.awt.Desktop;
-import java.io.IOException;
-import java.net.URI;
+import java.nio.file.Path;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
+import org.jooq.lambda.Seq;
 
 public class Skyline {
 
-  private static final Logger log = LoggerFactory.getLogger(Skyline.class);
   private static final String DOWNLOAD_URL = "https://skyline.ms/project/home/software/Skyline/begin.view";
   private static final Pattern versionWithSpacesPattern = Pattern.compile(" ([\\d.]+) ?");
   private static final Pattern versionNoSpacesPattern = Pattern.compile("([\\d.]+)");
 
-  public static void downloadSkylineManually() {
+  public static DefaultArtifactVersion skylineVersionT = new DefaultArtifactVersion("23.1.0.380");
+  private static DefaultArtifactVersion skylineVersion = null;
+  private static String skylineRunnerPath = null;
+
+  public static String getSkylineRunnerPath() {
+    if (skylineRunnerPath != null) {
+      return skylineRunnerPath;
+    }
     try {
-      Desktop.getDesktop().browse(URI.create(DOWNLOAD_URL));
-    } catch (IOException ex) {
-      log.error("Error opening browser to download Skyline", ex);
-      SwingUtils.showErrorDialogWithStacktrace(ex, null);
+      sub();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return skylineRunnerPath;
+  }
+
+  public static DefaultArtifactVersion getSkylineVersion() {
+    if (skylineVersion != null) {
+      return skylineVersion;
+    }
+    try {
+      sub();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return skylineVersion;
+  }
+
+  private static void sub() throws Exception {
+    for (String s : new String[]{"SkylineRunner.exe", "SkylineDailyRunner.exe"}) {
+      List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(s));
+      if (classpathJars != null && !classpathJars.isEmpty()) {
+        Version version = validate(classpathJars.get(0).toAbsolutePath().toString());
+        if (version != null) {
+          skylineVersion = new DefaultArtifactVersion(version.strippedVersion);
+          skylineRunnerPath = classpathJars.get(0).toAbsolutePath().toString();
+        }
+      }
     }
   }
 
@@ -61,6 +90,10 @@ public class Skyline {
       sbVer.append(line);
       return sbVer.length() == 0;
     });
+
+    if (sbVer.toString().startsWith("Error")) {
+      return null;
+    }
 
     if (sbVer.length() == 0) {
       throw new ValidationException("Version string not found for Skyline from \"" + binPath + "\"");
