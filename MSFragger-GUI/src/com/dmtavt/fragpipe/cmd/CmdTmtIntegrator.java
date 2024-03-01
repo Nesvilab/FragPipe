@@ -200,6 +200,16 @@ public class CmdTmtIntegrator extends CmdBase {
         return false;
       }
 
+      for (Path path : panel.getAnnotations().values()) {
+        List<QuantLabelAnnotation> annotations = TmtiPanel.parseTmtAnnotationFile(path.toFile());
+        for (QuantLabelAnnotation a : annotations) {
+          if (a.getSample().trim().isEmpty()) {
+            SwingUtils.showErrorDialog(panel, "Empty sample name found in annotation file: " + path.toAbsolutePath() + ".<br>To exclude a channel, use <b>NA</b> as the sample name.", "ERROR: empty sample name");
+            return false;
+          }
+        }
+      }
+
       // TMT-Integrator can crash if a mod site probability is >= 0 when no mods are provided
       if (panel.getMinSiteProb() >= 0 && panel.getModTag().isEmpty()) {
         if (Fragpipe.headless) {

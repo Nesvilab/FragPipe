@@ -44,7 +44,7 @@ public class QuantLabelAnnotation {
   }
 
   public String getSample() {
-    return sample.isEmpty() ? "NA" : sample;
+    return sample;
   }
 
   public void setSample(String sample) {

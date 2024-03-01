@@ -310,7 +310,7 @@ public class ToolingUtils {
         line = line.trim();
         if (!line.isEmpty()) {
           String[] parts = line.split("\\s");
-          if (parts[1].trim().equalsIgnoreCase("na")) {
+          if (parts.length < 2 || parts[1].trim().equalsIgnoreCase("na")) {
             continue;
           }
           String[] parts2 = parts[1].trim().split("_");
