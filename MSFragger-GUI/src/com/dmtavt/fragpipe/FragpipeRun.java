@@ -1240,11 +1240,11 @@ public class FragpipeRun {
             Paths.get(binMsfragger.getBin()),
             diaPasefSCentricPanel.writeIntermediateFiles(),
             diaPasefSCentricPanel.imTolerance(),
-            diaPasefSCentricPanel.mzToleranceUnit(),
-            diaPasefSCentricPanel.mzTolerance(),
             diaPasefSCentricPanel.apexScanDeltaRange(),
-            diaPasefSCentricPanel.imToleranceMs1Ms2(),
-            diaPasefSCentricPanel.apexScanDeltaRangeMs1Ms2(),
+            diaPasefSCentricPanel.massDefectFilter(),
+            diaPasefSCentricPanel.massDefectOffset(),
+            diaPasefSCentricPanel.ms1MS2Corr(),
+            diaPasefSCentricPanel.topNPeaks(),
             sharedLcmsFiles)) {
           return false;
         }

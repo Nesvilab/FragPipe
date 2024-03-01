@@ -18,7 +18,6 @@
 package com.dmtavt.fragpipe.tools.diapasefscentric;
 
 import static com.github.chhh.utils.SwingUtils.isEnabledAndChecked;
-import static com.github.chhh.utils.swing.UiUtils.createUiCombo;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.Bus;
@@ -32,7 +31,6 @@ import com.dmtavt.fragpipe.tabs.TabWorkflow;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelBase;
 import com.github.chhh.utils.swing.UiCheck;
-import com.github.chhh.utils.swing.UiCombo;
 import com.github.chhh.utils.swing.UiSpinnerDouble;
 import com.github.chhh.utils.swing.UiSpinnerInt;
 import java.awt.Component;
@@ -55,12 +53,12 @@ public class DiaPasefSCentricPanel extends JPanelBase {
   private JPanel pTop;
   private JPanel p;
   private UiCheck uiCheckWriteIntermediateFiles;
-  private UiSpinnerDouble uiSpinnerImTolerance;
-  private UiCombo uiComboMzToleranceUnit;
-  private UiSpinnerDouble uiSpinnerMzTolerance;
-  private UiSpinnerInt uiSpinnerApexScanDeltaRange;
-  private UiSpinnerDouble uiSpinnerImToleranceMs1Ms2;
-  private UiSpinnerInt uiSpinnerApexScanDeltaRangeMs1Ms2;
+  private UiSpinnerDouble uiSpinnerApexIM;
+  private UiSpinnerInt uiSpinnerApexRT;
+  private UiCheck uiCheckMassDefectFilter;
+  private UiSpinnerDouble uiSpinnerMassDefectOffset;
+  private UiSpinnerDouble uiSpinnerMs1MS2Corr;
+  private UiSpinnerInt uiSpinnerRFMax;
 
   public DiaPasefSCentricPanel() {
     Bus.postSticky(this);
@@ -112,47 +110,49 @@ public class DiaPasefSCentricPanel extends JPanelBase {
     });
 
     uiCheckWriteIntermediateFiles = new UiCheck("Write intermediate files", null, false);
-    uiSpinnerImTolerance = new UiSpinnerDouble(0.02, 0.01, 10, 0.01, new DecimalFormat("0.##"));
-    uiComboMzToleranceUnit = createUiCombo(new String[]{"PPM", "Th"});
-    uiSpinnerMzTolerance = new UiSpinnerDouble(20, 0.001, 100, 0.01, new DecimalFormat("0.##"));
-    uiSpinnerApexScanDeltaRange = new UiSpinnerInt(3, 1, 100, 1);
-    uiSpinnerImToleranceMs1Ms2 = new UiSpinnerDouble(0.02, 0.01, 10, 0.01, new DecimalFormat("0.##"));
-    uiSpinnerApexScanDeltaRangeMs1Ms2 = new UiSpinnerInt(5, 1, 100, 1);
+    uiSpinnerApexIM = new UiSpinnerDouble(0.01, 0.01, 10, 0.01, new DecimalFormat("0.##"));
+    uiSpinnerApexRT = new UiSpinnerInt(3, 1, 100, 1);
+    uiCheckMassDefectFilter = new UiCheck("Mass defect filter", null, true);
+    uiSpinnerMassDefectOffset = new UiSpinnerDouble(0.1, 0, 10, 0.1, new DecimalFormat("0.#"));
+    uiSpinnerMassDefectOffset.setColumns(3);
+    uiSpinnerMs1MS2Corr = new UiSpinnerDouble(0.3, 0.0, 1.0, 0.1, new DecimalFormat("0.#"));
+    uiSpinnerMs1MS2Corr.setColumns(3);
+    uiSpinnerRFMax = new UiSpinnerInt(500, 1, 9999, 1, 4);
 
     FormEntry feWriteIntermediateFiles = mu.feb("write-intermediate-files", uiCheckWriteIntermediateFiles)
-        .label("Write intermediate files: ")
+        .label("Write intermediate files")
         .create();
-    FormEntry feImTolerance = mu.feb("im-tolerance", uiSpinnerImTolerance)
-        .label("Ion mobility tolerance: ")
+    FormEntry feApexIm = mu.feb("apex-im", uiSpinnerApexIM)
+        .label("Apex IM")
         .create();
-    FormEntry feMzToleranceUnit = mu.feb("mz-tolerance-unit", uiComboMzToleranceUnit)
-        .label("MZ tolerance unit: ")
+    FormEntry feApexRt = mu.feb("apex-rt", uiSpinnerApexRT)
+        .label("Apex RT")
         .create();
-    FormEntry feMzTolerance = mu.feb("mz-tolerance", uiSpinnerMzTolerance)
-        .label("MZ tolerance: ")
+    FormEntry feMassDefectFilter = mu.feb("mass-defect-filter", uiCheckMassDefectFilter)
+        .label("Mass defect filter")
         .create();
-    FormEntry feApexScanDeltaRange = mu.feb("apex-scan-delta-range", uiSpinnerApexScanDeltaRange)
-        .label("Apex scan delta range: ")
+    FormEntry feMassDefectOffset = mu.feb("mass-defect-offset", uiSpinnerMassDefectOffset)
+        .label("Mass defect offset")
         .create();
-    FormEntry feImToleranceMs1Ms2 = mu.feb("im-tolerance-ms1-ms2", uiSpinnerImToleranceMs1Ms2)
-        .label("Ion mobility tolerance for MS1 and MS2 match: ")
+    FormEntry feMs1MS2Corr = mu.feb("ms1-ms2-corr", uiSpinnerMs1MS2Corr)
+        .label("MS1 MS2 correlation")
         .create();
-    FormEntry feApexScanDeltaRangeMs1Ms2 = mu.feb("apex-scan-delta-range-ms1-ms2", uiSpinnerApexScanDeltaRangeMs1Ms2)
-        .label("Apex scan delta range for MS1 and MS2 match: ")
+    FormEntry feRFMax = mu.feb("rf-max", uiSpinnerRFMax)
+        .label("RF max")
         .create();
 
-    mu.add(p, feImTolerance.label()).alignX("right").split(2);
-    mu.add(p, feImTolerance.comp);
-    mu.add(p, feApexScanDeltaRange.label()).alignX("right").split(2);
-    mu.add(p, feApexScanDeltaRange.comp);
-    mu.add(p, feMzTolerance.label()).alignX("right").split(3);
-    mu.add(p, feMzTolerance.comp);
-    mu.add(p, feMzToleranceUnit.comp).wrap();
-    mu.add(p, feImToleranceMs1Ms2.label()).alignX("right").split(2);
-    mu.add(p, feImToleranceMs1Ms2.comp);
-    mu.add(p, feApexScanDeltaRangeMs1Ms2.label()).alignX("right").split(2);
-    mu.add(p, feApexScanDeltaRangeMs1Ms2.comp);
-    mu.add(p, feWriteIntermediateFiles.comp);
+    mu.add(p, feApexIm.label()).alignX("right").split(2);
+    mu.add(p, feApexIm.comp);
+    mu.add(p, feApexRt.label()).alignX("right").split(2);
+    mu.add(p, feApexRt.comp);
+    mu.add(p, feWriteIntermediateFiles.comp).growX().wrap();
+    mu.add(p, feRFMax.label()).alignX("right").split(2);
+    mu.add(p, feRFMax.comp);
+    mu.add(p, feMs1MS2Corr.label()).alignX("right").split(2);
+    mu.add(p, feMs1MS2Corr.comp);
+    mu.add(p, feMassDefectFilter.comp).alignX("right").split(3);
+    mu.add(p, feMassDefectOffset.label());
+    mu.add(p, feMassDefectOffset.comp);
 
     mu.add(pTop, p);
 
@@ -164,31 +164,27 @@ public class DiaPasefSCentricPanel extends JPanelBase {
   }
 
   public float imTolerance() {
-    return (float) uiSpinnerImTolerance.getActualValue();
-  }
-
-  public int mzToleranceUnit() {
-    if (uiComboMzToleranceUnit.getSelectedIndex() == 1) {
-      return 0;
-    } else {
-      return 1;
-    }
-  }
-
-  public float mzTolerance() {
-    return (float) uiSpinnerMzTolerance.getActualValue();
+    return (float) uiSpinnerApexIM.getActualValue();
   }
 
   public int apexScanDeltaRange() {
-    return uiSpinnerApexScanDeltaRange.getActualValue();
+    return uiSpinnerApexRT.getActualValue();
   }
 
-  public float imToleranceMs1Ms2() {
-    return (float) uiSpinnerImToleranceMs1Ms2.getActualValue();
+  public boolean massDefectFilter() {
+    return uiCheckMassDefectFilter.isSelected();
   }
 
-  public int apexScanDeltaRangeMs1Ms2() {
-    return uiSpinnerApexScanDeltaRangeMs1Ms2.getActualValue();
+  public float massDefectOffset() {
+    return (float) uiSpinnerMassDefectOffset.getActualValue();
+  }
+
+  public float ms1MS2Corr() {
+    return (float) uiSpinnerMs1MS2Corr.getActualValue();
+  }
+
+  public int topNPeaks() {
+    return uiSpinnerRFMax.getActualValue();
   }
 
 

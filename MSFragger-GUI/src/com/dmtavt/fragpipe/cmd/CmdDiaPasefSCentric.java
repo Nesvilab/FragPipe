@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
 public class CmdDiaPasefSCentric extends CmdBase {
 
   private static final Logger log = LoggerFactory.getLogger(CmdDiaPasefSCentric.class);
-  public static final String JAR_NAME = "diaPASEFScentric-1.0.4.jar";
+  public static final String JAR_NAME = "diaPASEFScentric-1.0.8.jar";
   public static String NAME = "diaPASEFSCentric";
   private static final String[] JAR_DEPS = {BATMASS_IO_JAR};
 
@@ -50,7 +50,7 @@ public class CmdDiaPasefSCentric extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component component, int ramGb, int threads, Path binFragger, boolean writeIntermediateFiles, float imTolerance, int mzToleranceUnit, float mzTolerance, int apexScanDeltaRange, float imToleranceMs1Ms2, int apexScanDeltaRangeMs1Ms2, List<InputLcmsFile> inputs) {
+  public boolean configure(Component component, int ramGb, int threads, Path binFragger, boolean writeIntermediateFiles, float imTolerance, int apexScanDeltaRange, boolean massDefectFilter, float massDefectOffset, float ms1MS2Corr, int rfMax, List<InputLcmsFile> inputs) {
     initPreConfig();
 
     final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(JAR_NAME).concat(JAR_DEPS));
@@ -88,16 +88,26 @@ public class CmdDiaPasefSCentric extends CmdBase {
       cmd.add("-cp");
       cmd.add(constructClasspathString(classpathJars));
       cmd.add("DIAPASEFScentricMainClass");
+      cmd.add("--dFilePath");
       cmd.add(f.getPath().toAbsolutePath().toString());
+      cmd.add("--workDir");
       cmd.add(wd.toAbsolutePath().toString());
+      cmd.add("--threadNum");
       cmd.add(String.valueOf(threads));
+      cmd.add("--writeInter");
       cmd.add(writeIntermediateFiles ? "1" : "0");
+      cmd.add("--deltaApexIM");
       cmd.add(String.valueOf(imTolerance));
-      cmd.add(String.valueOf(mzToleranceUnit));
-      cmd.add(String.valueOf(mzTolerance));
+      cmd.add("--deltaApexRT");
       cmd.add(String.valueOf(apexScanDeltaRange));
-      cmd.add(String.valueOf(imToleranceMs1Ms2));
-      cmd.add(String.valueOf(apexScanDeltaRangeMs1Ms2));
+      cmd.add("--massDefectFilter");
+      cmd.add(massDefectFilter ? "1" : "0");
+      cmd.add("--massDefectOffset");
+      cmd.add(String.valueOf(massDefectOffset));
+      cmd.add("--ms1MS2Corr");
+      cmd.add(String.valueOf(ms1MS2Corr));
+      cmd.add("--RFMax");
+      cmd.add(String.valueOf(rfMax));
 
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(wd.toFile());
