@@ -1160,7 +1160,7 @@ public class FragpipeRun {
         }
       }
 
-      // Don't include DIA-Quant and diaPASEF.
+      // Don't include DIA-Quant.
       for (Map.Entry<String, LcmsFileGroup> e : tabWorkflow.getLcmsFileGroups().entrySet()) {
         List<InputLcmsFile> ttt = e.getValue().lcmsFiles.stream().filter(f -> !f.getDataType().contentEquals("DIA-Quant")).collect(Collectors.toList());
         if (!ttt.isEmpty()) {
