@@ -112,7 +112,7 @@ public class DiaPasefSCentricPanel extends JPanelBase {
     uiCheckWriteIntermediateFiles = new UiCheck("Write intermediate files", null, false);
     uiSpinnerApexIM = new UiSpinnerDouble(0.01, 0.01, 10, 0.01, new DecimalFormat("0.##"));
     uiSpinnerApexRT = new UiSpinnerInt(3, 1, 100, 1);
-    uiCheckMassDefectFilter = new UiCheck("Mass defect filter", null, true);
+    uiCheckMassDefectFilter = new UiCheck("Mass Defect Filter", null, true);
     uiSpinnerMassDefectOffset = new UiSpinnerDouble(0.1, 0, 10, 0.1, new DecimalFormat("0.#"));
     uiSpinnerMassDefectOffset.setColumns(3);
     uiSpinnerMs1MS2Corr = new UiSpinnerDouble(0.3, 0.0, 1.0, 0.1, new DecimalFormat("0.#"));
@@ -122,20 +122,20 @@ public class DiaPasefSCentricPanel extends JPanelBase {
     FormEntry feWriteIntermediateFiles = mu.feb("write-intermediate-files", uiCheckWriteIntermediateFiles)
         .label("Write intermediate files")
         .create();
-    FormEntry feApexIm = mu.feb("apex-im", uiSpinnerApexIM)
-        .label("Apex IM")
+    FormEntry feApexIm = mu.feb("delta-apex-im", uiSpinnerApexIM)
+        .label("Delta Apex IM")
         .create();
-    FormEntry feApexRt = mu.feb("apex-rt", uiSpinnerApexRT)
-        .label("Apex RT")
+    FormEntry feApexRt = mu.feb("delta-apex-rt", uiSpinnerApexRT)
+        .label("Delta Apex RT")
         .create();
     FormEntry feMassDefectFilter = mu.feb("mass-defect-filter", uiCheckMassDefectFilter)
-        .label("Mass defect filter")
+        .label("Mass Defect Filter")
         .create();
     FormEntry feMassDefectOffset = mu.feb("mass-defect-offset", uiSpinnerMassDefectOffset)
-        .label("Mass defect offset")
+        .label("Mass Defect Offset")
         .create();
-    FormEntry feMs1MS2Corr = mu.feb("ms1-ms2-corr", uiSpinnerMs1MS2Corr)
-        .label("MS1 MS2 correlation")
+    FormEntry feMs1MS2Corr = mu.feb("corr-threshold", uiSpinnerMs1MS2Corr)
+        .label("Corr Threshold")
         .create();
     FormEntry feRFMax = mu.feb("rf-max", uiSpinnerRFMax)
         .label("RF max")
