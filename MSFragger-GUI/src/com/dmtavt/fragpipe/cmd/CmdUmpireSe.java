@@ -63,7 +63,7 @@ public class CmdUmpireSe extends CmdBase {
 
     List<InputLcmsFile> out = new ArrayList<>();
     for (InputLcmsFile f: inputs) {
-      if (f.getDataType().contentEquals("DDA") || f.getDataType().contentEquals("DIA-Quant")) {
+      if (f.getDataType().contentEquals("DDA") || f.getDataType().contentEquals("DIA-Quant") || f.getDataType().contentEquals("DDA+")) {
         out.add(f);
       } else {
         final String inputFn = f.getPath().getFileName().toString();
@@ -116,7 +116,7 @@ public class CmdUmpireSe extends CmdBase {
     final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(UmpireParams.JAR_UMPIRESE_NAME).concat(JAR_DEPS));
 
     for (InputLcmsFile f : lcmsFiles) {
-      if (f.getDataType().contentEquals("DDA") || f.getDataType().contentEquals("DIA-Quant")) {
+      if (f.getDataType().contentEquals("DDA") || f.getDataType().contentEquals("DIA-Quant") || f.getDataType().contentEquals("DDA+")) {
         continue;
       }
 
