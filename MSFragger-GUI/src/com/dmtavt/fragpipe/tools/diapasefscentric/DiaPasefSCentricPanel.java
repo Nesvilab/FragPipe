@@ -76,7 +76,7 @@ public class DiaPasefSCentricPanel extends JPanelBase {
 
   protected void init() {
     this.setLayout(new MigLayout(new LC().flowY().fillX()));
-    this.setBorder(new TitledBorder("diaPASEF spectrum deconvolution"));
+    this.setBorder(new TitledBorder("diaPASEF Spectrum Deconvolution"));
 
     pTop = mu.newPanel(mu.lcFillXNoInsetsTopBottom());
     p = mu.newPanel(mu.lcFillXNoInsetsTopBottom());
