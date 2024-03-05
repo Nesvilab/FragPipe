@@ -8,6 +8,13 @@ RUN apt-get -y update --fix-missing \
     && apt-get -y update \
     && apt-get -y autoremove
 
+# install mono	
+RUN apt-get -y install ca-certificates gnupg
+RUN gpg --homedir /tmp --no-default-keyring --keyring /usr/share/keyrings/mono-official-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+RUN echo "deb [signed-by=/usr/share/keyrings/mono-official-archive-keyring.gpg] https://download.mono-project.com/repo/ubuntu stable-focal main" | tee /etc/apt/sources.list.d/mono-official-stable.list
+RUN apt-get -y update
+RUN apt-get -y install mono-devel
+
 # install dependencies
 RUN apt-get -y install \
     git \
