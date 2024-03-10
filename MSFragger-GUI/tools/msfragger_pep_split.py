@@ -449,6 +449,7 @@ def write_pin(infile: pathlib.Path) -> None:
 
 
 def read_pin(p: pathlib.Path):
+	csv.field_size_limit(sys.maxsize)
 	with p.open() as f:
 		reader = csv.reader(f, csv.excel_tab)
 		header = next(reader)
