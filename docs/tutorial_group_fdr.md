@@ -37,10 +37,8 @@ Philosopher will create 3 groups: unmodified peptides, peptides with the specifi
 <br>
 
 
-#### Key References
-_coming soon_
-
-
+#### Key Reference
+Ferreira, H.J., Stevenson, B.J., Pak, H., Yu, F., Oliveira, J.A., Huber, F., Taillandier-Coindard, M., Michaux, J., Ricart-Altimiras, E., Kraemer, A.I., Kandalaft, L.E., Speiser, D.E., Nesvizhskii, A.I., Müller, M., Bassani-Sternberg, M. [Immunopeptidomics-based identification of naturally presented non-canonical circRNA-derived peptides](https://doi.org/10.1038/s41467-024-46408-3). Nature Communications 15:2357 (2024).
 
 <br>
 <br>
