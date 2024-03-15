@@ -121,7 +121,7 @@ public class PtmProphetPanel extends JPanelBase {
     }
     // Find the mod argument (if present)
     String[] splits = cmdText.split(" ");
-    Pattern modPattern = Pattern.compile("[A-Z]+:[a-z,:\\-\\d\\.]+");
+    Pattern modPattern = Pattern.compile("[^:]+:[\\d+.-]+");
     int modIndex = -1;
     for (int i=0; i < splits.length; i++) {
       Matcher m = modPattern.matcher(splits[i]);
@@ -181,20 +181,27 @@ public class PtmProphetPanel extends JPanelBase {
 
     for (Mod mod: mods) {
       if (mod.isEnabled && mod.massDelta != 0) {
-        // handle peptide/protein termini
         String sites = mod.sites;
-        if (sites.matches("")) {
-          sites = "ACDEFGHIKLMNPQRSTVWY";   // empty sites means any AA
+        if (sites.contentEquals("") || sites.contains("*")) {
+          sites = "ACDEFGHIKLMNPQRSTVWY";
         }
         // handle terminal characters
-        sites = sites.replace("n^", "n-terminus");
-        sites = sites.replace("c^", "c-terminus");
-        sites = sites.replace("n", "");
-        sites = sites.replace("c", "");
-        sites = sites.replace("[", "n-terminus");
-        sites = sites.replace("]", "c-terminus");
+        if (sites.contains("n^") || sites.contains("[^")) {
+          sites = sites.replace("n^", "n");
+          sites = sites.replace("[^", "n");
+        } else {
+          sites = sites.replace("n", "");
+          sites = sites.replace("[", "");
+        }
+        if (sites.contains("c^") || sites.contains("]^")) {
+          sites = sites.replace("c^", "c");
+          sites = sites.replace("]^", "c");
+        } else {
+          sites = sites.replace("c", "");
+          sites = sites.replace("]", "");
+        }
         sites = sites.replace("^", "");
-        modStrings.add(String.format("%s:%.4f", sites, mod.massDelta));
+        modStrings.add(sites + ":" + mod.massDelta);
       }
     }
     return String.join(",", modStrings);
