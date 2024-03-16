@@ -741,7 +741,7 @@ public class TmtiPanel extends JPanelBase {
           + (unknownLabelNames.isEmpty() ? "" : ("\nUnknown label names: " + unknownLabelNames)));
     }
     if (matching.size() > 1) {
-      throw new TmtAnnotationValidationException("Multiple known quant label types match labeling\n"
+      log.warn("Multiple known quant label types match labeling\n"
           + "reagent names in given annotations:\n" + matching.stream()
           .map(QuantLabel::getName).collect(Collectors.joining(", ")));
     }
