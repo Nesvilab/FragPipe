@@ -345,7 +345,7 @@ public class MsfraggerParams extends AbstractParams {
         c.put(PROP_precursor_true_units, "True precursor mass tolerance units (0 for Da, 1 for ppm).");
         c.put(PROP_fragment_mass_tolerance, "Fragment mass tolerance (window is +/- this value).");
         c.put(PROP_fragment_mass_units, "Fragment mass tolerance units (0 for Da, 1 for ppm).");
-        c.put(PROP_data_type, "Data type (0 for DDA, 1 for DIA, 2 for gas-phase fractionation DIA, 3 for wide-window acquisition DDA).");
+        c.put(PROP_data_type, "Data type (0 for DDA, 1 for DIA, 2 for gas-phase fractionation DIA, 3 for DDA+).");
         c.put(PROP_calibrate_mass, "Perform mass calibration (0 for OFF, 1 for ON, 2 for ON and find optimal parameters, 4 for ON and find the optimal fragment mass tolerance).");
         c.put(PROP_use_all_mods_in_first_search, "Use all variable modifications in first search (0 for No, 1 for Yes).");
         c.put(PROP_write_calibrated_mzml, "Write calibrated MS2 scan to a mzML file (0 for No, 1 for Yes).");
