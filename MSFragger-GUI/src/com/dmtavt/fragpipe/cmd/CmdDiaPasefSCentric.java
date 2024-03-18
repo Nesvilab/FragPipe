@@ -74,7 +74,7 @@ public class CmdDiaPasefSCentric extends CmdBase {
     }
 
     for (InputLcmsFile f: inputs) {
-      if (!f.getDataType().contentEquals("DIA") || !f.getPath().getFileName().toString().endsWith(".d")) {
+      if (!(f.getDataType().contentEquals("DIA") || f.getDataType().contentEquals("GPF-DIA") || f.getDataType().contentEquals("DIA-Lib")) || !f.getPath().getFileName().toString().endsWith(".d")) {
         continue;
       }
 
@@ -125,7 +125,7 @@ public class CmdDiaPasefSCentric extends CmdBase {
 
     List<InputLcmsFile> out = new ArrayList<>();
     for (InputLcmsFile f: inputs) {
-      if (!f.getDataType().contentEquals("DIA") || !f.getPath().getFileName().toString().endsWith(".d")) {
+      if (!(f.getDataType().contentEquals("DIA") || f.getDataType().contentEquals("GPF-DIA") || f.getDataType().contentEquals("DIA-Lib")) || !f.getPath().getFileName().toString().endsWith(".d")) {
         out.add(f);
       } else {
         String s = f.getPath().toAbsolutePath().toString().replace(".d", "_centric.mzML");
