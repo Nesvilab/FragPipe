@@ -703,7 +703,6 @@ public class PtmshepherdPanel extends JPanelBase {
     // 4 Sub-panels within main PTM-S panel: PTM-Profiling, Diagnostic Ion Discovery, Diagnostic Ion Exctraction,
     pContent = createPanelContent();
     pDiagnosticMining = createPanelDiagnosticMining();
-    pDiagnosticMining = createPanelDiagnosticMining();
     pDiagnosticExtraction = createPanelDiagnosticExtraction();
 
     mu.add(this, pTop).spanX().growX().wrap();
