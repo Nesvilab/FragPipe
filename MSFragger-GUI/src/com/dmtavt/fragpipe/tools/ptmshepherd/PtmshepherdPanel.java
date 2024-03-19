@@ -515,10 +515,6 @@ public class PtmshepherdPanel extends JPanelBase {
         new UiSpinnerInt(2, 0, 5, 1, 5),
         "<html>Increase to make peakpicking less sensitive by distributing weight to adjacent histogram bins.\n" +
                 "Histogram smoothing: 0 = No smoothing, 1 = smooth using +/-1 bin, etc.");
-    FormEntry feLocBackground = new FormEntry(PROP_localization_background, "Localization background",
-        new UiSpinnerInt(4, 1, 4, 1, 5),
-            "<html>Defines background residue counts for calculating localization enrichment scores.\n" +
-            "Residue background probabilities: 1 = bin-wise peptides, 2 = bin-wise PSMs, 3 = all pepides, 4 = all PSMs");
 
     UiSpinnerDouble uiSpinnerPromRatio = UiSpinnerDouble.builder(0.3,0.0,1.0, 0.1)
         .setFormat(new DecimalFormat("0.#")).setCols(5).create();
@@ -691,9 +687,7 @@ public class PtmshepherdPanel extends JPanelBase {
     mu.add(p3, feIonB.comp);
     mu.add(p3, feIonY.comp);
     mu.add(p3, feIonC.comp);
-    mu.add(p3, feIonZ.comp);
-    mu.add(p3, feLocBackground.label()).spanX().split();
-    mu.add(p3, feLocBackground.comp).wrap();
+    mu.add(p3, feIonZ.comp).spanX().split().wrap();
     mu.add(p3, feRestrictLoc.label(), mu.ccR());
     mu.add(p3, feRestrictLoc.comp).spanX().growX().pushX().wrap();
 
