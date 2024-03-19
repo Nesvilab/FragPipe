@@ -300,7 +300,7 @@ public class CmdMsfragger extends CmdBase {
     return locs;
   }
 
-  public boolean configure(Component comp, boolean isDryRun, Path jarFragpipe, UsageTrigger binFragger, String pathFasta, MsfraggerParams params, int numSlices, int ramGb, List<InputLcmsFile> lcmsFiles, final String decoyTag, boolean hasDda, boolean hasDia, boolean hasGpfDia, boolean hasDiaLib, boolean hasDdaPlus, boolean isRunDiaU, boolean isRunDiaPasefSCentric, boolean writeMzbinAll) {
+  public boolean configure(Component comp, boolean isDryRun, Path jarFragpipe, UsageTrigger binFragger, String pathFasta, MsfraggerParams params, int numSlices, int ramGb, List<InputLcmsFile> lcmsFiles, final String decoyTag, boolean hasDda, boolean hasDia, boolean hasGpfDia, boolean hasDiaLib, boolean hasDdaPlus, boolean isRunDiaU, boolean isRunDiaTracer, boolean writeMzbinAll) {
 
     initPreConfig();
 
@@ -318,7 +318,7 @@ public class CmdMsfragger extends CmdBase {
         return false;
       }
 
-      if ((!isRunDiaU || !isRunDiaPasefSCentric) && (hasDia || hasGpfDia || hasDiaLib || hasDdaPlus)) {
+      if ((!isRunDiaU || !isRunDiaTracer) && (hasDia || hasGpfDia || hasDiaLib || hasDdaPlus)) {
         SwingUtils.showErrorDialog(comp, "<html>MSFrgger-DIA <code>split database</code> is incompatible with DIA, GPF-DIA, DIA-Lib, or DDA+ data types.\n"
             + "Please set the split database to 1.\n"
             + "For DIA and DIA-Lib data types, you can also use the DIA-Umpire based DIA workflow (DIA_DIA-Umpire_SpecLib_Quant workflow), which supports the split database option.", "Incompatible options");
@@ -427,13 +427,13 @@ public class CmdMsfragger extends CmdBase {
 
     if (!isDryRun) {
       try {
-        if (hasDda || isRunDiaU || isRunDiaPasefSCentric) {
+        if (hasDda || isRunDiaU || isRunDiaTracer) {
           paramsDda.save(Files.newOutputStream(savedDdaParamsPath));
         }
-        if ((hasDia || hasDiaLib) && !isRunDiaU && !isRunDiaPasefSCentric) {
+        if ((hasDia || hasDiaLib) && !isRunDiaU && !isRunDiaTracer) {
           paramsDia.save(Files.newOutputStream(savedDiaParamsPath));
         }
-        if (hasGpfDia && !isRunDiaU && !isRunDiaPasefSCentric) {
+        if (hasGpfDia && !isRunDiaU && !isRunDiaTracer) {
           paramsGpfDia.save(Files.newOutputStream(savedGpfDiaParamsPath));
         }
         if (hasDdaPlus) {

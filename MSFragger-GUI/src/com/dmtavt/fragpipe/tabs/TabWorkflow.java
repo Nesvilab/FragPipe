@@ -59,7 +59,7 @@ import com.dmtavt.fragpipe.messages.NoteConfigPtmShepherd;
 import com.dmtavt.fragpipe.messages.NoteConfigTmtI;
 import com.dmtavt.fragpipe.messages.NoteConfigUmpire;
 import com.dmtavt.fragpipe.params.ThisAppProps;
-import com.dmtavt.fragpipe.tools.diapasefscentric.DiaPasefSCentricPanel;
+import com.dmtavt.fragpipe.tools.diatracer.DiaTracerPanel;
 import com.dmtavt.fragpipe.tools.tmtintegrator.QuantLabel;
 import com.dmtavt.fragpipe.tools.umpire.UmpirePanel;
 import com.dmtavt.fragpipe.util.SDRFtable;
@@ -1449,8 +1449,8 @@ public class TabWorkflow extends JPanelWithEnablement {
     if (hasDataType("DIA") || hasDataType("DIA-Lib") || hasDataType("GPF-DIA")) {
       Bus.post(new NoteConfigUmpire(true));
       UmpirePanel umpirePanel = Fragpipe.getStickyStrict(UmpirePanel.class);
-      DiaPasefSCentricPanel diaPasefSCentricPanel = Fragpipe.getStickyStrict(DiaPasefSCentricPanel.class);
-      if (umpirePanel.isRun() || diaPasefSCentricPanel.isRun()) {
+      DiaTracerPanel diaTracerPanel = Fragpipe.getStickyStrict(DiaTracerPanel.class);
+      if (umpirePanel.isRun() || diaTracerPanel.isRun()) {
         Bus.post(new NoteConfigCrystalC(true));
         Bus.post(new NoteConfigPeptideProphet(true));
         Bus.post(new NoteConfigPtmProphet(true));

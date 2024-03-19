@@ -19,7 +19,7 @@ package com.dmtavt.fragpipe.tabs;
 
 import static com.dmtavt.fragpipe.tabs.TabRun.mu;
 
-import com.dmtavt.fragpipe.tools.diapasefscentric.DiaPasefSCentricPanel;
+import com.dmtavt.fragpipe.tools.diatracer.DiaTracerPanel;
 import com.dmtavt.fragpipe.tools.umpire.UmpirePanel;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
@@ -33,7 +33,7 @@ import net.miginfocom.swing.MigLayout;
 public class TabDiaPseudoMs2 extends JPanelWithEnablement {
 
   private UmpirePanel umpirePanel;
-  private DiaPasefSCentricPanel diaPasefSCentricPanel;
+  private DiaTracerPanel diaTracerPanel;
 
   public TabDiaPseudoMs2() {
     init();
@@ -48,7 +48,7 @@ public class TabDiaPseudoMs2 extends JPanelWithEnablement {
     this.setLayout(new MigLayout(new LC().fillX()));
 
     umpirePanel = new UmpirePanel();
-    diaPasefSCentricPanel = new DiaPasefSCentricPanel();
+    diaTracerPanel = new DiaTracerPanel();
 
     JPanel textPanel = new JPanel(new MigLayout());
     textPanel.setBorder(new TitledBorder("Notes"));
@@ -58,7 +58,7 @@ public class TabDiaPseudoMs2 extends JPanelWithEnablement {
     textPanel.add(epInfo);
 
     mu.add(this, umpirePanel).growX().wrap();
-    mu.add(this, diaPasefSCentricPanel).growX().wrap();
+    mu.add(this, diaTracerPanel).growX().wrap();
     mu.add(this, textPanel).growX().wrap();
   }
 }

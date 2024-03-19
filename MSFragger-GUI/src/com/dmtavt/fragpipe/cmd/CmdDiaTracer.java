@@ -33,15 +33,15 @@ import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CmdDiaPasefSCentric extends CmdBase {
+public class CmdDiaTracer extends CmdBase {
 
-  private static final Logger log = LoggerFactory.getLogger(CmdDiaPasefSCentric.class);
-  public static final String JAR_NAME = "diaPASEFScentric-1.0.13.jar";
-  public static String NAME = "diaPASEFSCentric";
+  private static final Logger log = LoggerFactory.getLogger(CmdDiaTracer.class);
+  public static final String JAR_NAME = "diaTracer-1.0.13.jar";
+  public static String NAME = "diaTracer";
   private static final String[] JAR_DEPS = {BATMASS_IO_JAR};
 
 
-  public CmdDiaPasefSCentric(boolean isRun, Path workDir) {
+  public CmdDiaTracer(boolean isRun, Path workDir) {
     super(isRun, workDir);
   }
 
@@ -87,7 +87,7 @@ public class CmdDiaPasefSCentric extends CmdBase {
       cmd.add(createJavaDParamString("libs.bruker.dir", extLibsBruker.toString()));
       cmd.add("-cp");
       cmd.add(constructClasspathString(classpathJars));
-      cmd.add("DIAPASEFScentricMainClass");
+      cmd.add("diatracer.diaTracerMainClass");
       cmd.add("--dFilePath");
       cmd.add(f.getPath().toAbsolutePath().toString());
       cmd.add("--workDir");
@@ -128,7 +128,7 @@ public class CmdDiaPasefSCentric extends CmdBase {
       if (!(f.getDataType().contentEquals("DIA") || f.getDataType().contentEquals("GPF-DIA") || f.getDataType().contentEquals("DIA-Lib")) || !f.getPath().getFileName().toString().endsWith(".d")) {
         out.add(f);
       } else {
-        String s = f.getPath().toAbsolutePath().toString().replace(".d", "_centric.mzML");
+        String s = f.getPath().toAbsolutePath().toString().replace(".d", "_diatracer.mzML");
         out.add(new InputLcmsFile(Paths.get(s), f.getGroup(), f.getReplicate(), "DDA"));
       }
     }

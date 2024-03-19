@@ -15,7 +15,7 @@
  * along with FragPipe. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.dmtavt.fragpipe.tools.diapasefscentric;
+package com.dmtavt.fragpipe.tools.diatracer;
 
 import static com.github.chhh.utils.SwingUtils.isEnabledAndChecked;
 
@@ -45,11 +45,11 @@ import net.miginfocom.swing.MigLayout;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-public class DiaPasefSCentricPanel extends JPanelBase {
+public class DiaTracerPanel extends JPanelBase {
 
-  public static final String PREFIX = "diapasefscentric.";
+  public static final String PREFIX = "diatracer.";
 
-  public JCheckBox checkRunDiaPasefSCentric;
+  public JCheckBox checkRunDiaTracer;
   private JPanel pTop;
   private JPanel p;
   private UiCheck uiCheckWriteIntermediateFiles;
@@ -60,13 +60,13 @@ public class DiaPasefSCentricPanel extends JPanelBase {
   private UiSpinnerDouble uiSpinnerMs1MS2Corr;
   private UiSpinnerInt uiSpinnerRFMax;
 
-  public DiaPasefSCentricPanel() {
+  public DiaTracerPanel() {
     Bus.postSticky(this);
   }
 
   @Override
   public boolean isRun() {
-    return isEnabledAndChecked(checkRunDiaPasefSCentric);
+    return isEnabledAndChecked(checkRunDiaTracer);
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
@@ -81,11 +81,11 @@ public class DiaPasefSCentricPanel extends JPanelBase {
     pTop = mu.newPanel(mu.lcFillXNoInsetsTopBottom());
     p = mu.newPanel(mu.lcFillXNoInsetsTopBottom());
 
-    checkRunDiaPasefSCentric = new UiCheck("Run diaPASEF spectrum deconvolution", null, false);
-    checkRunDiaPasefSCentric.setName(PREFIX + "run-diapasefscentric");
-    pTop.add(checkRunDiaPasefSCentric, new CC().spanX().wrap());
+    checkRunDiaTracer = new UiCheck("Run diaPASEF spectrum deconvolution", null, false);
+    checkRunDiaTracer.setName(PREFIX + "run-diatracer");
+    pTop.add(checkRunDiaTracer, new CC().spanX().wrap());
 
-    checkRunDiaPasefSCentric.addItemListener(e -> {
+    checkRunDiaTracer.addItemListener(e -> {
       if (isRun()) {
         Bus.post(new NoteConfigCrystalC(true));
         Bus.post(new NoteConfigPeptideProphet(true));
@@ -190,7 +190,7 @@ public class DiaPasefSCentricPanel extends JPanelBase {
 
   @Override
   protected ItemSelectable getRunCheckbox() {
-    return checkRunDiaPasefSCentric;
+    return checkRunDiaTracer;
   }
 
   @Override

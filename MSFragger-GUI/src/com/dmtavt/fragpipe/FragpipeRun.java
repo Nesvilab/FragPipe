@@ -34,7 +34,7 @@ import com.dmtavt.fragpipe.cmd.CmdAppendFile;
 import com.dmtavt.fragpipe.cmd.CmdBase;
 import com.dmtavt.fragpipe.cmd.CmdCheckCentroid;
 import com.dmtavt.fragpipe.cmd.CmdCrystalc;
-import com.dmtavt.fragpipe.cmd.CmdDiaPasefSCentric;
+import com.dmtavt.fragpipe.cmd.CmdDiaTracer;
 import com.dmtavt.fragpipe.cmd.CmdDiann;
 import com.dmtavt.fragpipe.cmd.CmdFpopQuant;
 import com.dmtavt.fragpipe.cmd.CmdFreequant;
@@ -95,7 +95,7 @@ import com.dmtavt.fragpipe.tabs.TabWorkflow.InputDataType;
 import com.dmtavt.fragpipe.tools.crystalc.CrystalcPanel;
 import com.dmtavt.fragpipe.tools.crystalc.CrystalcParams;
 import com.dmtavt.fragpipe.tools.diann.DiannPanel;
-import com.dmtavt.fragpipe.tools.diapasefscentric.DiaPasefSCentricPanel;
+import com.dmtavt.fragpipe.tools.diatracer.DiaTracerPanel;
 import com.dmtavt.fragpipe.tools.fpop.FpopQuantPanel;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
 import com.dmtavt.fragpipe.tools.ionquant.QuantPanelLabelfree;
@@ -1228,27 +1228,27 @@ public class FragpipeRun {
       return true;
     });
 
-    final DiaPasefSCentricPanel diaPasefSCentricPanel = Fragpipe.getStickyStrict(DiaPasefSCentricPanel.class);
-    final CmdDiaPasefSCentric cmdDiaPasefSCentric = new CmdDiaPasefSCentric(diaPasefSCentricPanel.isRun(), wd);
-    addConfig.accept(cmdDiaPasefSCentric, () -> {
-      cmdDiaPasefSCentric.setRun(cmdDiaPasefSCentric.isRun() && !sharedLcmsFiles.isEmpty());
-      if (cmdDiaPasefSCentric.isRun()) {
-        if (!cmdDiaPasefSCentric.configure(
+    final DiaTracerPanel diaTracerPanel = Fragpipe.getStickyStrict(DiaTracerPanel.class);
+    final CmdDiaTracer cmdDiaTracer = new CmdDiaTracer(diaTracerPanel.isRun(), wd);
+    addConfig.accept(cmdDiaTracer, () -> {
+      cmdDiaTracer.setRun(cmdDiaTracer.isRun() && !sharedLcmsFiles.isEmpty());
+      if (cmdDiaTracer.isRun()) {
+        if (!cmdDiaTracer.configure(
             parent,
             ramGb,
             threads,
             Paths.get(binMsfragger.getBin()),
-            diaPasefSCentricPanel.writeIntermediateFiles(),
-            diaPasefSCentricPanel.imTolerance(),
-            diaPasefSCentricPanel.apexScanDeltaRange(),
-            diaPasefSCentricPanel.massDefectFilter(),
-            diaPasefSCentricPanel.massDefectOffset(),
-            diaPasefSCentricPanel.ms1MS2Corr(),
-            diaPasefSCentricPanel.topNPeaks(),
+            diaTracerPanel.writeIntermediateFiles(),
+            diaTracerPanel.imTolerance(),
+            diaTracerPanel.apexScanDeltaRange(),
+            diaTracerPanel.massDefectFilter(),
+            diaTracerPanel.massDefectOffset(),
+            diaTracerPanel.ms1MS2Corr(),
+            diaTracerPanel.topNPeaks(),
             sharedLcmsFiles)) {
           return false;
         }
-        List<InputLcmsFile> outputs = cmdDiaPasefSCentric.outputs(sharedLcmsFiles);
+        List<InputLcmsFile> outputs = cmdDiaTracer.outputs(sharedLcmsFiles);
         sharedLcmsFiles.clear();
         sharedLcmsFiles.addAll(outputs);
       }
@@ -1279,7 +1279,7 @@ public class FragpipeRun {
     addConfig.accept(cmdMsfragger, () -> {
       cmdMsfragger.setRun(cmdMsfragger.isRun() && !sharedLcmsFiles.isEmpty());
       if (cmdMsfragger.isRun()) {
-        if (!cmdMsfragger.configure(parent, isDryRun, jarPath, binMsfragger, fastaFile, tabMsf.getParams(), tabMsf.getNumDbSlices(), ramGb, sharedLcmsFiles, decoyTag, tabWorkflow.hasDataType("DDA"), tabWorkflow.hasDataType("DIA"), tabWorkflow.hasDataType("GPF-DIA"), tabWorkflow.hasDataType("DIA-Lib"), tabWorkflow.hasDataType("DDA+"), cmdUmpire.isRun(), cmdDiaPasefSCentric.isRun(), tabRun.isWriteSubMzml())) {
+        if (!cmdMsfragger.configure(parent, isDryRun, jarPath, binMsfragger, fastaFile, tabMsf.getParams(), tabMsf.getNumDbSlices(), ramGb, sharedLcmsFiles, decoyTag, tabWorkflow.hasDataType("DDA"), tabWorkflow.hasDataType("DIA"), tabWorkflow.hasDataType("GPF-DIA"), tabWorkflow.hasDataType("DIA-Lib"), tabWorkflow.hasDataType("DDA+"), cmdUmpire.isRun(), cmdDiaTracer.isRun(), tabRun.isWriteSubMzml())) {
           return false;
         }
 
@@ -1352,7 +1352,7 @@ public class FragpipeRun {
     addConfig.accept(cmdMSBooster, () -> {
       cmdMSBooster.setRun(cmdMSBooster.isRun() && !sharedPepxmlFilesFromMsfragger.isEmpty());
       if (cmdMSBooster.isRun()) {
-        return cmdMSBooster.configure(parent, ramGb, threads, sharedPepxmlFilesFromMsfragger, MSBoosterPanel.predictRt(), MSBoosterPanel.predictSpectra(), MSBoosterPanel.useCorrelatedFeatures(), tabWorkflow.hasDataType("DDA"), tabWorkflow.hasDataType("DIA"), tabWorkflow.hasDataType("GPF-DIA"), tabWorkflow.hasDataType("DIA-Lib"), tabWorkflow.hasDataType("DDA+"), cmdUmpire.isRun(), cmdDiaPasefSCentric.isRun(), tabMsf.isOpenSearch(), MSBoosterPanel.rtModel(), MSBoosterPanel.spectraModel());
+        return cmdMSBooster.configure(parent, ramGb, threads, sharedPepxmlFilesFromMsfragger, MSBoosterPanel.predictRt(), MSBoosterPanel.predictSpectra(), MSBoosterPanel.useCorrelatedFeatures(), tabWorkflow.hasDataType("DDA"), tabWorkflow.hasDataType("DIA"), tabWorkflow.hasDataType("GPF-DIA"), tabWorkflow.hasDataType("DIA-Lib"), tabWorkflow.hasDataType("DDA+"), cmdUmpire.isRun(), cmdDiaTracer.isRun(), tabMsf.isOpenSearch(), MSBoosterPanel.rtModel(), MSBoosterPanel.spectraModel());
       }
       return true;
     });
@@ -1950,9 +1950,9 @@ public class FragpipeRun {
     addToGraph(graphOrder, cmdStart, DIRECTION.IN);
     addToGraph(graphOrder, cmdCheckCentroid, DIRECTION.IN, cmdStart);
     addToGraph(graphOrder, cmdUmpire, DIRECTION.IN, cmdCheckCentroid);
-    addToGraph(graphOrder, cmdDiaPasefSCentric, DIRECTION.IN, cmdCheckCentroid);
+    addToGraph(graphOrder, cmdDiaTracer, DIRECTION.IN, cmdCheckCentroid);
     addToGraph(graphOrder, cmdMsfragger, DIRECTION.IN, cmdCheckCentroid, cmdUmpire);
-    addToGraph(graphOrder, cmdMsfragger, DIRECTION.IN, cmdCheckCentroid, cmdDiaPasefSCentric);
+    addToGraph(graphOrder, cmdMsfragger, DIRECTION.IN, cmdCheckCentroid, cmdDiaTracer);
 
     addToGraph(graphOrder, cmdCrystalc, DIRECTION.IN, cmdMsfragger);
     addToGraph(graphOrder, cmdMSBooster, DIRECTION.IN, cmdMsfragger);
