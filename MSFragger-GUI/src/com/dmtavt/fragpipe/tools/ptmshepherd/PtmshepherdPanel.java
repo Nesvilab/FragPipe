@@ -103,6 +103,8 @@ public class PtmshepherdPanel extends JPanelBase {
   private static final String PROP_cap_y_ions = "cap_y_ions";
   private static final String PROP_diag_ions = "diag_ions";
   private static final String PROP_remainder_masses = "remainder_masses";
+  private static final String PROP_iterloc_mode = "iterloc_mode";
+  private static final String PROP_iterloc_maxEpoch = "iterloc_maxEpoch";
   private static final String PROP_spectra_maxfragcharge = "spectra_maxfragcharge";
   private static final String PROP_restrict_loc = "localization_allowed_res";
 
@@ -124,6 +126,7 @@ public class PtmshepherdPanel extends JPanelBase {
   private JCheckBox checkRun;
   private JPanel pContent;
   private JPanel pTop;
+  private JPanel pIterativeLocalization;
   private JPanel pDiagnosticMining;
   private JPanel pDiagnosticExtraction;
   private UiText uiTextVarMods;
@@ -144,6 +147,8 @@ public class PtmshepherdPanel extends JPanelBase {
   private UiCheck uiCheckDiagnosticMining;
   private JPanel pDiagnosticMiningContent;
   private JPanel pDiagnosticKnownContent;
+  private UiCheck uiCheckIterativeLocalization;
+  private JPanel pIterativeLocalizationContent;
 
   private static String itos(int i) {
     return Integer.toString(i);
@@ -398,6 +403,30 @@ public class PtmshepherdPanel extends JPanelBase {
     return p;
   }
 
+  private JPanel createPanelIterativeLocalization() {
+    JPanel p = mu.newPanel("Iterative Localization",  mu.lcFillXNoInsetsTopBottom());
+    pIterativeLocalizationContent = mu.newPanel(null, true);
+
+    // enabling checkbox
+    uiCheckIterativeLocalization = UiUtils.createUiCheck("Iterative localization", false);
+    uiCheckIterativeLocalization.setName(PROP_iterloc_mode);
+    uiCheckIterativeLocalization.setToolTipText("Perform PSM-level iterative localization");
+
+    // main Params
+    FormEntry feIterLocMaxEpoch = new FormEntry(PROP_iterloc_maxEpoch, "Max epochs",
+            new UiSpinnerInt(100, 1, 1000, 1, 5),
+            "<html>Maximum number of epochs before stopping localization");
+
+    // add to iterloc content
+    mu.add(pIterativeLocalizationContent, feIterLocMaxEpoch.label(), mu.ccR());
+    mu.add(pIterativeLocalizationContent, feIterLocMaxEpoch.comp).spanX().pushX().wrap();
+
+    // add check box and iterloc content to panel
+    mu.add(p, uiCheckIterativeLocalization).spanX().wrap();
+    mu.add(p, pIterativeLocalizationContent).growX().wrap();
+
+    return p;
+  }
   private JPanel createPanelDiagnosticMining() {
     JPanel p = mu.newPanel("Diagnostic Feature Discovery", mu.lcFillXNoInsetsTopBottom());
     pDiagnosticMiningContent = mu.newPanel(null, true);
@@ -667,13 +696,14 @@ public class PtmshepherdPanel extends JPanelBase {
 
     mu.add(p, p2).spanX().growX().wrap();
 
-
+    // Label localization parameters
     FormEntry feIonA = mu.feb(PROP_iontype_a, UiUtils.createUiCheck("a", false)).create();
     FormEntry feIonX = mu.feb(PROP_iontype_x, UiUtils.createUiCheck("x", false)).create();
     FormEntry feIonB = mu.feb(PROP_iontype_b, UiUtils.createUiCheck("b", true)).create();
     FormEntry feIonY = mu.feb(PROP_iontype_y, UiUtils.createUiCheck("y", true)).create();
     FormEntry feIonC = mu.feb(PROP_iontype_c, UiUtils.createUiCheck("c", false)).create();
     FormEntry feIonZ = mu.feb(PROP_iontype_z, UiUtils.createUiCheck("z", false)).create();
+
 
     uiTextLocalizationAAs = UiUtils.uiTextBuilder().create();
     FormEntry feRestrictLoc = new FormEntry(PROP_restrict_loc, "Restrict localization to", uiTextLocalizationAAs,
@@ -692,6 +722,8 @@ public class PtmshepherdPanel extends JPanelBase {
     mu.add(p3, feRestrictLoc.comp).spanX().growX().pushX().wrap();
 
     mu.add(p, p3).spanX().growX().wrap();
+
+
     return p;
   }
 
@@ -700,13 +732,16 @@ public class PtmshepherdPanel extends JPanelBase {
     this.setLayout(new MigLayout(new LC().fillX()));
     pTop = createPanelTop();
 
-    // 4 Sub-panels within main PTM-S panel: PTM-Profiling, Diagnostic Ion Discovery, Diagnostic Ion Exctraction,
+    // 4 Sub-panels within main PTM-S panel: PTM-Profiling, Iterative Localization, Diagnostic Ion Discovery,
+    // Diagnostic Ion Exctraction
     pContent = createPanelContent();
     pDiagnosticMining = createPanelDiagnosticMining();
     pDiagnosticExtraction = createPanelDiagnosticExtraction();
+    pIterativeLocalization = createPanelIterativeLocalization();
 
     mu.add(this, pTop).spanX().growX().wrap();
     mu.add(this, pContent).spanX().growX().wrap();
+    mu.add(this, pIterativeLocalization).spanX().growX().wrap();
     mu.add(this, pDiagnosticMining).spanX().growX().wrap();
     mu.add(this, pDiagnosticExtraction).spanX().growX().wrap();
 
@@ -717,10 +752,12 @@ public class PtmshepherdPanel extends JPanelBase {
     super.initMore();
     loadDefaults(1, SearchTypeProp.open); // pre-populate, but only after renaming has happened in super.initMore()
 
+    SwingUtils.setEnablementUpdater(this, pIterativeLocalization, checkRun);
     SwingUtils.setEnablementUpdater(this, pDiagnosticMining, checkRun);
     SwingUtils.setEnablementUpdater(this, pDiagnosticExtraction, checkRun);
 
-    // enable/disable diagnostic mining/extraction areas when boxes are checked
+    // enable/disable second-level parameter areas when boxes are checked
+    SwingUtils.setEnablementUpdater(this, pIterativeLocalizationContent, uiCheckIterativeLocalization);
     SwingUtils.setEnablementUpdater(this, pDiagnosticMiningContent, uiCheckDiagnosticMining);
     SwingUtils.setEnablementUpdater(this, pDiagnosticKnownContent, uiCheckDiagnostic);
   }
