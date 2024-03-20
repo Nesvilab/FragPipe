@@ -866,6 +866,7 @@ public class Fragpipe extends JFrameHeadless {
         + "<a href='https://github.com/grosenberger/easypqp'>EasyPQP</a>: George Rosenberger, Guo-Ci Teo, Fengchao Yu<br>"
         + "<a href='https://github.com/vdemichev/DiaNN'>DIA-NN</a>: Vadim Demichev<br>"
         + "<a href='https://github.com/Nesvilab/FragPipe-PDV'>FragPipe-PDV</a>: Kai Li, Bo Wen<br>"
+        + "<a href='https://skyline.ms/project/home/software/Skyline/begin.view'>Skyline</a>: Brendan MacLean<br>"
         + "<a href='https://saint-apms.sourceforge.net/Main.html'>SAINT</a>: Hyungwon Choi<br>"
         + "Websites and tutorials: Sarah Haynes<br>"
         + "Special thanks to Lukas Käll (Percolator), George Rosenberger (EasyPQP), Vadim Demichev (DIA-NN), and David Shteynberg (TPP, PTMProphet).<br><br>"

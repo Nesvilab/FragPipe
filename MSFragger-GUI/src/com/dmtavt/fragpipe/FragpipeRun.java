@@ -808,6 +808,9 @@ public class FragpipeRun {
 
     toConsole(Fragpipe.COLOR_CMDLINE, "(Visualization with FragPipe-PDV) ", false, console);
     toConsole(Fragpipe.COLOR_BLACK, "PDV: an integrative proteomics data viewer. Bioinformatics. 35(7):1249 (2019)", true, console);
+
+    toConsole(Fragpipe.COLOR_CMDLINE, "(Visualization with Skyline) ", false, console);
+    toConsole(Fragpipe.COLOR_BLACK, "Skyline: an open source document editor for creating and analyzing targeted proteomics experiments. Bioinformatics. 26(7):966 (2010)", true, console);
   }
 
 

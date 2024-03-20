@@ -1023,6 +1023,7 @@ public class TabConfig extends JPanelWithEnablement {
         .append(", <a href=\"").append("https://tmt-integrator.nesvilab.org/").append("\">TMT-Integrator</a>")
         .append(", <a href=\"").append("https://github.com/grosenberger/easypqp").append("\">EasyPQP</a>")
         .append(", <a href=\"").append("https://github.com/Nesvilab/FragPipe-PDV").append("\">FragPipe-PDV</a>")
+        .append(", <a href=\"").append("https://skyline.ms/project/home/software/Skyline/begin.view").append("\">Skyline</a>")
         .append(", <a href=\"").append("https://saint-apms.sourceforge.net/Main.html").append("\">SAINT</a>");
     return sb.toString();
   }
