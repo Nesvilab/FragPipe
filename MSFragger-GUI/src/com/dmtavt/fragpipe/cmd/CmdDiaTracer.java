@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
 public class CmdDiaTracer extends CmdBase {
 
   private static final Logger log = LoggerFactory.getLogger(CmdDiaTracer.class);
-  public static final String JAR_NAME = "diaTracer-1.0.13.jar";
+  public static final String JAR_NAME = "diaTracer-1.0.15.jar";
   public static String NAME = "diaTracer";
   private static final String[] JAR_DEPS = {BATMASS_IO_JAR};
 
