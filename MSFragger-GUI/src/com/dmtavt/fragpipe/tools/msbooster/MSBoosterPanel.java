@@ -43,7 +43,7 @@ public class MSBoosterPanel extends JPanelBase {
   private UiCheck uiCheckPredictSpectra;
   private UiCheck uiUseCorrelatedFeatures;
   private UiCheck uiCheckFindBestRtModel;
-  private UiCheck uiCheckFindBestSpectralModel;
+  private UiCheck uiCheckFindBestSpectraModel;
   private UiCombo uiComboRTModel;
   private UiCombo uiComboSpectraModel;
 
@@ -89,8 +89,8 @@ public class MSBoosterPanel extends JPanelBase {
     uiCheckFindBestRtModel = new UiCheck("Find best RT model", null, false);
     uiCheckFindBestRtModel.setName("find-best-rt-model");
 
-    uiCheckFindBestSpectralModel = new UiCheck("Find best spectral model", null, false);
-    uiCheckFindBestSpectralModel.setName("find-best-spectral-model");
+    uiCheckFindBestSpectraModel = new UiCheck("Find best spectra model", null, false);
+    uiCheckFindBestSpectraModel.setName("find-best-spectra-model");
 
     uiComboRTModel = createUiCombo(new String[]{
         "DIA-NN",
@@ -128,7 +128,7 @@ public class MSBoosterPanel extends JPanelBase {
     mu.add(pContent, uiCheckPredictSpectra);
     mu.add(pContent, feSpectraModel.label()).split(2);;
     mu.add(pContent, feSpectraModel.comp);
-    mu.add(pContent, uiCheckFindBestSpectralModel);
+    mu.add(pContent, uiCheckFindBestSpectraModel);
     mu.add(pContent, uiUseCorrelatedFeatures).wrap();
 
     mu.add(this, pTop).growX().wrap();
@@ -164,8 +164,8 @@ public class MSBoosterPanel extends JPanelBase {
     return uiCheckFindBestRtModel.isSelected();
   }
 
-  public boolean findBestSpectralModel() {
-    return uiCheckFindBestSpectralModel.isSelected();
+  public boolean findBestSpectraModel() {
+    return uiCheckFindBestSpectraModel.isSelected();
   }
 
   public String rtModel() {
