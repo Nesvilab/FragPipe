@@ -42,6 +42,8 @@ public class MSBoosterPanel extends JPanelBase {
   private UiCheck uiCheckPredictRT;
   private UiCheck uiCheckPredictSpectra;
   private UiCheck uiUseCorrelatedFeatures;
+  private UiCheck uiCheckFindBestRtModel;
+  private UiCheck uiCheckFindBestSpectralModel;
   private UiCombo uiComboRTModel;
   private UiCombo uiComboSpectraModel;
 
@@ -84,6 +86,12 @@ public class MSBoosterPanel extends JPanelBase {
     uiUseCorrelatedFeatures = new UiCheck("Use correlated features", null, false);
     uiUseCorrelatedFeatures.setName("use-correlated-features");
 
+    uiCheckFindBestRtModel = new UiCheck("Find best RT model", null, false);
+    uiCheckFindBestRtModel.setName("find-best-rt-model");
+
+    uiCheckFindBestSpectralModel = new UiCheck("Find best spectral model", null, false);
+    uiCheckFindBestSpectralModel.setName("find-best-spectral-model");
+
     uiComboRTModel = createUiCombo(new String[]{
         "DIA-NN",
         "DeepLC HeLa HF",
@@ -112,13 +120,16 @@ public class MSBoosterPanel extends JPanelBase {
         .create();
 
     pContent = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
-    mu.add(pContent, uiCheckPredictRT).split(3);
-    mu.add(pContent, feRTModel.label());
+    mu.add(pContent, uiCheckPredictRT);
+    mu.add(pContent, feRTModel.label()).split(2);
     mu.add(pContent, feRTModel.comp);
-    mu.add(pContent, uiCheckPredictSpectra).split(3);
-    mu.add(pContent, feSpectraModel.label());
+    mu.add(pContent, uiCheckFindBestRtModel).wrap();
+
+    mu.add(pContent, uiCheckPredictSpectra);
+    mu.add(pContent, feSpectraModel.label()).split(2);;
     mu.add(pContent, feSpectraModel.comp);
-    mu.add(pContent, uiUseCorrelatedFeatures);
+    mu.add(pContent, uiCheckFindBestSpectralModel);
+    mu.add(pContent, uiUseCorrelatedFeatures).wrap();
 
     mu.add(this, pTop).growX().wrap();
     mu.add(this, pContent).growX().wrap();
@@ -147,6 +158,14 @@ public class MSBoosterPanel extends JPanelBase {
 
   public boolean predictSpectra() {
     return uiCheckPredictSpectra.isSelected();
+  }
+
+  public boolean findBestRtModel() {
+    return uiCheckFindBestRtModel.isSelected();
+  }
+
+  public boolean findBestSpectralModel() {
+    return uiCheckFindBestSpectralModel.isSelected();
   }
 
   public String rtModel() {

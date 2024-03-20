@@ -1352,7 +1352,25 @@ public class FragpipeRun {
     addConfig.accept(cmdMSBooster, () -> {
       cmdMSBooster.setRun(cmdMSBooster.isRun() && !sharedPepxmlFilesFromMsfragger.isEmpty());
       if (cmdMSBooster.isRun()) {
-        return cmdMSBooster.configure(parent, ramGb, threads, sharedPepxmlFilesFromMsfragger, MSBoosterPanel.predictRt(), MSBoosterPanel.predictSpectra(), MSBoosterPanel.useCorrelatedFeatures(), tabWorkflow.hasDataType("DDA"), tabWorkflow.hasDataType("DIA"), tabWorkflow.hasDataType("GPF-DIA"), tabWorkflow.hasDataType("DIA-Lib"), tabWorkflow.hasDataType("DDA+"), cmdUmpire.isRun(), cmdDiaTracer.isRun(), tabMsf.isOpenSearch(), MSBoosterPanel.rtModel(), MSBoosterPanel.spectraModel());
+        return cmdMSBooster.configure(parent,
+            ramGb,
+            threads,
+            sharedPepxmlFilesFromMsfragger,
+            MSBoosterPanel.predictRt(),
+            MSBoosterPanel.predictSpectra(),
+            MSBoosterPanel.useCorrelatedFeatures(),
+            tabWorkflow.hasDataType("DDA"),
+            tabWorkflow.hasDataType("DIA"),
+            tabWorkflow.hasDataType("GPF-DIA"),
+            tabWorkflow.hasDataType("DIA-Lib"),
+            tabWorkflow.hasDataType("DDA+"),
+            cmdUmpire.isRun(),
+            cmdDiaTracer.isRun(),
+            tabMsf.isOpenSearch(),
+            MSBoosterPanel.rtModel(),
+            MSBoosterPanel.spectraModel(),
+            MSBoosterPanel.findBestRtModel(),
+            MSBoosterPanel.findBestSpectralModel());
       }
       return true;
     });

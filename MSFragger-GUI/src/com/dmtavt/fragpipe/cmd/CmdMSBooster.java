@@ -72,7 +72,26 @@ public class CmdMSBooster extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, int ramGb, int threads, Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml, boolean predictRT, boolean predictSpectra, boolean useCorrelatedFeatures, boolean hasDda, boolean hasDia, boolean hasGpfDia, boolean hasDiaLib, boolean hasDdaPlus, boolean isRunDiaU, boolean isRunDiaTracer, boolean isOpenSearch, String rtModel, String spectraModel) {
+  public boolean configure(Component comp,
+      int ramGb,
+      int threads,
+      Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml,
+      boolean predictRT,
+      boolean predictSpectra,
+      boolean useCorrelatedFeatures,
+      boolean hasDda,
+      boolean hasDia,
+      boolean hasGpfDia,
+      boolean hasDiaLib,
+      boolean hasDdaPlus,
+      boolean isRunDiaU,
+      boolean isRunDiaTracer,
+      boolean isOpenSearch,
+      String rtModel,
+      String spectraModel,
+      boolean findBestRtModel,
+      boolean findBestSpectralModel) {
+
     initPreConfig();
 
     // MSBooster does not compatible with open search and mass-offset search.
@@ -119,6 +138,8 @@ public class CmdMSBooster extends CmdBase {
         bufferedWriter.write("deletePreds = false\n"); // FragPipe-PDV need the prediction files.
         bufferedWriter.write("rtModel = " + rtModel + "\n");
         bufferedWriter.write("spectraModel = " + spectraModel + "\n");
+        bufferedWriter.write("findBestRtModel = " + (findBestRtModel ? "true" : "false") + "\n");
+        bufferedWriter.write("findBestSpectralModel = " + (findBestSpectralModel ? "true" : "false") + "\n");
 
         // compute unique lcms file directories
         bufferedWriter.write("mzmlDirectory = ");
