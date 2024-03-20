@@ -353,9 +353,25 @@ public class TabRun extends JPanelWithEnablement {
               continue;
             }
             String[] parts = line.split("\t");
-            lcmsFiles.add(parts[0]);
             if (parts[3].contains("DIA")) {
               dataType = "DIA";
+            }
+          }
+          reader.close();
+
+          reader = Files.newBufferedReader(wd.resolve("fragpipe-files.fp-manifest"));
+          while ((line = reader.readLine()) != null) {
+            line = line.trim();
+            if (line.isEmpty()) {
+              continue;
+            }
+            String[] parts = line.split("\t");
+            if (dataType.contentEquals("DIA")) {
+              if (parts[3].contains("DIA")) {
+                lcmsFiles.add(parts[0]);
+              }
+            } else {
+              lcmsFiles.add(parts[0]);
             }
           }
           reader.close();
