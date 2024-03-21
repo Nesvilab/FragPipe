@@ -17,6 +17,7 @@
 
 package com.dmtavt.fragpipe.tools.msbooster;
 
+import static com.github.chhh.utils.SwingUtils.createClickableHtml;
 import static com.github.chhh.utils.swing.UiUtils.createUiCombo;
 
 import com.github.chhh.utils.SwingUtils;
@@ -25,8 +26,10 @@ import com.github.chhh.utils.swing.JPanelBase;
 import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiCombo;
+import com.github.chhh.utils.swing.UiText;
 import java.awt.Component;
 import java.awt.ItemSelectable;
+import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import org.slf4j.Logger;
@@ -37,6 +40,7 @@ public class MSBoosterPanel extends JPanelBase {
   private static final String PREFIX = "msbooster.";
   private JPanel pTop;
   private JPanel pContent;
+  private JPanel pp;
   private static final MigUtils mu = MigUtils.get();
   private UiCheck checkRun;
   private UiCheck uiCheckPredictRT;
@@ -46,6 +50,8 @@ public class MSBoosterPanel extends JPanelBase {
   private UiCheck uiCheckFindBestSpectraModel;
   private UiCombo uiComboRTModel;
   private UiCombo uiComboSpectraModel;
+  private UiText uiTextKoinaUrl;
+  private JEditorPane uiLabelKoinaUrl;
 
   public MSBoosterPanel() {
     super();
@@ -92,6 +98,15 @@ public class MSBoosterPanel extends JPanelBase {
     uiCheckFindBestSpectraModel = new UiCheck("Find best spectra model", null, false);
     uiCheckFindBestSpectraModel.setName("find-best-spectra-model");
 
+    uiTextKoinaUrl = new UiText("", "put your Koina server URL");
+    uiTextKoinaUrl.setColumns(20);
+    FormEntry feKoinaUrl = mu.feb("koina-url", uiTextKoinaUrl)
+        .label("Koina server URL: ")
+        .tooltip("Fill in your Koina server URL if you want to use the models in Koina.\nThe public one is https://koina.proteomicsdb.org/v2/models/")
+        .create();
+
+    uiLabelKoinaUrl = createClickableHtml("Fill in your Koina server URL if you want to use the models in <a href=\"https://koina.wilhelmlab.org/\">Koina</a>. The public one is https://koina.proteomicsdb.org/v2/models/");
+
     uiComboRTModel = createUiCombo(new String[]{
         "DIA-NN",
         "DeepLC HeLa HF",
@@ -126,13 +141,19 @@ public class MSBoosterPanel extends JPanelBase {
     mu.add(pContent, uiCheckFindBestRtModel).wrap();
 
     mu.add(pContent, uiCheckPredictSpectra);
-    mu.add(pContent, feSpectraModel.label()).split(2);;
+    mu.add(pContent, feSpectraModel.label()).split(2);
     mu.add(pContent, feSpectraModel.comp);
     mu.add(pContent, uiCheckFindBestSpectraModel);
     mu.add(pContent, uiUseCorrelatedFeatures).wrap();
 
+    pp = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
+    mu.add(pp, feKoinaUrl.label()).split(2);
+    mu.add(pp, feKoinaUrl.comp).growX().wrap();
+    mu.add(pp, uiLabelKoinaUrl).wrap();
+
     mu.add(this, pTop).growX().wrap();
     mu.add(this, pContent).growX().wrap();
+    mu.add(this, pp).growX().wrap();
   }
 
   private JPanel createPanelTop() {
@@ -166,6 +187,10 @@ public class MSBoosterPanel extends JPanelBase {
 
   public boolean findBestSpectraModel() {
     return uiCheckFindBestSpectraModel.isSelected();
+  }
+
+  public String koinaUrl() {
+    return uiTextKoinaUrl.getNonGhostText().trim();
   }
 
   public String rtModel() {

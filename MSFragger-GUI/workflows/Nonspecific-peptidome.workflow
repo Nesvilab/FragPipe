@@ -85,6 +85,7 @@ ionquant.use-lfq=true
 ionquant.writeindex=0
 msbooster.find-best-rt-model=false
 msbooster.find-best-spectra-model=false
+msbooster.koina-url=
 msbooster.predict-rt=true
 msbooster.predict-spectra=true
 msbooster.rt-model=DIA-NN

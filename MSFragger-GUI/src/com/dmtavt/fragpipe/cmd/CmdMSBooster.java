@@ -90,7 +90,8 @@ public class CmdMSBooster extends CmdBase {
       String rtModel,
       String spectraModel,
       boolean findBestRtModel,
-      boolean findBestSpectraModel) {
+      boolean findBestSpectraModel,
+      String koinaURL) {
 
     initPreConfig();
 
@@ -102,6 +103,11 @@ public class CmdMSBooster extends CmdBase {
 
     final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(JAR_MSBOOSTER_NAME).concat(JAR_DEPS));
     if (classpathJars == null) {
+      return false;
+    }
+
+    if (koinaURL.isEmpty() && (!rtModel.contentEquals("DIA-NN") || !spectraModel.contentEquals("DIA-NN"))) {
+      SwingUtils.showErrorDialog(comp, "Koina URL is required for non DIA-NN models.\nPlease go to <b>Validation</b> tab and adjust the settings.", NAME + " error");
       return false;
     }
 
@@ -140,6 +146,7 @@ public class CmdMSBooster extends CmdBase {
         bufferedWriter.write("spectraModel = " + spectraModel + "\n");
         bufferedWriter.write("findBestRtModel = " + (findBestRtModel ? "true" : "false") + "\n");
         bufferedWriter.write("findBestSpectraModel = " + (findBestSpectraModel ? "true" : "false") + "\n");
+        bufferedWriter.write("KoinaURL = " + koinaURL + "\n");
 
         // compute unique lcms file directories
         bufferedWriter.write("mzmlDirectory = ");
