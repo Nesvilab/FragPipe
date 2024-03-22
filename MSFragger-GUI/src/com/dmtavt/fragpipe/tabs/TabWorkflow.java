@@ -178,8 +178,8 @@ public class TabWorkflow extends JPanelWithEnablement {
   private JButton btnGroupsClearBioreplicate;
   private JButton btnManifestSave;
   private JButton btnManifestLoad;
-
   private HtmlStyledJEditorPane epWorkflowsInfo;
+  private JLabel numSelectedFilesLabel;
   private UiSpinnerInt uiSpinnerRam;
   private UiSpinnerInt uiSpinnerThreads;
   private Map<String, PropsFile> workflows;
@@ -1013,6 +1013,8 @@ public class TabWorkflow extends JPanelWithEnablement {
     btnManifestSave = button("Save as manifest", MessageManifestSave::new);
     btnManifestLoad = button("Load manifest", MessageManifestLoad::new);
 
+    numSelectedFilesLabel = new JLabel();
+
     createFileTable();
 
     mu.add(p, btnFilesAddFiles).split();
@@ -1076,6 +1078,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     mu.add(p, emptySpace2).growX().pushX().split();
     mu.add(p, btnSetDiaQuant);
     mu.add(p, btnSetDiaLib).wrap();
+    mu.add(p, numSelectedFilesLabel).grow().pushX().wrap();
 
 
     p.add(scrollPaneRawFiles, mu.ccGx().wrap());
@@ -1107,7 +1110,12 @@ public class TabWorkflow extends JPanelWithEnablement {
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnSetDdaPlus);
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsClearExperiment);
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsClearBioreplicate);
-
+    tableRawFiles.getSelectionModel().addListSelectionListener(e -> {
+      if (!e.getValueIsAdjusting()) { // This check ensures we handle only the final event in a series
+        updateSelectedFilesTextField();
+      }
+    });
+    updateSelectedFilesTextField();
     tableRawFiles.addComponentsEnabledOnNonEmptySelection(btnFilesRemove);
     tableRawFiles.addComponentsEnabledOnNonEmptySelection(btnSetExp);
     tableRawFiles.addComponentsEnabledOnNonEmptySelection(btnSetRep);
@@ -1624,6 +1632,12 @@ public class TabWorkflow extends JPanelWithEnablement {
 
   public List<InputLcmsFile> getLcmsFiles() {
     return tableModelRawFiles.dataCopy();
+  }
+
+  private void updateSelectedFilesTextField() {
+    int totalRows = tableRawFiles.getRowCount();
+    int selectedRows = tableRawFiles.getSelectedRows().length;
+    numSelectedFilesLabel.setText("Total raw files: " + totalRows + ", Selected raw files: " + selectedRows);
   }
 
   public boolean hasDataType(String dataType) {
