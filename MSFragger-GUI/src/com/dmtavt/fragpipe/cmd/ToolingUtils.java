@@ -250,11 +250,15 @@ public class ToolingUtils {
     TabWorkflow tabWorkflow = Bus.getStickyEvent(TabWorkflow.class);
     Collection<LcmsFileGroup> ttt = tabWorkflow.getLcmsFileGroups2().values();
 
+    boolean hasDia = false;
     Set<String> fileNameSet = new HashSet<>();
     for (LcmsFileGroup lcmsFileGroup : ttt) {
       for (InputLcmsFile inputLcmsFile : lcmsFileGroup.lcmsFiles) {
         String baseName = FilenameUtils.getBaseName(inputLcmsFile.getPath().getFileName().toString());
         fileNameSet.add(baseName);
+        if (inputLcmsFile.getDataType().contentEquals("DIA") || inputLcmsFile.getDataType().contentEquals("DIA-Quant")) {
+          hasDia = true;
+        }
       }
     }
     String commonPrefix = getCommonPrefix(fileNameSet.toArray(new String[0]));
@@ -263,6 +267,9 @@ public class ToolingUtils {
     if (ttt.size() == 1 && ttt.iterator().next().name.isEmpty()) { // There is no group info from the manifest. Parse from the file name.
       for (LcmsFileGroup lcmsFileGroup : ttt) {
         for (InputLcmsFile inputLcmsFile : lcmsFileGroup.lcmsFiles) {
+          if (filterRun(hasDia, inputLcmsFile)) {
+            continue;
+          }
           String baseName = FilenameUtils.getBaseName(inputLcmsFile.getPath().getFileName().toString());
           String sampleName = baseName.substring(a);
           String[] tt = sampleName.split("_");
@@ -288,6 +295,9 @@ public class ToolingUtils {
     } else { // There is group info from the manifest.
       for (LcmsFileGroup lcmsFileGroup : ttt) {
         for (InputLcmsFile inputLcmsFile : lcmsFileGroup.lcmsFiles) {
+          if (filterRun(hasDia, inputLcmsFile)) {
+            continue;
+          }
           String[] parts = inputLcmsFile.getExperiment().split("_");
           if (type == 0) {
             bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getGroup2() + "\t" + inputLcmsFile.getGroup2() + "\t" + parts[0].trim() + "\t" + (inputLcmsFile.getReplicate() == null ? 1 : inputLcmsFile.getReplicate()) + "\n");
@@ -298,6 +308,16 @@ public class ToolingUtils {
       }
     }
     bufferedWriter.close();
+  }
+
+  private static boolean filterRun(boolean hasDia, InputLcmsFile inputLcmsFile) {
+    if (inputLcmsFile.getDataType().contentEquals("GPF-DIA") || inputLcmsFile.getDataType().contentEquals("DIA-Lib")) {
+      return true;
+    }
+    if (hasDia && !(inputLcmsFile.getDataType().contentEquals("DIA") || inputLcmsFile.getDataType().contentEquals("DIA-Quant"))) {
+      return true;
+    }
+    return false;
   }
 
   public static void writeIsobaricQuantExperimentAnnotation(Path wd, Map<LcmsFileGroup, Path> annotations) throws Exception {
