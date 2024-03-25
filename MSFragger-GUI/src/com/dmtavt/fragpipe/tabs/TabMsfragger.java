@@ -1597,7 +1597,7 @@ public class TabMsfragger extends JPanelBase {
     return p;
   }
 
-  private void setJTableColSize(JTable table, int colIndex, int minW, int maxW, int prefW) {
+  public static void setJTableColSize(JTable table, int colIndex, int minW, int maxW, int prefW) {
     table.getColumnModel().getColumn(colIndex).setMinWidth(minW);
     table.getColumnModel().getColumn(colIndex).setMaxWidth(maxW);
     table.getColumnModel().getColumn(colIndex).setPreferredWidth(prefW);

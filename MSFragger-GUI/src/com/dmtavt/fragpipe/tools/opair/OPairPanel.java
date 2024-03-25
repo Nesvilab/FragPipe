@@ -155,22 +155,8 @@ public class OPairPanel extends JPanelBase {
 
         String tooltipGlycanDBFile = "Glycan database file in Byonic or pGlyco formats (.txt or .pdb). Will use internal default O-glycan list if not provided.";
         uiTextOGlycanDBFile = UiUtils.uiTextBuilder().cols(85).create();
-        List<FileFilter> glycFilters = new ArrayList<>();
-        FileFilter filter = new FileNameExtensionFilter("Glycan Database file (glyc, txt, csv, tsv, pdb)", "glyc", "txt", "csv", "tsv", "pdb");
-        glycFilters.add(filter);
         FormEntry feGlycanDBFile = mu.feb(PROP_glycoDB, uiTextOGlycanDBFile)
-                .label("O-Glycan Database").tooltip(tooltipGlycanDBFile).create();
-        JButton btnBrosweGlycanDBFile = feGlycanDBFile.browseButton("Browse", tooltipGlycanDBFile,
-                () -> FileChooserUtils.builder("Select custom glycan database file")
-                        .approveButton("Select").mode(FileChooserUtils.FcMode.FILES_ONLY).acceptAll(false).multi(false).filters(glycFilters)
-                        .paths(Stream.of(Fragpipe.propsVarGet(PROP_glycoDB))).create(),
-                paths -> {
-                    if (paths != null && !paths.isEmpty()) {
-                        String path = paths.get(0).toString();
-                        Fragpipe.propsVarSet(PROP_glycoDB, path);
-                        uiTextOGlycanDBFile.setText(path);
-                    }
-                });
+                .label("O-Pair Database").tooltip(tooltipGlycanDBFile).create();
 
         String tooltipOxoniumFilterFile = "(Optional) Load custom oxonium filter rules from file. Will use default filtering rules if not provided.";
         uiTextOxoRuleFile = UiUtils.uiTextBuilder().cols(59).create();
@@ -211,7 +197,6 @@ public class OPairPanel extends JPanelBase {
         mu.add(pContent, feMaxGlycans.comp).wrap();
 
         mu.add(pContent, feGlycanDBFile.label()).split().spanX();
-        mu.add(pContent, btnBrosweGlycanDBFile);
         mu.add(pContent, feGlycanDBFile.comp).wrap();
 
         mu.add(pContent, uiCheckFilterOxonium);
@@ -283,8 +268,8 @@ public class OPairPanel extends JPanelBase {
         return params;
     }
 
-    public void setGlycanDatabase(String path) {
-        uiTextOGlycanDBFile.setText(path);
+    public void setGlycanDatabase(String glycanDatabase) {
+        uiTextOGlycanDBFile.setText(glycanDatabase);
     }
     public void setMaxGlycans(int maxGlycans) {
         uiSpinnerMaxGlycans.setValue(maxGlycans);

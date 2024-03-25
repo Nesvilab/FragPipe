@@ -24,7 +24,9 @@ import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
 import com.dmtavt.fragpipe.exceptions.UnexpectedException;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
+import com.dmtavt.fragpipe.tabs.TabGlyco;
 import com.dmtavt.fragpipe.tools.enums.ActivationTypes;
+import com.dmtavt.fragpipe.tools.glyco.GlycoMassLoader;
 import com.dmtavt.fragpipe.tools.opair.OPairParams;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.StringUtils;
@@ -35,6 +37,7 @@ import java.io.BufferedWriter;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -138,6 +141,28 @@ public class CmdOPair  extends CmdBase {
                 return false;
             }
 
+            // get glycan residue and mod definition files
+            final Path dirTools = FragpipeLocations.get().getDirTools();
+            Path glycanDBfolder = Paths.get(dirTools.toString(), TabGlyco.glycanDBfolder);
+            Path residuesPath = glycanDBfolder.resolve(GlycoMassLoader.GLYCAN_RESIDUES_NAME);
+            if (!Files.exists(residuesPath)) {
+                if (Fragpipe.headless) {
+                    log.error(String.format("Could not find Glycan residue definitions file at %s. Please make sure this file has not been removed and try again.", residuesPath));
+                } else {
+                    SwingUtils.showErrorDialog(comp, String.format("Could not find Glycan residue definitions file at %s. Please make sure this file has not been removed and try again.", residuesPath), "Error");
+                }
+                return false;
+            }
+            Path modsPath = glycanDBfolder.resolve(GlycoMassLoader.GLYCAN_MODS_NAME);
+            if (!Files.exists(modsPath)) {
+                if (Fragpipe.headless) {
+                    log.error(String.format("Could not find Glycan mod definitions file at %s. Please make sure this file has not been removed and try again.", modsPath));
+                } else {
+                    SwingUtils.showErrorDialog(comp, String.format("Could not find Glycan mod definitions file at %s. Please make sure this file has not been removed and try again.", modsPath), "Error");
+                }
+                return false;
+            }
+
             if (OsUtils.isUnix()) {
                 cmd.add("dotnet");
             }
@@ -158,6 +183,8 @@ public class CmdOPair  extends CmdBase {
             if (params.getOglycanDB().length() > 0) {
                 cmd.add("-g " + params.getOglycanDB());
             }
+            cmd.add("-x " + residuesPath.toAbsolutePath());
+            cmd.add("-y " + modsPath.toAbsolutePath());
             cmd.add("-n " + params.getMaxNumGlycans());
             cmd.add("-t " + numThreads);
             cmd.add("-i " + params.getMinIsotope());

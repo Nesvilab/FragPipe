@@ -1,6 +1,12 @@
 package com.dmtavt.fragpipe.tools.skyline;
 
+import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.PropsFile;
+import umich.ms.glyco.Glycan;
+import umich.ms.glyco.GlycanParser;
+import umich.ms.glyco.GlycanResidue;
+
+import static com.dmtavt.fragpipe.tools.glyco.GlycoMassLoader.GLYCAN_RESIDUES_NAME;
 import static com.dmtavt.fragpipe.tools.skyline.Skyline.getSkylineVersion;
 
 import java.io.BufferedWriter;
@@ -8,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,6 +39,7 @@ public class WriteSky {
     String detailedMassOffsetStr = pf.getProperty("msfragger.mass_offsets_detailed");
     String labileMode = pf.getProperty("msfragger.labile_search_mode");
     boolean isLabile = labileMode.equals("labile") || labileMode.equals("nglyc");
+    boolean isRunOPair = pf.getProperty("opair.run-opair").equals("true");
 
     float mass;
     Matcher m;
@@ -57,6 +65,12 @@ public class WriteSky {
           }
         }
       }
+    }
+
+    // Override offsets from MSFragger for O-Pair searches to avoid passing masses that are combinations of O-glycans to Skyline
+    if (isRunOPair) {
+      String oglycoList = pf.getProperty("opair.glyco_db");
+      massOffsetStr = overrideOffsetsOPair(oglycoList);
     }
 
     if (massOffsetStr != null && !massOffsetStr.isEmpty()) {
@@ -190,6 +204,26 @@ public class WriteSky {
       out.add(new Mod(String.join("", resSites) + "_" + monoMass, String.join(", ", resSites), '\0', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses));
     }
     return out;
+  }
+
+  /**
+   * Read the non-combination glycan list passed to O-Pair search. Generate a mass offset string consisting of
+   * the masses of these glycans.
+   * @param oglycoList FragPipe glycan database string passed to O-Pair
+   * @return mass offset string
+   */
+  private String overrideOffsetsOPair(String oglycoList) {
+    if (oglycoList != null && !oglycoList.isEmpty()) {
+      HashMap<String, GlycanResidue> glycanResidues = GlycanParser.parseGlycoResiduesDB(FragpipeLocations.get().getDirTools().resolve("Glycan_Databases").resolve(GLYCAN_RESIDUES_NAME).toString());
+      ArrayList<Glycan> parsedGlycans = GlycanParser.parseGlycanDatabaseString(oglycoList, glycanResidues);
+      StringBuilder sb = new StringBuilder();
+      for (Glycan g : parsedGlycans) {
+        sb.append(g.mass);
+        sb.append(" ");
+      }
+      return sb.toString();
+    }
+    return "";
   }
 
 

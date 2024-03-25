@@ -16,8 +16,7 @@ plugins {
 }
 
 group = 'com.github.chhh'
-version = '21.2-build41'
-def batmassio_version = '1.32.5'
+version = '21.2-build39'
 
 description = """FragPipe - run complete proteomics analyses from the GUI"""
 
@@ -95,14 +94,15 @@ distributions {
 
 dependencies {
     implementation 'com.github.albfernandez:juniversalchardet:2.4.0'
-    compileOnly files("tools/batmass-io-${batmassio_version}.jar")
+    implementation ('com.github.chhh:batmass-io:1.33.0') {
+        exclude group: 'org.slf4j'
+    }
     implementation 'com.google.code.gson:gson:2.10.1'
     implementation 'one.util:streamex:0.8.2'
     implementation 'org.jooq:jool-java-8:0.9.15'
     implementation 'org.apache.maven:maven-artifact:3.9.6'
     implementation 'org.jgrapht:jgrapht-core:1.5.2'
     implementation 'com.github.vlsi.mxgraph:jgraphx:4.2.2'
-    implementation 'com.google.guava:guava:32.1.1-jre'
 
     implementation group: 'org.apache.commons', name: 'commons-compress', version: '1.26.1'
 
@@ -127,8 +127,6 @@ dependencies {
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.13.2'
-
-    testImplementation files("tools/batmass-io-${batmassio_version}.jar")
 }
 
 //capsule {

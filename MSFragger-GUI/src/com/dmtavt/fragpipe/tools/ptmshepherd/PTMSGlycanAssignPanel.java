@@ -31,8 +31,8 @@ import com.github.chhh.utils.swing.UiSpinnerDouble;
 import com.github.chhh.utils.swing.UiSpinnerInt;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
-import java.awt.Component;
-import java.awt.ItemSelectable;
+
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -134,8 +134,8 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
         return map1;
     }
 
-    public void setGlycanDatabase(String path) {
-        uiTextGlycanDBFile.setText(path);
+    public void setGlycanDatabase(String glycanList) {
+        uiTextGlycanDBFile.setText(glycanList);
     }
 
     private JPanel createpanelGlycanAssignment() {
@@ -169,29 +169,11 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
                 new UiSpinnerInt(3, 0, 4, 1, 3),
                 "Highest isotope error to consider. Allowed isotope errors will go from Isotope Error Range Min to this value (inclusive).");
 
-        String tooltipGlycanDBFile = "Custom glycan database file (.glyc). Will use internal default N-glycan list if not provided.";
+        String tooltipGlycanDBFile = "Custom glycan database. Will use internal default N-glycan list if not provided.";
         uiTextGlycanDBFile = UiUtils.uiTextBuilder().create();
-        List<FileFilter> glycFilters = new ArrayList<>();
-        FileFilter filter = new FileNameExtensionFilter("Glycan Database file (.glyc, txt, csv, tsv)", "glyc", "txt", "csv", "tsv");
-        glycFilters.add(filter);
+        uiTextGlycanDBFile.setPreferredSize(new Dimension(100, 25));
         FormEntry feGlycanDBFile = mu.feb(PROP_glycan_database, uiTextGlycanDBFile)
-                .label("Custom Glycan Database").tooltip(tooltipGlycanDBFile).create();
-        JButton btnBrosweGlycanDBFile = feGlycanDBFile.browseButton("Browse", tooltipGlycanDBFile,
-                () -> FileChooserUtils.builder("Select custom glycan database file")
-                        .approveButton("Select").mode(FileChooserUtils.FcMode.FILES_ONLY).acceptAll(false).multi(false).filters(glycFilters)
-                        .paths(Stream.of(Fragpipe.propsVarGet(PROP_glycan_database))).create(),
-                paths -> {
-                    if (paths != null && !paths.isEmpty()) {
-                        String path = paths.get(0).toString();
-                        Fragpipe.propsVarSet(PROP_glycan_database, path);
-                        uiTextGlycanDBFile.setText(path);
-                    }
-                });
-
-        JButton btnOpenInExplorer = SwingUtils.createButtonOpenInFileManager(this, "Open folder to edit monosaccharide definitions and modifications", () -> FragpipeLocations.get().getDirTools().resolve("Glycan_Databases"));
-        btnOpenInExplorer.setToolTipText("Opens the file location with the internal 'glycan_residues.txt' and 'glycan_mods.txt' \nfiles, which " +
-                "control the supported monosaccharides and glycan modifications, respectively, for FragPipe and all glyco tools.\n" +
-                "For details on how to edit these files, please see the glyco tutorial pages at fragpipe.nesvilab.org.");
+                .label("Glycan Database").tooltip(tooltipGlycanDBFile).create();
 
         FormEntry feDecoyType = new FormEntry(PROP_decoy_type, "Decoy Type",
                 new UiSpinnerInt(1, 0, 3, 1, 1),
@@ -234,10 +216,7 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
         mu.add(pGlycoAssignContent, feGlycanIsotopesHigh.comp).wrap();
 
         mu.add(pGlycoAssignContent, feGlycanDBFile.label(), mu.ccL()).split(3).spanX();
-        mu.add(pGlycoAssignContent, btnBrosweGlycanDBFile, mu.ccL());
         mu.add(pGlycoAssignContent, feGlycanDBFile.comp).growX().wrap();
-
-        mu.add(pGlycoAssignContent, btnOpenInExplorer).wrap();
 
         JLabel imageLabel = new JLabel();
         try {

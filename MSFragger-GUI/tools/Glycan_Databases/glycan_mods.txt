@@ -1,12 +1,12 @@
-#Name	mass	yProb +	yProb -	alt names	Required residue(s)	Max Allowed	Is Fixed
-Phospho	79.96633	2	0.5	P,phosph,phosphorylation,phosphate	Hex	0	FALSE
-Sulfo	79.95682			S,sulfo,sulf,sulfation	HexNAc	0	FALSE
-NH4	17.02655			ammonium,nh3,ammonia		0	FALSE
-Na	21.981944	2	0.5	sodium adduct,sodium,Na+		0	FALSE
-Fe	52.911462	2	0.5	Fe3,iron,iron adduct,Fe3+		0	FALSE
-Ca	37.946938	2	0.5	calcium,calcium adduct,Ca2+		0	FALSE
-Al	23.958062	2	0.5	Al3,aluminum,aluminum adduct,Al3+		0	FALSE
-K	38.963707	2	0.5	K+,potassium,potassium adduct		0	FALSE
-Formyl	27.99491	2	0.5	formylation,M		0	FALSE
-Acetyl	42.01056	2	0.5	acetylation,Ac,C		0	FALSE
-Succinyl	100.01608	2	0.5	succinylation,U		0	FALSE
+#Name	Mass	yProb+	yProb-	Alternate Names	Elemental Composition	Required Residue(s)
+Phospho	79.9663314819336	2.0	0.5	P,phosph,phosphorylation,phosphate		Hex
+Sulfo	79.95681762695312			S,sulfo,sulf,sulfation		HexNAc
+NH4	17.02655029296875			ammonium,nh3,ammonia		
+Na	21.981943130493164	2.0	0.5	sodium adduct,sodium,Na+		
+Fe	52.911460876464844	2.0	0.5	Fe3,iron,iron adduct,Fe3+		
+Ca	37.946937561035156	2.0	0.5	calcium,calcium adduct,Ca2+		
+Al	23.95806121826172	2.0	0.5	Al3,aluminum,aluminum adduct,Al3+		
+K	38.963706970214844	2.0	0.5	K+,potassium,potassium adduct		
+Formyl	27.994909286499023	2.0	0.5	formylation,M		
+Acetyl	42.01055908203125	2.0	0.5	acetylation,Ac,C		
+Succinyl	100.01608276367188	2.0	0.5	succinylation,U		
