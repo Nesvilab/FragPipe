@@ -365,13 +365,24 @@ public class PercolatorOutputToPepXML {
                     final Spectrum_rank spectrum_rank = get_spectrum_rank(raw_psmid);
                     final String specId = spectrum_rank.spectrum;
                     final int rank = spectrum_rank.rank;
-                    final double pep = Double.parseDouble(split[indexOfPEP]);
+                    double pep;
+                    try {
+                        pep = Double.parseDouble(split[indexOfPEP]);
+                    } catch (NumberFormatException e) {
+                        pep = 1.0;
+                    }
 
                     if (1 - pep < minProb) {
                         continue;
                     }
 
-                    final double score = Double.parseDouble(split[indexOfScore]);
+                    double score;
+                    try {
+                        score = Double.parseDouble(split[indexOfScore]);
+                    } catch (NumberFormatException e) {
+                        score = 0.0;
+                    }
+
                     pinSpectrumRankPepScore.computeIfAbsent(specId, e -> new PepScore[max_rank])[rank - 1] = new PepScore(pep, score);
                 }
             } catch (IOException e) {
