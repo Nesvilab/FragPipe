@@ -190,7 +190,7 @@ task makeExeAndCopyToScripts(type: Copy, group: 'chhh-release', description: 'Th
 }
 
 task copyJre(type: Copy, group: 'chhh-release', description: 'Copies JRE to build/install/fragpipe') {
-    from "$buildDir/../../jre/OpenJDK11U-jre_x64_windows_hotspot_11.0.9.1_1"
+    from "$buildDir/../../jre/OpenJDK17U-jre_x64_windows_hotspot_17.0.10_7"
     into file("$buildDir/install/${project.name}")
 }
 
