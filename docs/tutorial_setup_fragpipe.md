@@ -31,11 +31,11 @@ If you have already downloaded the latest Philosopher release, use the 'Browse' 
 #### Optional: install, update, or use an already installed version of Python
 Database splitting (to reduce the size of the in-memory fragment ion index-- helpful for workstations with limited memory or for complex searches) and/or spectral library generation will require Python 3 or above.
 
-**FragPipe requires Python 3.8 or 3.9**
+**FragPipe requires Python 3.8, 3.9, or 3.10**
 
-**If you already have Python 3.8 or 3.9**, specify the python executable file path in the `Config` tab, click `Install/Upgrade EasyPQP`, and wait for a few minutes.
+**If you already have Python 3.8, 3.9, or 3.10**, specify the python executable file path in the `Config` tab, click `Install/Upgrade EasyPQP`, and wait for a few minutes.
 
-**If Python 3.8 or 3.9 is not already installed**:
+**If Python 3.8, 3.9, or 3.10 is not already installed**:
 1) Download and install Python 3.9
 
 Windows: download the installer from [here](https://www.python.org/ftp/python/3.9.13/python-3.9.13-amd64.exe)
