@@ -10,8 +10,8 @@ FragPipe and MSFragger both require a 64-bit Java to run. Windows users can choo
 FragPipe can be downloaded [here](https://github.com/Nesvilab/FragPipe/releases). Follow the instructions on that same Releases page to launch the program.  When FragPipe launches, the first tab in the window ('Config') will be used to configure the program.
 
 <br>
-#### Install Visual C++ Redistributable for Visual Studio 2017
-Bruker's native library needs [Visual C++ Redistributable for Visual Studio 2017](https://aka.ms/vs/16/release/VC_redist.x64.exe) in Windows. If you see an error that the Bruker native library cannot be found, please try to install the Visual C++ redistibutable.
+#### Install Visual C++ Redistributable
+Bruker .d reader and DIA-NN need [Visual C++ Redistributable](https://aka.ms/vs/16/release/VC_redist.x64.exe) in Windows. If you see an error related to timsTOF data or DIA-NN, please try to install the Visual C++ redistibutable.
 
 <br>
 #### Install Mono (required for Thermo .raw file reading on Linux)
