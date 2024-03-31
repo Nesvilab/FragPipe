@@ -12,8 +12,8 @@ plugins {
     id 'application'
     id 'idea'
     id 'edu.sc.seis.launch4j' version '3.0.5'
-    id "com.github.johnrengelman.shadow" version "7.1.2"
-    id "com.github.ben-manes.versions" version "0.50.0"
+    id "com.github.johnrengelman.shadow" version "8.1.1"
+    id "com.github.ben-manes.versions" version "0.51.0"
     id 'nebula.lint' version '19.0.1'
 }
 
@@ -36,20 +36,10 @@ tasks.withType(JavaCompile) {
 
 // Define the main class for the application
 def startClass = 'com.dmtavt.fragpipe.FragPipeMain'
-mainClassName = "${startClass}"
 application {
     mainClass = "${startClass}"
 }
 def releaseDir = 'github-release'
-
-//
-//task createStartScripts(type: CreateStartScripts, group: 'release') {
-//    outputDir = file('build/github-release')
-//    mainClassName = 'umich.msfragger.gui.MsFraggerGui'
-//    applicationName = 'FragPipe'
-//    executableDir = './'
-//    classpath = files("asd/FragPipe-${version}.jar")
-//}
 
 repositories {
     mavenCentral()
@@ -176,7 +166,7 @@ task showImplDeps(type: DependencyReportTask, group: 'chhh-help',
 
 task createStartScripts(type: CreateStartScripts, group: "chhh-release") {
     outputDir = file('build/pre-zip-release')
-    mainClassName = "${startClass}"
+    mainClass = "${startClass}"
     applicationName = 'FragPipe'
     classpath = files("fragpipe-${project.version}.jar")
 }
@@ -185,20 +175,20 @@ task makeExeAndCopyToScripts(type: Copy, group: 'chhh-release', description: 'Th
         'created requires to be placed in ./bin/ sub-direcotry of the final distribution and ' +
         'having fragpipe-x.x.x.jar in ./lib/ sub-directory') {
     dependsOn 'createExe'
-    from "$buildDir/launch4j/bin"
-    into file("$buildDir/scripts")
+    from getLayout().buildDirectory.dir('launch4j/bin').get()
+    into getLayout().buildDirectory.dir('scripts').get().asFile
 }
 
 task copyJre(type: Copy, group: 'chhh-release', description: 'Copies JRE to build/install/fragpipe') {
-    from "$buildDir/../../jre/OpenJDK17U-jre_x64_windows_hotspot_17.0.10_7"
-    into file("$buildDir/install/${project.name}")
+    from getLayout().buildDirectory.dir('../../jre/OpenJDK17U-jre_x64_windows_hotspot_17.0.10_7').get()
+    into getLayout().buildDirectory.dir("install/${project.name}").get().asFile
 }
 
 void createTaskCopyToInstallRelToBuild(String taskNameSuffix, String fromRelToBuild, String toRelToInstallProjname) {
     String taskName = "copy" + taskNameSuffix
-    task (taskName, type: Copy, group: 'chhh-release', description: "Copies from [$buildDir/$fromRelToBuild] to [$buildDir/install/${project.name}]") {
-        from "$buildDir/$fromRelToBuild"
-        into file("$buildDir/install/${project.name}/$toRelToInstallProjname")
+    task (taskName, type: Copy, group: 'chhh-release', description: "Copies JRE") {
+        from getLayout().buildDirectory.dir("$fromRelToBuild").get()
+        into getLayout().buildDirectory.dir("install/${project.name}/$toRelToInstallProjname").get().asFile
     }
 }
 
@@ -269,6 +259,7 @@ task makeReleaseZips(group: 'chhh-release') {
     dependsOn('makeReleaseZipWithJre')
 
     tasks.findByName('makeReleaseZipNoJre').mustRunAfter 'clean'
+    tasks.findByName('copyJre').mustRunAfter 'makeReleaseZipNoJre'
     tasks.findByName('makeReleaseZipWithJre').mustRunAfter 'makeReleaseZipNoJre'
 }
 allprojects {
