@@ -18,16 +18,12 @@
 package com.dmtavt.fragpipe.tabs;
 
 import static com.dmtavt.fragpipe.cmd.CmdBase.constructClasspathString;
-import static com.dmtavt.fragpipe.messages.MessagePrintToConsole.toConsole;
-import static com.dmtavt.fragpipe.tabs.TabWorkflow.workflowExt;
-import static com.dmtavt.fragpipe.tools.skyline.Skyline.skylineVersionT;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.FragpipeRun;
 import com.dmtavt.fragpipe.Version;
 import com.dmtavt.fragpipe.api.Bus;
-import com.dmtavt.fragpipe.api.PropsFile;
 import com.dmtavt.fragpipe.cmd.PbiBuilder;
 import com.dmtavt.fragpipe.cmd.ProcessBuilderInfo;
 import com.dmtavt.fragpipe.cmd.ToolingUtils;
@@ -42,7 +38,6 @@ import com.dmtavt.fragpipe.messages.MessageSaveLog;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
 import com.dmtavt.fragpipe.process.ProcessResult;
 import com.dmtavt.fragpipe.tools.philosopher.ReportPanel;
-import com.dmtavt.fragpipe.tools.skyline.Skyline;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
@@ -64,13 +59,9 @@ import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URI;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
@@ -82,10 +73,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.TreeSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -99,7 +86,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.UIManager;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.jooq.lambda.Seq;
@@ -115,7 +101,6 @@ public class TabRun extends JPanelWithEnablement {
   private static final String PROP_FILECHOOSER_LAST_PATH = TAB_PREFIX + "filechooser.last-path";
   private static final String PDV_NAME = "/FP-PDV/FP-PDV-1.2.0.jar";
   private static final String FRAGPIPE_ANALYST_URL = Fragpipe.propsFix().getProperty("fragpipe-analyst-url", "http://fragpipe-analyst.nesvilab.org/");
-  private static final Pattern pattern = Pattern.compile("Converged to [\\d.]+ % FDR with \\d+ Ions\"?\\s+decoy=\\d+ threshold=([\\d.]+) total=\\d+");
 
   public final TextConsole console;
   Color defTextColor;
@@ -129,14 +114,11 @@ public class TabRun extends JPanelWithEnablement {
   private JButton btnStop;
   private JButton btnOpenPdv;
   private JButton btnOpenFragPipeAnalyst;
-  public JButton btnOpenSkyline;
   private Thread pdvThread = null;
-  private Thread skylineThread = null;
   private JPanel pTop;
   private JPanel pConsole;
   private UiCheck uiCheckWordWrap;
   private Process pdvProcess = null;
-  private Process skylineProcess = null;
   private TabDownstream tabDownstream;
   private UiCheck uiCheckSaveSDRF;
 
@@ -325,209 +307,6 @@ public class TabRun extends JPanelWithEnablement {
       SwingUtils.openBrowserOrThrow(FRAGPIPE_ANALYST_URL);
     });
 
-    btnOpenSkyline = UiUtils.createButton("Generate Skyline files", e -> {
-      String skylinePath = Skyline.getSkylineRunnerPath();
-
-      if (skylinePath == null || skylinePath.isEmpty()) {
-        SwingUtils.showErrorDialog(this, "Cannot find SkylineCmd.exe.", "No SkylineCmd.exe");
-      } else {
-        Path wd = Paths.get(uiTextWorkdir.getNonGhostText());
-        Path workflowPath = wd.resolve("fragpipe" + workflowExt);
-        PropsFile pf = new PropsFile(workflowPath, "for Skyline");
-
-        List<Path> speclibFiles = new ArrayList<>(1);
-        TreeSet<String> lcmsFiles = new TreeSet<>();
-        TreeSet<Path> pepxmlFiles = new TreeSet<>();
-        float probThreshold = 1;
-        List<String> cmd = new ArrayList<>();
-
-        try {
-          pf.load();
-
-          String dataType = "None";
-          String line;
-          BufferedReader reader = Files.newBufferedReader(wd.resolve("fragpipe-files.fp-manifest"));
-          while ((line = reader.readLine()) != null) {
-            line = line.trim();
-            if (line.isEmpty()) {
-              continue;
-            }
-            String[] parts = line.split("\t");
-            if (parts[3].contains("DIA")) {
-              dataType = "DIA";
-            }
-          }
-          reader.close();
-
-          reader = Files.newBufferedReader(wd.resolve("fragpipe-files.fp-manifest"));
-          while ((line = reader.readLine()) != null) {
-            line = line.trim();
-            if (line.isEmpty()) {
-              continue;
-            }
-            String[] parts = line.split("\t");
-            if (dataType.contentEquals("DIA")) {
-              if (parts[3].contains("DIA")) {
-                lcmsFiles.add(parts[0]);
-              }
-            } else {
-              lcmsFiles.add(parts[0]);
-            }
-          }
-          reader.close();
-
-          List<Path> logFiles = Files.walk(wd).filter(p -> p.getFileName().toString().startsWith("log_") && p.getFileName().toString().endsWith(".txt")).sorted().collect(Collectors.toList());
-
-          if (logFiles.isEmpty()) {
-            throw new FileNotFoundException("No log files found in " + wd);
-          }
-
-          reader = Files.newBufferedReader(logFiles.get(logFiles.size() - 1));
-          while ((line = reader.readLine()) != null) {
-            line = line.trim();
-            if (line.isEmpty()) {
-              continue;
-            }
-            Matcher matcher = pattern.matcher(line);
-            if (matcher.find()) {
-              float f = Float.parseFloat(matcher.group(1));
-              if (f < probThreshold) {
-                probThreshold = f;
-              }
-            }
-          }
-          reader.close();
-
-          if (probThreshold == 1) {
-            throw new RuntimeException("Could not find the probability threshold in the log file.");
-          }
-
-          pepxmlFiles = Files.walk(wd).filter(p -> p.getFileName().toString().startsWith("interact-") && p.getFileName().toString().endsWith(".pep.xml")).collect(Collectors.toCollection(TreeSet::new));
-          pepxmlFiles.addAll(Files.walk(wd).filter(p -> p.getFileName().toString().contentEquals("interact.pep.xml")).collect(Collectors.toCollection(TreeSet::new)));
-          speclibFiles = Files.walk(wd).filter(p -> p.getFileName().toString().endsWith(".speclib")).collect(Collectors.toList());
-
-          Path pp = wd.resolve("filelist_skyline.txt");
-
-          BufferedWriter writer = Files.newBufferedWriter(pp);
-          writer.write("--overwrite ");
-          writer.write("--new=fragpipe.sky ");
-          writer.write("--import-search-add-mods ");
-          writer.write("--full-scan-acquisition-method=" + dataType + " ");
-
-          if (speclibFiles.isEmpty()) {
-            writer.write("--import-search-cutoff-score=" + probThreshold + " ");
-            for (Path p : pepxmlFiles) {
-              writer.write("--import-search-file=" + p.toAbsolutePath() + " ");
-            }
-          } else {
-            writer.write("--import-search-cutoff-score=0.01 ");
-            writer.write("--import-search-file=" + speclibFiles.get(0).toAbsolutePath() + " ");
-          }
-
-          DefaultArtifactVersion v = Skyline.getSkylineVersion();
-          if (v.compareTo(skylineVersionT) > 0) {
-            // parameters added after released 23.1 version
-            writer.write("--pep-max-missed-cleavages=" + pf.getProperty("msfragger.allowed_missed_cleavage_1") + " ");
-            writer.write("--pep-min-length=" + pf.getProperty("msfragger.digest_min_length") + " ");
-            writer.write("--pep-max-length=" + pf.getProperty("msfragger.digest_max_length") + " ");
-            writer.write("--pep-exclude-nterminal-aas=0 ");
-          }
-          writer.write("--tran-precursor-ion-charges=\"2,3,4,5,6\" ");
-          writer.write("--tran-product-ion-charges=\"1,2\" ");
-          writer.write("--tran-product-ion-types=\"y,b,p\" ");
-          writer.write("--tran-product-start-ion=\"ion 3\" ");
-          writer.write("--tran-product-end-ion=\"last ion\" ");
-          writer.write("--tran-product-clear-special-ions ");
-          if (pf.getProperty("msfragger.fragment_mass_units").contentEquals("1")) {
-            writer.write("--library-match-tolerance=" + pf.getProperty("msfragger.fragment_mass_tolerance") + "ppm ");
-          } else {
-            writer.write("--library-match-tolerance=" + pf.getProperty("msfragger.fragment_mass_tolerance") + "mz ");
-          }
-          writer.write("--library-product-ions=12 ");
-          writer.write("--library-min-product-ions=" + pf.getProperty("msfragger.min_matched_fragments") + " ");
-          writer.write("--library-pick-product-ions=filter ");
-          writer.write("--full-scan-precursor-analyzer=centroided ");
-          writer.write("--full-scan-precursor-isotopes=Count ");
-          writer.write("--full-scan-precursor-threshold=3 ");
-          writer.write("--full-scan-product-analyzer=centroided ");
-
-          if (pf.getProperty("msfragger.precursor_true_units").contentEquals("1")) {
-            writer.write("--full-scan-precursor-res=" + pf.getProperty("msfragger.precursor_true_tolerance") + " ");
-          } else {
-            writer.write("--full-scan-precursor-res=" + (Float.parseFloat(pf.getProperty("msfragger.precursor_true_tolerance")) * 1000) + " ");
-          }
-
-          if (pf.getProperty("msfragger.fragment_mass_units").contentEquals("1")) {
-            writer.write("--full-scan-product-res=" + pf.getProperty("msfragger.fragment_mass_tolerance") + " ");
-          } else {
-            writer.write("--full-scan-product-res=" + (Float.parseFloat(pf.getProperty("msfragger.fragment_mass_tolerance")) * 1000) + " ");
-          }
-
-          writer.write("--full-scan-rt-filter=ms2_ids ");
-          writer.write("--full-scan-rt-filter-tolerance=2 ");
-          writer.write("--instrument-min-mz=50 ");
-          writer.write("--instrument-max-mz=2000 ");
-          writer.write("--full-scan-precursor-isotopes=Count ");
-          writer.write("--full-scan-isolation-scheme=\"Results only\" ");
-          for (String s : lcmsFiles) {
-            writer.write("--import-file=" + s + " ");
-          }
-          writer.write("--import-search-exclude-library-sources ");
-
-          Files.walk(wd).filter(p -> p.getFileName().toString().contentEquals("protein.fas")).forEach(p -> {
-            try {
-              writer.write("--import-fasta=" + p.toAbsolutePath() + " ");
-            } catch (IOException ex) {
-              throw new RuntimeException(ex);
-            }
-          });
-          writer.write("--associate-proteins-shared-peptides=DuplicatedBetweenProteins ");
-
-          writer.close();
-
-          cmd.add(skylinePath);
-          cmd.add("--timestamp");
-          cmd.add("--dir=" + wd.toAbsolutePath());
-          cmd.add("--batch-commands=" + pp.toAbsolutePath());
-
-          toConsole("Executing: " + String.join(" ", cmd), console);
-        } catch (Exception ex) {
-          toConsole(Color.red, ExceptionUtils.getStackTrace(ex), true, console);
-          btnOpenSkyline.setEnabled(true);
-          return;
-        }
-
-        skylineThread = new Thread(() -> {
-          try {
-            btnOpenSkyline.setEnabled(false);
-            ProcessBuilder pb = new ProcessBuilder(cmd);
-            ProcessBuilderInfo pbi = new PbiBuilder().setPb(pb).setName(pb.toString()).setFnStdOut(null).setFnStdErr(null).setParallelGroup(null).create();
-            ProcessResult pr = new ProcessResult(pbi);
-            skylineProcess = pr.start();
-
-            redirectOutputToConsole(skylineProcess.getInputStream(), console);
-
-            int exitValue = skylineProcess.waitFor();
-            if (exitValue != 0) {
-              String errStr = pr.appendErr(pr.pollStdErr());
-              toConsole(Color.red, "Process " + pb + " returned non zero value. Message:\n" + (errStr == null ? "" : errStr), true, console);
-            } else {
-              toConsole("DONE! The Skyline files locate in " + wd.toAbsolutePath(), console);
-            }
-          } catch (Exception ex) {
-            toConsole(Color.red, ExceptionUtils.getStackTrace(ex), true, console);
-            if (skylineProcess != null) {
-              skylineProcess.destroyForcibly();
-            }
-            btnOpenSkyline.setEnabled(true);
-          } finally {
-            btnOpenSkyline.setEnabled(true);
-          }
-        });
-        skylineThread.start();
-      }
-    });
-
     JButton btnExport = UiUtils.createButton("Export Log", e -> Bus.post(new MessageExportLog()));
     JButton btnReportErrors = UiUtils.createButton("Report Errors", e -> {
       final String prop = Version.isDevBuild() ? Version.PROP_ISSUE_TRACKER_URL_DEV : Version.PROP_ISSUE_TRACKER_URL;
@@ -595,8 +374,6 @@ public class TabRun extends JPanelWithEnablement {
     mu.add(p, imageLabel2).gapLeft("30px");
     mu.add(p, btnOpenFragPipeAnalyst);
 
-    mu.add(p, btnOpenSkyline);
-
     mu.add(p, uiCheckDeleteCalibratedFiles, false).split();
     mu.add(p, uiCheckDeleteTempFiles).gapRight("20px");
     mu.add(p, feWriteSubMzml.comp, false).gapRight("20px");
@@ -604,19 +381,6 @@ public class TabRun extends JPanelWithEnablement {
     mu.add(p, feProbThreshold.comp, false).wrap();
 
     return p;
-  }
-
-  private void redirectOutputToConsole(InputStream inputStream, TextConsole console) {
-    new Thread(() -> {
-      try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
-        String line;
-        while ((line = reader.readLine()) != null) {
-          toConsole(line, console);
-        }
-      } catch (IOException e) {
-        toConsole(Color.red, ExceptionUtils.getStackTrace(e), true, console);
-      }
-    }).start();
   }
 
   public boolean isDryRun() {

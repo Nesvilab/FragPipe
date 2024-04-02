@@ -56,6 +56,7 @@ import com.dmtavt.fragpipe.cmd.CmdPhilosopherWorkspaceCleanInit;
 import com.dmtavt.fragpipe.cmd.CmdProteinProphet;
 import com.dmtavt.fragpipe.cmd.CmdPtmProphet;
 import com.dmtavt.fragpipe.cmd.CmdPtmshepherd;
+import com.dmtavt.fragpipe.cmd.CmdSkyline;
 import com.dmtavt.fragpipe.cmd.CmdSpecLibGen;
 import com.dmtavt.fragpipe.cmd.CmdStart;
 import com.dmtavt.fragpipe.cmd.CmdTmtIntegrator;
@@ -110,6 +111,7 @@ import com.dmtavt.fragpipe.tools.ptmprophet.PtmProphetPanel;
 import com.dmtavt.fragpipe.tools.ptmshepherd.PTMSGlycanAssignPanel;
 import com.dmtavt.fragpipe.tools.ptmshepherd.PtmshepherdPanel;
 import com.dmtavt.fragpipe.tools.skyline.Skyline;
+import com.dmtavt.fragpipe.tools.skyline.SkylinePanel;
 import com.dmtavt.fragpipe.tools.speclibgen.SpecLibGen2;
 import com.dmtavt.fragpipe.tools.speclibgen.SpeclibPanel;
 import com.dmtavt.fragpipe.tools.tmtintegrator.QuantLabel;
@@ -1930,6 +1932,16 @@ public class FragpipeRun {
     });
 
 
+    final SkylinePanel skylinePanel = Fragpipe.getStickyStrict(SkylinePanel.class);
+    final CmdSkyline cmdSkyline = new CmdSkyline(skylinePanel.isRun(), wd);
+    addConfig.accept(cmdSkyline, () -> {
+      if (cmdSkyline.isRun()) {
+        return cmdSkyline.configure(skylinePanel.getSkylinePath(), skylinePanel.getSkylineVersion(), jarPath, ramGb);
+      }
+      return true;
+    });
+
+
     // write sub mzML files
     final CmdWriteSubMzml cmdWriteSubMzml = new CmdWriteSubMzml(tabRun.isWriteSubMzml(), wd);
     addConfig.accept(cmdWriteSubMzml, () -> {
@@ -2005,6 +2017,7 @@ public class FragpipeRun {
     addToGraph(graphOrder, cmdFpopQuant, DIRECTION.IN, cmdIonquant, cmdTmt, cmdTmtFpop);
     addToGraph(graphOrder, cmdSpecLibGen, DIRECTION.IN, cmdPhilosopherReport, cmdOPair);
     addToGraph(graphOrder, cmdDiann, DIRECTION.IN, cmdSpecLibGen);
+    addToGraph(graphOrder, cmdSkyline, DIRECTION.IN, cmdDiann, cmdSpecLibGen, cmdPhilosopherReport);
     addToGraph(graphOrder, cmdWriteSubMzml, DIRECTION.IN, cmdPhilosopherReport);
 
     // compose graph of required dependencies

@@ -59,6 +59,7 @@ import com.dmtavt.fragpipe.tabs.TabPtms;
 import com.dmtavt.fragpipe.tabs.TabQuantificationLabeling;
 import com.dmtavt.fragpipe.tabs.TabQuantificationLfq;
 import com.dmtavt.fragpipe.tabs.TabRun;
+import com.dmtavt.fragpipe.tabs.TabSkyline;
 import com.dmtavt.fragpipe.tabs.TabSpecLib;
 import com.dmtavt.fragpipe.tabs.TabDiaPseudoMs2;
 import com.dmtavt.fragpipe.tabs.TabValidation;
@@ -209,6 +210,7 @@ public class Fragpipe extends JFrameHeadless {
   private UiTab uiTabQuantLabeled;
   private UiTab uiTabSpecLib;
   private UiTab uiTabDiann;
+  private UiTab uiTabSkyline;
   private UiTab uiTabRun;
   private UiTab uiTabDownstream;
 
@@ -637,6 +639,7 @@ public class Fragpipe extends JFrameHeadless {
     TabGlyco tabGlyco = new TabGlyco();
     TabSpecLib tabSpecLib = new TabSpecLib();
     TabDiann tabDiann = new TabDiann();
+    TabSkyline tabSkyline = new TabSkyline();
     TabDownstream tabDownstream = new TabDownstream();
     TabRun tabRun = new TabRun(console, tabDownstream);
 
@@ -661,6 +664,7 @@ public class Fragpipe extends JFrameHeadless {
       "/com/dmtavt/fragpipe/icons/icon-library-16.png", null, true);
     uiTabDiann = new UiTab("Quant (DIA)", tabDiann,
       "/com/dmtavt/fragpipe/icons/icon-diann-16.png", null, true);
+    uiTabSkyline = new UiTab("Skyline", tabSkyline, "/com/dmtavt/fragpipe/icons/icon-skyline-16.png", null, true);
     uiTabRun = new UiTab("Run", tabRun, "/com/dmtavt/fragpipe/icons/video-play-16.png", null, false);
     uiTabDownstream = new UiTab("Downstream", tabDownstream, "/com/dmtavt/fragpipe/icons/icon-saint-20.png", null, false);
 
@@ -676,6 +680,7 @@ public class Fragpipe extends JFrameHeadless {
     addTab(tp, uiTabQuantLabeled);
     addTab(tp, uiTabSpecLib);
     addTab(tp, uiTabDiann);
+    addTab(tp, uiTabSkyline);
     addTab(tp, uiTabRun);
     addTab(tp, uiTabDownstream);
 
@@ -694,7 +699,8 @@ public class Fragpipe extends JFrameHeadless {
       fp.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
       fp.setTitle(Version.PROGRAM_TITLE + " (v" + Version.version() + ")");
       fp.setLocale(Locale.ROOT);
-      fp.setMinimumSize(new Dimension(640, 480));
+      fp.setMinimumSize(new Dimension(700, 480));
+      fp.setPreferredSize(new Dimension(1300, 1300));
       fp.setLayout(new MigLayout(new LC().fill()));
     }
     defFont = new JLabel("dummy label to get default font from");
