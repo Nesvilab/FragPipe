@@ -156,7 +156,13 @@ public class Skyline {
 
       BufferedWriter writer = Files.newBufferedWriter(pp);
       writer.write("--overwrite ");
-      writer.write("--new=fragpipe.sky ");
+      if (mode == 0) {
+        writer.write("--new=fragpipe.sky ");
+      } else if (mode == 1) {
+        writer.write("--new=fragpipe_skylib.sky ");
+      } else {
+        throw new RuntimeException("Unsupported Skyline mode: " + mode);
+      }
       writer.write("--import-search-add-mods ");
       writer.write("--full-scan-acquisition-method=" + dataType + " ");
 
