@@ -1836,7 +1836,7 @@ public class FragpipeRun {
             .filter(StringUtils::isNotBlank)
             .ifPresent(v -> additionalShepherdParams.put("isotope_error", v));
         return cmdPtmshepherd.configure(parent, isDryRun, Paths.get(binMsfragger.getBin()),
-            ramGb, fastaPath, sharedMapGroupsToProtxml, additionalShepherdParams);
+            ramGb, fastaPath, sharedMapGroupsToProtxml, additionalShepherdParams, jarPath);
       }
       return true;
     });
