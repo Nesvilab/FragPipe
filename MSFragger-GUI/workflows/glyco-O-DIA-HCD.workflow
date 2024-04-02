@@ -284,6 +284,7 @@ skyline.skyline=true
 skyline.skyline-custom=false
 skyline.skyline-custom-path=
 skyline.skyline-daily=false
+skyline.skyline-mode=0
 speclibgen.convert-pepxml=false
 speclibgen.convert-psm=true
 speclibgen.easypqp.extras.max_delta_ppm=15

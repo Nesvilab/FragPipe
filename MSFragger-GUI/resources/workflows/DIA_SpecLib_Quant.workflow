@@ -283,6 +283,7 @@ skyline.skyline=true
 skyline.skyline-custom=false
 skyline.skyline-custom-path=
 skyline.skyline-daily=false
+skyline.skyline-mode=0
 speclibgen.easypqp.extras.max_delta_ppm=15
 speclibgen.easypqp.extras.max_delta_unimod=0.02
 speclibgen.easypqp.extras.rt_lowess_fraction=0

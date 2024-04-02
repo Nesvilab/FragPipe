@@ -63,14 +63,14 @@ public class Skyline {
 
   public static void main(String[] args) {
     try {
-      runSkyline(args[0], Paths.get(args[1]), args[2]);
+      runSkyline(args[0], Paths.get(args[1]), args[2], Integer.parseInt(args[3]));
     } catch (Exception e) {
       e.printStackTrace();
       System.exit(1);
     }
   }
 
-  private static void runSkyline(String skylinePath, Path wd, String skylineVersion) throws Exception {
+  private static void runSkyline(String skylinePath, Path wd, String skylineVersion, int mode) throws Exception {
     if (skylinePath == null || skylinePath.isEmpty()) {
       throw new RuntimeException("Cannot find the Skyline executable file.");
     } else {
@@ -147,6 +147,11 @@ public class Skyline {
       pepxmlFiles.addAll(Files.walk(wd).filter(p -> p.getFileName().toString().contentEquals("interact.pep.xml")).collect(Collectors.toCollection(TreeSet::new)));
       speclibFiles = Files.walk(wd).filter(p -> p.getFileName().toString().endsWith(".speclib")).collect(Collectors.toList());
 
+      if (mode == 0 && speclibFiles.isEmpty()) {
+        System.out.println("No speclib files found in " + wd + " but Skyline was set to use the speclib as input. Let Skyline build its own speclib.");
+        mode = 1;
+      }
+
       Path pp = wd.resolve("filelist_skyline.txt");
 
       BufferedWriter writer = Files.newBufferedWriter(pp);
@@ -155,7 +160,7 @@ public class Skyline {
       writer.write("--import-search-add-mods ");
       writer.write("--full-scan-acquisition-method=" + dataType + " ");
 
-      if (speclibFiles.isEmpty()) {
+      if (mode == 1) {
         writer.write("--import-search-cutoff-score=" + probThreshold + " ");
         for (Path p : pepxmlFiles) {
           writer.write("--import-search-file=" + p.toAbsolutePath() + " ");

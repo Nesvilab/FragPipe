@@ -23,6 +23,7 @@ import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.tools.skyline.Skyline;
 import com.github.chhh.utils.OsUtils;
+import java.awt.Component;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -48,7 +49,7 @@ public class CmdSkyline extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(String skylinePath, String skylineVersion, Path jarFragpipe, int ramGb) {
+  public boolean configure(Component comp, String skylinePath, String skylineVersion, Path jarFragpipe, int ramGb, int mode) {
     initPreConfig();
 
     if (skylinePath == null) {
@@ -95,6 +96,7 @@ public class CmdSkyline extends CmdBase {
     cmd.add(skylinePath);
     cmd.add(wd.toAbsolutePath().toString());
     cmd.add(skylineVersion);
+    cmd.add(String.valueOf(mode));
 
     ProcessBuilder pb = new ProcessBuilder(cmd);
     pb.directory(wd.toFile());

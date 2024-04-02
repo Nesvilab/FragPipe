@@ -24,6 +24,7 @@ import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelBase;
 import com.github.chhh.utils.swing.UiCheck;
+import com.github.chhh.utils.swing.UiCombo;
 import com.github.chhh.utils.swing.UiRadio;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
@@ -32,6 +33,7 @@ import java.awt.Component;
 import java.awt.ItemSelectable;
 import java.awt.image.BufferedImage;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Stream;
 import javax.imageio.ImageIO;
@@ -63,6 +65,7 @@ public class SkylinePanel extends JPanelBase {
   private UiRadio uiRadioSkylineDaily;
   private UiRadio uiRadioSkylineCustom;
   private UiText uiTextSkylineCustom;
+  private UiCombo uiComboMode;
 
   @Override
   protected void initMore() {
@@ -154,11 +157,18 @@ public class SkylinePanel extends JPanelBase {
       updateEnabledStatus(jButtonSkylineCustom, uiRadioSkylineCustom.isSelected());
     });
 
+    uiComboMode = UiUtils.createUiCombo(Arrays.asList("Use FragPipe speclib", "Build Skyline speclib"));
+    uiComboMode.setSelectedIndex(0);
+    FormEntry feComboMode = new FormEntry("skyline-mode", "Skyline running mode", uiComboMode, "Let Skyline take FragPipe speclib as input or build its own speclib");
+
     mu.add(panelBasic, feRadioSkyline.comp);
     mu.add(panelBasic, feRadioSkylineDaily.comp);
     mu.add(panelBasic, feRadioSkylineCustom.comp).split(3);
     mu.add(panelBasic, feSkylineCustom.comp).growX().pushX();
     mu.add(panelBasic, jButtonSkylineCustom).wrap();
+
+    mu.add(panelBasic, feComboMode.label(), mu.ccL());
+    mu.add(panelBasic, feComboMode.comp).wrap();
 
     updateEnabledStatus(feSkylineCustom.comp, uiRadioSkylineCustom.isSelected());
     updateEnabledStatus(jButtonSkylineCustom, uiRadioSkylineCustom.isSelected());
@@ -244,5 +254,9 @@ public class SkylinePanel extends JPanelBase {
     } else {
       return null;
     }
+  }
+
+  public int getMode() {
+    return uiComboMode.getSelectedIndex();
   }
 }
