@@ -76,14 +76,9 @@ public class Skyline {
     } else {
       Path workflowPath = wd.resolve("fragpipe" + workflowExt);
       PropsFile pf = new PropsFile(workflowPath, "for Skyline");
-
-      List<Path> speclibFiles;
-      TreeSet<String> lcmsFiles = new TreeSet<>();
-      TreeSet<Path> pepxmlFiles;
-      float probThreshold = 1;
-      List<String> cmd = new ArrayList<>();
-
       pf.load();
+
+      TreeSet<String> lcmsFiles = new TreeSet<>();
 
       String dataType = "None";
       String line;
@@ -117,39 +112,44 @@ public class Skyline {
       }
       reader.close();
 
-      List<Path> logFiles = Files.walk(wd).filter(p -> p.getFileName().toString().contentEquals("filter.log")).collect(Collectors.toList());
-
-      if (logFiles.isEmpty()) {
-        throw new FileNotFoundException("No filter.log files found in " + wd);
-      }
-
-      reader = Files.newBufferedReader(logFiles.get(logFiles.size() - 1));
-      while ((line = reader.readLine()) != null) {
-        line = line.trim();
-        if (line.isEmpty()) {
-          continue;
-        }
-        Matcher matcher = pattern.matcher(line);
-        if (matcher.find()) {
-          float f = Float.parseFloat(matcher.group(1));
-          if (f < probThreshold) {
-            probThreshold = f;
-          }
-        }
-      }
-      reader.close();
-
-      if (probThreshold == 1) {
-        throw new RuntimeException("Could not find the probability threshold in the filter.log.");
-      }
-
-      pepxmlFiles = Files.walk(wd).filter(p -> p.getFileName().toString().startsWith("interact-") && p.getFileName().toString().endsWith(".pep.xml")).collect(Collectors.toCollection(TreeSet::new));
-      pepxmlFiles.addAll(Files.walk(wd).filter(p -> p.getFileName().toString().contentEquals("interact.pep.xml")).collect(Collectors.toCollection(TreeSet::new)));
-      speclibFiles = Files.walk(wd).filter(p -> p.getFileName().toString().endsWith(".speclib")).collect(Collectors.toList());
+      float probThreshold = 1.1f;
+      TreeSet<Path> pepxmlFiles = new TreeSet<>();
+      List<Path> speclibFiles = Files.walk(wd).filter(p -> p.getFileName().toString().endsWith(".speclib")).collect(Collectors.toList());
 
       if (mode == 0 && speclibFiles.isEmpty()) {
         System.out.println("No speclib files found in " + wd + " but Skyline was set to use the speclib as input. Let Skyline build its own speclib.");
         mode = 1;
+      }
+
+      if (mode == 1) {
+        List<Path> logFiles = Files.walk(wd).filter(p -> p.getFileName().toString().contentEquals("filter.log")).collect(Collectors.toList());
+
+        if (logFiles.isEmpty()) {
+          throw new FileNotFoundException("No filter.log files found in " + wd);
+        }
+
+        reader = Files.newBufferedReader(logFiles.get(logFiles.size() - 1));
+        while ((line = reader.readLine()) != null) {
+          line = line.trim();
+          if (line.isEmpty()) {
+            continue;
+          }
+          Matcher matcher = pattern.matcher(line);
+          if (matcher.find()) {
+            float f = Float.parseFloat(matcher.group(1));
+            if (f < probThreshold) {
+              probThreshold = f;
+            }
+          }
+        }
+        reader.close();
+
+        if (probThreshold > 1) {
+          throw new RuntimeException("Could not find the probability threshold in the filter.log.");
+        }
+
+        pepxmlFiles = Files.walk(wd).filter(p -> p.getFileName().toString().startsWith("interact-") && p.getFileName().toString().endsWith(".pep.xml")).collect(Collectors.toCollection(TreeSet::new));
+        pepxmlFiles.addAll(Files.walk(wd).filter(p -> p.getFileName().toString().contentEquals("interact.pep.xml")).collect(Collectors.toCollection(TreeSet::new)));
       }
 
       Path pp = wd.resolve("filelist_skyline.txt");
@@ -237,6 +237,7 @@ public class Skyline {
 
       writer.close();
 
+      List<String> cmd = new ArrayList<>();
       cmd.add(skylinePath);
       cmd.add("--timestamp");
       cmd.add("--dir=" + wd.toAbsolutePath());
