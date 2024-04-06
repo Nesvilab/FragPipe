@@ -348,7 +348,6 @@ public class TabRun extends JPanelWithEnablement {
     uiCheckSaveSDRF.setName("workflow.misc.save-sdrf");
     uiCheckSaveSDRF.setToolTipText("Save a template SDRF file with technical columns (search parameters) for this FragPipe run. \n" +
         "NOTE: this is not a complete SDRF file, information about the samples needs to be added to complete it.");
-    JLabel emptySpacer = new JLabel("              ");
 
     JPanel p = mu.newPanel(null, true);
     mu.add(p, btnAbout).wrap();
@@ -357,28 +356,27 @@ public class TabRun extends JPanelWithEnablement {
     mu.add(p, btnBrowse);
     mu.add(p, btnOpenInFileManager).wrap();
 
-    mu.add(p, btnRun).split(5);
+    mu.add(p, btnRun).split(3);
     mu.add(p, btnStop);
     mu.add(p, uiCheckDryRun);
-    mu.add(p, emptySpacer).split();
     mu.add(p, uiCheckSaveSDRF);
 
-    mu.add(p, btnExport, false).split();
+    mu.add(p, btnExport).split(3);
     mu.add(p, btnReportErrors);
     mu.add(p, btnClearConsole);
     mu.add(p, uiCheckWordWrap).wrap();
 
-    mu.add(p, imageLabel).split(5);
-    mu.add(p, btnOpenPdv).pushX();
+    mu.add(p, imageLabel).split(2);
+    mu.add(p, btnOpenPdv);
 
-    mu.add(p, imageLabel2).gapLeft("30px");
+    mu.add(p, imageLabel2).split(2);
     mu.add(p, btnOpenFragPipeAnalyst);
 
-    mu.add(p, uiCheckDeleteCalibratedFiles, false).split();
-    mu.add(p, uiCheckDeleteTempFiles).gapRight("20px");
-    mu.add(p, feWriteSubMzml.comp, false).gapRight("20px");
-    mu.add(p, feProbThreshold.label(), false);
-    mu.add(p, feProbThreshold.comp, false).wrap();
+    mu.add(p, uiCheckDeleteCalibratedFiles).split(2);
+    mu.add(p, uiCheckDeleteTempFiles);
+    mu.add(p, feWriteSubMzml.comp).split(3);
+    mu.add(p, feProbThreshold.label());
+    mu.add(p, feProbThreshold.comp).wrap();
 
     return p;
   }
