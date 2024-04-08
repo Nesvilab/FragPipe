@@ -111,6 +111,11 @@ public class CmdMSBooster extends CmdBase {
       return false;
     }
 
+    if (koinaURL.isEmpty() && (findBestRtModel || findBestSpectraModel)) {
+      SwingUtils.showErrorDialog(comp, "Koina URL is required for <b>Find best RT/spectra model</b>.\nPlease go to <b>Validation</b> tab and adjust the settings.", NAME + " error");
+      return false;
+    }
+
     String fraggerParams;
     if (hasDda || isRunDiaU || isRunDiaTracer) {
       if (hasDia || hasDiaLib || hasGpfDia) {
