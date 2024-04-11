@@ -152,9 +152,13 @@ public class Skyline {
         pepxmlFiles.addAll(Files.walk(wd).filter(p -> p.getFileName().toString().contentEquals("interact.pep.xml")).collect(Collectors.toCollection(TreeSet::new)));
       }
 
+      Path modSkyPath = wd.resolve("mod.sky");
+      new WriteSky(modSkyPath, pf.getProperty("msfragger.table.fix-mods"), pf.getProperty("msfragger.table.var-mods"), pf.getProperty("msfragger.mass_offsets"), pf.getProperty("msfragger.mass_offsets_detailed"));
+
       Path pp = wd.resolve("filelist_skyline.txt");
 
       BufferedWriter writer = Files.newBufferedWriter(pp);
+      writer.write("--in=" + modSkyPath.toAbsolutePath() + " ");
       writer.write("--overwrite ");
       if (mode == 0) {
         writer.write("--new=fragpipe.sky ");
