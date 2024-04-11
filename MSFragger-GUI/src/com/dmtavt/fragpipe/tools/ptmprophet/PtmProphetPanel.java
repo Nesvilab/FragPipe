@@ -182,8 +182,11 @@ public class PtmProphetPanel extends JPanelBase {
     for (Mod mod: mods) {
       if (mod.isEnabled && mod.massDelta != 0) {
         String sites = mod.sites;
-        if (sites.contentEquals("") || sites.contains("*")) {
+        if (sites.contentEquals("")) {
           sites = "ACDEFGHIKLMNPQRSTVWY";
+        }
+        if (sites.contains("*")) {
+          sites = sites.replace("*", "ACDEFGHIKLMNPQRSTVWY");
         }
         // handle terminal characters
         if (sites.contains("n^") || sites.contains("[^")) {
