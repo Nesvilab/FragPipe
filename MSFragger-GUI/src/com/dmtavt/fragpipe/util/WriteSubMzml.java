@@ -183,7 +183,7 @@ public class WriteSubMzml {
           if (split[i].equals("Spectrum")) {
             scanNameIdx = i;
           }
-          if (split[i].equals("PeptideProphet Probability")) {
+          if (split[i].equals("PeptideProphet Probability") || split[i].equals("Probability")) {
             probabilityThresholdIdx = i;
           }
         }
