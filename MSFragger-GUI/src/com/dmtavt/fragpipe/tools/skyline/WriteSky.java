@@ -71,9 +71,9 @@ public class WriteSky {
           if (m.group(9) != null) {
             String[] ss = m.group(9).split("[, ]+");
             for (String s : ss) {
-              mass = Float.parseFloat(s);
-              lossMonoMasses.add(mass);
-              lossAvgMasses.add(mass);
+              float reminderMass = Float.parseFloat(s);
+              lossMonoMasses.add(mass - reminderMass);
+              lossAvgMasses.add(mass - reminderMass);
             }
           }
           mods.addAll(convertMods(sites, true, mass, mass, lossMonoMasses, lossAvgMasses));
