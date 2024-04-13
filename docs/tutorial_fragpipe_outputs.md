@@ -197,7 +197,7 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 <br>
 
 ### ion.tsv
-##### `ion.tsv` files contain FDR-filtered search results, where each row contains a peptide sequence with a certain charge and modification state. A separate ion.tsv file will be generated for each experiment specified on the 'Workflow' tab. Contents of each column are listed below.
+##### `ion.tsv` files contain FDR-filtered search results, where each row contains a peptide sequence with a certain charge and modification state. PSMs are collapsed into a single ion. A separate ion.tsv file will be generated for each experiment specified on the 'Workflow' tab. Contents of each column are listed below.
 
 **Peptide Sequence** peptide amino acid sequence, any modifications not included ('stripped' peptide sequence)
 
@@ -247,7 +247,7 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 <br>
 
 ### peptide.tsv
-##### `peptide.tsv` files contain FDR-filtered search results, where each row is an identified peptide sequence. A separate peptide.tsv file will be generated for each experiment specified on the 'Workflow' tab. Contents of each column are listed below.
+##### `peptide.tsv` files contain FDR-filtered search results, where each row is an identified peptide sequence. Ions are collapse into a single peptide. A separate peptide.tsv file will be generated for each experiment specified on the 'Workflow' tab. Contents of each column are listed below.
 
 **Peptide** peptide amino acid sequence, no modifications included ('stripped' peptide sequence)
 
@@ -347,7 +347,7 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 <br>
 
 ### combined_ion.tsv
-##### `combined_ion.tsv` files contain FDR-filtered ions from all experimental groups, where each row contains a peptide sequence with a certain charge and modification state. Contents of each column are listed below.
+##### `combined_ion.tsv` files contain FDR-filtered ions from all experimental groups, where each row contains a peptide sequence with a certain charge and modification state. Individual PSMs are collapsed. Contents of each column are listed below.
 
 **Peptide Sequence** peptide amino acid sequence, any modifications not included ('stripped' peptide sequence)
 
@@ -387,7 +387,7 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 <br>
 
 ### combined_modified_peptide.tsv
-##### `combined_modified_peptide.tsv` files contain FDR-filtered peptides from all experimental groups, where each row is a peptide sequence including modifications. Contents of each column are listed below.
+##### `combined_modified_peptide.tsv` files contain FDR-filtered peptides from all experimental groups, where each row is a peptide sequence including modifications. Individual ions are collapsed. Contents of each column are listed below.
 
 **Peptide Sequence** peptide amino acid sequence, modifications not included ('stripped' peptide sequence)
 
@@ -431,7 +431,7 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 <br>
 
 ### combined_peptide.tsv
-##### `combined_peptide.tsv` files contain FDR-filtered peptides from all experimental groups, where each row is a (stripped) peptide sequence. Contents of each column are listed below.
+##### `combined_peptide.tsv` files contain FDR-filtered peptides from all experimental groups, where each row is a (stripped) peptide sequence. Modified versions of peptides are collapsed. Contents of each column are listed below.
 
 **Peptide Sequence** peptide amino acid sequence, any modifications not included ('stripped' peptide sequence)
 
