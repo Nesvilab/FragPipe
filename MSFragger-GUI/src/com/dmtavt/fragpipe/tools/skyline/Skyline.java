@@ -158,7 +158,7 @@ public class Skyline {
       Path pp = wd.resolve("filelist_skyline.txt");
 
       BufferedWriter writer = Files.newBufferedWriter(pp);
-      writer.write("--in=" + modSkyPath.toAbsolutePath() + " ");
+      writer.write("--in=" + modSkyPath.toAbsolutePath() + "\n");
       writer.write("--overwrite ");
       if (mode == 0) {
         writer.write("--new=fragpipe.sky ");
