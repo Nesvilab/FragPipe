@@ -249,6 +249,7 @@ public class Skyline {
 
       Process skylineProcess = null;
       try {
+        System.out.println("Running command: " + String.join(" ", cmd));
         ProcessBuilder pb = new ProcessBuilder(cmd);
         ProcessBuilderInfo pbi = new PbiBuilder().setPb(pb).setName(pb.toString()).setFnStdOut(null).setFnStdErr(null).setParallelGroup(null).create();
         ProcessResult pr = new ProcessResult(pbi);
