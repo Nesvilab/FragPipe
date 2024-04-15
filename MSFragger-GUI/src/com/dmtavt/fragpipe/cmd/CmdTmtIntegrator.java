@@ -54,7 +54,7 @@ public class CmdTmtIntegrator extends CmdBase {
 
   public static final String NAME = "TmtIntegrator";
   public static final String JAR_NAME = "tmt-integrator-5.0.9.jar";
-  public static final String JAR_MAIN = "TMTIntegrator";
+  public static final String JAR_MAIN = "tmtintegrator.TMTIntegrator";
   public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML", "raw");
   public static final String CONFIG_FN = "tmt-integrator-conf.yml";
   public static final String CONFIG_FN_2 = "tmt-integrator-conf-unmod.yml";
