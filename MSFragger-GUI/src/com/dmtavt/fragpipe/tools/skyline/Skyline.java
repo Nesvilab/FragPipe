@@ -224,7 +224,11 @@ public class Skyline {
       writer.write("--instrument-min-mz=50 ");
       writer.write("--instrument-max-mz=2000 ");
       writer.write("--full-scan-precursor-isotopes=Count ");
-      writer.write("--full-scan-isolation-scheme=\"Results only\" ");
+
+      if (dataType.contentEquals("DIA")) {
+        writer.write("--full-scan-isolation-scheme=\"Results only\" ");
+      }
+
       for (String s : lcmsFiles) {
         writer.write("--import-file=" + s + " ");
       }
