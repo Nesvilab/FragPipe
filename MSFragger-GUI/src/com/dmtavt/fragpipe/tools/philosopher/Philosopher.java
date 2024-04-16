@@ -24,8 +24,9 @@ import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.exceptions.UnexpectedException;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
-import com.dmtavt.fragpipe.messages.MessagePhiDlProgress;
+import com.dmtavt.fragpipe.messages.MessageDownloadProgress;
 import com.dmtavt.fragpipe.messages.MessagePhilosopherNewBin;
+import com.dmtavt.fragpipe.tools.DownloadProgress;
 import com.github.chhh.utils.Holder;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.PathUtils;
@@ -246,9 +247,9 @@ public class Philosopher {
         final long totalDlSize = body.contentLength();
         log.debug("Got response, code: {}", response.code());
 
-        final Holder<PhiDownloadProgress> dlProgress = new Holder<>();
+        final Holder<DownloadProgress> dlProgress = new Holder<>();
         SwingUtilities.invokeLater(() -> {
-          dlProgress.obj = new PhiDownloadProgress();
+          dlProgress.obj = new DownloadProgress();
           Bus.registerQuietly(dlProgress.obj);
         });
         try (BufferedSink sink = Okio.buffer(Okio.sink(dlLocation))) {
@@ -258,7 +259,7 @@ public class Philosopher {
             public long read(@NotNull Buffer sink, long byteCount) throws IOException {
               long read = super.read(sink, byteCount);
               long totalRead = received.addAndGet(read);
-              Bus.post(new MessagePhiDlProgress(totalRead, totalDlSize));
+              Bus.post(new MessageDownloadProgress(totalRead, totalDlSize));
               //log.debug("read {}", FileUtils.fileSize(totalRead));
               return read;
             }

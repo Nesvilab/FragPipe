@@ -18,8 +18,8 @@ package com.dmtavt.fragpipe.tools.ionquant;
 
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.VersionFetcher;
-import com.dmtavt.fragpipe.messages.MessagePhiDlProgress;
-import com.dmtavt.fragpipe.tools.philosopher.PhiDownloadProgress;
+import com.dmtavt.fragpipe.messages.MessageDownloadProgress;
+import com.dmtavt.fragpipe.tools.DownloadProgress;
 import com.github.chhh.utils.Holder;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.StringUtils;
@@ -171,9 +171,9 @@ public class IonQuantVersionFetcherServer implements VersionFetcher {
             throw new Exception("Could not download IonQuant from the server.");
         }
 
-        final Holder<PhiDownloadProgress> dlProgress = new Holder<>();
+        final Holder<DownloadProgress> dlProgress = new Holder<>();
         SwingUtilities.invokeLater(() -> {
-            dlProgress.obj = new PhiDownloadProgress();
+            dlProgress.obj = new DownloadProgress();
             Bus.registerQuietly(dlProgress.obj);
         });
 
@@ -184,7 +184,7 @@ public class IonQuantVersionFetcherServer implements VersionFetcher {
                 public long read(@NotNull Buffer sink, long byteCount) throws IOException {
                     long read = super.read(sink, byteCount);
                     long totalRead = received.addAndGet(read);
-                    Bus.post(new MessagePhiDlProgress(totalRead, contentLength));
+                    Bus.post(new MessageDownloadProgress(totalRead, contentLength));
                     return read;
                 }
             };
