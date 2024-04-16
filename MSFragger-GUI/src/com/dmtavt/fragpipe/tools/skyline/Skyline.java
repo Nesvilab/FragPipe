@@ -152,6 +152,9 @@ public class Skyline {
         pepxmlFiles.addAll(Files.walk(wd).filter(p -> p.getFileName().toString().contentEquals("interact.pep.xml")).collect(Collectors.toCollection(TreeSet::new)));
       }
 
+      Path skylineOutputDir = wd.resolve("skyline-output");
+      Files.createDirectories(skylineOutputDir);
+
       Path modSkyPath = wd.resolve("mod.sky");
       new WriteSky(modSkyPath, pf.getProperty("msfragger.table.fix-mods"), pf.getProperty("msfragger.table.var-mods"), pf.getProperty("msfragger.mass_offsets"), pf.getProperty("msfragger.restrict_deltamass_to"), pf.getProperty("msfragger.remainder_fragment_masses"), pf.getProperty("msfragger.mass_offsets_detailed"));
 
@@ -161,9 +164,9 @@ public class Skyline {
       writer.write("--in=" + modSkyPath.toAbsolutePath() + " ");
       writer.write("--overwrite ");
       if (mode == 0) {
-        writer.write("--out=fragpipe.sky ");
+        writer.write("--out=" + skylineOutputDir.resolve("fragpipe.sky").toAbsolutePath() + " ");
       } else if (mode == 1) {
-        writer.write("--out=fragpipe_skylib.sky ");
+        writer.write("--out=" + skylineOutputDir.resolve("fragpipe_skylib.sky").toAbsolutePath() + " ");
       } else {
         throw new RuntimeException("Unsupported Skyline mode: " + mode);
       }
