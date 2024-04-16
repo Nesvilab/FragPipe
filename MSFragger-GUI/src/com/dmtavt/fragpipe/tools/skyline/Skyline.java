@@ -158,12 +158,12 @@ public class Skyline {
       Path pp = wd.resolve("filelist_skyline.txt");
 
       BufferedWriter writer = Files.newBufferedWriter(pp);
-      writer.write("--in=" + modSkyPath.toAbsolutePath() + "\n");
+      writer.write("--in=" + modSkyPath.toAbsolutePath() + " ");
       writer.write("--overwrite ");
       if (mode == 0) {
-        writer.write("--new=fragpipe.sky ");
+        writer.write("--out=fragpipe.sky ");
       } else if (mode == 1) {
-        writer.write("--new=fragpipe_skylib.sky ");
+        writer.write("--out=fragpipe_skylib.sky ");
       } else {
         throw new RuntimeException("Unsupported Skyline mode: " + mode);
       }
