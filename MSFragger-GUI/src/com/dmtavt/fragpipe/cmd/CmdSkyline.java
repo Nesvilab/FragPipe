@@ -34,6 +34,8 @@ import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.swing.*;
+
 public class CmdSkyline extends CmdBase {
 
   private static final Logger log = LoggerFactory.getLogger(CmdSkyline.class);
@@ -53,6 +55,13 @@ public class CmdSkyline extends CmdBase {
     initPreConfig();
 
     if (skylinePath == null) {
+      if (Fragpipe.headless) {
+        log.error("Skyline was requested but no installed version could be found! Please verify that it is installed or located at the specified path.");
+      } else {
+        JOptionPane.showMessageDialog(comp,
+                "Skyline was requested but no installed version could be found! Please verify that it is installed or located at the specified path.",
+                "Error", JOptionPane.ERROR_MESSAGE);
+      }
       return false;
     }
 
