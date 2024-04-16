@@ -54,7 +54,7 @@ public class Skyline {
   private static final Pattern versionNoSpacesPattern = Pattern.compile("([\\d.]+)");
   private static final Pattern pattern = Pattern.compile("Converged to [\\d.]+ % FDR with \\d+ Ions\"?\\s+decoy=\\d+ threshold=([\\d.]+) total=\\d+");
 
-  public static DefaultArtifactVersion skylineVersionT = new DefaultArtifactVersion("23.1.0.380");
+  public static DefaultArtifactVersion skylineVersionT = new DefaultArtifactVersion("23.1.1.0");
   private static DefaultArtifactVersion skylineVersion = null;
   private static String skylineRunnerPath = null;
   private static DefaultArtifactVersion skylineDailyVersion = null;
