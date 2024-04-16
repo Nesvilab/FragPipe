@@ -153,7 +153,7 @@ public class Skyline {
       }
 
       Path modSkyPath = wd.resolve("mod.sky");
-      new WriteSky(modSkyPath, pf.getProperty("msfragger.table.fix-mods"), pf.getProperty("msfragger.table.var-mods"), pf.getProperty("msfragger.mass_offsets"), pf.getProperty("msfragger.mass_offsets_detailed"));
+      new WriteSky(modSkyPath, pf.getProperty("msfragger.table.fix-mods"), pf.getProperty("msfragger.table.var-mods"), pf.getProperty("msfragger.mass_offsets"), pf.getProperty("msfragger.restrict_deltamass_to"), pf.getProperty("msfragger.remainder_fragment_masses"), pf.getProperty("msfragger.mass_offsets_detailed"));
 
       Path pp = wd.resolve("filelist_skyline.txt");
 

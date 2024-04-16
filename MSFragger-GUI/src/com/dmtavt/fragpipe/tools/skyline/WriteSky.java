@@ -18,7 +18,7 @@ public class WriteSky {
   private static final Pattern p3 = Pattern.compile("([\\d.-]+)\\((aa=([^=_();]+)?)?(_d=([\\d., -]+))?(_p=([\\d., -]+))?(_f=([\\d., -]+))?\\)");
 
 
-  public WriteSky(Path path, String fixModStr, String varModStr, String massOffsetStr, String detailedMassOffsetStr) throws Exception {
+  public WriteSky(Path path, String fixModStr, String varModStr, String massOffsetStr, String massOffsetSites, String massOffsetRemainders, String detailedMassOffsetStr) throws Exception {
     List<Mod> mods = new ArrayList<>(4);
 
     float mass;
@@ -52,7 +52,17 @@ public class WriteSky {
       for (String s : ss) {
         mass = Float.parseFloat(s);
         if (Math.abs(mass) > 0.1) {
-          mods.addAll(convertMods("*", true, mass, mass, new ArrayList<>(0), new ArrayList<>(0)));
+          List<Float> lossMonoMasses = new ArrayList<>(0);
+          List<Float> lossAvgMasses = new ArrayList<>(0);
+          if (!massOffsetRemainders.isEmpty()) {
+            String[] splits = massOffsetRemainders.split("[\\s/,]");
+            for (String sp : splits) {
+              float remainderMass = Float.parseFloat(sp);
+              lossMonoMasses.add(mass - remainderMass);
+              lossAvgMasses.add(mass - remainderMass);
+            }
+          }
+          mods.addAll(convertMods(massOffsetSites, true, mass, mass, lossMonoMasses, lossAvgMasses));
         }
       }
     }
