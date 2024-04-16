@@ -142,5 +142,5 @@ msbooster.spectra-model::Prosit 2020 Intensity CID <=> Prosit_2020_intensity_CID
 msbooster.spectra-model::Prosit 2020 Intensity TMT <=> Prosit_2020_intensity_TMT
 msbooster.spectra-model::Prosit 2020 Intensity HCD <=> Prosit_2020_intensity_HCD
 
-skyline.skyline-mode::Use FragPipe speclib <=> 0
-skyline.skyline-mode::Build Skyline speclib <=> 1
+skyline.skyline-mode::Use speclib as input <=> 0
+skyline.skyline-mode::Use pep.xml as input <=> 1

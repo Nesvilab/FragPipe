@@ -157,7 +157,7 @@ public class SkylinePanel extends JPanelBase {
       updateEnabledStatus(jButtonSkylineCustom, uiRadioSkylineCustom.isSelected());
     });
 
-    uiComboMode = UiUtils.createUiCombo(Arrays.asList("Use FragPipe speclib", "Build Skyline speclib"));
+    uiComboMode = UiUtils.createUiCombo(Arrays.asList("Use speclib as input", "Use pep.xml as input"));
     uiComboMode.setSelectedIndex(0);
     FormEntry feComboMode = new FormEntry("skyline-mode", "Skyline running mode", uiComboMode, "Let Skyline take FragPipe speclib as input or build its own speclib");
 
