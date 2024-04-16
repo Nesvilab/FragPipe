@@ -195,7 +195,7 @@ public class Skyline {
       writer.write("--tran-product-end-ion=\"last ion\" ");
       writer.write("--tran-product-clear-special-ions ");
       if (pf.getProperty("msfragger.fragment_mass_units").contentEquals("1")) {
-        writer.write("--library-match-tolerance=" + pf.getProperty("msfragger.fragment_mass_tolerance") + "ppm ");
+        writer.write("--library-match-tolerance=" + Math.min(10, Float.parseFloat(pf.getProperty("msfragger.fragment_mass_tolerance"))) + "ppm ");
       } else {
         writer.write("--library-match-tolerance=" + pf.getProperty("msfragger.fragment_mass_tolerance") + "mz ");
       }
@@ -208,15 +208,15 @@ public class Skyline {
       writer.write("--full-scan-product-analyzer=centroided ");
 
       if (pf.getProperty("msfragger.precursor_true_units").contentEquals("1")) {
-        writer.write("--full-scan-precursor-res=" + pf.getProperty("msfragger.precursor_true_tolerance") + " ");
+        writer.write("--full-scan-precursor-res=" + Math.min(10, Float.parseFloat(pf.getProperty("msfragger.precursor_true_tolerance"))) + " ");
       } else {
-        writer.write("--full-scan-precursor-res=" + (Float.parseFloat(pf.getProperty("msfragger.precursor_true_tolerance")) * 1000) + " ");
+        writer.write("--full-scan-precursor-res=" + Math.min(10, Float.parseFloat(pf.getProperty("msfragger.precursor_true_tolerance")) * 1000) + " ");
       }
 
       if (pf.getProperty("msfragger.fragment_mass_units").contentEquals("1")) {
-        writer.write("--full-scan-product-res=" + pf.getProperty("msfragger.fragment_mass_tolerance") + " ");
+        writer.write("--full-scan-product-res=" + Math.min(10, Float.parseFloat(pf.getProperty("msfragger.fragment_mass_tolerance"))) + " ");
       } else {
-        writer.write("--full-scan-product-res=" + (Float.parseFloat(pf.getProperty("msfragger.fragment_mass_tolerance")) * 1000) + " ");
+        writer.write("--full-scan-product-res=" + Math.min(10, Float.parseFloat(pf.getProperty("msfragger.fragment_mass_tolerance")) * 1000) + " ");
       }
 
       writer.write("--full-scan-rt-filter=ms2_ids ");
