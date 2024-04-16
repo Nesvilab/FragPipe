@@ -80,7 +80,7 @@ public class Skyline {
 
       TreeSet<String> lcmsFiles = new TreeSet<>();
 
-      String dataType = "None";
+      String dataType = "DDA";
       String line;
       BufferedReader reader = Files.newBufferedReader(wd.resolve("fragpipe-files.fp-manifest"));
       while ((line = reader.readLine()) != null) {
