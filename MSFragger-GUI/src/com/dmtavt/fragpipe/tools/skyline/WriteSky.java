@@ -123,6 +123,12 @@ public class WriteSky {
       sites = sites.substring(0, sites.indexOf(" "));
     }
 
+    if (sites.contains("all")) {
+      sites = "*";
+    }
+
+    sites = sites.replaceAll("-", "");
+
     Matcher m = p1.matcher(sites);
     while (m.find()) {
       if (m.group(1).contentEquals("^")) {
