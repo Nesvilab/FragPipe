@@ -46,14 +46,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -89,7 +82,7 @@ public class CmdDiann extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, Collection<LcmsFileGroup> lcmsFileGroups, int nThreads, Set<String> quantificationStrategy, boolean usePredict, boolean unrelatedRuns, float qvalue, boolean useRunSpecificProteinQvalue, String libraryPath, String additionalCmdOpts, boolean isDryRun, boolean isRunPlex, boolean generateMsstats, String lightString, String mediumString, String heavyString, Path jarFragpipe) {
+  public boolean configure(Component comp, Collection<LcmsFileGroup> lcmsFileGroups, int nThreads, Set<String> quantificationStrategy, boolean usePredict, boolean unrelatedRuns, float qvalue, boolean useRunSpecificProteinQvalue, String libraryPath, String additionalCmdOpts, boolean isDryRun, boolean isRunPlex, boolean generateMsstats, String lightString, String mediumString, String heavyString, Path jarFragpipe, boolean isRunSkyline) {
 
     initPreConfig();
 
@@ -328,6 +321,14 @@ public class CmdDiann extends CmdBase {
         ProcessBuilder pb2 = new ProcessBuilder(cmd2);
         pb2.directory(groupWd.toFile());
         pbis.add(PbiBuilder.from(pb2));
+      }
+
+      // Add process to rename the speclib file for skyline once it has been generated (only needed for Skyline v23.1 and older)
+      if (isRunSkyline) {
+        Path speclibFromDIANN = wd.resolve("library.tsv.speclib");
+        Path speclibForSkyline = wd.resolve("diann-output").resolve("report.tsv.speclib");
+        List<ProcessBuilder> pbsMove = ToolingUtils.pbsRenameFiles(jarFragpipe, speclibForSkyline, true, Collections.singletonList(speclibFromDIANN));
+        pbis.addAll(PbiBuilder.from(pbsMove, NAME + " move speclib for skyline"));
       }
     }
 

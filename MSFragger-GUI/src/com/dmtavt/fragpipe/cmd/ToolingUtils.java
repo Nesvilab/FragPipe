@@ -91,13 +91,13 @@ public class ToolingUtils {
     return workingDir.resolve(combinedProtFn).normalize().toAbsolutePath();
   }
 
-  private enum Op {COPY, MOVE, DELETE}
+  private enum Op {COPY, MOVE, DELETE, RENAME}
 
   /**
    * @param jarFragpipe Use {@link JarUtils#getCurrentJarUri()} to get that from the current Jar.
    */
   public static List<ProcessBuilder> pbsCopyFiles(Path jarFragpipe, Path dest, List<Path> files) {
-    return pbsCopyMoveDeleteFiles(jarFragpipe, Op.COPY, dest, false, files);
+    return pbsCopyMoveDeleteRenameFiles(jarFragpipe, Op.COPY, dest, false, files);
   }
 
   /**
@@ -105,21 +105,25 @@ public class ToolingUtils {
    */
   public static List<ProcessBuilder> pbsMoveFiles(Path jarFragpipe, Path dest,
       boolean ignoreMissingFiles, List<Path> files) {
-    return pbsCopyMoveDeleteFiles(jarFragpipe, Op.MOVE, dest, ignoreMissingFiles, files);
+    return pbsCopyMoveDeleteRenameFiles(jarFragpipe, Op.MOVE, dest, ignoreMissingFiles, files);
   }
 
   /**
    * @param jarFragpipe Use {@link JarUtils#getCurrentJarUri()} to get that from the current Jar.
    */
   public static List<ProcessBuilder> pbsDeleteFiles(Path jarFragpipe, List<Path> files) {
-    return pbsCopyMoveDeleteFiles(jarFragpipe, Op.DELETE, null, false, files);
+    return pbsCopyMoveDeleteRenameFiles(jarFragpipe, Op.DELETE, null, false, files);
+  }
+
+  public static List<ProcessBuilder> pbsRenameFiles(Path jarFragpipe, Path dest, boolean ignoreMissingFiles, List<Path> files) {
+    return pbsCopyMoveDeleteRenameFiles(jarFragpipe, Op.RENAME, dest, ignoreMissingFiles, files);
   }
 
   /**
    * @param jarFragpipe Use {@link JarUtils#getCurrentJarUri()} to get that from the current Jar.
    */
-  private static List<ProcessBuilder> pbsCopyMoveDeleteFiles(Path jarFragpipe, Op operation, Path dest,
-      boolean ignoreMissingFiles, List<Path> files) {
+  private static List<ProcessBuilder> pbsCopyMoveDeleteRenameFiles(Path jarFragpipe, Op operation, Path dest,
+                                                                   boolean ignoreMissingFiles, List<Path> files) {
     if (jarFragpipe == null) {
       throw new IllegalArgumentException("jar can't be null");
     }
@@ -142,6 +146,7 @@ public class ToolingUtils {
           cmd.add(FileCopy.class.getCanonicalName());
           break;
         case MOVE:
+        case RENAME:
           cmd.add(FileMove.class.getCanonicalName());
           break;
         case DELETE:
@@ -154,8 +159,13 @@ public class ToolingUtils {
         cmd.add(FileMove.NO_ERR);
       }
       cmd.add(file.toAbsolutePath().normalize().toString());
-      if (dest != null)
-        cmd.add(dest.resolve(file.getFileName()).toString());
+      if (dest != null) {
+        if (operation != Op.RENAME) {
+          cmd.add(dest.resolve(file.getFileName()).toString());
+        } else {
+          cmd.add(dest.toString());
+        }
+      }
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pbs.add(pb);
     }

@@ -648,26 +648,6 @@ public class FragpipeRun {
           }
         }
 
-        DefaultArtifactVersion v = Skyline.getSkylineVersion();
-        if (v != null && v.compareTo(skylineVersionT) <= 0) {
-          // 23.1 released version of Skyline requires moving the speclib file to where the DIANN report.tsv is located
-          DiannPanel diannPanel = Bus.getStickyEvent(DiannPanel.class);
-          if (diannPanel != null && diannPanel.isRun()) {
-            try {
-              Files.walk(wd).filter(p -> p.getFileName().toString().endsWith(".speclib")).forEach(p -> {
-                try {
-                  Path ppp = wd.resolve("diann-output");
-                  if (Files.exists(ppp) && Files.isDirectory(ppp)) {
-                    Files.move(p, ppp.resolve("report.tsv.speclib"));
-                  }
-                } catch (Exception ignored) {
-                }
-              });
-            } catch (Exception ignored) {
-            }
-          }
-        }
-
         printReference(tabRun.console);
         String totalTime = String.format("%.1f", (System.nanoTime() - startTime) * 1e-9 / 60);
         toConsole(Fragpipe.COLOR_RED_DARKEST, "\n=============================================================ALL JOBS DONE IN " + totalTime + " MINUTES=============================================================", true, tabRun.console);
@@ -1922,17 +1902,25 @@ public class FragpipeRun {
       isNew = false;
     }
 
+    final SkylinePanel skylinePanel = Fragpipe.getStickyStrict(SkylinePanel.class);
+    boolean moveSpeclibForSkyline;
+    if (skylinePanel.isRun()) {
+      DefaultArtifactVersion v = Skyline.getSkylineVersion();
+      moveSpeclibForSkyline = v != null && v.compareTo(skylineVersionT) <= 0;
+    } else {
+        moveSpeclibForSkyline = false;
+    }
+
     final DiannPanel diannPanel = Fragpipe.getStickyStrict(DiannPanel.class);
     final CmdDiann cmdDiann = new CmdDiann(diannPanel.isRun(), wd);
     addConfig.accept(cmdDiann,  () -> {
       if (cmdDiann.isRun()) {
-        return cmdDiann.configure(parent, sharedLcmsFileGroupsAll.values(), threads, diannPanel.getDiannQuantificationStrategy(isNew), diannPanel.usePredict(), diannPanel.unrelatedRuns(), diannPanel.getDiannQvalue(), diannPanel.useRunSpecificProteinQvalue(), diannPanel.getLibraryPath(), diannPanel.getCmdOpts(), isDryRun, diannPanel.isRunPlex(), diannPanel.generateMsstats(), diannPanel.getLight(), diannPanel.getMedium(), diannPanel.getHeavy(), jarPath);
+        return cmdDiann.configure(parent, sharedLcmsFileGroupsAll.values(), threads, diannPanel.getDiannQuantificationStrategy(isNew), diannPanel.usePredict(), diannPanel.unrelatedRuns(), diannPanel.getDiannQvalue(), diannPanel.useRunSpecificProteinQvalue(), diannPanel.getLibraryPath(), diannPanel.getCmdOpts(), isDryRun, diannPanel.isRunPlex(), diannPanel.generateMsstats(), diannPanel.getLight(), diannPanel.getMedium(), diannPanel.getHeavy(), jarPath, moveSpeclibForSkyline);
       }
       return true;
     });
 
 
-    final SkylinePanel skylinePanel = Fragpipe.getStickyStrict(SkylinePanel.class);
     final CmdSkyline cmdSkyline = new CmdSkyline(skylinePanel.isRun(), wd);
     addConfig.accept(cmdSkyline, () -> {
       if (cmdSkyline.isRun()) {
