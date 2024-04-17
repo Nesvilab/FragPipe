@@ -170,7 +170,6 @@ public class Skyline {
       } else {
         throw new RuntimeException("Unsupported Skyline mode: " + mode);
       }
-      writer.write("--import-search-add-mods ");
       writer.write("--full-scan-acquisition-method=" + dataType + " ");
 
       if (mode == 1) {
