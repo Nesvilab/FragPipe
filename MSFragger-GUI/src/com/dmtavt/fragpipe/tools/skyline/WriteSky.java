@@ -1,14 +1,17 @@
 package com.dmtavt.fragpipe.tools.skyline;
 
+import com.dmtavt.fragpipe.api.PropsFile;
 import static com.dmtavt.fragpipe.tools.skyline.Skyline.getSkylineVersion;
 
 import java.io.BufferedWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class WriteSky {
 
@@ -16,7 +19,7 @@ public class WriteSky {
   private static final Pattern p1 = Pattern.compile("[n\\[](.)");
   private static final Pattern p2 = Pattern.compile("[c\\]](.)");
   private static final Pattern p3 = Pattern.compile("([\\d.-]+)\\((aa=([^=_();]+)?)?(_d=([\\d., -]+))?(_p=([\\d., -]+))?(_f=([\\d., -]+))?\\)");
-
+  private static final ArrayList<String> allAAs = new ArrayList<>(Arrays.asList("A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y"));
 
   public WriteSky(Path path, PropsFile pf) throws Exception {
     List<Mod> mods = new ArrayList<>(4);
@@ -142,44 +145,50 @@ public class WriteSky {
 
     sites = sites.replaceAll("-", "");
 
+    // N-terminal mods
     Matcher m = p1.matcher(sites);
+    ArrayList<String> nSites = new ArrayList<>();
     while (m.find()) {
       if (m.group(1).contentEquals("^")) {
         out.add(new Mod("n_" + monoMass, "", 'N', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses));
       } else if (m.group(1).contentEquals("*")) {
-        for (char aa : "ACDEFGHIKLMNPQRSTVWY".toCharArray()) {
-          out.add(new Mod(aa + "_" + monoMass, aa + "", 'N', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses));
-        }
+        nSites = allAAs;
       } else {
-        out.add(new Mod(m.group(1) + "_" + monoMass, m.group(1), 'N', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses));
+        nSites.add(m.group(1));
       }
+    }
+    if (!nSites.isEmpty()) {
+      out.add(new Mod(String.join("", nSites) + "_" + monoMass, String.join(", ", nSites), 'N', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses));
     }
     sites = p1.matcher(sites).replaceAll("");
 
+    // C-terminal mods
     m = p2.matcher(sites);
+    ArrayList<String> cSites = new ArrayList<>();
     while (m.find()) {
       if (m.group(1).contentEquals("^")) {
         out.add(new Mod("c_" + monoMass, "", 'C', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses));
       } else if (m.group(1).contentEquals("*")) {
-        for (char aa : "ACDEFGHIKLMNPQRSTVWY".toCharArray()) {
-          out.add(new Mod(aa + "_" + monoMass, aa + "", 'C', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses));
-        }
+        cSites = allAAs;
       } else {
-        out.add(new Mod(m.group(1) + "_" + monoMass, m.group(1), 'C', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses));
+        cSites.add(m.group(1));
       }
+    }
+    if (!cSites.isEmpty()) {
+      out.add(new Mod(String.join("", cSites) + "_" + monoMass, String.join(", ", cSites), 'C', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses));
     }
     sites = p2.matcher(sites).replaceAll("");
 
-    for (char c : sites.toCharArray()) {
-      if (c == '*') {
-        for (char aa : "ACDEFGHIKLMNPQRSTVWY".toCharArray()) {
-          out.add(new Mod(aa + "_" + monoMass, aa + "", '\0', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses));
-        }
-      } else {
-        out.add(new Mod(c + "_" + monoMass, c + "", '\0', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses));
-      }
+    // sequence mods
+    List<String> resSites = new ArrayList<>();
+    if (sites.contains("*")) {
+      resSites = allAAs;
+    } else {
+      resSites = sites.chars().mapToObj(c -> String.valueOf((char) c)).collect(Collectors.toList());
     }
-
+    if (!resSites.isEmpty()) {
+      out.add(new Mod(String.join("", resSites) + "_" + monoMass, String.join(", ", resSites), '\0', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses));
+    }
     return out;
   }
 
