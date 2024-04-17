@@ -18,8 +18,17 @@ public class WriteSky {
   private static final Pattern p3 = Pattern.compile("([\\d.-]+)\\((aa=([^=_();]+)?)?(_d=([\\d., -]+))?(_p=([\\d., -]+))?(_f=([\\d., -]+))?\\)");
 
 
-  public WriteSky(Path path, String fixModStr, String varModStr, String massOffsetStr, String massOffsetSites, String massOffsetRemainders, String detailedMassOffsetStr) throws Exception {
+  public WriteSky(Path path, PropsFile pf) throws Exception {
     List<Mod> mods = new ArrayList<>(4);
+
+    String fixModStr = pf.getProperty("msfragger.table.fix-mods");
+    String varModStr = pf.getProperty("msfragger.table.var-mods");
+    String massOffsetStr = pf.getProperty("msfragger.mass_offsets");
+    String massOffsetSites = pf.getProperty("msfragger.restrict_deltamass_to");
+    String massOffsetRemainders = pf.getProperty("msfragger.remainder_fragment_masses");
+    String detailedMassOffsetStr = pf.getProperty("msfragger.mass_offsets_detailed");
+    String labileMode = pf.getProperty("msfragger.labile_search_mode");
+    boolean isLabile = labileMode.equals("labile") || labileMode.equals("nglyc");
 
     float mass;
     Matcher m;
@@ -61,6 +70,10 @@ public class WriteSky {
               lossMonoMasses.add(mass - remainderMass);
               lossAvgMasses.add(mass - remainderMass);
             }
+          } else if (isLabile) {
+            // if labile mode and no remainder fragments specified, add entire mod as a neutral loss
+            lossMonoMasses.add(mass);
+            lossAvgMasses.add(mass);
           }
           mods.addAll(convertMods(massOffsetSites, true, mass, mass, lossMonoMasses, lossAvgMasses));
         }
