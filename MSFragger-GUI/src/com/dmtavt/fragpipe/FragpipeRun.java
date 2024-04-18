@@ -1639,7 +1639,7 @@ public class FragpipeRun {
             throw new IllegalStateException("OPairPanel has not been posted to the bus");
           }
 
-          return cmdIonquant.configure(parent, Paths.get(binMsfragger.getBin()), Paths.get(binIonQuant.getBin()), ramGb, quantPanelLabelfree.toMap(), tabWorkflow.getInputDataType(), sharedPepxmlFilesFromMsfragger, sharedMapGroupsToProtxml, threads, oPairPanel.isRun() ? null : modMassSet, isDryRun, true, true);
+          return cmdIonquant.configure(parent, Paths.get(binMsfragger.getBin()), Paths.get(binIonQuant.getBin()), ramGb, quantPanelLabelfree.toMap(), tabWorkflow.getInputDataType(), sharedPepxmlFilesFromMsfragger, sharedMapGroupsToProtxml, threads, oPairPanel.isRun() ? null : modMassSet, isDryRun, true, true, true);
         }
         return true;
       });
@@ -1709,7 +1709,7 @@ public class FragpipeRun {
             if (oPairPanel == null) {
               throw new IllegalStateException("OPairPanel has not been posted to the bus");
             }
-            return cmdTmtIonquant.configure(parent, Paths.get(binMsfragger.getBin()), Paths.get(binIonQuant.getBin()), ramGb, null, tabWorkflow.getInputDataType(), sharedPepxmlFilesFromMsfragger, sharedMapGroupsToProtxml, threads, oPairPanel.isRun() ? null : modMassSet, isDryRun, false, false);
+            return cmdTmtIonquant.configure(parent, Paths.get(binMsfragger.getBin()), Paths.get(binIonQuant.getBin()), ramGb, null, tabWorkflow.getInputDataType(), sharedPepxmlFilesFromMsfragger, sharedMapGroupsToProtxml, threads, oPairPanel.isRun() ? null : modMassSet, isDryRun, false, false, false);
           }
           return true;
         });
@@ -1720,7 +1720,7 @@ public class FragpipeRun {
             if (oPairPanel == null) {
               throw new IllegalStateException("OPairPanel has not been posted to the bus");
             }
-            return cmdTmtIonquantIsobaric.configure(parent, Paths.get(binMsfragger.getBin()), Paths.get(binIonQuant.getBin()), ramGb, null, tabWorkflow.getInputDataType(), sharedPepxmlFilesFromMsfragger, sharedMapGroupsToProtxml, threads, oPairPanel.isRun() ? null : modMassSet, isDryRun, false, true, false, tolerance, Integer.parseInt(quantLevel), label.getName(), annotations, true);
+            return cmdTmtIonquantIsobaric.configure(parent, Paths.get(binMsfragger.getBin()), Paths.get(binIonQuant.getBin()), ramGb, null, tabWorkflow.getInputDataType(), sharedPepxmlFilesFromMsfragger, sharedMapGroupsToProtxml, threads, oPairPanel.isRun() ? null : modMassSet, isDryRun, false, true, false, false, tolerance, Integer.parseInt(quantLevel), label.getName(), annotations, true);
           }
           return true;
         });

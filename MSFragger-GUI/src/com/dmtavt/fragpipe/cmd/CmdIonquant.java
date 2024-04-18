@@ -66,11 +66,11 @@ public class CmdIonquant extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, Path binFragger, Path binIonQuant, int ramGb, Map<String, String> uiCompsRepresentation, InputDataType dataType, Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml, Map<LcmsFileGroup, Path> mapGroupsToProtxml, int nThreads, Set<Float> modMassSet, boolean isDryRun, boolean generateSiteReport, boolean writeExperimentAnnotation) {
-    return configure(comp, binFragger, binIonQuant, ramGb, uiCompsRepresentation, dataType, lcmsToFraggerPepxml, mapGroupsToProtxml, nThreads, modMassSet, isDryRun, true, false, generateSiteReport, 20, 2, "tmt10", null, writeExperimentAnnotation);
+  public boolean configure(Component comp, Path binFragger, Path binIonQuant, int ramGb, Map<String, String> uiCompsRepresentation, InputDataType dataType, Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml, Map<LcmsFileGroup, Path> mapGroupsToProtxml, int nThreads, Set<Float> modMassSet, boolean isDryRun, boolean generateSiteReport, boolean generateMSstatsInput, boolean writeExperimentAnnotation) {
+    return configure(comp, binFragger, binIonQuant, ramGb, uiCompsRepresentation, dataType, lcmsToFraggerPepxml, mapGroupsToProtxml, nThreads, modMassSet, isDryRun, true, false, generateSiteReport, generateMSstatsInput, 20, 2, "tmt10", null, writeExperimentAnnotation);
   }
 
-  public boolean configure(Component comp, Path binFragger, Path binIonQuant, int ramGb, Map<String, String> uiCompsRepresentation, InputDataType dataType, Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml, Map<LcmsFileGroup, Path> mapGroupsToProtxml, int nThreads, Set<Float> modMassSet, boolean isDryRun, boolean performMS1Quant, boolean performIsobaricQuant, boolean generateSiteReport, float isoTol, int isoLevel, String isoType, Map<LcmsFileGroup, Path> annotationMap, boolean writeExperimentAnnotation) {
+  public boolean configure(Component comp, Path binFragger, Path binIonQuant, int ramGb, Map<String, String> uiCompsRepresentation, InputDataType dataType, Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml, Map<LcmsFileGroup, Path> mapGroupsToProtxml, int nThreads, Set<Float> modMassSet, boolean isDryRun, boolean performMS1Quant, boolean performIsobaricQuant, boolean generateSiteReport, boolean generateMSstatsInput, float isoTol, int isoLevel, String isoType, Map<LcmsFileGroup, Path> annotationMap, boolean writeExperimentAnnotation) {
 
     initPreConfig();
 
@@ -156,6 +156,8 @@ public class CmdIonquant extends CmdBase {
     cmd.add(dataType == InputDataType.ImMsTimsTof ? "1" : "0");
     cmd.add("--site-reports");
     cmd.add(generateSiteReport ? "1" : "0");
+    cmd.add("--msstats");
+    cmd.add(generateMSstatsInput ? "1" : "0");
 
     if (annotationMap != null && !annotationMap.isEmpty()) {
       for (Map.Entry<LcmsFileGroup, Path> annotation : annotationMap.entrySet()) {
