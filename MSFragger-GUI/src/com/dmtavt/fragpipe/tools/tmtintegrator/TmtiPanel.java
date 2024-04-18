@@ -175,6 +175,7 @@ public class TmtiPanel extends JPanelBase {
   private UiCombo uiComboAbnType;
   private UiCombo uiComboNorm;
   private UiCombo uiComboIntensityExtractionTool;
+  private UiCheck uiCheckMsstats;
 
   private static Supplier<? extends RuntimeException> supplyRunEx(String message) {
     return () -> new RuntimeException(message);
@@ -347,6 +348,9 @@ public class TmtiPanel extends JPanelBase {
             + "2: GN (median centering variance scaling) <br/>\n"
             + "-1: generate reports with all normalization options)");
 
+    uiCheckMsstats = new UiCheck("Let Philosopher generate MSstats files", null, false);
+    FormEntry feCheckMSstats = new FormEntry("philosoher-msstats", "", uiCheckMsstats, "<html>Option to generate an MSstats-compatible report with Philosopher.<br>Require selecting <b>Philosopher</b> as the \"intensity extraction tool\".");
+
     uiComboAddRef = UiUtils.createUiCombo(TmtiConfProps.COMBO_ADD_REF.stream()
         .map(ComboValue::getValInUi).collect(Collectors.toList()));
     FormEntry feAddRef = fe(TmtiConfProps.PROP_add_Ref,
@@ -376,6 +380,7 @@ public class TmtiPanel extends JPanelBase {
     addRowLabelComp(p, feRefTag);
     addRowLabelComp(p, feGroupBy);
     addRowLabelComp(p, feProtNorm);
+    addRowLabelComp(p, feCheckMSstats);
 //    addRowLabelComp(p, feAbnType);
 
     return p;
@@ -387,6 +392,10 @@ public class TmtiPanel extends JPanelBase {
 
   public String getNormMethod() {
     return (String) uiComboNorm.getSelectedItem();
+  }
+
+  public boolean isMsstats() {
+    return uiCheckMsstats.isSelected();
   }
 
   private JPanel createPanelOptsAdvanced() {

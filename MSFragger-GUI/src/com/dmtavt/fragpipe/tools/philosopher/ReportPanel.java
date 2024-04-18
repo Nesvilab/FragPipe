@@ -58,7 +58,6 @@ public class ReportPanel extends JPanelBase {
   private UiText uiTextFilter;
   public UiCheck uiCheckPepSummary;
   public UiCheck uiCheckProtSummary;
-  private UiCheck uiCheckMsstats;
   private UiCheck uiCheckPrintDecoys;
   private UiCheck uiCheckDontUseProtProphFile;
   private UiCheck uiCheckRemoveContaminants;
@@ -162,11 +161,6 @@ public class ReportPanel extends JPanelBase {
     uiCheckProtSummary = new UiCheck("Generate protein-level summary", null, true);
     FormEntry feCheckProtSummary = new FormEntry("prot-level-summary", "not-shown", uiCheckProtSummary, "<html>Let Philosopher generate combined_protein.tsv file.<br><b>Uncheck</b> it if analyzing large dataset because Philosopher needs lots of memory to run.<br>It is <b>disabled</b> if IonQuant is enabled because IonQuant will generate the same file.");
 
-    uiCheckMsstats = new UiCheck("Generate MSstats files", null, false);
-    FormEntry feCheckMSstats = new FormEntry("philosoher-msstats", "not-shown",
-        uiCheckMsstats,
-        "<html>Option to generate an MSstats-compatible report with Philosopher.<br>No need to enable this if using IonQuant.");
-
     uiCheckRemoveContaminants = new UiCheck("Remove contaminants", null, false);
     FormEntry feCheckRemoveContaminants = new FormEntry("remove-contaminants", "not-shown", uiCheckRemoveContaminants, "<html>Remove contaminant proteins from the tsv files.");
 
@@ -185,7 +179,6 @@ public class ReportPanel extends JPanelBase {
     mu.add(p, feFilter.comp).growX().pushX().wrap();
     mu.add(p, feCheckDontUseProtProphFile.comp).wrap();
     mu.add(p, new JSeparator(SwingConstants.HORIZONTAL)).growX().spanX().wrap();
-    mu.add(p, feCheckMSstats.comp);
     mu.add(p, feCheckRemoveContaminants.comp);
     mu.add(p, feCheckPrintDecoys.comp);
     mu.add(p, feCheckPepSummary.comp);
@@ -238,10 +231,6 @@ public class ReportPanel extends JPanelBase {
 
   public boolean isPrintDecoys() {
     return uiCheckPrintDecoys.isSelected();
-  }
-
-  public boolean isMsstats() {
-    return uiCheckMsstats.isSelected();
   }
 
   public boolean isRemoveContaminants() {

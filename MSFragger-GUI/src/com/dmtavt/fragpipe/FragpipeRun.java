@@ -1546,7 +1546,7 @@ public class FragpipeRun {
     // run Report - Report command itself
     final CmdPhilosopherReport cmdPhilosopherReport = new CmdPhilosopherReport(reportPanel.isRun() || quantPanelLabelfree.isRunFreeQuant(), wd);
     final boolean doPrintDecoys = reportPanel.isPrintDecoys();
-    final boolean doMSstats = reportPanel.isMsstats() && !quantPanelLabelfree.isRunIonQuant(); // Don't let Philosopher generate MSstats files if IonQuant is going to run because IonQuant will generate them.
+    final boolean doMSstats = tmtiPanel.isMsstats() && !quantPanelLabelfree.isRunIonQuant(); // Don't let Philosopher generate MSstats files if IonQuant is going to run because IonQuant will generate them.
 
     addConfig.accept(cmdPhilosopherReport, () -> {
       cmdPhilosopherReport.setRun(cmdPhilosopherReport.isRun() && !sharedMapGroupsToProtxml.isEmpty());
