@@ -52,6 +52,20 @@ public class WriteSkyTest {
     assertEquals("K", mod.aa);
     assertEquals('\0', mod.terminus);
 
+    mods = convertMods("KcH[E", true, 10, 10, new ArrayList<>(0), new ArrayList<>(0));
+    mod = mods.get(0);
+    assertEquals("E_10.0", mod.name);
+    assertEquals("E", mod.aa);
+    assertEquals('N', mod.terminus);
+    mod = mods.get(1);
+    assertEquals("H_10.0", mod.name);
+    assertEquals("H", mod.aa);
+    assertEquals('C', mod.terminus);
+    mod = mods.get(2);
+    assertEquals("K_10.0", mod.name);
+    assertEquals("K", mod.aa);
+    assertEquals('\0', mod.terminus);
+
     mods = convertMods("[*", true, 10, 10, new ArrayList<>(0), new ArrayList<>(0));
     mod = mods.get(0);
     assertEquals("ACDEFGHIKLMNPQRSTVWY_10.0", mod.name);
