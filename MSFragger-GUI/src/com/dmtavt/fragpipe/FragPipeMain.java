@@ -17,9 +17,20 @@
 
 package com.dmtavt.fragpipe;
 
+import static com.github.chhh.utils.OsUtils.isUnix;
+import static com.github.chhh.utils.OsUtils.isWindows;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.List;
+import org.jooq.lambda.Seq;
 
 public class FragPipeMain {
+
+  public static final String PHILOSOPHER_VERSION = "5.1.1-RC13";
+
   public static void main(String[] args) {
     if (args.length == 1 && (args[0].equalsIgnoreCase("--help") || args[0].equalsIgnoreCase("-h"))) {
       System.out.print(Fragpipe.help());
@@ -43,8 +54,6 @@ public class FragPipeMain {
           Fragpipe.workdir = args[++i].trim();
         } else if (args[i].equalsIgnoreCase("--config-msfragger")) {
           Fragpipe.msfraggerBinPath = args[++i].trim();
-        } else if (args[i].equalsIgnoreCase("--config-philosopher")) {
-          Fragpipe.philosopherBinPath = args[++i].trim();
         } else if (args[i].equalsIgnoreCase("--config-diann")) {
           Fragpipe.diannBinPath = args[++i].trim();
         } else if (args[i].equalsIgnoreCase("--config-python")) {
@@ -58,6 +67,28 @@ public class FragPipeMain {
       }
     }
 
+    getPhilosopherBin();
+
     Fragpipe.main0();
+  }
+
+  private static void getPhilosopherBin() {
+    String s = null;
+    if (isWindows()) {
+      s = "philosopher-v" + PHILOSOPHER_VERSION + ".exe";
+    } else if (isUnix()) {
+      s = "philosopher-v" + PHILOSOPHER_VERSION;
+    } else {
+      throw new RuntimeException("Philosopher only supports Windows and Unix systems");
+    }
+
+    final List<Path> t = FragpipeLocations.checkToolsMissing(Seq.of(s));
+    if (t != null && !t.isEmpty()) {
+      t.sort(Collections.reverseOrder());
+      Path p = t.get(0);
+      if (Files.exists(p) && Files.isExecutable(p)) {
+        Fragpipe.philosopherBinPath = p.toAbsolutePath().toString();
+      }
+    }
   }
 }

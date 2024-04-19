@@ -16,18 +16,12 @@
  */
 package com.dmtavt.fragpipe.tools.philosopher;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
-import com.github.chhh.utils.PropertiesUtils;
-
 /**
  *
  * @author Dmitry Avtonomov
  */
 public class PhilosopherProps {
-    public static final String PROGRAM_NAME = "Philosopher";
-    public static final String CMD_COMET = "comet";
+
     public static final String CMD_PEPTIDE_PROPHET = "peptideprophet";
     public static final String CMD_PROTEIN_PROPHET = "proteinprophet";
     public static final String CMD_DATABASE = "database";
@@ -36,26 +30,4 @@ public class PhilosopherProps {
     public static final String CMD_IPROPHET = "iprophet";
     public static final String CMD_LABELFREE = "freequant";
     public static final String CMD_LABELQUANT = "labelquant";
-
-    private static final String PROPERTIES_FILE_NAME = "philosopher.properties";
-
-    public static final String PROP_LATEST_COMPATIBLE_VERSION = "philosopher.version.latest-compatible";
-    public static final String PROP_LOWEST_COMPATIBLE_VERSION = "philosopher.version.lowest-compatible";
-    public static final String PROP_DOWNLOAD_URL = "philosopher.download.url";
-
-    public static final List<String> PROPERTIES_URLS = Arrays.asList(
-        "https://raw.githubusercontent.com/Nesvilab/FragPipe/master/MSFragger-GUI/src/com/dmtavt/fragpipe/tools/philosopher/philosopher.properties"
-    );
-
-    private static class Holder {
-        private static final Properties properties = PropertiesUtils
-            .initProperties(PROPERTIES_URLS, PROPERTIES_FILE_NAME, PhilosopherProps.class);
-        public static Properties getProperties() {
-            return properties;
-        }
-    }
-
-    public static Properties getProperties() {
-        return Holder.getProperties();
-    }
 }

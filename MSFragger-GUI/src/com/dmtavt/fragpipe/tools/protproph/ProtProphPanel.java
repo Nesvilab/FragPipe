@@ -19,7 +19,6 @@ package com.dmtavt.fragpipe.tools.protproph;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.messages.MessageSearchType;
-import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FormEntry;
@@ -118,7 +117,7 @@ public class ProtProphPanel extends JPanelBase {
 
   @Override
   public void initMore() {
-    updateEnabledStatus(this, false); // will get enabled when Philosopher is selected
+    updateEnabledStatus(this, true); // will get enabled when Philosopher is selected
     super.initMore();
   }
 
@@ -126,10 +125,5 @@ public class ProtProphPanel extends JPanelBase {
   public void on(MessageSearchType m) {
     checkRun.setSelected(true);
     loadDefaults(m.type.name());
-  }
-
-  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
-  public void on(NoteConfigPhilosopher m) {
-    updateEnabledStatus(this, m.isValid());
   }
 }

@@ -17,6 +17,8 @@
 
 package com.dmtavt.fragpipe;
 
+import static com.dmtavt.fragpipe.FragPipeMain.PHILOSOPHER_VERSION;
+import static com.dmtavt.fragpipe.Fragpipe.philosopherBinPath;
 import static com.dmtavt.fragpipe.messages.MessagePrintToConsole.toConsole;
 import static com.dmtavt.fragpipe.tabs.TabDatabase.databaseSizeLimit;
 import static com.dmtavt.fragpipe.tabs.TabWorkflow.manifestExt;
@@ -80,7 +82,6 @@ import com.dmtavt.fragpipe.messages.NoteConfigDatabase;
 import com.dmtavt.fragpipe.messages.NoteConfigDiann;
 import com.dmtavt.fragpipe.messages.NoteConfigIonQuant;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
-import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.dmtavt.fragpipe.messages.NoteConfigSpeclibgen;
 import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.dmtavt.fragpipe.process.ProcessDescription;
@@ -985,7 +986,6 @@ public class FragpipeRun {
   public static String createVersionsString() {
     String msfraggerVersion;
     String ionQuantVersion = NoteConfigIonQuant.version;
-    String philosopherVersion;
 
     try {
       msfraggerVersion = Fragpipe.getStickyStrict(NoteConfigMsfragger.class).version;
@@ -1000,20 +1000,11 @@ public class FragpipeRun {
       ionQuantVersion = "N/A";
     }
 
-    try {
-      philosopherVersion = Fragpipe.getStickyStrict(NoteConfigPhilosopher.class).version;
-      if (philosopherVersion == null || philosopherVersion.trim().isEmpty()) {
-        throw new NullPointerException();
-      }
-    } catch (Exception e) {
-      philosopherVersion = "N/A";
-    }
-
     StringBuilder sb = new StringBuilder();
     sb.append(Version.PROGRAM_TITLE).append(" version ").append(Version.version()).append("\n");
     sb.append("MSFragger version ").append(msfraggerVersion).append("\n");
     sb.append("IonQuant version ").append(ionQuantVersion).append("\n");
-    sb.append("Philosopher version ").append(philosopherVersion).append("\n");
+    sb.append("Philosopher version ").append(PHILOSOPHER_VERSION).append("\n");
 
     return sb.toString();
   }
@@ -1095,13 +1086,7 @@ public class FragpipeRun {
     final ProtProphPanel protProphPanel = Fragpipe.getStickyStrict(ProtProphPanel.class);
     final ReportPanel reportPanel = Fragpipe.getStickyStrict(ReportPanel.class);
 
-    final NoteConfigPhilosopher configPhi = Fragpipe.getStickyStrict(NoteConfigPhilosopher.class);
-
-    if (!configPhi.isValid()) {
-      SwingUtils.showErrorDialog(parent, "Philosopher was not configured properly. Please check the config tab if you want to use it.", "Philosopher is not available");
-    }
-
-    final UsageTrigger usePhi = new UsageTrigger(configPhi.path, "Philosopher");
+    final UsageTrigger usePhi = new UsageTrigger(philosopherBinPath, "Philosopher");
 
     // all the configurations are aggregated before being executed
     // because some commands might require others to run

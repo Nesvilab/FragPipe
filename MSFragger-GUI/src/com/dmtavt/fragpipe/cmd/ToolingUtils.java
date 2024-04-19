@@ -25,14 +25,11 @@ import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
-import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.dmtavt.fragpipe.tabs.TabWorkflow;
 import com.github.chhh.utils.FileCopy;
 import com.github.chhh.utils.FileDelete;
 import com.github.chhh.utils.FileMove;
 import com.github.chhh.utils.JarUtils;
-import com.github.chhh.utils.OsUtils;
-import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -43,20 +40,14 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.ResourceBundle;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 import org.apache.commons.io.FilenameUtils;
 import org.jooq.lambda.Seq;
@@ -172,13 +163,6 @@ public class ToolingUtils {
     return pbs;
   }
 
-  public static Map<InputLcmsFile, Path> getPepxmlFilePathsAfterSearch(List<InputLcmsFile> lcmsFiles, String ext) {
-    HashMap<InputLcmsFile, Path> pepxmls = new HashMap<>();
-    for (InputLcmsFile f : lcmsFiles)
-      pepxmls.put(f, Paths.get(StringUtils.upToLastDot(f.getPath().toString()) + "." + ext));
-    return pepxmls;
-  }
-
   public static String getBinJava(Component errroDialogParent, String programsDir) {
     String binJava = "java";
     synchronized (ToolingUtils.class) {
@@ -212,45 +196,6 @@ public class ToolingUtils {
       images.add(icon);
     }
     return images;
-  }
-
-  public static List<String> getUmpireSeMgfsForMzxml(String inputMzxmlFileName) {
-    String baseName = StringUtils.upToLastDot(inputMzxmlFileName);
-    final int n = 3;
-    List<String> mgfs = new ArrayList<>(n);
-    for (int i = 1; i <= n; i++) {
-      mgfs.add(baseName + "_Q" + i + ".mgf");
-    }
-    return mgfs;
-  }
-
-  public static List<Path> getUmpireCreatedMzxmlFiles(List<InputLcmsFile> lcmsFiles, Path workingDir) {
-    return lcmsFiles.stream()
-        .map(f -> workingDir.resolve(f.getPath().getFileName()))
-        .collect(Collectors.toList());
-  }
-
-  public static String getDefaultBinMsfragger() {
-    log.debug("Loading MSFragger bin path: ThisAppProps.load(ThisAppProps.PROP_BIN_PATH_MSFRAGGER)");
-    String path = ThisAppProps.load(ThisAppProps.PROP_BIN_PATH_MSFRAGGER);
-    return path == null ? "MSFragger.jar" : path;
-  }
-
-  public static String getDefaultBinPhilosopher() {
-    String path = ThisAppProps.load(ThisAppProps.PROP_BIN_PATH_PHILOSOPHER);
-    if (path != null) {
-      return path;
-    }
-    ResourceBundle bundle = ThisAppProps.getLocalBundle();
-    String winName = bundle.getString("default.philosopher.win"); // NOI18N
-    String nixName = bundle.getString("default.philosopher.nix"); // NOI18N
-    return OsUtils.isWindows() ? winName : nixName;
-  }
-
-  static boolean isPhilosopherAndNotTpp(String binPathToCheck) {
-    Pattern isPhilosopherRegex = Pattern.compile("philosopher", Pattern.CASE_INSENSITIVE);
-    Matcher matcher = isPhilosopherRegex.matcher(binPathToCheck);
-    return matcher.find();
   }
 
   static void generateLFQExperimentAnnotation(Path wd, int type) throws Exception {

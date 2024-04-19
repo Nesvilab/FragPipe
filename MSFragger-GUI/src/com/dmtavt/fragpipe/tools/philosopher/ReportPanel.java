@@ -18,7 +18,6 @@
 package com.dmtavt.fragpipe.tools.philosopher;
 
 import com.dmtavt.fragpipe.messages.MessageSearchType;
-import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FormEntry;
@@ -77,10 +76,6 @@ public class ReportPanel extends JPanelBase {
     return PREFIX;
   }
 
-  public void setRunStatus(boolean status) {
-    checkRun.setEnabled(status);
-  }
-
   @Override
   protected void init() {
     mu.layout(this, mu.lcFillXNoInsetsTopBottom());
@@ -95,13 +90,8 @@ public class ReportPanel extends JPanelBase {
 
   @Override
   protected void initMore() {
-    updateEnabledStatus(this, false);
+    updateEnabledStatus(this, true);
     super.initMore();
-  }
-
-  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
-  public void on(NoteConfigPhilosopher m) {
-    updateEnabledStatus(this, m.isValid());
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
@@ -115,10 +105,6 @@ public class ReportPanel extends JPanelBase {
     uiCheckPepSummary.setSelected(false);
     uiCheckProtSummary.setSelected(true);
     checkRun.setSelected(true);
-  }
-
-  public void activate(boolean isActive) {
-    updateEnabledStatus(pTop, isActive);
   }
 
   private JPanel createPanelOptions() {

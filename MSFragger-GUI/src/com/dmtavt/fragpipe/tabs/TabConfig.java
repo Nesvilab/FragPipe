@@ -40,7 +40,6 @@ import com.dmtavt.fragpipe.messages.MessageIonQuantNewBin;
 import com.dmtavt.fragpipe.messages.MessageIonQuantUpdateAvailable;
 import com.dmtavt.fragpipe.messages.MessageMsfraggerNewBin;
 import com.dmtavt.fragpipe.messages.MessageMsfraggerUpdateAvailable;
-import com.dmtavt.fragpipe.messages.MessagePhilosopherNewBin;
 import com.dmtavt.fragpipe.messages.MessagePythonNewBin;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
 import com.dmtavt.fragpipe.messages.MessageUiRevalidate;
@@ -48,7 +47,6 @@ import com.dmtavt.fragpipe.messages.NoteConfigDbsplit;
 import com.dmtavt.fragpipe.messages.NoteConfigDiann;
 import com.dmtavt.fragpipe.messages.NoteConfigIonQuant;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
-import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.dmtavt.fragpipe.messages.NoteConfigPython;
 import com.dmtavt.fragpipe.messages.NoteConfigSpeclibgen;
 import com.dmtavt.fragpipe.messages.NoteFragpipeUpdate;
@@ -59,8 +57,6 @@ import com.dmtavt.fragpipe.tools.fragger.Msfragger.Version;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerVersionFetcherServer;
 import com.dmtavt.fragpipe.tools.ionquant.IonQuant;
 import com.dmtavt.fragpipe.tools.ionquant.IonQuantVersionFetcherServer;
-import com.dmtavt.fragpipe.tools.philosopher.Philosopher;
-import com.dmtavt.fragpipe.tools.philosopher.Philosopher.UpdateInfo;
 import com.dmtavt.fragpipe.util.GitHubJson;
 import com.github.chhh.utils.JarUtils;
 import com.github.chhh.utils.OsUtils;
@@ -126,15 +122,12 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
-import rx.schedulers.Schedulers;
 
 public class TabConfig extends JPanelWithEnablement {
 
   private static final Logger log = LoggerFactory.getLogger(TabConfig.class);
   private static final DefaultArtifactVersion msfraggerMinVersion = new DefaultArtifactVersion("4.0");
   private static final DefaultArtifactVersion ionquantMinVersion = new DefaultArtifactVersion("1.10.12");
-  private static final DefaultArtifactVersion philosopherMinVersion = new DefaultArtifactVersion("5.1.0");
   public static final DefaultArtifactVersion pythonMinVersion = new DefaultArtifactVersion("3.9");
 
   private static final MigUtils mu = MigUtils.get();
@@ -146,9 +139,7 @@ public class TabConfig extends JPanelWithEnablement {
   private UiText uiTextBinIonQuant;
   private HtmlStyledJEditorPane epFraggerVer;
   private HtmlStyledJEditorPane epIonQuantVer;
-  private UiText uiTextBinPhi;
   private UiText uiTextBinDiann;
-  private HtmlStyledJEditorPane epPhiVer;
   private HtmlStyledJEditorPane epDiannVer;
   private UiText uiTextBinPython;
   private HtmlStyledJEditorPane epPythonVer;
@@ -160,7 +151,6 @@ public class TabConfig extends JPanelWithEnablement {
   private JButton btnAbout;
   public static final String TIP_MSFRAGGER_BIN = "tip.msfragger.bin";
   public static final String TIP_IONQUANT_BIN = "tip.ionquant.bin";
-  public static final String TIP_PHILOSOPHER_BIN = "tip.pholosopher.bin";
   public static final String TIP_DIANN_BIN = "tip.diann.bin";
   public static final String TIP_PYTHON_BIN = "tip.python.bin";
   private static final String TIP_DBSPLIT = "tip.dbsplit";
@@ -200,7 +190,6 @@ public class TabConfig extends JPanelWithEnablement {
     add(createPanelTopButtons(), new CC().growX().wrap());
     add(createPanelFragger(), new CC().growX().wrap());
     add(createPanelIonQuant(), new CC().growX().wrap());
-    add(createPanelPhilosopher(), new CC().growX().wrap());
     add(createPanelDiann(), new CC().growX().wrap());
     add(createPanelPython(), new CC().growX().wrap());
     add(createPanelDbsplit(), new CC().growX().wrap());
@@ -536,25 +525,6 @@ public class TabConfig extends JPanelWithEnablement {
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
-  public void on(MessagePhilosopherNewBin m) {
-    if (StringUtils.isBlank(m.path)) {
-      Bus.postSticky(new NoteConfigPhilosopher(null, "N/A"));
-      return;
-    }
-    try {
-      Philosopher.Version v = Philosopher.validate(m.path);
-      DefaultArtifactVersion defaultArtifactVersion = new DefaultArtifactVersion(v.version);
-      if (defaultArtifactVersion.compareTo(philosopherMinVersion) >= 0) {
-        Bus.postSticky(new NoteConfigPhilosopher(m.path, v.version));
-      } else {
-        Bus.postSticky(new NoteConfigPhilosopher(m.path, "N/A", new ValidationException("Philosopher version " + philosopherMinVersion + "+ is required.")));
-      }
-    } catch (ValidationException | UnexpectedException e) {
-      Bus.postSticky(new NoteConfigPhilosopher(m.path, "N/A", e));
-    }
-  }
-
-  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageDiannNewBin m) {
     if (StringUtils.isBlank(m.path) || !Files.exists(Paths.get(m.path.replaceAll("\"", "")))) {
       Bus.postSticky(new NoteConfigDiann());
@@ -575,29 +545,6 @@ public class TabConfig extends JPanelWithEnablement {
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
-  public void on(NoteConfigPhilosopher m) {
-    log.debug("Got {}", m);
-    uiTextBinPhi.setText(m.path);
-
-    Path existing = PathUtils.existing(m.path);
-    if (existing != null) {
-      Fragpipe.propsVarSet(ThisAppProps.PROP_BINARIES_IN, existing.toString());
-      if (existing.toString().contains(" ")) {
-        SwingUtils.showErrorDialog(this, "Space is not allowed in Philosopher path.", "Spaces in path");
-      }
-    }
-
-    if (m.ex != null) {
-      epPhiVer.setText("Philosopher version: N/A");
-      showConfigError(m.ex, TIP_PHILOSOPHER_BIN, uiTextBinPhi, true);
-    } else {
-      epPhiVer.setText("Philosopher version: " + m.version);
-      Notifications.tryClose(TIP_PHILOSOPHER_BIN);
-      checkPhilosopherUpdateAsync(m.path);
-    }
-  }
-
-  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteConfigDiann m) {
     log.debug("Got {}", m);
     uiTextBinDiann.setText(m.path);
@@ -614,21 +561,6 @@ public class TabConfig extends JPanelWithEnablement {
       epDiannVer.setText("DIA-NN version: " + m.version);
       Notifications.tryClose(TIP_DIANN_BIN);
     }
-  }
-
-  private void checkPhilosopherUpdateAsync(String path) {
-    Observable<UpdateInfo> obs = Observable
-        .fromCallable(() -> Philosopher.checkUpdates(path))
-        .subscribeOn(Schedulers.io());
-    obs.subscribe(info -> {
-      log.debug("Got philosopher update info with updateAvailable={}", info.isUpdateAvailable);
-      if (info.isUpdateAvailable) {
-        MessageBalloon tip = new MessageBalloon(TIP_PHILOSOPHER_BIN, uiTextBinPhi, SwingUtils.makeHtml("Philosopher update available."), false);
-        Notifications.tryOpen(tip);
-      }
-    }, throwable -> {
-      log.warn("Something happened when checking for philosopher updates", throwable);
-    });
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
@@ -816,10 +748,6 @@ public class TabConfig extends JPanelWithEnablement {
       String binIonQuant = uiTextBinIonQuant.getNonGhostText();
       if (StringUtils.isNotBlank(binIonQuant)) {
         Bus.post(new MessageIonQuantNewBin(binIonQuant));
-      }
-      String binPhi = uiTextBinPhi.getNonGhostText();
-      if (StringUtils.isNotBlank(binPhi)) {
-        Bus.post(new MessagePhilosopherNewBin(binPhi));
       }
       String binDiann = uiTextBinDiann.getNonGhostText();
       if (StringUtils.isNotBlank(binDiann)) {
@@ -1040,33 +968,6 @@ public class TabConfig extends JPanelWithEnablement {
     return sb.toString();
   }
 
-  private JPanel createPanelPhilosopher() {
-    JPanel p = newMigPanel();
-    p.setBorder(new TitledBorder("Philosopher"));
-
-    final String tip = "Select path to Philosopher binary";
-    uiTextBinPhi = UiUtils.uiTextBuilder().create();
-    uiTextBinPhi.addFocusListener(new ContentChangedFocusAdapter(uiTextBinPhi, (s, s2) -> {
-      Bus.post(new MessagePhilosopherNewBin(s2));
-    }));
-    FormEntry feBin = fe(uiTextBinPhi, "bin-philosopher", TAB_PREFIX)
-        .tooltip(tip).create();
-    p.add(feBin.comp, ccL().split().growX());
-
-    JButton btnBrowse = feBin
-        .browseButton("Browse", tip, this::createPhilosopherFilechooser,
-            paths -> paths.stream().findFirst()
-                .ifPresent(bin -> Bus.post(new MessagePhilosopherNewBin(bin.toString()))));
-    p.add(btnBrowse, ccL());
-    JButton btnDownload = UiUtils.createButton("Download / Update", this::actionPhilosopherDownload);
-    p.add(btnDownload, ccL().wrap());
-
-    epPhiVer = new HtmlStyledJEditorPane("Philosopher version: N/A");
-    p.add(Fragpipe.rename(epPhiVer, "philosopher.version-info", TAB_PREFIX, true), ccL().split());
-    p.add(SwingUtils.createClickableHtml(createPhilosopherCitationBody()), ccL().spanX().growX().wrap());
-    return p;
-  }
-
   private JPanel createPanelDiann() {
     JPanel p = newMigPanel();
     p.setBorder(new TitledBorder("DIA-NN"));
@@ -1235,19 +1136,6 @@ public class TabConfig extends JPanelWithEnablement {
     return p;
   }
 
-  private JFileChooser createPhilosopherFilechooser() {
-    JFileChooser fc = FileChooserUtils.create("Select Philosopher binary", "Select",
-        false, FcMode.FILES_ONLY, true);
-    if (OsUtils.isWindows()) {
-      fc.addChoosableFileFilter(new FileNameExtensionFilter("Executables", "exe"));
-    }
-    FileChooserUtils.setPath(fc, Stream.of(
-        uiTextBinPhi.getNonGhostText(),
-        Fragpipe.propsVarGet(ThisAppProps.PROP_BINARIES_IN),
-        JarUtils.getCurrentJarPath()));
-    return fc;
-  }
-
   private JFileChooser createDiannFilechooser() {
     JFileChooser fc = FileChooserUtils.create("Select DIA-NN binary", "Select", false, FcMode.FILES_ONLY, true);
     if (OsUtils.isWindows()) {
@@ -1296,25 +1184,6 @@ public class TabConfig extends JPanelWithEnablement {
     StringBuilder sb = new StringBuilder();
     sb.append("&emsp;More info and docs: <a href=\"https://github.com/vdemichev/DiaNN\">DIA-NN</a>");
     return sb.toString();
-  }
-
-  private void actionPhilosopherDownload(ActionEvent e) {
-    int choice = SwingUtils.showChoiceDialog(TabConfig.this, "Choose download type", "Do you want to download automatically?\nIf you choose \"Manually\", you will be redirected to the download website.", new String[]{"Automatically", "Manually", "Cancel"}, 0);
-    switch (choice) {
-      case 0:
-        new Thread(() -> {
-          try {
-            SwingUtils.setUncaughtExceptionHandlerMessageDialog(TabConfig.this);
-            Philosopher.downloadPhilosopherAutomatically();
-          } catch (IOException ex) {
-            throw new IllegalStateException("Error downloading Philosopher automatically", ex);
-          }
-        }).start();
-        break;
-      case 1:
-        Philosopher.downloadPhilosopherManually();
-        break;
-    }
   }
 
   private void actionDiannDownload(ActionEvent e) {

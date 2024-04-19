@@ -90,25 +90,7 @@ public class DownloadDbHelper {
    * @param binPhi           Philosopher binary path.
    * @param hintSaveLocation Can be null, if not null - used to set file chooser init path.
    */
-  public static void downloadDb(Component parent, String binPhi, String hintSaveLocation)
-      throws Exception {
-    Set<String> searchPaths = new LinkedHashSet<>();
-    searchPaths.add(".");
-    searchPaths.addAll(PathUtils.getClasspathDirs());
-    String jarPath = JarUtils.getCurrentJarPath();
-    if (jarPath != null) {
-      searchPaths.add(jarPath);
-    }
-    String[] paths = searchPaths.toArray(new String[0]);
-    String phi = PathUtils.testBinaryPath(binPhi, paths);
-    if (phi == null) {
-      throw new IllegalStateException("Philosopher binary not found");
-    }
-
-
-    // download db
-    //DbIdDialog dialog = new DbIdDialog();
-    //dialog.setVisible(true);
+  public static void downloadDb(Component parent, String binPhi, String hintSaveLocation) throws Exception {
     DbUniprotIdPanel p = new DbUniprotIdPanel();
     final int confirmation = SwingUtils.showConfirmDialog2(parent, p, "Download options", OK_CANCEL_OPTION);
     if (JOptionPane.OK_OPTION == confirmation) {
@@ -120,10 +102,7 @@ public class DownloadDbHelper {
       final boolean isAddIsoforms = p.isAddIsoforms();
       final boolean isAddDecoys = p.isAddDecoys();
       final boolean isAddIrt = p.isAddIrt();
-      // philosopher workspace --init
-      // philosopher database --reviewed --contam --id UP000005640
       UsageTrigger usePhi = new UsageTrigger(binPhi, "philosopher binary");
-
 
       if (addSpikeInFasta != null) {
         if (!Files.exists(addSpikeInFasta)) {
@@ -317,13 +296,7 @@ public class DownloadDbHelper {
     return phi;
   }
 
-  public static void updateDb(Component parent, String binPhi, Path fasta, boolean isAddContam)
-      throws Exception {
-//    if (!SwingUtils.showConfirmDialogShort(parent,
-//        "This will update the fasta file in-place. Continue?")) {
-//      return;
-//    }
-    String phi = findPhiBinStrict(binPhi);
+  public static void updateDb(Component parent, String binPhi, Path fasta, boolean isAddContam) throws Exception {
     UsageTrigger usePhi = new UsageTrigger(binPhi, "philosopher binary");
     Path dir = fasta.getParent();
     CmdPhilosopherWorkspaceCleanInit cmdCleanInit = new CmdPhilosopherWorkspaceCleanInit(true, dir);

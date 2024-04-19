@@ -21,7 +21,6 @@ import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.SearchTypeProp;
 import com.dmtavt.fragpipe.messages.MessageSearchType;
 import com.dmtavt.fragpipe.messages.NoteConfigPeptideProphet;
-import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.dmtavt.fragpipe.tools.PSMValidation;
 import com.dmtavt.fragpipe.tools.msbooster.MSBoosterPanel;
 import com.dmtavt.fragpipe.tools.percolator.PercolatorPanel;
@@ -96,7 +95,7 @@ public class PepProphPanel extends JPanelBase {
 
   @Override
   protected void initMore() {
-    updateEnabledStatus(this, false);
+    updateEnabledStatus(this, true);
     super.initMore();
   }
 
@@ -107,11 +106,6 @@ public class PepProphPanel extends JPanelBase {
       PercolatorPanel percolatorPanel = Fragpipe.getStickyStrict(PercolatorPanel.class);
       percolatorPanel.checkRun.setSelected(true);
     }
-  }
-
-  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
-  public void on(NoteConfigPhilosopher m) {
-    updateEnabledStatus(this, m.isValid());
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)

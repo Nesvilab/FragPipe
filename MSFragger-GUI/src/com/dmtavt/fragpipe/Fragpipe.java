@@ -41,7 +41,6 @@ import com.dmtavt.fragpipe.messages.MessageSaveUiState;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
 import com.dmtavt.fragpipe.messages.MessageUiRevalidate;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
-import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.dmtavt.fragpipe.messages.NoteConfigSpeclibgen;
 import com.dmtavt.fragpipe.messages.NoteConfigTips;
 import com.dmtavt.fragpipe.messages.NoteFragpipeCache;
@@ -469,9 +468,6 @@ public class Fragpipe extends JFrameHeadless {
     }
     if (ionquantBinPath != null) {
       propsFile.setProperty("fragpipe-config.bin-ionquant", ionquantBinPath);
-    }
-    if (philosopherBinPath != null) {
-      propsFile.setProperty("fragpipe-config.bin-philosopher", philosopherBinPath);
     }
     if (diannBinPath != null) {
       propsFile.setProperty("fragpipe-config.bin-diann", diannBinPath);
@@ -968,10 +964,7 @@ public class Fragpipe extends JFrameHeadless {
   public static <T> T getStickyStrict(Class<T> clazz) {
     T sticky = Bus.getStickyEvent(clazz);
     if (sticky == null) {
-      if (clazz.getName().contentEquals("com.dmtavt.fragpipe.messages.NoteConfigPhilosopher")) {
-        Bus.postSticky(new NoteConfigPhilosopher(null, "N/A"));
-        sticky = Bus.getStickyEvent(clazz);
-      } else if (clazz.getName().contentEquals("com.dmtavt.fragpipe.messages.NoteConfigSpeclibgen")) {
+      if (clazz.getName().contentEquals("com.dmtavt.fragpipe.messages.NoteConfigSpeclibgen")) {
         Bus.postSticky(new NoteConfigSpeclibgen(null, new ValidationException("Python binary or EasyPQP not valid")));
         sticky = Bus.getStickyEvent(clazz);
       } else {
@@ -1017,7 +1010,6 @@ public class Fragpipe extends JFrameHeadless {
     sb.append("\t--threads <integer>             # (optional) Specify the number of threads. Default = core number - 1\n");
     sb.append("\t--config-msfragger <string>     # (optional) specify the location of the MSFragger jar file. If not specified, using the one in the cache.\n");
     sb.append("\t--config-ionquant <string>      # (optional) specify the location of the IonQuant jar file. If not specified, using the one in the cache.\n");
-    sb.append("\t--config-philosopher <string>   # (optional) specify the location of the Philosopher binary file. If not specified, using the one in the cache.\n");
     sb.append("\t--config-diann <string>         # (optional) specify the location of the DIA-NN binary file (the actual executable file `DiaNN.exe`, not the DIA-NN installation file). If not specified, using the one in the cache. It could be from the previously configured or the build-in one.\n");
     sb.append("\t--config-python <string>        # (optional) specify the location of the Python directory. If not specified, using the one in the cache.\n");
     sb.append("To let FragPipe find the TMT annotation file, put the mzML files from the same experiment in the same folder. Then, create the annotation file with the name ending with annotation.txt in the folder.");
