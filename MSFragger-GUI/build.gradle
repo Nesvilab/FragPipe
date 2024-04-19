@@ -5,8 +5,6 @@
  * For more details take a look at the Java Quickstart chapter in the Gradle
  * user guide available at https://docs.gradle.org/4.10.2/userguide/tutorial_java_projects.html
  */
-import org.apache.tools.ant.taskdefs.condition.Os
-
 plugins {
     id 'java'
     id 'application'
@@ -203,8 +201,7 @@ void createTaskMakeReleaseZip(boolean withJre, String releaseDir, String startCl
         // for a gradle Windows build, files requiring execute bit set (ELF and Unix shell scripts)
         // are zipped without execute bit. The default file mode is 0644
         // https://github.com/gradle/gradle/blob/54b385133a1edde78243105e9aaf0db5990b3507/subprojects/native/src/main/java/org/gradle/internal/nativeintegration/filesystem/services/FileSystemServices.java#L75
-        if (Os.isFamily(Os.FAMILY_WINDOWS))
-            fileMode = 0755
+        fileMode = 0755
         dependsOn 'clean'
         dependsOn 'test'
         dependsOn 'makeExeAndCopyToScripts'
