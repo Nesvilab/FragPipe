@@ -86,6 +86,11 @@ public class CmdDiann extends CmdBase {
 
     initPreConfig();
 
+    if (libraryPath != null && !libraryPath.trim().isEmpty()) {
+      System.out.println("There are external spectral library. Will not generate the MSstats file.");
+      generateMsstats = false;
+    }
+
     if (isRunPlex) {
       if ((lightString == null || lightString.isEmpty()) && (mediumString == null || mediumString.isEmpty()) && (heavyString == null || heavyString.isEmpty())) {
         SwingUtils.showErrorDialog(comp, "All light, medium, and heavy labels are empty.<br>Please disable/uncheck <b>plexDIA</b> in <b>Quant (DIA)</b> tab or provide label info.", "No label info");
