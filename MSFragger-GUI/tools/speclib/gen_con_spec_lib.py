@@ -333,7 +333,7 @@ Please try using other options for alignment (e.g. ciRT if used other options)''
 		sys.exit('Library not generated, not enough peptides could be found for alignment.')
 
 
-def easypqp_lib_export(lib_type: str):
+def easypqp_lib_export(lib_type: str, params: easyPQPparams):
 	import pandas as pd
 
 	easypqp_lib = pd.read_csv('easypqp_lib_openswath.tsv', sep='\t')
@@ -353,7 +353,27 @@ def easypqp_lib_export(lib_type: str):
 	avg_experimental_rt = pd.Series(avg_experimental_rt0, name='AverageExperimentalRetentionTime')
 	if lib_type == 'Spectronaut':
 		easypqp_lib['ModifiedPeptideSequence'] = easypqp_lib['ModifiedPeptideSequence'].str.replace('.(UniMod:', '(UniMod:', regex=False)
-	pd.concat([easypqp_lib, frag_df, avg_experimental_rt], axis=1).to_csv(f'library.tsv', sep='\t', index=False)
+
+	df_lib = pd.concat([easypqp_lib, frag_df, avg_experimental_rt], axis=1)
+
+	df_psm = pd.read_csv(params.iproph_RT_aligned / 'psm.tsv', sep='\t', na_values='')
+
+	df_psm['AllMappedProteins'] = df_psm.apply(lambda x: f"{x['Protein']};{x['Mapped Proteins']}" if pd.notna(x['Mapped Proteins']) else x['Protein'], axis=1)
+	t = dict(zip(df_psm['Peptide'], df_psm['AllMappedProteins']))
+	df_lib['AllMappedProteins'] = df_lib['PeptideSequence'].map(t)
+
+	df_psm['AllMappedGenes'] = df_psm.apply(lambda x: f"{x['Gene']};{x['Mapped Genes']}" if pd.notna(x['Mapped Genes']) else x['Gene'], axis=1)
+	t = dict(zip(df_psm['Peptide'], df_psm['AllMappedGenes']))
+	df_lib['AllMappedGenes'] = df_lib['PeptideSequence'].map(t)
+
+	tt = df_psm.apply(lambda x: 1 if pd.isna(x['Mapped Genes']) else 0, axis=1)
+	ttt = dict(zip(df_psm['Peptide'], tt))
+
+	df_lib['Proteotypicity'] = df_lib['PeptideSequence'].map(ttt)
+	df_lib['Proteotypicity'].fillna(0, inplace=True)
+	df_lib['Proteotypicity'] = df_lib['Proteotypicity'].astype(int)
+
+	df_lib.to_csv(f'library.tsv', sep='\t', index=False)
 
 
 def get_spectra_files(params: easyPQPparams):
@@ -529,7 +549,7 @@ def main():
 
 	main_easypqp(params, irt_df, allcmds, easypqp_convert_cmds)
 	os.chdir(os_fspath(params.workdir))
-	easypqp_lib_export('Spectronaut')
+	easypqp_lib_export('Spectronaut', params)
 	if params.delete_temp_files:
 		for f in easyPQP_tempfiles:
 			try:
