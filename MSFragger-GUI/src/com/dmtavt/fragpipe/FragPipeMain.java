@@ -23,9 +23,6 @@ import static com.github.chhh.utils.OsUtils.isWindows;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.List;
-import org.jooq.lambda.Seq;
 
 public class FragPipeMain {
 
@@ -82,13 +79,10 @@ public class FragPipeMain {
       throw new RuntimeException("Philosopher only supports Windows and Unix systems");
     }
 
-    final List<Path> t = FragpipeLocations.checkToolsMissing(Seq.of(s));
-    if (t != null && !t.isEmpty()) {
-      t.sort(Collections.reverseOrder());
-      Path p = t.get(0);
-      if (Files.exists(p) && Files.isExecutable(p)) {
-        Fragpipe.philosopherBinPath = p.toAbsolutePath().toString();
-      }
+
+    final Path p = FragpipeLocations.get().getDirTools().resolve("Philosopher").resolve(s).normalize();
+    if (Files.exists(p) && Files.isExecutable(p)) {
+      Fragpipe.philosopherBinPath = p.toAbsolutePath().toString();
     }
   }
 }
