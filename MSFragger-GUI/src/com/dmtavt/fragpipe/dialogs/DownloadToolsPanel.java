@@ -35,7 +35,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import net.miginfocom.swing.MigLayout;
 
-public class DownloadMSFraggerPanel extends JPanel {
+public class DownloadToolsPanel extends JPanel {
 
   private final MigUtils mu = MigUtils.get();
 
@@ -48,7 +48,7 @@ public class DownloadMSFraggerPanel extends JPanel {
   private JCheckBox license1;
   private JCheckBox receiveEmail;
 
-  public DownloadMSFraggerPanel() {
+  public DownloadToolsPanel() {
     initMore();
   }
 

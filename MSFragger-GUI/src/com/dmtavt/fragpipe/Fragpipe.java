@@ -147,11 +147,10 @@ public class Fragpipe extends JFrameHeadless {
   public static int ram = 0;
   static int nThreadsHeadlessOnly = Math.max(1, Math.min(Runtime.getRuntime().availableProcessors() - 1, maxProcessors)); // Note: this variable is only for headless mode. For the GUI mode, please get the number of threads using TabWorkflow:getThreads().
   public static String workdir = null;
-  public static String msfraggerBinPath = null;
+  public static String toolsFolderPath = null;
   public static String philosopherBinPath = null;
   public static String diannBinPath = null;
   public static String pythonBinPath = null;
-  public static String ionquantBinPath = null;
 
   public static final String UI_STATE_CACHE_FN = "fragpipe-ui.cache";
   private static final Logger log = LoggerFactory.getLogger(Fragpipe.class);
@@ -408,11 +407,8 @@ public class Fragpipe extends JFrameHeadless {
       } else if (workdir == null || workdir.isEmpty()) {
         System.err.println("The path to workdir does not look right.");
         System.exit(1);
-      } else if (msfraggerBinPath != null && (msfraggerBinPath.isEmpty() || !Files.exists(Paths.get(msfraggerBinPath)) || !Files.isReadable(Paths.get(msfraggerBinPath)) || !Files.isRegularFile(Paths.get(msfraggerBinPath)))) {
-        System.err.println("MSFragger jar file path " + msfraggerBinPath + " does not seem right.");
-        System.exit(1);
-      } else if (ionquantBinPath != null && (ionquantBinPath.isEmpty() || !Files.exists(Paths.get(ionquantBinPath)) || !Files.isReadable(Paths.get(ionquantBinPath)))) {
-        System.err.println("IonQuant path " + ionquantBinPath + " does not seem right.");
+      } else if (toolsFolderPath != null && (toolsFolderPath.isEmpty() || !Files.exists(Paths.get(toolsFolderPath)) || !Files.isReadable(Paths.get(toolsFolderPath)) || !Files.isRegularFile(Paths.get(toolsFolderPath)))) {
+        System.err.println("Tools folder path " + toolsFolderPath + " does not seem right.");
         System.exit(1);
       } else if (philosopherBinPath != null && (philosopherBinPath.isEmpty() || !Files.exists(Paths.get(philosopherBinPath)) || !Files.isReadable(Paths.get(philosopherBinPath)) || !Files.isRegularFile(Paths.get(philosopherBinPath)))) {
         System.err.println("Philosopher binary file path " + philosopherBinPath + " does not seem right.");
@@ -425,11 +421,8 @@ public class Fragpipe extends JFrameHeadless {
         System.exit(1);
       } else {
         workdir = Paths.get(workdir).toAbsolutePath().toString();
-        if (msfraggerBinPath != null) {
-          msfraggerBinPath = Paths.get(msfraggerBinPath).toAbsolutePath().toString();
-        }
-        if (ionquantBinPath != null) {
-          ionquantBinPath = Paths.get(ionquantBinPath).toAbsolutePath().toString();
+        if (toolsFolderPath != null) {
+          toolsFolderPath = Paths.get(toolsFolderPath).toAbsolutePath().toString();
         }
         if (philosopherBinPath != null) {
           philosopherBinPath = Paths.get(philosopherBinPath).toAbsolutePath().toString();
@@ -463,11 +456,8 @@ public class Fragpipe extends JFrameHeadless {
     propsFile.setProperty("workflow.ram", Fragpipe.ram + "");
     propsFile.setProperty("workflow.threads", Fragpipe.nThreadsHeadlessOnly + "");
     propsFile.setProperty("workdir", Fragpipe.workdir);
-    if (msfraggerBinPath != null) {
-      propsFile.setProperty("fragpipe-config.bin-msfragger", msfraggerBinPath);
-    }
-    if (ionquantBinPath != null) {
-      propsFile.setProperty("fragpipe-config.bin-ionquant", ionquantBinPath);
+    if (toolsFolderPath != null) {
+      propsFile.setProperty("fragpipe-config.tools-folder", toolsFolderPath);
     }
     if (diannBinPath != null) {
       propsFile.setProperty("fragpipe-config.bin-diann", diannBinPath);
@@ -1008,8 +998,7 @@ public class Fragpipe extends JFrameHeadless {
     sb.append("\t--dry-run                       # (optional) Dry run, not really run FragPipe.\n");
     sb.append("\t--ram <integer>                 # (optional) Specify the maximum allowed memory size. The unit is GB. Set it to 0 to let FragPipe decide. Default = 0\n");
     sb.append("\t--threads <integer>             # (optional) Specify the number of threads. Default = core number - 1\n");
-    sb.append("\t--config-msfragger <string>     # (optional) specify the location of the MSFragger jar file. If not specified, using the one in the cache.\n");
-    sb.append("\t--config-ionquant <string>      # (optional) specify the location of the IonQuant jar file. If not specified, using the one in the cache.\n");
+    sb.append("\t--config-tools-folder <string>  # (optional) specify the folder containing MSFragger, IonQuant, and dirTracer. If not specified, using the one in the cache.\n");
     sb.append("\t--config-diann <string>         # (optional) specify the location of the DIA-NN binary file (the actual executable file `DiaNN.exe`, not the DIA-NN installation file). If not specified, using the one in the cache. It could be from the previously configured or the build-in one.\n");
     sb.append("\t--config-python <string>        # (optional) specify the location of the Python directory. If not specified, using the one in the cache.\n");
     sb.append("To let FragPipe find the TMT annotation file, put the mzML files from the same experiment in the same folder. Then, create the annotation file with the name ending with annotation.txt in the folder.");

@@ -49,14 +49,12 @@ public class FragPipeMain {
           Fragpipe.nThreadsHeadlessOnly = Integer.parseInt(args[++i]);
         } else if (args[i].equalsIgnoreCase("--workdir")) {
           Fragpipe.workdir = args[++i].trim();
-        } else if (args[i].equalsIgnoreCase("--config-msfragger")) {
-          Fragpipe.msfraggerBinPath = args[++i].trim();
+        } else if (args[i].equalsIgnoreCase("--config-tools-folder")) {
+          Fragpipe.toolsFolderPath = args[++i].trim();
         } else if (args[i].equalsIgnoreCase("--config-diann")) {
           Fragpipe.diannBinPath = args[++i].trim();
         } else if (args[i].equalsIgnoreCase("--config-python")) {
           Fragpipe.pythonBinPath = args[++i].trim();
-        } else if (args[i].equalsIgnoreCase("--config-ionquant")){
-          Fragpipe.ionquantBinPath = args[++i].trim();
         } else {
           System.err.println("Cannot recognize the argument " + args[i]);
           System.exit(1);
