@@ -407,7 +407,7 @@ public class Fragpipe extends JFrameHeadless {
       } else if (workdir == null || workdir.isEmpty()) {
         System.err.println("The path to workdir does not look right.");
         System.exit(1);
-      } else if (toolsFolderPath != null && (toolsFolderPath.isEmpty() || !Files.exists(Paths.get(toolsFolderPath)) || !Files.isReadable(Paths.get(toolsFolderPath)) || !Files.isRegularFile(Paths.get(toolsFolderPath)))) {
+      } else if (toolsFolderPath != null && (toolsFolderPath.isEmpty() || !Files.exists(Paths.get(toolsFolderPath)) || !Files.isReadable(Paths.get(toolsFolderPath)))) {
         System.err.println("Tools folder path " + toolsFolderPath + " does not seem right.");
         System.exit(1);
       } else if (philosopherBinPath != null && (philosopherBinPath.isEmpty() || !Files.exists(Paths.get(philosopherBinPath)) || !Files.isReadable(Paths.get(philosopherBinPath)) || !Files.isRegularFile(Paths.get(philosopherBinPath)))) {
