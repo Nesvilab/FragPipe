@@ -202,7 +202,7 @@ public class Skyline {
         writer.write("--library-match-tolerance=" + pf.getProperty("msfragger.fragment_mass_tolerance") + "mz ");
       }
       writer.write("--library-product-ions=12 ");
-      writer.write("--library-min-product-ions=" + pf.getProperty("msfragger.min_matched_fragments") + " ");
+      writer.write("--library-min-product-ions=1");
       writer.write("--library-pick-product-ions=filter ");
       writer.write("--full-scan-precursor-analyzer=centroided ");
       writer.write("--full-scan-precursor-isotopes=Count ");
