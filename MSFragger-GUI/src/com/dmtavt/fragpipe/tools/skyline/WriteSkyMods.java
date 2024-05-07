@@ -148,6 +148,8 @@ public class WriteSkyMods {
 
   static List<Mod> convertMods(String sites, boolean isVariable, float monoMass, float avgMass, List<Float> lossMonoMasses, List<Float> lossAvgMasses) {
     List<Mod> out = new ArrayList<>(4);
+    filterNeutralLosses(lossMonoMasses);
+    filterNeutralLosses(lossAvgMasses);
 
     if (sites.contains(" ")) {
       sites = sites.substring(0, sites.indexOf(" "));
@@ -224,6 +226,16 @@ public class WriteSkyMods {
       return sb.toString();
     }
     return "";
+  }
+
+  /**
+   * Skyline does not accept neutral losses >5000 Da. Remove them to avoid a crash
+   * @param losses
+   * @return
+   */
+  private static List<Float> filterNeutralLosses(List<Float> losses) {
+    losses.removeIf(loss -> loss > 5000);
+    return losses;
   }
 
 
