@@ -1,14 +1,14 @@
 package com.dmtavt.fragpipe.tools.skyline;
 
-import static com.dmtavt.fragpipe.tools.skyline.WriteSky.convertMods;
+import static com.dmtavt.fragpipe.tools.skyline.WriteSkyMods.convertMods;
 import static org.junit.Assert.assertEquals;
 
-import com.dmtavt.fragpipe.tools.skyline.WriteSky.Mod;
+import com.dmtavt.fragpipe.tools.skyline.WriteSkyMods.Mod;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
 
-public class WriteSkyTest {
+public class WriteSkyModsTest {
 
   @Test
   public void testConvertMods() {

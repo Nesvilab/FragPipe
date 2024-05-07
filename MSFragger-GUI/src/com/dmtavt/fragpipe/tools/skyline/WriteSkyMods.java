@@ -20,7 +20,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class WriteSky {
+public class WriteSkyMods {
 
   private static final Pattern p = Pattern.compile("([\\d.-]+),([^,]+),(true),[\\d-]+;");
   private static final Pattern p1 = Pattern.compile("[n\\[](.)");
@@ -28,7 +28,7 @@ public class WriteSky {
   private static final Pattern p3 = Pattern.compile("([\\d.-]+)\\((aa=([^=_();]+)?)?(_d=([\\d., -]+))?(_p=([\\d., -]+))?(_f=([\\d., -]+))?\\)");
   private static final ArrayList<String> allAAs = new ArrayList<>(Arrays.asList("A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y"));
 
-  public WriteSky(Path path, PropsFile pf) throws Exception {
+  public WriteSkyMods(Path path, PropsFile pf) throws Exception {
     List<Mod> mods = new ArrayList<>(4);
 
     String fixModStr = pf.getProperty("msfragger.table.fix-mods");

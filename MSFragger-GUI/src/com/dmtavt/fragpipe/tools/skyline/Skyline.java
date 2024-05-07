@@ -155,13 +155,13 @@ public class Skyline {
       Path skylineOutputDir = wd.resolve("skyline-output");
       Files.createDirectories(skylineOutputDir);
 
-      Path modSkyPath = wd.resolve("mod.sky");
-      new WriteSky(modSkyPath, pf);
+      Path modXmlPath = wd.resolve("mod.xml");
+      new WriteSkyMods(modXmlPath, pf);
 
       Path pp = wd.resolve("filelist_skyline.txt");
 
       BufferedWriter writer = Files.newBufferedWriter(pp);
-      writer.write("--in=" + modSkyPath.toAbsolutePath() + " ");
+      writer.write("--in=" + modXmlPath.toAbsolutePath() + " ");
       writer.write("--overwrite ");
       if (mode == 0) {
         writer.write("--out=" + skylineOutputDir.resolve("fragpipe.sky").toAbsolutePath() + " ");
