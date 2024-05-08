@@ -189,6 +189,9 @@ public class Skyline {
         writer.write("--pep-min-length=" + pf.getProperty("msfragger.digest_min_length") + " ");
         writer.write("--pep-max-length=" + pf.getProperty("msfragger.digest_max_length") + " ");
         writer.write("--pep-exclude-nterminal-aas=0 ");
+        if (pf.getProperty("msfragger.labile_search_mode").equals("nglycan")) {
+          writer.write("--pep-max-variable-mods=1 ");    // loading N-glyco lists takes too long otherwise (user can change this later in skyline)
+        }
       }
       writer.write("--tran-precursor-ion-charges=\"2,3,4,5,6\" ");
       writer.write("--tran-product-ion-charges=\"1,2\" ");

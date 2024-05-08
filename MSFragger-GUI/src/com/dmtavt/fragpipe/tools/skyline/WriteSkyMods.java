@@ -38,7 +38,7 @@ public class WriteSkyMods {
     String massOffsetRemainders = pf.getProperty("msfragger.remainder_fragment_masses");
     String detailedMassOffsetStr = pf.getProperty("msfragger.mass_offsets_detailed");
     String labileMode = pf.getProperty("msfragger.labile_search_mode");
-    boolean isLabile = labileMode.equals("labile") || labileMode.equals("nglyc");
+    boolean isLabile = labileMode.equals("labile") || labileMode.equals("nglycan");
     boolean isRunOPair = pf.getProperty("opair.run-opair").equals("true");
 
     float mass;
