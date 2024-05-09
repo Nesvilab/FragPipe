@@ -81,7 +81,7 @@ public class DiaTracerPanel extends JPanelBase {
     pTop = mu.newPanel(mu.lcFillXNoInsetsTopBottom());
     p = mu.newPanel(mu.lcFillXNoInsetsTopBottom());
 
-    checkRunDiaTracer = new UiCheck("Run diaPASEF spectrum deconvolution", null, false);
+    checkRunDiaTracer = new UiCheck("Run diaTracer", null, false);
     checkRunDiaTracer.setName(PREFIX + "run-diatracer");
     pTop.add(checkRunDiaTracer, new CC().spanX().wrap());
 
