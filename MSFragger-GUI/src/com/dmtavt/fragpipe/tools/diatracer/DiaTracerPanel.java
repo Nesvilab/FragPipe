@@ -35,8 +35,13 @@ import com.github.chhh.utils.swing.UiSpinnerDouble;
 import com.github.chhh.utils.swing.UiSpinnerInt;
 import java.awt.Component;
 import java.awt.ItemSelectable;
+import java.awt.image.BufferedImage;
 import java.text.DecimalFormat;
+import java.util.Objects;
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 import net.miginfocom.layout.CC;
@@ -145,18 +150,27 @@ public class DiaTracerPanel extends JPanelBase {
     mu.add(p, feApexIm.comp);
     mu.add(p, feApexRt.label()).alignX("right").split(2);
     mu.add(p, feApexRt.comp);
-    mu.add(p, feWriteIntermediateFiles.comp).growX().wrap();
+    mu.add(p, feWriteIntermediateFiles.comp).alignX("left").wrap();
     mu.add(p, feRFMax.label()).alignX("right").split(2);
     mu.add(p, feRFMax.comp);
     mu.add(p, feMs1MS2Corr.label()).alignX("right").split(2);
     mu.add(p, feMs1MS2Corr.comp);
-    mu.add(p, feMassDefectFilter.comp).alignX("right").split(3);
+    mu.add(p, feMassDefectFilter.comp).alignX("left").split(3);
     mu.add(p, feMassDefectOffset.label());
     mu.add(p, feMassDefectOffset.comp);
 
-    mu.add(pTop, p);
+    JLabel imageLabel = new JLabel();
+    try {
+      BufferedImage image = ImageIO.read(Objects.requireNonNull(getClass().getResource("/com/dmtavt/fragpipe/icons/diatracer_logo.png")));
+      imageLabel = new JLabel(new ImageIcon(image));
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
 
-    this.add(pTop, new CC().growX().wrap());
+    mu.add(pTop, p).pushX();
+    mu.add(pTop, imageLabel, mu.ccR()).gapRight("50").wrap();
+
+    this.add(pTop, new CC().growX().spanX().wrap());
   }
 
   public boolean writeIntermediateFiles() {
