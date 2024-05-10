@@ -91,7 +91,9 @@ public class CmdMSBooster extends CmdBase {
       String spectraModel,
       boolean findBestRtModel,
       boolean findBestSpectraModel,
-      String koinaURL) {
+      String koinaURL,
+      String testRtModels,
+      String testSpectraModels) {
 
     initPreConfig();
 
@@ -152,6 +154,8 @@ public class CmdMSBooster extends CmdBase {
         bufferedWriter.write("findBestRtModel = " + (findBestRtModel ? "true" : "false") + "\n");
         bufferedWriter.write("findBestSpectraModel = " + (findBestSpectraModel ? "true" : "false") + "\n");
         bufferedWriter.write("KoinaURL = " + koinaURL + "\n");
+        bufferedWriter.write("rtSearchModelsString = " + testRtModels + "\n");
+        bufferedWriter.write("ms2SearchModelsString = " + testSpectraModels + "\n");
 
         // compute unique lcms file directories
         bufferedWriter.write("mzmlDirectory = ");
