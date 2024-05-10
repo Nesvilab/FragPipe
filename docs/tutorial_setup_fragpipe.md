@@ -2,8 +2,16 @@
 ## Setting up FragPipe
 
 <br>
-#### Install or update Java
-FragPipe and MSFragger both require a 64-bit Java to run. Windows users can choose to download the `-jre-` version of FragPipe (see below) or install 64-bit Java [here](https://adoptium.net/temurin/releases/?package=jdk&version=17&arch=x64). Launch the installer and follow the prompts. You may need to restart FragPipe after updating Java.
+#### Install or update OpenJDK
+FragPipe and MSFragger both require a 64-bit OpenJDK to run. Windows users can choose to download the `-jre-` version of FragPipe (see below) or install 64-bit pre-built OpenJDK [here](https://adoptium.net/temurin/releases/?package=jdk&version=17&arch=x64). Launch the installer and follow the prompts. You may need to restart FragPipe after updating OpenJDK.
+
+<br>
+<br>
+
+**Note: During installation, remember to enable `Set JAVA_HOME variable` and `JavsSOFT (Oracle) register keys`**.
+
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/install_adoptiumjdk.png)
+
 
 <br>
 #### Install or update FragPipe
