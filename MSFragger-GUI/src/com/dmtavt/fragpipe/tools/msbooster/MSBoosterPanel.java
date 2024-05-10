@@ -29,6 +29,8 @@ import com.github.chhh.utils.swing.UiCombo;
 import com.github.chhh.utils.swing.UiText;
 import java.awt.Component;
 import java.awt.ItemSelectable;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -36,8 +38,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MSBoosterPanel extends JPanelBase {
+
   private static final Logger log = LoggerFactory.getLogger(MSBoosterPanel.class);
   private static final String PREFIX = "msbooster.";
+  private static final Map<String, String> modelMap = new HashMap<>();
+
   private JPanel pTop;
   private JPanel pContent;
   private JPanel pp;
@@ -52,6 +57,21 @@ public class MSBoosterPanel extends JPanelBase {
   private UiCombo uiComboSpectraModel;
   private UiText uiTextKoinaUrl;
   private JEditorPane uiLabelKoinaUrl;
+
+  static {
+    modelMap.put("DIA-NN", "DIA-NN");
+    modelMap.put("DeepLC HeLa HF", "Deeplc_hela_hf");
+    modelMap.put("AlphaPept RT Generic", "AlphaPept_rt_generic");
+    modelMap.put("Prosit 2019 iRT", "Prosit_2019_irt");
+    modelMap.put("Prosit 2020 iRT TMT", "Prosit_2020_irt_TMT");
+    modelMap.put("MS2PIP 2021 HCD", "ms2pip_2021_hcd");
+    modelMap.put("AlphaPept MS2 Generic", "AlphaPept_ms2_generic");
+    modelMap.put("Prosit 2019 Intensity", "Prosit_2019_intensity");
+    modelMap.put("Prosit 2023 Intensity timsTOF", "Prosit_2023_intensity_timsTOF");
+    modelMap.put("Prosit 2020 Intensity CID", "Prosit_2020_intensity_CID");
+    modelMap.put("Prosit 2020 Intensity TMT", "Prosit_2020_intensity_TMT");
+    modelMap.put("Prosit 2020 Intensity HCD", "Prosit_2020_intensity_HCD");
+  }
 
   public MSBoosterPanel() {
     super();
@@ -194,38 +214,18 @@ public class MSBoosterPanel extends JPanelBase {
   }
 
   public String rtModel() {
-    switch (uiComboRTModel.getSelectedIndex()) {
-      case 1:
-        return "Deeplc_hela_hf";
-      case 2:
-        return "AlphaPept_rt_generic";
-      case 3:
-        return "Prosit_2019_irt";
-      case 4:
-        return "Prosit_2020_irt_TMT";
-      default:
-        return "DIA-NN";
+    if (uiComboRTModel.getSelectedItem() == null) {
+      return "DIA-NN";
+    } else {
+      return modelMap.get((String) uiComboRTModel.getSelectedItem());
     }
   }
 
   public String spectraModel() {
-    switch (uiComboSpectraModel.getSelectedIndex()) {
-      case 1:
-        return "ms2pip_2021_hcd";
-      case 2:
-        return "AlphaPept_ms2_generic";
-      case 3:
-        return "Prosit_2019_intensity";
-      case 4:
-        return "Prosit_2023_intensity_timsTOF";
-      case 5:
-        return "Prosit_2020_intensity_CID";
-      case 6:
-        return "Prosit_2020_intensity_TMT";
-      case 7:
-        return "Prosit_2020_intensity_HCD";
-      default:
-        return "DIA-NN";
+    if (uiComboSpectraModel.getSelectedItem() == null) {
+      return "DIA-NN";
+    } else {
+      return modelMap.get((String) uiComboSpectraModel.getSelectedItem());
     }
   }
 
