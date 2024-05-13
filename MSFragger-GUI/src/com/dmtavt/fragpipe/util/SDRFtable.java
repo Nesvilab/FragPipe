@@ -21,6 +21,7 @@ import com.dmtavt.fragpipe.tools.tmtintegrator.QuantLabel;
 import org.apache.commons.io.FileUtils;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import static com.dmtavt.fragpipe.cmd.ToolingUtils.UNIMOD_OBO;
@@ -148,6 +149,7 @@ public class SDRFtable {
     }
 
     public void printTable(Path path) throws IOException {
+        Files.deleteIfExists(path);
         ArrayList<String> outputLines = new ArrayList<>();
         outputLines.add(String.join("\t", header));
         for (String[] row : rows) {
