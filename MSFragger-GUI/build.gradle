@@ -94,9 +94,7 @@ distributions {
 
 dependencies {
     implementation 'com.github.albfernandez:juniversalchardet:2.4.0'
-    implementation ('com.github.chhh:batmass-io:1.33.0') {
-        exclude group: 'org.slf4j'
-    }
+    implementation files("tools/batmass-io-1.33.1.jar")
     implementation 'com.google.code.gson:gson:2.10.1'
     implementation 'one.util:streamex:0.8.2'
     implementation 'org.jooq:jool-java-8:0.9.15'
@@ -116,10 +114,6 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.17.1'
     implementation 'com.squareup.okio:okio:3.6.0'
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'
-
-    // logging
-    implementation 'ch.qos.logback:logback-classic:1.4.14'
-    implementation 'org.slf4j:slf4j-api:2.0.9'
 
     implementation 'net.java.balloontip:balloontip:1.2.4.1'
     implementation group: 'org.netbeans.api', name: 'org-netbeans-swing-outline', version: 'RELEASE200'
