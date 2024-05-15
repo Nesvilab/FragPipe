@@ -108,6 +108,8 @@ class easyPQPparams(object):
 		self.spectra_files = sorted(pathlib.Path(e) for e in sys.argv[3].split(os.pathsep))
 		if len(sys.argv) >= 13 and sys.argv[12] == 'delete_intermediate_files':
 			self.delete_temp_files = True
+		else:
+			self.delete_temp_files = False
 		if self.spectra_files == [pathlib.Path('unused')] and len(sys.argv) >= 14:
 			self.spectra_files = [pathlib.Path(e) for e in sys.argv[13:]]
 			if len(self.spectra_files) >= 1 and self.spectra_files[0].name.endswith('.txt'):  # check if file is a file list
