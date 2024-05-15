@@ -63,14 +63,14 @@ public class Skyline {
 
   public static void main(String[] args) {
     try {
-      runSkyline(args[0], Paths.get(args[1]), args[2], Integer.parseInt(args[3]));
+      runSkyline(args[0], Paths.get(args[1]), args[2], Integer.parseInt(args[3]), Integer.parseInt(args[4]));
     } catch (Exception e) {
       e.printStackTrace();
       System.exit(1);
     }
   }
 
-  private static void runSkyline(String skylinePath, Path wd, String skylineVersion, int mode) throws Exception {
+  private static void runSkyline(String skylinePath, Path wd, String skylineVersion, int mode, int modsMode) throws Exception {
     if (skylinePath == null || skylinePath.isEmpty()) {
       throw new RuntimeException("Cannot find the Skyline executable file.");
     } else {
@@ -156,7 +156,7 @@ public class Skyline {
       Files.createDirectories(skylineOutputDir);
 
       Path modXmlPath = wd.resolve("mod.xml");
-      new WriteSkyMods(modXmlPath, pf);
+      new WriteSkyMods(modXmlPath, pf, modsMode);
 
       Path pp = wd.resolve("filelist_skyline.txt");
 

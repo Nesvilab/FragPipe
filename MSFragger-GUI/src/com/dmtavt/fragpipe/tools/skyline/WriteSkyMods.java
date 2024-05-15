@@ -29,7 +29,7 @@ public class WriteSkyMods {
   private static final Pattern p3 = Pattern.compile("([\\d.-]+)\\((aa=([^=_();]+)?)?(_d=([\\d., -]+))?(_p=([\\d., -]+))?(_f=([\\d., -]+))?\\)");
   private static final ArrayList<String> allAAs = new ArrayList<>(Arrays.asList("A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y"));
 
-  public WriteSkyMods(Path path, PropsFile pf) throws Exception {
+  public WriteSkyMods(Path path, PropsFile pf, int modsMode) throws Exception {
     List<Mod> mods = new ArrayList<>(4);
 
     String fixModStr = pf.getProperty("msfragger.table.fix-mods");
@@ -40,8 +40,8 @@ public class WriteSkyMods {
     String detailedMassOffsetStr = pf.getProperty("msfragger.mass_offsets_detailed");
     String labileMode = pf.getProperty("msfragger.labile_search_mode");
     boolean isLabile = labileMode.equals("labile") || labileMode.equals("nglycan");
-    boolean isRunOPair = pf.getProperty("opair.run-opair").equals("true");
-    boolean isRunPTMSnGlycan = pf.getProperty("ptmshepherd.run_glyco_mode").equals("true");
+    boolean isOglyco = modsMode == 1;
+    boolean isNglyco = modsMode == 2;
 
     float mass;
     Matcher m;
@@ -70,10 +70,10 @@ public class WriteSkyMods {
     }
 
     // Override offsets from MSFragger for glyco searches get correct glycan masses, neutral losses, and elemental compositions
-    if (isRunOPair) {
+    if (isOglyco) {
       String oglycoList = pf.getProperty("opair.glyco_db");
       mods.addAll(generateGlycoMods(massOffsetSites, oglycoList, 0, new ElementalComposition("")));
-    } else if (isRunPTMSnGlycan) {
+    } else if (isNglyco) {
       String nglycoList = pf.getProperty("ptmshepherd.glycodatabase");
       mods.addAll(generateGlycoMods(massOffsetSites, nglycoList, (float) 203.07937, new ElementalComposition("C8H13NO5")));   // hardcoded N-glycan remainder
     } else {

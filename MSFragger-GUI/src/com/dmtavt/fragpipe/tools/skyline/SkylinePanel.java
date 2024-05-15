@@ -66,6 +66,7 @@ public class SkylinePanel extends JPanelBase {
   private UiRadio uiRadioSkylineCustom;
   private UiText uiTextSkylineCustom;
   private UiCombo uiComboMode;
+  private UiCombo uiComboModsMode;
 
   @Override
   protected void initMore() {
@@ -161,6 +162,10 @@ public class SkylinePanel extends JPanelBase {
     uiComboMode.setSelectedIndex(0);
     FormEntry feComboMode = new FormEntry("skyline-mode", "Skyline running mode", uiComboMode, "Let Skyline take FragPipe speclib as input or build its own speclib");
 
+    uiComboModsMode = UiUtils.createUiCombo(Arrays.asList("Default", "O-glyco", "N-glyco"));
+    uiComboModsMode.setSelectedIndex(0);
+    FormEntry feComboModsMode = new FormEntry("skyline-mods-mode", "Special Modifications Mode", uiComboModsMode, "Special modification support. If O-glyco, uses O-Pair glycan database instead of mass offsets list. If N-glyco, uses Glycan Composition Assignment glycan database instead of mass offsets list.");
+
     mu.add(panelBasic, feRadioSkyline.comp);
     mu.add(panelBasic, feRadioSkylineDaily.comp);
     mu.add(panelBasic, feRadioSkylineCustom.comp).split(3);
@@ -169,6 +174,9 @@ public class SkylinePanel extends JPanelBase {
 
     mu.add(panelBasic, feComboMode.label(), mu.ccL());
     mu.add(panelBasic, feComboMode.comp).wrap();
+
+    mu.add(panelBasic, feComboModsMode.label(), mu.ccL());
+    mu.add(panelBasic, feComboModsMode.comp).wrap();
 
     updateEnabledStatus(feSkylineCustom.comp, uiRadioSkylineCustom.isSelected());
     updateEnabledStatus(jButtonSkylineCustom, uiRadioSkylineCustom.isSelected());
@@ -258,5 +266,9 @@ public class SkylinePanel extends JPanelBase {
 
   public int getMode() {
     return uiComboMode.getSelectedIndex();
+  }
+
+  public int getModsMode() {
+    return uiComboModsMode.getSelectedIndex();
   }
 }

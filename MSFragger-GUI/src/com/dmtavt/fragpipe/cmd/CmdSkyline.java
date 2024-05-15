@@ -51,7 +51,7 @@ public class CmdSkyline extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, String skylinePath, String skylineVersion, Path jarFragpipe, int ramGb, int mode) {
+  public boolean configure(Component comp, String skylinePath, String skylineVersion, Path jarFragpipe, int ramGb, int mode, int modsMode) {
     initPreConfig();
 
     if (skylinePath == null) {
@@ -106,6 +106,7 @@ public class CmdSkyline extends CmdBase {
     cmd.add(wd.toAbsolutePath().toString());
     cmd.add(skylineVersion);
     cmd.add(String.valueOf(mode));
+    cmd.add(String.valueOf(modsMode));
 
     ProcessBuilder pb = new ProcessBuilder(cmd);
     pb.directory(wd.toFile());
