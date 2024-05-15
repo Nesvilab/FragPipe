@@ -5,6 +5,7 @@ import com.dmtavt.fragpipe.api.PropsFile;
 import umich.ms.glyco.Glycan;
 import umich.ms.glyco.GlycanParser;
 import umich.ms.glyco.GlycanResidue;
+import umich.ms.util.ElementalComposition;
 
 import static com.dmtavt.fragpipe.tools.glyco.GlycoMassLoader.GLYCAN_RESIDUES_NAME;
 import static com.dmtavt.fragpipe.tools.skyline.Skyline.getSkylineVersion;
@@ -40,6 +41,7 @@ public class WriteSkyMods {
     String labileMode = pf.getProperty("msfragger.labile_search_mode");
     boolean isLabile = labileMode.equals("labile") || labileMode.equals("nglycan");
     boolean isRunOPair = pf.getProperty("opair.run-opair").equals("true");
+    boolean isRunPTMSnGlycan = pf.getProperty("ptmshepherd.run_glyco_mode").equals("true");
 
     float mass;
     Matcher m;
@@ -67,56 +69,60 @@ public class WriteSkyMods {
       }
     }
 
-    // Override offsets from MSFragger for O-Pair searches to avoid passing masses that are combinations of O-glycans to Skyline
+    // Override offsets from MSFragger for glyco searches get correct glycan masses, neutral losses, and elemental compositions
     if (isRunOPair) {
       String oglycoList = pf.getProperty("opair.glyco_db");
-      massOffsetStr = overrideOffsetsOPair(oglycoList);
-    }
-
-    if (massOffsetStr != null && !massOffsetStr.isEmpty()) {
-      String[] ss = massOffsetStr.split("[\\s/]");
-      for (String s : ss) {
-        mass = Float.parseFloat(s);
-        if (Math.abs(mass) > 0.1) {
-          List<Float> lossMonoMasses = new ArrayList<>(0);
-          List<Float> lossAvgMasses = new ArrayList<>(0);
-          if (!massOffsetRemainders.isEmpty()) {
-            String[] splits = massOffsetRemainders.split("[\\s/,]");
-            for (String sp : splits) {
-              float remainderMass = Float.parseFloat(sp);
-              lossMonoMasses.add(mass - remainderMass);
-              lossAvgMasses.add(mass - remainderMass);
+      mods.addAll(generateGlycoMods(massOffsetSites, oglycoList, 0, new ElementalComposition("")));
+    } else if (isRunPTMSnGlycan) {
+      String nglycoList = pf.getProperty("ptmshepherd.glycodatabase");
+      mods.addAll(generateGlycoMods(massOffsetSites, nglycoList, (float) 203.07937, new ElementalComposition("C8H13NO5")));   // hardcoded N-glycan remainder
+    } else {
+      // non-glyco - use regular method for mass offsets conversion
+      if (massOffsetStr != null && !massOffsetStr.isEmpty()) {
+        String[] ss = massOffsetStr.split("[\\s/]");
+        for (String s : ss) {
+          mass = Float.parseFloat(s);
+          if (Math.abs(mass) > 0.1) {
+            List<Float> lossMonoMasses = new ArrayList<>(0);
+            List<Float> lossAvgMasses = new ArrayList<>(0);
+            if (!massOffsetRemainders.isEmpty()) {
+              String[] splits = massOffsetRemainders.split("[\\s/,]");
+              for (String sp : splits) {
+                float remainderMass = Float.parseFloat(sp);
+                lossMonoMasses.add(mass - remainderMass);
+                lossAvgMasses.add(mass - remainderMass);
+              }
+            } else if (isLabile) {
+              // if labile mode and no remainder fragments specified, add entire mod as a neutral loss
+              lossMonoMasses.add(mass);
+              lossAvgMasses.add(mass);
             }
-          } else if (isLabile) {
-            // if labile mode and no remainder fragments specified, add entire mod as a neutral loss
-            lossMonoMasses.add(mass);
-            lossAvgMasses.add(mass);
+            mods.addAll(convertMods(massOffsetSites, true, mass, mass, lossMonoMasses, lossAvgMasses));
           }
-          mods.addAll(convertMods(massOffsetSites, true, mass, mass, lossMonoMasses, lossAvgMasses));
         }
       }
-    }
 
-    if (detailedMassOffsetStr != null && !detailedMassOffsetStr.isEmpty()) {
-      m = p3.matcher(detailedMassOffsetStr);
-      while(m.find()) {
-        mass = Float.parseFloat(m.group(1));
-        if (Math.abs(mass) > 0.1) {
-          String sites = "*";
-          List<Float> lossMonoMasses = new ArrayList<>(0);
-          List<Float> lossAvgMasses = new ArrayList<>(0);
-          if (m.group(3) != null) {
-            sites = m.group(3);
-          }
-          if (m.group(9) != null) {
-            String[] ss = m.group(9).split("[, ]+");
-            for (String s : ss) {
-              float reminderMass = Float.parseFloat(s);
-              lossMonoMasses.add(mass - reminderMass);
-              lossAvgMasses.add(mass - reminderMass);
+      if (detailedMassOffsetStr != null && !detailedMassOffsetStr.isEmpty()) {
+        m = p3.matcher(detailedMassOffsetStr);
+        while(m.find()) {
+          mass = Float.parseFloat(m.group(1));
+          if (Math.abs(mass) > 0.1) {
+            String sites = "*";
+            List<Float> lossMonoMasses = new ArrayList<>(0);
+            List<Float> lossAvgMasses = new ArrayList<>(0);
+            if (m.group(3) != null) {
+              sites = m.group(3);
             }
+            if (m.group(9) != null) {
+              String[] ss = m.group(9).split("[, ]+");
+              for (String s : ss) {
+                float reminderMass = Float.parseFloat(s);
+                lossMonoMasses.add(mass - reminderMass);
+                lossAvgMasses.add(mass - reminderMass);
+              }
+            }
+            mods.addAll(convertMods(sites, true, mass, mass, lossMonoMasses, lossAvgMasses));
           }
-          mods.addAll(convertMods(sites, true, mass, mass, lossMonoMasses, lossAvgMasses));
         }
       }
     }
@@ -130,9 +136,20 @@ public class WriteSkyMods {
         + "        <static_modifications>\n");
 
     for (Mod mod : mods) {
-      bw.write("          <static_modification name=\"" + mod.name + (mod.aa.isEmpty() ? "" : "\" aminoacid=\"" + mod.aa) + (mod.terminus == '\0' ? "" : "\" terminus=\"" + mod.terminus) + "\" variable=\"" + mod.isVariable + "\" massdiff_monoisotopic=\"" + mod.monoMass + "\" massdiff_average=\"" + mod.avgMass + "\">\n");
+      bw.write("          <static_modification name=\"" + mod.name +
+              (mod.aa.isEmpty() ? "" : "\" aminoacid=\"" + mod.aa) +
+              (mod.terminus == '\0' ? "" : "\" terminus=\"" + mod.terminus) +
+              "\" variable=\"" + mod.isVariable +
+              // Skyline does not allow masses in a mod if the elemental composition is specified
+              (mod.elementalComposition.isEmpty() ? "\" massdiff_monoisotopic=\"" + mod.monoMass : "") +
+              (mod.elementalComposition.isEmpty() ? "\" massdiff_average=\"" + mod.avgMass : "") +
+              (mod.elementalComposition.isEmpty() ? "" : "\" formula=\"" + mod.elementalComposition) +
+              "\">\n");
       for (int i = 0; i < mod.lossMonoMasses.size(); i++) {
-        bw.write("            <potential_loss massdiff_monoisotopic=\"" + mod.lossMonoMasses.get(i) + "\" massdiff_average=\"" + mod.lossAvgMasses.get(i) + "\" />\n");
+        bw.write("            <potential_loss massdiff_monoisotopic=\"" + mod.lossMonoMasses.get(i) +
+                "\" massdiff_average=\"" + mod.lossAvgMasses.get(i) +
+                (mod.lossElementalComposition.isEmpty() ? "" : "\" formula=\"" + mod.lossElementalComposition.get(i)) +
+                "\" />\n");
       }
       bw.write("          </static_modification>\n");
     }
@@ -151,22 +168,14 @@ public class WriteSkyMods {
     filterNeutralLosses(lossMonoMasses);
     filterNeutralLosses(lossAvgMasses);
 
-    if (sites.contains(" ")) {
-      sites = sites.substring(0, sites.indexOf(" "));
-    }
-
-    if (sites.contains("all")) {
-      sites = "*";
-    }
-
-    sites = sites.replaceAll("-", "");
+    sites = cleanupSites(sites);
 
     // N-terminal mods
     Matcher m = p1.matcher(sites);
     ArrayList<String> nSites = new ArrayList<>();
     while (m.find()) {
       if (m.group(1).contentEquals("^")) {
-        out.add(new Mod("n_" + monoMass, "", 'N', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses));
+        out.add(new Mod("n_" + monoMass, "", 'N', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses, "", new ArrayList<>()));
       } else if (m.group(1).contentEquals("*")) {
         nSites = allAAs;
       } else {
@@ -174,7 +183,7 @@ public class WriteSkyMods {
       }
     }
     if (!nSites.isEmpty()) {
-      out.add(new Mod(String.join("", nSites) + "_" + monoMass, String.join(", ", nSites), 'N', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses));
+      out.add(new Mod(String.join("", nSites) + "_" + monoMass, String.join(", ", nSites), 'N', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses, "", new ArrayList<>()));
     }
     sites = p1.matcher(sites).replaceAll("");
 
@@ -183,7 +192,7 @@ public class WriteSkyMods {
     ArrayList<String> cSites = new ArrayList<>();
     while (m.find()) {
       if (m.group(1).contentEquals("^")) {
-        out.add(new Mod("c_" + monoMass, "", 'C', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses));
+        out.add(new Mod("c_" + monoMass, "", 'C', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses, "", new ArrayList<>()));
       } else if (m.group(1).contentEquals("*")) {
         cSites = allAAs;
       } else {
@@ -191,7 +200,7 @@ public class WriteSkyMods {
       }
     }
     if (!cSites.isEmpty()) {
-      out.add(new Mod(String.join("", cSites) + "_" + monoMass, String.join(", ", cSites), 'C', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses));
+      out.add(new Mod(String.join("", cSites) + "_" + monoMass, String.join(", ", cSites), 'C', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses, "", new ArrayList<>()));
     }
     sites = p2.matcher(sites).replaceAll("");
 
@@ -203,7 +212,7 @@ public class WriteSkyMods {
       resSites = sites.chars().mapToObj(c -> String.valueOf((char) c)).collect(Collectors.toList());
     }
     if (!resSites.isEmpty()) {
-      out.add(new Mod(String.join("", resSites) + "_" + monoMass, String.join(", ", resSites), '\0', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses));
+      out.add(new Mod(String.join("", resSites) + "_" + monoMass, String.join(", ", resSites), '\0', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses, "", new ArrayList<>()));
     }
     return out;
   }
@@ -228,6 +237,41 @@ public class WriteSkyMods {
     return "";
   }
 
+  private List<Mod> generateGlycoMods(String sites, String glycoList, float remainderMass, ElementalComposition remainderComposition) {
+    ArrayList<Mod> mods = new ArrayList<>();
+    sites = cleanupSites(sites);
+
+    if (glycoList != null && !glycoList.isEmpty()) {
+      HashMap<String, GlycanResidue> glycanResidues = GlycanParser.parseGlycoResiduesDB(FragpipeLocations.get().getDirTools().resolve("Glycan_Databases").resolve(GLYCAN_RESIDUES_NAME).toString());
+      ArrayList<Glycan> parsedGlycans = GlycanParser.parseGlycanDatabaseString(glycoList, glycanResidues);
+      // sequence mods
+      List<String> resSites = new ArrayList<>();
+      if (sites.contains("*")) {
+        resSites = allAAs;
+      } else {
+        resSites = sites.chars().mapToObj(c -> String.valueOf((char) c)).collect(Collectors.toList());
+      }
+
+      for (Glycan glycan : parsedGlycans) {
+        if (!resSites.isEmpty()) {
+          ArrayList<Float> losses = new ArrayList<>();
+          losses.add((float) glycan.mass - remainderMass);
+
+          ElementalComposition totalElementalComp = glycan.getElementalComposition();
+          if (!remainderComposition.composition.isEmpty()) {
+            totalElementalComp.addComposition(remainderComposition, true, 1);
+          }
+          String elementalComp = totalElementalComp.toString();
+
+          ArrayList<String> lossElementalComps = new ArrayList<>();
+          lossElementalComps.add(elementalComp);
+          mods.add(new Mod(glycan.name, String.join(", ", resSites), '\0', true, (float) glycan.mass, (float) glycan.mass, losses, losses, elementalComp, lossElementalComps));
+        }
+      }
+    }
+    return mods;
+  }
+
   /**
    * Skyline does not accept neutral losses >5000 Da. Remove them to avoid a crash
    * @param losses
@@ -236,6 +280,18 @@ public class WriteSkyMods {
   private static List<Float> filterNeutralLosses(List<Float> losses) {
     losses.removeIf(loss -> loss > 5000);
     return losses;
+  }
+
+  private static String cleanupSites(String sites) {
+    if (sites.contains(" ")) {
+      sites = sites.substring(0, sites.indexOf(" "));
+    }
+
+    if (sites.contains("all")) {
+      sites = "*";
+    }
+    sites = sites.replaceAll("-", "");
+    return sites;
   }
 
 
@@ -249,8 +305,10 @@ public class WriteSkyMods {
     public final float avgMass;
     public final List<Float> lossMonoMasses;
     public final List<Float> lossAvgMasses;
+    public final String elementalComposition;
+    public final List<String> lossElementalComposition;
 
-    Mod(String name, String aa, char terminus, boolean isVariable, float monoMass, float avgMass, List<Float> lossMonoMasses, List<Float> lossAvgMasses) {
+    Mod(String name, String aa, char terminus, boolean isVariable, float monoMass, float avgMass, List<Float> lossMonoMasses, List<Float> lossAvgMasses, String elementalComposition, List<String> lossElementalComposition) {
       this.name = name;
       this.aa = aa;
       this.terminus = terminus;
@@ -259,10 +317,12 @@ public class WriteSkyMods {
       this.avgMass = avgMass;
       this.lossMonoMasses = lossMonoMasses;
       this.lossAvgMasses = lossAvgMasses;
+      this.elementalComposition = elementalComposition;
+      this.lossElementalComposition = lossElementalComposition;
     }
 
     public String toString() {
-      return name + " " + aa + " " + terminus + " " + isVariable + " " + monoMass + " " + avgMass + " " + lossMonoMasses + " " + lossAvgMasses;
+      return name + " " + aa + " " + terminus + " " + isVariable + " " + monoMass + " " + avgMass + " " + lossMonoMasses + " " + lossAvgMasses + " " + elementalComposition;
     }
   }
 }
