@@ -63,7 +63,12 @@ public class DownloadToolsPanel extends JPanel {
     panelTextboxes.setLayout(new MigLayout(mu.lcFillXNoInsetsTopBottom()));
 
     JEditorPane t0 = SwingUtils.createClickableHtml(
-        "<br>MSFragger suite of tools (MSFragger-Core, MSFragger-LOS, MSFragger-Glyco, MSFragger-DIA) <br> is available freely for academic research, non-commercial or educational purposes under <br> academic license. Other uses require a commercial license after the initial 60-day evaluation <br> period that can be obtained by contacting Drew Bennett (andbenne@umich.edu) at the <br> University of Michigan Office of Tech Transfer. For questions, please contact Prof. Alexey <br> Nesvizhskii (nesvi@med.umich.edu).<br><br>");
+        "<br>MSFragger, IonQuant, and diaTracer software are available freely for academic research,<br>"
+            + "non-commercial or educational purposes under academic license.<br><br>"
+            + "Read the academic license for "
+            + "<a href=\"http://msfragger-upgrader.nesvilab.org/upgrader/MSFragger-LICENSE.pdf\" target=\"blank_\">MSFragger</a>, "
+            + "<a href=\"http://msfragger-upgrader.nesvilab.org/ionquant/IonQuant%20Academic%20Use%20License%2005162022.pdf\" target=\"blank_\">IonQuant</a>, and "
+            + "<a href=\"http://msfragger-upgrader.nesvilab.org/diatracer/diaTracer%20UM%20%23%202024-417%20Academic%20Research%20Use%20License%2005142024.pdf\" target=\"blank_\">diaTracer</a>.<br><br>");
 
     feName = mu.feb(UiUtils.uiTextBuilder().cols(40).create()).label("Name:").create();
     feEmail = mu.feb(UiUtils.uiTextBuilder().cols(40).create()).label("Email:").create();
@@ -79,16 +84,24 @@ public class DownloadToolsPanel extends JPanel {
       ((UiText) feInstitution.comp).setText(userInstitution);
     }
 
-    JEditorPane t1 = SwingUtils.createClickableHtml("I have read the <b>academic</b> <a href=\"https://msfragger.arsci.com/upgrader/MSFragger-LICENSE.pdf\" target=\"blank_\">license</a>. I understand that this license provides <br> with a non-exclusive, non-transferable right to use MSFragger solely for academic <br> research, non-commercial or educational purposes within the licensee’s department.");
+    JEditorPane t1 = SwingUtils.createClickableHtml("I understand that the academic license provides with a non-exclusive,<br>"
+        + "non-transferable right to use MSFragger, IonQuant, and diaTracer solely<br>"
+        + "for academic research, non-commercial or educational purposes within the<br>"
+        + "licensee's department. I acknowledge that commercial use of any kind<br>"
+        + "under the terms of the academic licenses is strictly prohibited.");
     license1 = new JCheckBox();
 
-    JEditorPane t5 = SwingUtils.createClickableHtml("I understand that although the MSFragger suite of tools is distributed as a single JAR<br>file, commercial users are required to obtain a license for MSFragger-Core and,<br>depending on the application, for some or all other algorithms: MSFragger-LOS<br>(localization-aware open search), MSFragger-Glyco, MSFragger-DIA.<br><br>If my employer is not an academic institution or a non-profit organization, I will<br>contact the University of Michigan Office of Tech Transfer (Drew Bennett,<br>andbenne@umich.edu) to obtain a commercial license to use the MSFragger suite<br>of tools beyond the initial evaluation period (60 days after obtaining any version of<br>MSFragger JAR file).");
+    JEditorPane t5 = SwingUtils.createClickableHtml("I understand that use by any commercial entity (beyond the 60-day<br>"
+        + "evaluation period) requires a separately executed, paid license from<br>"
+        + "the University of Michigan Office of Technology Transfer (Drew Bennett,<br>"
+        + "andbenne@umich.edu). For questions, you may also contact Prof. Alexey<br>"
+        + "Nesvizhskii (nesvi@med.umich.edu).");
     license0 = new JCheckBox();
 
-    JEditorPane t2 = SwingUtils.createClickableHtml("I agree to the terms of <a href=\"https://msfragger.arsci.com/upgrader/RawFileRdr_License_Agreement_RevA.pdf\" target=\"blank_\">Thermo (c) Raw File Reader License Agreement</a>.");
+    JEditorPane t2 = SwingUtils.createClickableHtml("I agree to the terms of <a href=\"http://msfragger-upgrader.nesvilab.org/upgrader/RawFileRdr_License_Agreement_RevA.pdf\" target=\"blank_\">Thermo (c) Raw File Reader License Agreement</a>.");
     license2 = new JCheckBox();
 
-    JEditorPane t3 = SwingUtils.createClickableHtml("I agree to the terms of <a href=\"https://msfragger.arsci.com/upgrader/EULA%20TDF-SDK.pdf\" target=\"blank_\">Bruker SDK library distribution conditions</a>.");
+    JEditorPane t3 = SwingUtils.createClickableHtml("I agree to the terms of <a href=\"http://msfragger-upgrader.nesvilab.org/upgrader/EULA%20TDF-SDK.pdf\" target=\"blank_\">Bruker SDK library distribution conditions</a>.");
     license3 = new JCheckBox();
 
     JEditorPane t4 = SwingUtils.createClickableHtml("I would like to receive emails with updates in the future.");
