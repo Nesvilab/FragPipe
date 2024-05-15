@@ -24,13 +24,13 @@ import static com.dmtavt.fragpipe.tabs.TabConfig.userName;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.MigUtils;
+import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import javax.swing.JCheckBox;
 import javax.swing.JEditorPane;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import net.miginfocom.swing.MigLayout;
@@ -47,6 +47,8 @@ public class DownloadToolsPanel extends JPanel {
   private JCheckBox license3;
   private JCheckBox license1;
   private JCheckBox receiveEmail;
+  private UiCheck uiCheckDownloadMSFragger;
+  private UiCheck uiCheckDownloadIonQuant;
 
   public DownloadToolsPanel() {
     initMore();
@@ -54,7 +56,7 @@ public class DownloadToolsPanel extends JPanel {
 
   @Override
   public Dimension getPreferredSize() {
-    return new Dimension(500, 500);
+    return new Dimension(500, 550);
   }
 
   private void initMore() {
@@ -84,6 +86,11 @@ public class DownloadToolsPanel extends JPanel {
       ((UiText) feInstitution.comp).setText(userInstitution);
     }
 
+    uiCheckDownloadMSFragger = new UiCheck("", null, true);
+    uiCheckDownloadIonQuant = new UiCheck("", null, true);
+
+    FormEntry feDownloadMSFragger = mu.feb(uiCheckDownloadMSFragger).label("Download MSFragger").create();
+    FormEntry feDownloadIonQuant = mu.feb(uiCheckDownloadIonQuant).label("Download IonQuant").create();
     JEditorPane t1 = SwingUtils.createClickableHtml("I understand that the academic license provides with a non-exclusive,<br>"
         + "non-transferable right to use MSFragger, IonQuant, and diaTracer solely<br>"
         + "for academic research, non-commercial or educational purposes within the<br>"
@@ -107,7 +114,7 @@ public class DownloadToolsPanel extends JPanel {
     JEditorPane t4 = SwingUtils.createClickableHtml("I would like to receive emails with updates in the future.");
     receiveEmail = new JCheckBox();
 
-    mu.add(panelTextboxes, t0).spanX().wrap();
+    mu.add(panelTextboxes, t0).split().spanX().wrap();
 
     mu.add(panelTextboxes, feName.label(), mu.ccR());
     mu.add(panelTextboxes, feName.comp).spanX().wrap();
@@ -118,7 +125,11 @@ public class DownloadToolsPanel extends JPanel {
     mu.add(panelTextboxes, feInstitution.label(), mu.ccR());
     mu.add(panelTextboxes, feInstitution.comp).spanX().wrap();
 
-    mu.add(panelTextboxes, new JLabel()).wrap();
+    mu.add(panelTextboxes, feDownloadMSFragger.comp, mu.ccR());
+    mu.add(panelTextboxes, feDownloadMSFragger.label()).wrap();
+
+    mu.add(panelTextboxes, feDownloadIonQuant.comp, mu.ccR());
+    mu.add(panelTextboxes, feDownloadIonQuant.label()).wrap();
 
     mu.add(panelTextboxes, license1, mu.ccR());
     mu.add(panelTextboxes, t1).spanX().wrap();
@@ -179,5 +190,13 @@ public class DownloadToolsPanel extends JPanel {
     } else {
       return receiveEmail.isSelected();
     }
+  }
+
+  public boolean downloadMSFragger() {
+    return uiCheckDownloadMSFragger.isSelected();
+  }
+
+  public boolean downloadIonQuant() {
+    return uiCheckDownloadIonQuant.isSelected();
   }
 }

@@ -72,7 +72,6 @@ import com.github.chhh.utils.swing.HtmlStyledJEditorPane;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
 import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.TextConsole;
-import com.github.chhh.utils.swing.UiCheck;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
 import com.google.gson.Gson;
@@ -150,8 +149,6 @@ public class TabConfig extends JPanelWithEnablement {
   private HtmlStyledJEditorPane epEasyPQPText;
   private Container epSpeclibgenParent;
   private JButton btnAbout;
-  private UiCheck uiCheckDownloadMSFragger;
-  private UiCheck uiCheckDownloadIonQuant;
 
   public static final String TIP_MSFRAGGER_BIN = "tip.msfragger.bin";
   public static final String TIP_IONQUANT_BIN = "tip.ionquant.bin";
@@ -308,20 +305,15 @@ public class TabConfig extends JPanelWithEnablement {
     epFraggerVer = new HtmlStyledJEditorPane("MSFragger version: N/A");
     epIonQuantVer = new HtmlStyledJEditorPane("IonQuant version: N/A");
 
-    uiCheckDownloadMSFragger = new UiCheck("Download MSFragger", null, true);
-    uiCheckDownloadIonQuant = new UiCheck("Download IonQuant", null, true);
-
     JEditorPane msfraggerCitation = SwingUtils.createClickableHtml(createFraggerCitationBody());
     JEditorPane ionQuantCitation = SwingUtils.createClickableHtml(createIonQuantCitationBody());
 
     p.add(btnUpdate, ccL().wrap());
 
     p.add(Fragpipe.renameNoCache(epFraggerVer, "msfragger.version-info", TAB_PREFIX), ccL().split());
-    p.add(uiCheckDownloadMSFragger);
     p.add(msfraggerCitation, ccL().spanX().growX().wrap());
 
     p.add(Fragpipe.renameNoCache(epIonQuantVer, "ionquant.version-info", TAB_PREFIX), ccL().split());
-    p.add(uiCheckDownloadIonQuant);
     p.add(ionQuantCitation, ccL().spanX().growX().wrap());
 
     return p;
@@ -452,7 +444,7 @@ public class TabConfig extends JPanelWithEnablement {
 
         Path toolsPath = PathUtils.createDirs(FragpipeLocations.get().getDirTools());
 
-        if (uiCheckDownloadMSFragger.isSelected()) {
+        if (p.downloadMSFragger()) {
           MsfraggerVersionFetcherServer msfraggerVersionFetcherServer = new MsfraggerVersionFetcherServer(p.getName(), p.getEmail(), p.getInstitution(), p.wantReceiveEmail());
           new Thread(() -> {
             try {
@@ -470,7 +462,7 @@ public class TabConfig extends JPanelWithEnablement {
           Bus.post(new MessageMsfraggerNewBin(getJarPath(toolsPath.toAbsolutePath().toString(), msfraggerRegex)));
         }
 
-        if (uiCheckDownloadIonQuant.isSelected()) {
+        if (p.downloadIonQuant()) {
           IonQuantVersionFetcherServer ionQuantVersionFetcherServer = new IonQuantVersionFetcherServer(p.getName(), p.getEmail(), p.getInstitution(), p.wantReceiveEmail());
           new Thread(() -> {
             try {
