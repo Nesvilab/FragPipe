@@ -48,14 +48,11 @@ import okio.Okio;
 import okio.Source;
 import org.jetbrains.annotations.NotNull;
 
-/**
- *
- * @author Dmitry Avtonomov
- */
+
 public class IonQuantVersionFetcherServer implements VersionFetcher {
 
     private final Pattern re = Pattern.compile("([\\d.]+)");
-    private static final String serverUrl = "http://msfragger-upgrader.nesvilab.org/ionquant/";
+    private static final String serverUrl = "https://msfragger-upgrader.nesvilab.org/ionquant/";
     private String latestVerResponse = null;
     private String lastVersionStr = null;
     private static final Object lock = new Object();

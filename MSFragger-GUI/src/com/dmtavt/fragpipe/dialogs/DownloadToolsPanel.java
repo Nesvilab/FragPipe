@@ -68,9 +68,9 @@ public class DownloadToolsPanel extends JPanel {
         "<br>MSFragger, IonQuant, and diaTracer software are available freely for academic research,<br>"
             + "non-commercial or educational purposes under academic license.<br><br>"
             + "Read the academic license for "
-            + "<a href=\"http://msfragger-upgrader.nesvilab.org/upgrader/MSFragger-LICENSE.pdf\" target=\"blank_\">MSFragger</a>, "
-            + "<a href=\"http://msfragger-upgrader.nesvilab.org/ionquant/IonQuant%20Academic%20Use%20License%2005162022.pdf\" target=\"blank_\">IonQuant</a>, and "
-            + "<a href=\"http://msfragger-upgrader.nesvilab.org/diatracer/diaTracer%20UM%20%23%202024-417%20Academic%20Research%20Use%20License%2005142024.pdf\" target=\"blank_\">diaTracer</a>.<br><br>");
+            + "<a href=\"https://msfragger-upgrader.nesvilab.org/upgrader/MSFragger-LICENSE.pdf\" target=\"blank_\">MSFragger</a>, "
+            + "<a href=\"https://msfragger-upgrader.nesvilab.org/ionquant/IonQuant%20Academic%20Use%20License%2005162022.pdf\" target=\"blank_\">IonQuant</a>, and "
+            + "<a href=\"https://msfragger-upgrader.nesvilab.org/diatracer/diaTracer%20UM%20%23%202024-417%20Academic%20Research%20Use%20License%2005142024.pdf\" target=\"blank_\">diaTracer</a>.<br><br>");
 
     feName = mu.feb(UiUtils.uiTextBuilder().cols(40).create()).label("Name:").create();
     feEmail = mu.feb(UiUtils.uiTextBuilder().cols(40).create()).label("Email:").create();
@@ -105,10 +105,10 @@ public class DownloadToolsPanel extends JPanel {
         + "Nesvizhskii (nesvi@med.umich.edu).");
     license0 = new JCheckBox();
 
-    JEditorPane t2 = SwingUtils.createClickableHtml("I agree to the terms of <a href=\"http://msfragger-upgrader.nesvilab.org/upgrader/RawFileRdr_License_Agreement_RevA.pdf\" target=\"blank_\">Thermo (c) Raw File Reader License Agreement</a>.");
+    JEditorPane t2 = SwingUtils.createClickableHtml("I agree to the terms of <a href=\"https://msfragger-upgrader.nesvilab.org/upgrader/RawFileRdr_License_Agreement_RevA.pdf\" target=\"blank_\">Thermo (c) Raw File Reader License Agreement</a>.");
     license2 = new JCheckBox();
 
-    JEditorPane t3 = SwingUtils.createClickableHtml("I agree to the terms of <a href=\"http://msfragger-upgrader.nesvilab.org/upgrader/EULA%20TDF-SDK.pdf\" target=\"blank_\">Bruker SDK library distribution conditions</a>.");
+    JEditorPane t3 = SwingUtils.createClickableHtml("I agree to the terms of <a href=\"https://msfragger-upgrader.nesvilab.org/upgrader/EULA%20TDF-SDK.pdf\" target=\"blank_\">Bruker SDK library distribution conditions</a>.");
     license3 = new JCheckBox();
 
     JEditorPane t4 = SwingUtils.createClickableHtml("I would like to receive emails with updates in the future.");
