@@ -79,6 +79,7 @@ import com.dmtavt.fragpipe.messages.MessageSaveLog;
 import com.dmtavt.fragpipe.messages.MessageSaveUiState;
 import com.dmtavt.fragpipe.messages.MessageStartProcesses;
 import com.dmtavt.fragpipe.messages.NoteConfigDatabase;
+import com.dmtavt.fragpipe.messages.NoteConfigDiaTracer;
 import com.dmtavt.fragpipe.messages.NoteConfigDiann;
 import com.dmtavt.fragpipe.messages.NoteConfigIonQuant;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
@@ -986,6 +987,7 @@ public class FragpipeRun {
   public static String createVersionsString() {
     String msfraggerVersion;
     String ionQuantVersion = NoteConfigIonQuant.version;
+    String diaTracerVersion = NoteConfigDiaTracer.version;
 
     try {
       msfraggerVersion = Fragpipe.getStickyStrict(NoteConfigMsfragger.class).version;
@@ -1000,10 +1002,15 @@ public class FragpipeRun {
       ionQuantVersion = "N/A";
     }
 
+    if (diaTracerVersion == null || diaTracerVersion.trim().isEmpty()) {
+      diaTracerVersion = "N/A";
+    }
+
     StringBuilder sb = new StringBuilder();
     sb.append(Version.PROGRAM_TITLE).append(" version ").append(Version.version()).append("\n");
     sb.append("MSFragger version ").append(msfraggerVersion).append("\n");
     sb.append("IonQuant version ").append(ionQuantVersion).append("\n");
+    sb.append("diaTracer version ").append(diaTracerVersion).append("\n");
     sb.append("Philosopher version ").append(PHILOSOPHER_VERSION).append("\n");
 
     return sb.toString();
@@ -1198,6 +1205,7 @@ public class FragpipeRun {
       return true;
     });
 
+    final UsageTrigger binDiaTracer = new UsageTrigger(NoteConfigDiaTracer.path, "diaTracer");
     final DiaTracerPanel diaTracerPanel = Fragpipe.getStickyStrict(DiaTracerPanel.class);
     final CmdDiaTracer cmdDiaTracer = new CmdDiaTracer(diaTracerPanel.isRun(), wd);
     addConfig.accept(cmdDiaTracer, () -> {
@@ -1208,6 +1216,7 @@ public class FragpipeRun {
             ramGb,
             threads,
             Paths.get(binMsfragger.getBin()),
+            Paths.get(binDiaTracer.getBin()),
             diaTracerPanel.writeIntermediateFiles(),
             diaTracerPanel.imTolerance(),
             diaTracerPanel.apexScanDeltaRange(),

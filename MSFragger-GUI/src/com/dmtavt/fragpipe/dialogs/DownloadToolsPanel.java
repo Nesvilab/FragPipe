@@ -49,6 +49,7 @@ public class DownloadToolsPanel extends JPanel {
   private JCheckBox receiveEmail;
   private UiCheck uiCheckDownloadMSFragger;
   private UiCheck uiCheckDownloadIonQuant;
+  private UiCheck uiCheckDownloadDiaTracer;
 
   public DownloadToolsPanel() {
     initMore();
@@ -88,9 +89,12 @@ public class DownloadToolsPanel extends JPanel {
 
     uiCheckDownloadMSFragger = new UiCheck("", null, true);
     uiCheckDownloadIonQuant = new UiCheck("", null, true);
+    uiCheckDownloadDiaTracer = new UiCheck("", null, true);
 
     FormEntry feDownloadMSFragger = mu.feb(uiCheckDownloadMSFragger).label("Download MSFragger").create();
     FormEntry feDownloadIonQuant = mu.feb(uiCheckDownloadIonQuant).label("Download IonQuant").create();
+    FormEntry feDownloadDiaTracer = mu.feb(uiCheckDownloadDiaTracer).label("Download diaTracer").create();
+
     JEditorPane t1 = SwingUtils.createClickableHtml("I understand that the academic license provides with a non-exclusive,<br>"
         + "non-transferable right to use MSFragger, IonQuant, and diaTracer solely<br>"
         + "for academic research, non-commercial or educational purposes within the<br>"
@@ -130,6 +134,9 @@ public class DownloadToolsPanel extends JPanel {
 
     mu.add(panelTextboxes, feDownloadIonQuant.comp, mu.ccR());
     mu.add(panelTextboxes, feDownloadIonQuant.label()).wrap();
+
+    mu.add(panelTextboxes, feDownloadDiaTracer.comp, mu.ccR());
+    mu.add(panelTextboxes, feDownloadDiaTracer.label()).wrap();
 
     mu.add(panelTextboxes, license1, mu.ccR());
     mu.add(panelTextboxes, t1).spanX().wrap();
@@ -198,5 +205,9 @@ public class DownloadToolsPanel extends JPanel {
 
   public boolean downloadIonQuant() {
     return uiCheckDownloadIonQuant.isSelected();
+  }
+
+  public boolean downloadDiaTracer() {
+    return uiCheckDownloadDiaTracer.isSelected();
   }
 }

@@ -22,11 +22,11 @@ import static com.github.chhh.utils.SwingUtils.isEnabledAndChecked;
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.messages.NoteConfigCrystalC;
+import com.dmtavt.fragpipe.messages.NoteConfigDiaTracer;
 import com.dmtavt.fragpipe.messages.NoteConfigPeptideProphet;
 import com.dmtavt.fragpipe.messages.NoteConfigPtmProphet;
 import com.dmtavt.fragpipe.messages.NoteConfigPtmShepherd;
 import com.dmtavt.fragpipe.messages.NoteConfigTmtI;
-import com.dmtavt.fragpipe.messages.NoteConfigUmpire;
 import com.dmtavt.fragpipe.tabs.TabWorkflow;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelBase;
@@ -75,7 +75,7 @@ public class DiaTracerPanel extends JPanelBase {
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
-  public void on(NoteConfigUmpire m) {
+  public void on(NoteConfigDiaTracer m) {
     updateEnabledStatus(this, m.isValid());
   }
 

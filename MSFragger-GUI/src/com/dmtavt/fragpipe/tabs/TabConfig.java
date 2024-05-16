@@ -32,6 +32,8 @@ import com.dmtavt.fragpipe.exceptions.UnexpectedException;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
 import com.dmtavt.fragpipe.messages.MessageBalloon;
 import com.dmtavt.fragpipe.messages.MessageClearCache;
+import com.dmtavt.fragpipe.messages.MessageDiaTracerNewBin;
+import com.dmtavt.fragpipe.messages.MessageDiaTracerUpdateAvailable;
 import com.dmtavt.fragpipe.messages.MessageDiannNewBin;
 import com.dmtavt.fragpipe.messages.MessageFindSystemPython;
 import com.dmtavt.fragpipe.messages.MessageInstallEasyPQP;
@@ -43,6 +45,7 @@ import com.dmtavt.fragpipe.messages.MessagePythonNewBin;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
 import com.dmtavt.fragpipe.messages.MessageUiRevalidate;
 import com.dmtavt.fragpipe.messages.NoteConfigDbsplit;
+import com.dmtavt.fragpipe.messages.NoteConfigDiaTracer;
 import com.dmtavt.fragpipe.messages.NoteConfigDiann;
 import com.dmtavt.fragpipe.messages.NoteConfigIonQuant;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
@@ -51,6 +54,8 @@ import com.dmtavt.fragpipe.messages.NoteConfigSpeclibgen;
 import com.dmtavt.fragpipe.messages.NoteFragpipeUpdate;
 import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.dmtavt.fragpipe.tools.diann.Diann;
+import com.dmtavt.fragpipe.tools.diatracer.DiaTracer;
+import com.dmtavt.fragpipe.tools.diatracer.DiaTracerVersionFetcherServer;
 import com.dmtavt.fragpipe.tools.fragger.Msfragger;
 import com.dmtavt.fragpipe.tools.fragger.Msfragger.Version;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerVersionFetcherServer;
@@ -129,6 +134,7 @@ public class TabConfig extends JPanelWithEnablement {
   private static final Logger log = LoggerFactory.getLogger(TabConfig.class);
   private static final DefaultArtifactVersion msfraggerMinVersion = new DefaultArtifactVersion("4.0");
   private static final DefaultArtifactVersion ionquantMinVersion = new DefaultArtifactVersion("1.10.12");
+  private static final DefaultArtifactVersion diatracerMinVersion = new DefaultArtifactVersion("1.1.3");
   public static final DefaultArtifactVersion pythonMinVersion = new DefaultArtifactVersion("3.9");
 
   private static final MigUtils mu = MigUtils.get();
@@ -139,6 +145,7 @@ public class TabConfig extends JPanelWithEnablement {
   private UiText uiTextToolsFolder;
   private HtmlStyledJEditorPane epFraggerVer;
   private HtmlStyledJEditorPane epIonQuantVer;
+  private HtmlStyledJEditorPane epDiaTracerVer;
   private UiText uiTextBinDiann;
   private HtmlStyledJEditorPane epDiannVer;
   private UiText uiTextBinPython;
@@ -152,6 +159,7 @@ public class TabConfig extends JPanelWithEnablement {
 
   public static final String TIP_MSFRAGGER_BIN = "tip.msfragger.bin";
   public static final String TIP_IONQUANT_BIN = "tip.ionquant.bin";
+  public static final String TIP_DIATRACER_BIN = "tip.diatracer.bin";
   public static final String TIP_DIANN_BIN = "tip.diann.bin";
   public static final String TIP_PYTHON_BIN = "tip.python.bin";
   private static final String TIP_DBSPLIT = "tip.dbsplit";
@@ -166,6 +174,8 @@ public class TabConfig extends JPanelWithEnablement {
 
   private static final Pattern msfraggerRegex = Pattern.compile("msfragger-(.*)\\.jar", Pattern.CASE_INSENSITIVE);
   private static final Pattern ionquantRegex = Pattern.compile("ionquant-(.*)\\.jar", Pattern.CASE_INSENSITIVE);
+  private static final Pattern diatracerRegex = Pattern.compile("diatracer-(.*)\\.jar", Pattern.CASE_INSENSITIVE);
+
   private final TextConsole console;
 
   public TabConfig(TextConsole console) {
@@ -289,6 +299,7 @@ public class TabConfig extends JPanelWithEnablement {
     uiTextToolsFolder.addActionListener(e -> {
       Bus.post(new MessageMsfraggerNewBin(getJarPath(uiTextToolsFolder.getNonGhostText(), msfraggerRegex)));
       Bus.post(new MessageIonQuantNewBin(getJarPath(uiTextToolsFolder.getNonGhostText(), ionquantRegex)));
+      Bus.post(new MessageDiaTracerNewBin(getJarPath(uiTextToolsFolder.getNonGhostText(), diatracerRegex)));
     });
     FormEntry feBinMsfragger = fe(uiTextToolsFolder, "tools-folder", TAB_PREFIX).tooltip(toolsFolderTip).create();
     p.add(feBinMsfragger.comp, ccL().split().growX());
@@ -297,6 +308,7 @@ public class TabConfig extends JPanelWithEnablement {
       paths.stream().findFirst().ifPresent(pp -> {
         Bus.post(new MessageMsfraggerNewBin(getJarPath(pp.toString(), msfraggerRegex)));
         Bus.post(new MessageIonQuantNewBin(getJarPath(pp.toString(), ionquantRegex)));
+        Bus.post(new MessageDiaTracerNewBin(getJarPath(pp.toString(), diatracerRegex)));
       });
     });
     p.add(btnBrowse, ccL());
@@ -304,9 +316,11 @@ public class TabConfig extends JPanelWithEnablement {
 
     epFraggerVer = new HtmlStyledJEditorPane("MSFragger version: N/A");
     epIonQuantVer = new HtmlStyledJEditorPane("IonQuant version: N/A");
+    epDiaTracerVer = new HtmlStyledJEditorPane("diaTracer version: N/A");
 
     JEditorPane msfraggerCitation = SwingUtils.createClickableHtml(createFraggerCitationBody());
     JEditorPane ionQuantCitation = SwingUtils.createClickableHtml(createIonQuantCitationBody());
+    JEditorPane diaTracerCitation = SwingUtils.createClickableHtml(createDiaTracerCitationBody());
 
     p.add(btnUpdate, ccL().wrap());
 
@@ -315,6 +329,9 @@ public class TabConfig extends JPanelWithEnablement {
 
     p.add(Fragpipe.renameNoCache(epIonQuantVer, "ionquant.version-info", TAB_PREFIX), ccL().split());
     p.add(ionQuantCitation, ccL().spanX().growX().wrap());
+
+    p.add(Fragpipe.renameNoCache(epDiaTracerVer, "diatracer.version-info", TAB_PREFIX), ccL().split());
+    p.add(diaTracerCitation, ccL().spanX().growX().wrap());
 
     return p;
   }
@@ -403,6 +420,36 @@ public class TabConfig extends JPanelWithEnablement {
     Bus.post(new MessageBalloon(TIP_IONQUANT_BIN, uiTextToolsFolder, content));
   }
 
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(MessageDiaTracerUpdateAvailable m) {
+    JEditorPane ep = SwingUtils.createClickableHtml(String.format("There is a newer version of diaTracer available [%s].<br>\n", m.newVersion), Notifications.BG_COLOR);
+    JPanel content = new JPanel(new BorderLayout());
+    content.setBackground(ep.getBackground());
+
+    JPanel pBtns = new JPanel();
+    pBtns.setBackground(ep.getBackground());
+    pBtns.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
+
+    if (!StringUtils.isNullOrWhitespace(m.manualDownloadUrl)) {
+      JButton btnManualUpdate = new JButton("Download update");
+      btnManualUpdate.addActionListener(
+          this::actionToolsDownload
+      );
+      pBtns.add(btnManualUpdate);
+    }
+
+    JButton btnClose = new JButton("Close");
+    btnClose.addActionListener(e -> {
+      Bus.post(new MessageBalloon(TIP_DIATRACER_BIN));
+    });
+
+    content.add(ep, BorderLayout.CENTER);
+    pBtns.add(btnClose);
+    content.add(pBtns, BorderLayout.SOUTH);
+
+    Bus.post(new MessageBalloon(TIP_DIATRACER_BIN, uiTextToolsFolder, content));
+  }
+
   private CC ccL() {
     return new CC().alignX("left");
   }
@@ -480,6 +527,24 @@ public class TabConfig extends JPanelWithEnablement {
           Bus.post(new MessageIonQuantNewBin(getJarPath(toolsPath.toAbsolutePath().toString(), ionquantRegex)));
         }
 
+        if (p.downloadDiaTracer()) {
+          DiaTracerVersionFetcherServer diaTracerVersionFetcherServer = new DiaTracerVersionFetcherServer(p.getName(), p.getEmail(), p.getInstitution(), p.wantReceiveEmail());
+          new Thread(() -> {
+            try {
+              Path diatracerPath = diaTracerVersionFetcherServer.autoUpdate(toolsPath);
+              if (diatracerPath != null) {
+                Bus.post(new MessageDiaTracerNewBin(diatracerPath.toAbsolutePath().toString()));
+              } else {
+                Bus.postSticky(new NoteConfigDiaTracer("N/A", "N/A", false, false, new ValidationException("diaTracer path is null.")));
+              }
+            } catch (Exception ex) {
+              Bus.postSticky(new NoteConfigDiaTracer("N/A", "N/A", false, false, ex));
+            }
+          }).start();
+        } else {
+          Bus.post(new MessageDiaTracerNewBin(getJarPath(toolsPath.toAbsolutePath().toString(), diatracerRegex)));
+        }
+
         uiTextToolsFolder.setText(toolsPath.toAbsolutePath().toString());
       }
     } catch (Exception ex) {
@@ -539,7 +604,7 @@ public class TabConfig extends JPanelWithEnablement {
       return;
     }
 
-    if (!validateMsfraggerJarContents(Paths.get(m.binPath))) {
+    if (!validateJarContents(Paths.get(m.binPath), "MSFragger.class", msfraggerRegex)) {
       Bus.postSticky(new NoteConfigMsfragger(m.binPath, "N/A", false, new ValidationException("Not a MSFragger jar.")));
       return;
     }
@@ -573,7 +638,7 @@ public class TabConfig extends JPanelWithEnablement {
       return;
     }
 
-    if (!validateIonQuantJarContents(Paths.get(m.binPath))) {
+    if (!validateJarContents(Paths.get(m.binPath), "IonQuant.class", ionquantRegex)) {
       Bus.postSticky(new NoteConfigIonQuant(m.binPath, "N/A", false, false, new ValidationException("Not an IonQuant jar.")));
       return;
     }
@@ -600,32 +665,41 @@ public class TabConfig extends JPanelWithEnablement {
     }
   }
 
-  private static boolean validateMsfraggerJarContents(Path p) {
-    final boolean[] found = {false};
-    try (FileSystem fs = FileSystems.newFileSystem(p, ClassLoader.getSystemClassLoader())) {
-      for (Path root : fs.getRootDirectories()) {
-        Files.walkFileTree(root, new SimpleFileVisitor<>() {
-          @Override
-          public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-            String fileName = file.getFileName().toString();
-            if ("MSFragger.class".equalsIgnoreCase(fileName)) {
-              found[0] = true;
-              return FileVisitResult.TERMINATE;
-            } else if (msfraggerRegex.matcher(fileName).find()) {
-              found[0] = true;
-              return FileVisitResult.TERMINATE;
-            }
-            return FileVisitResult.CONTINUE;
-          }
-        });
-      }
-    } catch (IOException ex) {
-      log.warn("Error while checking MSFragger jar contents", ex);
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(MessageDiaTracerNewBin m) {
+    if (StringUtils.isBlank(m.binPath) || !Files.exists(Paths.get(m.binPath))) {
+      Bus.postSticky(new NoteConfigDiaTracer(m.binPath, "N/A", false, false, new ValidationException("diaTracer path " + m.binPath + " does not exist.")));
+      return;
     }
-    return found[0];
+
+    if (!validateJarContents(Paths.get(m.binPath), "diaTracerMainClass.class", diatracerRegex)) {
+      Bus.postSticky(new NoteConfigDiaTracer(m.binPath, "N/A", false, false, new ValidationException("Not an diaTracer jar.")));
+      return;
+    }
+
+    if (m.binPath.contains(" ")) {
+      Bus.postSticky(new NoteConfigDiaTracer(m.binPath, "N/A", false, false, new ValidationException("There are spaces in the path: \"" + m.binPath + "\"")));
+      return;
+    }
+
+    Version v;
+    try {
+      v = DiaTracer.getVersion(Paths.get(m.binPath));
+      if (v.isVersionParsed) {
+        if (v.version.compareTo(diatracerMinVersion) >= 0) {
+          Bus.postSticky(new NoteConfigDiaTracer(m.binPath, v.version.toString(), false, true, null));
+        } else {
+          Bus.postSticky(new NoteConfigDiaTracer(m.binPath, v.version.toString(), true, false, null));
+        }
+      } else {
+        Bus.postSticky(new NoteConfigDiaTracer(m.binPath, "N/A", false, false, new ValidationException("Could not parse the version.")));
+      }
+    } catch (Exception e) {
+      Bus.postSticky(new NoteConfigDiaTracer(m.binPath, "N/A", false, false, e));
+    }
   }
 
-  private static boolean validateIonQuantJarContents(Path p) {
+  private static boolean validateJarContents(Path p, String mainClass, Pattern pattern) {
     final boolean[] found = {false};
     try (FileSystem fs = FileSystems.newFileSystem(p, ClassLoader.getSystemClassLoader())) {
       for (Path root : fs.getRootDirectories()) {
@@ -633,10 +707,10 @@ public class TabConfig extends JPanelWithEnablement {
           @Override
           public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
             String fileName = file.getFileName().toString();
-            if ("IonQuant.class".equalsIgnoreCase(fileName)) {
+            if (mainClass.equalsIgnoreCase(fileName)) {
               found[0] = true;
               return FileVisitResult.TERMINATE;
-            } else if (ionquantRegex.matcher(fileName).find()) {
+            } else if (pattern.matcher(fileName).find()) {
               found[0] = true;
               return FileVisitResult.TERMINATE;
             }
@@ -645,7 +719,7 @@ public class TabConfig extends JPanelWithEnablement {
         });
       }
     } catch (IOException ex) {
-      log.warn("Error while checking MSFragger jar contents", ex);
+      log.warn("Error while checking " + p.toAbsolutePath() + " contents", ex);
     }
     return found[0];
   }
@@ -702,12 +776,39 @@ public class TabConfig extends JPanelWithEnablement {
     }
   }
 
+  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(NoteConfigDiaTracer m) {
+    Path existing = PathUtils.existing(m.path);
+    if (existing != null) {
+      Fragpipe.propsVarSet(ThisAppProps.PROP_BINARIES_IN, existing.toString());
+      if (existing.toString().contains(" ")) {
+        SwingUtils.showErrorDialog(this, "Space is not allowed in diaTracer path.", "Spaces in path");
+      }
+    }
+
+    if (m.ex != null) {
+      epDiaTracerVer.setText("diaTracer version: N/A");
+      showConfigError(m.ex, TIP_DIATRACER_BIN, uiTextToolsFolder, true);
+    } else if (m.isTooOld) {
+      epDiaTracerVer.setText("diaTracer version: too old, not supported anymore");
+      Bus.post(new MessageBalloon(TIP_DIATRACER_BIN, uiTextToolsFolder, "diaTracer " + diatracerMinVersion + " is required.", true));
+    } else {
+      epDiaTracerVer.setText("diaTracer version: " + m.version);
+      Notifications.tryClose(TIP_DIATRACER_BIN);
+    }
+    if (m.isValid() && !m.isTooOld) {
+      DiaTracer.checkUpdates(m);
+    }
+  }
+
   @Subscribe
   public void on(MessageUiRevalidate m) {
     log.debug("Got MessageUiRevalidate");
     if (m.updateBins) {
       Bus.post(new MessageMsfraggerNewBin(getJarPath(uiTextToolsFolder.getNonGhostText().trim(), msfraggerRegex)));
       Bus.post(new MessageIonQuantNewBin(getJarPath(uiTextToolsFolder.getNonGhostText().trim(), ionquantRegex)));
+      Bus.post(new MessageDiaTracerNewBin(getJarPath(uiTextToolsFolder.getNonGhostText().trim(), diatracerRegex)));
+
       String binDiann = uiTextBinDiann.getNonGhostText();
       if (StringUtils.isNotBlank(binDiann)) {
         Bus.post(new MessageDiannNewBin(binDiann));
@@ -924,6 +1025,12 @@ public class TabConfig extends JPanelWithEnablement {
   private static String createIonQuantCitationBody() {
     final StringBuilder sb = new StringBuilder();
     sb.append("&emsp;More info and docs: <a href=\"").append("https://ionquant.nesvilab.org/").append("\">IonQuant</a>");
+    return sb.toString();
+  }
+
+  private static String createDiaTracerCitationBody() {
+    final StringBuilder sb = new StringBuilder();
+    sb.append("&emsp;More info and docs: <a href=\"").append("https://diatracer.nesvilab.org/").append("\">diaTracer</a>");
     return sb.toString();
   }
 
