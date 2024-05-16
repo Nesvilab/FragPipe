@@ -55,6 +55,7 @@ public class QuantLabel {
     labels.add(new QuantLabel(TYPE_SCLIP, "sCLIP-6", Arrays.asList("300, 301N, 301C, 302N, 302O, 302C".split("[,\\s]+"))));
     labels.add(new QuantLabel(TYPE_IBT, "IBT-16", Arrays.asList("114, 115N, 115C, 116N, 116C, 117N, 117C, 118N, 118C, 119N, 119C, 120N, 120C, 121N, 121C, 122".split("[,\\s]+"))));
     labels.add(new QuantLabel(TYPE_DILEU, "DiLeu-12", Arrays.asList("115a, 115b, 116a, 116b, 116c, 117a, 117b, 117c, 118a, 118b, 118c, 118d".split("[,\\s]+"))));
+    labels.add(new QuantLabel(TYPE_DILEU, "DiLeu-1", Arrays.asList("114".split("[,\\s]+"))));
     labels.add(new QuantLabel(TYPE_CUSTOM, CUSTOM_LABEL_NAME, Arrays.asList("xtag1, xtag2, xtag3, xtag4, xtag5, xtag6, xtag7, xtag8, xtag9, xtag10, xtag11, xtag12, xtag13, xtag14, xtag15, xtag16, xtag17, xtag18, xtag19, xtag20, xtag21, xtag22, xtag23, xtag24, xtag25, xtag26, xtag27, xtag28, xtag29, xtag30, xtag31, xtag32".split("[,\\s]+"))));
     labels.add(new QuantLabel(TYPE_CUSTOM2, CUSTOM_LABEL_NAME2, Arrays.asList("114, 115a, 115b, 115c, 116a, 116b, 116c, 116d, 116e, 117a, 117b, 117c, 117d, 117e, 117f, 118a, 118b, 118c, 118d, 118e, 118f, 118g, 119a, 119b, 119c, 119d, 119e, 119f, 119g".split("[,\\s]+"))));
     LABELS = Collections.unmodifiableList(labels);
