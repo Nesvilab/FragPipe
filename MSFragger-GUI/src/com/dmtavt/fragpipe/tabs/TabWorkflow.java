@@ -272,8 +272,8 @@ public class TabWorkflow extends JPanelWithEnablement {
     builtInWorkflows.add("TMT16-ubiquitination-K_tmt_plus_ubiq");
     builtInWorkflows.add("glyco-O-DIA-OPair");
     builtInWorkflows.add("glyco-O-DIA-HCD");
-    builtInWorkflows.add("diaPASEF_SpecLib_Quant");
-    builtInWorkflows.add("diaPASEF_SpecLib_Quant_Phospho");
+    builtInWorkflows.add("DIA_SpecLib_Quant_Phospho_diaPASEF");
+    builtInWorkflows.add("DIA_SpecLib_Quant_diaPASEF");
     builtInWorkflows.add("Nonspecific-HLA-diaPASEF");
     builtInWorkflows.add("PAL");
   }
