@@ -72,9 +72,9 @@ public class CmdTmtIntegrator extends CmdBase {
     List<String> notSupportedExts = getNotSupportedExts(mapGroupsToProtxml, SUPPORTED_FORMATS);
     if (!notSupportedExts.isEmpty()) {
       if (Fragpipe.headless) {
-        log.error(String.format("TMT analysis doesn't support '.%s' files. Please replace with mzML format.", String.join(", ", notSupportedExts)));
+        log.error(String.format("Philosopher as the TMT intensity extraction tool doesn't support '.%s' files. Please replace with mzML format or set IonQuant as the TMT intensity extraction tool.", String.join(", ", notSupportedExts)));
       } else {
-        JOptionPane.showMessageDialog(comp, String.format("<html>TMT analysis doesn't support '.%s' files.<br>Please replace with mzML format.", String.join(", ", notSupportedExts)), NAME + " error", JOptionPane.WARNING_MESSAGE);
+        JOptionPane.showMessageDialog(comp, String.format("<html>Philosopher as the TMT intensity extraction tool doesn't support '.%s' files.<br>Please replace with mzML format or set IonQuant as the TMT intensity extraction tool.", String.join(", ", notSupportedExts)), NAME + " error", JOptionPane.WARNING_MESSAGE);
       }
       return false;
     }

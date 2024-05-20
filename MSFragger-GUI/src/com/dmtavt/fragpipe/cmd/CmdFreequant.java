@@ -57,7 +57,7 @@ public class CmdFreequant extends CmdBase {
     if (!notSupportedExts.isEmpty()) {
       if (Fragpipe.headless) {
         if (isTMT) {
-          log.error(String.format("TMT analysis doesn't support '.%s' files. Please replace with mzML format.", String.join(", ", notSupportedExts)));
+          log.error(String.format("Philosopher as the TMT intensity extraction tool doesn't support '.%s' files. Please replace with mzML format or set IonQuant as the TMT intensity extraction tool.", String.join(", ", notSupportedExts)));
         } else if (isOpenSearch) {
           log.error(String.format("FreeQuant doesn't support '.%s' files. Please replace with mzML format or disable the Quant (MS1) tab.", String.join(", ", notSupportedExts)));
         } else {
@@ -65,7 +65,7 @@ public class CmdFreequant extends CmdBase {
         }
       } else {
         if (isTMT) {
-          JOptionPane.showMessageDialog(comp, String.format("<html>TMT analysis doesn't support '.%s' files.<br>Please replace with mzML format.<br>", String.join(", ", notSupportedExts)), NAME + " error", JOptionPane.WARNING_MESSAGE);
+          JOptionPane.showMessageDialog(comp, String.format("<html>Philosopher as the TMT intensity extraction tool doesn't support '.%s' files.<br>Please replace with mzML format or set IonQuant as the TMT intensity extraction tool.<br>", String.join(", ", notSupportedExts)), NAME + " error", JOptionPane.WARNING_MESSAGE);
         } else if (isOpenSearch) {
           JOptionPane.showMessageDialog(comp, String.format("<html>FreeQuant doesn't support '.%s' files.<br>Please replace with mzML format or disable the Quant (MS1) tab.<br>", String.join(", ", notSupportedExts)), NAME + " error", JOptionPane.WARNING_MESSAGE);
         } else {
