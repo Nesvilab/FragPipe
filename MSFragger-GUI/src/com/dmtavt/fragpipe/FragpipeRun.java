@@ -1541,13 +1541,17 @@ public class FragpipeRun {
 
     // run Report - Report command itself
     final CmdPhilosopherReport cmdPhilosopherReport = new CmdPhilosopherReport(reportPanel.isRun() || quantPanelLabelfree.isRunFreeQuant(), wd);
-    final boolean doPrintDecoys = reportPanel.isPrintDecoys();
-    final boolean doMSstats = tmtiPanel.isMsstats() && !quantPanelLabelfree.isRunIonQuant(); // Don't let Philosopher generate MSstats files if IonQuant is going to run because IonQuant will generate them.
+    boolean philosopherGenerateMSstats = tmtiPanel.isRun() && tmtiPanel.isMsstats();
+
+    if (philosopherGenerateMSstats && tmtiPanel.getIntensityExtractionTool() == 0) {
+      SwingUtils.showErrorDialog(parent, "<b>Generate MSstats files (using Philosopher)</b> was enabled but Philosopher was not selected as <b>Intensity Extraction Tool</b>.", "Parameter incompatibility");
+      return false;
+    }
 
     addConfig.accept(cmdPhilosopherReport, () -> {
       cmdPhilosopherReport.setRun(cmdPhilosopherReport.isRun() && !sharedMapGroupsToProtxml.isEmpty());
       if (cmdPhilosopherReport.isRun()) {
-        return cmdPhilosopherReport.configure(parent, ramGb, threads, usePhi, doPrintDecoys, doMSstats, sharedLcmsFileGroups.size() > 1, reportPanel.isRemoveContaminants(), sharedMapGroupsToProtxml);
+        return cmdPhilosopherReport.configure(parent, ramGb, threads, usePhi, reportPanel.isPrintDecoys(), philosopherGenerateMSstats, sharedLcmsFileGroups.size() > 1, reportPanel.isRemoveContaminants(), sharedMapGroupsToProtxml);
       }
       return true;
     });
@@ -1555,7 +1559,7 @@ public class FragpipeRun {
     // run Report - Multi-Experiment report
     final CmdPhilosopherAbacus cmdPhilosopherAbacus = new CmdPhilosopherAbacus(false, wd);
     addConfig.accept(cmdPhilosopherAbacus, () -> {
-      final boolean doRunAbacus = cmdPhilosopherReport.isRun() && (sharedLcmsFileGroups.size() > 1) && !quantPanelLabelfree.isRunIonQuant() && (doMSstats || (!reportPanel.isNoProtXml() && reportPanel.isProtSummary()) || reportPanel.isPepSummary());
+      final boolean doRunAbacus = cmdPhilosopherReport.isRun() && (sharedLcmsFileGroups.size() > 1) && !quantPanelLabelfree.isRunIonQuant() && (philosopherGenerateMSstats || (!reportPanel.isNoProtXml() && reportPanel.isProtSummary()) || reportPanel.isPepSummary());
       cmdPhilosopherAbacus.setRun(doRunAbacus);
       if (cmdPhilosopherAbacus.isRun()) {
         int plex = 0;
@@ -1649,7 +1653,7 @@ public class FragpipeRun {
           SwingUtils.showWarningDialog(parent, CmdTmtIntegrator.NAME + " only supports mzML and raw files.\nPlease remove other files from the input list.", CmdTmtIntegrator.NAME + " error");
           return false;
         }
-        return cmdTmt.configure(tmtiPanel, isDryRun, ramGb, decoyTag, sharedMapGroupsToProtxml, doMSstats, tmtiPanel.getAnnotations(), false);
+        return cmdTmt.configure(tmtiPanel, isDryRun, ramGb, decoyTag, sharedMapGroupsToProtxml, philosopherGenerateMSstats, tmtiPanel.getAnnotations(), false);
       }
       return true;
     });
@@ -1843,7 +1847,7 @@ public class FragpipeRun {
           SwingUtils.showWarningDialog(parent, CmdTmtIntegrator.NAME + " only supports mzML and raw files.\nPlease remove other files from the input list.", CmdTmtIntegrator.NAME + " error");
           return false;
         }
-        return cmdTmtFpop.configure(tmtiPanel, isDryRun, ramGb, decoyTag, sharedMapGroupsToProtxml, doMSstats, tmtiPanel.getAnnotations(), true);
+        return cmdTmtFpop.configure(tmtiPanel, isDryRun, ramGb, decoyTag, sharedMapGroupsToProtxml, philosopherGenerateMSstats, tmtiPanel.getAnnotations(), true);
       });
     }
 
