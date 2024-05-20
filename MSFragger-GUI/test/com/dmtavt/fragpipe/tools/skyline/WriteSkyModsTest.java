@@ -19,9 +19,11 @@ package com.dmtavt.fragpipe.tools.skyline;
 
 import static com.dmtavt.fragpipe.tools.skyline.WriteSkyMods.convertMods;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import com.dmtavt.fragpipe.tools.skyline.WriteSkyMods.Mod;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
 
@@ -106,5 +108,39 @@ public class WriteSkyModsTest {
     assertEquals("AB_10.0", mod.name);
     assertEquals("A, B", mod.aa);
     assertEquals('\0', mod.terminus);
+  }
+
+  @Test
+  public void testUnimod() {
+    Mod mod = new Mod("Oxidation", "M", 'C', true, 15.994915f, 15.9949f, new ArrayList<>(0), new ArrayList<>(0), "", new ArrayList<>(0));
+    assertEquals(35, mod.unimodData.id);
+
+    mod = new Mod("Oxidation", "M", '\0', true, 15.994915f, 15.994915f, new ArrayList<>(0), new ArrayList<>(0), "", new ArrayList<>(0));
+    assertEquals("Oxidation (M)", mod.unimodData.name);
+
+    mod = new Mod("Phospho", "S, T, Y", 'C', true, 79.966331f, 79.966331f, Arrays.asList(97.976896f, 11f), Arrays.asList(97.976896f, 11f), "", new ArrayList<>(0));
+    assertNull(mod.unimodData);
+
+    mod = new Mod("Phospho", "S", 'C', true, 79.966331f, 79.966331f, java.util.List.of(97.976896f), java.util.List.of(97.976896f), "", new ArrayList<>(0));
+    assertEquals(21, mod.unimodData.id);
+
+    mod = new Mod("Phospho", "S, T", 'C', true, 79.966331f, 79.966331f, Arrays.asList(97.976896f, 11f), Arrays.asList(97.976896f, 11f), "", new ArrayList<>(0));
+    assertEquals(21, mod.unimodData.id);
+    assertEquals("Phospho (ST)", mod.unimodData.name);
+
+    mod = new Mod("Oxidation", "W, H", '\0', true, 15.994915f, 15.994915f, new ArrayList<>(0), new ArrayList<>(0), "", new ArrayList<>(0));
+    assertEquals("Oxidation (HW)", mod.unimodData.name);
+
+    mod = new Mod("Water loss", "E", '\0', true, -18.010565f, -18.010565f, new ArrayList<>(0), new ArrayList<>(0), "", new ArrayList<>(0));
+    assertEquals("Water Loss (D, E, S, T)", mod.unimodData.name);
+
+    mod = new Mod("Acetyl", "", 'N', true, 42.010565f, 42.010565f, new ArrayList<>(0), new ArrayList<>(0), "", new ArrayList<>(0));
+    assertEquals("Acetyl (N-term)", mod.unimodData.name);
+
+    mod = new Mod("Gln->pyro-Glu", "Q", 'N', true, -17.026549f, -17.026549f, new ArrayList<>(0), new ArrayList<>(0), "", new ArrayList<>(0));
+    assertEquals("Gln->pyro-Glu (N-term Q)", mod.unimodData.name);
+
+    mod = new Mod("Glu->pyro-Glu", "E", 'N', true, -18.010565f, -18.010565f, new ArrayList<>(0), new ArrayList<>(0), "", new ArrayList<>(0));
+    assertEquals("Glu->pyro-Glu (N-term E)", mod.unimodData.name);
   }
 }

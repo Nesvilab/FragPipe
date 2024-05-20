@@ -17,16 +17,13 @@
 
 package com.dmtavt.fragpipe.tools.skyline;
 
-import com.dmtavt.fragpipe.FragpipeLocations;
-import com.dmtavt.fragpipe.api.PropsFile;
-import umich.ms.glyco.Glycan;
-import umich.ms.glyco.GlycanParser;
-import umich.ms.glyco.GlycanResidue;
-import umich.ms.util.ElementalComposition;
 
 import static com.dmtavt.fragpipe.tools.glyco.GlycoMassLoader.GLYCAN_RESIDUES_NAME;
 import static com.dmtavt.fragpipe.tools.skyline.Skyline.getSkylineVersion;
 
+import com.dmtavt.fragpipe.FragpipeLocations;
+import com.dmtavt.fragpipe.api.PropsFile;
+import com.google.common.collect.TreeMultimap;
 import java.io.BufferedWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -37,6 +34,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.jooq.lambda.Seq;
+import umich.ms.glyco.Glycan;
+import umich.ms.glyco.GlycanParser;
+import umich.ms.glyco.GlycanResidue;
+import umich.ms.util.ElementalComposition;
 
 public class WriteSkyMods {
 
@@ -45,6 +47,31 @@ public class WriteSkyMods {
   private static final Pattern p2 = Pattern.compile("[c\\]](.)");
   private static final Pattern p3 = Pattern.compile("([\\d.-]+)\\((aa=([^=_();]+)?)?(_d=([\\d., -]+))?(_p=([\\d., -]+))?(_f=([\\d., -]+))?\\)");
   private static final ArrayList<String> allAAs = new ArrayList<>(Arrays.asList("A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y"));
+  private static final float smallFloat = 0.001f;
+  private static List<UnimodData> defaultUnimods;
+  private static List<UnimodData> skylineHardcodedUnimods;
+  private static TreeMultimap<Float, UnimodData> massToUnimod;
+
+  public final List<Mod> unimodMods = new ArrayList<>(0);
+  public final List<Mod> nonUnimodMods = new ArrayList<>(0);
+
+  static {
+    final List<Path> tt = FragpipeLocations.checkToolsMissing(Seq.of("UniModData.tsv"));
+    if (tt == null || tt.size() != 1) {
+      System.err.println("Could not find UniModData.tsv from " + FragpipeLocations.get().getDirTools());
+      System.exit(1);
+    }
+
+    try {
+      UnimodDataReader unimodDataReader = new UnimodDataReader(tt.get(0));
+      defaultUnimods = unimodDataReader.defaultUnimods;
+      skylineHardcodedUnimods = unimodDataReader.skylineHardcodedUnimods;
+      massToUnimod = unimodDataReader.massToUnimod;
+    } catch (Exception ex) {
+      ex.printStackTrace();
+      System.exit(1);
+    }
+  }
 
   public WriteSkyMods(Path path, PropsFile pf, int modsMode) throws Exception {
     List<Mod> mods = new ArrayList<>(4);
@@ -144,40 +171,50 @@ public class WriteSkyMods {
       }
     }
 
-    BufferedWriter bw = new BufferedWriter(Files.newBufferedWriter(path));
-    bw.write("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-        + "<srm_settings format_version=\"23.1\" software_version=\"Skyline (64-bit) " + getSkylineVersion() + "\">\n"
-        + "  <settings_summary name=\"Extra Mods\">\n"
-        + "    <peptide_settings>\n"
-        + "      <peptide_modifications>\n"
-        + "        <static_modifications>\n");
-
     for (Mod mod : mods) {
-      bw.write("          <static_modification name=\"" + mod.name +
-              (mod.aa.isEmpty() ? "" : "\" aminoacid=\"" + mod.aa) +
-              (mod.terminus == '\0' ? "" : "\" terminus=\"" + mod.terminus) +
-              "\" variable=\"" + mod.isVariable +
-              // Skyline does not allow masses in a mod if the elemental composition is specified
-              (mod.elementalComposition.isEmpty() ? "\" massdiff_monoisotopic=\"" + mod.monoMass : "") +
-              (mod.elementalComposition.isEmpty() ? "\" massdiff_average=\"" + mod.avgMass : "") +
-              (mod.elementalComposition.isEmpty() ? "" : "\" formula=\"" + mod.elementalComposition) +
-              "\">\n");
-      for (int i = 0; i < mod.lossMonoMasses.size(); i++) {
-        bw.write("            <potential_loss massdiff_monoisotopic=\"" + mod.lossMonoMasses.get(i) +
-                "\" massdiff_average=\"" + mod.lossAvgMasses.get(i) +
-                (mod.lossElementalComposition.isEmpty() ? "" : "\" formula=\"" + mod.lossElementalComposition.get(i)) +
-                "\" />\n");
+      if (mod.unimodData == null) {
+        nonUnimodMods.add(mod);
+      } else {
+        unimodMods.add(mod);
       }
-      bw.write("          </static_modification>\n");
     }
 
-    bw.write("        </static_modifications>\n"
-        + "      </peptide_modifications>\n"
-        + "    </peptide_settings>\n"
-        + "  </settings_summary>\n"
-        + "</srm_settings>\n");
+    if (!nonUnimodMods.isEmpty()) {
+      BufferedWriter bw = new BufferedWriter(Files.newBufferedWriter(path));
+      bw.write("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+          + "<srm_settings format_version=\"23.1\" software_version=\"Skyline (64-bit) " + getSkylineVersion() + "\">\n"
+          + "  <settings_summary name=\"Extra Mods\">\n"
+          + "    <peptide_settings>\n"
+          + "      <peptide_modifications>\n"
+          + "        <static_modifications>\n");
 
-    bw.close();
+      for (Mod mod : nonUnimodMods) {
+        bw.write("          <static_modification name=\"" + mod.name +
+            (mod.aa.isEmpty() ? "" : "\" aminoacid=\"" + mod.aa) +
+            (mod.terminus == '\0' ? "" : "\" terminus=\"" + mod.terminus) +
+            "\" variable=\"" + mod.isVariable +
+            // Skyline does not allow masses in a mod if the elemental composition is specified
+            (mod.elementalComposition.isEmpty() ? "\" massdiff_monoisotopic=\"" + mod.monoMass : "") +
+            (mod.elementalComposition.isEmpty() ? "\" massdiff_average=\"" + mod.avgMass : "") +
+            (mod.elementalComposition.isEmpty() ? "" : "\" formula=\"" + mod.elementalComposition) +
+            "\">\n");
+        for (int i = 0; i < mod.lossMonoMasses.size(); i++) {
+          bw.write("            <potential_loss massdiff_monoisotopic=\"" + mod.lossMonoMasses.get(i) +
+              "\" massdiff_average=\"" + mod.lossAvgMasses.get(i) +
+              (mod.lossElementalComposition.isEmpty() ? "" : "\" formula=\"" + mod.lossElementalComposition.get(i)) +
+              "\" />\n");
+        }
+        bw.write("          </static_modification>\n");
+      }
+
+      bw.write("        </static_modifications>\n"
+          + "      </peptide_modifications>\n"
+          + "    </peptide_settings>\n"
+          + "  </settings_summary>\n"
+          + "</srm_settings>\n");
+
+      bw.close();
+    }
   }
 
   static List<Mod> convertMods(String sites, boolean isVariable, float monoMass, float avgMass, List<Float> lossMonoMasses, List<Float> lossAvgMasses) {
@@ -324,6 +361,7 @@ public class WriteSkyMods {
     public final List<Float> lossAvgMasses;
     public final String elementalComposition;
     public final List<String> lossElementalComposition;
+    public UnimodData unimodData = null;
 
     Mod(String name, String aa, char terminus, boolean isVariable, float monoMass, float avgMass, List<Float> lossMonoMasses, List<Float> lossAvgMasses, String elementalComposition, List<String> lossElementalComposition) {
       this.name = name;
@@ -336,6 +374,64 @@ public class WriteSkyMods {
       this.lossAvgMasses = lossAvgMasses;
       this.elementalComposition = elementalComposition;
       this.lossElementalComposition = lossElementalComposition;
+
+      for (UnimodData m : defaultUnimods) {
+        if (Math.abs(monoMass - m.monoMass) < smallFloat && siteMatch(aa, terminus, m, true)) {
+          unimodData = m;
+          break;
+        }
+      }
+
+      if (unimodData == null) {
+        for (UnimodData m : skylineHardcodedUnimods) {
+          if (Math.abs(monoMass - m.monoMass) < smallFloat && siteMatch(aa, terminus, m, true)) {
+            unimodData = m;
+            break;
+          }
+        }
+      }
+
+      if (unimodData == null) {
+        for (float f : massToUnimod.keySet().subSet(monoMass - smallFloat, false, monoMass + smallFloat, false)) {
+          for (UnimodData m : massToUnimod.get(f)) {
+            if (siteMatch(aa, terminus, m, true)) {
+              if (unimodData == null || m.compareTo(unimodData) < 0) {
+                unimodData = m;
+              }
+            }
+          }
+        }
+      }
+
+      if (unimodData == null) {
+        for (float f : massToUnimod.keySet().subSet(monoMass - smallFloat, false, monoMass + smallFloat, false)) {
+          for (UnimodData m : massToUnimod.get(f)) {
+            if (siteMatch(aa, terminus, m, false)) {
+              if (unimodData == null || m.compareTo(unimodData) < 0) {
+                unimodData = m;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    private boolean siteMatch(String aas, char terminus, UnimodData unimodData, boolean matchTerminus) {
+      if (aas.trim().isEmpty() && unimodData.aas.isEmpty()) {
+        return terminus == unimodData.terminus;
+      } else if ((aa.trim().isEmpty() && !unimodData.aas.isEmpty()) || (!aa.trim().isEmpty() && unimodData.aas.isEmpty())) {
+        return false;
+      } else {
+        if (matchTerminus && terminus != unimodData.terminus) {
+          return false;
+        }
+        for (String aa : aas.split(",")) {
+          if (!unimodData.aas.contains(aa.trim().charAt(0))) {
+            return false;
+          }
+        }
+        return true;
+      }
     }
 
     public String toString() {

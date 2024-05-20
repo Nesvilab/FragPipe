@@ -26,6 +26,7 @@ import com.dmtavt.fragpipe.cmd.ProcessBuilderInfo;
 import com.dmtavt.fragpipe.exceptions.UnexpectedException;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
 import com.dmtavt.fragpipe.process.ProcessResult;
+import com.dmtavt.fragpipe.tools.skyline.WriteSkyMods.Mod;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.ProcessUtils;
 import java.io.BufferedReader;
@@ -156,17 +157,27 @@ public class Skyline {
       Files.createDirectories(skylineOutputDir);
 
       Path modXmlPath = wd.resolve("mod.xml");
-      new WriteSkyMods(modXmlPath, pf, modsMode);
+      WriteSkyMods writeSkyMods = new WriteSkyMods(modXmlPath, pf, modsMode);
 
       Path pp = wd.resolve("filelist_skyline.txt");
 
       BufferedWriter writer = Files.newBufferedWriter(pp);
-      writer.write("--in=" + modXmlPath.toAbsolutePath() + " ");
+
+      if (!writeSkyMods.unimodMods.isEmpty()) {
+        for (Mod mod : writeSkyMods.unimodMods) {
+          writer.write("--pep-add-mod=\"" + mod.unimodData.name + "\" ");
+        }
+      }
+
+      if (!writeSkyMods.nonUnimodMods.isEmpty()) {
+        writer.write("--in=" + modXmlPath.toAbsolutePath() + " ");
+      }
+
       writer.write("--overwrite ");
       if (mode == 0) {
-        writer.write("--out=" + skylineOutputDir.resolve("fragpipe.sky").toAbsolutePath() + " ");
+        writer.write((writeSkyMods.nonUnimodMods.isEmpty() ? "--new=" : "--out=") + skylineOutputDir.resolve("fragpipe.sky").toAbsolutePath() + " ");
       } else if (mode == 1) {
-        writer.write("--out=" + skylineOutputDir.resolve("fragpipe_skylib.sky").toAbsolutePath() + " ");
+        writer.write((writeSkyMods.nonUnimodMods.isEmpty() ? "--new=" : "--out=") + skylineOutputDir.resolve("fragpipe_skylib.sky").toAbsolutePath() + " ");
       } else {
         throw new RuntimeException("Unsupported Skyline mode: " + mode);
       }
