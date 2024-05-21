@@ -1249,6 +1249,12 @@ public class FragpipeRun {
     }
 
     final String decoyTag = tabDatabase.getDecoyTag();
+
+    if (decoyTag.trim().isEmpty()) {
+      SwingUtils.showErrorDialog(parent, "<b>Decoy protein prefix</b> is empty. Please fix it in <b>Database</b> tab.", "Decoy tag is empty");
+      return false;
+    }
+
     MsfraggerParams p = tabMsf.getParams();
     final CmdMsfragger cmdMsfragger = new CmdMsfragger(tabMsf.isRun(), wd, p.getOutputFormat(), tabMsf.getOutputReportTopNDia1(), tabMsf.getOutputReportTopNDdaPlus());
 
