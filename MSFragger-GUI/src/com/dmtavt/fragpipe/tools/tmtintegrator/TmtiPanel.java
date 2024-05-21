@@ -349,7 +349,7 @@ public class TmtiPanel extends JPanelBase {
             + "-1: generate reports with all normalization options)");
 
     uiCheckMsstats = new UiCheck("Generate MSstats files (using Philosopher)", null, false);
-    FormEntry feCheckMSstats = new FormEntry("philosoher-msstats", "", uiCheckMsstats, "<html>Option to generate an MSstats-compatible report with Philosopher.<br>Require selecting <b>Philosopher</b> as the \"intensity extraction tool\".");
+    FormEntry feCheckMSstats = new FormEntry("philosopher-msstats", "", uiCheckMsstats, "<html>Option to generate an MSstats-compatible report with Philosopher.<br>Require selecting <b>Philosopher</b> as the \"intensity extraction tool\".");
 
     uiComboAddRef = UiUtils.createUiCombo(TmtiConfProps.COMBO_ADD_REF.stream()
         .map(ComboValue::getValInUi).collect(Collectors.toList()));
