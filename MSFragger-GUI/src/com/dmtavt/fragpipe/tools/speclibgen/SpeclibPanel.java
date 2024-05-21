@@ -88,6 +88,7 @@ public class SpeclibPanel extends JPanelBase {
   private JCheckBox check_fragment_type_z;
   private JCheckBox uiCheckNeutralLoss;
   private UiCombo uiComboGlycoMode;
+  private UiSpinnerDouble uiSpinner_max_glycan_qval;
   private ButtonGroup convertButtonGroup;
   private JRadioButton psmConvertButton;
   private JRadioButton pepxmlConvertButton;
@@ -296,6 +297,13 @@ public class SpeclibPanel extends JPanelBase {
             "N-glyco+HexNAc = modifications larger than 140 Da on N residues have a HexNAc fragment remainder ion (203.08 Da) placed instead of the intact modification mass";
     FormEntry feComboGlycoMode = mu.feb(uiComboGlycoMode).name("easypqp.labile_mode").label("Glyco Mode").tooltip(glycoTooltip).create();
 
+    uiSpinner_max_glycan_qval = UiUtils.spinnerDouble(1, 0, 1, 0.01)
+            .setCols(5).setFormat("#.##").create();
+    FormEntry fe_max_glycan_qval = mu.feb(uiSpinner_max_glycan_qval).name("easypqp.extras.max_glycan_qval")
+            .label("Max glycan q-value")
+            .tooltip("Maximum glycan q-value from glycan composition assignment to use a glycopeptide PSM when building the library. Set to 1 to ignore.").create();
+
+
     mu.add(p, convertTypeLabel);
     mu.add(p, pepxmlConvertButton).split();
     mu.add(p, psmConvertButton).split();
@@ -332,7 +340,9 @@ public class SpeclibPanel extends JPanelBase {
     mu.add(p, fe_max_delta_ppm.comp).wrap();
 
     mu.add(p, feComboGlycoMode.label(), mu.ccR());
-    mu.add(p, feComboGlycoMode.comp).wrap();
+    mu.add(p, feComboGlycoMode.comp).split();
+    mu.add(p, fe_max_glycan_qval.label(), mu.ccR());
+    mu.add(p, fe_max_glycan_qval.comp).wrap();
 
     uiComboPqpCal.addItemListener(e -> {
       String selected = (String) e.getItem();
@@ -456,6 +466,10 @@ public class SpeclibPanel extends JPanelBase {
   }
   public String getEasypqpGlycoOption() {
     return new String[]{"", "oglyc", "nglyc", "nglyc+"}[uiComboGlycoMode.getSelectedIndex()];
+  }
+
+  public double getEasypqpMaxGlycanQ() {
+    return uiSpinner_max_glycan_qval.getActualValue();
   }
 
   public Path getEasypqpCalFilePath() {
