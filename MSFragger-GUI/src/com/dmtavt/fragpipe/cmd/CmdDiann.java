@@ -33,7 +33,7 @@ import com.dmtavt.fragpipe.api.LcmsFileGroup;
 import com.dmtavt.fragpipe.messages.NoteConfigDiann;
 import com.dmtavt.fragpipe.tools.diann.Diann;
 import com.dmtavt.fragpipe.tools.diann.DiannToMsstats;
-import com.dmtavt.fragpipe.tools.diann.Localization;
+import com.dmtavt.fragpipe.tools.diann.Propagation;
 import com.dmtavt.fragpipe.tools.diann.PlexDiaHelper;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.StringUtils;
@@ -369,11 +369,11 @@ public class CmdDiann extends CmdBase {
       cmd.add(Fragpipe.getBinJava());
       cmd.add("-cp");
       cmd.add(classpath);
-      cmd.add(Localization.class.getCanonicalName());
+      cmd.add(Propagation.class.getCanonicalName());
       cmd.add(wd.toAbsolutePath().toString());
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(wd.resolve("diann-output").toFile());
-      pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + ": Propagate localization").create());
+      pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + ": Propagate information").create());
     }
 
     if (generateMsstats) {

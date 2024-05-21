@@ -33,12 +33,14 @@ import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class Localization {
+public class Propagation {
 
   private static final Pattern pattern = Pattern.compile("([ncA-Z]+):([\\d.-]+)");
 
@@ -63,8 +65,8 @@ public class Localization {
         psmPath = tt.get(0);
       }
 
-      Localization localization = new Localization();
-      localization.propagate(psmPath, wd.resolve("diann-output"));
+      Propagation propagation = new Propagation();
+      propagation.propagate(psmPath, wd.resolve("diann-output"));
     } catch (Exception ex) {
       ex.printStackTrace();
       System.exit(1);
@@ -73,18 +75,23 @@ public class Localization {
     System.out.printf("Done in %.2f seconds.\n", (System.nanoTime() - startTime) * 1e-9);
   }
 
-  public Localization() throws Exception {
+  public Propagation() throws Exception {
     Path unimodPath = getUnimodOboPath(UNIMOD_OBO);
     unimodOboReader = new UnimodOboReader(unimodPath);
   }
 
   public void propagate(Path psm_path, Path diann_directory) throws Exception {
     TreeBasedTable<Precursor, String, LocalizedPeptide> precursorModificationLocalizationTable = TreeBasedTable.create();
+    Map<Precursor, String[]> precursorProteinGeneMap = new TreeMap<>();
 
     int scanNameColumnIdx = -1;
     int peptideColumnIdx = -1;
     int assignedModificationsColumnIdx = -1;
     int chargeColumnIdx = -1;
+    int proteinColumnIdx = -1;
+    int geneColumnIdx = -1;
+    int mappedProteinsColumnIdx = -1;
+    int mappedGenesColumnIdx = -1;
     Map<String, Integer> modificationColumnIdxMap = new TreeMap<>();
 
     String line;
@@ -106,6 +113,14 @@ public class Localization {
             assignedModificationsColumnIdx = i;
           } else if (parts[i].trim().contentEquals("Charge")) {
             chargeColumnIdx = i;
+          } else if (parts[i].trim().contentEquals("Protein")) {
+            proteinColumnIdx = i;
+          } else if (parts[i].trim().contentEquals("Gene")) {
+            geneColumnIdx = i;
+          } else if (parts[i].trim().contentEquals("Mapped Proteins")) {
+            mappedProteinsColumnIdx = i;
+          } else if (parts[i].trim().contentEquals("Mapped Genes")) {
+            mappedGenesColumnIdx = i;
           } else {
             Matcher matcher = pattern.matcher(parts[i].trim());
             if (matcher.matches()) {
@@ -114,13 +129,15 @@ public class Localization {
           }
         }
       } else {
-        if (modificationColumnIdxMap.isEmpty()) {
-          System.out.println("No modification localization columns found in " + psm_path + ". Do not propagate localization information.");
-          System.exit(0);
-        }
-
-        if (scanNameColumnIdx < 0 || peptideColumnIdx < 0 || assignedModificationsColumnIdx < 0 || chargeColumnIdx < 0) {
-          System.err.printf("Missing %s, %s, %s, or %s in %s.", "Spectrum", "Peptide", "Assigned Modifications", "Charge", psm_path);
+        if (scanNameColumnIdx < 0 ||
+            peptideColumnIdx < 0 ||
+            assignedModificationsColumnIdx < 0 ||
+            chargeColumnIdx < 0 ||
+            proteinColumnIdx < 0 ||
+            geneColumnIdx < 0 ||
+            mappedProteinsColumnIdx < 0 ||
+            mappedGenesColumnIdx < 0) {
+          System.err.println("Missing column in " + psm_path + ": " + line);
           System.exit(1);
         }
 
@@ -136,15 +153,45 @@ public class Localization {
             precursorModificationLocalizationTable.put(precursor, e.getKey(), localizedPeptide1);
           }
         }
+
+        Set<String> allMappedProteins = new TreeSet<>();
+        if (!parts[proteinColumnIdx].trim().isEmpty()) {
+          allMappedProteins.add(parts[proteinColumnIdx].trim());
+        }
+        if (parts.length > mappedProteinsColumnIdx && !parts[mappedProteinsColumnIdx].trim().isEmpty()) {
+          for (String s : parts[mappedProteinsColumnIdx].trim().split(",")) {
+            allMappedProteins.add(s.trim());
+          }
+        }
+        String allMappedProteinsStr = String.join(",", allMappedProteins);
+
+        Set<String> allMappedGenes = new TreeSet<>();
+        if (!parts[geneColumnIdx].trim().isEmpty()) {
+          allMappedGenes.add(parts[geneColumnIdx].trim());
+        }
+        if (parts.length > mappedGenesColumnIdx && !parts[mappedGenesColumnIdx].trim().isEmpty()) {
+          for (String s : parts[mappedGenesColumnIdx].trim().split(",")) {
+            allMappedGenes.add(s.trim());
+          }
+        }
+        String allMappedGenesStr = String.join(",", allMappedGenes);
+
+        String[] ss = precursorProteinGeneMap.get(precursor);
+        if (ss == null) {
+          precursorProteinGeneMap.put(precursor, new String[]{allMappedProteinsStr, allMappedGenesStr});
+        } else if (!ss[0].contentEquals(allMappedProteinsStr) || !ss[1].contentEquals(allMappedGenesStr)) {
+          System.err.println("Inconsistent protein or gene mapping for " + precursor + " in " + psm_path + ": " + ss[0] + " vs " + allMappedProteinsStr + ", " + ss[1] + " vs " + allMappedGenesStr);
+          System.exit(1);
+        }
       }
     }
     reader.close();
 
-    editReport(diann_directory.resolve("report.tsv"), precursorModificationLocalizationTable, 1);
-    editReport(diann_directory.resolve("report.pr_matrix.tsv"), precursorModificationLocalizationTable, 2);
+    editReport(diann_directory.resolve("report.tsv"), precursorModificationLocalizationTable, precursorProteinGeneMap, 1);
+    editReport(diann_directory.resolve("report.pr_matrix.tsv"), precursorModificationLocalizationTable, precursorProteinGeneMap, 2);
   }
 
-  private void editReport(Path p, Table<Precursor, String, LocalizedPeptide> precursorModificationLocalizationTable, int type) throws Exception {
+  private void editReport(Path p, Table<Precursor, String, LocalizedPeptide> precursorModificationLocalizationTable, Map<Precursor, String[]> precursorProteinGeneMap, int type) throws Exception {
     String s = "";
     String firstLineMarker = "";
     if (type == 1) {
@@ -156,7 +203,6 @@ public class Localization {
     }
     Path p2 = p.getParent().resolve(s);
 
-    String[] modificationArray = precursorModificationLocalizationTable.columnKeySet().toArray(new String[0]);
     int strippedSequenceColumnIdx = -1;
     int modifiedSequenceColumnIdx = -1;
     int chargeColumnIdx = -1;
@@ -187,14 +233,20 @@ public class Localization {
         System.arraycopy(parts, 0, columnArray, 0, parts.length);
 
         writer.write(line);
-        for (String modification : modificationArray) {
-          writer.write("\t");
-          writer.write(modification);
-          writer.write("\t");
-          writer.write(modification + " Best Localization");
-          writer.write("\t");
-          writer.write(modification + " Best Scan");
+        writer.write("\tAll Mapped Proteins\tAll Mapped Genes");
+
+        if (!precursorModificationLocalizationTable.isEmpty()) {
+          String[] modificationArray = precursorModificationLocalizationTable.columnKeySet().toArray(new String[0]);
+          for (String modification : modificationArray) {
+            writer.write("\t");
+            writer.write(modification);
+            writer.write("\t");
+            writer.write(modification + " Best Localization");
+            writer.write("\t");
+            writer.write(modification + " Best Scan");
+          }
         }
+
         writer.write("\n");
       } else {
         if (strippedSequenceColumnIdx < 0 || modifiedSequenceColumnIdx < 0 || chargeColumnIdx < 0) {
@@ -208,23 +260,37 @@ public class Localization {
         writer.write(String.join("\t", columnArray));
 
         Precursor precursor = new Precursor(parts[modifiedSequenceColumnIdx], parts[strippedSequenceColumnIdx].length(), Integer.parseInt(parts[chargeColumnIdx]), unimodOboReader.unimodMassMap);
-        Map<String, LocalizedPeptide> tt = precursorModificationLocalizationTable.row(precursor);
-        if (tt.isEmpty()) {
-          for (int i = 0; i < modificationArray.length; ++i) {
-            writer.write("\t\t\t");
-          }
+
+        String[] ss = precursorProteinGeneMap.get(precursor);
+        if (ss == null) {
+          writer.write("\t\t");
         } else {
-          for (String modification : modificationArray) {
-            writer.write("\t");
-            LocalizedPeptide localizedPeptide = tt.get(modification);
-            if (localizedPeptide == null) {
-              writer.write("\t\t");
-            } else {
-              writer.write(localizedPeptide.localizedPeptide);
+          writer.write("\t");
+          writer.write(ss[0]);
+          writer.write("\t");
+          writer.write(ss[1]);
+        }
+
+        if (!precursorModificationLocalizationTable.isEmpty()) {
+          String[] modificationArray = precursorModificationLocalizationTable.columnKeySet().toArray(new String[0]);
+          Map<String, LocalizedPeptide> tt = precursorModificationLocalizationTable.row(precursor);
+          if (tt.isEmpty()) {
+            for (int i = 0; i < modificationArray.length; ++i) {
+              writer.write("\t\t\t");
+            }
+          } else {
+            for (String modification : modificationArray) {
               writer.write("\t");
-              writer.write(String.valueOf(localizedPeptide.getBestLocalization()));
-              writer.write("\t");
-              writer.write(localizedPeptide.scanName);
+              LocalizedPeptide localizedPeptide = tt.get(modification);
+              if (localizedPeptide == null) {
+                writer.write("\t\t");
+              } else {
+                writer.write(localizedPeptide.localizedPeptide);
+                writer.write("\t");
+                writer.write(String.valueOf(localizedPeptide.getBestLocalization()));
+                writer.write("\t");
+                writer.write(localizedPeptide.scanName);
+              }
             }
           }
         }
