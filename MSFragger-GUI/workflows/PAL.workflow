@@ -1,6 +1,5 @@
 # Workflow: PAL
 
-
 crystalc.run-crystalc=false
 database.decoy-tag=rev_
 diann.fragpipe.cmd-opts=
@@ -275,11 +274,12 @@ saintexpress.max-replicates=10
 saintexpress.run-saint-express=false
 saintexpress.virtual-controls=100
 skyline.run-skyline=false
-skyline.skyline=false
+skyline.skyline=true
 skyline.skyline-custom=false
 skyline.skyline-custom-path=
-skyline.skyline-daily=true
+skyline.skyline-daily=false
 skyline.skyline-mode=0
+skyline.skyline-mods-mode=Default
 speclibgen.convert-pepxml=true
 speclibgen.convert-psm=false
 speclibgen.easypqp.extras.max_delta_ppm=15
@@ -340,4 +340,4 @@ workflow.description=Workflow for photoaffinity labeling (PAL) data. Light label
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
 workflow.misc.save-sdrf=true
-workflow.saved-with-ver=21.2-build44
+workflow.saved-with-ver=21.2-build45

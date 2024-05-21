@@ -1,7 +1,5 @@
 # Workflow: glyco-N-TMT
 
-
-
 crystalc.run-crystalc=false
 database.decoy-tag=rev_
 diann.fragpipe.cmd-opts=
@@ -281,6 +279,7 @@ skyline.skyline-custom=false
 skyline.skyline-custom-path=
 skyline.skyline-daily=false
 skyline.skyline-mode=0
+skyline.skyline-mods-mode=Default
 speclibgen.convert-pepxml=false
 speclibgen.convert-psm=true
 speclibgen.easypqp.extras.max_delta_ppm=15
@@ -341,4 +340,4 @@ workflow.description=<p style\="margin-top\: 0">For search and TMT quantitation 
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
 workflow.misc.save-sdrf=true
-workflow.saved-with-ver=21.2-build39
+workflow.saved-with-ver=21.2-build45
