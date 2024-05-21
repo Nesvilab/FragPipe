@@ -943,7 +943,8 @@ public class TabWorkflow extends JPanelWithEnablement {
       log.debug("Figured that '{}' workflow was added", newName.get());
       uiComboWorkflows.setSelectedItem(newName.get());
     } else {
-      log.debug("Cant figure which workflow name was added");
+      log.debug("Cant figure which workflow name was added. Use the previously selected one.");
+      uiComboWorkflows.setSelectedItem(previouslySelected);
     }
   }
 
