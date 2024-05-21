@@ -194,8 +194,7 @@ public class Skyline {
       }
 
       DefaultArtifactVersion v = new DefaultArtifactVersion(skylineVersion);
-      if (v.compareTo(skylineVersionT) > 0) {
-        // parameters added after released 23.1 version
+      if (v.compareTo(new DefaultArtifactVersion("23.1.1.335")) >= 0) {
         writer.write("--pep-max-missed-cleavages=" + pf.getProperty("msfragger.allowed_missed_cleavage_1") + " ");
         writer.write("--pep-min-length=" + pf.getProperty("msfragger.digest_min_length") + " ");
         writer.write("--pep-max-length=" + pf.getProperty("msfragger.digest_max_length") + " ");
