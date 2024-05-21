@@ -156,8 +156,11 @@ public class Skyline {
       Path skylineOutputDir = wd.resolve("skyline-output");
       Files.createDirectories(skylineOutputDir);
 
+      DefaultArtifactVersion v = new DefaultArtifactVersion(skylineVersion);
+      boolean matchUnimod = v.compareTo(new DefaultArtifactVersion("23.1.1.418")) >= 0;
+
       Path modXmlPath = wd.resolve("mod.xml");
-      WriteSkyMods writeSkyMods = new WriteSkyMods(modXmlPath, pf, modsMode);
+      WriteSkyMods writeSkyMods = new WriteSkyMods(modXmlPath, pf, modsMode, matchUnimod);
 
       Path pp = wd.resolve("filelist_skyline.txt");
 
@@ -193,7 +196,6 @@ public class Skyline {
         writer.write("--import-search-file=" + speclibFiles.get(0).toAbsolutePath() + " ");
       }
 
-      DefaultArtifactVersion v = new DefaultArtifactVersion(skylineVersion);
       if (v.compareTo(new DefaultArtifactVersion("23.1.1.335")) >= 0) {
         writer.write("--pep-max-missed-cleavages=" + pf.getProperty("msfragger.allowed_missed_cleavage_1") + " ");
         writer.write("--pep-min-length=" + pf.getProperty("msfragger.digest_min_length") + " ");

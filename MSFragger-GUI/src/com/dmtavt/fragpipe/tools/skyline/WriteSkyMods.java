@@ -73,7 +73,7 @@ public class WriteSkyMods {
     }
   }
 
-  public WriteSkyMods(Path path, PropsFile pf, int modsMode) throws Exception {
+  public WriteSkyMods(Path path, PropsFile pf, int modsMode, boolean matchUnimod) throws Exception {
     List<Mod> mods = new ArrayList<>(4);
 
     String fixModStr = pf.getProperty("msfragger.table.fix-mods");
@@ -95,7 +95,7 @@ public class WriteSkyMods {
         if (m.group(3).equalsIgnoreCase("true")) {
           mass = Float.parseFloat(m.group(1));
           if (Math.abs(mass) > 0.1) {
-            mods.addAll(convertMods(m.group(2), false, mass, mass, new ArrayList<>(0), new ArrayList<>(0)));
+            mods.addAll(convertMods(m.group(2), false, mass, mass, new ArrayList<>(0), new ArrayList<>(0), matchUnimod));
           }
         }
       }
@@ -107,7 +107,7 @@ public class WriteSkyMods {
         if (m.group(3).equalsIgnoreCase("true")) {
           mass = Float.parseFloat(m.group(1));
           if (Math.abs(mass) > 0.1) {
-            mods.addAll(convertMods(m.group(2), true, mass, mass, new ArrayList<>(0), new ArrayList<>(0)));
+            mods.addAll(convertMods(m.group(2), true, mass, mass, new ArrayList<>(0), new ArrayList<>(0), matchUnimod));
           }
         }
       }
@@ -116,10 +116,10 @@ public class WriteSkyMods {
     // Override offsets from MSFragger for glyco searches get correct glycan masses, neutral losses, and elemental compositions
     if (isOglyco) {
       String oglycoList = pf.getProperty("opair.glyco_db");
-      mods.addAll(generateGlycoMods(massOffsetSites, oglycoList, 0, new ElementalComposition("")));
+      mods.addAll(generateGlycoMods(massOffsetSites, oglycoList, 0, new ElementalComposition(""), matchUnimod));
     } else if (isNglyco) {
       String nglycoList = pf.getProperty("ptmshepherd.glycodatabase");
-      mods.addAll(generateGlycoMods(massOffsetSites, nglycoList, (float) 203.07937, new ElementalComposition("C8H13NO5")));   // hardcoded N-glycan remainder
+      mods.addAll(generateGlycoMods(massOffsetSites, nglycoList, (float) 203.07937, new ElementalComposition("C8H13NO5"), matchUnimod));   // hardcoded N-glycan remainder
     } else {
       // non-glyco - use regular method for mass offsets conversion
       if (massOffsetStr != null && !massOffsetStr.isEmpty()) {
@@ -141,7 +141,7 @@ public class WriteSkyMods {
               lossMonoMasses.add(mass);
               lossAvgMasses.add(mass);
             }
-            mods.addAll(convertMods(massOffsetSites, true, mass, mass, lossMonoMasses, lossAvgMasses));
+            mods.addAll(convertMods(massOffsetSites, true, mass, mass, lossMonoMasses, lossAvgMasses, matchUnimod));
           }
         }
       }
@@ -165,7 +165,7 @@ public class WriteSkyMods {
                 lossAvgMasses.add(mass - reminderMass);
               }
             }
-            mods.addAll(convertMods(sites, true, mass, mass, lossMonoMasses, lossAvgMasses));
+            mods.addAll(convertMods(sites, true, mass, mass, lossMonoMasses, lossAvgMasses, matchUnimod));
           }
         }
       }
@@ -217,7 +217,7 @@ public class WriteSkyMods {
     }
   }
 
-  static List<Mod> convertMods(String sites, boolean isVariable, float monoMass, float avgMass, List<Float> lossMonoMasses, List<Float> lossAvgMasses) {
+  static List<Mod> convertMods(String sites, boolean isVariable, float monoMass, float avgMass, List<Float> lossMonoMasses, List<Float> lossAvgMasses, boolean matchUnimod) {
     List<Mod> out = new ArrayList<>(4);
     filterNeutralLosses(lossMonoMasses);
     filterNeutralLosses(lossAvgMasses);
@@ -229,7 +229,7 @@ public class WriteSkyMods {
     ArrayList<String> nSites = new ArrayList<>();
     while (m.find()) {
       if (m.group(1).contentEquals("^")) {
-        out.add(new Mod("n_" + monoMass, "", 'N', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses, "", new ArrayList<>()));
+        out.add(new Mod("n_" + monoMass, "", 'N', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses, "", new ArrayList<>(), matchUnimod));
       } else if (m.group(1).contentEquals("*")) {
         nSites = allAAs;
       } else {
@@ -237,7 +237,7 @@ public class WriteSkyMods {
       }
     }
     if (!nSites.isEmpty()) {
-      out.add(new Mod(String.join("", nSites) + "_" + monoMass, String.join(", ", nSites), 'N', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses, "", new ArrayList<>()));
+      out.add(new Mod(String.join("", nSites) + "_" + monoMass, String.join(", ", nSites), 'N', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses, "", new ArrayList<>(), matchUnimod));
     }
     sites = p1.matcher(sites).replaceAll("");
 
@@ -246,7 +246,7 @@ public class WriteSkyMods {
     ArrayList<String> cSites = new ArrayList<>();
     while (m.find()) {
       if (m.group(1).contentEquals("^")) {
-        out.add(new Mod("c_" + monoMass, "", 'C', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses, "", new ArrayList<>()));
+        out.add(new Mod("c_" + monoMass, "", 'C', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses, "", new ArrayList<>(), matchUnimod));
       } else if (m.group(1).contentEquals("*")) {
         cSites = allAAs;
       } else {
@@ -254,7 +254,7 @@ public class WriteSkyMods {
       }
     }
     if (!cSites.isEmpty()) {
-      out.add(new Mod(String.join("", cSites) + "_" + monoMass, String.join(", ", cSites), 'C', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses, "", new ArrayList<>()));
+      out.add(new Mod(String.join("", cSites) + "_" + monoMass, String.join(", ", cSites), 'C', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses, "", new ArrayList<>(), matchUnimod));
     }
     sites = p2.matcher(sites).replaceAll("");
 
@@ -266,7 +266,7 @@ public class WriteSkyMods {
       resSites = sites.chars().mapToObj(c -> String.valueOf((char) c)).collect(Collectors.toList());
     }
     if (!resSites.isEmpty()) {
-      out.add(new Mod(String.join("", resSites) + "_" + monoMass, String.join(", ", resSites), '\0', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses, "", new ArrayList<>()));
+      out.add(new Mod(String.join("", resSites) + "_" + monoMass, String.join(", ", resSites), '\0', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses, "", new ArrayList<>(), matchUnimod));
     }
     return out;
   }
@@ -291,7 +291,7 @@ public class WriteSkyMods {
     return "";
   }
 
-  private List<Mod> generateGlycoMods(String sites, String glycoList, float remainderMass, ElementalComposition remainderComposition) {
+  private List<Mod> generateGlycoMods(String sites, String glycoList, float remainderMass, ElementalComposition remainderComposition, boolean matchUnimod) {
     ArrayList<Mod> mods = new ArrayList<>();
     sites = cleanupSites(sites);
 
@@ -319,7 +319,7 @@ public class WriteSkyMods {
 
           ArrayList<String> lossElementalComps = new ArrayList<>();
           lossElementalComps.add(elementalComp);
-          mods.add(new Mod(glycan.name, String.join(", ", resSites), '\0', true, (float) glycan.mass, (float) glycan.mass, losses, losses, elementalComp, lossElementalComps));
+          mods.add(new Mod(glycan.name, String.join(", ", resSites), '\0', true, (float) glycan.mass, (float) glycan.mass, losses, losses, elementalComp, lossElementalComps, matchUnimod));
         }
       }
     }
@@ -363,7 +363,7 @@ public class WriteSkyMods {
     public final List<String> lossElementalComposition;
     public UnimodData unimodData = null;
 
-    Mod(String name, String aa, char terminus, boolean isVariable, float monoMass, float avgMass, List<Float> lossMonoMasses, List<Float> lossAvgMasses, String elementalComposition, List<String> lossElementalComposition) {
+    Mod(String name, String aa, char terminus, boolean isVariable, float monoMass, float avgMass, List<Float> lossMonoMasses, List<Float> lossAvgMasses, String elementalComposition, List<String> lossElementalComposition, boolean matchUnimod) {
       this.name = name;
       this.aa = aa;
       this.terminus = terminus;
@@ -375,40 +375,42 @@ public class WriteSkyMods {
       this.elementalComposition = elementalComposition;
       this.lossElementalComposition = lossElementalComposition;
 
-      for (UnimodData m : defaultUnimods) {
-        if (Math.abs(monoMass - m.monoMass) < smallFloat && siteMatch(aa, terminus, m, true)) {
-          unimodData = m;
-          break;
-        }
-      }
-
-      if (unimodData == null) {
-        for (UnimodData m : skylineHardcodedUnimods) {
+      if (matchUnimod) {
+        for (UnimodData m : defaultUnimods) {
           if (Math.abs(monoMass - m.monoMass) < smallFloat && siteMatch(aa, terminus, m, true)) {
             unimodData = m;
             break;
           }
         }
-      }
 
-      if (unimodData == null) {
-        for (float f : massToUnimod.keySet().subSet(monoMass - smallFloat, false, monoMass + smallFloat, false)) {
-          for (UnimodData m : massToUnimod.get(f)) {
-            if (siteMatch(aa, terminus, m, true)) {
-              if (unimodData == null || m.compareTo(unimodData) < 0) {
-                unimodData = m;
+        if (unimodData == null) {
+          for (UnimodData m : skylineHardcodedUnimods) {
+            if (Math.abs(monoMass - m.monoMass) < smallFloat && siteMatch(aa, terminus, m, true)) {
+              unimodData = m;
+              break;
+            }
+          }
+        }
+
+        if (unimodData == null) {
+          for (float f : massToUnimod.keySet().subSet(monoMass - smallFloat, false, monoMass + smallFloat, false)) {
+            for (UnimodData m : massToUnimod.get(f)) {
+              if (siteMatch(aa, terminus, m, true)) {
+                if (unimodData == null || m.compareTo(unimodData) < 0) {
+                  unimodData = m;
+                }
               }
             }
           }
         }
-      }
 
-      if (unimodData == null) {
-        for (float f : massToUnimod.keySet().subSet(monoMass - smallFloat, false, monoMass + smallFloat, false)) {
-          for (UnimodData m : massToUnimod.get(f)) {
-            if (siteMatch(aa, terminus, m, false)) {
-              if (unimodData == null || m.compareTo(unimodData) < 0) {
-                unimodData = m;
+        if (unimodData == null) {
+          for (float f : massToUnimod.keySet().subSet(monoMass - smallFloat, false, monoMass + smallFloat, false)) {
+            for (UnimodData m : massToUnimod.get(f)) {
+              if (siteMatch(aa, terminus, m, false)) {
+                if (unimodData == null || m.compareTo(unimodData) < 0) {
+                  unimodData = m;
+                }
               }
             }
           }

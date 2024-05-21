@@ -31,13 +31,13 @@ public class WriteSkyModsTest {
 
   @Test
   public void testConvertMods() {
-    List<Mod> mods = convertMods("[^", true, 10, 10, new ArrayList<>(0), new ArrayList<>(0));
+    List<Mod> mods = convertMods("[^", true, 10, 10, new ArrayList<>(0), new ArrayList<>(0), true);
     Mod mod = mods.get(0);
     assertEquals("n_10.0", mod.name);
     assertEquals("", mod.aa);
     assertEquals('N', mod.terminus);
 
-    mods = convertMods("n^nEcC", true, 10, 10, new ArrayList<>(0), new ArrayList<>(0));
+    mods = convertMods("n^nEcC", true, 10, 10, new ArrayList<>(0), new ArrayList<>(0), true);
     mod = mods.get(0);
     assertEquals("n_10.0", mod.name);
     assertEquals("", mod.aa);
@@ -51,7 +51,7 @@ public class WriteSkyModsTest {
     assertEquals("C", mod.aa);
     assertEquals('C', mod.terminus);
 
-    mods = convertMods("[RF", true, 10, 10, new ArrayList<>(0), new ArrayList<>(0));
+    mods = convertMods("[RF", true, 10, 10, new ArrayList<>(0), new ArrayList<>(0), true);
     mod = mods.get(0);
     assertEquals("R_10.0", mod.name);
     assertEquals("R", mod.aa);
@@ -61,7 +61,7 @@ public class WriteSkyModsTest {
     assertEquals("F", mod.aa);
     assertEquals('\0', mod.terminus);
 
-    mods = convertMods("KcH]E", true, 10, 10, new ArrayList<>(0), new ArrayList<>(0));
+    mods = convertMods("KcH]E", true, 10, 10, new ArrayList<>(0), new ArrayList<>(0), true);
     mod = mods.get(0);
     assertEquals("HE_10.0", mod.name);
     assertEquals("H, E", mod.aa);
@@ -71,7 +71,7 @@ public class WriteSkyModsTest {
     assertEquals("K", mod.aa);
     assertEquals('\0', mod.terminus);
 
-    mods = convertMods("KcH[E", true, 10, 10, new ArrayList<>(0), new ArrayList<>(0));
+    mods = convertMods("KcH[E", true, 10, 10, new ArrayList<>(0), new ArrayList<>(0), true);
     mod = mods.get(0);
     assertEquals("E_10.0", mod.name);
     assertEquals("E", mod.aa);
@@ -85,25 +85,25 @@ public class WriteSkyModsTest {
     assertEquals("K", mod.aa);
     assertEquals('\0', mod.terminus);
 
-    mods = convertMods("[*", true, 10, 10, new ArrayList<>(0), new ArrayList<>(0));
+    mods = convertMods("[*", true, 10, 10, new ArrayList<>(0), new ArrayList<>(0), true);
     mod = mods.get(0);
     assertEquals("ACDEFGHIKLMNPQRSTVWY_10.0", mod.name);
     assertEquals("A, C, D, E, F, G, H, I, K, L, M, N, P, Q, R, S, T, V, W, Y", mod.aa);
     assertEquals('N', mod.terminus);
 
-    mods = convertMods("R*", true, 10, 10, new ArrayList<>(0), new ArrayList<>(0));
+    mods = convertMods("R*", true, 10, 10, new ArrayList<>(0), new ArrayList<>(0), true);
     mod = mods.get(0);
     assertEquals("ACDEFGHIKLMNPQRSTVWY_10.0", mod.name);
     assertEquals("A, C, D, E, F, G, H, I, K, L, M, N, P, Q, R, S, T, V, W, Y", mod.aa);
     assertEquals('\0', mod.terminus);
 
-    mods = convertMods("all", true, 10, 10, new ArrayList<>(0), new ArrayList<>(0));
+    mods = convertMods("all", true, 10, 10, new ArrayList<>(0), new ArrayList<>(0), true);
     mod = mods.get(0);
     assertEquals("ACDEFGHIKLMNPQRSTVWY_10.0", mod.name);
     assertEquals("A, C, D, E, F, G, H, I, K, L, M, N, P, Q, R, S, T, V, W, Y", mod.aa);
     assertEquals('\0', mod.terminus);
 
-    mods = convertMods("AB-", true, 10, 10, new ArrayList<>(0), new ArrayList<>(0));
+    mods = convertMods("AB-", true, 10, 10, new ArrayList<>(0), new ArrayList<>(0), true);
     mod = mods.get(0);
     assertEquals("AB_10.0", mod.name);
     assertEquals("A, B", mod.aa);
@@ -112,35 +112,35 @@ public class WriteSkyModsTest {
 
   @Test
   public void testUnimod() {
-    Mod mod = new Mod("Oxidation", "M", 'C', true, 15.994915f, 15.9949f, new ArrayList<>(0), new ArrayList<>(0), "", new ArrayList<>(0));
+    Mod mod = new Mod("Oxidation", "M", 'C', true, 15.994915f, 15.9949f, new ArrayList<>(0), new ArrayList<>(0), "", new ArrayList<>(0), true);
     assertEquals(35, mod.unimodData.id);
 
-    mod = new Mod("Oxidation", "M", '\0', true, 15.994915f, 15.994915f, new ArrayList<>(0), new ArrayList<>(0), "", new ArrayList<>(0));
+    mod = new Mod("Oxidation", "M", '\0', true, 15.994915f, 15.994915f, new ArrayList<>(0), new ArrayList<>(0), "", new ArrayList<>(0), true);
     assertEquals("Oxidation (M)", mod.unimodData.name);
 
-    mod = new Mod("Phospho", "S, T, Y", 'C', true, 79.966331f, 79.966331f, Arrays.asList(97.976896f, 11f), Arrays.asList(97.976896f, 11f), "", new ArrayList<>(0));
+    mod = new Mod("Phospho", "S, T, Y", 'C', true, 79.966331f, 79.966331f, Arrays.asList(97.976896f, 11f), Arrays.asList(97.976896f, 11f), "", new ArrayList<>(0), true);
     assertNull(mod.unimodData);
 
-    mod = new Mod("Phospho", "S", 'C', true, 79.966331f, 79.966331f, java.util.List.of(97.976896f), java.util.List.of(97.976896f), "", new ArrayList<>(0));
+    mod = new Mod("Phospho", "S", 'C', true, 79.966331f, 79.966331f, java.util.List.of(97.976896f), java.util.List.of(97.976896f), "", new ArrayList<>(0), true);
     assertEquals(21, mod.unimodData.id);
 
-    mod = new Mod("Phospho", "S, T", 'C', true, 79.966331f, 79.966331f, Arrays.asList(97.976896f, 11f), Arrays.asList(97.976896f, 11f), "", new ArrayList<>(0));
+    mod = new Mod("Phospho", "S, T", 'C', true, 79.966331f, 79.966331f, Arrays.asList(97.976896f, 11f), Arrays.asList(97.976896f, 11f), "", new ArrayList<>(0), true);
     assertEquals(21, mod.unimodData.id);
     assertEquals("Phospho (ST)", mod.unimodData.name);
 
-    mod = new Mod("Oxidation", "W, H", '\0', true, 15.994915f, 15.994915f, new ArrayList<>(0), new ArrayList<>(0), "", new ArrayList<>(0));
+    mod = new Mod("Oxidation", "W, H", '\0', true, 15.994915f, 15.994915f, new ArrayList<>(0), new ArrayList<>(0), "", new ArrayList<>(0), true);
     assertEquals("Oxidation (HW)", mod.unimodData.name);
 
-    mod = new Mod("Water loss", "E", '\0', true, -18.010565f, -18.010565f, new ArrayList<>(0), new ArrayList<>(0), "", new ArrayList<>(0));
+    mod = new Mod("Water loss", "E", '\0', true, -18.010565f, -18.010565f, new ArrayList<>(0), new ArrayList<>(0), "", new ArrayList<>(0), true);
     assertEquals("Water Loss (D, E, S, T)", mod.unimodData.name);
 
-    mod = new Mod("Acetyl", "", 'N', true, 42.010565f, 42.010565f, new ArrayList<>(0), new ArrayList<>(0), "", new ArrayList<>(0));
+    mod = new Mod("Acetyl", "", 'N', true, 42.010565f, 42.010565f, new ArrayList<>(0), new ArrayList<>(0), "", new ArrayList<>(0), true);
     assertEquals("Acetyl (N-term)", mod.unimodData.name);
 
-    mod = new Mod("Gln->pyro-Glu", "Q", 'N', true, -17.026549f, -17.026549f, new ArrayList<>(0), new ArrayList<>(0), "", new ArrayList<>(0));
+    mod = new Mod("Gln->pyro-Glu", "Q", 'N', true, -17.026549f, -17.026549f, new ArrayList<>(0), new ArrayList<>(0), "", new ArrayList<>(0), true);
     assertEquals("Gln->pyro-Glu (N-term Q)", mod.unimodData.name);
 
-    mod = new Mod("Glu->pyro-Glu", "E", 'N', true, -18.010565f, -18.010565f, new ArrayList<>(0), new ArrayList<>(0), "", new ArrayList<>(0));
+    mod = new Mod("Glu->pyro-Glu", "E", 'N', true, -18.010565f, -18.010565f, new ArrayList<>(0), new ArrayList<>(0), "", new ArrayList<>(0), true);
     assertEquals("Glu->pyro-Glu (N-term E)", mod.unimodData.name);
   }
 }
