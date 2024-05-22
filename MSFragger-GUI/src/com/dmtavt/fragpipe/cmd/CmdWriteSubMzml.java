@@ -99,7 +99,7 @@ public class CmdWriteSubMzml extends CmdBase {
     Path extLibsThermo = CmdMsfragger.searchExtLibsThermo(Collections.singletonList(binMSFragger.getParent()));
 
     int idx = 0;
-    int batchNum = Math.min(32, nThreads);
+    int batchNum = Math.min(2, nThreads);
     for (Map.Entry<String, LcmsFileGroup> e : lcmsFileGroups.entrySet()) {
       for (InputLcmsFile inputLcmsFile : e.getValue().lcmsFiles) {
         List<String> cmd = new ArrayList<>();
