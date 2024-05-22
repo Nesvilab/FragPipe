@@ -114,12 +114,13 @@ public class WriteSkyMods {
     }
 
     // Override offsets from MSFragger for glyco searches get correct glycan masses, neutral losses, and elemental compositions
+    // also override unimod matching because it doesn't have the glyco neutral losses
     if (isOglyco) {
       String oglycoList = pf.getProperty("opair.glyco_db");
-      mods.addAll(generateGlycoMods(massOffsetSites, oglycoList, 0, new ElementalComposition(""), matchUnimod));
+      mods.addAll(generateGlycoMods(massOffsetSites, oglycoList, 0, new ElementalComposition(""), false));
     } else if (isNglyco) {
       String nglycoList = pf.getProperty("ptmshepherd.glycodatabase");
-      mods.addAll(generateGlycoMods(massOffsetSites, nglycoList, (float) 203.07937, new ElementalComposition("C8H13NO5"), matchUnimod));   // hardcoded N-glycan remainder
+      mods.addAll(generateGlycoMods(massOffsetSites, nglycoList, (float) 203.07937, new ElementalComposition("C8H13N1O5"), false));   // hardcoded N-glycan remainder
     } else {
       // non-glyco - use regular method for mass offsets conversion
       if (massOffsetStr != null && !massOffsetStr.isEmpty()) {
@@ -309,17 +310,20 @@ public class WriteSkyMods {
       for (Glycan glycan : parsedGlycans) {
         if (!resSites.isEmpty()) {
           ArrayList<Float> losses = new ArrayList<>();
-          losses.add((float) glycan.mass - remainderMass);
-
-          ElementalComposition totalElementalComp = glycan.getElementalComposition();
-          if (!remainderComposition.composition.isEmpty()) {
-            totalElementalComp.addComposition(remainderComposition, true, 1);
+          float neutralLossMass = (float) glycan.mass - remainderMass;
+          if (neutralLossMass < 5000 && neutralLossMass != 0) {    // Skyline does not accept neutral losses above 5000 Da
+            losses.add(neutralLossMass);
           }
-          String elementalComp = totalElementalComp.toString();
 
           ArrayList<String> lossElementalComps = new ArrayList<>();
-          lossElementalComps.add(elementalComp);
-          mods.add(new Mod(glycan.name, String.join(", ", resSites), '\0', true, (float) glycan.mass, (float) glycan.mass, losses, losses, elementalComp, lossElementalComps, matchUnimod));
+          if (!losses.isEmpty()) {
+            ElementalComposition lossElementalComp = glycan.getElementalComposition();
+            if (!remainderComposition.composition.isEmpty()) {
+              lossElementalComp.addComposition(remainderComposition, true, 1);
+            }
+            lossElementalComps.add(lossElementalComp.toString());
+          }
+          mods.add(new Mod(glycan.name, String.join(", ", resSites), '\0', true, (float) glycan.mass, (float) glycan.mass, losses, losses, glycan.getElementalComposition().toString(), lossElementalComps, matchUnimod));
         }
       }
     }
