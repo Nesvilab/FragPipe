@@ -852,10 +852,6 @@ public class TabConfig extends JPanelWithEnablement {
         throw new ValidationException("File does not exist: \"" + path + "\"");
       }
 
-      if (path.toAbsolutePath().toString().contains(" ")) {
-        throw new ValidationException("There are spaces in the path: \"" + path.toAbsolutePath() + "\"");
-      }
-
       // if paths.get didn't throw, we can try the binary, it might be on PATH
       pi = PyInfo.fromCommand(m.command);
       if (pi.getFullVersion().compareTo(pythonMinVersion) < 0) {
