@@ -1,5 +1,7 @@
 # Workflow: Labile_phospho
 
+
+
 crystalc.run-crystalc=false
 database.decoy-tag=rev_
 diann.fragpipe.cmd-opts=
@@ -91,8 +93,6 @@ msbooster.predict-spectra=true
 msbooster.rt-model=DIA-NN
 msbooster.run-msbooster=false
 msbooster.spectra-model=DIA-NN
-msbooster.table.rt-models=DIA-NN,true;DeepLC HeLa HF,true;AlphaPept RT Generic,true;Prosit 2019 iRT,true;Prosit 2020 iRT TMT,true
-msbooster.table.spectra-models=DIA-NN,true;MS2PIP 2021 HCD,true;AlphaPept MS2 Generic,true;Prosit 2019 Intensity,true;Prosit 2023 Intensity timsTOF,true;Prosit 2020 Intensity CID,true;Prosit 2020 Intensity TMT,true;Prosit 2020 Intensity HCD,true
 msbooster.use-correlated-features=false
 msfragger.Y_type_masses=
 msfragger.activation_types=all
@@ -103,7 +103,7 @@ msfragger.calibrate_mass=2
 msfragger.check_spectral_files=true
 msfragger.clip_nTerm_M=true
 msfragger.deisotope=1
-msfragger.delta_mass_exclude_ranges=(-1.5,3.5)
+msfragger.delta_mass_exclude_ranges=(-0.00001,0.00001)
 msfragger.deneutralloss=1
 msfragger.diagnostic_fragments=
 msfragger.diagnostic_intensity_filter=0
@@ -284,6 +284,7 @@ speclibgen.convert-pepxml=true
 speclibgen.convert-psm=false
 speclibgen.easypqp.extras.max_delta_ppm=15
 speclibgen.easypqp.extras.max_delta_unimod=0.02
+speclibgen.easypqp.extras.max_glycan_qval=1
 speclibgen.easypqp.extras.rt_lowess_fraction=0
 speclibgen.easypqp.fragment.a=false
 speclibgen.easypqp.fragment.b=true
@@ -340,4 +341,4 @@ workflow.description=<p style\="margin-top\: 0">Searches for phosphorylation wit
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
 workflow.misc.save-sdrf=true
-workflow.saved-with-ver=21.2-build45
+workflow.saved-with-ver=21.2-build48
