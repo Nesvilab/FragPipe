@@ -160,14 +160,19 @@ public class MSBoosterPanel extends JPanelBase {
         .tooltip("If using the model other than 'DIA-NN', MSBooster will query the Koina server to get the prediction.")
         .create();
 
+    JPanel uiRtTable = createRtModelsPanel();
+    JPanel uiSpectraTable = createSpectraModelsPanel();
+
     pContent = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
     mu.add(pContent, uiCheckPredictRT);
     mu.add(pContent, feRTModel.label()).split(2);
-    mu.add(pContent, feRTModel.comp).wrap();
+    mu.add(pContent, feRTModel.comp);
+    mu.add(pContent, uiCheckFindBestRtModel).wrap();
 
     mu.add(pContent, uiCheckPredictSpectra);
     mu.add(pContent, feSpectraModel.label()).split(2);
-    mu.add(pContent, feSpectraModel.comp).wrap();
+    mu.add(pContent, feSpectraModel.comp);
+    mu.add(pContent, uiCheckFindBestSpectraModel).wrap();
 
     mu.add(pContent, uiUseCorrelatedFeatures).wrap();
 
@@ -176,14 +181,9 @@ public class MSBoosterPanel extends JPanelBase {
     mu.add(pp, feKoinaUrl.comp).growX().wrap();
     mu.add(pp, uiLabelKoinaUrl).wrap();
 
-    JPanel uiRtTable = createRtModelsPanel();
-    JPanel uiSpectraTable = createSpectraModelsPanel();
-
+    mu.add(pContent, pp).split().growX().spanX().wrap();
+    mu.add(pTop, pContent).growX().wrap();
     mu.add(this, pTop).growX().wrap();
-    mu.add(this, pContent).growX().wrap();
-    mu.add(this, pp).growX().wrap();
-    mu.add(this, uiRtTable).split(2);
-    mu.add(this, uiSpectraTable).wrap();
   }
 
   private JPanel createPanelTop() {
