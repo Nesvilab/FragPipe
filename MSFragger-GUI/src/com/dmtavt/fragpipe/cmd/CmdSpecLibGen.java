@@ -181,10 +181,10 @@ public class CmdSpecLibGen extends CmdBase {
               max_delta_ppm,
               fragment_types.replace("'", "\\'"),
               speclibPanel.hasNeutralLoss() ? "--enable_unspecific_losses " : "",
-              speclibPanel.getEasyPQPignoreUnannotatedOption() ? "--ignore_unannotated " : "",
+              speclibPanel.isConvertPSM() && speclibPanel.getEasyPQPignoreUnannotatedOption() ? "--ignore_unannotated " : "",
               speclibPanel.isConvertPSM() ? "--decoy_prefix " + decoyTag + " ": "",
-              speclibPanel.getEasypqpGlycoOption().isEmpty() ? "" : "--labile_mods " + speclibPanel.getEasypqpGlycoOption() + " ",
-              String.format("--max_glycan_q %s ", speclibPanel.getEasypqpMaxGlycanQ())
+              speclibPanel.isConvertPSM() && !speclibPanel.getEasypqpGlycoOption().isEmpty() ? "--labile_mods " + speclibPanel.getEasypqpGlycoOption() + " " : "",
+              speclibPanel.isConvertPSM() ? String.format("--max_glycan_q %s ", speclibPanel.getEasypqpMaxGlycanQ()) : ""
       )));   // EasyPQP convert extra args
 
       cmd.add(OsUtils.asSingleArgument(String.format("--rt_lowess_fraction %s", rt_lowess_fraction))); // EasyPQP library args
