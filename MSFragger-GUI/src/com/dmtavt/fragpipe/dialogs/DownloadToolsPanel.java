@@ -42,7 +42,6 @@ public class DownloadToolsPanel extends JPanel {
   private FormEntry feName;
   private FormEntry feEmail;
   private FormEntry feInstitution;
-  private JCheckBox license0;
   private JCheckBox license2;
   private JCheckBox license3;
   private JCheckBox license1;
@@ -95,19 +94,13 @@ public class DownloadToolsPanel extends JPanel {
     FormEntry feDownloadIonQuant = mu.feb(uiCheckDownloadIonQuant).label("Download IonQuant").create();
     FormEntry feDownloadDiaTracer = mu.feb(uiCheckDownloadDiaTracer).label("Download diaTracer").create();
 
-    JEditorPane t1 = SwingUtils.createClickableHtml("I understand that the academic license provides with a non-exclusive,<br>"
-        + "non-transferable right to use MSFragger, IonQuant, and diaTracer solely<br>"
-        + "for academic research, non-commercial or educational purposes within the<br>"
-        + "licensee's department. I acknowledge that commercial use of any kind<br>"
-        + "under the terms of the academic licenses is strictly prohibited.");
+    JEditorPane t1 = SwingUtils.createClickableHtml("I have read the academic licenses. I understand that the licenses provide<br>"
+        + "with a non-exclusive, non-transferable right to use the tools solely for<br>"
+        + "academic research, non-commercial or educational purposes within the<br>"
+        + "licensee’s department. If I am a non-academic user, I will contact the<br>"
+        + "University of Michigan Office of Technology Transfer (Drew Bennett,<br>"
+        + "andbenne@umich.edu) to obtain a commercial license to use the tools.");
     license1 = new JCheckBox();
-
-    JEditorPane t5 = SwingUtils.createClickableHtml("I understand that use by any commercial entity (beyond the 60-day<br>"
-        + "evaluation period) requires a separately executed, paid license from<br>"
-        + "the University of Michigan Office of Technology Transfer (Drew Bennett,<br>"
-        + "andbenne@umich.edu). For questions, you may also contact Prof. Alexey<br>"
-        + "Nesvizhskii (nesvi@med.umich.edu).");
-    license0 = new JCheckBox();
 
     JEditorPane t2 = SwingUtils.createClickableHtml("I agree to the terms of <a href=\"https://msfragger-upgrader.nesvilab.org/upgrader/RawFileRdr_License_Agreement_RevA.pdf\" target=\"blank_\">Thermo (c) Raw File Reader License Agreement</a>.");
     license2 = new JCheckBox();
@@ -140,9 +133,6 @@ public class DownloadToolsPanel extends JPanel {
 
     mu.add(panelTextboxes, license1, mu.ccR());
     mu.add(panelTextboxes, t1).spanX().wrap();
-
-    mu.add(panelTextboxes, license0, mu.ccR());
-    mu.add(panelTextboxes, t5).spanX().wrap();
 
     mu.add(panelTextboxes, license2, mu.ccR());
     mu.add(panelTextboxes, t2).spanX().wrap();
@@ -184,10 +174,10 @@ public class DownloadToolsPanel extends JPanel {
   }
 
   public boolean licensesChecked() {
-    if (license0 == null || license1 == null || license2 == null || license3 == null) {
+    if (license1 == null || license2 == null || license3 == null) {
       return false;
     } else {
-      return license0.isSelected() && license1.isSelected() && license2.isSelected() && license3.isSelected();
+      return license1.isSelected() && license2.isSelected() && license3.isSelected();
     }
   }
 
