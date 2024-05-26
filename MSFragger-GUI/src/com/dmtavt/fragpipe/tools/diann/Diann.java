@@ -66,12 +66,12 @@ public class Diann {
     } else if (isUnix()) {
       diannPath = FragpipeLocations.checkToolsMissing(Seq.of(DIANN_LINUX));
     } else {
-      System.err.println("DIA-NN only works in Windows and Linux.");
+      SwingUtils.showErrorDialog(null, "DIA-NN only works in Windows and Linux.", "DIA-NN not supported in this OS");
       fallbackDiannPath = null;
     }
 
     if (diannPath == null || diannPath.isEmpty()) {
-      System.err.println("Cannot find DIA-NN executable file.");
+      SwingUtils.showErrorDialog(null, "Cannot find DIA-NN executable file.", "DIA-NN not found");
       fallbackDiannPath = null;
     }
 

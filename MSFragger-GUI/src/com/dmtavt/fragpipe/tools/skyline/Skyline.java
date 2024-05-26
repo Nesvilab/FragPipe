@@ -18,6 +18,7 @@
 package com.dmtavt.fragpipe.tools.skyline;
 
 import static com.dmtavt.fragpipe.tabs.TabWorkflow.workflowExt;
+import static com.github.chhh.utils.OsUtils.isWindows;
 
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.PropsFile;
@@ -29,6 +30,7 @@ import com.dmtavt.fragpipe.process.ProcessResult;
 import com.dmtavt.fragpipe.tools.skyline.WriteSkyMods.Mod;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.ProcessUtils;
+import com.github.chhh.utils.SwingUtils;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
@@ -392,6 +394,11 @@ public class Skyline {
   }
 
   public static Version validate(String path) throws ValidationException, UnexpectedException {
+    if (!isWindows()) {
+      SwingUtils.showErrorDialog(null, "Skyline only supports Windows.", "Skyline not supported in this OS");
+      return null;
+    }
+
     String binPath = PathUtils.testBinaryPath(path);
     if (binPath == null) {
       throw new ValidationException("Does not appear to be an executable file: \"" + path + "\"");

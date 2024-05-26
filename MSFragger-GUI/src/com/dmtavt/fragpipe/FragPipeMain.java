@@ -20,6 +20,7 @@ package com.dmtavt.fragpipe;
 import static com.github.chhh.utils.OsUtils.isUnix;
 import static com.github.chhh.utils.OsUtils.isWindows;
 
+import com.github.chhh.utils.SwingUtils;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -74,9 +75,10 @@ public class FragPipeMain {
     } else if (isUnix()) {
       s = "philosopher-v" + PHILOSOPHER_VERSION;
     } else {
-      throw new RuntimeException("Philosopher only supports Windows and Unix systems");
+      SwingUtils.showErrorDialog(null, "Philosopher only supports Windows and Unix systems", "Philosopher not supported in this OS");
+      Fragpipe.philosopherBinPath = null;
+      return;
     }
-
 
     final Path p = FragpipeLocations.get().getDirTools().resolve("Philosopher").resolve(s).normalize();
     if (Files.exists(p) && Files.isExecutable(p)) {

@@ -17,6 +17,8 @@
 
 package com.dmtavt.fragpipe.tools.skyline;
 
+import static com.github.chhh.utils.OsUtils.isWindows;
+
 import com.dmtavt.fragpipe.messages.MessageUiRevalidate;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FileChooserUtils;
@@ -237,7 +239,9 @@ public class SkylinePanel extends JPanelBase {
   }
 
   public String getSkylinePath() {
-    if (uiRadioSkyline.isEnabled() && uiRadioSkyline.isSelected()) {
+    if (!isWindows()) {
+      return null;
+    } else if (uiRadioSkyline.isEnabled() && uiRadioSkyline.isSelected()) {
       return Skyline.getSkylineRunnerPath();
     } else if (uiRadioSkylineDaily.isEnabled() && uiRadioSkylineDaily.isSelected()) {
       return Skyline.getSkylineDailyRunnerPath();
