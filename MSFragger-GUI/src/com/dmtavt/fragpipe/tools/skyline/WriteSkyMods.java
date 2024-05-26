@@ -31,6 +31,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -173,7 +175,8 @@ public class WriteSkyMods {
     }
 
     for (Mod mod : mods) {
-      if (mod.unimodData == null) {
+      // fixme: if some amino acids are in UniMod, but not all, the mod will be added to unimodMods but the amino acids not in the UniMod will not be added to nonUnimodMods, which will show in Skyline,
+      if (mod.unimodDatas.isEmpty()) {
         nonUnimodMods.add(mod);
       } else {
         unimodMods.add(mod);
@@ -191,7 +194,7 @@ public class WriteSkyMods {
 
       for (Mod mod : nonUnimodMods) {
         bw.write("          <static_modification name=\"" + mod.name +
-            (mod.aa.isEmpty() ? "" : "\" aminoacid=\"" + mod.aa) +
+            (mod.aas.isEmpty() ? "" : "\" aminoacid=\"" + mod.aas) +
             (mod.terminus == '\0' ? "" : "\" terminus=\"" + mod.terminus) +
             "\" variable=\"" + mod.isVariable +
             // Skyline does not allow masses in a mod if the elemental composition is specified
@@ -356,7 +359,7 @@ public class WriteSkyMods {
   static class Mod {
 
     public final String name;
-    public final String aa;
+    public final String aas;
     public final char terminus;
     public final boolean isVariable;
     public final float monoMass;
@@ -365,11 +368,11 @@ public class WriteSkyMods {
     public final List<Float> lossAvgMasses;
     public final String elementalComposition;
     public final List<String> lossElementalComposition;
-    public UnimodData unimodData = null;
+    public Set<UnimodData> unimodDatas = new TreeSet<>();
 
-    Mod(String name, String aa, char terminus, boolean isVariable, float monoMass, float avgMass, List<Float> lossMonoMasses, List<Float> lossAvgMasses, String elementalComposition, List<String> lossElementalComposition, boolean matchUnimod) {
+    Mod(String name, String aas, char terminus, boolean isVariable, float monoMass, float avgMass, List<Float> lossMonoMasses, List<Float> lossAvgMasses, String elementalComposition, List<String> lossElementalComposition, boolean matchUnimod) {
       this.name = name;
-      this.aa = aa;
+      this.aas = aas;
       this.terminus = terminus;
       this.isVariable = isVariable;
       this.monoMass = monoMass;
@@ -380,68 +383,71 @@ public class WriteSkyMods {
       this.lossElementalComposition = lossElementalComposition;
 
       if (matchUnimod) {
-        for (UnimodData m : defaultUnimods) {
-          if (Math.abs(monoMass - m.monoMass) < smallFloat && siteMatch(aa, terminus, m, true)) {
-            unimodData = m;
-            break;
-          }
-        }
-
-        if (unimodData == null) {
-          for (UnimodData m : skylineHardcodedUnimods) {
+        for (String aa : aas.split(",")) {
+          aa = aa.trim();
+          UnimodData unimodData = null;
+          for (UnimodData m : defaultUnimods) {
             if (Math.abs(monoMass - m.monoMass) < smallFloat && siteMatch(aa, terminus, m, true)) {
               unimodData = m;
               break;
             }
           }
-        }
 
-        if (unimodData == null) {
-          for (float f : massToUnimod.keySet().subSet(monoMass - smallFloat, false, monoMass + smallFloat, false)) {
-            for (UnimodData m : massToUnimod.get(f)) {
-              if (siteMatch(aa, terminus, m, true)) {
-                if (unimodData == null || m.compareTo(unimodData) < 0) {
-                  unimodData = m;
+          if (unimodData == null) {
+            for (UnimodData m : skylineHardcodedUnimods) {
+              if (Math.abs(monoMass - m.monoMass) < smallFloat && siteMatch(aa, terminus, m, true)) {
+                unimodData = m;
+                break;
+              }
+            }
+          }
+
+          if (unimodData == null) {
+            for (float f : massToUnimod.keySet().subSet(monoMass - smallFloat, false, monoMass + smallFloat, false)) {
+              for (UnimodData m : massToUnimod.get(f)) {
+                if (siteMatch(aa, terminus, m, true)) {
+                  if (unimodData == null || m.compareTo(unimodData) < 0) {
+                    unimodData = m;
+                  }
                 }
               }
             }
           }
-        }
 
-        if (unimodData == null) {
-          for (float f : massToUnimod.keySet().subSet(monoMass - smallFloat, false, monoMass + smallFloat, false)) {
-            for (UnimodData m : massToUnimod.get(f)) {
-              if (siteMatch(aa, terminus, m, false)) {
-                if (unimodData == null || m.compareTo(unimodData) < 0) {
-                  unimodData = m;
+          if (unimodData == null) {
+            for (float f : massToUnimod.keySet().subSet(monoMass - smallFloat, false, monoMass + smallFloat, false)) {
+              for (UnimodData m : massToUnimod.get(f)) {
+                if (siteMatch(aa, terminus, m, false)) {
+                  if (unimodData == null || m.compareTo(unimodData) < 0) {
+                    unimodData = m;
+                  }
                 }
               }
             }
+          }
+
+          if (unimodData != null) {
+            unimodDatas.add(unimodData);
           }
         }
       }
     }
 
-    private boolean siteMatch(String aas, char terminus, UnimodData unimodData, boolean matchTerminus) {
-      if (aas.trim().isEmpty() && unimodData.aas.isEmpty()) {
+    private boolean siteMatch(String aa, char terminus, UnimodData unimodData, boolean matchTerminus) {
+      if (aa.isEmpty() && unimodData.aas.isEmpty()) {
         return terminus == unimodData.terminus;
-      } else if ((aa.trim().isEmpty() && !unimodData.aas.isEmpty()) || (!aa.trim().isEmpty() && unimodData.aas.isEmpty())) {
+      } else if (this.aas.trim().isEmpty() || unimodData.aas.isEmpty()) {
         return false;
       } else {
         if (matchTerminus && terminus != unimodData.terminus) {
           return false;
         }
-        for (String aa : aas.split(",")) {
-          if (!unimodData.aas.contains(aa.trim().charAt(0))) {
-            return false;
-          }
-        }
-        return true;
+        return unimodData.aas.contains(aa.charAt(0));
       }
     }
 
     public String toString() {
-      return name + " " + aa + " " + terminus + " " + isVariable + " " + monoMass + " " + avgMass + " " + lossMonoMasses + " " + lossAvgMasses + " " + elementalComposition;
+      return name + " " + aas + " " + terminus + " " + isVariable + " " + monoMass + " " + avgMass + " " + lossMonoMasses + " " + lossAvgMasses + " " + elementalComposition;
     }
   }
 }

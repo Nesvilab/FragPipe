@@ -168,7 +168,9 @@ public class Skyline {
 
       if (!writeSkyMods.unimodMods.isEmpty()) {
         for (Mod mod : writeSkyMods.unimodMods) {
-          writer.write("--pep-add-mod=\"" + mod.unimodData.name + "\" ");
+          for (UnimodData unimodData : mod.unimodDatas) {
+            writer.write("--pep-add-mod=\"" + unimodData.name + "\" ");
+          }
         }
       }
 
