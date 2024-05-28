@@ -1343,7 +1343,6 @@ public class FragpipeRun {
             sharedPepxmlFilesFromMsfragger,
             MSBoosterPanel.predictRt(),
             MSBoosterPanel.predictSpectra(),
-            MSBoosterPanel.useCorrelatedFeatures(),
             tabWorkflow.hasDataType("DDA"),
             tabWorkflow.hasDataType("DIA"),
             tabWorkflow.hasDataType("GPF-DIA"),

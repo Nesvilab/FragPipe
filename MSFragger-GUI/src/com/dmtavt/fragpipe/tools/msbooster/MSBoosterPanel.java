@@ -60,7 +60,6 @@ public class MSBoosterPanel extends JPanelBase {
   private UiCheck checkRun;
   private UiCheck uiCheckPredictRT;
   private UiCheck uiCheckPredictSpectra;
-  private UiCheck uiUseCorrelatedFeatures;
   private UiCheck uiCheckFindBestRtModel;
   private UiCheck uiCheckFindBestSpectraModel;
   private UiCombo uiComboRTModel;
@@ -121,9 +120,6 @@ public class MSBoosterPanel extends JPanelBase {
     uiCheckPredictSpectra = new UiCheck("Predict spectra", null, true);
     uiCheckPredictSpectra.setName("predict-spectra");
 
-    uiUseCorrelatedFeatures = new UiCheck("Use correlated features", null, false);
-    uiUseCorrelatedFeatures.setName("use-correlated-features");
-
     uiTextKoinaUrl = new UiText("", "put your Koina server URL");
     uiTextKoinaUrl.setColumns(20);
     FormEntry feKoinaUrl = mu.feb("koina-url", uiTextKoinaUrl)
@@ -173,8 +169,6 @@ public class MSBoosterPanel extends JPanelBase {
     mu.add(pContent, feSpectraModel.label()).split(2);
     mu.add(pContent, feSpectraModel.comp);
     mu.add(pContent, uiCheckFindBestSpectraModel).wrap();
-
-    mu.add(pContent, uiUseCorrelatedFeatures).wrap();
 
     pp = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
     mu.add(pp, feKoinaUrl.label()).split(2);
@@ -314,10 +308,6 @@ public class MSBoosterPanel extends JPanelBase {
       }
     }
     return String.join(",", t);
-  }
-
-  public boolean useCorrelatedFeatures() {
-    return uiUseCorrelatedFeatures.isSelected();
   }
 
   @Override

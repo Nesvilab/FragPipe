@@ -78,7 +78,6 @@ public class CmdMSBooster extends CmdBase {
       Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml,
       boolean predictRT,
       boolean predictSpectra,
-      boolean useCorrelatedFeatures,
       boolean hasDda,
       boolean hasDia,
       boolean hasGpfDia,
@@ -179,7 +178,7 @@ public class CmdMSBooster extends CmdBase {
           }
         }
         bufferedWriter.write(String.join(" ", pinFiles) + "\n");
-        bufferedWriter.write("useMultipleCorrelatedFeatures = " + useCorrelatedFeatures);
+        bufferedWriter.write("useMultipleCorrelatedFeatures = false");
         bufferedWriter.close();
       } catch (IOException ex) {
         ex.printStackTrace();

@@ -92,7 +92,6 @@ public class SpeclibPanel extends JPanelBase {
   private ButtonGroup convertButtonGroup;
   private JRadioButton psmConvertButton;
   private JRadioButton pepxmlConvertButton;
-  private JCheckBox checkIgnoreUnannotated;
   private JPanel panelEasypqp;
   public static final String EASYPQP_TIMSTOF = "timsTOF";
   public static final String EASYPQP_EXTRAS_PREFIX = "easypqp.extras.";
