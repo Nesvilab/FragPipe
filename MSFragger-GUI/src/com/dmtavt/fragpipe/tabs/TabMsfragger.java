@@ -178,7 +178,7 @@ public class TabMsfragger extends JPanelBase {
   private static final Set<String> PROPS_MISC_NAMES;
   private static final Map<String, Function<String, String>> CONVERT_TO_FILE;
   private static final Map<String, Function<String, String>> CONVERT_TO_GUI;
-  private static final String[] CALIBRATE_LABELS = {"None", "Mass calibration", "Mass calibration, parameter optimization", "Mass calibration, mass tol optimization"};
+  private static final String[] CALIBRATE_LABELS = {"None", "Mass calibration", "Mass calibration, parameter optimization"};
   private static final String[] MASS_DIFF_TO_VAR_MOD = {"No", "Yes, keep delta mass", "Yes, remove delta mass"};
   private static final String[] GROUP_VARIABLE = {"None", "Number of enzymatic termini", "Protein evidence from FASTA file"};
   private static final String[] DEISOTOPE = {"No", "Yes", "Yes, use charge 1 and 2 for undeisotoped peaks"};
@@ -271,8 +271,6 @@ public class TabMsfragger extends JPanelBase {
         return "1";
       } else if (s.contentEquals(CALIBRATE_LABELS[2])) {
         return "2";
-      } else if (s.contentEquals(CALIBRATE_LABELS[3])) {
-        return "4";
       } else {
         return "0";
       }
@@ -336,8 +334,6 @@ public class TabMsfragger extends JPanelBase {
         return CALIBRATE_LABELS[1];
       } else if (s.contentEquals("2")) {
         return CALIBRATE_LABELS[2];
-      } else if (s.contentEquals("4")) {
-        return CALIBRATE_LABELS[3];
       } else {
         return CALIBRATE_LABELS[0];
       }
@@ -1916,8 +1912,6 @@ public class TabMsfragger extends JPanelBase {
       return 1;
     } else if (uiComboMassCalibrate.getSelectedIndex() == 2) {
       return 2;
-    } else if (uiComboMassCalibrate.getSelectedIndex() == 3) {
-      return 4;
     } else {
       return 0;
     }
