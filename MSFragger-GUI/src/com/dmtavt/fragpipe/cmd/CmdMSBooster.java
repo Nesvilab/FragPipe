@@ -114,7 +114,7 @@ public class CmdMSBooster extends CmdBase {
     }
 
     if (koinaURL.isEmpty() && (findBestRtModel || findBestSpectraModel)) {
-      SwingUtils.showErrorDialog(comp, "Koina URL is required for <b>Find best RT/spectra model</b>.\nPlease go to <b>Validation</b> tab and adjust the settings.", NAME + " error");
+      SwingUtils.showErrorDialog(comp, "Koina URL is required for <b>Find best RT/spectral model</b>.\nPlease go to <b>Validation</b> tab and adjust the settings.", NAME + " error");
       return false;
     }
 

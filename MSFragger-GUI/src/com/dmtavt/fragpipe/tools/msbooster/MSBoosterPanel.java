@@ -204,7 +204,7 @@ public class MSBoosterPanel extends JPanelBase {
   }
 
   private JPanel createRtModelsPanel() {
-    uiCheckFindBestRtModel = new UiCheck("Find best RT model (require Koina server)", null, false);
+    uiCheckFindBestRtModel = new UiCheck("Find best RT model (requires Koina server)", null, false);
     uiCheckFindBestRtModel.setName("find-best-rt-model");
 
     JPanel uiTableRtModels = mu.newPanel(null, mu.lcNoInsetsTopBottom());
@@ -231,7 +231,7 @@ public class MSBoosterPanel extends JPanelBase {
   }
 
   private JPanel createSpectraModelsPanel() {
-    uiCheckFindBestSpectraModel = new UiCheck("Find best spectra model (require Koina server)", null, false);
+    uiCheckFindBestSpectraModel = new UiCheck("Find best spectral model (requires Koina server)", null, false);
     uiCheckFindBestSpectraModel.setName("find-best-spectra-model");
 
     JPanel uiTableRtModels = mu.newPanel(null, mu.lcNoInsetsTopBottom());
