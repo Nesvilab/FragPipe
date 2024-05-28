@@ -845,7 +845,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     mu.add(p, ep).spanX().wrap();
 
     final List<Path> defaultWorkflows = new ArrayList<>();
-    JarUtils.walkResources("/workflows", defaultWorkflows::add);
+    JarUtils.walkResources("/resources/workflows", defaultWorkflows::add);
     log.debug("Found default workflows in jar: {}", defaultWorkflows);
 
     while (true) {
