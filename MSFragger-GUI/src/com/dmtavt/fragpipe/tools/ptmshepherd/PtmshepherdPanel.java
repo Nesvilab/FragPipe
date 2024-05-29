@@ -404,13 +404,13 @@ public class PtmshepherdPanel extends JPanelBase {
   }
 
   private JPanel createPanelIterativeLocalization() {
-    JPanel p = mu.newPanel("Iterative Localization",  mu.lcFillXNoInsetsTopBottom());
+    JPanel p = mu.newPanel("Iterative Localization of PSMs (experimental feature)",  mu.lcFillXNoInsetsTopBottom());
     pIterativeLocalizationContent = mu.newPanel(null, true);
 
     // enabling checkbox
-    uiCheckIterativeLocalization = UiUtils.createUiCheck("Iterative localization", false);
+    uiCheckIterativeLocalization = UiUtils.createUiCheck("Iterative localization of PSMs (experimental feature)", false);
     uiCheckIterativeLocalization.setName(PROP_iterloc_mode);
-    uiCheckIterativeLocalization.setToolTipText("Perform PSM-level iterative localization");
+    uiCheckIterativeLocalization.setToolTipText("Perform PSM-level iterative localization (experimental feature)");
 
     // main Params
     FormEntry feIterLocMaxEpoch = new FormEntry(PROP_iterloc_maxEpoch, "Max epochs",
@@ -427,6 +427,7 @@ public class PtmshepherdPanel extends JPanelBase {
 
     return p;
   }
+
   private JPanel createPanelDiagnosticMining() {
     JPanel p = mu.newPanel("Diagnostic Feature Discovery", mu.lcFillXNoInsetsTopBottom());
     pDiagnosticMiningContent = mu.newPanel(null, true);
@@ -710,7 +711,7 @@ public class PtmshepherdPanel extends JPanelBase {
             "<html>Restricts localization to specified residues.\n" +
                     "Includes glyco mode localization of remainder masses. Example: STYNP");
 
-    JPanel p3 = mu.newPanel("Localization", true);
+    JPanel p3 = mu.newPanel("Amino acid propensity analysis", true);
 
     mu.add(p3, feIonA.comp).spanX().split();
     mu.add(p3, feIonX.comp);
@@ -741,10 +742,9 @@ public class PtmshepherdPanel extends JPanelBase {
 
     mu.add(this, pTop).spanX().growX().wrap();
     mu.add(this, pContent).spanX().growX().wrap();
-    mu.add(this, pIterativeLocalization).spanX().growX().wrap();
     mu.add(this, pDiagnosticMining).spanX().growX().wrap();
     mu.add(this, pDiagnosticExtraction).spanX().growX().wrap();
-
+    mu.add(this, pIterativeLocalization).spanX().growX().wrap();
   }
 
   @Override
