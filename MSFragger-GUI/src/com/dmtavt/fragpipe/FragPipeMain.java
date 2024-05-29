@@ -27,7 +27,7 @@ import java.nio.file.Paths;
 
 public class FragPipeMain {
 
-  public static final String PHILOSOPHER_VERSION = "5.1.1-RC13";
+  public static final String PHILOSOPHER_VERSION = "5.1.1";
 
   public static void main(String[] args) {
     if (args.length == 1 && (args[0].equalsIgnoreCase("--help") || args[0].equalsIgnoreCase("-h"))) {
