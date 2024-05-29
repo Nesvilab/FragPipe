@@ -842,6 +842,7 @@ public class Fragpipe extends JFrameHeadless {
         + "<a href=\"" + linkSite + "\">Alexey Nesvizhskii lab</a><br/>&nbsp;<br/>"
         + "Components (lead developers):<br>"
         + "<a href='https://diaumpire.nesvilab.org/'>DIA-Umpire</a>: Chih-Chiang Tsou<br>"
+        + "<a href='https://diatracer.nesvilab.org/'>diaTracer</a>: Kai Li, Fengchao Yu<br>"
         + "<a href='https://msfragger.nesvilab.org/'>MSFragger</a>: Andy Kong, Fengchao Yu, Guo-Ci Teo, Dmitry Avtonomov<br>"
         + "MSFragger Glyco mode: Daniel Polasky, Fengchao Yu, Guo-Ci Teo<br>"
         + "<a href='https://www.nesvilab.org/Crystal-C/'>Crystal-C</a>: Hui-Yin Chang<br>"
