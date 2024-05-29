@@ -63,6 +63,40 @@ public class Version {
       new VersionComparator());
 
   static {
+    CHANGELOG.put("22.0", Arrays.asList(
+        "diaTracer tool for generating pseudo-MS/MS spectra from diaPASEF data, enabling spectrum-centric, direct DIA analysis (including nonspecific and PTM searches).",
+        "Integration of Skyline in FragPipe (supporting DIA, DDA, and DDA glycoproteomics workflows).",
+        "Support for MSFragger DDA+ (full isolation window search) analysis of ddaPASEF data.",
+        "Support in MSBooster for using the Koina server for deep-learning predictions. Requires specifying the Koina URL.",
+        "Support user-specified glycans and glycan modifications for glycoproteomics searches.",
+        "Implement DIA glycoproteomics workflows.",
+        "Significantly faster loading of Thermo raw files in MSFragger and IonQuant.",
+        "Calculate and report more information useful for localizing the sites of modifications identified in open and mass-offset searches.",
+        "Add photo-affinity labeling (PAL) chemoproteomics workflow.",
+        "For DIA analysis, propagate the site localization, protein start, and protein end information to msstats.csv file.",
+        "For DIA analysis, propagate the site localization to the DIA-NN's reports.",
+        "For DIA analysis, propagate `Proteotypic`, `AllMappedProteins`, and `AllMappedGenes` columns to the DIA-NN reports.",
+        "Generate MSstatsPTM input files.",
+        "Add `nocleavage` option to the enzyme panel in the MSFragger tab.",
+        "Add `analyze filter` dropdown to the MSFragger tab to only search MS/MS scans of the specified type (ITMS or FTMS).",
+        "Change the default value of the IonQuant's minions to 1 (MaxLFQ normalization).",
+        "Overhaul MSFragger and IonQuant config panels. MSFragger, IonQuant, and diaTracer need to be in the same folder. Specify the folder in the Config tab.",
+        "Update the tool download panel",
+        "Bundle Philosopher",
+        "Upgrade the bundled JRE to version 17",
+        "Require Java 11+",
+        "Require MSFragger 4.1+",
+        "Require IonQuant 1.10.27+",
+        "Require Python 3.9, 3.10, or 3.11",
+        "Require EasyPQP 0.1.44+",
+        "Upgrade Crystal-C to 1.5.6",
+        "Upgrade MSBooster to 1.2.31",
+        "Upgrade Percolator to 3.6.5",
+        "Upgrade TMT-Integrator to 5.0.9",
+        "Various bug fixes and improvements"
+    ));
+
+
     CHANGELOG.put("21.1", Arrays.asList(
         "Fix a bug in TMT-Integrator that in the single/multi-site reports, the site, protein start, and protein end are off by 1",
         "Fix a bug in MSBooster that using `,` as the decimal points in some regions",
