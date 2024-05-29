@@ -282,6 +282,7 @@ speclibgen.convert-psm=false
 speclibgen.easypqp.extras.max_delta_ppm=15
 speclibgen.easypqp.extras.max_delta_unimod=0.02
 speclibgen.easypqp.extras.max_glycan_qval=1
+speclibgen.easypqp.extras.max_glycan_qval=1
 speclibgen.easypqp.extras.rt_lowess_fraction=0
 speclibgen.easypqp.fragment.a=false
 speclibgen.easypqp.fragment.b=true
