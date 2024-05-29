@@ -30,7 +30,6 @@ import com.dmtavt.fragpipe.process.ProcessResult;
 import com.dmtavt.fragpipe.tools.skyline.WriteSkyMods.Mod;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.ProcessUtils;
-import com.github.chhh.utils.SwingUtils;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
@@ -395,7 +394,6 @@ public class Skyline {
 
   public static Version validate(String path) throws ValidationException, UnexpectedException {
     if (!isWindows()) {
-      SwingUtils.showErrorDialog(null, "Skyline only supports Windows.", "Skyline not supported in this OS");
       return null;
     }
 
