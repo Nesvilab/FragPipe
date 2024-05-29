@@ -175,7 +175,7 @@ public class CmdSpecLibGen extends CmdBase {
       final String fragment_types = speclibPanel.getEasypqp_fragment_types(); // EasyPQP convert
       final double rt_lowess_fraction = speclibPanel.getEasypqpRTLowessFraction(); // EasyPQP library
 
-      cmd.add(OsUtils.asSingleArgument(String.format("--unimod %s --max_delta_unimod %s --max_delta_ppm %s --fragment_types %s %s%s%s%s%s",
+      cmd.add(OsUtils.asSingleArgument(String.format("--unimod %s --max_delta_unimod %s --max_delta_ppm %s --fragment_types %s %s%s%s%s",
               unimodPath.toAbsolutePath().toString().replace("\\", "/"),
               max_delta_unimod,
               max_delta_ppm,
