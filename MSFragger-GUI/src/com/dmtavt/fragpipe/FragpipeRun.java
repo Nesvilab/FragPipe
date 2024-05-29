@@ -681,13 +681,19 @@ public class FragpipeRun {
       toConsole(Fragpipe.COLOR_BLACK, "DIA-Umpire: comprehensive computational framework for data-independent acquisition proteomics. Nat Methods 12:258 (2015)", true, console);
     }
 
+    DiaTracerPanel diaTracerPanel = Bus.getStickyEvent(DiaTracerPanel.class);
+    if (diaTracerPanel != null && diaTracerPanel.isRun()) {
+      toConsole(Fragpipe.COLOR_CMDLINE, "(pseudo-MS/MS generation with diaTracer) ", false, console);
+      toConsole(Fragpipe.COLOR_BLACK, "diaTracer enables spectrum-centric analysis of diaPASEF proteomics data. bioRxiv (2024)", true, console);
+    }
+
     TabMsfragger tabMsfragger = Bus.getStickyEvent(TabMsfragger.class);
     if (tabMsfragger != null && tabMsfragger.isRun()) {
       toConsole(Fragpipe.COLOR_CMDLINE, "(Any searches) ", false, console);
       toConsole(Fragpipe.COLOR_BLACK, "MSFragger: ultrafast and comprehensive peptide identification in mass spectrometry–based proteomics. Nat Methods 14:513 (2017)", true, console);
       toConsole(Fragpipe.COLOR_CMDLINE, "(Any searches) ", false, console);
       toConsole(Fragpipe.COLOR_BLACK, "Fast deisotoping algorithm and its implementation in the MSFragger search engine. J. Proteome Res. 20:498 (2021)", true, console);
-      toConsole(Fragpipe.COLOR_CMDLINE, "(timsTOF PASEF) ", false, console);
+      toConsole(Fragpipe.COLOR_CMDLINE, "(timsTOF ddaPASEF) ", false, console);
       toConsole(Fragpipe.COLOR_BLACK, "Fast quantitative analysis of timsTOF PASEF data with MSFragger and IonQuant. Mol Cell Proteomics 19:1575 (2020)", true, console);
       toConsole(Fragpipe.COLOR_CMDLINE, "(Open search) ", false, console);
       toConsole(Fragpipe.COLOR_BLACK, "Identification of modified peptides using localization-aware open search. Nat Commun. 11:4065 (2020)", true, console);
