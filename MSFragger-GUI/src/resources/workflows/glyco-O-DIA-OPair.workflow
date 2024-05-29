@@ -1,5 +1,7 @@
 # Workflow: glyco-O-DIA-OPair
 
+
+
 crystalc.run-crystalc=false
 database.decoy-tag=rev_
 diann.fragpipe.cmd-opts=
@@ -86,8 +88,8 @@ ionquant.writeindex=0
 msbooster.find-best-rt-model=false
 msbooster.find-best-spectra-model=false
 msbooster.koina-url=
-msbooster.predict-rt=true
-msbooster.predict-spectra=true
+msbooster.predict-rt=false
+msbooster.predict-spectra=false
 msbooster.rt-model=DIA-NN
 msbooster.run-msbooster=false
 msbooster.spectra-model=DIA-NN
@@ -96,7 +98,7 @@ msfragger.activation_types=HCD
 msfragger.allowed_missed_cleavage_1=2
 msfragger.allowed_missed_cleavage_2=0
 msfragger.analyzer_types=all
-msfragger.calibrate_mass=4
+msfragger.calibrate_mass=2
 msfragger.check_spectral_files=false
 msfragger.clip_nTerm_M=true
 msfragger.deisotope=1
@@ -270,13 +272,13 @@ saintexpress.fragpipe.cmd-opts=
 saintexpress.max-replicates=10
 saintexpress.run-saint-express=false
 saintexpress.virtual-controls=100
-skyline.run-skyline=false
+skyline.run-skyline=true
 skyline.skyline=true
 skyline.skyline-custom=false
 skyline.skyline-custom-path=
 skyline.skyline-daily=false
 skyline.skyline-mode=0
-skyline.skyline-mods-mode=Default
+skyline.skyline-mods-mode=O-glyco
 speclibgen.convert-pepxml=false
 speclibgen.convert-psm=true
 speclibgen.easypqp.extras.max_delta_ppm=15
@@ -289,6 +291,7 @@ speclibgen.easypqp.fragment.c=false
 speclibgen.easypqp.fragment.x=false
 speclibgen.easypqp.fragment.y=true
 speclibgen.easypqp.fragment.z=false
+speclibgen.easypqp.ignore_unannotated=true
 speclibgen.easypqp.im-cal=Automatic selection of a run as reference IM
 speclibgen.easypqp.labile_mode=O-glyco
 speclibgen.easypqp.neutral_loss=false
@@ -337,4 +340,4 @@ workflow.description=Runs MSFragger-Glyco and O-Pair to build a spectral library
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
 workflow.misc.save-sdrf=true
-workflow.saved-with-ver=21.2-build45
+workflow.saved-with-ver=21.2-build56
