@@ -1,21 +1,20 @@
 # Glycoproteomics with FragPipe
 
 FragPipe has several workflows for analyzing LC-MS/MS data of intact glycopeptides that provide
-a variety of capabilities and options. Glyco searches use the following tools:
+a variety of capabilities and options. Glyco searches use the following tabs/tools in FragPipe:
 * MSFragger-Glyco search: identifies candidate PSMs as a peptide sequence and total glycan mass
-* Philosopher: PSM/protein FDR, filters to confident peptide sequence identifications
+* Validation (Philosopher): PSM/protein FDR, filters to confident peptide sequence identifications
 * PTM-Shepherd Glycan Composition Assignment: matches glycan mass to a single glycan composition with FDR control (not needed if using O-Pair)
-* O-Pair: localizes O-glycans
+* O-Pair: deconvolutes and localizes O-glycans from electron-based activation MS2 scans
 
 There are several template glyco workflows (described in the [workflows](https://fragpipe.nesvilab.org/docs/tutorial_glyco.html#load-a-glyco-workflow) 
 section) for a variety of search types and instrument activation methods. This tutorial covers each step of the process starting
 from loading raw data to validation and quantation of the results.
 
-Glycoproteomics results are best viewed from the psm.tsv results files. If glycan composition assignment
+Glycoproteomics results can be viewed using the integrated FP-PDV viewer, Skyline, or directly from the psm.tsv results table(s) (see [Examine the results](https://fragpipe.nesvilab.org/docs/tutorial_glyco.html#examine-the-results) for details). If glycan composition assignment
 or O-Pair search have been performed, there will be glyco-specific columns in the psm.tsv, including the 
-Total Glycan Composition assigned. If only MSFragger search has been done, glycans will appear as masses
-in the Delta Mass column. Make sure you are looking in the right place for the glycans depending on the type
-of search performed! 
+Total Glycan Composition assigned. If only MSFragger search has been done, glycans will only appear as masses
+in the Delta Mass column. Make sure you are looking in the right place for the glycans depending on the type of search performed! 
 
 ## Tutorial contents
 * [Load the data](https://fragpipe.nesvilab.org/docs/tutorial_glyco.html#load-the-data)
@@ -46,7 +45,7 @@ There are pre-built workflows for N- and O-glycopeptide analyses with a variety 
 and quantitation methods. See below for more details on the best workflow to choose. Loading a 
 workflow sets the parameters to good base settings, but individual parameters may need to be 
 updated for your analysis (described in [this section](https://fragpipe.nesvilab.org/docs/tutorial_glyco.html#customize-the-search-settings-in-msfragger-and-philosopher)).
-**Please note: workflows come with a default set of mouse glycans. Don't forget to load a different glycan database that is appropriate for your analysis!**
+**Please note: workflows come with a default set of human glycans. Don't forget to load a glycan database that is appropriate for your analysis!**
 
 Workflows (organized by category):  
 **Basic Workflows** (template settings for different glycan types, activation types, and offset or open search)  
@@ -58,11 +57,14 @@ Workflows (organized by category):
 *glyco-O-Hybrid*: Glycopeptide identification for hybrid fragmentation (EThcD, AI-ETD, etc.) of O-glycopeptides  
 *glyco-O-open-HCD*: Open search (allowing unknown glycan masses) for CID/HCD fragmentation of O-glycopeptides  
 *glyco-O-open-Hybrid*: Open search (allowing unknown glycan masses) for hybrid fragmentation of O-glycopeptides  
+*glyco-O-Pair*: Uses O-Pair to localize O-glycans instead of PTM-Shepherd composition assignment. Requires electron-based activation scan (either paired scans or single EThcD or EAD scan)  
 **Workflows with Quant** (Can be combined with settings from the Basic workflows to make quantitative workflows for any activation mode, but not open searches)  
 *glyco-N-TMT*: TMT quantitation of CID/HCD fragmented N-glycopeptides. Note: for TMT-quant of other fragmentation modes, start here and change fragmentation settings accordingly     
 *glyco-N-LFQ*: Label-free (MS1) quantation of CID/HCD fragmented N-glycopeptides  
-**O-Pair workflow**  
-*glyco-O-Pair*: Uses O-Pair to localize O-glycans instead of PTM-Shepherd composition assignment. Requires paired-scan data! 
+*glyco-N-DIA*: (experimental) library-based DIA quantation of CID/HCD fragmented N-glycopeptides. Requires DDA data to build a library.  
+*glyco-O-DIA-OPair*: (experimental) library-based DIA quantation of O-glycopeptides using OPair for site assignment with paired scan DDA data.   
+*glyco-O-DIA-HCD*: (experimental) library-based DIA quantation of CID/HCD fragmented O-glycopeptides with no site assignment. Glycans are placed on first allowed residue in the peptide.   
+
 
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/Fragpipe-glyco_1.png)
 
@@ -78,20 +80,32 @@ See the [Specifying a protein sequence database](https://fragpipe.nesvilab.org/d
 
 
 **Glycan Database**
-Glycans to search can be loaded on the **Glyco** tab. Use the Load Glycan Database button to load a list of 
-glycans. The loaded glycans will be sent to MSFragger search (as mass offsets), PTM-Shepherd composition assignment,
-and O-Pair localization by default. Use the checkboxes on the dialog to change this behavior. 
+Glycans to search can be loaded on the **Glyco** tab. Use the Load Glycan Database button to load a list of glycans. The dropdown menu (1) can be used to select from several built-in default databases, or use **custom** to load your own database. **NOTE: glycans vary considerably between organisms and, even in well studied organisms, not all glycans are known. Use the default glycan lists with caution and use your own glycan database if you know the specific glycans you are looking for!** The glycans will be loaded to the appropriate parameter locations for MSFragger search (as mass offsets), PTM-Shepherd composition assignment, O-Pair localization, and Skyline output automatically.  
 
-Glycan database formats supported are Byonic and pGlyco-formatted glycans provided in a text file (one glycan per line). 
-See example formats below. Glycan database files can be in .txt, .csv, .tsv, .pdb, or .glyc formats. If you have a different 
-glycan database format that you would like to be supported, please contact us!  
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/glyco-tab-db-load.png)
+
+Glycan database formats supported are Byonic, MetaMorpheus, and pGlyco-style glycans provided in a text file (one glycan per line). See example formats below. Glycan database files can be in .txt, .csv, .tsv, .pdb, or .glyc formats. If you have a different glycan database format that you would like to be supported, please contact us!  
 Byonic example: HexNAc(4)Hex(5)NeuAc(2)Fuc(1)  
 pGlyco example: (N(N(H(A))))  
 
-Combinations of glycans can also be generated for O-Pair search, and filtered by mass if desired. Note that PTM-Shepherd
-composition assignment does not support combinations and will use only the glycans in the database file. 
+Glycans in the database file must be comprised of allowed "Glycan Residues" (monosaccharides) specified in the glycan_residues.txt file in FragPipe. To change the supported glycan residues, use the Edit Glycan Residue Definitions button (2). This will open the table pictured below for editing. NOTE: to load a glycan database successfully, all monosaccharides must be present in this table.  
+**Editing the table**:  
+1) **Name**: The name of the monosaccharide (whatever it will be called in the glycan database when it is loaded).  
+2) **Mass**: The monoisotopic mass of the monosaccharide.  
+3) **Alternate names (optional)**: The default glycans are supplied with alternate names to facilitate parsing a variety of input formats. Use to allow parsing multiple different names for a glycan to the same Glycan Residue.  
+4) **is labile?**: Check this box if the monosaccharide is expected to dissociate completely from the glycan during collisional activation, and should not be observed on glycan Y ions. *NOTE: if this box is checked, the Y prob +/- boxes are NOT required and should be left empty.*  
+5) **Y Prob +/-**: Used for composition assignment in PTM-Shepherd. It is recommended to use the default values of 5 and 0.5, except leave blank for labile glycans.  
+6) **Elemental Composition**: the elemental (atomic) composition of the monosaccharide. Required for Skyline only. 
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/glyco-database-load.png)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/glyco_edit_res_definitions.png)
+
+Glycan modifications can be specified in a similar manner to glycan residues using the Edit Glycan Modifications Definitions button. All fields in the table are the same, except for the addition of "Required Residues," which can be used to specify that a given modification can only be placed on glycans containing that residue (see default table for examples). These definitions will be populated to the glycan modifications options that are shown in a dialog window after loading a glycan database. 
+
+
+After loading a glycan database, the following window will be shown with 3 optional features. 1) to specify glycan modifications, 2) to generate combinations of glycans (e.g., for O-glycopeptides that may carry multiple glycans), and 3) to filter the loaded/generated glycans by mass (e.g., to exclude large glycans that are unlikely to be acquired by the mass spectrometer).  
+The modifications shown are what is present in the Glycan Modification Definitions table described above. To enable a modification, check the box at left. Modifications can be fixed or variable, and if variable, a maximum number per glycan can be specified. Note that if multiple types of modifications are enabled, combinations of them will be generated.  
+
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/glyco-db-load-mods-followup.png)
 <br>
 
 ### Customize the search settings
