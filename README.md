@@ -4,7 +4,7 @@
 <img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/develop/frag-pipe/images/fragpipe-01.png" width="350px"/>
 </div>
 
-FragPipe is a Java Graphical User Interface (GUI) for a suite of computational tools enabling comprehensive analysis of mass spectrometry-based proteomics data. It is powered by [MSFragger](https://msfragger.nesvilab.org/) - an ultrafast proteomic search engine suitable for both conventional and "open" (wide precursor mass tolerance) peptide identification. FragPipe includes the [Philosopher](https://nesvilab.github.io/philosopher/) toolkit for downstream post-processing of MSFragger search results (PeptideProphet, iProphet, ProteinProphet), FDR filtering, label-based quantification, and multi-experiment summary report generation. [Crystal-C](https://www.nesvilab.org/Crystal-C/) and [PTM-Shepherd](https://github.com/Nesvilab/PTM-Shepherd) are included to aid interpretation of open search results. Also included in FragPipe binary are [TMT-Integrator](http://tmt-integrator.nesvilab.org/) for TMT/iTRAQ isobaric labeling-based quantification, [IonQuant](http://ionquant.nesvilab.org/) for label-free quantification with FDR-controlled match-between-run (MBR) functionality, spectral library building with EasyPQP, and MSFragger-DIA and DIA-Umpire SE modules for direct analysis of data independent acquisition (DIA) data. 
+FragPipe is a comprehensive computational platform for analyzing mass spectrometry-based proteomics data. FragPipe comes with an easy to use Java Graphical User Interface (GUI) but can also be run in the command line mode, on Windows, Linux, or in the cloud environment. It is powered by [MSFragger](https://msfragger.nesvilab.org/) - an ultrafast proteomic search engine suitable for both conventional and "open" (wide precursor mass tolerance) peptide identification. FragPipe includes Percolator and the [Philosopher](https://nesvilab.github.io/philosopher/) toolkit for downstream post-processing of MSFragger search results (PeptideProphet, iProphet, ProteinProphet), FDR filtering, label-based quantification, and multi-experiment summary report generation. FragPipe includes MSBooster module for deep-learning based rescoring of peptide identifications. [Crystal-C](https://www.nesvilab.org/Crystal-C/) and [PTM-Shepherd](https://github.com/Nesvilab/PTM-Shepherd) are included to aid interpretation of open search results. Also included in FragPipe binary are [TMT-Integrator](http://tmt-integrator.nesvilab.org/) for TMT/iTRAQ isobaric labeling-based quantification, [IonQuant](http://ionquant.nesvilab.org/) for label-free quantification with FDR-controlled match-between-run (MBR) functionality, spectral library building with EasyPQP, and MSFragger-DIA, DIA-Umpire SE, and diaTracer modules for direct ("library-free") analysis of data independent acquisition (DIA) data. FragPipe includes DIA-NN for extraction of quantification from DIA data.    
 
 
 ### [Download](https://github.com/Nesvilab/FragPipe/releases)
@@ -51,19 +51,20 @@ The table below shows the compatibility of FragPipe workflow components with dif
 
 _Bruker .d indicates ddaPASEF files from timsTOF, other Bruker .d files should be converted to .mzML. Please also note that timsTOF data requires [Visual C++ Redistributable for Visual Studio 2017](https://aka.ms/vs/16/release/VC_redist.x64.exe) in Windows. If you see an error saying cannot find Bruker native library, please try to install the Visual C++ redistibutable._
 
-| Workflow Step                    | .mzML | Thermo (.raw) | Bruker (.d) |  .mgf |
-|----------------------------------|:-----:|:-------------:|:-----------:|:-----:|
-| MSFragger search                 | ✔     | ✔             | ✔           | ✔     | 
-| MSFragger-DIA                    | ✔     | ✔             |             |       | 
-| Label-free quantification        | ✔     | ✔             | ✔           |       | 
-| SILAC/dimethyl quantification    | ✔     | ✔             | ✔           |       | 
-| TMT/iTRAQ quantification         | ✔     | ✔             |             |       | 
-| Crystal-C artifact removal       | ✔     | ✔             |             |       | 
-| PTMProphet localization          | ✔     | ✔             | ✔           |       | 
-| PTM-Shepherd summarization       | ✔     | ✔             | ✔           |       | 
-| DIA-Umpire signal extraction     | ✔     | ✔             |             |       | 
-| Spectral library generation      | ✔     | ✔             | ✔           | ✔     | 
-| DIA-NN quantification            | ✔     | ✔*            | ✔           |       | 
+| Workflow Step                      | .mzML | Thermo (.raw) | Bruker (.d) |  .mgf |
+|------------------------------------|:-----:|:-------------:|:-----------:|:-----:|
+| DIA-Umpire pseudo-MS/MS generation | ✔     | ✔             |             |       | 
+| diaTracer pseudo-MS/MS generation  |       |               | ✔           |       | 
+| MSFragger search                   | ✔     | ✔             | ✔           | ✔     | 
+| MSFragger-DIA                      | ✔     | ✔             |             |       | 
+| Crystal-C artifact removal         | ✔     | ✔             |             |       | 
+| PTMProphet localization            | ✔     | ✔             | ✔           |       | 
+| PTM-Shepherd summarization         | ✔     | ✔             | ✔           |       | 
+| Label-free quantification          | ✔     | ✔             | ✔           |       | 
+| SILAC/dimethyl quantification      | ✔     | ✔             | ✔           |       | 
+| TMT/iTRAQ quantification           | ✔     | ✔             |             |       | 
+| Spectral library generation        | ✔     | ✔             | ✔           | ✔     | 
+| DIA-NN quantification              | ✔     | ✔*            | ✔           |       | 
 
 _DIA data acquired with overlapping/staggered windows must be [converted to mzML with demultiplexing](https://fragpipe.nesvilab.org/docs/tutorial_convert.html#convert-thermo-dia-raw-files-with-overlappingstaggered-windows)._
 _Quantification from Thermo .raw files with DIA-NN requires installation of Thermo MS File Reader, see the [DIA-NN documentation](https://github.com/vdemichev/DiaNN#raw-data-formats) for details._
@@ -99,7 +100,8 @@ For other tools developed by Nesvizhskii lab, visit our website
 - **Mac OS** (command line interface only):
   - Install docker by following the [instruction](https://docs.docker.com/desktop/install/mac-install/)
   - Open terminal and pull the docker image by running `docker pull fcyucn/fragpipe`
-  - Execute the `fragpipe --headless` in the terminal
+  - FragPipe is located in `/fragpipe_bin`
+  - Go to `/fragpipe_bin/fragPipe-x.x/fragpipe/bin` directory and execute `./fragpipe --help` in the terminal
  
 #### Integration
 FragPipe is open source and the output is currently supported by the following software projects:
