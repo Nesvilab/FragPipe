@@ -51,19 +51,20 @@ The table below shows the compatibility of FragPipe workflow components with dif
 
 _Bruker .d indicates ddaPASEF files from timsTOF, other Bruker .d files should be converted to .mzML. Please also note that timsTOF data requires [Visual C++ Redistributable for Visual Studio 2017](https://aka.ms/vs/16/release/VC_redist.x64.exe) in Windows. If you see an error saying cannot find Bruker native library, please try to install the Visual C++ redistibutable._
 
-| Workflow Step                    | .mzML | Thermo (.raw) | Bruker (.d) |  .mgf |
-|----------------------------------|:-----:|:-------------:|:-----------:|:-----:|
-| MSFragger search                 | ✔     | ✔             | ✔           | ✔     | 
-| MSFragger-DIA                    | ✔     | ✔             |             |       | 
-| Label-free quantification        | ✔     | ✔             | ✔           |       | 
-| SILAC/dimethyl quantification    | ✔     | ✔             | ✔           |       | 
-| TMT/iTRAQ quantification         | ✔     | ✔             |             |       | 
-| Crystal-C artifact removal       | ✔     | ✔             |             |       | 
-| PTMProphet localization          | ✔     | ✔             | ✔           |       | 
-| PTM-Shepherd summarization       | ✔     | ✔             | ✔           |       | 
-| DIA-Umpire signal extraction     | ✔     | ✔             |             |       | 
-| Spectral library generation      | ✔     | ✔             | ✔           | ✔     | 
-| DIA-NN quantification            | ✔     | ✔*            | ✔           |       | 
+| Workflow Step                      | .mzML | Thermo (.raw) | Bruker (.d) |  .mgf |
+|------------------------------------|:-----:|:-------------:|:-----------:|:-----:|
+| DIA-Umpire pseudo-MS/MS generation | ✔     | ✔             |             |       | 
+| diaTracer pseudo-MS/MS generation  |       |               | ✔           |       | 
+| MSFragger search                   | ✔     | ✔             | ✔           | ✔     | 
+| MSFragger-DIA                      | ✔     | ✔             |             |       | 
+| Crystal-C artifact removal         | ✔     | ✔             |             |       | 
+| PTMProphet localization            | ✔     | ✔             | ✔           |       | 
+| PTM-Shepherd summarization         | ✔     | ✔             | ✔           |       | 
+| Label-free quantification          | ✔     | ✔             | ✔           |       | 
+| SILAC/dimethyl quantification      | ✔     | ✔             | ✔           |       | 
+| TMT/iTRAQ quantification           | ✔     | ✔             |             |       | 
+| Spectral library generation        | ✔     | ✔             | ✔           | ✔     | 
+| DIA-NN quantification              | ✔     | ✔*            | ✔           |       | 
 
 _DIA data acquired with overlapping/staggered windows must be [converted to mzML with demultiplexing](https://fragpipe.nesvilab.org/docs/tutorial_convert.html#convert-thermo-dia-raw-files-with-overlappingstaggered-windows)._
 _Quantification from Thermo .raw files with DIA-NN requires installation of Thermo MS File Reader, see the [DIA-NN documentation](https://github.com/vdemichev/DiaNN#raw-data-formats) for details._
