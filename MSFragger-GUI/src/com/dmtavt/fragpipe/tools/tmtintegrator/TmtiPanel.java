@@ -798,8 +798,8 @@ public class TmtiPanel extends JPanelBase {
               .map(lcms -> lcms.getPath().getParent()).distinct().toList();
           if (fileDirs.size() == 1) {
             // only if all files are in the same directory, we'll try to auto-detect annotations file
-            List<Path> annotations = PathUtils.findFilesQuietly(fileDirs.get(0),
-                p -> p.getFileName().toString().endsWith("annotation.txt"))
+            List<Path> annotations = Files.list(fileDirs.get(0))
+                .filter(p -> p.getFileName().toString().endsWith("annotation.txt"))
                 .collect(Collectors.toList());
             if (annotations.size()
                 == 1) {// this is in case the predicate is changed such that it can match multiple files
