@@ -421,7 +421,7 @@ public class FragpipeRun {
       final TmtiPanel tmtiPanel = Fragpipe.getStickyStrict(TmtiPanel.class);
       if (tmtiPanel.isRun()) {
         toConsole("~~~~~~annotation files~~~~~~~", tabRun.console);
-        for (Path p : tmtiPanel.getAnnotations().values()) {
+        for (Path p : tmtiPanel.getAnnotations(wd, isDryRun).values()) {
           try {
             toConsole(p.toFile().getCanonicalPath() + ":", tabRun.console);
             Files.lines(p.toFile().getCanonicalFile().toPath()).forEach(e -> toConsole(e.trim(), tabRun.console));
@@ -1664,7 +1664,11 @@ public class FragpipeRun {
           SwingUtils.showWarningDialog(parent, CmdTmtIntegrator.NAME + " only supports mzML and raw files.\nPlease remove other files from the input list.", CmdTmtIntegrator.NAME + " error");
           return false;
         }
-        return cmdTmt.configure(tmtiPanel, isDryRun, ramGb, decoyTag, sharedMapGroupsToProtxml, philosopherGenerateMSstats, tmtiPanel.getAnnotations(), false);
+        Map<LcmsFileGroup, Path> annotations = tmtiPanel.getAnnotations(wd, isDryRun);
+        if (annotations.isEmpty()) {
+          return false;
+        }
+        return cmdTmt.configure(tmtiPanel, isDryRun, ramGb, decoyTag, sharedMapGroupsToProtxml, philosopherGenerateMSstats, annotations, false);
       }
       return true;
     });
@@ -1693,7 +1697,7 @@ public class FragpipeRun {
             }
           }
         }
-        Map<LcmsFileGroup, Path> annotations = tmtiPanel.getAnnotations();
+        Map<LcmsFileGroup, Path> annotations = tmtiPanel.getAnnotations(wd, isDryRun);
         boolean hasMissing = Seq.seq(annotations.values()).map(PathUtils::existing).anyMatch(Objects::isNull);
         if (hasMissing) {
           SwingUtils.showErrorDialog(parent,
@@ -1710,7 +1714,10 @@ public class FragpipeRun {
       double minprob = tmtiPanel.getMinprob();
       double purity = tmtiPanel.getPurity();
       double minIntensityPercant = tmtiPanel.getMinIntensityPercent();
-      Map<LcmsFileGroup, Path> annotations = tmtiPanel.getAnnotations();
+      Map<LcmsFileGroup, Path> annotations = tmtiPanel.getAnnotations(wd, isDryRun);
+      if (annotations.isEmpty()) {
+        return false;
+      }
 
       if (tmtiPanel.getIntensityExtractionTool() == 0) {
         addConfig.accept(cmdTmtIonquant, () -> {
@@ -1858,7 +1865,11 @@ public class FragpipeRun {
           SwingUtils.showWarningDialog(parent, CmdTmtIntegrator.NAME + " only supports mzML and raw files.\nPlease remove other files from the input list.", CmdTmtIntegrator.NAME + " error");
           return false;
         }
-        return cmdTmtFpop.configure(tmtiPanel, isDryRun, ramGb, decoyTag, sharedMapGroupsToProtxml, philosopherGenerateMSstats, tmtiPanel.getAnnotations(), true);
+        Map<LcmsFileGroup, Path> annotations = tmtiPanel.getAnnotations(wd, isDryRun);
+        if (annotations.isEmpty()) {
+          return false;
+        }
+        return cmdTmtFpop.configure(tmtiPanel, isDryRun, ramGb, decoyTag, sharedMapGroupsToProtxml, philosopherGenerateMSstats, annotations, true);
       });
     }
 

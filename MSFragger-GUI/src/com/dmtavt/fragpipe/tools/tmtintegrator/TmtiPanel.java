@@ -29,7 +29,6 @@ import com.dmtavt.fragpipe.messages.MessageType;
 import com.dmtavt.fragpipe.messages.NoteConfigTmtI;
 import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.dmtavt.fragpipe.tools.tmtintegrator.TmtAnnotationTable.ExpNameToAnnotationFile;
-import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FileChooserUtils;
@@ -49,6 +48,7 @@ import java.awt.Dimension;
 import java.awt.ItemSelectable;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
@@ -650,14 +650,47 @@ public class TmtiPanel extends JPanelBase {
     return getSelectedLabel().getReagentNames().size();
   }
 
-  public Map<LcmsFileGroup, Path> getAnnotations() {
+  public Map<LcmsFileGroup, Path> getAnnotations(Path wd, boolean isDryRun) {
     ArrayList<ExpNameToAnnotationFile> annotations = tmtAnnotationTable.fetchModel()
         .dataCopy();
     Map<LcmsFileGroup, Path> map = new TreeMap<>();
     for (ExpNameToAnnotationFile row : annotations) {
-      map.put(new LcmsFileGroup(row.expName, new ArrayList<>(row.lcmsFiles)), Paths.get(row.getPath()));
+      Path p;
+      if (row.getPath().contentEquals(STRING_NO_PATH_SET)) {
+        try {
+          p = generateDummyAnnotationFile(wd, row.expName, getSelectedLabel(), isDryRun);
+        } catch (Exception ex) {
+          SwingUtils.showErrorDialogWithStacktrace(ex, this);
+          return new TreeMap<>();
+        }
+      } else {
+        p = Paths.get(row.getPath());
+        if (!Files.exists(p) || !Files.isRegularFile(p) || !Files.isReadable(p)) {
+          SwingUtils.showErrorDialog(this, "Annotation file not found or not readable: " + p, "Annotation file not found");
+          return new TreeMap<>();
+        }
+      }
+
+      row.setPath(p.toAbsolutePath().toString());
+      map.put(new LcmsFileGroup(row.expName, new ArrayList<>(row.lcmsFiles)), p);
     }
+
     return map;
+  }
+
+  private Path generateDummyAnnotationFile(Path outDir, String experimentName, QuantLabel quantLabel, boolean isDryRun) throws Exception {
+    Path p = outDir.resolve(experimentName).resolve(experimentName + "_annotation.txt");
+
+    if (!isDryRun) {
+      Files.createDirectories(outDir.resolve(experimentName));
+      BufferedWriter bw = Files.newBufferedWriter(p);
+      for (String s : quantLabel.getReagentNames()) {
+        bw.write(String.format("%s %s_%s\n", s, experimentName, s));
+      }
+      bw.close();
+    }
+
+    return p;
   }
 
   public String getQuantLevel() {

@@ -176,10 +176,15 @@ public class CmdTmtIntegrator extends CmdBase {
             + "in " + NAME + " config, unless selecting Virtual reference option.", NAME + " Config");
       }
 
+      Map<LcmsFileGroup, Path> annotations0 = panel.getAnnotations(wd, isDryRun);
+      if (annotations0.isEmpty()) {
+        return false;
+      }
+
       List<Path> filesWithoutRefChannel = new ArrayList<>();
       // only check for presence of reference channels if "Define Reference is set to "Reference Sample"
       if (TmtiConfProps.COMBO_ADD_REF_CHANNEL.equalsIgnoreCase(panel.getDefineReference())) {
-        for (Path path : panel.getAnnotations().values()) {
+        for (Path path : annotations0.values()) {
           List<QuantLabelAnnotation> annotations = TmtiPanel
               .parseTmtAnnotationFile(path.toFile());
           if (annotations.stream().noneMatch(a -> a.getSample().contains(refTag))) {
@@ -200,7 +205,7 @@ public class CmdTmtIntegrator extends CmdBase {
         return false;
       }
 
-      for (Path path : panel.getAnnotations().values()) {
+      for (Path path : annotations0.values()) {
         List<QuantLabelAnnotation> annotations = TmtiPanel.parseTmtAnnotationFile(path.toFile());
         for (QuantLabelAnnotation a : annotations) {
           if (a.getSample().trim().isEmpty()) {
