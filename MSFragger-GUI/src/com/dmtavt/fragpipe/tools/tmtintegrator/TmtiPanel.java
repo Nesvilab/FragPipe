@@ -1131,7 +1131,7 @@ public class TmtiPanel extends JPanelBase {
     return null;
   }
 
-  public Map<String, String> formToConfig(int ramGb, String decoyTag, String pathTmtiJar, String pathOutput, QuantLabel quantLabel, boolean isSecondUnmodRun) {
+  public Map<String, String> formToConfig(String pathOutput, QuantLabel quantLabel, boolean isSecondUnmodRun) {
     Map<String, String> map = SwingUtils.valuesGet(this, null);
     final TreeMap<String, String> mapConv = new TreeMap<>();
     map.forEach((k, v) ->
@@ -1168,10 +1168,7 @@ public class TmtiPanel extends JPanelBase {
       }
     });
 
-    mapConv.put("path", pathTmtiJar);
-    mapConv.put("memory", Integer.toString(ramGb));
     mapConv.put("output", pathOutput);
-    mapConv.put("prefix", decoyTag);
 
     return mapConv;
   }
