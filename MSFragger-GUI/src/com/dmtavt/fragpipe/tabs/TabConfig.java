@@ -489,7 +489,7 @@ public class TabConfig extends JPanelWithEnablement {
           return;
         }
 
-        Path toolsPath = PathUtils.createDirs(FragpipeLocations.get().getDirTools());
+        Path toolsPath = PathUtils.createDirs(FragpipeLocations.get().getDirTools()).normalize();
 
         if (p.downloadMSFragger()) {
           MsfraggerVersionFetcherServer msfraggerVersionFetcherServer = new MsfraggerVersionFetcherServer(p.getName(), p.getEmail(), p.getInstitution(), p.wantReceiveEmail());
