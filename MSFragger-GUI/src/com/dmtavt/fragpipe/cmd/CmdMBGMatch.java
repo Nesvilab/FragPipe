@@ -38,8 +38,9 @@ import javax.swing.JOptionPane;
 public class CmdMBGMatch  extends CmdBase {
     private static final Logger log = LoggerFactory.getLogger(CmdOPair.class);
     public static String NAME = "MBG";
-    private static final String JAR_MBG_NAME = "MBG-0.1.jar";
+    private static final String JAR_MBG_NAME = "MBG-0.1.2.jar";
     public static final String JAR_MBG_MAIN_CLASS = "com.mbg.MBG";
+    public static final String[] JAR_DEPS = {ToolingUtils.BATMASS_IO_JAR};
 
     public CmdMBGMatch(boolean isRun, Path workDir) {
         super(isRun, workDir);
@@ -53,7 +54,7 @@ public class CmdMBGMatch  extends CmdBase {
     public boolean configure(Component comp, Path workdir, Map<LcmsFileGroup, Path> sharedMapGroupsToProtxml, MBGParams params, boolean isDryRun, boolean hasCalibratedMzml, int numThreads) {
         initPreConfig();
 
-        final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(JAR_MBG_NAME));
+        final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(JAR_MBG_NAME).concat(JAR_DEPS));
         if (classpathJars == null) {
             return false;
         }
