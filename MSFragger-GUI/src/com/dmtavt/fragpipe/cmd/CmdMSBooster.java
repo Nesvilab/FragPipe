@@ -102,6 +102,11 @@ public class CmdMSBooster extends CmdBase {
       return false;
     }
 
+    if (!predictRT && !predictSpectra) {
+      SwingUtils.showErrorDialog(comp, "At least one of <b>Predict RT</b> or <b>Predict spectra</b> must be enabled if you want to run MSBooster.", NAME + " parameter error");
+      return false;
+    }
+
     final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(JAR_MSBOOSTER_NAME).concat(JAR_DEPS));
     if (classpathJars == null) {
       return false;
