@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
 
 public class MassOffsetUtils {
 
-    private static final Pattern aaPattern = Pattern.compile("([A-Z])");
+    private static final Pattern sitesPattern = Pattern.compile("([A-Zall-nc\\[\\]^*])");
     private static final Pattern massPattern = Pattern.compile("([\\d.-]+)\\(");
     private static final Pattern diagPattern = Pattern.compile("d=([\\d.\\-,\\s]+)");
     private static final Pattern fragRemPattern = Pattern.compile("f=([\\d.\\-,\\s]+)");
@@ -90,7 +90,7 @@ public class MassOffsetUtils {
                 foundZero = true;
             }
             ArrayList<String> sites = new ArrayList<>();
-            Matcher matcher = aaPattern.matcher(splits[1]);
+            Matcher matcher = sitesPattern.matcher(splits[1]);
             while (matcher.find()) {
                 sites.add(matcher.group());
             }
@@ -167,7 +167,7 @@ public class MassOffsetUtils {
             Matcher sitesMatch = resPattern.matcher(offsetString);
             if (sitesMatch.find()) {
                 ArrayList<String> sites = new ArrayList<>();
-                Matcher matcher = aaPattern.matcher(sitesMatch.group(1));
+                Matcher matcher = sitesPattern.matcher(sitesMatch.group(1));
                 while (matcher.find()) {
                     sites.add(matcher.group());
                 }
