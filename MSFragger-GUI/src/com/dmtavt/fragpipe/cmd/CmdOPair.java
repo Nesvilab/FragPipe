@@ -51,6 +51,9 @@ import javax.swing.JOptionPane;
 public class CmdOPair  extends CmdBase {
     private static final Logger log = LoggerFactory.getLogger(CmdOPair.class);
     public static String NAME = "OPair";
+    public static final String OPAIR_FOLDER = "opair";
+    public static final String OPAIR_MODS_FOLDER = "Glycan_Mods";
+    public static final String DEFAULT_OXO_FILE = "OxoniumFilter.tsv";
 
     public CmdOPair(boolean isRun, Path workDir) {
         super(isRun, workDir);
@@ -144,6 +147,7 @@ public class CmdOPair  extends CmdBase {
             // get glycan residue and mod definition files
             final Path dirTools = FragpipeLocations.get().getDirTools();
             Path glycanDBfolder = Paths.get(dirTools.toString(), TabGlyco.glycanDBfolder);
+            Path modsFolder = Paths.get(dirTools.toString(), OPAIR_FOLDER, OPAIR_MODS_FOLDER);
             Path residuesPath = glycanDBfolder.resolve(GlycoMassLoader.GLYCAN_RESIDUES_NAME);
             if (!Files.exists(residuesPath)) {
                 if (Fragpipe.headless) {
@@ -174,7 +178,17 @@ public class CmdOPair  extends CmdBase {
             cmd.add("-c " + params.getPrecursorPPMtol());
             if (params.isFilterOxonium()) {
                 if (params.getOxoRulesFilePath().isEmpty()) {
-                    cmd.add("-f default");
+                    // no file provided - use default file in FragPipe
+                    Path oxoPath = modsFolder.resolve(DEFAULT_OXO_FILE);
+                    if (!Files.exists(oxoPath)) {
+                        if (Fragpipe.headless) {
+                            log.error(String.format("Could not find default oxonium ion definitions file at %s. Please make sure this file has not been removed and try again.", oxoPath));
+                        } else {
+                            SwingUtils.showErrorDialog(comp, String.format("Could not find default oxonium ion definitions file at %s. Please make sure this file has not been removed and try again.", oxoPath), "Error");
+                        }
+                        return false;
+                    }
+                    cmd.add("-f " + oxoPath.toAbsolutePath());
                 } else {
                     cmd.add("-f " + params.getOxoRulesFilePath());
                 }
