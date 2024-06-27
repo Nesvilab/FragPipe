@@ -146,7 +146,8 @@ public class FragpipeLocations {
     try {
       return PathUtils.createDirs(path);
     } catch (IOException e) {
-      throw new IllegalStateException("Couldn't create sub directory " + dir + " inside FragPipe folder.");
+      log.warn("Couldn't create sub directory {} inside FragPipe folder.", dir);
+      return null;
     }
   }
 
