@@ -668,15 +668,23 @@ public class TabWorkflow extends JPanelWithEnablement {
     List<Path> searchPaths = Fragpipe.getExtBinSearchPaths();
     final javax.swing.filechooser.FileFilter ff = CmdMsfragger.getFileChooserFilter(searchPaths);
     Predicate<File> supportedFilePredicate = CmdMsfragger.getSupportedFilePredicate(searchPaths);
-    JFileChooser fc = FileChooserUtils.create("Choose raw data files", "Select", true, FcMode.ANY, true, ff);
+    final var fc = FileChooserUtils.create("Choose raw data files", "Select", true, FcMode.ANY, true, ff);
     fc.setFileFilter(ff);
     tableModelRawFiles.dataCopy();
-    FileChooserUtils.setPath(fc, Stream.of(ThisAppProps.load(ThisAppProps.PROP_LCMS_FILES_IN)));
-
-    int result = fc.showDialog(this, "Select");
-    if (JFileChooser.APPROVE_OPTION != result) {
-      return;
-    }
+    File cwd = null;
+    File[] sf;
+    do {
+      if (cwd == null)
+        FileChooserUtils.setPath(fc, Stream.of(ThisAppProps.load(ThisAppProps.PROP_LCMS_FILES_IN)));
+      else
+        fc.setCurrentDirectory(cwd);
+      int result = fc.showDialog(this, "Select");
+      if (JFileChooser.APPROVE_OPTION != result) {
+        return;
+      }
+      sf = fc.getSelectedFiles();
+      cwd = sf[0];
+    } while (sf.length == 1 && sf[0].isDirectory() && !sf[0].toString().endsWith(".d"));
     final List<Path> paths = Arrays.stream(fc.getSelectedFiles()).filter(supportedFilePredicate).map(File::toPath).collect(Collectors.toList());
     if (paths.isEmpty()) {
       JOptionPane.showMessageDialog(this, "None of selected files/folders are supported.\nIf you are analyzing timsTOF (.d) data, please make sure that you have the latest MSFragger with ext folder exist.", "Warning", JOptionPane.WARNING_MESSAGE);
