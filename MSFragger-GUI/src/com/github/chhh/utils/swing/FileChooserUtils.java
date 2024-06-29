@@ -111,8 +111,7 @@ public class FileChooserUtils {
     final var fc = new JFileChooser() {
       @Override
       public boolean isTraversable(final File f) {
-        final var filename = f.toPath().getFileName();
-        return Files.isDirectory(f.toPath()) && (filename == null || !filename.toString().endsWith(".d"));
+        return f.isDirectory() && !f.toString().endsWith(".d");
       }
     };
     fc.setDialogTitle(title);
