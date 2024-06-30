@@ -668,7 +668,13 @@ public class TabWorkflow extends JPanelWithEnablement {
     List<Path> searchPaths = Fragpipe.getExtBinSearchPaths();
     final javax.swing.filechooser.FileFilter ff = CmdMsfragger.getFileChooserFilter(searchPaths);
     Predicate<File> supportedFilePredicate = CmdMsfragger.getSupportedFilePredicate(searchPaths);
-    final var fc = FileChooserUtils.create("Choose raw data files", "Select", true, FcMode.ANY, true, ff);
+    final var fc = new JFileChooser() {
+      @Override
+      public boolean isTraversable(final File f) {
+        return f.isDirectory() && !f.toString().endsWith(".d");
+      }
+    };
+    FileChooserUtils.create(fc, "Choose raw data files", "Select", true, FcMode.ANY, true, ff);
     fc.setFileFilter(ff);
     tableModelRawFiles.dataCopy();
     File cwd = null;

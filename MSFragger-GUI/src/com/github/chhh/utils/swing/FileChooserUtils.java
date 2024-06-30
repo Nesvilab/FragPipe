@@ -107,13 +107,14 @@ public class FileChooserUtils {
   }
 
   public static JFileChooser create(String title, String approveButton, boolean multiSelection,
-      FcMode selectionMode, boolean isAcceptAllUsed, javax.swing.filechooser.FileFilter... filters) {
-    final var fc = new JFileChooser() {
-      @Override
-      public boolean isTraversable(final File f) {
-        return f.isDirectory() && !f.toString().endsWith(".d");
-      }
-    };
+                                    FcMode selectionMode, boolean isAcceptAllUsed, javax.swing.filechooser.FileFilter... filters) {
+    return create(null, title, approveButton, multiSelection, selectionMode, isAcceptAllUsed, filters);
+  }
+
+  public static JFileChooser create(JFileChooser fc, String title, String approveButton, boolean multiSelection,
+                                    FcMode selectionMode, boolean isAcceptAllUsed, javax.swing.filechooser.FileFilter... filters) {
+    if (fc == null)
+      fc = new JFileChooser();
     fc.setDialogTitle(title);
     fc.setApproveButtonText(approveButton);
     fc.setMultiSelectionEnabled(multiSelection);
