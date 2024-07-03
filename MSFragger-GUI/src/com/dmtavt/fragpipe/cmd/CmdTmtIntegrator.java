@@ -40,8 +40,10 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.swing.JOptionPane;
@@ -81,7 +83,7 @@ public class CmdTmtIntegrator extends CmdBase {
     return true;
   }
 
-  public boolean configure(TmtiPanel panel, boolean isDryRun, int ramGb, String decoyTag, Map<LcmsFileGroup, Path> mapGroupsToProtxml, boolean doMsstats, Map<LcmsFileGroup, Path> groupAnnotationMap, boolean isSecondUnmodRun) {
+  public boolean configure(TmtiPanel panel, boolean isDryRun, int ramGb, Map<LcmsFileGroup, Path> mapGroupsToProtxml, boolean doMsstats, Map<LcmsFileGroup, Path> groupAnnotationMap, boolean isSecondUnmodRun) {
     isConfigured = false;
 
     List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Stream.of(JAR_NAME));
@@ -176,15 +178,21 @@ public class CmdTmtIntegrator extends CmdBase {
             + "in " + NAME + " config, unless selecting Virtual reference option.", NAME + " Config");
       }
 
-      Map<LcmsFileGroup, Path> annotations0 = panel.getAnnotations(wd, isDryRun);
-      if (annotations0.isEmpty()) {
-        return false;
+      Set<String> ss = new HashSet<>();
+      for (Path path : groupAnnotationMap.values()) {
+        List<QuantLabelAnnotation> annotations = TmtiPanel.parseTmtAnnotationFile(path.toFile());
+        for (QuantLabelAnnotation a : annotations) {
+          if (!a.getSample().equalsIgnoreCase("na") && !ss.add(a.getSample())) {
+            SwingUtils.showErrorDialog(panel, "Duplicate samples found in annotation files. The sample names must be unique among all experiments.", "ERROR: duplicate label");
+            return false;
+          }
+        }
       }
 
       List<Path> filesWithoutRefChannel = new ArrayList<>();
       // only check for presence of reference channels if "Define Reference is set to "Reference Sample"
       if (TmtiConfProps.COMBO_ADD_REF_CHANNEL.equalsIgnoreCase(panel.getDefineReference())) {
-        for (Path path : annotations0.values()) {
+        for (Path path : groupAnnotationMap.values()) {
           List<QuantLabelAnnotation> annotations = TmtiPanel
               .parseTmtAnnotationFile(path.toFile());
           if (annotations.stream().noneMatch(a -> a.getSample().contains(refTag))) {
@@ -205,7 +213,7 @@ public class CmdTmtIntegrator extends CmdBase {
         return false;
       }
 
-      for (Path path : annotations0.values()) {
+      for (Path path : groupAnnotationMap.values()) {
         List<QuantLabelAnnotation> annotations = TmtiPanel.parseTmtAnnotationFile(path.toFile());
         for (QuantLabelAnnotation a : annotations) {
           if (a.getSample().trim().isEmpty()) {

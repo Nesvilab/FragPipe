@@ -1668,7 +1668,7 @@ public class FragpipeRun {
         if (annotations.isEmpty()) {
           return false;
         }
-        return cmdTmt.configure(tmtiPanel, isDryRun, ramGb, decoyTag, sharedMapGroupsToProtxml, philosopherGenerateMSstats, annotations, false);
+        return cmdTmt.configure(tmtiPanel, isDryRun, ramGb, sharedMapGroupsToProtxml, philosopherGenerateMSstats, annotations, false);
       }
       return true;
     });
@@ -1869,7 +1869,7 @@ public class FragpipeRun {
         if (annotations.isEmpty()) {
           return false;
         }
-        return cmdTmtFpop.configure(tmtiPanel, isDryRun, ramGb, decoyTag, sharedMapGroupsToProtxml, philosopherGenerateMSstats, annotations, true);
+        return cmdTmtFpop.configure(tmtiPanel, isDryRun, ramGb, sharedMapGroupsToProtxml, philosopherGenerateMSstats, annotations, true);
       });
     }
 

@@ -753,11 +753,11 @@ public class TmtiPanel extends JPanelBase {
       line = line.trim();
       if (StringUtils.isNullOrWhitespace(line))
         continue;
-      String[] split = line.split("\\s+", 2);
-      if (split.length > 1) {
+      String[] split = line.split("\\s+");
+      if (split.length == 2) {
         annotations.add(new QuantLabelAnnotation(split[0].trim(), split[1]));
       } else {
-        annotations.add(new QuantLabelAnnotation(split[0].trim(), ""));
+        throw new RuntimeException("Invalid line in annotation file " + file.getAbsoluteFile() + ": " + line);
       }
     }
     return annotations;
