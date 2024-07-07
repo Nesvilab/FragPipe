@@ -29,12 +29,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
+import javax.swing.JOptionPane;
 import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.swing.*;
 
 public class CmdSkyline extends CmdBase {
 
@@ -77,7 +77,7 @@ public class CmdSkyline extends CmdBase {
       log.debug("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
     }
 
-    List<String> toJoin = classpathJars.stream().map(p -> p.toAbsolutePath().normalize().toString()).collect(Collectors.toList());
+    Set<String> toJoin = classpathJars.stream().map(p -> p.toAbsolutePath().normalize().toString()).collect(Collectors.toSet());
     try {
       toJoin.addAll(Files.walk(libsDir).filter(p -> p.getFileName().toString().endsWith(".jar")).
           filter(p -> p.getFileName().toString().startsWith("maven-artifact") ||

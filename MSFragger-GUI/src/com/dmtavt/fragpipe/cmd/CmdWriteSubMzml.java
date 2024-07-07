@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
@@ -78,7 +79,7 @@ public class CmdWriteSubMzml extends CmdBase {
       log.debug("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
     }
 
-    List<String> toJoin = classpathJars.stream().map(p -> p.toAbsolutePath().normalize().toString()).collect(Collectors.toList());
+    Set<String> toJoin = classpathJars.stream().map(p -> p.toAbsolutePath().normalize().toString()).collect(Collectors.toSet());
     try {
       toJoin.addAll(Files.walk(libsDir).
           filter(p -> p.getFileName().toString().endsWith(".jar")).
