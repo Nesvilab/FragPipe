@@ -17,6 +17,7 @@
 
 package com.dmtavt.fragpipe.tools.diann;
 
+import static com.dmtavt.fragpipe.cmd.CmdDiann.labelPattern;
 import static com.dmtavt.fragpipe.cmd.ToolingUtils.UNIMOD_OBO;
 import static com.dmtavt.fragpipe.cmd.ToolingUtils.getUnimodOboPath;
 
@@ -31,6 +32,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,12 +47,27 @@ public class Propagation {
   private static final Pattern pattern = Pattern.compile("([ncA-Z]+):([\\d.-]+)");
 
   private final UnimodOboReader unimodOboReader;
+  private final Map<String, Float> diannLabelMassMap = new HashMap<>();
 
 
   public static void main(String[] args) {
     long startTime = System.nanoTime();
 
     Path wd = Paths.get(args[0].trim());
+    String lightString = args[1].trim();
+    String mediumString = args[2].trim();
+    String heavyString = args[3].trim();
+
+    if (lightString.contentEquals("-")) {
+      lightString = "";
+    }
+    if (mediumString.contentEquals("-")) {
+      mediumString = "";
+    }
+    if (heavyString.contentEquals("-")) {
+      heavyString = "";
+    }
+
     Path psmPath = null;
 
     try {
@@ -65,7 +82,7 @@ public class Propagation {
         psmPath = tt.get(0);
       }
 
-      Propagation propagation = new Propagation();
+      Propagation propagation = new Propagation(lightString, mediumString, heavyString);
       propagation.propagate(psmPath, wd.resolve("diann-output"));
     } catch (Exception ex) {
       ex.printStackTrace();
@@ -75,9 +92,19 @@ public class Propagation {
     System.out.printf("Done in %.2f seconds.\n", (System.nanoTime() - startTime) * 1e-9);
   }
 
-  public Propagation() throws Exception {
+  public Propagation(String lightString, String mediumString, String heavyString) throws Exception {
     Path unimodPath = getUnimodOboPath(UNIMOD_OBO);
     unimodOboReader = new UnimodOboReader(unimodPath);
+
+    if (lightString != null && !lightString.isEmpty()) {
+      convertLabelString("L", lightString, diannLabelMassMap);
+    }
+    if (mediumString != null && !mediumString.isEmpty()) {
+      convertLabelString("M", mediumString, diannLabelMassMap);
+    }
+    if (heavyString != null && !heavyString.isEmpty()) {
+      convertLabelString("H", heavyString, diannLabelMassMap);
+    }
   }
 
   public void propagate(Path psm_path, Path diann_directory) throws Exception {
@@ -263,7 +290,11 @@ public class Propagation {
         System.arraycopy(line.split("\t"), 0, columnArray, 0, parts.length);
         writer.write(String.join("\t", columnArray));
 
-        Precursor precursor = new Precursor(parts[modifiedSequenceColumnIdx], parts[strippedSequenceColumnIdx].length(), Integer.parseInt(parts[chargeColumnIdx]), unimodOboReader.unimodMassMap);
+        Precursor precursor = new Precursor(parts[modifiedSequenceColumnIdx],
+            parts[strippedSequenceColumnIdx].length(),
+            Integer.parseInt(parts[chargeColumnIdx]),
+            unimodOboReader.unimodMassMap,
+            diannLabelMassMap);
 
         String[] ss = precursorProteinGeneMap.get(precursor);
         if (ss == null) {
@@ -306,5 +337,24 @@ public class Propagation {
     writer.close();
 
     Files.move(p2, p, StandardCopyOption.REPLACE_EXISTING);
+  }
+
+  private static void convertLabelString(String label, String inputStr, Map<String, Float> map) {
+    Matcher matcher = labelPattern.matcher(inputStr.trim());
+    while (matcher.find()) {
+      char[] aas = matcher.group(1).toCharArray();
+      float modMass = Float.parseFloat(matcher.group(2));
+      for (char aa : aas) {
+        if (aa == '*') {
+          for (char c = 'A'; c < 'Z'; ++c) {
+            map.put("label-" + c + "-" + label, modMass);
+          }
+          map.put("label-n-" + label, modMass);
+          map.put("label-c-" + label, modMass);
+        } else {
+          map.put("label-" + aa + "-" + label, modMass);
+        }
+      }
+    }
   }
 }

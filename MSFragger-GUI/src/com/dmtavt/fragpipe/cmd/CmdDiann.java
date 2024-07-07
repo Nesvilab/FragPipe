@@ -61,7 +61,7 @@ public class CmdDiann extends CmdBase {
   private static final String NAME = "DIA-NN";
   private static final List<String> SUPPORTED_FORMATS_WIN = Arrays.asList("mzML", "d", "dia", "wiff", "raw");
   private static final List<String> SUPPORTED_FORMATS_LINUX = Arrays.asList("mzML", "d", "dia");
-  private static final Pattern labelPattern = Pattern.compile("([A-Znc*]+)([\\d.+-]+)");
+  public static final Pattern labelPattern = Pattern.compile("([A-Znc*]+)([\\d.+-]+)");
 
   private final String diannPath;
   private final String LD_PRELOAD_str;
@@ -371,6 +371,9 @@ public class CmdDiann extends CmdBase {
       cmd.add(classpath);
       cmd.add(Propagation.class.getCanonicalName());
       cmd.add(wd.toAbsolutePath().toString());
+      cmd.add((lightString == null || lightString.isEmpty()) ? "-" : lightString);
+      cmd.add(mediumString == null || mediumString.isEmpty() ? "-" : mediumString);
+      cmd.add(heavyString == null || heavyString.isEmpty() ? "-" : heavyString);
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(wd.resolve("diann-output").toFile());
       pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + ": Propagate information").create());
