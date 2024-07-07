@@ -187,11 +187,16 @@ public class Propagation {
     }
     reader.close();
 
-    editReport(diann_directory.resolve("report.tsv"), precursorModificationLocalizationTable, precursorProteinGeneMap, 1);
-    editReport(diann_directory.resolve("report.pr_matrix.tsv"), precursorModificationLocalizationTable, precursorProteinGeneMap, 2);
+    String[] modificationArray = null;
+    if (!precursorModificationLocalizationTable.isEmpty()) {
+      modificationArray = precursorModificationLocalizationTable.columnKeySet().toArray(new String[0]);
+    }
+
+    editReport(diann_directory.resolve("report.tsv"), precursorModificationLocalizationTable, modificationArray, precursorProteinGeneMap, 1);
+    editReport(diann_directory.resolve("report.pr_matrix.tsv"), precursorModificationLocalizationTable, modificationArray, precursorProteinGeneMap, 2);
   }
 
-  private void editReport(Path p, Table<Precursor, String, LocalizedPeptide> precursorModificationLocalizationTable, Map<Precursor, String[]> precursorProteinGeneMap, int type) throws Exception {
+  private void editReport(Path p, Table<Precursor, String, LocalizedPeptide> precursorModificationLocalizationTable, String[] modificationArray, Map<Precursor, String[]> precursorProteinGeneMap, int type) throws Exception {
     String s = "";
     String firstLineMarker = "";
     if (type == 1) {
@@ -235,8 +240,7 @@ public class Propagation {
         writer.write(line);
         writer.write("\tAll Mapped Proteins\tAll Mapped Genes");
 
-        if (!precursorModificationLocalizationTable.isEmpty()) {
-          String[] modificationArray = precursorModificationLocalizationTable.columnKeySet().toArray(new String[0]);
+        if (!precursorModificationLocalizationTable.isEmpty() && modificationArray != null) {
           for (String modification : modificationArray) {
             writer.write("\t");
             writer.write(modification);
@@ -271,8 +275,7 @@ public class Propagation {
           writer.write(ss[1]);
         }
 
-        if (!precursorModificationLocalizationTable.isEmpty()) {
-          String[] modificationArray = precursorModificationLocalizationTable.columnKeySet().toArray(new String[0]);
+        if (!precursorModificationLocalizationTable.isEmpty() && modificationArray != null) {
           Map<String, LocalizedPeptide> tt = precursorModificationLocalizationTable.row(precursor);
           if (tt.isEmpty()) {
             for (int i = 0; i < modificationArray.length; ++i) {
