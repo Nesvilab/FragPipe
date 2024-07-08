@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import org.slf4j.Logger;
@@ -47,6 +46,8 @@ public class PtmProphetPanel extends JPanelBase {
   private static final MigUtils mu = MigUtils.get();
   private UiCheck checkRun;
   private UiText uiTextCmd;
+  private JLabel uiJLabelCmd;
+  private UiCheck checkOverrideDefaults;
 
   public PtmProphetPanel() {
     super();
@@ -67,10 +68,6 @@ public class PtmProphetPanel extends JPanelBase {
     return PREFIX;
   }
 
-  public void setRunStatus(boolean status) {
-    checkRun.setEnabled(status);
-  }
-
   @Override
   protected void init() {
     mu.layout(this, mu.lcFillXNoInsetsTopBottom());
@@ -85,15 +82,16 @@ public class PtmProphetPanel extends JPanelBase {
 
   private JPanel createPanelContent() {
     JPanel p = mu.newPanel(null, mu.lcNoInsetsTopBottom());
-    //mu.border(p, "PTMProphet options");
-
-    //mu.add(p, new JLabel("Some dummy property")).wrap();
 
     uiTextCmd = UiUtils.uiTextBuilder().text(getDefaults()).create();
-    FormEntry feCmdLineOpts = mu.feb("cmdline", uiTextCmd).label("Cmd line opts")
+    uiJLabelCmd = new JLabel("Cmd line opts");
+    FormEntry feCmdLineOpts = mu.feb("cmdline", uiTextCmd)
         .tooltip("Command line options for PTMProphet").create();
 
-    mu.add(p, feCmdLineOpts.label(), mu.ccR());
+    uiTextCmd.setVisible(false);
+    uiJLabelCmd.setVisible(false);
+
+    mu.add(p, uiJLabelCmd, mu.ccR());
     mu.add(p, feCmdLineOpts.comp).spanX().growX().pushX().wrap();
 
     return p;
@@ -111,14 +109,10 @@ public class PtmProphetPanel extends JPanelBase {
 
   /**
    * Load modification info into the command line args string for PTMProphet automatically.
-   * @return
    */
   private String loadMSFraggerMods() {
-    String cmdText = uiTextCmd.getNonGhostText();
-    if (cmdText.isEmpty()) {
-      // command is currently empty. Load default command as a starting point
-      cmdText = getDefaults();
-    }
+    String cmdText = getDefaults();
+
     // Find the mod argument (if present)
     String[] splits = cmdText.split(" ");
     Pattern modPattern = Pattern.compile("[^:]+:[\\d+.-]+");
@@ -130,6 +124,7 @@ public class PtmProphetPanel extends JPanelBase {
         break;
       }
     }
+
     // replace the mod argument with the current MSFragger mods
     String newMods = getMSFraggerMods();
     if (modIndex == -1) {
@@ -216,17 +211,15 @@ public class PtmProphetPanel extends JPanelBase {
 
     checkRun = new UiCheck("Run PTMProphet", null, false);
     checkRun.setName("run-ptmprophet");
-    JButton btnDefaults = UiUtils.createButton("Load defaults", e -> {
-      uiTextCmd.setText(getDefaults());
+
+    checkOverrideDefaults = new UiCheck("Override defaults", null, false);
+    checkOverrideDefaults.setName("override-defaults");
+    checkOverrideDefaults.addActionListener(e -> {
+      uiJLabelCmd.setVisible(SwingUtils.isEnabledAndChecked(checkOverrideDefaults));
+      uiTextCmd.setVisible(SwingUtils.isEnabledAndChecked(checkOverrideDefaults));
     });
 
-    JButton btnLoadMSFraggerMods = UiUtils.createButton("Load Mods from MSFragger Settings", e -> {
-      uiTextCmd.setText(loadMSFraggerMods());
-    });
-    btnLoadMSFraggerMods.setToolTipText("Load modifications from the current MSFragger tab setting into the Cmd line options for PTMProphet. Will load all variable mods and mass offsets. The resulting options can be edited after loading as needed.");
-
-    JLabel info = new JLabel(
-        "<html>Not for open searches. Mods format example: STY:79.966331,M:15.9949");
+    JLabel info = new JLabel("<html>Not for open searches. Default cmds: NOSTACK KEEPOLD STATIC EM=1 NIONS=b <mods> MINPROB=0.5. Mods format example: STY:79.966331,M:15.9949");
 
     checkRun.addActionListener(e -> {
       if (isRun()) {
@@ -236,8 +229,7 @@ public class PtmProphetPanel extends JPanelBase {
     });
 
     mu.add(p, checkRun).split();
-    mu.add(p, btnDefaults);
-    mu.add(p, btnLoadMSFraggerMods).gapLeft("20px");
+    mu.add(p, checkOverrideDefaults).gapLeft("20px");
     mu.add(p, info).gapLeft("80px").wrap();
     return p;
   }
@@ -247,7 +239,11 @@ public class PtmProphetPanel extends JPanelBase {
   }
 
   public String getCmdLineOpts() {
-    return uiTextCmd.getNonGhostText();
+    if (checkOverrideDefaults.isSelected()) {
+      return uiTextCmd.getNonGhostText();
+    } else {
+      return loadMSFraggerMods();
+    }
   }
 
   @Override

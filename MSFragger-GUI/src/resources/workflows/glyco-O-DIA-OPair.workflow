@@ -208,6 +208,7 @@ phi-report.run-report=true
 protein-prophet.cmd-opts=--maxppmdiff 2000000
 protein-prophet.run-protein-prophet=false
 ptmprophet.cmdline=--keepold --static --em 1 --nions b --mods STY\:79.966331,M\:15.9949 --minprob 0.5
+ptmprophet.override-defaults=false
 ptmprophet.run-ptmprophet=false
 ptmshepherd.adv_params=false
 ptmshepherd.annotation-common=false
