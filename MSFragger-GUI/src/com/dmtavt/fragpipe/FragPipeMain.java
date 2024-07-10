@@ -69,7 +69,7 @@ public class FragPipeMain {
   }
 
   private static void getPhilosopherBin() {
-    String s = null;
+    String s;
     if (isWindows()) {
       s = "philosopher-v" + PHILOSOPHER_VERSION + ".exe";
     } else if (isUnix()) {
@@ -83,6 +83,12 @@ public class FragPipeMain {
     final Path p = FragpipeLocations.get().getDirTools().resolve("Philosopher").resolve(s).normalize();
     if (Files.exists(p) && Files.isExecutable(p)) {
       Fragpipe.philosopherBinPath = p.toAbsolutePath().toString();
+    } else if (!Files.exists(p)) {
+      SwingUtils.showErrorDialog(null, "Philosopher binary not found at " + p, "Philosopher not found");
+      Fragpipe.philosopherBinPath = null;
+    } else if (!Files.isExecutable(p)) {
+      SwingUtils.showErrorDialog(null, "Philosopher binary at " + p + " is not executable", "Philosopher not executable");
+      Fragpipe.philosopherBinPath = null;
     }
   }
 }
