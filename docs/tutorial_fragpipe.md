@@ -2,12 +2,20 @@
 
 ##### FragPipe can be downloaded [here](https://github.com/Nesvilab/FragPipe/releases). Follow the instructions on that same Releases page to launch the program.
 
-Complete workflows are available for a variety of experiment types, we recommend starting your analysis with a built-in workflow, which can then be customized and saved for future use. For partial processing (e.g. to save time upon re-analysis), steps can be skipped by unchecking the corresponding boxes. This tutorial walks through each tab in some detail, but once FragPipe is configured, analysis can be as simple as choosing spectral files, a database, and a workflow to run. Find a guide to output files [here](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_outputs.html).
+Complete workflows are available for a variety of experiment types, we recommend starting your analysis with a built-in workflow, which can then be customized and saved for future use. 
 
-Before you get started, make sure your LC-MS file format is compatible with the workflows you want to perform. For Thermo data (with or without FAIMS), we recommend [converting .raw files to mzML with peak picking](https://fragpipe.nesvilab.org/docs/tutorial_convert.html). DIA data acquired with overlapping/staggered windows must be [converted to mzML with demultiplexing](https://fragpipe.nesvilab.org/docs/tutorial_convert.html#convert-thermo-dia-raw-files-with-overlappingstaggered-windows). Bruker .d indicates ddaPASEF files from timsTOF (diaPASEF can only be quantified with DIA-NN, this format is not currently supported in MSFragger or other parts of FragPipe), other Bruker .d files should be converted to .mzML. Please also note that timsTOF data requires [Visual C++ Redistributable for Visual Studio 2017](https://aka.ms/vs/16/release/VC_redist.x64.exe) in Windows. If you see an error saying cannot find Bruker native library, please try to install the Visual C++ redistibutable.
+For partial processing (e.g. to save time upon re-analysis), steps can be skipped by unchecking the corresponding boxes. This tutorial walks through each tab in some detail, but once FragPipe is [configured](https://fragpipe.nesvilab.org/docs/tutorial_setup_fragpipe.html), analysis can be as simple as choosing spectral files, a database, and a workflow to run. Find a guide to output files [here](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_outputs.html).
+
+Before you get started, make sure your LC-MS file format is compatible with the workflows you want to perform. For Thermo data (with or without FAIMS), we recommend [converting .raw files to mzML with peak picking](https://fragpipe.nesvilab.org/docs/tutorial_convert.html). DIA data acquired with overlapping/staggered windows must be [converted to mzML with demultiplexing](https://fragpipe.nesvilab.org/docs/tutorial_convert.html#convert-thermo-dia-raw-files-with-overlappingstaggered-windows).
+
+Linux users: please note that [Mono](https://www.mono-project.com/download/stable/#download-lin) must be installed to directly read Thermo .raw files.
+
+Bruker .d indicates ddaPASEF or diaPASEF files from timsTOF, other Bruker .d files should be [converted to .mzML](https://fragpipe.nesvilab.org/docs/tutorial_convert.html). Please also note that timsTOF data requires [Visual C++ Redistributable for Visual Studio 2017](https://aka.ms/vs/16/release/VC_redist.x64.exe) in Windows. If you see an error saying cannot find Bruker native library, please try to install the Visual C++ redistibutable.
 
 | Workflow Step                    | .mzML | Thermo (.raw) | Bruker (.d) |  .mgf |
 |----------------------------------|:-----:|:-------------:|:-----------:|:-----:|
+| DIA-Umpire signal extraction     | ✔     | ✔             |             |       | 
+| diaTracer signal extraction     |        |                 |  ✔           |       | 
 | MSFragger search                 | ✔     | ✔             | ✔           | ✔     | 
 | MSFragger-DIA                    | ✔     | ✔             |             |       | 
 | Label-free quantification        | ✔     | ✔             | ✔           |       | 
@@ -16,14 +24,11 @@ Before you get started, make sure your LC-MS file format is compatible with the 
 | Crystal-C artifact removal       | ✔     | ✔             |             |       | 
 | PTMProphet localization          | ✔     | ✔             | ✔           |       | 
 | PTM-Shepherd summarization       | ✔     | ✔             | ✔           |       | 
-| DIA-Umpire signal extraction     | ✔     | ✔             |             |       | 
 | Spectral library generation      | ✔     | ✔             | ✔           | ✔     | 
 | DIA-NN quantification            | ✔     | ✔*            | ✔           |       | 
 
 FragPipe runs on Windows and Linux operating systems. While very simple analyses may only require 8 GB RAM, large-scale/complex analyses or timsTOF data will likely need 24 GB memory or more. Free disk space is needed to run FragPipe analyses and save reports, typically +20-50% of spectral file size for non-ion mobility data. Disk space requirements for quantification of timsTOF data are greater, +60% spectral file size if .d files are uncompressed, but up to +250% if Bruker's compression function has been used.
 
-Linux users: please note that [Mono](https://www.mono-project.com/download/stable/#download-lin) must be installed to directly read Thermo .raw files.
-<br>
 
 #### Tutorial contents
 * [Configure FragPipe](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html#configure-fragpipe)
@@ -46,12 +51,11 @@ Linux users: please note that [Mono](https://www.mono-project.com/download/stabl
 
 ### Configure FragPipe
 When FragPipe launches, the first tab in the window ('Config') will be used to configure the program.
-1. Connect FragPipe to a MSFragger.jar program file. If you already have the latest MSFragger version, use the 'Browse' button to select it or 'Download/Update' to fetch the latest version. If this is your first time downloading MSFragger, you will need to provide some basic information and agree to license terms. 
-2. Connect FragPipe to a IonQuant.jar program file. If you already have the latest IonQuant version, use the 'Browse' button to select it or 'Download/Update' to fetch the latest version. If this is your first time downloading IonQuant, you will need to provide some basic information and agree to license terms. 
-3. Connect FragPipe to a Philosopher program file. If you already have the latest Philosopher release, use 'Browse', otherwise use 'Download/Update'.
-4. Optional: Python is needed to perform database splitting (necessary in complex searches/low memory situations) and spectral library generation. If you already have Python 3.8 or 3.9 plus a few additional packages installed use 'Browse' to locate your python.exe file. 'Download' will take you to install Python. See [Python installation help](https://fragpipe.nesvilab.org/docs/tutorial_setup_fragpipe.html#optional-install-update-or-use-an-already-installed-version-of-python) for details.
+1. Connect FragPipe to a MSFragger.jar, IonQuant.jar, and diaTracer.jar program files. If you already have the latest versions and they are in the same folder, use the 'Browse' button to select the folder. Use 'Download/Update' to fetch the latest versions if you don't have them.
+2. Optional: download and install the latest DIA-NN if you want. After installation, specify the path to `DiaNN.txt` in FragPipe. FragPipe bundles DIA-NN that should be good for most analysis.
+3. Optional: Python is needed to perform database splitting (necessary in complex searches/low memory situations) and spectral library generation. If you already have Python 3.8 - 3.11 plus a few additional packages installed use 'Browse' to locate your python.exe file. 'Download' will take you to install Python. See [Python installation help](https://fragpipe.nesvilab.org/docs/tutorial_setup_fragpipe.html#optional-install-update-or-use-an-already-installed-version-of-python) for details.
 
-__Note: FragPipe requires Python 3.8 or 3.9__.
+__Note: FragPipe requires Python 3.8 - 3.11__.
 
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-config.png)
  
@@ -74,7 +78,7 @@ In the 'Workflow' tab:
 
 **Notes about timsTOF data:** We recommend using raw ddaPASEF files (.d files), where the .d folder is the raw file. If you have already run MSFragger on the .d files, having the .mzBIN files from that analysis in the same directory as the .d files will speed up the analysis. If you don't need to perform quantification, you can use .mgf files (which can be generated by Bruker's instrument software immediately after data acquisition is completed) instead of .d.
  
-Once you've loaded your spectral files, set the data type (DDA, DIA, GPF-DIA, DIA-Quant, or DIA-Lib; hover over 'Data type' in FragPipe to view the tooltip with more information) and annotate your data to specify Experiment and Bioreplicates, which determines how your PSM/peptide/protein etc. reports will be generated (the 'Save as manifest' button stores file locations and annotations for future use):
+Once you've loaded your spectral files, set the data type (DDA, DDA+, DIA, DIA-Quant, or DIA-Lib; hover over 'Data type' in FragPipe to view the tooltip with more information) and annotate your data to specify Experiment and Bioreplicates, which determines how your PSM/peptide/protein etc. reports will be generated (the 'Save as manifest' button stores file locations and annotations for future use):
 
 #### Single-experiment report 
 Leave the 'Experiment' and 'Bioreplicate' fields blank. Use this option if you want to analyze all input files together and generate a single merged report (e.g.,  building a combined spectral library from all input data). 
@@ -131,7 +135,6 @@ Bait IPs: Use `[GENE]_[condition]` format to describe the experiments, where `[G
 
 **Note:** All negative controls should be labeled the same, as `Control`, even if you have negative controls generated under different conditions or in different cell lines.  
 
-<br>
 
 #### TMT/iTRAQ data
 For TMT/iTRAQ analysis, spectral files should be in mzML format (with peak picking, see the [conversion tutorial](https://fragpipe.nesvilab.org/docs/tutorial_convert.html)). Raw files are not currently supported.
@@ -146,12 +149,20 @@ TMT/iTRAQ experiments typically consist of one or more "plexes" (multiplexed sam
 | run_name_tmt2_2.mzML | TMT2       |              |
 
  <br>
- <br>
- 
+
+
 ### Run DIA-Umpire SE
-[DIA-Umpire](https://diaumpire.nesvilab.org/)'s signal extraction module can be used for .raw and .mzML files. See this [tutorial](https://fragpipe.nesvilab.org/docs/tutorial_DIA.html) for more detail.
+[DIA-Umpire](https://diaumpire.nesvilab.org/)'s signal extraction module can be used for .raw and .mzML files without ion mobility. See this [tutorial](https://fragpipe.nesvilab.org/docs/tutorial_DIA.html) for more detail.
   
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-diaumpire.png)
+
+<br>
+
+
+### Run diaTracer
+[diaTracer](https://diatracer.nesvilab.org/)'s signal extraction module can be used for diaPASEF .d files.
+  
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-diatracer.png)
 
 
  <br>
