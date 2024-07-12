@@ -323,7 +323,9 @@ def main_easypqp(params, irt_df, allcmds, easypqp_convert_cmds) -> None:
 	assert all(p.returncode == 0 for p in procs)
 	use_iRT = params.irt_choice is not Irt_choice.no_iRT
 	use_im = params.im_choice is not Im_choice.no_im
-	p = subprocess.run(easypqp_library_cmd(params, use_iRT, use_im), cwd=os_fspath(params.workdir), check=False)
+	easypqp_lib_cmd = easypqp_library_cmd(params, use_iRT, use_im)
+	print(f'Executing {easypqp_lib_cmd}')
+	p = subprocess.run(easypqp_lib_cmd, cwd=os_fspath(params.workdir), check=False)
 	if p.returncode != 0 and not use_iRT:
 		print('''Not enough peptides could be found for alignment.
 Using ciRT for alignment''')
