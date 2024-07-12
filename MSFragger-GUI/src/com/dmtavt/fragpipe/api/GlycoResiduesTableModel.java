@@ -22,6 +22,7 @@ import umich.ms.glyco.GlycanResidue;
 import com.github.chhh.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import umich.ms.util.ElementalComposition;
 
 import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;
@@ -131,7 +132,17 @@ public class GlycoResiduesTableModel extends DefaultTableModel {
                     yProbMinus = -1;
                 }
             }
-            String elementalComp = row.get(COL_ELEMENTAL) != null ? (String) row.get(COL_ELEMENTAL) : "";
+            ElementalComposition elementalComp;
+            Object rowComp = row.get(COL_ELEMENTAL);
+            if (rowComp != null) {
+                try {
+                    elementalComp = (ElementalComposition) rowComp;
+                } catch (ClassCastException ex) {
+                    elementalComp = new ElementalComposition("");   // empty cell returns an empty String
+                }
+            } else {
+                elementalComp = new ElementalComposition("");
+            }
 
             if (!StringUtils.isNullOrWhitespace(name) && mass != null) {
                 return new GlycanResidue(name, mass, altNames, yProbPlus, yProbMinus, isLabile, elementalComp, printIndex);
