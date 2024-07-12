@@ -81,13 +81,10 @@ public class FragPipeMain {
     }
 
     final Path p = FragpipeLocations.get().getDirTools().resolve("Philosopher").resolve(s).normalize();
-    if (Files.exists(p) && Files.isExecutable(p)) {
+    if (Files.exists(p)) {
       Fragpipe.philosopherBinPath = p.toAbsolutePath().toString();
-    } else if (!Files.exists(p)) {
+    } else {
       SwingUtils.showErrorDialog(null, "Philosopher binary not found at " + p, "Philosopher not found");
-      Fragpipe.philosopherBinPath = null;
-    } else if (!Files.isExecutable(p)) {
-      SwingUtils.showErrorDialog(null, "Philosopher binary at " + p + " is not executable", "Philosopher not executable");
       Fragpipe.philosopherBinPath = null;
     }
   }
