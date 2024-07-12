@@ -106,6 +106,9 @@ public class PtmshepherdPanel extends JPanelBase {
   private static final String PROP_iterloc_mode = "iterloc_mode";
   private static final String PROP_iterloc_maxEpoch = "iterloc_maxEpoch";
   private static final String PROP_spectra_maxfragcharge = "spectra_maxfragcharge";
+  private static final String PROP_spectra_maxPrecCharge = "spectra_maxPrecursorCharge";
+  private static final String PROP_spectra_condPeaks = "spectra_condPeaks";
+  private static final String PROP_spectra_condRatio = "spectra_condRatio";
   private static final String PROP_restrict_loc = "localization_allowed_res";
 
   private static final String PROP_custom_modlist_loc = "ptmshepherd.path.modlist";
@@ -571,16 +574,6 @@ public class PtmshepherdPanel extends JPanelBase {
     FormEntry feMinPsms = new FormEntry(PROP_peakpicking_minPsm, "Peak minimum PSMs",
             new UiSpinnerInt(10, 0, 1000, 1, 5),
             "<html>Filters out mass shift peaks below the minimum threshold");
-    UiSpinnerDouble uiSpinnerSpectraTol = UiSpinnerDouble.builder(20.0, 1.0, 1000.0, 1)
-            .setFormat(new DecimalFormat("0.#")).setCols(5).create();
-    FormEntry feSpectraTol = new FormEntry(PROP_spectra_ppmtol, "Fragment mass tolerance (PPM)",
-            uiSpinnerSpectraTol);
-    FormEntry feMaxFragCharge = mu
-            .feb(PROP_spectra_maxfragcharge,
-                    UiUtils.spinnerInt(2, 1, 100, 1).setCols(4).create())
-            .label("Max fragment charge")
-            .tooltip("max fragment charge for localization")
-            .create();
 
     btnGroupNormalizations = new ButtonGroup();
     btnNormPsm = new JRadioButton("PSMs", true);
@@ -638,10 +631,6 @@ public class PtmshepherdPanel extends JPanelBase {
 
     mu.add(p1, feMinPsms.label(), mu.ccR());
     mu.add(p1, feMinPsms.comp).wrap();
-    mu.add(p1, feMaxFragCharge.label(), mu.ccR());
-    mu.add(p1, feMaxFragCharge.comp);
-    mu.add(p1, feSpectraTol.label(), mu.ccR());
-    mu.add(p1, feSpectraTol.comp).wrap();
 
 
     mu.add(p1, new JLabel("Normalize data to: ")).spanX().split();
@@ -724,6 +713,47 @@ public class PtmshepherdPanel extends JPanelBase {
 
     mu.add(p, p3).spanX().growX().wrap();
 
+    UiSpinnerDouble uiSpinnerSpectraTol = UiSpinnerDouble.builder(20.0, 1.0, 1000.0, 1)
+            .setFormat(new DecimalFormat("0.#")).setCols(5).create();
+    FormEntry feSpectraTol = new FormEntry(PROP_spectra_ppmtol, "Fragment mass tolerance (PPM)",
+            uiSpinnerSpectraTol);
+    FormEntry feMaxFragCharge = mu
+            .feb(PROP_spectra_maxfragcharge,
+                    UiUtils.spinnerInt(2, 1, 100, 1).setCols(4).create())
+            .label("Max fragment charge")
+            .tooltip("max fragment charge for localization")
+            .create();
+    FormEntry feMaxPrecCharge = mu
+            .feb(PROP_spectra_maxPrecCharge,
+                    UiUtils.spinnerInt(4, 1, 100, 1).setCols(4).create())
+            .label("Max precursor charge")
+            .tooltip("max precursor charge (used only for spectra without a recorded precursor charge)")
+            .create();
+    FormEntry feCondPeaks = mu
+            .feb(PROP_spectra_condPeaks,
+                    UiUtils.spinnerInt(150, 1, 100000, 1).setCols(6).create())
+            .label("Use top N peaks")
+            .tooltip("Consider topN peaks per MS2 spectrum")
+            .create();
+    UiSpinnerDouble uiSpinnerSpectraRatio = UiSpinnerDouble.builder(0.0001, 0, 1, 0.0001)
+            .setFormat(new DecimalFormat("0.#######")).setCols(10).create();
+    FormEntry feSpectraRatio = new FormEntry(PROP_spectra_condRatio, "Min ratio",
+            uiSpinnerSpectraRatio);
+
+    JPanel p4 = mu.newPanel("Spectrum Preprocessing", true);
+
+    mu.add(p4, feMaxFragCharge.label(), mu.ccR());
+    mu.add(p4, feMaxFragCharge.comp);
+    mu.add(p4, feSpectraTol.label(), mu.ccR());
+    mu.add(p4, feSpectraTol.comp).wrap();
+    mu.add(p4, feMaxPrecCharge.label(), mu.ccR());
+    mu.add(p4, feMaxPrecCharge.comp);
+    mu.add(p4, feCondPeaks.label(), mu.ccR());
+    mu.add(p4, feCondPeaks.comp);
+    mu.add(p4, feSpectraRatio.label(), mu.ccR());
+    mu.add(p4, feSpectraRatio.comp).wrap();
+
+    mu.add(p, p4).spanX().growX().wrap();
 
     return p;
   }
