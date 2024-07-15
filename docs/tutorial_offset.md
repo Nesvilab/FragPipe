@@ -88,7 +88,7 @@ Please note: Only peptides with the mass shifts specified in the list will be in
 <br>
 
 ### Set the output location and run
-8) On the Run tab, make a new folder for the output files (e.g. ‘offset_results’), then click ‘RUN’ and wait for the analysis to finish.
+8) On the Run tab, make a new folder for the output files, then click ‘RUN’ and wait for the analysis to finish.
 
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-run.png)
 
@@ -100,7 +100,7 @@ When the run is finished, ‘DONE’ will be printed at the end of the text in t
 <br>
 
 ### Examine the results
-In the output location (‘offset_results’ folder), you will see subfolders containing individual results for DMSO and PTL, plus PTM-Shepherd output files that summarize the mass shifts from both experimental conditions together. A guide to all the output files can be found [here](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_outputs.html).
+In the output location, you will see subfolders containing individual results for DMSO and PTL, plus PTM-Shepherd output files that summarize the mass shifts from both experimental conditions together. A guide to all the output files can be found [here](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_outputs.html).
 
 <br>
 <br>
