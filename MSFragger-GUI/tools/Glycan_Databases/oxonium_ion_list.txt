@@ -1,16 +1,82 @@
-# Residue requirement	Ion Composition	Mass adjustment	Comment	Hit Prob Ratio	Miss Prob Ratio	Expected Rel Intensity
-NeuAc	NeuAc(1)	-18.0106	-H2O	2	0.05	0.2
-NeuAc	NeuAc(1)	0		2	0.05	0.2
-NeuAc	HexNAc(1)Hex(1)NeuAc(1)	0		2	0.05	0.2
-NeuGc	NeuGc(1)	-18.0106	-H2O	2	0.05	0.2
-NeuGc	NeuGc(1)	0		2	0.05	0.2
-NeuGc	HexNAc(1)Hex(1)NeuGc(1)	0		2	0.05	0.2
-Phospho	Hex(1)Phospho(1)	0		2	0.05	0.2
-Phospho	Hex(2)Phospho(1)	0		2	0.05	0.2
-Phospho	Hex(2)Phospho(2)	0		2	0.05	0.2
-Sulfo	HexNAc(1)Sulfo(1)	0		2	0.05	0.2
-Sulfo	HexNAc(1)Hex(1)Sulfo(1)	0		2	0.05	0.2
-Sulfo	HexNAc(2)Hex(2)Sulfo(1)	0		2	0.05	0.2
-dHex	HexNAc(1)dHex(1)	0		2	0.5	0.1
-dHex	HexNAc(1)Hex(1)dHex(1)	0		2	0.5	0.1
-dHex	HexNAc(2)dHex(1)	0		2	0.5	0.1
+#Ion Composition	Loss Formula	Hit Prob Ratio	Miss Prob Ratio	Expected Rel Intensity
+Hex(1)		1	1	0.2
+Hex(1)NeuAc(1)		1	1	0.1
+Hex(1)NeuAc(1)Acetyl(1)		1	1	0.1
+Hex(1)NeuGc(1)		1	1	0.1
+Hex(1)NeuGc(1)Acetyl(1)		1	1	0.1
+Hex(1)Phospho(1)		2	0.05	0.2
+Hex(2)Phospho(1)		2	0.05	0.2
+Hex(2)Phospho(2)		2	0.05	0.2
+HexNAc(1)	C2H6O3	1	1	0.2
+HexNAc(1)	CH6O3	1	1	0.5
+HexNAc(1)	C2H4O2	1	1	0.2
+HexNAc(1)	H4O2	1	1	0.5
+HexNAc(1)	H2O	1	1	0.5
+HexNAc(1)		1	1	1
+HexNAc(1)Fuc(1)		2	0.5	0.1
+HexNAc(1)Hex(1)Fuc(1)		2	0.5	0.1
+HexNAc(1)Hex(1)NeuAc(1)		2	0.05	0.2
+HexNAc(1)Hex(1)NeuAc(1)Fuc(1)		1	1	0.1
+HexNAc(1)Hex(1)NeuAc(2)		1	1	0.1
+HexNAc(1)Hex(1)NeuAc(2)Acetyl(1)		1	1	0.1
+HexNAc(1)Hex(1)NeuGc(1)		2	0.05	0.2
+HexNAc(1)Hex(1)Sulfo(1)		2	0.05	0.2
+HexNAc(1)Hex(2)		1	1	0.1
+HexNAc(1)Hex(2)NeuAc(1)		1	1	0.1
+HexNAc(1)Hex(3)		1	1	0.1
+HexNAc(1)Hex(3)NeuAc(1)		1	1	0.1
+HexNAc(1)Hex(4)		1	1	0.1
+HexNAc(1)Hex(4)NeuAc(1)		1	1	0.1
+HexNAc(1)HexA(1)		1	1	0.1
+HexNAc(1)HexA(1)	H2O	1	1	0.1
+HexNAc(1)NeuAc(1)		1	1	0.1
+HexNAc(1)NeuAc(1)Acetyl(1)		1	1	0.1
+HexNAc(1)NeuAc(1)Acetyl(2)		1	1	0.1
+HexNAc(1)NeuGc(1)		1	1	0.1
+HexNAc(1)NeuGc(1)Acetyl(1)		1	1	0.1
+HexNAc(1)NeuGc(1)Acetyl(2)		1	1	0.1
+HexNAc(1)Sulfo(1)		2	0.05	0.2
+HexNAc(2)		1	1	0.1
+HexNAc(2)Fuc(1)		2	0.5	0.1
+HexNAc(2)Fuc(2)		1	1	0.1
+HexNAc(2)Hex(2)		1	1	0.1
+HexNAc(2)Hex(2)Sulfo(1)		2	0.05	0.2
+HexNAc(2)Hex(3)		1	1	0.1
+HexNAc(2)Hex(3)NeuAc(1)		1	1	0.1
+HexNAc(2)Hex(4)		1	1	0.1
+HexNAc(2)Hex(4)NeuAc(1)		1	1	0.1
+HexNac(2)Hex(5)		1	1	0.1
+HexNAc(2)Hex(5)NeuAc(1)		1	1	0.1
+HexNAc(2)Hex(5)NeuAc(2)		1	1	0.1
+HexNAc(2)NeuAc(1)		1	1	0.1
+HexNAc(2)NeuAc(1)Acetyl(1)		1	1	0.1
+HexNAc(2)NeuAc(1)Acetyl(2)		1	1	0.1
+HexNAc(3)Hex(2)		1	1	0.1
+HexNAc(3)Hex(3)		1	1	0.1
+HexNAc(3)Hex(3)NeuAc(1)		1	1	0.1
+HexNAc(3)Hex(4)		1	1	0.1
+HexNAc(3)Hex(4)NeuAc(1)		1	1	0.1
+HexNAc(3)Hex(5)		1	1	0.1
+HexNAc(3)Hex(5)NeuAc(1)		1	1	0.1
+HexNAc(3)Hex(5)NeuAc(2)		1	1	0.1
+HexNAc(3)Hex(6)		1	1	0.1
+HexNAc(4)Hex(3)		1	1	0.1
+HexNAc(4)Hex(4)		1	1	0.1
+HexNAc(4)Hex(5)		1	1	0.1
+HexNAc(4)Hex(6)		1	1	0.1
+NeuAc(1)	H2O	2	0.05	0.2
+NeuAc(1)		2	0.05	0.2
+NeuAc(1)Acetyl(1)	H2O	1	1	0.1
+NeuAc(1)Acetyl(1)		1	1	0.1
+NeuAc(1)Acetyl(2)	H2O	1	1	0.1
+NeuAc(1)Acetyl(2)		1	1	0.1
+NeuAc(2)		1	1	0.1
+NeuAc(2)Acetyl(1)		1	1	0.1
+NeuGc(1)	H2O	2	0.05	0.2
+NeuGc(1)		2	0.05	0.2
+NeuGc(1)Acetyl(1)	H2O	1	1	0.1
+NeuGc(1)Acetyl(1)		1	1	0.1
+NeuGc(1)Acetyl(2)	H2O	1	1	0.1
+NeuGc(1)Acetyl(2)		1	1	0.1
+NeuGc(2)		1	1	0.1
+NeuGc(2)Acetyl(1)		1	1	0.1
