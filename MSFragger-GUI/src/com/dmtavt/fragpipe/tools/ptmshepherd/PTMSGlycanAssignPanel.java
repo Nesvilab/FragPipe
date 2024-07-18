@@ -74,6 +74,8 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
     private static final String PROP_print_decoys = "print_decoys";
     private static final String PROP_prob_mass = "prob_mass";
     private static final String PROP_print_extended_params = "print_full_glyco_params";
+    private static final String PROP_use_new_speclib = "use_glycan_fragment_probs";
+    private static final String PROP_min_speclib_psms = "glyco_min_lib_psms";
 
     private static final String PROP_nglyco_mode = "n_glyco";
 
@@ -204,6 +206,13 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
                         "and O-glycan default database used.")
                 .create();
 
+        FormEntry feUseGlycoSpeclib = mu.feb(PROP_use_new_speclib, UiUtils.createUiCheck("Use Glyco speclib matching", false))
+                .tooltip("experimental")
+                .create();
+        FormEntry feMinPSMsSpeclib = new FormEntry(PROP_min_speclib_psms, "Min speclib PSMs per Glycan:",
+                new UiSpinnerInt(5, 0, 10000, 1, 4),
+                "Minimum number PSMs per glycan to be included in the glycan spectral library.");
+
         mu.add(pGlycoAssignContent, feGlycanFDR.label()).split(2);
         mu.add(pGlycoAssignContent, feGlycanFDR.comp);
 
@@ -239,6 +248,10 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
         mu.add(pGlycoAdvParams, feMassProb.label(), mu.ccR());
         mu.add(pGlycoAdvParams, feMassProb.comp).split();
         mu.add(pGlycoAdvParams, fePrintExtGlycoParams.comp).split().spanX().pushX().wrap();
+
+        mu.add(pGlycoAdvParams, feUseGlycoSpeclib.comp);
+        mu.add(pGlycoAdvParams, feMinPSMsSpeclib.label()).split();
+        mu.add(pGlycoAdvParams, feMinPSMsSpeclib.comp).wrap();
 
         mu.add(pGlycanAssignment, uiCheckGlycoAdvParams).split().spanX().wrap();
         mu.add(pGlycanAssignment, pGlycoAdvParams).growX().wrap();
