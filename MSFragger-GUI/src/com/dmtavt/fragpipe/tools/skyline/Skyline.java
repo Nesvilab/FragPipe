@@ -40,6 +40,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
@@ -62,6 +63,29 @@ public class Skyline {
   private static DefaultArtifactVersion skylineDailyVersion = null;
   private static String skylineDailyRunnerPath = null;
 
+  // convert our names to Skyline names
+  // names from Skyline cmd documentation (version 24.0-daily, 7/19/2024)
+  private final static HashMap<String, String> enzymesMap = new HashMap<>();
+  static {
+    enzymesMap.put("trypsin", "Trypsin");
+    enzymesMap.put("stricttrypsin", "Trypsin/P");
+    enzymesMap.put("argc", "ArgC");
+    enzymesMap.put("aspn", "AspN");
+    enzymesMap.put("chymotrypsin", "Chymotrypsin");
+    enzymesMap.put("cnbr", "CNBr");
+    enzymesMap.put("elastase", "Elastase");
+    enzymesMap.put("formicacid", "Formic Acid");
+    enzymesMap.put("gluc", "GluC");
+    enzymesMap.put("gluc_bicarb", "GluC bicarb");
+    enzymesMap.put("lysc", "LysC");
+    enzymesMap.put("lysc-p", "LysC/P");
+    enzymesMap.put("lysn", "LysN");
+    enzymesMap.put("lysn_promisc", "LysN promisc");
+    enzymesMap.put("trypsin/cnbr", "Trypsin-CNBr");
+    enzymesMap.put("trypsin_gluc", "Trypsin-GluC");
+    enzymesMap.put("trypsin_k", "LysC");
+    enzymesMap.put("trypsin_r", "ArgC");
+  }
 
   public static void main(String[] args) {
     try {
@@ -207,6 +231,7 @@ public class Skyline {
         if (pf.getProperty("msfragger.labile_search_mode").equals("nglycan")) {
           writer.write("--pep-max-variable-mods=1 ");    // loading N-glyco lists takes too long otherwise (user can change this later in skyline)
         }
+        writer.write(getEnzyme(pf.getProperty("msfragger.misc.fragger.enzyme-dropdown-1"), pf.getProperty("msfragger.misc.fragger.enzyme-dropdown-2")));
       }
       writer.write("--tran-precursor-ion-charges=\"2,3,4,5,6\" ");
       writer.write("--tran-product-ion-charges=\"1,2\" ");
@@ -361,6 +386,25 @@ public class Skyline {
       e.printStackTrace();
     }
     return skylineDailyVersion;
+  }
+
+  /**
+   * Generate an enzyme parameter for Skyline. If either MSFragger enzyme is an allowed Skyline enzyme,
+   * use it. If both are allowed, default to the first one (since Skyline only supports 1 on command line).
+   */
+  private static String getEnzyme(String fraggerEnzymeStr1, String fraggerEnzymeStr2) {
+    String enz1 = enzymesMap.getOrDefault(fraggerEnzymeStr1, "");
+    String enz2 = enzymesMap.getOrDefault(fraggerEnzymeStr2, "");
+    if (enz1.isEmpty()) {
+      if (enz2.isEmpty()) {
+        // no known mapping, do not specify parameter to avoid crashing Skyline
+        return "";
+      } else {
+        return String.format("--pep-digest-enzyme=%s ", enz2);
+      }
+    } else {
+      return String.format("--pep-digest-enzyme=%s ", enz1);
+    }
   }
 
   private static void sub(String s) throws Exception {
