@@ -182,7 +182,7 @@ public class Propagation {
         }
 
         Set<String> allMappedProteins = new TreeSet<>();
-        if (!parts[proteinColumnIdx].trim().isEmpty()) {
+        if (parts.length > proteinColumnIdx && !parts[proteinColumnIdx].trim().isEmpty()) {
           allMappedProteins.add(parts[proteinColumnIdx].trim());
         }
         if (parts.length > mappedProteinsColumnIdx && !parts[mappedProteinsColumnIdx].trim().isEmpty()) {
@@ -193,7 +193,7 @@ public class Propagation {
         String allMappedProteinsStr = String.join(",", allMappedProteins);
 
         Set<String> allMappedGenes = new TreeSet<>();
-        if (!parts[geneColumnIdx].trim().isEmpty()) {
+        if (parts.length > geneColumnIdx && !parts[geneColumnIdx].trim().isEmpty()) {
           allMappedGenes.add(parts[geneColumnIdx].trim());
         }
         if (parts.length > mappedGenesColumnIdx && !parts[mappedGenesColumnIdx].trim().isEmpty()) {
