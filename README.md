@@ -13,6 +13,7 @@ FragPipe is a comprehensive computational platform for analyzing mass spectromet
 #### FragPipe tutorials
 * [Using FragPipe](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html) (general tutorial covering all FragPipe modules)
 * [Running FragPipe in command line interface](https://fragpipe.nesvilab.org/docs/tutorial_headless.html)
+* [Pulling and running FragPipe using Docker](https://fragpipe.nesvilab.org/docs/tutorial_docker.html)
 * PTM discovery
   * [Open search](https://fragpipe.nesvilab.org/docs/tutorial_open.html)
   * [Mass offset search](https://fragpipe.nesvilab.org/docs/tutorial_offset.html)
