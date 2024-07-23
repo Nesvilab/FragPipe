@@ -13,6 +13,7 @@ FragPipe is a comprehensive computational platform for analyzing mass spectromet
 #### FragPipe tutorials
 * [Using FragPipe](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html) (general tutorial covering all FragPipe modules)
 * [Running FragPipe in command line interface](https://fragpipe.nesvilab.org/docs/tutorial_headless.html)
+* [Pulling and running FragPipe using Docker](https://fragpipe.nesvilab.org/docs/tutorial_docker.html)
 * PTM discovery
   * [Open search](https://fragpipe.nesvilab.org/docs/tutorial_open.html)
   * [Mass offset search](https://fragpipe.nesvilab.org/docs/tutorial_offset.html)
@@ -98,10 +99,7 @@ For other tools developed by Nesvizhskii lab, visit our website
   - Run the `fragpipe` shell script (can double-click to run)  
   - Or execute the command: `java -jar FragPipe-x.x.jar`
 - **Mac OS** (command line interface only):
-  - Install docker by following the [instruction](https://docs.docker.com/desktop/install/mac-install/)
-  - Open terminal and pull the docker image by running `docker pull fcyucn/fragpipe`
-  - FragPipe is located in `/fragpipe_bin`
-  - Go to `/fragpipe_bin/fragPipe-x.x/fragpipe/bin` directory and execute `./fragpipe --help` in the terminal
+  - Read [Pulling and running FragPipe using Docker](https://fragpipe.nesvilab.org/docs/tutorial_docker.html)
  
 #### Integration
 FragPipe is open source and the output is currently supported by the following software projects:
