@@ -1,0 +1,2125 @@
+name	AAs	terminus	labelAtoms	formula	losses	id	monoMass	structural	shortName	hidden	type
+Carbamidomethyl (C)	C		None	H3C2NO		4	57.021464	TRUE	CAM	FALSE	default
+Ammonia Loss (K, N, Q, R)	K, N, Q, R		None		NH3		-17.026549	TRUE		FALSE	hardcoded
+Water Loss (D, E, S, T)	D, E, S, T		None		H2O		-18.010565	TRUE		FALSE	hardcoded
+Label:15N			N15				1.003354838	FALSE		FALSE	hardcoded
+Label:13C			C13				1.003354838	FALSE		FALSE	hardcoded
+Label:13C15N			C13N15				2.006709676	FALSE		FALSE	hardcoded
+Label:13C(6)15N(2) (C-term K)	K	C	C13|N15				8.014199	FALSE		FALSE	hardcoded
+Label:13C(6)15N(4) (C-term R)	R	C	C13|N15				10.008269	FALSE		FALSE	hardcoded
+Label:13C(6) (C-term K)	K	C	C13				6.020129	FALSE		FALSE	hardcoded
+Label:13C(6) (C-term R)	R	C	C13				6.020129	FALSE		FALSE	hardcoded
+6C-CysPAT (C)	C		None	H16C8NO4P		2057	221.081695	true		false	non_hardcoded
+6C-CysPAT (N-term)		N	None	H16C8NO4P		2057	221.081695	true		false	non_hardcoded
+Acetyl (K)	K		None	C2H2O		1	42.010565	true	1Ac	false	non_hardcoded
+Acetyl (N-term)		N	None	C2H2O		1	42.010565	true	1Ac	false	non_hardcoded
+Amidated (C-term)		C	None	HN - O		2	-0.984016	true	Ami	false	non_hardcoded
+Ammonia-loss (N-term C)	C	N	None	-H3N		385	-17.026549	true	dAm	false	non_hardcoded
+Carbamidomethyl (C)	C		None	H3C2NO		4	57.021464	true	CAM	false	non_hardcoded
+Carbamidomethyl (N-term)		N	None	H3C2NO		4	57.021464	true	CAM	false	non_hardcoded
+Carbamyl (K)	K		None	HCNO		5	43.005814	true	CRM	false	non_hardcoded
+Carbamyl (N-term)		N	None	HCNO		5	43.005814	true	CRM	false	non_hardcoded
+Carboxymethyl (C)	C		None	C2H2O2		6	58.005479	true	Cmc	false	non_hardcoded
+Cation:Na (C-term)		C	None	Na - H		30	21.981943	true	NaX	false	non_hardcoded
+Cation:Na (DE)	D, E		None	Na - H		30	21.981943	true	NaX	false	non_hardcoded
+Deamidated (NQ)	N, Q		None	O - HN		7	0.984016	true	Dea	false	non_hardcoded
+Dehydrated (N-term C)	C	N	None	-H2O		23	-18.010565	true	Dhy	false	non_hardcoded
+Dehydro (C)	C		None	-H		374	-1.007825	true	-1H	false	non_hardcoded
+Dioxidation (M)	M		None	O2		425	31.989829	true	2Ox	false	non_hardcoded
+Formyl (N-term)		N	None	CO		122	27.994915	true	Frm	false	non_hardcoded
+Gln->pyro-Glu (N-term Q)	Q	N	None	-H3N		28	-17.026549	true	PGQ	false	non_hardcoded
+Glu->pyro-Glu (N-term E)	E	N	None	-H2O		27	-18.010565	true	PGE	false	non_hardcoded
+Guanidinyl (K)	K		None	H2CN2		52	42.021798	true	1Gu	false	non_hardcoded
+ICAT-C (C)	C		None	C10H17N3O3		105	227.126991	true	C0I	false	non_hardcoded
+ICPL (K)	K		None	C6H3NO		365	105.021464	true	IP0	false	non_hardcoded
+ICPL:13C(6) (K)	K		None	H3C'6NO		364	111.041593	true	IP6	false	non_hardcoded
+iTRAQ4plex (K)	K		None	H12C4C'3NN'O		214	144.102063	true	IT4	false	non_hardcoded
+iTRAQ4plex (N-term)		N	None	H12C4C'3NN'O		214	144.102063	true	IT4	false	non_hardcoded
+iTRAQ4plex (Y)	Y		None	H12C4C'3NN'O		214	144.102063	true	IT4	false	non_hardcoded
+iTRAQ8plex (K)	K		None	C'7N'C7H24N3O3		730	304.20536	true	IT8	false	non_hardcoded
+iTRAQ8plex (N-term)		N	None	C'7N'C7H24N3O3		730	304.20536	true	IT8	false	non_hardcoded
+iTRAQ8plex (Y)	Y		None	C'7N'C7H24N3O3		730	304.20536	true	IT8	false	non_hardcoded
+Met->Hse (C-term M)	M	C	None	O - H2CS		10	-29.992806	true	Hse	false	non_hardcoded
+Met->Hsl (C-term M)	M	C	None	-H4CS		11	-48.003371	true	Hsl	false	non_hardcoded
+Methyl (C-term)		C	None	CH2		34	14.01565	true	1Me	false	non_hardcoded
+Methyl (DE)	D, E		None	CH2		34	14.01565	true	1Me	false	non_hardcoded
+Methylthio (C)	C		None	H2CS		39	45.987721	true	MSH	false	non_hardcoded
+mTRAQ (K)	K		None	C7H12N2O		888	140.094963	true	M00	false	non_hardcoded
+mTRAQ (N-term)		N	None	C7H12N2O		888	140.094963	true	M00	false	non_hardcoded
+mTRAQ (Y)	Y		None	C7H12N2O		888	140.094963	true	M00	false	non_hardcoded
+NIPCAM (C)	C		None	H9C5NO		17	99.068414	true	icM	false	non_hardcoded
+Oxidation (HW)	H, W		None	O		35	15.994915	true	Oxi	false	non_hardcoded
+Oxidation (M)	M		None	O	H4COS	35	15.994915	true	Oxi	false	non_hardcoded
+Phospho (ST)	S, T		None	HO3P	H3O4P	21	79.966331	true	Pho	false	non_hardcoded
+Phospho (Y)	Y		None	HO3P		21	79.966331	true	Pho	false	non_hardcoded
+Propionamide (C)	C		None	C3H5NO		24	71.037114	true	PPa	false	non_hardcoded
+Pyridylethyl (C)	C		None	H7C7N		31	105.057849	true	Pye	false	non_hardcoded
+Pyro-carbamidomethyl (N-term C)	C	N	None	C2O		26	39.994915	true	PyC	false	non_hardcoded
+Sulfo (STY)	S, T, Y		None	O3S	O3S	40	79.956815	true	SuO	false	non_hardcoded
+TMT2plex (K)	K		None	H20C11C'N2O2		738	225.155833	true	TM2	false	non_hardcoded
+TMT2plex (N-term)		N	None	H20C11C'N2O2		738	225.155833	true	TM2	false	non_hardcoded
+TMT6plex (K)	K		None	H20C8C'4NN'O2		737	229.162932	true	TM6	false	non_hardcoded
+TMT6plex (N-term)		N	None	H20C8C'4NN'O2		737	229.162932	true	TM6	false	non_hardcoded
+TMTpro (K)	K		None	H25C8C'7NN'2O3		2016	304.207146	true		false	non_hardcoded
+TMTpro (N-term)		N	None	H25C8C'7NN'2O3		2016	304.207146	true		false	non_hardcoded
+ICAT-C:13C(9) (C)	C		None	C'9 - C9		106	236.157185	false	C9I	false	non_hardcoded
+ICPL:13C(6)2H(4) (K)	K		None	C'6H'4 - C6H4		866	115.0667	false		false	non_hardcoded
+ICPL:13C(6)2H(4) (N-term)		N	None	C'6H'4 - C6H4		866	115.0667	false		false	non_hardcoded
+ICPL:2H(4) (K)	K		None	H'4 - H4		687	109.046571	false	IP4	false	non_hardcoded
+Label:18O(1) (C-term)		C	None	O' - O		258	2.004246	false	Ob1	false	non_hardcoded
+Label:18O(2) (C-term)		C	None	O'2 - O2		193	4.008491	false	Ob2	false	non_hardcoded
+mTRAQ:13C(3)15N(1) (K)	K		None	C'3N' - C3N		889	144.102063	false	M04	false	non_hardcoded
+mTRAQ:13C(3)15N(1) (N-term)		N	None	C'3N' - C3N		889	144.102063	false	M04	false	non_hardcoded
+mTRAQ:13C(3)15N(1) (Y)	Y		None	C'3N' - C3N		889	144.102063	false	M04	false	non_hardcoded
+mTRAQ:13C(6)15N(2) (K)	K		None	C'6N'2 - C6N2		1302	148.109162	false	M08	false	non_hardcoded
+mTRAQ:13C(6)15N(2) (N-term)		N	None	C'6N'2 - C6N2		1302	148.109162	false	M08	false	non_hardcoded
+mTRAQ:13C(6)15N(2) (Y)	Y		None	C'6N'2 - C6N2		1302	148.109162	false	M08	false	non_hardcoded
+15N-oxobutanoic (N-term C)	C	N	None	-H3N'		1419	-18.023584	true		true	non_hardcoded
+15N-oxobutanoic (Protein N-term S)	S	N	None	-H3N'		1419	-18.023584	true		true	non_hardcoded
+15N-oxobutanoic (Protein N-term T)	T	N	None	-H3N'		1419	-18.023584	true		true	non_hardcoded
+2-dimethylsuccinyl (C)	C		None	H8C6O4		1262	144.042259	true		true	non_hardcoded
+2-monomethylsuccinyl (C)	C		None	H6C5O4		1253	130.026609	true		true	non_hardcoded
+2-nitrobenzyl (Y)	Y		None	H5C7NO2		1032	135.032028	true		true	non_hardcoded
+2-succinyl (C)	C		None	H4C4O4		957	116.010959	true		true	non_hardcoded
+2HPG (R)	R		None	H10C16O5		187	282.052824	true	2HG	true	non_hardcoded
+3-deoxyglucosone (R)	R		None	H8C6O4		949	144.042259	true		true	non_hardcoded
+3-hydroxybenzyl-phosphate (K)	K		None	H7C7O4P		2041	186.008196	true		true	non_hardcoded
+3-hydroxybenzyl-phosphate (S)	S		None	H7C7O4P		2041	186.008196	true		true	non_hardcoded
+3-hydroxybenzyl-phosphate (T)	T		None	H7C7O4P		2041	186.008196	true		true	non_hardcoded
+3-hydroxybenzyl-phosphate (Y)	Y		None	H7C7O4P		2041	186.008196	true		true	non_hardcoded
+3-phosphoglyceryl (K)	K		None	H5C3O6P		1387	167.982375	true		true	non_hardcoded
+3sulfo (N-term)		N	None	H4C7O4S		748	183.983029	true		true	non_hardcoded
+4-ONE (C)	C		None	H14C9O2		721	154.09938	true		true	non_hardcoded
+4-ONE (H)	H		None	H14C9O2		721	154.09938	true		true	non_hardcoded
+4-ONE (K)	K		None	H14C9O2		721	154.09938	true		true	non_hardcoded
+4-ONE+Delta:H(-2)O(-1) (C)	C		None	H12C9O		743	136.088815	true		true	non_hardcoded
+4-ONE+Delta:H(-2)O(-1) (H)	H		None	H12C9O		743	136.088815	true		true	non_hardcoded
+4-ONE+Delta:H(-2)O(-1) (K)	K		None	H12C9O		743	136.088815	true		true	non_hardcoded
+4AcAllylGal (C)	C		None	H24C17O9		901	372.142033	true		true	non_hardcoded
+6C-CysPAT (D)	D		None	H16C8NO4P		2057	221.081695	true		true	non_hardcoded
+6C-CysPAT (E)	E		None	H16C8NO4P		2057	221.081695	true		true	non_hardcoded
+6C-CysPAT (H)	H		None	H16C8NO4P		2057	221.081695	true		true	non_hardcoded
+6C-CysPAT (K)	K		None	H16C8NO4P		2057	221.081695	true		true	non_hardcoded
+6C-CysPAT (S)	S		None	H16C8NO4P		2057	221.081695	true		true	non_hardcoded
+6C-CysPAT (T)	T		None	H16C8NO4P		2057	221.081695	true		true	non_hardcoded
+6C-CysPAT (Y)	Y		None	H16C8NO4P		2057	221.081695	true		true	non_hardcoded
+a-type-ion (C-term)		C	None	-H2CO2		140	-46.005479	true		true	non_hardcoded
+AccQTag (K)	K		None	H6C10N2O		194	170.048013	true	AQT	true	non_hardcoded
+AccQTag (N-term)		N	None	H6C10N2O		194	170.048013	true	AQT	true	non_hardcoded
+Acetyl (C)	C		None	C2H2O		1	42.010565	true	1Ac	true	non_hardcoded
+Acetyl (H)	H		None	C2H2O		1	42.010565	true	1Ac	true	non_hardcoded
+Acetyl (R)	R		None	C2H2O		1	42.010565	true	1Ac	true	non_hardcoded
+Acetyl (S)	S		None	C2H2O		1	42.010565	true	1Ac	true	non_hardcoded
+Acetyl (T)	T		None	C2H2O		1	42.010565	true	1Ac	true	non_hardcoded
+Acetyl (Y)	Y		None	C2H2O		1	42.010565	true	1Ac	true	non_hardcoded
+Acetyldeoxyhypusine (K)	K		None	H11C6NO		1042	113.084064	true	Adh	true	non_hardcoded
+Acetylhypusine (K)	K		None	H11C6NO2		1043	129.078979	true	Ahp	true	non_hardcoded
+ADP-Ribosyl (C)	C		None	H21C15N5O13P2		213	541.06111	true	ADR	true	non_hardcoded
+ADP-Ribosyl (D)	D		None	H21C15N5O13P2		213	541.06111	true	ADR	true	non_hardcoded
+ADP-Ribosyl (E)	E		None	H21C15N5O13P2		213	541.06111	true	ADR	true	non_hardcoded
+ADP-Ribosyl (K)	K		None	H21C15N5O13P2		213	541.06111	true	ADR	true	non_hardcoded
+ADP-Ribosyl (N)	N		None	H21C15N5O13P2	H21C15N5O13P2	213	541.06111	true	ADR	true	non_hardcoded
+ADP-Ribosyl (R)	R		None	H21C15N5O13P2		213	541.06111	true	ADR	true	non_hardcoded
+ADP-Ribosyl (ST)	S, T		None	H21C15N5O13P2	H21C15N5O13P2	213	541.06111	true	ADR	true	non_hardcoded
+AEBS (H)	H		None	H9C8NO2S		276	183.035399	true	AEB	true	non_hardcoded
+AEBS (K)	K		None	H9C8NO2S		276	183.035399	true	AEB	true	non_hardcoded
+AEBS (S)	S		None	H9C8NO2S		276	183.035399	true	AEB	true	non_hardcoded
+AEBS (Y)	Y		None	H9C8NO2S		276	183.035399	true	AEB	true	non_hardcoded
+AEC-MAEC (S)	S		None	C2H5NS - O		472	59.019355	true	Aec	true	non_hardcoded
+AEC-MAEC (T)	T		None	C2H5NS - O		472	59.019355	true	Aec	true	non_hardcoded
+AFB1_Dialdehyde (K)	K		None	H10C17O6		1920	310.047738	true		true	non_hardcoded
+AHA-Alkyne (M)	M		None	H5C4N5O - S		1000	107.077339	true		true	non_hardcoded
+AHA-Alkyne-KDDDD (M)	M		None	H37C26N11O14 - S		1001	695.280074	true		true	non_hardcoded
+AHA-SS (M)	M		None	H9C7N5O2		1249	195.075625	true		true	non_hardcoded
+AHA-SS_CAM (M)	M		None	H12C9N6O3		1250	252.097088	true		true	non_hardcoded
+Ahx2+Hsl (C-term)		C	None	H27C16N3O3		1015	309.205242	true		true	non_hardcoded
+Amidine (K)	K		None	H3C2N		141	41.026549	true	Ame	true	non_hardcoded
+Amidine (N-term)		N	None	H3C2N		141	41.026549	true	Ame	true	non_hardcoded
+Amidino (C)	C		None	H2CN2		440	42.021798	true	Amd	true	non_hardcoded
+Amino (Y)	Y		None	HN		342	15.010899	true	Amn	true	non_hardcoded
+Ammonia-loss (N)	N		None	-H3N		385	-17.026549	true	dAm	true	non_hardcoded
+Ammonia-loss (Protein N-term S)	S	N	None	-H3N		385	-17.026549	true	dAm	true	non_hardcoded
+Ammonia-loss (Protein N-term T)	T	N	None	-H3N		385	-17.026549	true	dAm	true	non_hardcoded
+Ammonium (C-term)		C	None	H3N		989	17.026549	true	Amm	true	non_hardcoded
+Ammonium (DE)	D, E		None	H3N		989	17.026549	true	Amm	true	non_hardcoded
+AMTzHexNAc2 (N)	N		None	H30C19N6O10		934	502.202341	true		true	non_hardcoded
+AMTzHexNAc2 (S)	S		None	H30C19N6O10		934	502.202341	true		true	non_hardcoded
+AMTzHexNAc2 (T)	T		None	H30C19N6O10		934	502.202341	true		true	non_hardcoded
+Andro-H2O (C)	C		None	H28C20O4		2025	332.19876	true		true	non_hardcoded
+Archaeol (C)	C		None	H86C43O2		410	634.662782	true	Ach	true	non_hardcoded
+Arg (N-term)		N	None	H12C6N4O		1288	156.101111	true		true	non_hardcoded
+Arg->GluSA (R)	R		None	O - H5CN3		344	-43.053433	true	AGA	true	non_hardcoded
+Arg->Npo (R)	R		None	C3NO2 - H		837	80.985078	true		true	non_hardcoded
+Arg->Orn (R)	R		None	-H2CN2		372	-42.021798	true	Orn	true	non_hardcoded
+Arg-loss (C-term R)	R	C	None	-H12C6N4O		1287	-156.101111	true	-1R	true	non_hardcoded
+Arg2PG (R)	R		None	H10C16O4		848	266.057909	true		true	non_hardcoded
+Argbiotinhydrazide (R)	R		None	H13C9NO2S		343	199.066699	true		true	non_hardcoded
+AROD (C)	C		None	H52C35N10O9S2		938	820.336015	true		true	non_hardcoded
+Aspartylurea (H)	H		None	O2 - H2CN2		1916	-10.031969	true		true	non_hardcoded
+Atto495Maleimide (C)	C		None	H32C27N5O3		935	474.250515	true		true	non_hardcoded
+AzidoF (F)	F		None	N3 - H		1845	41.001397	true		true	non_hardcoded
+azole (C)	C		None	-H4O		1355	-20.026215	true		true	non_hardcoded
+azole (S)	S		None	-H4O		1355	-20.026215	true		true	non_hardcoded
+Bacillosamine (N)	N		None	H16C10N2O4	H16C10N2O4	910	228.111007	true		true	non_hardcoded
+BADGE (C)	C		None	H24C21O4		493	340.167459	true		true	non_hardcoded
+BDMAPP (H)	H		None	H12C11NOBr		684	253.010225	true		true	non_hardcoded
+BDMAPP (K)	K		None	H12C11NOBr		684	253.010225	true		true	non_hardcoded
+BDMAPP (W)	W		None	H12C11NOBr		684	253.010225	true		true	non_hardcoded
+BDMAPP (Y)	Y		None	H12C11NOBr		684	253.010225	true		true	non_hardcoded
+BEMAD_C (C)	C		None	C4H8O2S		736	120.0245	true		true	non_hardcoded
+BEMAD_ST (S)	S		None	C4H8OS2		735	136.001656	true		true	non_hardcoded
+BEMAD_ST (T)	T		None	C4H8OS2		735	136.001656	true		true	non_hardcoded
+Benzoyl (K)	K		None	H4C7O		136	104.026215	true	Boy	true	non_hardcoded
+Benzoyl (N-term)		N	None	H4C7O		136	104.026215	true	Boy	true	non_hardcoded
+benzylguanidine (K)	K		None	H8C8N2		1349	132.068748	true		true	non_hardcoded
+betaFNA (C)	C		None	H30C25N2O6		1839	454.210387	true		true	non_hardcoded
+betaFNA (K)	K		None	H30C25N2O6		1839	454.210387	true		true	non_hardcoded
+BHT (C)	C		None	H22C15O		176	218.167065	true	BHT	true	non_hardcoded
+BHT (H)	H		None	H22C15O		176	218.167065	true	BHT	true	non_hardcoded
+BHT (K)	K		None	H22C15O		176	218.167065	true	BHT	true	non_hardcoded
+BHTOH (C)	C		None	H22C15O2		498	234.16198	true		true	non_hardcoded
+BHTOH (H)	H		None	H22C15O2		498	234.16198	true		true	non_hardcoded
+BHTOH (K)	K		None	H22C15O2		498	234.16198	true		true	non_hardcoded
+Biotin (K)	K		None	C10H14N2O2S		3	226.077598	true	Btn	true	non_hardcoded
+Biotin (N-term)		N	None	C10H14N2O2S		3	226.077598	true	Btn	true	non_hardcoded
+Biotin-HPDP (C)	C		None	H32C19N4O3S2		290	428.191582	true		true	non_hardcoded
+Biotin-PEG-PRA (M)	M		None	H42C26N8O7		895	578.317646	true		true	non_hardcoded
+Biotin-PEO-Amine (D)	D		None	H28C16N4O3S		289	356.188212	true		true	non_hardcoded
+Biotin-PEO-Amine (E)	E		None	H28C16N4O3S		289	356.188212	true		true	non_hardcoded
+Biotin-phenacyl (C)	C		None	H38C29N8O6S		774	626.263502	true		true	non_hardcoded
+Biotin-phenacyl (H)	H		None	H38C29N8O6S		774	626.263502	true		true	non_hardcoded
+Biotin-phenacyl (S)	S		None	H38C29N8O6S		774	626.263502	true		true	non_hardcoded
+Biotin-tyramide (C)	C		None	H23C18N3O3S		1830	361.146012	true		true	non_hardcoded
+Biotin-tyramide (W)	W		None	H23C18N3O3S		1830	361.146012	true		true	non_hardcoded
+Biotin-tyramide (Y)	Y		None	H23C18N3O3S		1830	361.146012	true		true	non_hardcoded
+Biotin:Aha-DADPS (M)	M		None	C42H70N8O11SSi		2052	922.465403	true		true	non_hardcoded
+Biotin:Aha-PC (M)	M		None	C29H38N8O10S		2053	690.24316	true		true	non_hardcoded
+Biotin:Cayman-10013 (C)	C		None	C36H60N4O5S		539	660.428442	true		true	non_hardcoded
+Biotin:Cayman-10141 (C)	C		None	C35H54N4O4S		538	626.386577	true		true	non_hardcoded
+Biotin:Invitrogen-M1602 (C)	C		None	C23H33N5O7S		1012	523.210069	true		true	non_hardcoded
+Biotin:Sigma-B1267 (C)	C		None	C20H27N5O5S		993	449.17329	true		true	non_hardcoded
+Biotin:Thermo-21325 (K)	K		None	C34H45N7O7S		884	695.310118	true		true	non_hardcoded
+Biotin:Thermo-21328 (K)	K		None	C15H23N3O3S3		1841	389.090154	true		true	non_hardcoded
+Biotin:Thermo-21328 (N-term)		N	None	C15H23N3O3S3		1841	389.090154	true		true	non_hardcoded
+Biotin:Thermo-21330 (K)	K		None	C21H35N3O7S		1423	473.219571	true		true	non_hardcoded
+Biotin:Thermo-21330 (N-term)		N	None	C21H35N3O7S		1423	473.219571	true		true	non_hardcoded
+Biotin:Thermo-21345 (Q)	Q		None	C15H25N3O2S		800	311.166748	true		true	non_hardcoded
+Biotin:Thermo-21360 (C-term)		C	None	C21H37N5O6S		811	487.246455	true		true	non_hardcoded
+Biotin:Thermo-21901+2H2O (C)	C		None	C23H39N5O9S		1320	561.246849	true		true	non_hardcoded
+Biotin:Thermo-21901+H2O (C)	C		None	C23H37N5O8S		1039	543.236284	true		true	non_hardcoded
+Biotin:Thermo-21911 (C)	C		None	C41H71N5O16S		1340	921.461652	true		true	non_hardcoded
+Biotin:Thermo-33033 (N-term)		N	None	C25H36N6O4S2		1251	548.223945	true		true	non_hardcoded
+Biotin:Thermo-33033-H (N-term)		N	None	C25H34N6O4S2		1252	546.208295	true		true	non_hardcoded
+Biotin:Thermo-88310 (K)	K		None	C10H16N2O2		1031	196.121178	true		true	non_hardcoded
+Biotin:Thermo-88317 (S)	S		None	C22H42N3O4P		1037	443.291294	true		true	non_hardcoded
+Biotin:Thermo-88317 (Y)	Y		None	C22H42N3O4P		1037	443.291294	true		true	non_hardcoded
+biotinAcrolein298 (C)	C		None	H22C13N4O2S		1314	298.146347	true		true	non_hardcoded
+biotinAcrolein298 (H)	H		None	H22C13N4O2S		1314	298.146347	true		true	non_hardcoded
+biotinAcrolein298 (K)	K		None	H22C13N4O2S		1314	298.146347	true		true	non_hardcoded
+BisANS (K)	K		None	H22C32N2O6S2		519	594.091928	true		true	non_hardcoded
+bisANS-sulfonates (K)	K		None	H22C32N2		1330	434.178299	true		true	non_hardcoded
+bisANS-sulfonates (S)	S		None	H22C32N2		1330	434.178299	true		true	non_hardcoded
+bisANS-sulfonates (T)	T		None	H22C32N2		1330	434.178299	true		true	non_hardcoded
+BITC (C)	C		None	H7C8NS		978	149.02992	true		true	non_hardcoded
+BITC (K)	K		None	H7C8NS		978	149.02992	true		true	non_hardcoded
+BITC (N-term)		N	None	H7C8NS		978	149.02992	true		true	non_hardcoded
+BMP-piperidinol (C)	C		None	H17C18NO		1281	263.131014	true		true	non_hardcoded
+BMP-piperidinol (M)	M		None	H17C18NO		1281	263.131014	true		true	non_hardcoded
+Brij35 (N-term)		N	None	H24C12		1837	168.187801	true		true	non_hardcoded
+Brij58 (N-term)		N	None	H32C16		1838	224.250401	true		true	non_hardcoded
+Bromo (F)	F		None	Br - H		340	77.910511	true	1Br	true	non_hardcoded
+Bromo (H)	H		None	Br - H		340	77.910511	true	1Br	true	non_hardcoded
+Bromo (W)	W		None	Br - H		340	77.910511	true	1Br	true	non_hardcoded
+Bromo (Y)	Y		None	Br - H		340	77.910511	true	1Br	true	non_hardcoded
+Bromobimane (C)	C		None	H10C10N2O2		301	190.074228	true	Bbi	true	non_hardcoded
+Butyryl (K)	K		None	H6C4O		1289	70.041865	true	Byr	true	non_hardcoded
+C8-QAT (K)	K		None	H29C14NO		513	227.224915	true		true	non_hardcoded
+C8-QAT (N-term)		N	None	H29C14NO		513	227.224915	true		true	non_hardcoded
+CAF (N-term)		N	None	H4C3O4S		272	135.983029	true	CAF	true	non_hardcoded
+CAMthiopropanoyl (K)	K		None	H7C5NO2S		293	145.019749	true	Ctp	true	non_hardcoded
+Can-FP-biotin (S)	S		None	H34C19N3O5PS		333	447.195679	true		true	non_hardcoded
+Can-FP-biotin (T)	T		None	H34C19N3O5PS		333	447.195679	true		true	non_hardcoded
+Can-FP-biotin (Y)	Y		None	H34C19N3O5PS		333	447.195679	true		true	non_hardcoded
+Carbamidomethyl (D)	D		None	H3C2NO		4	57.021464	true	CAM	true	non_hardcoded
+Carbamidomethyl (E)	E		None	H3C2NO		4	57.021464	true	CAM	true	non_hardcoded
+Carbamidomethyl (H)	H		None	H3C2NO		4	57.021464	true	CAM	true	non_hardcoded
+Carbamidomethyl (K)	K		None	H3C2NO		4	57.021464	true	CAM	true	non_hardcoded
+Carbamidomethyl (M)	M		None	H3C2NO	H7C3NOS	4	57.021464	true	CAM	true	non_hardcoded
+Carbamidomethyl (S)	S		None	H3C2NO		4	57.021464	true	CAM	true	non_hardcoded
+Carbamidomethyl (T)	T		None	H3C2NO		4	57.021464	true	CAM	true	non_hardcoded
+Carbamidomethyl (U)	U		None	H3C2NO		4	57.021464	true	CAM	true	non_hardcoded
+Carbamidomethyl (Y)	Y		None	H3C2NO		4	57.021464	true	CAM	true	non_hardcoded
+CarbamidomethylDTT (C)	C		None	H11C6NO3S2		893	209.018035	true		true	non_hardcoded
+Carbamyl (C)	C		None	HCNO		5	43.005814	true	CRM	true	non_hardcoded
+Carbamyl (M)	M		None	HCNO		5	43.005814	true	CRM	true	non_hardcoded
+Carbamyl (R)	R		None	HCNO		5	43.005814	true	CRM	true	non_hardcoded
+Carbamyl (S)	S		None	HCNO		5	43.005814	true	CRM	true	non_hardcoded
+Carbamyl (T)	T		None	HCNO		5	43.005814	true	CRM	true	non_hardcoded
+Carbamyl (Y)	Y		None	HCNO		5	43.005814	true	CRM	true	non_hardcoded
+Carbofuran (S)	S		None	H3C2NO		977	57.021464	true		true	non_hardcoded
+Carbonyl (A)	A		None	O - H2		1918	13.979265	true		true	non_hardcoded
+Carbonyl (E)	E		None	O - H2		1918	13.979265	true		true	non_hardcoded
+Carbonyl (I)	I		None	O - H2		1918	13.979265	true		true	non_hardcoded
+Carbonyl (L)	L		None	O - H2		1918	13.979265	true		true	non_hardcoded
+Carbonyl (Q)	Q		None	O - H2		1918	13.979265	true		true	non_hardcoded
+Carbonyl (R)	R		None	O - H2		1918	13.979265	true		true	non_hardcoded
+Carbonyl (S)	S		None	O - H2		1918	13.979265	true		true	non_hardcoded
+Carbonyl (V)	V		None	O - H2		1918	13.979265	true		true	non_hardcoded
+Carboxy (D)	D		None	CO2		299	43.989829	true	Cox	true	non_hardcoded
+Carboxy (E)	E		None	CO2		299	43.989829	true	Cox	true	non_hardcoded
+Carboxy (K)	K		None	CO2		299	43.989829	true	Cox	true	non_hardcoded
+Carboxy (Protein N-term M)	M	N	None	CO2		299	43.989829	true	Cox	true	non_hardcoded
+Carboxy (W)	W		None	CO2		299	43.989829	true	Cox	true	non_hardcoded
+Carboxy->Thiocarboxy (Protein C-term G)	G	C	None	S - O		420	15.977156	true	Scx	true	non_hardcoded
+Carboxyethyl (H)	H		None	H4C3O2		378	72.021129	true	CEt	true	non_hardcoded
+Carboxyethyl (K)	K		None	H4C3O2		378	72.021129	true	CEt	true	non_hardcoded
+Carboxyethylpyrrole (K)	K		None	H6C7O2		1800	122.036779	true		true	non_hardcoded
+Carboxymethyl (K)	K		None	C2H2O2		6	58.005479	true	Cmc	true	non_hardcoded
+Carboxymethyl (N-term)		N	None	C2H2O2		6	58.005479	true	Cmc	true	non_hardcoded
+Carboxymethyl (U)	U		None	C2H2O2		6	58.005479	true	Cmc	true	non_hardcoded
+Carboxymethyl (W)	W		None	C2H2O2		6	58.005479	true	Cmc	true	non_hardcoded
+CarboxymethylDMAP (N-term)		N	None	H10C9N2O		1350	162.079313	true		true	non_hardcoded
+CarboxymethylDTT (C)	C		None	H10C6O4S2		894	210.00205	true	CmD	true	non_hardcoded
+Cation:Ag (C-term)		C	None	Ag - H		955	105.897267	true	1Ag	true	non_hardcoded
+Cation:Ag (DE)	D, E		None	Ag - H		955	105.897267	true	1Ag	true	non_hardcoded
+Cation:Al[III] (C-term)		C	None	Al - H3		1910	23.958063	true		true	non_hardcoded
+Cation:Al[III] (DE)	D, E		None	Al - H3		1910	23.958063	true		true	non_hardcoded
+Cation:Ca[II] (C-term)		C	None	Ca - H2		951	37.946941	true	1Ca	true	non_hardcoded
+Cation:Ca[II] (DE)	D, E		None	Ca - H2		951	37.946941	true	1Ca	true	non_hardcoded
+Cation:Cu[I] (C-term)		C	None	Cu - H		531	61.921774	true	CuX	true	non_hardcoded
+Cation:Cu[I] (DE)	D, E		None	Cu - H		531	61.921774	true	CuX	true	non_hardcoded
+Cation:Cu[I] (H)	H		None	Cu - H		531	61.921774	true	CuX	true	non_hardcoded
+Cation:Fe[II] (C-term)		C	None	Fe - H2		952	53.919289	true	1Fe	true	non_hardcoded
+Cation:Fe[II] (DE)	D, E		None	Fe - H2		952	53.919289	true	1Fe	true	non_hardcoded
+Cation:Fe[III] (C-term)		C	None	Fe - H3		1870	52.911464	true		true	non_hardcoded
+Cation:Fe[III] (DE)	D, E		None	Fe - H3		1870	52.911464	true		true	non_hardcoded
+Cation:K (C-term)		C	None	K - H		530	37.955882	true	KXX	true	non_hardcoded
+Cation:K (DE)	D, E		None	K - H		530	37.955882	true	KXX	true	non_hardcoded
+Cation:Li (C-term)		C	None	Li - H		950	6.008178	true	1Li	true	non_hardcoded
+Cation:Li (DE)	D, E		None	Li - H		950	6.008178	true	1Li	true	non_hardcoded
+Cation:Mg[II] (C-term)		C	None	Mg - H2		956	21.969392	true	1Mg	true	non_hardcoded
+Cation:Mg[II] (DE)	D, E		None	Mg - H2		956	21.969392	true	1Mg	true	non_hardcoded
+Cation:Ni[II] (C-term)		C	None	Ni - H2		953	55.919696	true	1Ni	true	non_hardcoded
+Cation:Ni[II] (DE)	D, E		None	Ni - H2		953	55.919696	true	1Ni	true	non_hardcoded
+Cation:Zn[II] (C-term)		C	None	Zn - H2		954	61.913495	true	1Zn	true	non_hardcoded
+Cation:Zn[II] (DE)	D, E		None	Zn - H2		954	61.913495	true	1Zn	true	non_hardcoded
+Cation:Zn[II] (H)	H		None	Zn - H2		954	61.913495	true	1Zn	true	non_hardcoded
+cGMP (C)	C		None	H10C10N5O7P		849	343.031785	true	cGP	true	non_hardcoded
+cGMP (S)	S		None	H10C10N5O7P		849	343.031785	true	cGP	true	non_hardcoded
+cGMP+RMP-loss (C)	C		None	H4C5N5O		851	150.041585	true	GRL	true	non_hardcoded
+cGMP+RMP-loss (S)	S		None	H4C5N5O		851	150.041585	true	GRL	true	non_hardcoded
+CHDH (D)	D		None	H26C17O4		434	294.183109	true	CHD	true	non_hardcoded
+Chlorination (W)	W		None	Cl - H		936	33.961028	true	1Cl	true	non_hardcoded
+Chlorination (Y)	Y		None	Cl - H		936	33.961028	true	1Cl	true	non_hardcoded
+CIGG (K)	K		None	H22C13N4O4S		1990	330.136176	true		true	non_hardcoded
+CLIP_TRAQ_2 (K)	K		None	H12C6C'N2O		525	141.098318	true		true	non_hardcoded
+CLIP_TRAQ_2 (N-term)		N	None	H12C6C'N2O		525	141.098318	true		true	non_hardcoded
+CLIP_TRAQ_2 (Y)	Y		None	H12C6C'N2O		525	141.098318	true		true	non_hardcoded
+CLIP_TRAQ_3 (K)	K		None	H20C11C'N3O4		536	271.148736	true		true	non_hardcoded
+CLIP_TRAQ_3 (N-term)		N	None	H20C11C'N3O4		536	271.148736	true		true	non_hardcoded
+CLIP_TRAQ_3 (Y)	Y		None	H20C11C'N3O4		536	271.148736	true		true	non_hardcoded
+CLIP_TRAQ_4 (K)	K		None	H15C9C'N2O5		537	244.101452	true		true	non_hardcoded
+CLIP_TRAQ_4 (N-term)		N	None	H15C9C'N2O5		537	244.101452	true		true	non_hardcoded
+CLIP_TRAQ_4 (Y)	Y		None	H15C9C'N2O5		537	244.101452	true		true	non_hardcoded
+CoenzymeA (C)	C		None	H34C21N7O16P3S		281	765.09956	true	CzA	true	non_hardcoded
+Cresylphosphate (H)	H		None	H7C7O3P		1255	170.013281	true		true	non_hardcoded
+Cresylphosphate (K)	K		None	H7C7O3P		1255	170.013281	true		true	non_hardcoded
+Cresylphosphate (R)	R		None	H7C7O3P		1255	170.013281	true		true	non_hardcoded
+Cresylphosphate (S)	S		None	H7C7O3P		1255	170.013281	true		true	non_hardcoded
+Cresylphosphate (T)	T		None	H7C7O3P		1255	170.013281	true		true	non_hardcoded
+Cresylphosphate (Y)	Y		None	H7C7O3P		1255	170.013281	true		true	non_hardcoded
+CresylSaligeninPhosphate (H)	H		None	H13C14O4P		1256	276.055146	true		true	non_hardcoded
+CresylSaligeninPhosphate (K)	K		None	H13C14O4P		1256	276.055146	true		true	non_hardcoded
+CresylSaligeninPhosphate (R)	R		None	H13C14O4P		1256	276.055146	true		true	non_hardcoded
+CresylSaligeninPhosphate (S)	S		None	H13C14O4P		1256	276.055146	true		true	non_hardcoded
+CresylSaligeninPhosphate (T)	T		None	H13C14O4P		1256	276.055146	true		true	non_hardcoded
+CresylSaligeninPhosphate (Y)	Y		None	H13C14O4P		1256	276.055146	true		true	non_hardcoded
+Crotonaldehyde (C)	C		None	H6C4O		253	70.041865	true	CrA	true	non_hardcoded
+Crotonaldehyde (H)	H		None	H6C4O		253	70.041865	true	CrA	true	non_hardcoded
+Crotonaldehyde (K)	K		None	H6C4O		253	70.041865	true	CrA	true	non_hardcoded
+Crotonyl (K)	K		None	H4C4O		1363	68.026215	true	Cro	true	non_hardcoded
+CuSMo (C)	C		None	H24C19N8O15P2S3MoCu		444	922.834855	true	CSM	true	non_hardcoded
+Cy3-maleimide (C)	C		None	H45C37N4O9S2		1348	753.262796	true		true	non_hardcoded
+Cy3b-maleimide (C)	C		None	H38C37N4O7S		821	682.24612	true		true	non_hardcoded
+Cyano (C)	C		None	CN - H		438	24.995249	true	1CN	true	non_hardcoded
+CyDye-Cy3 (C)	C		None	H44C37N4O6S		494	672.298156	true		true	non_hardcoded
+CyDye-Cy5 (C)	C		None	H44C38N4O6S		495	684.298156	true		true	non_hardcoded
+Cys->CamSec (C)	C		None	H3C2NOSe - S		1008	104.965913	true		true	non_hardcoded
+Cys->Dha (C)	C		None	-H2S		368	-33.987721	true	DHA	true	non_hardcoded
+Cys->ethylaminoAla (C)	C		None	H5C2N - S		940	11.070128	true		true	non_hardcoded
+Cys->methylaminoAla (C)	C		None	H3CN - S		939	-2.945522	true		true	non_hardcoded
+Cys->Oxoalanine (C)	C		None	O - H2S		402	-17.992806	true	COa	true	non_hardcoded
+Cys->PyruvicAcid (Protein N-term C)	C	N	None	O - H3NS		382	-33.003705	true	CPA	true	non_hardcoded
+Cys->SecNEM (C)	C		None	C6H7NO2Se - S		1033	172.992127	true		true	non_hardcoded
+Cysteinyl (C)	C		None	H5C3NO2S		312	119.004099	true	SCC	true	non_hardcoded
+cysTMT (C)	C		None	H25C14N3O2S		984	299.166748	true	cTM	true	non_hardcoded
+cysTMT6plex (C)	C		None	H25C10C'4N2N'O2S		985	304.177202	true	cT6	true	non_hardcoded
+Cytopiloyne (C)	C		None	H22C19O7		270	362.136553	true	Cpn	true	non_hardcoded
+Cytopiloyne (K)	K		None	H22C19O7		270	362.136553	true	Cpn	true	non_hardcoded
+Cytopiloyne (N-term)		N	None	H22C19O7		270	362.136553	true	Cpn	true	non_hardcoded
+Cytopiloyne (P)	P		None	H22C19O7		270	362.136553	true	Cpn	true	non_hardcoded
+Cytopiloyne (R)	R		None	H22C19O7		270	362.136553	true	Cpn	true	non_hardcoded
+Cytopiloyne (S)	S		None	H22C19O7		270	362.136553	true	Cpn	true	non_hardcoded
+Cytopiloyne (Y)	Y		None	H22C19O7		270	362.136553	true	Cpn	true	non_hardcoded
+Cytopiloyne+water (C)	C		None	H24C19O8		271	380.147118	true	Cpw	true	non_hardcoded
+Cytopiloyne+water (K)	K		None	H24C19O8		271	380.147118	true	Cpw	true	non_hardcoded
+Cytopiloyne+water (N-term)		N	None	H24C19O8		271	380.147118	true	Cpw	true	non_hardcoded
+Cytopiloyne+water (R)	R		None	H24C19O8		271	380.147118	true	Cpw	true	non_hardcoded
+Cytopiloyne+water (S)	S		None	H24C19O8		271	380.147118	true	Cpw	true	non_hardcoded
+Cytopiloyne+water (T)	T		None	H24C19O8		271	380.147118	true	Cpw	true	non_hardcoded
+Cytopiloyne+water (Y)	Y		None	H24C19O8		271	380.147118	true	Cpw	true	non_hardcoded
+DABCYL-C2-maleimide (C)	C		None	H21C21N5O3	H13C15N3O	2074	391.16444	true		true	non_hardcoded
+DABCYL-C2-maleimide (K)	K		None	H21C21N5O3	H13C15N3O	2074	391.16444	true		true	non_hardcoded
+DAET (S)	S		None	H9C4NS - O		178	87.050655	true	DAT	true	non_hardcoded
+DAET (T)	T		None	H9C4NS - O		178	87.050655	true	DAT	true	non_hardcoded
+Dansyl (K)	K		None	H11C12NO2S		139	233.051049	true	Dan	true	non_hardcoded
+Dansyl (N-term)		N	None	H11C12NO2S		139	233.051049	true	Dan	true	non_hardcoded
+Dap-DSP (A)	A		None	H20C13N2O6S2		1399	364.076278	true		true	non_hardcoded
+Dap-DSP (E)	E		None	H20C13N2O6S2		1399	364.076278	true		true	non_hardcoded
+Dap-DSP (K)	K		None	H20C13N2O6S2		1399	364.076278	true		true	non_hardcoded
+DBIA (C)	C		None	H24C14N4O3		2062	296.184841	true		true	non_hardcoded
+DCP (C)	C		None	H12C9O3		2080	168.078644	true		true	non_hardcoded
+Deamidated (Protein N-term F)	F	N	None	O - HN		7	0.984016	true	Dea	true	non_hardcoded
+Deamidated (R)	R		None	O - HN	HCNO	7	0.984016	true	Dea	true	non_hardcoded
+Deamidated:18O(1) (NQ)	N, Q		None	O' - HN		366	2.988261	true	DeO	true	non_hardcoded
+Decanoyl (S)	S		None	H18C10O		449	154.135765	true	Dec	true	non_hardcoded
+Decanoyl (T)	T		None	H18C10O		449	154.135765	true	Dec	true	non_hardcoded
+Decarboxylation (D)	D		None	-H2CO		1915	-30.010565	true		true	non_hardcoded
+Decarboxylation (E)	E		None	-H2CO		1915	-30.010565	true		true	non_hardcoded
+DEDGFLYMVYASQETFG (K)	K		None	H122C89N18O31S	H2O	1010	1970.824411	true		true	non_hardcoded
+Dehydrated (D)	D		None	-H2O		23	-18.010565	true	Dhy	true	non_hardcoded
+Dehydrated (Protein C-term N)	N	C	None	-H2O		23	-18.010565	true	Dhy	true	non_hardcoded
+Dehydrated (Protein C-term Q)	Q	C	None	-H2O		23	-18.010565	true	Dhy	true	non_hardcoded
+Dehydrated (S)	S		None	-H2O		23	-18.010565	true	Dhy	true	non_hardcoded
+Dehydrated (T)	T		None	-H2O		23	-18.010565	true	Dhy	true	non_hardcoded
+Dehydrated (Y)	Y		None	-H2O		23	-18.010565	true	Dhy	true	non_hardcoded
+Delta:H(-1)N(-1)18O(1) (N)	N		None	O' - HN		170	2.988261	true	DeW	true	non_hardcoded
+Delta:H(-4)O(2) (W)	W		None	O2 - H4		1923	27.958529	true		true	non_hardcoded
+Delta:H(-4)O(3) (W)	W		None	O3 - H4		1924	43.953444	true		true	non_hardcoded
+Delta:H(10)C(8)O(1) (K)	K		None	H10C8O		1928	122.073165	true		true	non_hardcoded
+Delta:H(2)C(2) (H)	H		None	H2C2		254	26.01565	true	AAS	true	non_hardcoded
+Delta:H(2)C(2) (K)	K		None	H2C2		254	26.01565	true	AAS	true	non_hardcoded
+Delta:H(2)C(2) (N-term)		N	None	H2C2		254	26.01565	true	AAS	true	non_hardcoded
+Delta:H(2)C(3) (K)	K		None	H2C3		207	38.01565	true	AAT	true	non_hardcoded
+Delta:H(2)C(3)O(1) (K)	K		None	H2C3O		319	54.010565	true	AAU	true	non_hardcoded
+Delta:H(2)C(3)O(1) (R)	R		None	H2C3O		319	54.010565	true	AAU	true	non_hardcoded
+Delta:H(2)C(5) (K)	K		None	H2C5		318	62.01565	true	AAV	true	non_hardcoded
+Delta:H(4)C(2) (H)	H		None	H4C2		255	28.0313	true	AAR	true	non_hardcoded
+Delta:H(4)C(2) (K)	K		None	H4C2		255	28.0313	true	AAR	true	non_hardcoded
+Delta:H(4)C(2) (N-term)		N	None	H4C2		255	28.0313	true	AAR	true	non_hardcoded
+Delta:H(4)C(2)O(-1)S(1) (S)	S		None	H4C2S - O		327	44.008456	true	AAW	true	non_hardcoded
+Delta:H(4)C(3) (H)	H		None	H4C3		256	40.0313	true	PrA	true	non_hardcoded
+Delta:H(4)C(3) (K)	K		None	H4C3		256	40.0313	true	PrA	true	non_hardcoded
+Delta:H(4)C(3)O(1) (C)	C		None	H4C3O		206	56.026215	true	Aco	true	non_hardcoded
+Delta:H(4)C(3)O(1) (H)	H		None	H4C3O		206	56.026215	true	Aco	true	non_hardcoded
+Delta:H(4)C(3)O(1) (K)	K		None	H4C3O		206	56.026215	true	Aco	true	non_hardcoded
+Delta:H(4)C(3)O(1) (R)	R		None	H4C3O		206	56.026215	true	Aco	true	non_hardcoded
+Delta:H(4)C(3)O(2) (K)	K		None	H4C3O2		1926	72.021129	true		true	non_hardcoded
+Delta:H(4)C(5)O(1) (R)	R		None	H4C5O		1927	80.026215	true		true	non_hardcoded
+Delta:H(4)C(6) (K)	K		None	H4C6		208	76.0313	true	Acr	true	non_hardcoded
+Delta:H(5)C(2) (P)	P		None	H5C2		529	29.039125	true	2M+	true	non_hardcoded
+Delta:H(6)C(3)O(1) (C)	C		None	H6C3O		1312	58.041865	true		true	non_hardcoded
+Delta:H(6)C(3)O(1) (H)	H		None	H6C3O		1312	58.041865	true		true	non_hardcoded
+Delta:H(6)C(3)O(1) (K)	K		None	H6C3O		1312	58.041865	true		true	non_hardcoded
+Delta:H(6)C(6)O(1) (K)	K		None	H6C6O		205	94.041865	true	Aci	true	non_hardcoded
+Delta:H(6)C(7)O(4) (R)	R		None	H6C7O4		1929	154.026609	true		true	non_hardcoded
+Delta:H(8)C(6)O(1) (K)	K		None	H8C6O		1313	96.057515	true		true	non_hardcoded
+Delta:H(8)C(6)O(2) (K)	K		None	H8C6O2		209	112.05243	true	Acp	true	non_hardcoded
+Delta:Hg(1) (C)	C		None	Hg		291	201.970617	true	1Hg	true	non_hardcoded
+Delta:O(4) (W)	W		None	O4		1925	63.979659	true		true	non_hardcoded
+Delta:S(-1)Se(1) (C)	C		None	Se - S		162	47.944449	true	SSe	true	non_hardcoded
+Delta:S(-1)Se(1) (M)	M		None	Se - S		162	47.944449	true	SSe	true	non_hardcoded
+Delta:Se(1) (C)	C		None	Se		423	79.91652	true	1Se	true	non_hardcoded
+Deoxy (D)	D		None	-O		447	-15.994915	true	dOx	true	non_hardcoded
+Deoxy (S)	S		None	-O		447	-15.994915	true	dOx	true	non_hardcoded
+Deoxy (T)	T		None	-O		447	-15.994915	true	dOx	true	non_hardcoded
+Deoxyhypusine (K)	K		None	H9C4N		1041	71.073499	true		true	non_hardcoded
+Deoxyhypusine (Q)	Q		None	H9C4N		1041	71.073499	true		true	non_hardcoded
+DeStreak (C)	C		None	H4C2OS		303	75.998285	true	DSk	true	non_hardcoded
+Dethiomethyl (M)	M		None	-H4CS		526	-48.003371	true	DTM	true	non_hardcoded
+dHex (N)	N		None	H10C6O4	H10C6O4	295	146.057909	true	dHx	true	non_hardcoded
+dHex (ST)	S, T		None	H10C6O4	H10C6O4	295	146.057909	true	dHx	true	non_hardcoded
+dHex(1)Hex(1) (ST)	S, T		None	H20C12O9	H20C12O9	1367	308.110732	true	1HF	true	non_hardcoded
+dHex(1)Hex(1)HexA(1)HexNAc(3) (ST)	S, T		None	H67C42N3O30	H67C42N3O30	1641	1093.380938	true		true	non_hardcoded
+dHex(1)Hex(1)HexNAc(1)Kdn(1) (ST)	S, T		None	H47C29NO22	H47C29NO22	1581	761.258973	true		true	non_hardcoded
+dHex(1)Hex(1)HexNAc(1)NeuAc(1) (ST)	S, T		None	H50C31N2O22	H50C31N2O22	1588	802.285522	true		true	non_hardcoded
+dHex(1)Hex(1)HexNAc(1)NeuGc(1) (ST)	S, T		None	H50C31N2O23	H50C31N2O23	1593	818.280436	true		true	non_hardcoded
+dHex(1)Hex(1)HexNAc(2)Kdn(1) (ST)	S, T		None	H60C37N2O27	H60C37N2O27	1618	964.338345	true		true	non_hardcoded
+dHex(1)Hex(1)HexNAc(2)NeuAc(1) (ST)	S, T		None	H63C39N3O27	H63C39N3O27	1624	1005.364894	true		true	non_hardcoded
+dHex(1)Hex(1)HexNAc(2)NeuAc(1)Sulf(1) (ST)	S, T		None	H63C39N3O30S	H63C39N3O30S	1639	1085.321709	true		true	non_hardcoded
+dHex(1)Hex(1)HexNAc(2)NeuAc(2) (ST)	S, T		None	H80C50N4O35	H80C50N4O35	1675	1296.460311	true		true	non_hardcoded
+dHex(1)Hex(1)HexNAc(2)Sulf(1) (ST)	S, T		None	H46C28N2O22S	H46C28N2O22S	1587	794.226292	true		true	non_hardcoded
+dHex(1)Hex(1)HexNAc(3) (ST)	S, T		None	H59C36N3O24	H59C36N3O24	1608	917.34885	true		true	non_hardcoded
+dHex(1)Hex(1)HexNAc(3)NeuAc(1) (ST)	S, T		None	H76C47N4O32	H76C47N4O32	1658	1208.444267	true		true	non_hardcoded
+dHex(1)Hex(1)HexNAc(3)NeuAc(1)Sulf(1) (ST)	S, T		None	H76C47N4O35S	H76C47N4O35S	1673	1288.401081	true		true	non_hardcoded
+dHex(1)Hex(1)HexNAc(3)NeuGc(1) (ST)	S, T		None	H76C47N4O33	H76C47N4O33	1661	1224.439181	true		true	non_hardcoded
+dHex(1)Hex(1)HexNAc(3)Sulf(1) (ST)	S, T		None	H59C36N3O27S	H59C36N3O27S	1622	997.305665	true		true	non_hardcoded
+dHex(1)Hex(1)HexNAc(4) (ST)	S, T		None	H72C44N4O29	H72C44N4O29	1645	1120.428223	true		true	non_hardcoded
+dHex(1)Hex(2) (ST)	S, T		None	H30C18O14	H30C18O14	1375	470.163556	true	2HF	true	non_hardcoded
+dHex(1)Hex(2)HexA(1) (ST)	S, T		None	H38C24O20	H38C24O20	1446	646.195644	true		true	non_hardcoded
+dHex(1)Hex(2)HexA(1)HexNAc(1) (ST)	S, T		None	H51C32NO25	H51C32NO25	1597	849.275017	true		true	non_hardcoded
+dHex(1)Hex(2)HexA(1)HexNAc(1)Sulf(1) (ST)	S, T		None	H51C32NO28S	H51C32NO28S	1609	929.231831	true		true	non_hardcoded
+dHex(1)Hex(2)HexA(1)HexNAc(2) (ST)	S, T		None	H64C40N2O30	H64C40N2O30	1634	1052.354389	true		true	non_hardcoded
+dHex(1)Hex(2)HexNAc(1) (ST)	S, T		None	H43C26NO19	H43C26NO19	1564	673.242928	true		true	non_hardcoded
+dHex(1)Hex(2)HexNAc(1)NeuAc(2) (ST)	S, T		None	H77C48N3O35	H77C48N3O35	1949	1255.433762	true		true	non_hardcoded
+dHex(1)Hex(2)HexNAc(1)Sulf(1) (ST)	S, T		None	H43C26NO22S	H43C26NO22S	1579	753.199743	true		true	non_hardcoded
+dHex(1)Hex(2)HexNAc(2)NeuAc(1)Sulf(1) (ST)	S, T		None	H73C45N3O35S	H73C45N3O35S	1666	1247.374532	true		true	non_hardcoded
+dHex(1)Hex(2)HexNAc(2)NeuAc(2) (ST)	S, T		None	H90C56N4O40	H90C56N4O40	1708	1458.513134	true		true	non_hardcoded
+dHex(1)Hex(2)HexNAc(2)NeuAc(2)Sulf(1) (ST)	S, T		None	H90C56N4O43S	H90C56N4O43S	1724	1538.469949	true		true	non_hardcoded
+dHex(1)Hex(2)HexNAc(2)NeuGc(1) (N)	N		None	H73C45N3O33	H73C45N3O33	1657	1183.412632	true		true	non_hardcoded
+dHex(1)Hex(2)HexNAc(2)NeuGc(1) (ST)	S, T		None	H73C45N3O33	H73C45N3O33	1657	1183.412632	true		true	non_hardcoded
+dHex(1)Hex(2)HexNAc(2)NeuGc(2) (ST)	S, T		None	H90C56N4O42	H90C56N4O42	1714	1490.502964	true		true	non_hardcoded
+dHex(1)Hex(2)HexNAc(2)NeuGc(3) (ST)	S, T		None	H107C67N5O51	H107C67N5O51	1747	1797.593295	true		true	non_hardcoded
+dHex(1)Hex(2)HexNAc(2)Pent(1) (N)	N		None	H64C39N2O28	H64C39N2O28	1449	1008.36456	true		true	non_hardcoded
+dHex(1)Hex(2)HexNAc(2)Sulf(1) (ST)	S, T		None	H56C34N2O27S	H56C34N2O27S	1615	956.279116	true		true	non_hardcoded
+dHex(1)Hex(2)HexNAc(3) (N)	N		None	H69C42N3O29	H69C42N3O29	1762	1079.401674	true		true	non_hardcoded
+dHex(1)Hex(2)HexNAc(3) (ST)	S, T		None	H69C42N3O29	H69C42N3O29	1762	1079.401674	true		true	non_hardcoded
+dHex(1)Hex(2)HexNAc(3)NeuAc(1) (ST)	S, T		None	H86C53N4O37	H86C53N4O37	1688	1370.49709	true		true	non_hardcoded
+dHex(1)Hex(2)HexNAc(3)NeuAc(1)Sulf(1) (ST)	S, T		None	H86C53N4O40S	H86C53N4O40S	1707	1450.453905	true		true	non_hardcoded
+dHex(1)Hex(2)HexNAc(3)Sulf(1) (ST)	S, T		None	H69C42N3O32S	H69C42N3O32S	1651	1159.358488	true		true	non_hardcoded
+dHex(1)Hex(2)HexNAc(4) (N)	N		None	H82C50N4O34	H82C50N4O34	1671	1282.481046	true		true	non_hardcoded
+dHex(1)Hex(2)HexNAc(4) (ST)	S, T		None	H82C50N4O34	H82C50N4O34	1671	1282.481046	true		true	non_hardcoded
+dHex(1)Hex(2)HexNAc(4)NeuAc(1) (ST)	S, T		None	H99C61N5O42	H99C61N5O42	1727	1573.576463	true		true	non_hardcoded
+dHex(1)Hex(2)HexNAc(4)NeuAc(2) (ST)	S, T		None	H116C72N6O50	H116C72N6O50	1754	1864.67188	true		true	non_hardcoded
+dHex(1)Hex(2)HexNAc(4)Sulf(2) (ST)	S, T		None	H82C50N4O40S2	H82C50N4O40S2	1952	1442.394675	true		true	non_hardcoded
+dHex(1)Hex(3) (ST)	S, T		None	H40C24O19	H40C24O19	1376	632.216379	true	3HF	true	non_hardcoded
+dHex(1)Hex(3)HexA(1)HexNAc(1) (ST)	S, T		None	H61C38NO30	H61C38NO30	1625	1011.32784	true		true	non_hardcoded
+dHex(1)Hex(3)HexA(1)HexNAc(1)Sulf(1) (ST)	S, T		None	H61C38NO33S	H61C38NO33S	1640	1091.284655	true		true	non_hardcoded
+dHex(1)Hex(3)HexA(1)HexNAc(2) (ST)	S, T		None	H74C46N2O35	H74C46N2O35	1660	1214.407213	true		true	non_hardcoded
+dHex(1)Hex(3)HexA(1)HexNAc(2)Sulf(1) (ST)	S, T		None	H74C46N2O38S	H74C46N2O38S	1674	1294.364027	true		true	non_hardcoded
+dHex(1)Hex(3)HexA(1)HexNAc(3)Sulf(1) (ST)	S, T		None	H87C54N3O43S	H87C54N3O43S	1716	1497.4434	true		true	non_hardcoded
+dHex(1)Hex(3)HexA(2)HexNAc(2) (ST)	S, T		None	H82C52N2O41	H82C52N2O41	1693	1390.439301	true		true	non_hardcoded
+dHex(1)Hex(3)HexNAc(1) (ST)	S, T		None	H53C32NO24	H53C32NO24	1596	835.295752	true		true	non_hardcoded
+dHex(1)Hex(3)HexNAc(1)Sulf(1) (ST)	S, T		None	H53C32NO27S	H53C32NO27S	1607	915.252567	true		true	non_hardcoded
+dHex(1)Hex(3)HexNAc(2) (N)	N		None	H66C40N2O29	H66C40N2O29	1761	1038.375125	true		true	non_hardcoded
+dHex(1)Hex(3)HexNAc(2) (ST)	S, T		None	H66C40N2O29	H66C40N2O29	1761	1038.375125	true		true	non_hardcoded
+dHex(1)Hex(3)HexNAc(2)NeuGc(1) (ST)	S, T		None	H83C51N3O38	H83C51N3O38	1686	1345.465456	true		true	non_hardcoded
+dHex(1)Hex(3)HexNAc(2)Pent(1) (N)	N		None	H74C45N2O33	H74C45N2O33	1454	1170.417383	true		true	non_hardcoded
+dHex(1)Hex(3)HexNAc(2)Sulf(1) (N)	N		None	H66C40N2O32S	H66C40N2O32S	1764	1118.331939	true		true	non_hardcoded
+dHex(1)Hex(3)HexNAc(2)Sulf(1) (ST)	S, T		None	H66C40N2O32S	H66C40N2O32S	1764	1118.331939	true		true	non_hardcoded
+dHex(1)Hex(3)HexNAc(3) (N)	N		None	H79C48N3O34	H79C48N3O34	1768	1241.454497	true	G0m	true	non_hardcoded
+dHex(1)Hex(3)HexNAc(3) (ST)	S, T		None	H79C48N3O34	H79C48N3O34	1768	1241.454497	true	G0m	true	non_hardcoded
+dHex(1)Hex(3)HexNAc(3)NeuAc(2) (ST)	S, T		None	H113C70N5O50	H113C70N5O50	1750	1823.64533	true		true	non_hardcoded
+dHex(1)Hex(3)HexNAc(3)Pent(1) (N)	N		None	H87C53N3O38	H87C53N3O38	1463	1373.496756	true		true	non_hardcoded
+dHex(1)Hex(3)HexNAc(3)Pent(2) (N)	N		None	H95C58N3O42	H95C58N3O42	1474	1505.539015	true		true	non_hardcoded
+dHex(1)Hex(3)HexNAc(3)Pent(3) (N)	N		None	H103C63N3O46	H103C63N3O46	1492	1637.581274	true		true	non_hardcoded
+dHex(1)Hex(3)HexNAc(3)Sulf(1) (ST)	S, T		None	H79C48N3O37S	H79C48N3O37S	1683	1321.411312	true		true	non_hardcoded
+dHex(1)Hex(3)HexNAc(4) (N)	N		None	H92C56N4O39	H92C56N4O39	305	1444.53387	true	G0F	true	non_hardcoded
+dHex(1)Hex(3)HexNAc(4) (ST)	S, T		None	H92C56N4O39	H92C56N4O39	305	1444.53387	true	G0F	true	non_hardcoded
+dHex(1)Hex(3)HexNAc(4)NeuAc(1) (N)	N		None	H109C67N5O47	H109C67N5O47	1510	1735.629286	true		true	non_hardcoded
+dHex(1)Hex(3)HexNAc(4)Pent(1) (N)	N		None	H100C61N4O43	H100C61N4O43	1485	1576.576129	true		true	non_hardcoded
+dHex(1)Hex(3)HexNAc(4)Pent(2) (N)	N		None	H108C66N4O47	H108C66N4O47	1505	1708.618387	true		true	non_hardcoded
+dHex(1)Hex(3)HexNAc(4)Pent(3) (N)	N		None	H116C71N4O51	H116C71N4O51	1525	1840.660646	true		true	non_hardcoded
+dHex(1)Hex(3)HexNAc(4)Sulf(1) (N)	N		None	H92C56N4O42S	H92C56N4O42S	1476	1524.490684	true		true	non_hardcoded
+dHex(1)Hex(3)HexNAc(5) (N)	N		None	H105C64N5O44	H105C64N5O44	1775	1647.613242	true	G0X	true	non_hardcoded
+dHex(1)Hex(3)HexNAc(5) (ST)	S, T		None	H105C64N5O44	H105C64N5O44	1775	1647.613242	true	G0X	true	non_hardcoded
+dHex(1)Hex(3)HexNAc(5)NeuAc(1) (N)	N		None	H122C75N6O52	H122C75N6O52	1784	1938.708659	true		true	non_hardcoded
+dHex(1)Hex(3)HexNAc(5)NeuAc(1) (ST)	S, T		None	H122C75N6O52	H122C75N6O52	1784	1938.708659	true		true	non_hardcoded
+dHex(1)Hex(3)HexNAc(5)Sulf(1) (N)	N		None	H105C64N5O47S	H105C64N5O47S	1508	1727.570057	true		true	non_hardcoded
+dHex(1)Hex(3)HexNAc(6) (N)	N		None	H118C72N6O49	H118C72N6O49	1781	1850.692615	true		true	non_hardcoded
+dHex(1)Hex(3)HexNAc(6) (ST)	S, T		None	H118C72N6O49	H118C72N6O49	1781	1850.692615	true		true	non_hardcoded
+dHex(1)Hex(3)HexNAc(6)Sulf(1) (N)	N		None	H118C72N6O52S	H118C72N6O52S	1546	1930.64943	true		true	non_hardcoded
+dHex(1)Hex(4) (ST)	S, T		None	H50C30O24	H50C30O24	1377	794.269203	true	4HF	true	non_hardcoded
+dHex(1)Hex(4)HexA(1) (ST)	S, T		None	H58C36O30	H58C36O30	1943	970.301291	true		true	non_hardcoded
+dHex(1)Hex(4)HexA(1)HexNAc(2) (ST)	S, T		None	H84C52N2O40	H84C52N2O40	1691	1376.460036	true		true	non_hardcoded
+dHex(1)Hex(4)HexA(1)HexNAc(3)Sulf(1) (ST)	S, T		None	H97C60N3O48S	H97C60N3O48S	1737	1659.496223	true		true	non_hardcoded
+dHex(1)Hex(4)HexNAc(1)Pent(1) (N)	N		None	H71C43NO33	H71C43NO33	1453	1129.390834	true		true	non_hardcoded
+dHex(1)Hex(4)HexNAc(2) (N)	N		None	H76C46N2O34	H76C46N2O34	1766	1200.427948	true		true	non_hardcoded
+dHex(1)Hex(4)HexNAc(2) (ST)	S, T		None	H76C46N2O34	H76C46N2O34	1766	1200.427948	true		true	non_hardcoded
+dHex(1)Hex(4)HexNAc(2)Pent(1) (N)	N		None	H84C51N2O38	H84C51N2O38	1459	1332.470207	true		true	non_hardcoded
+dHex(1)Hex(4)HexNAc(3) (N)	N		None	H89C54N3O39	H89C54N3O39	1467	1403.507321	true	G1m	true	non_hardcoded
+dHex(1)Hex(4)HexNAc(3)NeuAc(1) (N)	N		None	H106C65N4O47	H106C65N4O47	1501	1694.602737	true		true	non_hardcoded
+dHex(1)Hex(4)HexNAc(3)NeuAc(1) (ST)	S, T		None	H106C65N4O47	H106C65N4O47	1501	1694.602737	true		true	non_hardcoded
+dHex(1)Hex(4)HexNAc(3)NeuAc(1)Sulf(1) (N)	N		None	H106C65N4O50S	H106C65N4O50S	1515	1774.559552	true		true	non_hardcoded
+dHex(1)Hex(4)HexNAc(3)NeuGc(1) (N)	N		None	H106C65N4O48	H106C65N4O48	1506	1710.597652	true		true	non_hardcoded
+dHex(1)Hex(4)HexNAc(3)Pent(1) (N)	N		None	H97C59N3O43	H97C59N3O43	1478	1535.549579	true		true	non_hardcoded
+dHex(1)Hex(4)HexNAc(3)Sulf(1) (N)	N		None	H89C54N3O42S	H89C54N3O42S	1471	1483.464135	true		true	non_hardcoded
+dHex(1)Hex(4)HexNAc(4) (N)	N		None	H102C62N4O44	H102C62N4O44	307	1606.586693	true	G1F	true	non_hardcoded
+dHex(1)Hex(4)HexNAc(4) (ST)	S, T		None	H102C62N4O44	H102C62N4O44	307	1606.586693	true	G1F	true	non_hardcoded
+dHex(1)Hex(4)HexNAc(4)NeuAc(1) (N)	N		None	H119C73N5O52	H119C73N5O52	1782	1897.68211	true	G1Y	true	non_hardcoded
+dHex(1)Hex(4)HexNAc(4)NeuAc(1) (ST)	S, T		None	H119C73N5O52	H119C73N5O52	1782	1897.68211	true	G1Y	true	non_hardcoded
+dHex(1)Hex(4)HexNAc(4)NeuAc(1)Sulf(1) (N)	N		None	H119C73N5O55S	H119C73N5O55S	1556	1977.638925	true		true	non_hardcoded
+dHex(1)Hex(4)HexNAc(4)Pent(1) (N)	N		None	H110C67N4O48	H110C67N4O48	1512	1738.628952	true		true	non_hardcoded
+dHex(1)Hex(4)HexNAc(4)Sulf(1) (N)	N		None	H102C62N4O47S	H102C62N4O47S	1499	1686.543508	true		true	non_hardcoded
+dHex(1)Hex(4)HexNAc(5) (N)	N		None	H115C70N5O49	H115C70N5O49	1519	1809.666066	true		true	non_hardcoded
+dHex(1)Hex(4)HexNAc(5)Sulf(1) (N)	N		None	H115C70N5O52S	H115C70N5O52S	1536	1889.62288	true		true	non_hardcoded
+dHex(1)Hex(5) (ST)	S, T		None	H60C36O29	H60C36O29	1378	956.322026	true	5HF	true	non_hardcoded
+dHex(1)Hex(5)HexA(1)HexNAc(3)Sulf(1) (N)	N		None	H107C66N3O53S	H107C66N3O53S	1520	1821.549047	true		true	non_hardcoded
+dHex(1)Hex(5)HexA(1)HexNAc(3)Sulf(2) (N)	N		None	H107C66N3O56S2	H107C66N3O56S2	1539	1901.505861	true		true	non_hardcoded
+dHex(1)Hex(5)HexNAc(2) (N)	N		None	H86C52N2O39	H86C52N2O39	1462	1362.480772	true		true	non_hardcoded
+dHex(1)Hex(5)HexNAc(2)Pent(1) (N)	N		None	H94C57N2O43	H94C57N2O43	1472	1494.52303	true		true	non_hardcoded
+dHex(1)Hex(5)HexNAc(3) (N)	N		None	H99C60N3O44	H99C60N3O44	1484	1565.560144	true		true	non_hardcoded
+dHex(1)Hex(5)HexNAc(3)NeuAc(1) (N)	N		None	H116C71N4O52	H116C71N4O52	1529	1856.655561	true		true	non_hardcoded
+dHex(1)Hex(5)HexNAc(3)NeuAc(1)Sulf(1) (N)	N		None	H116C71N4O55S	H116C71N4O55S	1548	1936.612375	true		true	non_hardcoded
+dHex(1)Hex(5)HexNAc(3)NeuGc(1) (N)	N		None	H116C71N4O53	H116C71N4O53	1534	1872.650475	true		true	non_hardcoded
+dHex(1)Hex(5)HexNAc(3)NeuGc(1)Sulf(1) (N)	N		None	H116C71N4O56S	H116C71N4O56S	1550	1952.60729	true		true	non_hardcoded
+dHex(1)Hex(5)HexNAc(3)Sulf(1) (N)	N		None	H99C60N3O47S	H99C60N3O47S	1493	1645.516959	true		true	non_hardcoded
+dHex(1)Hex(5)HexNAc(4) (N)	N		None	H112C68N4O49	H112C68N4O49	308	1768.639517	true	G2F	true	non_hardcoded
+dHex(1)Hex(5)HexNAc(4)Me(2)Pent(1) (N)	N		None	H124C75N4O53	H124C75N4O53	1544	1928.713076	true		true	non_hardcoded
+dHex(1)Hex(5)HexNAc(4)NeuAc(1) (N)	N		None	H129C79N5O57	H129C79N5O57	1410	2059.734933	true	G2Y	true	non_hardcoded
+dHex(1)Hex(5)HexNAc(4)NeuAc(2) (N)	N		None	H146C90N6O65	H146C90N6O65	1411	2350.83035	true	G2Z	true	non_hardcoded
+dHex(1)Hex(5)HexNAc(4)Pent(1) (N)	N		None	H120C73N4O53	H120C73N4O53	1538	1900.681776	true		true	non_hardcoded
+dHex(1)Hex(5)HexNAc(4)Sulf(1) (N)	N		None	H112C68N4O52S	H112C68N4O52S	1527	1848.596331	true		true	non_hardcoded
+dHex(1)Hex(5)HexNAc(4)Sulf(2) (N)	N		None	H112C68N4O55S2	H112C68N4O55S2	1543	1928.553146	true		true	non_hardcoded
+dHex(1)Hex(5)HexNAc(5) (N)	N		None	H125C76N5O54	H125C76N5O54	1555	1971.718889	true		true	non_hardcoded
+dHex(1)Hex(6) (ST)	S, T		None	H70C42O34	H70C42O34	1379	1118.37485	true	6HF	true	non_hardcoded
+dHex(1)Hex(6)HexNAc(2) (N)	N		None	H96C58N2O44	H96C58N2O44	1477	1524.533595	true		true	non_hardcoded
+dHex(1)Hex(6)HexNAc(3) (N)	N		None	H109C66N3O49	H109C66N3O49	1509	1727.612968	true		true	non_hardcoded
+dHex(1)Hex(6)HexNAc(3)Sulf(1) (N)	N		None	H109C66N3O52S	H109C66N3O52S	1518	1807.569782	true		true	non_hardcoded
+dHex(1)Hex(6)HexNAc(4) (N)	N		None	H122C74N4O54	H122C74N4O54	1547	1930.69234	true		true	non_hardcoded
+dHex(1)Hex(7)HexNAc(2) (N)	N		None	H106C64N2O49	H106C64N2O49	1500	1686.586419	true		true	non_hardcoded
+dHex(1)Hex(7)HexNAc(3) (N)	N		None	H119C72N3O54	H119C72N3O54	1537	1889.665791	true		true	non_hardcoded
+dHex(1)Hex(7)HexNAc(3)Phos(1) (N)	N		None	H120C72N3O57P	H120C72N3O57P	1554	1969.632122	true		true	non_hardcoded
+dHex(1)Hex(7)HexNAc(3)Sulf(1) (N)	N		None	H119C72N3O57S	H119C72N3O57S	1553	1969.622606	true		true	non_hardcoded
+dHex(1)Hex(7)HexNAc(4) (N)	N		None	H132C80N4O59		1840	2092.745164	true		true	non_hardcoded
+dHex(1)Hex(8)HexNAc(2) (N)	N		None	H116C70N2O54	H116C70N2O54	1963	1848.639242	true		true	non_hardcoded
+dHex(1)HexNAc(3) (ST)	S, T		None	H49C30N3O19	H49C30N3O19	1580	755.296027	true		true	non_hardcoded
+dHex(1)HexNAc(4) (ST)	S, T		None	H62C38N4O24	H62C38N4O24	1616	958.375399	true		true	non_hardcoded
+dHex(1)HexNAc(5) (ST)	S, T		None	H75C46N5O29	H75C46N5O29	1652	1161.454772	true		true	non_hardcoded
+dHex(2)Hex(1)HexNAc(1)Kdn(1) (ST)	S, T		None	H57C35NO26	H57C35NO26	1606	907.316881	true		true	non_hardcoded
+dHex(2)Hex(1)HexNAc(2)Kdn(1) (ST)	S, T		None	H70C43N2O31	H70C43N2O31	1644	1110.396254	true		true	non_hardcoded
+dHex(2)Hex(1)HexNAc(2)NeuAc(1) (ST)	S, T		None	H73C45N3O31	H73C45N3O31	1650	1151.422803	true		true	non_hardcoded
+dHex(2)Hex(1)HexNAc(2)NeuGc(1) (ST)	S, T		None	H73C45N3O32	H73C45N3O32	1653	1167.417718	true		true	non_hardcoded
+dHex(2)Hex(1)HexNAc(3) (ST)	S, T		None	H69C42N3O28	H69C42N3O28	1637	1063.406759	true		true	non_hardcoded
+dHex(2)Hex(1)HexNAc(4)Sulf(1) (ST)	S, T		None	H82C50N4O36S	H82C50N4O36S	1951	1346.442946	true		true	non_hardcoded
+dHex(2)Hex(2) (ST)	S, T		None	H40C24O18	H40C24O18	1445	616.221465	true		true	non_hardcoded
+dHex(2)Hex(2)HexA(1) (ST)	S, T		None	H48C30O24	H48C30O24	1586	792.253553	true		true	non_hardcoded
+dHex(2)Hex(2)HexA(1)HexNAc(1) (ST)	S, T		None	H61C38NO29	H61C38NO29	1621	995.332925	true		true	non_hardcoded
+dHex(2)Hex(2)HexA(1)HexNAc(2)Sulf(1) (ST)	S, T		None	H74C46N2O37S	H74C46N2O37S	1670	1278.369113	true		true	non_hardcoded
+dHex(2)Hex(2)HexNAc(1) (ST)	S, T		None	H53C32NO23	H53C32NO23	1594	819.300837	true		true	non_hardcoded
+dHex(2)Hex(2)HexNAc(2) (N)	N		None	H66C40N2O28	H66C40N2O28	1760	1022.38021	true		true	non_hardcoded
+dHex(2)Hex(2)HexNAc(2) (ST)	S, T		None	H66C40N2O28	H66C40N2O28	1760	1022.38021	true		true	non_hardcoded
+dHex(2)Hex(2)HexNAc(2)Kdn(1) (ST)	S, T		None	H80C49N2O36	H80C49N2O36	1669	1272.449077	true		true	non_hardcoded
+dHex(2)Hex(2)HexNAc(2)NeuAc(1) (ST)	S, T		None	H83C51N3O36	H83C51N3O36	1682	1313.475627	true		true	non_hardcoded
+dHex(2)Hex(2)HexNAc(2)NeuAc(1)Sulf(1) (ST)	S, T		None	H83C51N3O39S	H83C51N3O39S	1695	1393.432441	true		true	non_hardcoded
+dHex(2)Hex(2)HexNAc(2)NeuGc(1) (ST)	S, T		None	H83C51N3O37	H83C51N3O37	1684	1329.470541	true		true	non_hardcoded
+dHex(2)Hex(2)HexNAc(2)Sulf(1) (ST)	S, T		None	H66C40N2O31S	H66C40N2O31S	1643	1102.337025	true		true	non_hardcoded
+dHex(2)Hex(2)HexNAc(2)Sulf(2) (ST)	S, T		None	H66C40N2O34S2	H66C40N2O34S2	1656	1182.293839	true		true	non_hardcoded
+dHex(2)Hex(2)HexNAc(3) (N)	N		None	H79C48N3O33	H79C48N3O33	1767	1225.459583	true		true	non_hardcoded
+dHex(2)Hex(2)HexNAc(3) (ST)	S, T		None	H79C48N3O33	H79C48N3O33	1767	1225.459583	true		true	non_hardcoded
+dHex(2)Hex(2)HexNAc(3)NeuAc(1) (ST)	S, T		None	H96C59N4O41	H96C59N4O41	1718	1516.554999	true		true	non_hardcoded
+dHex(2)Hex(2)HexNAc(3)NeuGc(1) (ST)	S, T		None	H96C59N4O42	H96C59N4O42	1721	1532.549914	true		true	non_hardcoded
+dHex(2)Hex(2)HexNAc(3)Sulf(1) (ST)	S, T		None	H79C48N3O36S	H79C48N3O36S	1679	1305.416397	true		true	non_hardcoded
+dHex(2)Hex(2)HexNAc(4) (ST)	S, T		None	H92C56N4O38	H92C56N4O38	1701	1428.538955	true		true	non_hardcoded
+dHex(2)Hex(2)HexNAc(4)Sulf(2) (ST)	S, T		None	H92C56N4O44S2	H92C56N4O44S2	1956	1588.452584	true		true	non_hardcoded
+dHex(2)Hex(2)HexNAc(5) (ST)	S, T		None	H105C64N5O43	H105C64N5O43	1735	1631.618328	true		true	non_hardcoded
+dHex(2)Hex(2)HexNAc(6)Sulf(1) (ST)	S, T		None	H118C72N6O51S	H118C72N6O51S	1966	1914.654515	true		true	non_hardcoded
+dHex(2)Hex(3) (ST)	S, T		None	H50C30O23	H50C30O23	1584	778.274288	true		true	non_hardcoded
+dHex(2)Hex(3)HexA(1)HexNAc(1)Sulf(1) (ST)	S, T		None	H71C44NO37S	H71C44NO37S	1663	1237.342563	true		true	non_hardcoded
+dHex(2)Hex(3)HexA(1)HexNAc(2)Sulf(1) (ST)	S, T		None	H84C52N2O42S	H84C52N2O42S	1702	1440.421936	true		true	non_hardcoded
+dHex(2)Hex(3)HexA(1)HexNAc(3)Sulf(1) (ST)	S, T		None	H97C60N3O47S	H97C60N3O47S	1736	1643.501309	true		true	non_hardcoded
+dHex(2)Hex(3)HexNAc(1)Sulf(1) (ST)	S, T		None	H63C38NO31S	H63C38NO31S	1635	1061.310475	true		true	non_hardcoded
+dHex(2)Hex(3)HexNAc(2) (N)	N		None	H76C46N2O33	H76C46N2O33	1765	1184.433033	true		true	non_hardcoded
+dHex(2)Hex(3)HexNAc(2) (ST)	S, T		None	H76C46N2O33	H76C46N2O33	1765	1184.433033	true		true	non_hardcoded
+dHex(2)Hex(3)HexNAc(2)NeuGc(1) (ST)	S, T		None	H93C57N3O42	H93C57N3O42	1715	1491.523365	true		true	non_hardcoded
+dHex(2)Hex(3)HexNAc(2)Sulf(1) (ST)	S, T		None	H76C46N2O36S	H76C46N2O36S	1668	1264.389848	true		true	non_hardcoded
+dHex(2)Hex(3)HexNAc(3) (N)	N		None	H89C54N3O38	H89C54N3O38	1771	1387.512406	true		true	non_hardcoded
+dHex(2)Hex(3)HexNAc(3) (ST)	S, T		None	H89C54N3O38	H89C54N3O38	1771	1387.512406	true		true	non_hardcoded
+dHex(2)Hex(3)HexNAc(3)NeuAc(1) (ST)	S, T		None	H106C65N4O46	H106C65N4O46	1739	1678.607823	true		true	non_hardcoded
+dHex(2)Hex(3)HexNAc(3)NeuAc(2) (ST)	S, T		None	H123C76N5O54	H123C76N5O54	1758	1969.703239	true		true	non_hardcoded
+dHex(2)Hex(3)HexNAc(3)Pent(1) (N)	N		None	H97C59N3O42	H97C59N3O42	1475	1519.554665	true		true	non_hardcoded
+dHex(2)Hex(3)HexNAc(3)Pent(2) (N)	N		None	H105C64N3O46	H105C64N3O46	1494	1651.596924	true		true	non_hardcoded
+dHex(2)Hex(3)HexNAc(3)Sulf(1) (ST)	S, T		None	H89C54N3O41S	H89C54N3O41S	1954	1467.469221	true		true	non_hardcoded
+dHex(2)Hex(3)HexNAc(4) (N)	N		None	H102C62N4O43	H102C62N4O43	1774	1590.591779	true		true	non_hardcoded
+dHex(2)Hex(3)HexNAc(4) (ST)	S, T		None	H102C62N4O43	H102C62N4O43	1774	1590.591779	true		true	non_hardcoded
+dHex(2)Hex(3)HexNAc(4)NeuAc(1) (N)	N		None	H119C73N5O51	H119C73N5O51	1965	1881.687195	true		true	non_hardcoded
+dHex(2)Hex(3)HexNAc(4)Pent(1) (N)	N		None	H110C67N4O47	H110C67N4O47	1507	1722.634037	true		true	non_hardcoded
+dHex(2)Hex(3)HexNAc(4)Pent(2) (N)	N		None	H118C72N4O51	H118C72N4O51	1528	1854.676296	true		true	non_hardcoded
+dHex(2)Hex(3)HexNAc(5) (N)	N		None	H115C70N5O48	H115C70N5O48	1746	1793.671151	true		true	non_hardcoded
+dHex(2)Hex(3)HexNAc(5) (ST)	S, T		None	H115C70N5O48	H115C70N5O48	1746	1793.671151	true		true	non_hardcoded
+dHex(2)Hex(3)HexNAc(6) (N)	N		None	H128C78N6O53	H128C78N6O53	1562	1996.750524	true		true	non_hardcoded
+dHex(2)Hex(4) (ST)	S, T		None	H60C36O28	H60C36O28	1612	940.327112	true		true	non_hardcoded
+dHex(2)Hex(4)HexA(1)HexNAc(3)Sulf(1) (ST)	S, T		None	H107C66N3O52S	H107C66N3O52S	1748	1805.554132	true		true	non_hardcoded
+dHex(2)Hex(4)HexNAc(1) (ST)	S, T		None	H73C44NO33	H73C44NO33	1648	1143.406484	true		true	non_hardcoded
+dHex(2)Hex(4)HexNAc(2) (N)	N		None	H86C52N2O38	H86C52N2O38	1770	1346.485857	true		true	non_hardcoded
+dHex(2)Hex(4)HexNAc(2) (ST)	S, T		None	H86C52N2O38	H86C52N2O38	1770	1346.485857	true		true	non_hardcoded
+dHex(2)Hex(4)HexNAc(3) (N)	N		None	H99C60N3O43	H99C60N3O43	1481	1549.56523	true		true	non_hardcoded
+dHex(2)Hex(4)HexNAc(3)NeuAc(1)Sulf(1) (N)	N		None	H116C71N4O54S	H116C71N4O54S	1542	1920.617461	true		true	non_hardcoded
+dHex(2)Hex(4)HexNAc(3)Pent(1) (N)	N		None	H107C65N3O47	H107C65N3O47	1498	1681.607488	true		true	non_hardcoded
+dHex(2)Hex(4)HexNAc(4) (N)	N		None	H112C68N4O48	H112C68N4O48	1778	1752.644602	true		true	non_hardcoded
+dHex(2)Hex(4)HexNAc(4) (ST)	S, T		None	H112C68N4O48	H112C68N4O48	1778	1752.644602	true		true	non_hardcoded
+dHex(2)Hex(4)HexNAc(4)Pent(1) (N)	N		None	H120C73N4O52	H120C73N4O52	1535	1884.686861	true		true	non_hardcoded
+dHex(2)Hex(4)HexNAc(4)Sulf(1) (N)	N		None	H112C68N4O51S	H112C68N4O51S	1523	1832.601417	true		true	non_hardcoded
+dHex(2)Hex(4)HexNAc(5) (N)	N		None	H125C76N5O53	H125C76N5O53	1785	1955.723975	true		true	non_hardcoded
+dHex(2)Hex(4)HexNAc(5) (ST)	S, T		None	H125C76N5O53	H125C76N5O53	1785	1955.723975	true		true	non_hardcoded
+dHex(2)Hex(5)HexNAc(2)Me(1) (ST)	S, T		None	H98C59N2O43	H98C59N2O43	1955	1522.554331	true		true	non_hardcoded
+dHex(2)Hex(5)HexNAc(3)Pent(1) (N)	N		None	H117C71N3O52	H117C71N3O52	1526	1843.660312	true		true	non_hardcoded
+dHex(2)Hex(5)HexNAc(4) (N)	N		None	H122C74N4O53	H122C74N4O53	1541	1914.697426	true		true	non_hardcoded
+dHex(2)HexNAc(2)Kdn(1) (ST)	S, T		None	H60C37N2O26	H60C37N2O26	1614	948.34343	true		true	non_hardcoded
+dHex(2)HexNAc(5) (ST)	S, T		None	H85C52N5O33	H85C52N5O33	1680	1307.512681	true		true	non_hardcoded
+dHex(2)HexNAc(7) (ST)	S, T		None	H111C68N7O43	H111C68N7O43	1743	1713.671426	true		true	non_hardcoded
+dHex(3)Hex(1)HexNAc(2)Kdn(1) (ST)	S, T		None	H80C49N2O35	H80C49N2O35	1667	1256.454163	true		true	non_hardcoded
+dHex(3)Hex(1)HexNAc(3)Kdn(1) (ST)	S, T		None	H93C57N3O40	H93C57N3O40	1709	1459.533535	true		true	non_hardcoded
+dHex(3)Hex(2)HexA(1)HexNAc(2)Sulf(1) (ST)	S, T		None	H84C52N2O41S	H84C52N2O41S	1699	1424.427021	true		true	non_hardcoded
+dHex(3)Hex(2)HexNAc(2) (ST)	S, T		None	H76C46N2O32	H76C46N2O32	1654	1168.438119	true		true	non_hardcoded
+dHex(3)Hex(2)HexNAc(2)Kdn(1) (ST)	S, T		None	H90C55N2O40	H90C55N2O40	1698	1418.506986	true		true	non_hardcoded
+dHex(3)Hex(2)HexNAc(3) (ST)	S, T		None	H89C54N3O37	H89C54N3O37	1689	1371.517491	true		true	non_hardcoded
+dHex(3)Hex(2)HexNAc(3)Kdn(1) (ST)	S, T		None	H103C63N3O45	H103C63N3O45	1733	1621.586359	true		true	non_hardcoded
+dHex(3)Hex(2)HexNAc(4) (ST)	S, T		None	H102C62N4O42	H102C62N4O42	1728	1574.596864	true		true	non_hardcoded
+dHex(3)Hex(2)HexNAc(4)Sulf(2) (ST)	S, T		None	H102C62N4O48S2	H102C62N4O48S2	1958	1734.510493	true		true	non_hardcoded
+dHex(3)Hex(3)HexNAc(1) (ST)	S, T		None	H73C44NO32	H73C44NO32	1946	1127.41157	true		true	non_hardcoded
+dHex(3)Hex(3)HexNAc(2) (ST)	S, T		None	H86C52N2O37	H86C52N2O37	1950	1330.490942	true		true	non_hardcoded
+dHex(3)Hex(3)HexNAc(3) (ST)	S, T		None	H99C60N3O42	H99C60N3O42	1722	1533.570315	true		true	non_hardcoded
+dHex(3)Hex(3)HexNAc(3)NeuAc(1) (ST)	S, T		None	H116C71N4O50	H116C71N4O50	1751	1824.665732	true		true	non_hardcoded
+dHex(3)Hex(3)HexNAc(3)Pent(1) (N)	N		None	H107C65N3O46	H107C65N3O46	1497	1665.612574	true		true	non_hardcoded
+dHex(3)Hex(3)HexNAc(4) (N)	N		None	H112C68N4O47	H112C68N4O47	1511	1736.649688	true		true	non_hardcoded
+dHex(3)Hex(3)HexNAc(4)Pent(1) (N)	N		None	H120C73N4O51	H120C73N4O51	1533	1868.691946	true		true	non_hardcoded
+dHex(3)Hex(4)HexNAc(4) (N)	N		None	H122C74N4O52	H122C74N4O52	1783	1898.702511	true		true	non_hardcoded
+dHex(3)Hex(4)HexNAc(4) (ST)	S, T		None	H122C74N4O52	H122C74N4O52	1783	1898.702511	true		true	non_hardcoded
+dHex(3)Hex(4)HexNAc(4)Sulf(1) (N)	N		None	H122C74N4O55S	H122C74N4O55S	1557	1978.659326	true		true	non_hardcoded
+dHex(3)HexNAc(3)Kdn(1) (ST)	S, T		None	H83C51N3O35	H83C51N3O35	1676	1297.480712	true		true	non_hardcoded
+dHex(4)Hex(1)HexNAc(1)Kdn(2) (ST)	S, T		None	H91C56NO42	H91C56NO42	1706	1449.501567	true		true	non_hardcoded
+dHex(4)Hex(1)HexNAc(2)Kdn(1) (ST)	S, T		None	H90C55N2O39	H90C55N2O39	1697	1402.512072	true		true	non_hardcoded
+dHex(4)Hex(1)HexNAc(3)Kdn(1) (ST)	S, T		None	H103C63N3O44	H103C63N3O44	1730	1605.591444	true		true	non_hardcoded
+dHex(4)Hex(2)HexNAc(2)Kdn(1) (ST)	S, T		None	H100C61N2O44	H100C61N2O44	1726	1564.564895	true		true	non_hardcoded
+dHex(4)Hex(2)HexNAc(3) (ST)	S, T		None	H99C60N3O41	H99C60N3O41	1719	1517.5754	true		true	non_hardcoded
+dHex(4)Hex(3)HexNAc(2)NeuAc(1) (ST)	S, T		None	H113C69N3O49	H113C69N3O49	1960	1767.644268	true		true	non_hardcoded
+dHex(4)Hex(3)HexNAc(3) (ST)	S, T		None	H109C66N3O46	H109C66N3O46	1740	1679.628224	true		true	non_hardcoded
+dHex(4)HexNAc(3)Kdn(1) (ST)	S, T		None	H93C57N3O39	H93C57N3O39	1703	1443.538621	true		true	non_hardcoded
+DHP (C)	C		None	H8C8N		488	118.065674	true		true	non_hardcoded
+Diacylglycerol (C)	C		None	H68C37O4		377	576.511761	true	DiG	true	non_hardcoded
+DiART6plex (K)	K		None	H20C7C'4NN'O2		1392	217.162932	true		true	non_hardcoded
+DiART6plex (N-term)		N	None	H20C7C'4NN'O2		1392	217.162932	true		true	non_hardcoded
+DiART6plex (Y)	Y		None	H20C7C'4NN'O2		1392	217.162932	true		true	non_hardcoded
+DiART6plex115 (K)	K		None	H20C8C'3N'2O2		1393	217.156612	true		true	non_hardcoded
+DiART6plex115 (N-term)		N	None	H20C8C'3N'2O2		1393	217.156612	true		true	non_hardcoded
+DiART6plex115 (Y)	Y		None	H20C8C'3N'2O2		1393	217.156612	true		true	non_hardcoded
+DiART6plex116/119 (K)	K		None	H18H'2C9C'2NN'O2		1394	217.168776	true		true	non_hardcoded
+DiART6plex116/119 (N-term)		N	None	H18H'2C9C'2NN'O2		1394	217.168776	true		true	non_hardcoded
+DiART6plex116/119 (Y)	Y		None	H18H'2C9C'2NN'O2		1394	217.168776	true		true	non_hardcoded
+DiART6plex117 (K)	K		None	H18H'2C10C'N'2O2		1395	217.162456	true		true	non_hardcoded
+DiART6plex117 (N-term)		N	None	H18H'2C10C'N'2O2		1395	217.162456	true		true	non_hardcoded
+DiART6plex117 (Y)	Y		None	H18H'2C10C'N'2O2		1395	217.162456	true		true	non_hardcoded
+DiART6plex118 (K)	K		None	H18H'2C8C'3N2O2		1396	217.175096	true		true	non_hardcoded
+DiART6plex118 (N-term)		N	None	H18H'2C8C'3N2O2		1396	217.175096	true		true	non_hardcoded
+DiART6plex118 (Y)	Y		None	H18H'2C8C'3N2O2		1396	217.175096	true		true	non_hardcoded
+Dibromo (Y)	Y		None	Br2 - H2		534	155.821022	true	2Br	true	non_hardcoded
+Dicarbamidomethyl (C)	C		None	H6C4N2O2		1290	114.042927	true	2CM	true	non_hardcoded
+Dicarbamidomethyl (H)	H		None	H6C4N2O2		1290	114.042927	true	2CM	true	non_hardcoded
+Dicarbamidomethyl (K)	K		None	H6C4N2O2		1290	114.042927	true	2CM	true	non_hardcoded
+Dicarbamidomethyl (N-term)		N	None	H6C4N2O2		1290	114.042927	true	2CM	true	non_hardcoded
+Dicarbamidomethyl (R)	R		None	H6C4N2O2		1290	114.042927	true	2CM	true	non_hardcoded
+dichlorination (C)	C		None	Cl2 - H2		937	67.922055	true	2Cl	true	non_hardcoded
+dichlorination (Y)	Y		None	Cl2 - H2		937	67.922055	true	2Cl	true	non_hardcoded
+Didehydro (C-term K)	K	C	None	-H2		401	-2.01565	true	-2H	true	non_hardcoded
+Didehydro (S)	S		None	-H2		401	-2.01565	true	-2H	true	non_hardcoded
+Didehydro (T)	T		None	-H2		401	-2.01565	true	-2H	true	non_hardcoded
+Didehydro (Y)	Y		None	-H2		401	-2.01565	true	-2H	true	non_hardcoded
+Didehydroretinylidene (K)	K		None	H24C20		433	264.187801	true	ddR	true	non_hardcoded
+Diethyl (K)	K		None	H8C4		518	56.0626	true		true	non_hardcoded
+Diethyl (N-term)		N	None	H8C4		518	56.0626	true		true	non_hardcoded
+Diethylphosphate (C)	C		None	H9C4O3P		725	136.028931	true		true	non_hardcoded
+Diethylphosphate (H)	H		None	H9C4O3P		725	136.028931	true		true	non_hardcoded
+Diethylphosphate (K)	K		None	H9C4O3P		725	136.028931	true		true	non_hardcoded
+Diethylphosphate (N-term)		N	None	H9C4O3P		725	136.028931	true		true	non_hardcoded
+Diethylphosphate (S)	S		None	H9C4O3P		725	136.028931	true		true	non_hardcoded
+Diethylphosphate (T)	T		None	H9C4O3P		725	136.028931	true		true	non_hardcoded
+Diethylphosphate (Y)	Y		None	H9C4O3P		725	136.028931	true		true	non_hardcoded
+Diethylphosphothione (C)	C		None	H9C4O2PS		1986	152.006087	true		true	non_hardcoded
+Diethylphosphothione (H)	H		None	H9C4O2PS		1986	152.006087	true		true	non_hardcoded
+Diethylphosphothione (K)	K		None	H9C4O2PS		1986	152.006087	true		true	non_hardcoded
+Diethylphosphothione (S)	S		None	H9C4O2PS		1986	152.006087	true		true	non_hardcoded
+Diethylphosphothione (T)	T		None	H9C4O2PS		1986	152.006087	true		true	non_hardcoded
+Diethylphosphothione (Y)	Y		None	H9C4O2PS		1986	152.006087	true		true	non_hardcoded
+Difuran (Y)	Y		None	H4C8O2		1279	132.021129	true		true	non_hardcoded
+Dihydroxyimidazolidine (R)	R		None	H4C3O2		830	72.021129	true		true	non_hardcoded
+Diiodo (H)	H		None	I2 - H2		130	251.793296	true	2Io	true	non_hardcoded
+Diiodo (Y)	Y		None	I2 - H2		130	251.793296	true	2Io	true	non_hardcoded
+Diironsubcluster (C)	C		None	C5N2O5S2Fe2 - H		439	342.786916	true	dFe	true	non_hardcoded
+Diisopropylphosphate (K)	K		None	H13C6O3P		362	164.060231	true		true	non_hardcoded
+Diisopropylphosphate (N-term)		N	None	H13C6O3P		362	164.060231	true		true	non_hardcoded
+Diisopropylphosphate (S)	S		None	H13C6O3P		362	164.060231	true		true	non_hardcoded
+Diisopropylphosphate (T)	T		None	H13C6O3P		362	164.060231	true		true	non_hardcoded
+Diisopropylphosphate (Y)	Y		None	H13C6O3P		362	164.060231	true		true	non_hardcoded
+DiLeu4plex (K)	K		None	H13H'2C8NO'		1322	145.132163	true		true	non_hardcoded
+DiLeu4plex (N-term)		N	None	H13H'2C8NO'		1322	145.132163	true		true	non_hardcoded
+DiLeu4plex (Y)	Y		None	H13H'2C8NO'		1322	145.132163	true		true	non_hardcoded
+DiLeu4plex115 (K)	K		None	H15C7C'N'O'		1321	145.12	true		true	non_hardcoded
+DiLeu4plex115 (N-term)		N	None	H15C7C'N'O'		1321	145.12	true		true	non_hardcoded
+DiLeu4plex115 (Y)	Y		None	H15C7C'N'O'		1321	145.12	true		true	non_hardcoded
+DiLeu4plex117 (K)	K		None	H13H'2C7C'N'O		1323	145.128307	true		true	non_hardcoded
+DiLeu4plex117 (N-term)		N	None	H13H'2C7C'N'O		1323	145.128307	true		true	non_hardcoded
+DiLeu4plex117 (Y)	Y		None	H13H'2C7C'N'O		1323	145.128307	true		true	non_hardcoded
+DiLeu4plex118 (K)	K		None	H11H'4C8NO		1324	145.140471	true		true	non_hardcoded
+DiLeu4plex118 (N-term)		N	None	H11H'4C8NO		1324	145.140471	true		true	non_hardcoded
+DiLeu4plex118 (Y)	Y		None	H11H'4C8NO		1324	145.140471	true		true	non_hardcoded
+Dimethyl (K)	K		None	C2H4		36	28.0313	true	2Me	true	non_hardcoded
+Dimethyl (N)	N		None	C2H4		36	28.0313	true	2Me	true	non_hardcoded
+Dimethyl (N-term)		N	None	C2H4		36	28.0313	true	2Me	true	non_hardcoded
+Dimethyl (Protein N-term P)	P	N	None	C2H4		36	28.0313	true	2Me	true	non_hardcoded
+Dimethyl (R)	R		None	C2H4		36	28.0313	true	2Me	true	non_hardcoded
+Dimethyl:2H(4) (K)	K		None	H'4C2		199	32.056407	true	DM4	true	non_hardcoded
+Dimethyl:2H(4) (N-term)		N	None	H'4C2		199	32.056407	true	DM4	true	non_hardcoded
+Dimethyl:2H(4) (R)	R		None	H'4C2		199	32.056407	true	DM4	true	non_hardcoded
+Dimethyl:2H(4)13C(2) (K)	K		None	C'2H'4		510	34.063117	true	D6a	true	non_hardcoded
+Dimethyl:2H(4)13C(2) (N-term)		N	None	C'2H'4		510	34.063117	true	D6a	true	non_hardcoded
+Dimethyl:2H(4)13C(2) (R)	R		None	C'2H'4		510	34.063117	true	D6a	true	non_hardcoded
+DimethylamineGMBS (C)	C		None	H21C13N3O3		943	267.158292	true		true	non_hardcoded
+Dimethylaminoethyl (C)	C		None	H9C4N		1846	71.073499	true		true	non_hardcoded
+DimethylArsino (C)	C		None	H5C2As		902	103.960719	true		true	non_hardcoded
+Dimethylphosphothione (C)	C		None	H5C2O2PS		1987	123.974787	true		true	non_hardcoded
+Dimethylphosphothione (H)	H		None	H5C2O2PS		1987	123.974787	true		true	non_hardcoded
+Dimethylphosphothione (K)	K		None	H5C2O2PS		1987	123.974787	true		true	non_hardcoded
+Dimethylphosphothione (S)	S		None	H5C2O2PS		1987	123.974787	true		true	non_hardcoded
+Dimethylphosphothione (T)	T		None	H5C2O2PS		1987	123.974787	true		true	non_hardcoded
+Dimethylphosphothione (Y)	Y		None	H5C2O2PS		1987	123.974787	true		true	non_hardcoded
+DimethylpyrroleAdduct (K)	K		None	H6C6		316	78.04695	true	DpA	true	non_hardcoded
+Dioxidation (C)	C		None	O2		425	31.989829	true	2Ox	true	non_hardcoded
+Dioxidation (E)	E		None	O2		425	31.989829	true	2Ox	true	non_hardcoded
+Dioxidation (F)	F		None	O2		425	31.989829	true	2Ox	true	non_hardcoded
+Dioxidation (I)	I		None	O2		425	31.989829	true	2Ox	true	non_hardcoded
+Dioxidation (K)	K		None	O2		425	31.989829	true	2Ox	true	non_hardcoded
+Dioxidation (L)	L		None	O2		425	31.989829	true	2Ox	true	non_hardcoded
+Dioxidation (P)	P		None	O2		425	31.989829	true	2Ox	true	non_hardcoded
+Dioxidation (R)	R		None	O2		425	31.989829	true	2Ox	true	non_hardcoded
+Dioxidation (U)	U		None	O2		425	31.989829	true	2Ox	true	non_hardcoded
+Dioxidation (V)	V		None	O2		425	31.989829	true	2Ox	true	non_hardcoded
+Dioxidation (W)	W		None	O2		425	31.989829	true	2Ox	true	non_hardcoded
+Dioxidation (Y)	Y		None	O2		425	31.989829	true	2Ox	true	non_hardcoded
+Diphthamide (H)	H		None	H14C7N2O		375	142.110613	true	Dip	true	non_hardcoded
+Dipyridyl (C)	C		None	H11C13N3O		1277	225.090212	true		true	non_hardcoded
+Dipyrrolylmethanemethyl (C)	C		None	H22C20N2O8		416	418.137616	true	dpM	true	non_hardcoded
+DMPO (C)	C		None	H9C6NO		1017	111.068414	true	DPO	true	non_hardcoded
+DMPO (H)	H		None	H9C6NO		1017	111.068414	true	DPO	true	non_hardcoded
+DMPO (Y)	Y		None	H9C6NO		1017	111.068414	true	DPO	true	non_hardcoded
+DNCB_hapten (C)	C		None	H2C6N2O4		1331	166.001457	true		true	non_hardcoded
+DNCB_hapten (H)	H		None	H2C6N2O4		1331	166.001457	true		true	non_hardcoded
+DNCB_hapten (K)	K		None	H2C6N2O4		1331	166.001457	true		true	non_hardcoded
+DNCB_hapten (Y)	Y		None	H2C6N2O4		1331	166.001457	true		true	non_hardcoded
+dNIC (K)	K		None	HH'3C6NO		698	109.048119	true		true	non_hardcoded
+dNIC (N-term)		N	None	HH'3C6NO		698	109.048119	true		true	non_hardcoded
+DNPS (C)	C		None	H3C6N2O4S		941	198.981352	true		true	non_hardcoded
+DNPS (W)	W		None	H3C6N2O4S		941	198.981352	true		true	non_hardcoded
+DTT (C)	C		None	H8C4O2S2		1871	151.996571	true		true	non_hardcoded
+DVFQQQTGG (K)	K		None	H60C41N12O15		2085	960.43011	true		true	non_hardcoded
+DyLight-maleimide (C)	C		None	H48C39N4O15S4		890	940.1999	true		true	non_hardcoded
+DYn-2 (C)	C		None	H13C11O		1872	161.09664	true		true	non_hardcoded
+EDEDTIDVFQQQTGG (K)	K		None	H102C69N18O30		1406	1662.700924	true		true	non_hardcoded
+EDT-iodoacetyl-PEO-biotin (S)	S		None	H34C20N4O4S3		118	490.174218	true	EPB	true	non_hardcoded
+EDT-iodoacetyl-PEO-biotin (T)	T		None	H34C20N4O4S3		118	490.174218	true	EPB	true	non_hardcoded
+EDT-maleimide-PEO-biotin (S)	S		None	H39C25N5O6S3		93	601.206246	true		true	non_hardcoded
+EDT-maleimide-PEO-biotin (T)	T		None	H39C25N5O6S3		93	601.206246	true		true	non_hardcoded
+EEEDVIEVYQEQTGG (K)	K		None	H107C72N17O31		1405	1705.73189	true		true	non_hardcoded
+EGCG1 (C)	C		None	H16C22O11		1002	456.069261	true	EGG	true	non_hardcoded
+EGCG2 (C)	C		None	H11C15O6		1003	287.055563	true	DEG	true	non_hardcoded
+EHD-diphenylpentanone (C)	C		None	H18C18O2		1317	266.13068	true		true	non_hardcoded
+EHD-diphenylpentanone (M)	M		None	H18C18O2		1317	266.13068	true		true	non_hardcoded
+EQAT (C)	C		None	C10H20N2O		197	184.157563	true	EQ0	true	non_hardcoded
+EQIGG (K)	K		None	H32C20N6O8		846	484.228162	true		true	non_hardcoded
+ESP (K)	K		None	C16H26N4O2S		90	338.177647	true	E00	true	non_hardcoded
+ESP (N-term)		N	None	C16H26N4O2S		90	338.177647	true	E00	true	non_hardcoded
+Ethanedithiol (S)	S		None	H4C2S2 - O		200	75.980527	true	Edl	true	non_hardcoded
+Ethanedithiol (T)	T		None	H4C2S2 - O		200	75.980527	true	Edl	true	non_hardcoded
+Ethanolamine (C)	C		None	H5C2N		734	43.042199	true		true	non_hardcoded
+Ethanolamine (C-term)		C	None	H5C2N		734	43.042199	true		true	non_hardcoded
+Ethanolamine (D)	D		None	H5C2N		734	43.042199	true		true	non_hardcoded
+Ethanolamine (E)	E		None	H5C2N		734	43.042199	true		true	non_hardcoded
+Ethanolyl (C)	C		None	H4C2O		278	44.026215	true	EtO	true	non_hardcoded
+Ethanolyl (K)	K		None	H4C2O		278	44.026215	true	EtO	true	non_hardcoded
+Ethanolyl (R)	R		None	H4C2O		278	44.026215	true	EtO	true	non_hardcoded
+Ethyl (C-term)		C	None	H4C2		280	28.0313	true	1Et	true	non_hardcoded
+Ethyl (D)	D		None	H4C2		280	28.0313	true	1Et	true	non_hardcoded
+Ethyl (E)	E		None	H4C2		280	28.0313	true	1Et	true	non_hardcoded
+Ethyl (K)	K		None	H4C2		280	28.0313	true	1Et	true	non_hardcoded
+Ethyl (N-term)		N	None	H4C2		280	28.0313	true	1Et	true	non_hardcoded
+Ethyl+Deamidated (N)	N		None	H3C2O - N		931	29.015316	true	EOD	true	non_hardcoded
+Ethyl+Deamidated (Q)	Q		None	H3C2O - N		931	29.015316	true	EOD	true	non_hardcoded
+ethylamino (S)	S		None	H5C2N - O		926	27.047285	true		true	non_hardcoded
+ethylamino (T)	T		None	H5C2N - O		926	27.047285	true		true	non_hardcoded
+Ethylphosphate (K)	K		None	H5C2O3P		726	107.997631	true		true	non_hardcoded
+Ethylphosphate (N-term)		N	None	H5C2O3P		726	107.997631	true		true	non_hardcoded
+Ethylphosphate (S)	S		None	H5C2O3P		726	107.997631	true		true	non_hardcoded
+Ethylphosphate (T)	T		None	H5C2O3P		726	107.997631	true		true	non_hardcoded
+Ethylphosphate (Y)	Y		None	H5C2O3P		726	107.997631	true		true	non_hardcoded
+ethylsulfonylethyl (C)	C		None	H8C4O2S		1381	120.0245	true		true	non_hardcoded
+ethylsulfonylethyl (H)	H		None	H8C4O2S		1381	120.0245	true		true	non_hardcoded
+ethylsulfonylethyl (K)	K		None	H8C4O2S		1381	120.0245	true		true	non_hardcoded
+Ethynyl (C)	C		None	C2		2081	24	true		true	non_hardcoded
+ExacTagAmine (K)	K		None	H52C25C'12N8N'6O19S		741	1046.347854	true		true	non_hardcoded
+ExacTagThiol (C)	C		None	H50C23C'12N8N'6O18		740	972.365219	true		true	non_hardcoded
+FAD (C)	C		None	H31C27N9O15P2		50	783.141486	true	FAD	true	non_hardcoded
+FAD (H)	H		None	H31C27N9O15P2		50	783.141486	true	FAD	true	non_hardcoded
+FAD (Y)	Y		None	H31C27N9O15P2		50	783.141486	true	FAD	true	non_hardcoded
+Farnesyl (C)	C		None	H24C15		44	204.187801	true	Far	true	non_hardcoded
+Fluorescein (C)	C		None	H13C22NO6		128	387.074287	true	Fsc	true	non_hardcoded
+Fluorescein-tyramine (Y)	Y		None	H19C29NO7		1801	493.116152	true		true	non_hardcoded
+Fluoro (A)	A		None	F - H		127	17.990578	true	+1F	true	non_hardcoded
+Fluoro (F)	F		None	F - H		127	17.990578	true	+1F	true	non_hardcoded
+Fluoro (W)	W		None	F - H		127	17.990578	true	+1F	true	non_hardcoded
+Fluoro (Y)	Y		None	F - H		127	17.990578	true	+1F	true	non_hardcoded
+FMN (S)	S		None	H19C17N4O8P		442	438.094051	true	FMN	true	non_hardcoded
+FMN (T)	T		None	H19C17N4O8P		442	438.094051	true	FMN	true	non_hardcoded
+FMNC (C)	C		None	H21C17N4O9P		443	456.104615	true	FNC	true	non_hardcoded
+FMNH (C)	C		None	H19C17N4O9P		409	454.088965	true	FNH	true	non_hardcoded
+FMNH (H)	H		None	H19C17N4O9P		409	454.088965	true	FNH	true	non_hardcoded
+FNEM (C)	C		None	H13C24NO7		515	427.069202	true		true	non_hardcoded
+Formyl (K)	K		None	CO		122	27.994915	true	Frm	true	non_hardcoded
+Formyl (S)	S		None	CO		122	27.994915	true	Frm	true	non_hardcoded
+Formyl (T)	T		None	CO		122	27.994915	true	Frm	true	non_hardcoded
+Formylasparagine (H)	H		None	O2 - HCN		1917	4.97893	true		true	non_hardcoded
+FP-Biotin (K)	K		None	H49C27N4O5PS		325	572.316129	true		true	non_hardcoded
+FP-Biotin (S)	S		None	H49C27N4O5PS		325	572.316129	true		true	non_hardcoded
+FP-Biotin (T)	T		None	H49C27N4O5PS		325	572.316129	true		true	non_hardcoded
+FP-Biotin (Y)	Y		None	H49C27N4O5PS		325	572.316129	true		true	non_hardcoded
+FTC (C)	C		None	H15C21N3O5S		478	421.073241	true	FTC	true	non_hardcoded
+FTC (K)	K		None	H15C21N3O5S		478	421.073241	true	FTC	true	non_hardcoded
+FTC (P)	P		None	H15C21N3O5S		478	421.073241	true	FTC	true	non_hardcoded
+FTC (R)	R		None	H15C21N3O5S		478	421.073241	true	FTC	true	non_hardcoded
+FTC (S)	S		None	H15C21N3O5S		478	421.073241	true	FTC	true	non_hardcoded
+Furan (Y)	Y		None	H2C4O		1278	66.010565	true		true	non_hardcoded
+G-H1 (R)	R		None	C2O		860	39.994915	true		true	non_hardcoded
+Galactosyl (K)	K		None	H10C6O6		907	178.047738	true	OH1	true	non_hardcoded
+Galactosyl (N-term)		N	None	H10C6O6		907	178.047738	true	OH1	true	non_hardcoded
+GEE (Q)	Q		None	H6C4O2		1824	86.036779	true		true	non_hardcoded
+GeranylGeranyl (C)	C		None	H32C20		48	272.250401	true	2Ge	true	non_hardcoded
+GG (C)	C		None	H6C4N2O2		121	114.042927	true	UGG	true	non_hardcoded
+GG (K)	K		None	H6C4N2O2		121	114.042927	true	UGG	true	non_hardcoded
+GG (S)	S		None	H6C4N2O2		121	114.042927	true	UGG	true	non_hardcoded
+GG (T)	T		None	H6C4N2O2		121	114.042927	true	UGG	true	non_hardcoded
+GGQ (K)	K		None	H14C9N4O4		1292	242.101505	true	GGQ	true	non_hardcoded
+GIST-Quat (K)	K		None	C7H13NO	H9C3N	60	127.099714	true	GQ0	true	non_hardcoded
+GIST-Quat (N-term)		N	None	C7H13NO	H9C3N	60	127.099714	true	GQ0	true	non_hardcoded
+Glu (E)	E		None	H7C5NO3		450	129.042593	true		true	non_hardcoded
+Glu+O(2) (H)	H		None	H7C5NO5		2037	161.032422	true		true	non_hardcoded
+Glu->pyro-Glu+Methyl (N-term E)	E	N	None	C - O		1826	-3.994915	true		true	non_hardcoded
+glucosone (R)	R		None	H8C6O5		981	160.037173	true		true	non_hardcoded
+Glucosylgalactosyl (K)	K		None	H20C12O11	H20C12O11	393	340.100562	true	OH2	true	non_hardcoded
+Glucuronyl (ST)	S, T		None	H8C6O6	H8C6O6	54	176.032088	true	GCn	true	non_hardcoded
+GluGlu (E)	E		None	H14C10N2O6		451	258.085186	true		true	non_hardcoded
+GluGluGlu (E)	E		None	H21C15N3O9		452	387.127779	true		true	non_hardcoded
+GluGluGluGlu (E)	E		None	H28C20N4O12		453	516.170373	true		true	non_hardcoded
+Gluratylation (K)	K		None	H6C5O3		1848	114.031694	true		true	non_hardcoded
+Glutathione (C)	C		None	H15C10N3O6S		55	305.068156	true	GSO	true	non_hardcoded
+Gly (K)	K		None	H3C2NO		1263	57.021464	true		true	non_hardcoded
+Gly (S)	S		None	H3C2NO		1263	57.021464	true		true	non_hardcoded
+Gly (T)	T		None	H3C2NO		1263	57.021464	true		true	non_hardcoded
+Gly+O(2) (H)	H		None	H3C2NO3		2034	89.011293	true		true	non_hardcoded
+Gly-loss+Amide (C-term G)	G	C	None	-H2C2O2		822	-58.005479	true		true	non_hardcoded
+Glycerophospho (S)	S		None	H7C3O5P		419	154.00311	true	GPh	true	non_hardcoded
+Glyceroyl (K)	K		None	H4C3O3		2072	88.016044	true		true	non_hardcoded
+GlycerylPE (E)	E		None	H12C5NO5P		396	197.04531	true	GPE	true	non_hardcoded
+glycidamide (K)	K		None	H5C3NO2		1014	87.032028	true		true	non_hardcoded
+glycidamide (N-term)		N	None	H5C3NO2		1014	87.032028	true		true	non_hardcoded
+Glycosyl (P)	P		None	H8C5O5		408	148.037173	true	Gsl	true	non_hardcoded
+glyoxalAGE (R)	R		None	C2 - H2		1913	21.98435	true		true	non_hardcoded
+GNLLFLACYCIGG (K)	K		None	H92C61N14O15S2		1991	1324.6308	true		true	non_hardcoded
+Guanidinyl (N-term)		N	None	H2CN2		52	42.021798	true	1Gu	true	non_hardcoded
+Haloxon (C)	C		None	H7C4O3PCl2		2006	203.950987	true		true	non_hardcoded
+Haloxon (H)	H		None	H7C4O3PCl2		2006	203.950987	true		true	non_hardcoded
+Haloxon (K)	K		None	H7C4O3PCl2		2006	203.950987	true		true	non_hardcoded
+Haloxon (ST)	S, T		None	H7C4O3PCl2		2006	203.950987	true		true	non_hardcoded
+Haloxon (Y)	Y		None	H7C4O3PCl2		2006	203.950987	true		true	non_hardcoded
+HCysteinyl (C)	C		None	H7C4NO2S		1271	133.019749	true	hCy	true	non_hardcoded
+HCysThiolactone (K)	K		None	H7C4NOS		1270	117.024835	true	hCo	true	non_hardcoded
+Heme (C)	C		None	H32C34N4O4Fe		390	616.177295	true	HEM	true	non_hardcoded
+Heme (H)	H		None	H32C34N4O4Fe		390	616.177295	true	HEM	true	non_hardcoded
+Hep (K)	K		None	H12C7O6		490	192.063388	true	Hep	true	non_hardcoded
+Hep (N)	N		None	H12C7O6	H12C7O6	490	192.063388	true	Hep	true	non_hardcoded
+Hep (Q)	Q		None	H12C7O6		490	192.063388	true	Hep	true	non_hardcoded
+Hep (R)	R		None	H12C7O6		490	192.063388	true	Hep	true	non_hardcoded
+Hep (ST)	S, T		None	H12C7O6	H12C7O6	490	192.063388	true	Hep	true	non_hardcoded
+Hex (C)	C		None	H10C6O5		41	162.052824	true	Hex	true	non_hardcoded
+Hex (KR)	K, R		None	H10C6O5	H6O3	41	162.052824	true	Hex	true	non_hardcoded
+Hex (N)	N		None	H10C6O5	H10C6O5	41	162.052824	true	Hex	true	non_hardcoded
+Hex (N-term)		N	None	H10C6O5	H6O3	41	162.052824	true	Hex	true	non_hardcoded
+Hex (ST)	S, T		None	H10C6O5	H10C6O5	41	162.052824	true	Hex	true	non_hardcoded
+Hex (W)	W		None	H10C6O5		41	162.052824	true	Hex	true	non_hardcoded
+Hex (Y)	Y		None	H10C6O5		41	162.052824	true	Hex	true	non_hardcoded
+Hex(1)HexA(1) (ST)	S, T		None	H18C12O11	H18C12O11	1427	338.084912	true		true	non_hardcoded
+Hex(1)HexA(1)HexNAc(1) (ST)	S, T		None	H31C20NO16	H31C20NO16	1439	541.164284	true		true	non_hardcoded
+Hex(1)HexA(1)HexNAc(2) (ST)	S, T		None	H44C28N2O21	H44C28N2O21	1578	744.243657	true		true	non_hardcoded
+Hex(1)HexNAc(1) (N)	N		None	H23C14NO10	H23C14NO10	793	365.132196	true	HHN	true	non_hardcoded
+Hex(1)HexNAc(1) (ST)	S, T		None	H23C14NO10	H23C14NO10	793	365.132196	true	HHN	true	non_hardcoded
+Hex(1)HexNAc(1)dHex(1) (N)	N		None	H33C20NO14	H33C20NO14	146	511.190105	true	K1e	true	non_hardcoded
+Hex(1)HexNAc(1)dHex(1) (ST)	S, T		None	H33C20NO14	H33C20NO14	146	511.190105	true	K1e	true	non_hardcoded
+Hex(1)HexNAc(1)dHex(1)Me(1) (ST)	S, T		None	H35C21NO14	H35C21NO14	1436	525.205755	true		true	non_hardcoded
+Hex(1)HexNAc(1)dHex(1)Me(2) (ST)	S, T		None	H37C22NO14	H37C22NO14	1437	539.221405	true		true	non_hardcoded
+Hex(1)HexNAc(1)Kdn(1)Sulf(1) (ST)	S, T		None	H37C23NO21S	H37C23NO21S	1567	695.157878	true		true	non_hardcoded
+Hex(1)HexNAc(1)NeuAc(1) (N)	N		None	H40C25N2O18	H40C25N2O18	149	656.227613	true	NHH	true	non_hardcoded
+Hex(1)HexNAc(1)NeuAc(1) (ST)	S, T		None	H40C25N2O18	H40C25N2O18	149	656.227613	true	NHH	true	non_hardcoded
+Hex(1)HexNAc(1)NeuAc(1)Ac(1) (ST)	S, T		None	H42C27N2O19	H42C27N2O19	1786	698.238177	true		true	non_hardcoded
+Hex(1)HexNAc(1)NeuAc(1)NeuGc(1) (ST)	S, T		None	H57C36N3O27	H57C36N3O27	1617	963.317944	true		true	non_hardcoded
+Hex(1)HexNAc(1)NeuAc(1)Sulf(1) (ST)	S, T		None	H40C25N2O21S	H40C25N2O21S	1577	736.184427	true		true	non_hardcoded
+Hex(1)HexNAc(1)NeuAc(2) (N)	N		None	H57C36N3O26	H57C36N3O26	160	947.323029	true	NHN	true	non_hardcoded
+Hex(1)HexNAc(1)NeuAc(2) (ST)	S, T		None	H57C36N3O26	H57C36N3O26	160	947.323029	true	NHN	true	non_hardcoded
+Hex(1)HexNAc(1)NeuAc(2)Ac(1) (ST)	S, T		None	H59C38N3O27	H59C38N3O27	1620	989.333594	true		true	non_hardcoded
+Hex(1)HexNAc(1)NeuAc(2)Ac(2) (ST)	S, T		None	H61C40N3O28	H61C40N3O28	1630	1031.344159	true		true	non_hardcoded
+Hex(1)HexNAc(1)NeuAc(3) (ST)	S, T		None	H74C47N4O34	H74C47N4O34	1664	1238.418446	true		true	non_hardcoded
+Hex(1)HexNAc(1)NeuGc(1) (ST)	S, T		None	H40C25N2O19	H40C25N2O19	1563	672.222527	true		true	non_hardcoded
+Hex(1)HexNAc(1)NeuGc(2) (ST)	S, T		None	H57C36N3O28	H57C36N3O28	1619	979.312859	true		true	non_hardcoded
+Hex(1)HexNAc(1)NeuGc(3) (ST)	S, T		None	H74C47N4O37	H74C47N4O37	1672	1286.40319	true		true	non_hardcoded
+Hex(1)HexNAc(1)NeuGc(4) (ST)	S, T		None	H91C58N5O46	H91C58N5O46	1729	1593.493521	true		true	non_hardcoded
+Hex(1)HexNAc(1)NeuGc(5) (ST)	S, T		None	H108C69N6O55	H108C69N6O55	1755	1900.583852	true		true	non_hardcoded
+Hex(1)HexNAc(1)Phos(1) (ST)	S, T		None	H24C14NO13P	H24C14NO13P	1429	445.098527	true		true	non_hardcoded
+Hex(1)HexNAc(1)Sulf(1) (ST)	S, T		None	H23C14NO13S	H23C14NO13S	1430	445.089011	true		true	non_hardcoded
+Hex(1)HexNAc(2) (N)	N		None	H36C22N2O15	H36C22N2O15	148	568.211569	true	1K1	true	non_hardcoded
+Hex(1)HexNAc(2) (ST)	S, T		None	H36C22N2O15	H36C22N2O15	148	568.211569	true	1K1	true	non_hardcoded
+Hex(1)HexNAc(2)dHex(1) (N)	N		None	H46C28N2O19	H46C28N2O19	152	714.269478	true	K1F	true	non_hardcoded
+Hex(1)HexNAc(2)dHex(1) (ST)	S, T		None	H46C28N2O19	H46C28N2O19	152	714.269478	true	K1F	true	non_hardcoded
+Hex(1)HexNAc(2)dHex(1)Pent(1) (N)	N		None	H54C33N2O23	H54C33N2O23	155	846.311736	true	K1G	true	non_hardcoded
+Hex(1)HexNAc(2)dHex(2) (N)	N		None	H56C34N2O23	H56C34N2O23	156	860.327386	true	K1H	true	non_hardcoded
+Hex(1)HexNAc(2)dHex(2) (ST)	S, T		None	H56C34N2O23	H56C34N2O23	156	860.327386	true	K1H	true	non_hardcoded
+Hex(1)HexNAc(2)dHex(2)Sulf(1) (ST)	S, T		None	H56C34N2O26S	H56C34N2O26S	1941	940.284201	true		true	non_hardcoded
+Hex(1)HexNAc(2)NeuAc(1) (ST)	S, T		None	H53C33N3O23	H53C33N3O23	1600	859.306985	true		true	non_hardcoded
+Hex(1)HexNAc(2)NeuAc(1)Sulf(1) (ST)	S, T		None	H53C33N3O26S	H53C33N3O26S	1611	939.2638	true		true	non_hardcoded
+Hex(1)HexNAc(2)NeuAc(2) (ST)	S, T		None	H70C44N4O31	H70C44N4O31	1649	1150.402402	true		true	non_hardcoded
+Hex(1)HexNAc(2)NeuAc(2)Sulf(1) (ST)	S, T		None	H70C44N4O34S	H70C44N4O34S	1662	1230.359217	true		true	non_hardcoded
+Hex(1)HexNAc(2)NeuGc(1) (ST)	S, T		None	H53C33N3O24	H53C33N3O24	1602	875.3019	true		true	non_hardcoded
+Hex(1)HexNAc(2)Pent(1) (N)	N		None	H44C27N2O19	H44C27N2O19	151	700.253828	true	K1P	true	non_hardcoded
+Hex(1)HexNAc(2)Sulf(1) (ST)	S, T		None	H36C22N2O18S	H36C22N2O18S	1447	648.168383	true		true	non_hardcoded
+Hex(1)HexNAc(3) (ST)	S, T		None	H49C30N3O20	H49C30N3O20	1582	771.290941	true		true	non_hardcoded
+Hex(1)HexNAc(3)NeuAc(1) (ST)	S, T		None	H66C41N4O28	H66C41N4O28	1636	1062.386358	true		true	non_hardcoded
+Hex(1)HexNAc(3)NeuAc(2) (ST)	S, T		None	H83C52N5O36	H83C52N5O36	1687	1353.481775	true		true	non_hardcoded
+Hex(1)HexNAc(3)NeuGc(1) (ST)	S, T		None	H66C41N4O29	H66C41N4O29	1638	1078.381273	true		true	non_hardcoded
+Hex(1)HexNAc(3)Sulf(1) (ST)	S, T		None	H49C30N3O23S	H49C30N3O23S	1598	851.247756	true		true	non_hardcoded
+Hex(1)HexNAc(4)dHex(1)Sulf(1) (ST)	S, T		None	H72C44N4O32S	H72C44N4O32S	1948	1200.385037	true		true	non_hardcoded
+Hex(1)NeuAc(1) (ST)	S, T		None	H27C17NO13	H27C17NO13	1431	453.14824	true		true	non_hardcoded
+Hex(1)NeuAc(1)Pent(1) (ST)	S, T		None	H35C22NO17	H35C22NO17	1442	585.190499	true		true	non_hardcoded
+Hex(1)NeuGc(1) (ST)	S, T		None	H27C17NO14	H27C17NO14	1432	469.143155	true		true	non_hardcoded
+Hex(1)Pent(1) (ST)	S, T		None	H18C11O9	H18C11O9	1426	294.095082	true		true	non_hardcoded
+Hex(1)Pent(2) (ST)	S, T		None	H26C16O13	H26C16O13	1428	426.137341	true		true	non_hardcoded
+Hex(1)Pent(2)Me(1) (ST)	S, T		None	H28C17O13	H28C17O13	1933	440.152991	true		true	non_hardcoded
+Hex(1)Pent(3) (ST)	S, T		None	H34C21O17	H34C21O17	1441	558.1796	true		true	non_hardcoded
+Hex(1)Pent(3)Me(1) (ST)	S, T		None	H36C22O17	H36C22O17	1935	572.19525	true		true	non_hardcoded
+Hex(10)HexNAc(1) (N)	N		None	H113C68NO55	H113C68NO55	1962	1823.607608	true		true	non_hardcoded
+Hex(10)Phos(3) (ST)	S, T		None	H103C60O59P3	H103C60O59P3	1753	1860.427228	true		true	non_hardcoded
+Hex(2) (K)	K		None	H20C12O10		512	324.105647	true	2Hx	true	non_hardcoded
+Hex(2) (R)	R		None	H20C12O10		512	324.105647	true	2Hx	true	non_hardcoded
+Hex(2) (ST)	S, T		None	H20C12O10	H20C12O10	512	324.105647	true	2Hx	true	non_hardcoded
+Hex(2)HexA(1)HexNAc(1)Sulf(1) (ST)	S, T		None	H41C26NO24S	H41C26NO24S	1585	783.173922	true		true	non_hardcoded
+Hex(2)HexA(1)NeuAc(1)Pent(1)Sulf(1) (ST)	S, T		None	H53C34NO31S	H53C34NO31S	1623	1003.232225	true		true	non_hardcoded
+Hex(2)HexA(1)Pent(1)Sulf(1) (ST)	S, T		None	H36C23O23S	H36C23O23S	1572	712.136808	true		true	non_hardcoded
+Hex(2)HexNAc(1) (N)	N		None	H33C20NO15	H33C20NO15	1438	527.18502	true		true	non_hardcoded
+Hex(2)HexNAc(1) (ST)	S, T		None	H33C20NO15	H33C20NO15	1438	527.18502	true		true	non_hardcoded
+Hex(2)HexNAc(1)Me(1) (ST)	S, T		None	H35C21NO15	H35C21NO15	1440	541.20067	true		true	non_hardcoded
+Hex(2)HexNAc(1)NeuGc(1) (ST)	S, T		None	H50C31N2O24	H50C31N2O24	1595	834.275351	true		true	non_hardcoded
+Hex(2)HexNAc(1)NeuGc(2) (ST)	S, T		None	H67C42N3O33	H67C42N3O33	1647	1141.365682	true		true	non_hardcoded
+Hex(2)HexNAc(1)NeuGc(3) (ST)	S, T		None	H84C53N4O42	H84C53N4O42	1705	1448.456013	true		true	non_hardcoded
+Hex(2)HexNAc(1)NeuGc(4) (ST)	S, T		None	H101C64N5O51	H101C64N5O51	1744	1755.546345	true		true	non_hardcoded
+Hex(2)HexNAc(1)Pent(1)HexA(1) (ST)	S, T		None	H49C31NO25	H49C31NO25	1939	835.259366	true		true	non_hardcoded
+Hex(2)HexNAc(1)Sulf(1) (ST)	S, T		None	H33C20NO18S	H33C20NO18S	1443	607.141834	true		true	non_hardcoded
+Hex(2)HexNAc(2) (N)	N		None	H46C28N2O20	H46C28N2O20	153	730.264392	true	1K2	true	non_hardcoded
+Hex(2)HexNAc(2) (ST)	S, T		None	H46C28N2O20	H46C28N2O20	153	730.264392	true	1K2	true	non_hardcoded
+Hex(2)HexNAc(2)dHex(1) (N)	N		None	H56C34N2O24	H56C34N2O24	158	876.322301	true	K2F	true	non_hardcoded
+Hex(2)HexNAc(2)dHex(1) (ST)	S, T		None	H56C34N2O24	H56C34N2O24	158	876.322301	true	K2F	true	non_hardcoded
+Hex(2)HexNAc(2)NeuAc(1) (N)	N		None	H63C39N3O28	H63C39N3O28	1450	1021.359809	true		true	non_hardcoded
+Hex(2)HexNAc(2)NeuAc(1) (ST)	S, T		None	H63C39N3O28	H63C39N3O28	1450	1021.359809	true		true	non_hardcoded
+Hex(2)HexNAc(2)NeuAc(1)Sulf(1) (ST)	S, T		None	H63C39N3O31S	H63C39N3O31S	1642	1101.316623	true		true	non_hardcoded
+Hex(2)HexNAc(2)NeuAc(2) (ST)	S, T		None	H80C50N4O36	H80C50N4O36	1681	1312.455225	true		true	non_hardcoded
+Hex(2)HexNAc(2)NeuAc(2)Sulf(1) (ST)	S, T		None	H80C50N4O39S	H80C50N4O39S	1694	1392.41204	true		true	non_hardcoded
+Hex(2)HexNAc(2)NeuGc(1) (ST)	S, T		None	H63C39N3O29	H63C39N3O29	1631	1037.354723	true		true	non_hardcoded
+Hex(2)HexNAc(2)Pent(1) (N)	N		None	H54C33N2O24	H54C33N2O24	157	862.306651	true	K2P	true	non_hardcoded
+Hex(2)HexNAc(2)Sulf(1) (ST)	S, T		None	H46C28N2O23S	H46C28N2O23S	1589	810.221207	true		true	non_hardcoded
+Hex(2)HexNAc(3) (N)	N		None	H59C36N3O25	H59C36N3O25	1610	933.343765	true		true	non_hardcoded
+Hex(2)HexNAc(3) (ST)	S, T		None	H59C36N3O25	H59C36N3O25	1610	933.343765	true		true	non_hardcoded
+Hex(2)HexNAc(3)NeuAc(1)NeuGc(1) (ST)	S, T		None	H93C58N5O42	H93C58N5O42	1720	1531.529513	true		true	non_hardcoded
+Hex(2)HexNAc(3)NeuAc(1)Sulf(1) (ST)	S, T		None	H76C47N4O36S	H76C47N4O36S	1678	1304.395996	true		true	non_hardcoded
+Hex(2)HexNAc(3)NeuAc(2) (ST)	S, T		None	H93C58N5O41	H93C58N5O41	1717	1515.534598	true		true	non_hardcoded
+Hex(2)HexNAc(3)NeuAc(3) (ST)	S, T		None	H110C69N6O49	H110C69N6O49	1749	1806.630015	true		true	non_hardcoded
+Hex(2)HexNAc(3)NeuGc(1) (ST)	S, T		None	H76C47N4O34	H76C47N4O34	1665	1240.434096	true		true	non_hardcoded
+Hex(2)HexNAc(3)NeuGc(2) (ST)	S, T		None	H93C58N5O43	H93C58N5O43	1725	1547.524427	true		true	non_hardcoded
+Hex(2)HexNAc(3)NeuGc(3) (ST)	S, T		None	H110C69N6O52	H110C69N6O52	1752	1854.614759	true		true	non_hardcoded
+Hex(2)HexNAc(3)Sulf(1) (ST)	S, T		None	H59C36N3O28S	H59C36N3O28S	1626	1013.300579	true		true	non_hardcoded
+Hex(2)HexNAc(4) (N)	N		None	H72C44N4O30	H72C44N4O30	1646	1136.423137	true		true	non_hardcoded
+Hex(2)HexNAc(4) (ST)	S, T		None	H72C44N4O30	H72C44N4O30	1646	1136.423137	true		true	non_hardcoded
+Hex(2)HexNAc(4)NeuAc(1) (ST)	S, T		None	H89C55N5O38	H89C55N5O38	1700	1427.518554	true		true	non_hardcoded
+Hex(2)HexNAc(5) (ST)	S, T		None	H85C52N5O35	H85C52N5O35	1685	1339.50251	true		true	non_hardcoded
+Hex(2)NeuAc(1) (ST)	S, T		None	H37C23NO18	H37C23NO18	1444	615.201064	true		true	non_hardcoded
+Hex(2)Pent(2) (ST)	S, T		None	H36C22O18	H36C22O18	1936	588.190165	true		true	non_hardcoded
+Hex(2)Pent(2)Me(1) (ST)	S, T		None	H38C23O18	H38C23O18	1937	602.205815	true		true	non_hardcoded
+Hex(2)Sulf(1) (ST)	S, T		None	H20C12O13S	H20C12O13S	1932	404.062462	true		true	non_hardcoded
+Hex(3) (N)	N		None	H30C18O15	H30C18O15	144	486.158471	true	3Hx	true	non_hardcoded
+Hex(3) (ST)	S, T		None	H30C18O15	H30C18O15	144	486.158471	true	3Hx	true	non_hardcoded
+Hex(3)HexNAc(1) (N)	N		None	H43C26NO20	H43C26NO20	1566	689.237843	true		true	non_hardcoded
+Hex(3)HexNAc(1) (ST)	S, T		None	H43C26NO20	H43C26NO20	1566	689.237843	true		true	non_hardcoded
+Hex(3)HexNAc(1)HexA(1) (ST)	S, T		None	H51C32NO26	H51C32NO26	1940	865.269931	true		true	non_hardcoded
+Hex(3)HexNAc(1)Me(1) (ST)	S, T		None	H45C27NO20	H45C27NO20	1571	703.253493	true		true	non_hardcoded
+Hex(3)HexNAc(1)Pent(1) (N)	N		None	H51C31NO24	H51C31NO24	154	821.280102	true	K3e	true	non_hardcoded
+Hex(3)HexNAc(2) (N)	N		None	H56C34N2O25	H56C34N2O25	159	892.317216	true	1K3	true	non_hardcoded
+Hex(3)HexNAc(2) (ST)	S, T		None	H56C34N2O25	H56C34N2O25	159	892.317216	true	1K3	true	non_hardcoded
+Hex(3)HexNAc(2)NeuAc(1) (N)	N		None	H73C45N3O33	H73C45N3O33	1455	1183.412632	true		true	non_hardcoded
+Hex(3)HexNAc(2)NeuAc(2) (ST)	S, T		None	H90C56N4O41	H90C56N4O41	1712	1474.508049	true		true	non_hardcoded
+Hex(3)HexNAc(2)Pent(1) (N)	N		None	H64C39N2O29	H64C39N2O29	1451	1024.359475	true		true	non_hardcoded
+Hex(3)HexNAc(2)Phos(1) (N)	N		None	H57C34N2O28P	H57C34N2O28P	161	972.283547	true		true	non_hardcoded
+Hex(3)HexNAc(3) (N)	N		None	H69C42N3O30	H69C42N3O30	1763	1095.396588	true	G0c	true	non_hardcoded
+Hex(3)HexNAc(3) (ST)	S, T		None	H69C42N3O30	H69C42N3O30	1763	1095.396588	true	G0c	true	non_hardcoded
+Hex(3)HexNAc(3)NeuAc(1) (ST)	S, T		None	H86C53N4O38	H86C53N4O38	1692	1386.492005	true		true	non_hardcoded
+Hex(3)HexNAc(3)NeuAc(1)Sulf(1) (ST)	S, T		None	H86C53N4O41S	H86C53N4O41S	1711	1466.44882	true		true	non_hardcoded
+Hex(3)HexNAc(3)NeuAc(2) (ST)	S, T		None	H103C64N5O46	H103C64N5O46	1738	1677.587422	true		true	non_hardcoded
+Hex(3)HexNAc(3)NeuAc(2)Sulf(1) (ST)	S, T		None	H103C64N5O49S	H103C64N5O49S	1745	1757.544236	true		true	non_hardcoded
+Hex(3)HexNAc(3)NeuAc(3) (ST)	S, T		None	H120C75N6O54	H120C75N6O54	1968	1968.682838	true		true	non_hardcoded
+Hex(3)HexNAc(3)NeuGc(1) (ST)	S, T		None	H86C53N4O39	H86C53N4O39	1696	1402.48692	true		true	non_hardcoded
+Hex(3)HexNAc(3)NeuGc(1)Sulf(1) (ST)	S, T		None	H86C53N4O42S	H86C53N4O42S	1713	1482.443734	true		true	non_hardcoded
+Hex(3)HexNAc(3)Pent(1) (N)	N		None	H77C47N3O34	H77C47N3O34	1457	1227.438847	true		true	non_hardcoded
+Hex(3)HexNAc(3)Sulf(1) (N)	N		None	H69C42N3O33S	H69C42N3O33S	1655	1175.353403	true		true	non_hardcoded
+Hex(3)HexNAc(3)Sulf(1) (ST)	S, T		None	H69C42N3O33S	H69C42N3O33S	1655	1175.353403	true		true	non_hardcoded
+Hex(3)HexNAc(4) (N)	N		None	H82C50N4O35	H82C50N4O35	309	1298.475961	true	1G0	true	non_hardcoded
+Hex(3)HexNAc(4) (ST)	S, T		None	H82C50N4O35	H82C50N4O35	309	1298.475961	true	1G0	true	non_hardcoded
+Hex(3)HexNAc(4)NeuAc(1) (N)	N		None	H99C61N5O43	H99C61N5O43	1488	1589.571378	true		true	non_hardcoded
+Hex(3)HexNAc(4)NeuAc(2) (N)	N		None	H116C72N6O51	H116C72N6O51	1964	1880.666794	true		true	non_hardcoded
+Hex(3)HexNAc(4)Pent(1) (N)	N		None	H90C55N4O39	H90C55N4O39	1469	1430.51822	true		true	non_hardcoded
+Hex(3)HexNAc(4)Sulf(1) (N)	N		None	H82C50N4O38S	H82C50N4O38S	1464	1378.432776	true		true	non_hardcoded
+Hex(3)HexNAc(5) (N)	N		None	H95C58N5O40	H95C58N5O40	1772	1501.555334	true	G0N	true	non_hardcoded
+Hex(3)HexNAc(5) (ST)	S, T		None	H95C58N5O40	H95C58N5O40	1772	1501.555334	true	G0N	true	non_hardcoded
+Hex(3)HexNAc(5)NeuAc(1) (N)	N		None	H112C69N6O48	H112C69N6O48	1961	1792.65075	true		true	non_hardcoded
+Hex(3)HexNAc(5)Sulf(1) (N)	N		None	H95C58N5O43S	H95C58N5O43S	1486	1581.512148	true		true	non_hardcoded
+Hex(3)HexNAc(6) (N)	N		None	H108C66N6O45	H108C66N6O45	1776	1704.634706	true		true	non_hardcoded
+Hex(3)HexNAc(6) (ST)	S, T		None	H108C66N6O45	H108C66N6O45	1776	1704.634706	true		true	non_hardcoded
+Hex(3)HexNAc(6)NeuAc(1) (N)	N		None	H125C77N7O53	H125C77N7O53	1561	1995.730123	true		true	non_hardcoded
+Hex(3)HexNAc(6)Sulf(1) (N)	N		None	H108C66N6O48S	H108C66N6O48S	1517	1784.591521	true		true	non_hardcoded
+Hex(3)HexNAc(6)Sulf(2) (N)	N		None	H108C66N6O51S2	H108C66N6O51S2	1530	1864.548335	true		true	non_hardcoded
+Hex(3)HexNAc(7) (N)	N		None	H121C74N7O50	H121C74N7O50	1540	1907.714079	true		true	non_hardcoded
+Hex(3)HexNAc(7)Sulf(1) (N)	N		None	H121C74N7O53S	H121C74N7O53S	1558	1987.670893	true		true	non_hardcoded
+Hex(4) (ST)	S, T		None	H40C24O20	H40C24O20	1448	648.211294	true		true	non_hardcoded
+Hex(4)HexA(1) (ST)	S, T		None	H48C30O26	H48C30O26	1938	824.243382	true		true	non_hardcoded
+Hex(4)HexA(1)HexNAc(1) (ST)	S, T		None	H61C38NO31	H61C38NO31	1945	1027.322755	true		true	non_hardcoded
+Hex(4)HexNAc(1) (N)	N		None	H53C32NO25	H53C32NO25	1599	851.290667	true		true	non_hardcoded
+Hex(4)HexNAc(1) (ST)	S, T		None	H53C32NO25	H53C32NO25	1599	851.290667	true		true	non_hardcoded
+Hex(4)HexNAc(2) (N)	N		None	H66C40N2O30	H66C40N2O30	1452	1054.370039	true		true	non_hardcoded
+Hex(4)HexNAc(2)NeuAc(1) (N)	N		None	H83C51N3O38	H83C51N3O38	1461	1345.465456	true		true	non_hardcoded
+Hex(4)HexNAc(2)NeuAc(1) (ST)	S, T		None	H83C51N3O38	H83C51N3O38	1461	1345.465456	true		true	non_hardcoded
+Hex(4)HexNAc(2)Pent(1) (N)	N		None	H74C45N2O34	H74C45N2O34	1456	1186.412298	true		true	non_hardcoded
+Hex(4)HexNAc(3) (N)	N		None	H79C48N3O35	H79C48N3O35	1769	1257.449412	true	G1c	true	non_hardcoded
+Hex(4)HexNAc(3) (ST)	S, T		None	H79C48N3O35	H79C48N3O35	1769	1257.449412	true	G1c	true	non_hardcoded
+Hex(4)HexNAc(3)NeuAc(1) (N)	N		None	H96C59N4O43	H96C59N4O43	1773	1548.544828	true		true	non_hardcoded
+Hex(4)HexNAc(3)NeuAc(1) (ST)	S, T		None	H96C59N4O43	H96C59N4O43	1773	1548.544828	true		true	non_hardcoded
+Hex(4)HexNAc(3)NeuAc(2) (N)	N		None	H113C70N5O51	H113C70N5O51	1524	1839.640245	true		true	non_hardcoded
+Hex(4)HexNAc(3)NeuGc(1) (N)	N		None	H96C59N4O44	H96C59N4O44	1483	1564.539743	true		true	non_hardcoded
+Hex(4)HexNAc(3)Pent(1) (N)	N		None	H87C53N3O39	H87C53N3O39	1466	1389.491671	true		true	non_hardcoded
+Hex(4)HexNAc(4) (N)	N		None	H92C56N4O40	H92C56N4O40	310	1460.528784	true	1G1	true	non_hardcoded
+Hex(4)HexNAc(4) (ST)	S, T		None	H92C56N4O40	H92C56N4O40	310	1460.528784	true	1G1	true	non_hardcoded
+Hex(4)HexNAc(4)Me(2)Pent(1) (N)	N		None	H104C63N4O44	H104C63N4O44	1491	1620.602343	true		true	non_hardcoded
+Hex(4)HexNAc(4)NeuAc(1) (N)	N		None	H109C67N5O48	H109C67N5O48	1777	1751.624201	true	G1S	true	non_hardcoded
+Hex(4)HexNAc(4)NeuAc(1) (ST)	S, T		None	H109C67N5O48	H109C67N5O48	1777	1751.624201	true	G1S	true	non_hardcoded
+Hex(4)HexNAc(4)NeuAc(1)Sulf(2) (ST)	S, T		None	H109C67N5O54S2	H109C67N5O54S2	1756	1911.53783	true		true	non_hardcoded
+Hex(4)HexNAc(4)NeuAc(1)Sulf(3) (ST)	S, T		None	H109C67N5O57S3	H109C67N5O57S3	1759	1991.494645	true		true	non_hardcoded
+Hex(4)HexNAc(4)NeuGc(1) (N)	N		None	H109C67N5O49	H109C67N5O49	1959	1767.619116	true		true	non_hardcoded
+Hex(4)HexNAc(4)NeuGc(1) (ST)	S, T		None	H109C67N5O49	H109C67N5O49	1959	1767.619116	true		true	non_hardcoded
+Hex(4)HexNAc(4)NeuGc(1)Sulf(2) (ST)	S, T		None	H109C67N5O55S2	H109C67N5O55S2	1757	1927.532745	true		true	non_hardcoded
+Hex(4)HexNAc(4)Pent(1) (N)	N		None	H100C61N4O44	H100C61N4O44	1489	1592.571043	true		true	non_hardcoded
+Hex(4)HexNAc(4)Sulf(1) (N)	N		None	H92C56N4O43S	H92C56N4O43S	1479	1540.485599	true		true	non_hardcoded
+Hex(4)HexNAc(4)Sulf(2) (ST)	S, T		None	H92C56N4O46S2	H92C56N4O46S2	1732	1620.442414	true		true	non_hardcoded
+Hex(4)HexNAc(5) (N)	N		None	H105C64N5O45	H105C64N5O45	1496	1663.608157	true		true	non_hardcoded
+Hex(4)HexNAc(5)NeuAc(1) (N)	N		None	H122C75N6O53	H122C75N6O53	1551	1954.703574	true		true	non_hardcoded
+Hex(4)HexNAc(5)Sulf(1) (N)	N		None	H105C64N5O48S	H105C64N5O48S	1513	1743.564972	true		true	non_hardcoded
+Hex(4)HexNAc(6) (N)	N		None	H118C72N6O50	H118C72N6O50	1532	1866.68753	true		true	non_hardcoded
+Hex(4)Phos(1) (ST)	S, T		None	H41C24O23P	H41C24O23P	1575	728.177625	true		true	non_hardcoded
+Hex(5) (ST)	S, T		None	H50C30O25	H50C30O25	1590	810.264117	true	5Hx	true	non_hardcoded
+Hex(5)HexA(1) (ST)	S, T		None	H58C36O31	H58C36O31	1944	986.296206	true		true	non_hardcoded
+Hex(5)HexNAc(1) (N)	N		None	H63C38NO30	H63C38NO30	1627	1013.34349	true		true	non_hardcoded
+Hex(5)HexNAc(1) (ST)	S, T		None	H63C38NO30	H63C38NO30	1627	1013.34349	true		true	non_hardcoded
+Hex(5)HexNAc(2) (N)	N		None	H76C46N2O35	H76C46N2O35	137	1216.422863	true	G2d	true	non_hardcoded
+Hex(5)HexNAc(2)Phos(1) (N)	N		None	H77C46N2O38P	H77C46N2O38P	1458	1296.389194	true		true	non_hardcoded
+Hex(5)HexNAc(3) (N)	N		None	H89C54N3O40	H89C54N3O40	1468	1419.502235	true		true	non_hardcoded
+Hex(5)HexNAc(3)Pent(1) (N)	N		None	H97C59N3O44	H97C59N3O44	1482	1551.544494	true		true	non_hardcoded
+Hex(5)HexNAc(4) (N)	N		None	H102C62N4O45	H102C62N4O45	311	1622.581608	true	1G2	true	non_hardcoded
+Hex(5)HexNAc(4) (ST)	S, T		None	H102C62N4O45	H102C62N4O45	311	1622.581608	true	1G2	true	non_hardcoded
+Hex(5)HexNAc(4)Me(2)Pent(1) (N)	N		None	H114C69N4O49	H114C69N4O49	1516	1782.655167	true		true	non_hardcoded
+Hex(5)HexNAc(4)NeuAc(1) (N)	N		None	H119C73N5O53	H119C73N5O53	1409	1913.677025	true	G2S	true	non_hardcoded
+Hex(5)HexNAc(4)NeuAc(1)Ac(1) (N)	N		None	H121C75N5O54	H121C75N5O54	1967	1955.687589	true		true	non_hardcoded
+Hex(5)HexNAc(4)NeuAc(1)Ac(2) (N)	N		None	H123C77N5O55	H123C77N5O55	1969	1997.698154	true		true	non_hardcoded
+Hex(5)HexNAc(4)NeuAc(1)Sulf(1) (N)	N		None	H119C73N5O56S	H119C73N5O56S	1560	1993.633839	true		true	non_hardcoded
+Hex(5)HexNAc(4)NeuAc(2) (N)	N		None	H136C84N6O61	H136C84N6O61	1408	2204.772441	true	G2W	true	non_hardcoded
+Hex(5)HexNAc(4)NeuGc(1) (N)	N		None	H119C73N5O54	H119C73N5O54	1545	1929.671939	true		true	non_hardcoded
+Hex(5)HexNAc(4)Sulf(1) (N)	N		None	H102C62N4O48S	H102C62N4O48S	1503	1702.538423	true		true	non_hardcoded
+Hex(5)HexNAc(5) (N)	N		None	H115C70N5O50	H115C70N5O50	1780	1825.660981	true		true	non_hardcoded
+Hex(5)HexNAc(5) (ST)	S, T		None	H115C70N5O50	H115C70N5O50	1780	1825.660981	true		true	non_hardcoded
+Hex(5)Phos(1) (ST)	S, T		None	H51C30O28P	H51C30O28P	1604	890.230448	true		true	non_hardcoded
+Hex(5)Phos(3) (ST)	S, T		None	H53C30O34P3	H53C30O34P3	1632	1050.16311	true		true	non_hardcoded
+Hex(6)HexNAc(1) (N)	N		None	H73C44NO35	H73C44NO35	1947	1175.396314	true		true	non_hardcoded
+Hex(6)HexNAc(2) (N)	N		None	H86C52N2O40	H86C52N2O40	1465	1378.475686	true		true	non_hardcoded
+Hex(6)HexNAc(2)Phos(1) (N)	N		None	H87C52N2O43P	H87C52N2O43P	1470	1458.442017	true		true	non_hardcoded
+Hex(6)HexNAc(3) (N)	N		None	H99C60N3O45	H99C60N3O45	1487	1581.555059	true		true	non_hardcoded
+Hex(6)HexNAc(3)Phos(1) (N)	N		None	H100C60N3O48P	H100C60N3O48P	1495	1661.52139	true		true	non_hardcoded
+Hex(6)HexNAc(4) (N)	N		None	H112C68N4O50	H112C68N4O50	1779	1784.634431	true		true	non_hardcoded
+Hex(6)HexNAc(4) (ST)	S, T		None	H112C68N4O50	H112C68N4O50	1779	1784.634431	true		true	non_hardcoded
+Hex(6)HexNAc(4)Me(3) (N)	N		None	H118C71N4O50	H118C71N4O50	1522	1826.681382	true		true	non_hardcoded
+Hex(6)HexNAc(4)Me(3)Pent(1) (N)	N		None	H126C76N4O54	H126C76N4O54	1552	1958.72364	true		true	non_hardcoded
+Hex(6)HexNAc(5) (N)	N		None	H125C76N5O55	H125C76N5O55	1559	1987.713804	true		true	non_hardcoded
+Hex(6)HexNAc(5)NeuAc(3) (N)	N		None	H176C109N8O79	H176C109N8O79	2028	2861.000054	true		true	non_hardcoded
+Hex(6)Phos(1) (ST)	S, T		None	H61C36O33P	H61C36O33P	1633	1052.283272	true		true	non_hardcoded
+Hex(6)Phos(3) (ST)	S, T		None	H63C36O39P3	H63C36O39P3	1659	1212.215934	true		true	non_hardcoded
+Hex(7)HexNAc(1) (N)	N		None	H83C50NO40	H83C50NO40	1460	1337.449137	true		true	non_hardcoded
+Hex(7)HexNAc(2) (N)	N		None	H96C58N2O45	H96C58N2O45	1480	1540.52851	true		true	non_hardcoded
+Hex(7)HexNAc(2)Phos(1) (N)	N		None	H97C58N2O48P	H97C58N2O48P	1490	1620.494841	true		true	non_hardcoded
+Hex(7)HexNAc(2)Phos(2) (N)	N		None	H98C58N2O51P2	H98C58N2O51P2	1502	1700.461172	true		true	non_hardcoded
+Hex(7)HexNAc(3) (N)	N		None	H109C66N3O50	H109C66N3O50	1514	1743.607882	true		true	non_hardcoded
+Hex(7)HexNAc(3)Phos(1) (N)	N		None	H110C66N3O53P	H110C66N3O53P	1521	1823.574213	true		true	non_hardcoded
+Hex(7)HexNAc(4) (N)	N		None	H122C74N4O55	H122C74N4O55	1549	1946.687255	true		true	non_hardcoded
+Hex(7)HexNAc(6) (N)	N		None	H148C90N6O65	H148C90N6O65	2029	2352.846	true		true	non_hardcoded
+Hex(7)HexNAc(6) (ST)	S, T		None	H148C90N6O65	H148C90N6O65	2029	2352.846	true		true	non_hardcoded
+Hex(7)Phos(3) (ST)	S, T		None	H73C42O44P3	H73C42O44P3	1690	1374.268757	true		true	non_hardcoded
+Hex(8)HexNAc(1) (N)	N		None	H93C56NO45	H93C56NO45	1473	1499.501961	true		true	non_hardcoded
+Hex(8)HexNAc(2) (N)	N		None	H106C64N2O50	H106C64N2O50	1504	1702.581333	true		true	non_hardcoded
+Hex(8)Phos(3) (ST)	S, T		None	H83C48O49P3	H83C48O49P3	1723	1536.321581	true		true	non_hardcoded
+Hex(9) (N)	N		None	H90C54O45	H90C54O45	1953	1458.475412	true		true	non_hardcoded
+Hex(9)HexNAc(1) (N)	N		None	H103C62NO50	H103C62NO50	1957	1661.554784	true		true	non_hardcoded
+Hex(9)HexNAc(2) (N)	N		None	H116C70N2O55	H116C70N2O55	1531	1864.634157	true		true	non_hardcoded
+Hex(9)Phos(3) (ST)	S, T		None	H93C54O54P3	H93C54O54P3	1742	1698.374404	true		true	non_hardcoded
+HexA(2)HexNAc(3) (ST)	S, T		None	H55C36N3O27	H55C36N3O27	1942	961.302294	true		true	non_hardcoded
+HexN (K)	K		None	H11C6NO4		454	161.068808	true	Hmn	true	non_hardcoded
+HexN (N)	N		None	H11C6NO4	H11C6NO4	454	161.068808	true	Hmn	true	non_hardcoded
+HexN (ST)	S, T		None	H11C6NO4	H11C6NO4	454	161.068808	true	Hmn	true	non_hardcoded
+HexN (W)	W		None	H11C6NO4		454	161.068808	true	Hmn	true	non_hardcoded
+HexNAc (C)	C		None	H13C8NO5	H13C8NO5	43	203.079373	true	HNc	true	non_hardcoded
+HexNAc (N)	N		None	H13C8NO5	H13C8NO5	43	203.079373	true	HNc	true	non_hardcoded
+HexNAc (ST)	S, T		None	H13C8NO5	H13C8NO5	43	203.079373	true	HNc	true	non_hardcoded
+HexNAc(1)dHex(1) (N)	N		None	H23C14NO9	H23C14NO9	142	349.137281	true	1NF	true	non_hardcoded
+HexNAc(1)dHex(1) (ST)	S, T		None	H23C14NO9	H23C14NO9	142	349.137281	true	1NF	true	non_hardcoded
+HexNAc(1)dHex(2) (N)	N		None	H33C20NO13	H33C20NO13	145	495.19519	true	NF2	true	non_hardcoded
+HexNAc(1)Kdn(2) (ST)	S, T		None	H41C26NO21	H41C26NO21	1570	703.217108	true		true	non_hardcoded
+HexNAc(1)NeuAc(1) (ST)	S, T		None	H30C19N2O13	H30C19N2O13	1434	494.174789	true		true	non_hardcoded
+HexNAc(1)NeuGc(1) (ST)	S, T		None	H30C19N2O14	H30C19N2O14	1435	510.169704	true		true	non_hardcoded
+HexNAc(1)NeuGc(2) (ST)	S, T		None	H47C30N3O23	H47C30N3O23	1592	817.260035	true		true	non_hardcoded
+HexNAc(2) (N)	N		None	H26C16N2O10	H26C16N2O10	143	406.158745	true	1HN	true	non_hardcoded
+HexNAc(2) (ST)	S, T		None	H26C16N2O10	H26C16N2O10	143	406.158745	true	1HN	true	non_hardcoded
+HexNAc(2)dHex(1) (N)	N		None	H36C22N2O14	H36C22N2O14	147	552.216654	true	2NF	true	non_hardcoded
+HexNAc(2)dHex(2) (N)	N		None	H46C28N2O18	H46C28N2O18	150	698.274563	true	NFX	true	non_hardcoded
+HexNAc(2)NeuAc(1) (ST)	S, T		None	H43C27N3O18	H43C27N3O18	1568	697.254162	true		true	non_hardcoded
+HexNAc(2)NeuAc(1)Sulf(1) (ST)	S, T		None	H43C27N3O21S	H43C27N3O21S	1583	777.210976	true		true	non_hardcoded
+HexNAc(2)NeuGc(1) (ST)	S, T		None	H43C27N3O19	H43C27N3O19	1573	713.249076	true		true	non_hardcoded
+HexNAc(2)Sulf(1) (ST)	S, T		None	H26C16N2O13S	H26C16N2O13S	1934	486.11556	true		true	non_hardcoded
+HexNAc(3) (ST)	S, T		None	H39C24N3O15	H39C24N3O15	1433	609.238118	true		true	non_hardcoded
+HexNAc(3)Sulf(1) (ST)	S, T		None	H39C24N3O18S	H39C24N3O18S	1565	689.194932	true		true	non_hardcoded
+HexNAc(4) (ST)	S, T		None	H52C32N4O20	H52C32N4O20	1591	812.31749	true		true	non_hardcoded
+HexNAc(5) (ST)	S, T		None	H65C40N5O25	H65C40N5O25	1628	1015.396863	true		true	non_hardcoded
+His+O(2) (H)	H		None	H7C6N3O3		2027	169.048741	true		true	non_hardcoded
+HMVK (C)	C		None	H6C4O2		371	86.036779	true	HMV	true	non_hardcoded
+HN2_mustard (C)	C		None	H11C5NO		1388	101.084064	true		true	non_hardcoded
+HN2_mustard (H)	H		None	H11C5NO		1388	101.084064	true		true	non_hardcoded
+HN2_mustard (K)	K		None	H11C5NO		1388	101.084064	true		true	non_hardcoded
+HN3_mustard (C)	C		None	H13C6NO2		1389	131.094629	true		true	non_hardcoded
+HN3_mustard (H)	H		None	H13C6NO2		1389	131.094629	true		true	non_hardcoded
+HN3_mustard (K)	K		None	H13C6NO2		1389	131.094629	true		true	non_hardcoded
+HNE (A)	A		None	H16C9O2		53	156.11503	true	HNE	true	non_hardcoded
+HNE (C)	C		None	H16C9O2		53	156.11503	true	HNE	true	non_hardcoded
+HNE (H)	H		None	H16C9O2		53	156.11503	true	HNE	true	non_hardcoded
+HNE (K)	K		None	H16C9O2		53	156.11503	true	HNE	true	non_hardcoded
+HNE (L)	L		None	H16C9O2		53	156.11503	true	HNE	true	non_hardcoded
+HNE+Delta:H(2) (C)	C		None	H18C9O2		335	158.13068	true	HN2	true	non_hardcoded
+HNE+Delta:H(2) (H)	H		None	H18C9O2		335	158.13068	true	HN2	true	non_hardcoded
+HNE+Delta:H(2) (K)	K		None	H18C9O2		335	158.13068	true	HN2	true	non_hardcoded
+HNE-BAHAH (C)	C		None	H45C25N5O4S		912	511.319226	true		true	non_hardcoded
+HNE-BAHAH (H)	H		None	H45C25N5O4S		912	511.319226	true		true	non_hardcoded
+HNE-BAHAH (K)	K		None	H45C25N5O4S		912	511.319226	true		true	non_hardcoded
+HNE-Delta:H(2)O (C)	C		None	H14C9O		720	138.104465	true		true	non_hardcoded
+HNE-Delta:H(2)O (H)	H		None	H14C9O		720	138.104465	true		true	non_hardcoded
+HNE-Delta:H(2)O (K)	K		None	H14C9O		720	138.104465	true		true	non_hardcoded
+Homocysteic_acid (M)	M		None	O3 - H2C		1384	33.969094	true		true	non_hardcoded
+HPG (R)	R		None	H4C8O2		186	132.021129	true	HPG	true	non_hardcoded
+Hydroxamic_acid (DE)	D, E		None	HN		1385	15.010899	true		true	non_hardcoded
+Hydroxycinnamyl (C)	C		None	H6C9O2		407	146.036779	true	hCn	true	non_hardcoded
+Hydroxyfarnesyl (C)	C		None	H24C15O		376	220.182715	true	HFr	true	non_hardcoded
+Hydroxyheme (E)	E		None	H30C34N4O4Fe		436	614.161645	true	hHm	true	non_hardcoded
+hydroxyisobutyryl (K)	K		None	H6C4O2		1849	86.036779	true		true	non_hardcoded
+Hydroxymethyl (N)	N		None	H2CO		414	30.010565	true	h1M	true	non_hardcoded
+HydroxymethylOP (K)	K		None	H4C6O2		886	108.021129	true		true	non_hardcoded
+Hydroxytrimethyl (K)	K		None	H7C3O		445	59.04969	true	h3M	true	non_hardcoded
+Hypusine (K)	K		None	H9C4NO		379	87.068414	true	Hps	true	non_hardcoded
+IASD (C)	C		None	H16C18N2O8S2		1832	452.034807	true		true	non_hardcoded
+IBTP (C)	C		None	H21C22P		119	316.138088	true	BTP	true	non_hardcoded
+ICAT-D (C)	C		None	H34C20N4O5S		13	442.224991	true	d0I	true	non_hardcoded
+ICAT-D:2H(8) (C)	C		None	H26H'8C20N4O5S		12	450.275205	true	d8I	true	non_hardcoded
+ICAT-G (C)	C		None	C22H38N4O6S		8	486.251206	true	GG0	true	non_hardcoded
+ICAT-H (C)	C		None	C15ClH20NO6		123	345.097915	true	GH0	true	non_hardcoded
+ICDID (C)	C		None	C8H10O2		1018	138.06808	true		true	non_hardcoded
+ICPL (N-term)		N	None	C6H3NO		365	105.021464	true	IP0	true	non_hardcoded
+ICPL:13C(6) (N-term)		N	None	H3C'6NO		364	111.041593	true	IP6	true	non_hardcoded
+IDEnT (C)	C		None	H7C9NOCl2		762	214.990469	true		true	non_hardcoded
+IED-Biotin (C)	C		None	H22C14N4O3S		294	326.141261	true	IEB	true	non_hardcoded
+IGBP (C)	C		None	BrC12H13N2O2		243	296.016039	true	ID0	true	non_hardcoded
+IMEHex(2)NeuAc(1) (K)	K		None	H40C25N2O18S		1286	688.199683	true		true	non_hardcoded
+IMID (K)	K		None	C3H4N2		94	68.037448	true	IM0	true	non_hardcoded
+Iminobiotin (K)	K		None	H15C10N3OS		89	225.093583	true	ImB	true	non_hardcoded
+Iminobiotin (N-term)		N	None	H15C10N3OS		89	225.093583	true	ImB	true	non_hardcoded
+Iodo (H)	H		None	I - H		129	125.896648	true	Iod	true	non_hardcoded
+Iodo (Y)	Y		None	I - H		129	125.896648	true	Iod	true	non_hardcoded
+Iodoacetanilide (C)	C		None	C8H7NO		1397	133.052764	true		true	non_hardcoded
+Iodoacetanilide (K)	K		None	C8H7NO		1397	133.052764	true		true	non_hardcoded
+Iodoacetanilide (N-term)		N	None	C8H7NO		1397	133.052764	true		true	non_hardcoded
+iodoTMT (C)	C		None	H28C16N4O3		1341	324.216141	true	iTM	true	non_hardcoded
+iodoTMT (D)	D		None	H28C16N4O3		1341	324.216141	true	iTM	true	non_hardcoded
+iodoTMT (E)	E		None	H28C16N4O3		1341	324.216141	true	iTM	true	non_hardcoded
+iodoTMT (H)	H		None	H28C16N4O3		1341	324.216141	true	iTM	true	non_hardcoded
+iodoTMT (K)	K		None	H28C16N4O3		1341	324.216141	true	iTM	true	non_hardcoded
+iodoTMT6plex (C)	C		None	H28C12C'4N3N'O3		1342	329.226595	true	iT6	true	non_hardcoded
+iodoTMT6plex (D)	D		None	H28C12C'4N3N'O3		1342	329.226595	true	iT6	true	non_hardcoded
+iodoTMT6plex (E)	E		None	H28C12C'4N3N'O3		1342	329.226595	true	iT6	true	non_hardcoded
+iodoTMT6plex (H)	H		None	H28C12C'4N3N'O3		1342	329.226595	true	iT6	true	non_hardcoded
+iodoTMT6plex (K)	K		None	H28C12C'4N3N'O3		1342	329.226595	true	iT6	true	non_hardcoded
+IodoU-AMP (F)	F		None	H11C9N2O9P		292	322.020217	true	IUP	true	non_hardcoded
+IodoU-AMP (W)	W		None	H11C9N2O9P		292	322.020217	true	IUP	true	non_hardcoded
+IodoU-AMP (Y)	Y		None	H11C9N2O9P		292	322.020217	true	IUP	true	non_hardcoded
+ISD_z+2_ion (N-term)		N	None	-HN		991	-15.010899	true		true	non_hardcoded
+Isopropylphospho (S)	S		None	H7C3O3P		363	122.013281	true		true	non_hardcoded
+Isopropylphospho (T)	T		None	H7C3O3P		363	122.013281	true		true	non_hardcoded
+Isopropylphospho (Y)	Y		None	H7C3O3P		363	122.013281	true		true	non_hardcoded
+iTRAQ4plex (C)	C		None	H12C4C'3NN'O		214	144.102063	true	IT4	true	non_hardcoded
+iTRAQ4plex (H)	H		None	H12C4C'3NN'O		214	144.102063	true	IT4	true	non_hardcoded
+iTRAQ4plex (S)	S		None	H12C4C'3NN'O		214	144.102063	true	IT4	true	non_hardcoded
+iTRAQ4plex (T)	T		None	H12C4C'3NN'O		214	144.102063	true	IT4	true	non_hardcoded
+iTRAQ4plex114 (C)	C		None	H12C5C'2N2O'		532	144.105918	true		true	non_hardcoded
+iTRAQ4plex114 (K)	K		None	H12C5C'2N2O'		532	144.105918	true		true	non_hardcoded
+iTRAQ4plex114 (N-term)		N	None	H12C5C'2N2O'		532	144.105918	true		true	non_hardcoded
+iTRAQ4plex114 (Y)	Y		None	H12C5C'2N2O'		532	144.105918	true		true	non_hardcoded
+iTRAQ4plex115 (C)	C		None	H12C6C'NN'O'		533	144.099599	true		true	non_hardcoded
+iTRAQ4plex115 (K)	K		None	H12C6C'NN'O'		533	144.099599	true		true	non_hardcoded
+iTRAQ4plex115 (N-term)		N	None	H12C6C'NN'O'		533	144.099599	true		true	non_hardcoded
+iTRAQ4plex115 (Y)	Y		None	H12C6C'NN'O'		533	144.099599	true		true	non_hardcoded
+iTRAQ8plex (C)	C		None	C'7N'C7H24N3O3		730	304.20536	true	IT8	true	non_hardcoded
+iTRAQ8plex (H)	H		None	C'7N'C7H24N3O3		730	304.20536	true	IT8	true	non_hardcoded
+iTRAQ8plex (S)	S		None	C'7N'C7H24N3O3		730	304.20536	true	IT8	true	non_hardcoded
+iTRAQ8plex (T)	T		None	C'7N'C7H24N3O3		730	304.20536	true	IT8	true	non_hardcoded
+iTRAQ8plex:13C(6)15N(2) (C)	C		None	C'6N'2C8H24N2O3		731	304.19904	true		true	non_hardcoded
+iTRAQ8plex:13C(6)15N(2) (K)	K		None	C'6N'2C8H24N2O3		731	304.19904	true		true	non_hardcoded
+iTRAQ8plex:13C(6)15N(2) (N-term)		N	None	C'6N'2C8H24N2O3		731	304.19904	true		true	non_hardcoded
+iTRAQ8plex:13C(6)15N(2) (Y)	Y		None	C'6N'2C8H24N2O3		731	304.19904	true		true	non_hardcoded
+L-Gln (D)	D		None	H8C5N2O2		2070	128.058578	true		true	non_hardcoded
+L-Gln (E)	E		None	H8C5N2O2		2070	128.058578	true		true	non_hardcoded
+Label:13C(1)2H(3)+Oxidation (M)	M		None	H'3C'O - H3C		885	20.0171	true		true	non_hardcoded
+Label:13C(4)+Oxidation (M)	M		None	C'4O - C4		1267	20.008334	true		true	non_hardcoded
+Label:13C(4)15N(2)+GG (K)	K		None	H6C'4N'2O2		923	120.050417	true		true	non_hardcoded
+Label:13C(6)+Acetyl (K)	K		None	H2C'6O - C4		835	48.030694	true		true	non_hardcoded
+Label:13C(6)+Dimethyl (K)	K		None	H4C'6 - C4		986	34.051429	true		true	non_hardcoded
+Label:13C(6)+GG (K)	K		None	H6C'6N2O2 - C2		799	120.063056	true		true	non_hardcoded
+Label:13C(6)15N(2)+Acetyl (K)	K		None	H2C'6N'2O - C4N2		836	50.024764	true		true	non_hardcoded
+Label:13C(6)15N(2)+Dimethyl (K)	K		None	H4C'6N'2 - C4N2		987	36.045499	true		true	non_hardcoded
+Label:13C(6)15N(2)+GG (K)	K		None	H6C'6N'2O2 - C2		864	122.057126	true		true	non_hardcoded
+Label:13C(6)15N(4)+Dimethyl (R)	R		None	H4C'6N'4 - C4N4		1005	38.039569	true		true	non_hardcoded
+Label:13C(6)15N(4)+Dimethyl:2H(6)13C(2) (R)	R		None	H'6C'8N'4 - H2C6N4		1007	46.083939	true		true	non_hardcoded
+Label:13C(6)15N(4)+Methyl (R)	R		None	H2C'6N'4 - C5N4		1004	24.023919	true		true	non_hardcoded
+Label:13C(6)15N(4)+Methyl:2H(3)13C(1) (R)	R		None	H'3C'7N'4 - HC6N4		1006	28.046104	true		true	non_hardcoded
+Label:13C(9)+Phospho (Y)	Y		None	HC'9O3P - C9		185	88.996524	true	Ph9	true	non_hardcoded
+Label:2H(3)+Oxidation (M)	M		None	H'3O - H3		1370	19.013745	true		true	non_hardcoded
+Label:2H(4)+Acetyl (K)	K		None	H'4C2O - H2		834	46.035672	true		true	non_hardcoded
+Label:2H(4)+GG (K)	K		None	H2H'4C4N2O2		853	118.068034	true		true	non_hardcoded
+lapachenole (C)	C		None	H16C16O2		771	240.11503	true		true	non_hardcoded
+Leu->MetOx (L)	L		None	OS - H2C		905	33.951335	true		true	non_hardcoded
+LG-anhydrolactam (K)	K		None	H26C20O3		946	314.188195	true		true	non_hardcoded
+LG-anhydrolactam (N-term)		N	None	H26C20O3		946	314.188195	true		true	non_hardcoded
+LG-anhyropyrrole (K)	K		None	H26C20O2		948	298.19328	true		true	non_hardcoded
+LG-anhyropyrrole (N-term)		N	None	H26C20O2		948	298.19328	true		true	non_hardcoded
+LG-Hlactam-K (K)	K		None	H28C20O5		504	348.193674	true		true	non_hardcoded
+LG-Hlactam-R (R)	R		None	H26C19O5 - N2		506	306.171876	true		true	non_hardcoded
+LG-lactam-K (K)	K		None	H28C20O4		503	332.19876	true		true	non_hardcoded
+LG-lactam-R (R)	R		None	H26C19O4 - N2		505	290.176961	true		true	non_hardcoded
+LG-pyrrole (C)	C		None	H28C20O3		947	316.203845	true		true	non_hardcoded
+LG-pyrrole (K)	K		None	H28C20O3		947	316.203845	true		true	non_hardcoded
+LG-pyrrole (N-term)		N	None	H28C20O3		947	316.203845	true		true	non_hardcoded
+Lipoyl (K)	K		None	H12C8OS2		42	188.032956	true	Lip	true	non_hardcoded
+LRGG (K)	K		None	H29C16N7O4		535	383.228103	true	Umc	true	non_hardcoded
+LRGG+dimethyl (K)	K		None	H33C18N7O4		1829	411.259403	true		true	non_hardcoded
+LRGG+methyl (K)	K		None	H31C17N7O4		1828	397.243753	true		true	non_hardcoded
+LTX+Lophotoxin (Y)	Y		None	H24C22O8		2039	416.147118	true		true	non_hardcoded
+Lys (N-term)		N	None	H12C6N2O		1301	128.094963	true		true	non_hardcoded
+Lys+O(2) (H)	H		None	H12C6N2O3		2036	160.084792	true		true	non_hardcoded
+Lys->Allysine (K)	K		None	O - H3N		352	-1.031634	true	LAA	true	non_hardcoded
+Lys->AminoadipicAcid (K)	K		None	O2 - H3N		381	14.96328	true	AAA	true	non_hardcoded
+Lys->CamCys (K)	K		None	OS - H4C		903	31.935685	true		true	non_hardcoded
+Lys->MetOx (K)	K		None	OS - H3CN		906	18.940436	true		true	non_hardcoded
+Lys-loss (K)	K		None	-H12C6N2O		313	-128.094963	true	-1K	true	non_hardcoded
+Lys-loss (Protein C-term K)	K	C	None	-H12C6N2O		313	-128.094963	true	-1K	true	non_hardcoded
+Lysbiotinhydrazide (K)	K		None	H15C10N3O2S		353	241.088497	true		true	non_hardcoded
+maleimide (C)	C		None	H3C4NO2		773	97.016378	true		true	non_hardcoded
+maleimide (K)	K		None	H3C4NO2		773	97.016378	true		true	non_hardcoded
+Maleimide-PEO2-Biotin (C)	C		None	H35C23N5O7S		522	525.225719	true		true	non_hardcoded
+maleimide3 (C)	C		None	H59C37N7O23		971	969.366232	true		true	non_hardcoded
+maleimide3 (K)	K		None	H59C37N7O23		971	969.366232	true		true	non_hardcoded
+maleimide5 (C)	C		None	H79C49N7O33		972	1293.471879	true		true	non_hardcoded
+maleimide5 (K)	K		None	H79C49N7O33		972	1293.471879	true		true	non_hardcoded
+Malonyl (C)	C		None	H2C3O3		747	86.000394	true	Mal	true	non_hardcoded
+Malonyl (K)	K		None	H2C3O3		747	86.000394	true	Mal	true	non_hardcoded
+Malonyl (S)	S		None	H2C3O3		747	86.000394	true	Mal	true	non_hardcoded
+MBS+peptide (C)	C		None	H108C81N7O19		2040	1482.77	true		true	non_hardcoded
+MDCC (C)	C		None	H21C20N3O5		887	383.148121	true		true	non_hardcoded
+MeMePhosphorothioate (S)	S		None	H5C2OPS		1868	107.979873	true		true	non_hardcoded
+Menadione (C)	C		None	H6C11O2		302	170.036779	true		true	non_hardcoded
+Menadione (K)	K		None	H6C11O2		302	170.036779	true		true	non_hardcoded
+Menadione-HQ (C)	C		None	H8C11O2		767	172.05243	true		true	non_hardcoded
+Menadione-HQ (K)	K		None	H8C11O2		767	172.05243	true		true	non_hardcoded
+MercaptoEthanol (S)	S		None	H4C2S		928	60.003371	true		true	non_hardcoded
+MercaptoEthanol (T)	T		None	H4C2S		928	60.003371	true		true	non_hardcoded
+MesitylOxide (H)	H		None	H10C6O		1873	98.073165	true		true	non_hardcoded
+MesitylOxide (K)	K		None	H10C6O		1873	98.073165	true		true	non_hardcoded
+Met+O(2) (H)	H		None	H9C5NO3S		2033	163.030314	true		true	non_hardcoded
+Met->Aha (M)	M		None	N3 - H3CS		896	-4.986324	true	MAH	true	non_hardcoded
+Met->AspSA (M)	M		None	O - H4CS		1914	-32.008456	true		true	non_hardcoded
+Met->Hpg (M)	M		None	C - H2S		899	-21.987721	true		true	non_hardcoded
+Met-loss (Protein N-term M)	M	N	None	-H9C5NOS		765	-131.040485	true		true	non_hardcoded
+Met-loss+Acetyl (Protein N-term M)	M	N	None	-H7C3NS		766	-89.02992	true		true	non_hardcoded
+Methamidophos-O (C)	C		None	H4CNO2P		2008	92.997965	true		true	non_hardcoded
+Methamidophos-O (H)	H		None	H4CNO2P		2008	92.997965	true		true	non_hardcoded
+Methamidophos-O (K)	K		None	H4CNO2P		2008	92.997965	true		true	non_hardcoded
+Methamidophos-O (S)	S		None	H4CNO2P		2008	92.997965	true		true	non_hardcoded
+Methamidophos-O (T)	T		None	H4CNO2P		2008	92.997965	true		true	non_hardcoded
+Methamidophos-O (Y)	Y		None	H4CNO2P		2008	92.997965	true		true	non_hardcoded
+Methamidophos-S (C)	C		None	H4CNOPS		2007	108.975121	true		true	non_hardcoded
+Methamidophos-S (H)	H		None	H4CNOPS		2007	108.975121	true		true	non_hardcoded
+Methamidophos-S (K)	K		None	H4CNOPS		2007	108.975121	true		true	non_hardcoded
+Methamidophos-S (S)	S		None	H4CNOPS		2007	108.975121	true		true	non_hardcoded
+Methamidophos-S (T)	T		None	H4CNOPS		2007	108.975121	true		true	non_hardcoded
+Methamidophos-S (Y)	Y		None	H4CNOPS		2007	108.975121	true		true	non_hardcoded
+Methyl (C)	C		None	CH2		34	14.01565	true	1Me	true	non_hardcoded
+Methyl (H)	H		None	CH2		34	14.01565	true	1Me	true	non_hardcoded
+Methyl (I)	I		None	CH2		34	14.01565	true	1Me	true	non_hardcoded
+Methyl (K)	K		None	CH2		34	14.01565	true	1Me	true	non_hardcoded
+Methyl (L)	L		None	CH2		34	14.01565	true	1Me	true	non_hardcoded
+Methyl (N)	N		None	CH2		34	14.01565	true	1Me	true	non_hardcoded
+Methyl (N-term)		N	None	CH2		34	14.01565	true	1Me	true	non_hardcoded
+Methyl (Q)	Q		None	CH2		34	14.01565	true	1Me	true	non_hardcoded
+Methyl (R)	R		None	CH2		34	14.01565	true	1Me	true	non_hardcoded
+Methyl (S)	S		None	CH2		34	14.01565	true	1Me	true	non_hardcoded
+Methyl (T)	T		None	CH2		34	14.01565	true	1Me	true	non_hardcoded
+Methyl+Acetyl:2H(3) (K)	K		None	HH'3C3O		768	59.045045	true		true	non_hardcoded
+Methyl+Deamidated (N)	N		None	HCO - N		528	14.999666	true	MDe	true	non_hardcoded
+Methyl+Deamidated (Q)	Q		None	HCO - N		528	14.999666	true	MDe	true	non_hardcoded
+Methyl-PEO12-Maleimide (C)	C		None	H58C32N2O15		891	710.383719	true		true	non_hardcoded
+Methyl:2H(2) (K)	K		None	H'2C		284	16.028204	true	M+2	true	non_hardcoded
+Methyl:2H(2) (N-term)		N	None	H'2C		284	16.028204	true	M+2	true	non_hardcoded
+Methyl:2H(3)+Acetyl:2H(3) (K)	K		None	H'6C3O - H2		1368	62.063875	true		true	non_hardcoded
+Methylamine (S)	S		None	H3CN - O		337	13.031634	true	MeA	true	non_hardcoded
+Methylamine (T)	T		None	H3CN - O		337	13.031634	true	MeA	true	non_hardcoded
+Methylmalonylation (S)	S		None	H4C4O3		914	100.016044	true		true	non_hardcoded
+methylol (K)	K		None	H2CO		1875	30.010565	true		true	non_hardcoded
+methylol (W)	W		None	H2CO		1875	30.010565	true		true	non_hardcoded
+methylol (Y)	Y		None	H2CO		1875	30.010565	true		true	non_hardcoded
+Methylphosphonate (S)	S		None	H3CO2P		728	77.987066	true		true	non_hardcoded
+Methylphosphonate (T)	T		None	H3CO2P		728	77.987066	true		true	non_hardcoded
+Methylphosphonate (Y)	Y		None	H3CO2P		728	77.987066	true		true	non_hardcoded
+Methylpyrroline (K)	K		None	H7C6NO		435	109.052764	true	MPr	true	non_hardcoded
+methylsulfonylethyl (C)	C		None	H6C3O2S		1380	106.00885	true		true	non_hardcoded
+methylsulfonylethyl (H)	H		None	H6C3O2S		1380	106.00885	true		true	non_hardcoded
+methylsulfonylethyl (K)	K		None	H6C3O2S		1380	106.00885	true		true	non_hardcoded
+Methylthio (D)	D		None	H2CS		39	45.987721	true	MSH	true	non_hardcoded
+Methylthio (K)	K		None	H2CS		39	45.987721	true	MSH	true	non_hardcoded
+Methylthio (N)	N		None	H2CS		39	45.987721	true	MSH	true	non_hardcoded
+Methylthio (N-term)		N	None	H2CS		39	45.987721	true	MSH	true	non_hardcoded
+MG-H1 (R)	R		None	H2C3O		859	54.010565	true		true	non_hardcoded
+MM-diphenylpentanone (C)	C		None	H19C18NO		1315	265.146664	true		true	non_hardcoded
+Molybdopterin (C)	C		None	H11C10N5O8PS2Mo		391	521.884073	true	Mdt	true	non_hardcoded
+MolybdopterinGD (C)	C		None	H47C40N20O26P4S4Mo		424	1572.985775	true	MGD	true	non_hardcoded
+MolybdopterinGD (D)	D		None	H47C40N20O26P4S4Mo		424	1572.985775	true	MGD	true	non_hardcoded
+MolybdopterinGD (U)	U		None	H47C40N20O26P4S4Mo		424	1572.985775	true	MGD	true	non_hardcoded
+MolybdopterinGD+Delta:S(-1)Se(1) (C)	C		None	H47C40N20O26P4S3SeMo		415	1620.930224	true	MtD	true	non_hardcoded
+monomethylphosphothione (C)	C		None	H3CO2PS		1989	109.959137	true		true	non_hardcoded
+monomethylphosphothione (H)	H		None	H3CO2PS		1989	109.959137	true		true	non_hardcoded
+monomethylphosphothione (K)	K		None	H3CO2PS		1989	109.959137	true		true	non_hardcoded
+monomethylphosphothione (S)	S		None	H3CO2PS		1989	109.959137	true		true	non_hardcoded
+monomethylphosphothione (T)	T		None	H3CO2PS		1989	109.959137	true		true	non_hardcoded
+monomethylphosphothione (Y)	Y		None	H3CO2PS		1989	109.959137	true		true	non_hardcoded
+mTRAQ (H)	H		None	C7H12N2O		888	140.094963	true	M00	true	non_hardcoded
+mTRAQ (S)	S		None	C7H12N2O		888	140.094963	true	M00	true	non_hardcoded
+mTRAQ (T)	T		None	C7H12N2O		888	140.094963	true	M00	true	non_hardcoded
+MTSL (C)	C		None	H14C9NOS		911	184.07961	true		true	non_hardcoded
+MurNAc (A)	A		None	H17C11NO7		1400	275.100502	true		true	non_hardcoded
+Myristoleyl (Protein N-term G)	G	N	None	H24C14O		134	208.182715	true		true	non_hardcoded
+Myristoyl (C)	C		None	H26C14O		45	210.198366	true	Myr	true	non_hardcoded
+Myristoyl (K)	K		None	H26C14O		45	210.198366	true	Myr	true	non_hardcoded
+Myristoyl (N-term G)	G	N	None	H26C14O		45	210.198366	true	Myr	true	non_hardcoded
+Myristoyl+Delta:H(-4) (Protein N-term G)	G	N	None	H22C14O		135	206.167065	true		true	non_hardcoded
+N-dimethylphosphate (S)	S		None	H6C2NO2P		1365	107.013615	true		true	non_hardcoded
+N6pAMP (S)	S		None	H14C13N5O6P		2073	367.06817	true		true	non_hardcoded
+N6pAMP (T)	T		None	H14C13N5O6P		2073	367.06817	true		true	non_hardcoded
+N6pAMP (Y)	Y		None	H14C13N5O6P		2073	367.06817	true		true	non_hardcoded
+NA-LNO2 (C)	C		None	H31C18NO4		685	325.225309	true		true	non_hardcoded
+NA-LNO2 (H)	H		None	H31C18NO4		685	325.225309	true		true	non_hardcoded
+NA-OA-NO2 (C)	C		None	H33C18NO4		686	327.240959	true		true	non_hardcoded
+NA-OA-NO2 (H)	H		None	H33C18NO4		686	327.240959	true		true	non_hardcoded
+NBF (C)	C		None	HC6N3O3		2079	163.001791	true		true	non_hardcoded
+NBF (K)	K		None	HC6N3O3		2079	163.001791	true		true	non_hardcoded
+NBF (R)	R		None	HC6N3O3		2079	163.001791	true		true	non_hardcoded
+NBS (W)	W		None	H3C6NO2S		172	152.988449	true		true	non_hardcoded
+NBS:13C(6) (W)	W		None	H3C'6NO2S		171	159.008578	true		true	non_hardcoded
+NDA (K)	K		None	H5C13N		457	175.042199	true		true	non_hardcoded
+NDA (N-term)		N	None	H5C13N		457	175.042199	true		true	non_hardcoded
+NEIAA (C)	C		None	H7C4NO		211	85.052764	true	eI0	true	non_hardcoded
+NEIAA (Y)	Y		None	H7C4NO		211	85.052764	true	eI0	true	non_hardcoded
+NEIAA:2H(5) (C)	C		None	H2H'5C4NO		212	90.084148	true	eI5	true	non_hardcoded
+NEIAA:2H(5) (Y)	Y		None	H2H'5C4NO		212	90.084148	true	eI5	true	non_hardcoded
+NEM:2H(5) (C)	C		None	H2H'5C6NO2		776	130.079062	true		true	non_hardcoded
+NEM:2H(5)+H2O (C)	C		None	H4H'5C6NO3		1358	148.089627	true		true	non_hardcoded
+NEMsulfur (C)	C		None	H7C6NO2S		1326	157.019749	true		true	non_hardcoded
+NEMsulfurWater (C)	C		None	H9C6NO3S		1328	175.030314	true		true	non_hardcoded
+Nethylmaleimide (C)	C		None	H7C6NO2		108	125.047679	true		true	non_hardcoded
+Nethylmaleimide+water (C)	C		None	H9C6NO3		320	143.058243	true		true	non_hardcoded
+Nethylmaleimide+water (K)	K		None	H9C6NO3		320	143.058243	true		true	non_hardcoded
+NeuAc (N)	N		None	H17C11NO8	H17C11NO8	1303	291.095417	true	NAc	true	non_hardcoded
+NeuAc (ST)	S, T		None	H17C11NO8	H17C11NO8	1303	291.095417	true	NAc	true	non_hardcoded
+NeuGc (N)	N		None	H17C11NO9	H17C11NO9	1304	307.090331	true	NGc	true	non_hardcoded
+NeuGc (ST)	S, T		None	H17C11NO9	H17C11NO9	1304	307.090331	true	NGc	true	non_hardcoded
+NHS-fluorescein (K)	K		None	H21C27NO7		1391	471.131802	true		true	non_hardcoded
+NHS-LC-Biotin (K)	K		None	H25C16N3O3S		92	339.161662	true		true	non_hardcoded
+NHS-LC-Biotin (N-term)		N	None	H25C16N3O3S		92	339.161662	true		true	non_hardcoded
+NIC (K)	K		None	H3C6NO		697	105.021464	true	Ncl	true	non_hardcoded
+NIC (N-term)		N	None	H3C6NO		697	105.021464	true	Ncl	true	non_hardcoded
+Nitrene (Y)	Y		None	N - H		2014	12.995249	true		true	non_hardcoded
+Nitro (F)	F		None	NO2 - H		354	44.985078	true	Ntr	true	non_hardcoded
+Nitro (W)	W		None	NO2 - H		354	44.985078	true	Ntr	true	non_hardcoded
+Nitro (Y)	Y		None	NO2 - H		354	44.985078	true	Ntr	true	non_hardcoded
+Nitrosyl (C)	C		None	NO - H		275	28.990164	true	Nsl	true	non_hardcoded
+Nitrosyl (Y)	Y		None	NO - H		275	28.990164	true	Nsl	true	non_hardcoded
+Nmethylmaleimide (C)	C		None	H5C5NO2		314	111.032028	true		true	non_hardcoded
+Nmethylmaleimide (K)	K		None	H5C5NO2		314	111.032028	true		true	non_hardcoded
+Nmethylmaleimide+water (C)	C		None	H7C5NO3		500	129.042593	true		true	non_hardcoded
+NO_SMX_SEMD (C)	C		None	H9C10N3O3S		744	251.036462	true		true	non_hardcoded
+NO_SMX_SIMD (C)	C		None	H9C10N3O4S		746	267.031377	true		true	non_hardcoded
+NP40 (N-term)		N	None	H24C15O		1833	220.182715	true		true	non_hardcoded
+NQIGG (K)	K		None	H31C19N7O7		1799	469.228496	true		true	non_hardcoded
+NQTGG (K)	K		None	H27C17N7O8		2084	457.192111	true		true	non_hardcoded
+O-Dimethylphosphate (S)	S		None	H5C2O3P		723	107.997631	true		true	non_hardcoded
+O-Dimethylphosphate (T)	T		None	H5C2O3P		723	107.997631	true		true	non_hardcoded
+O-Dimethylphosphate (Y)	Y		None	H5C2O3P		723	107.997631	true		true	non_hardcoded
+O-Et-N-diMePhospho (S)	S		None	H10C4NO2P		1364	135.044916	true		true	non_hardcoded
+O-Isopropylmethylphosphonate (S)	S		None	H9C4O2P		729	120.034017	true		true	non_hardcoded
+O-Isopropylmethylphosphonate (T)	T		None	H9C4O2P		729	120.034017	true		true	non_hardcoded
+O-Isopropylmethylphosphonate (Y)	Y		None	H9C4O2P		729	120.034017	true		true	non_hardcoded
+O-Methylphosphate (S)	S		None	H3CO3P		724	93.981981	true		true	non_hardcoded
+O-Methylphosphate (T)	T		None	H3CO3P		724	93.981981	true		true	non_hardcoded
+O-Methylphosphate (Y)	Y		None	H3CO3P		724	93.981981	true		true	non_hardcoded
+O-pinacolylmethylphosphonate (H)	H		None	H15C7O2P		727	162.080967	true		true	non_hardcoded
+O-pinacolylmethylphosphonate (K)	K		None	H15C7O2P		727	162.080967	true		true	non_hardcoded
+O-pinacolylmethylphosphonate (S)	S		None	H15C7O2P		727	162.080967	true		true	non_hardcoded
+O-pinacolylmethylphosphonate (T)	T		None	H15C7O2P		727	162.080967	true		true	non_hardcoded
+O-pinacolylmethylphosphonate (Y)	Y		None	H15C7O2P		727	162.080967	true		true	non_hardcoded
+Octanoyl (C)	C		None	H14C8O		426	126.104465	true	Oct	true	non_hardcoded
+Octanoyl (S)	S		None	H14C8O		426	126.104465	true	Oct	true	non_hardcoded
+Octanoyl (T)	T		None	H14C8O		426	126.104465	true	Oct	true	non_hardcoded
+OxArgBiotin (R)	R		None	H22C15N2O3S		116	310.135113	true		true	non_hardcoded
+OxArgBiotinRed (R)	R		None	H24C15N2O3S		117	312.150763	true		true	non_hardcoded
+Oxidation (C)	C		None	O		35	15.994915	true	Oxi	true	non_hardcoded
+Oxidation (C-term G)	G	C	None	O		35	15.994915	true	Oxi	true	non_hardcoded
+Oxidation (D)	D		None	O		35	15.994915	true	Oxi	true	non_hardcoded
+Oxidation (E)	E		None	O		35	15.994915	true	Oxi	true	non_hardcoded
+Oxidation (F)	F		None	O		35	15.994915	true	Oxi	true	non_hardcoded
+Oxidation (I)	I		None	O		35	15.994915	true	Oxi	true	non_hardcoded
+Oxidation (K)	K		None	O		35	15.994915	true	Oxi	true	non_hardcoded
+Oxidation (L)	L		None	O		35	15.994915	true	Oxi	true	non_hardcoded
+Oxidation (N)	N		None	O		35	15.994915	true	Oxi	true	non_hardcoded
+Oxidation (P)	P		None	O		35	15.994915	true	Oxi	true	non_hardcoded
+Oxidation (Q)	Q		None	O		35	15.994915	true	Oxi	true	non_hardcoded
+Oxidation (R)	R		None	O		35	15.994915	true	Oxi	true	non_hardcoded
+Oxidation (S)	S		None	O		35	15.994915	true	Oxi	true	non_hardcoded
+Oxidation (T)	T		None	O		35	15.994915	true	Oxi	true	non_hardcoded
+Oxidation (U)	U		None	O		35	15.994915	true	Oxi	true	non_hardcoded
+Oxidation (V)	V		None	O		35	15.994915	true	Oxi	true	non_hardcoded
+Oxidation (Y)	Y		None	O		35	15.994915	true	Oxi	true	non_hardcoded
+Oxidation+NEM (C)	C		None	H7C6NO3		1390	141.042593	true		true	non_hardcoded
+OxLysBiotin (K)	K		None	H24C16N4O3S		113	352.156911	true		true	non_hardcoded
+OxLysBiotinRed (K)	K		None	H26C16N4O3S		112	354.172562	true		true	non_hardcoded
+OxProBiotin (P)	P		None	H27C16N5O3S		115	369.183461	true		true	non_hardcoded
+OxProBiotinRed (P)	P		None	H29C16N5O3S		114	371.199111	true		true	non_hardcoded
+Palmitoleyl (C)	C		None	H28C16O		431	236.214016	true	Pty	true	non_hardcoded
+Palmitoleyl (S)	S		None	H28C16O		431	236.214016	true	Pty	true	non_hardcoded
+Palmitoleyl (T)	T		None	H28C16O		431	236.214016	true	Pty	true	non_hardcoded
+Palmitoyl (C)	C		None	H30C16O		47	238.229666	true	Pal	true	non_hardcoded
+Palmitoyl (K)	K		None	H30C16O		47	238.229666	true	Pal	true	non_hardcoded
+Palmitoyl (S)	S		None	H30C16O		47	238.229666	true	Pal	true	non_hardcoded
+Palmitoyl (T)	T		None	H30C16O		47	238.229666	true	Pal	true	non_hardcoded
+PEITC (C)	C		None	H9C9NS		979	163.04557	true		true	non_hardcoded
+PEITC (K)	K		None	H9C9NS		979	163.04557	true		true	non_hardcoded
+PEITC (N-term)		N	None	H9C9NS		979	163.04557	true		true	non_hardcoded
+Pent(1)HexNAc(1) (ST)	S, T		None	H21C13NO9	H21C13NO9	1931	335.121631	true		true	non_hardcoded
+Pent(2) (ST)	S, T		None	H16C10O8	H16C10O8	1930	264.084518	true		true	non_hardcoded
+Pentose (ST)	S, T		None	H8C5O4	H8C5O4	1425	132.042259	true		true	non_hardcoded
+Pentylamine (Q)	Q		None	H10C5		801	70.07825	true		true	non_hardcoded
+PEO-Iodoacetyl-LC-Biotin (C)	C		None	H30C18N4O5S		20	414.193691	true	PEO	true	non_hardcoded
+PET (S)	S		None	H7C7NS - O		264	121.035005	true	PET	true	non_hardcoded
+PET (T)	T		None	H7C7NS - O		264	121.035005	true	PET	true	non_hardcoded
+Phe->CamCys (F)	F		None	NOS - HC4		904	12.962234	true		true	non_hardcoded
+phenyl-phosphate (K)	K		None	H5C6O3P		2042	155.997631	true		true	non_hardcoded
+phenyl-phosphate (S)	S		None	H5C6O3P		2042	155.997631	true		true	non_hardcoded
+phenyl-phosphate (T)	T		None	H5C6O3P		2042	155.997631	true		true	non_hardcoded
+phenyl-phosphate (Y)	Y		None	H5C6O3P		2042	155.997631	true		true	non_hardcoded
+Phenylisocyanate (N-term)		N	None	C7H5NO		411	119.037114	true	Pc0	true	non_hardcoded
+phenylsulfonylethyl (C)	C		None	H8C8O2S		1382	168.0245	true		true	non_hardcoded
+Phospho (C)	C		None	HO3P		21	79.966331	true	Pho	true	non_hardcoded
+Phospho (D)	D		None	HO3P		21	79.966331	true	Pho	true	non_hardcoded
+Phospho (E)	E		None	HO3P		21	79.966331	true	Pho	true	non_hardcoded
+Phospho (H)	H		None	HO3P		21	79.966331	true	Pho	true	non_hardcoded
+Phospho (K)	K		None	HO3P		21	79.966331	true	Pho	true	non_hardcoded
+Phospho (R)	R		None	HO3P		21	79.966331	true	Pho	true	non_hardcoded
+Phosphoadenosine (H)	H		None	H12C10N5O6P		405	329.05252	true	AMP	true	non_hardcoded
+Phosphoadenosine (K)	K		None	H12C10N5O6P		405	329.05252	true	AMP	true	non_hardcoded
+Phosphoadenosine (S)	S		None	H12C10N5O6P	H14C10N5O7P	405	329.05252	true	AMP	true	non_hardcoded
+Phosphoadenosine (T)	T		None	H12C10N5O6P	H14C10N5O7P	405	329.05252	true	AMP	true	non_hardcoded
+Phosphoadenosine (Y)	Y		None	H12C10N5O6P	H11C10N5O3,H5C5N5	405	329.05252	true	AMP	true	non_hardcoded
+PhosphoCytidine (S)	S		None	H12C9N3O7P		1843	305.041287	true		true	non_hardcoded
+PhosphoCytidine (T)	T		None	H12C9N3O7P		1843	305.041287	true		true	non_hardcoded
+PhosphoCytidine (Y)	Y		None	H12C9N3O7P		1843	305.041287	true		true	non_hardcoded
+Phosphogluconoylation (K)	K		None	H11C6O9P		1344	258.014069	true		true	non_hardcoded
+Phosphogluconoylation (N-term)		N	None	H11C6O9P		1344	258.014069	true		true	non_hardcoded
+Phosphoguanosine (H)	H		None	H12C10N5O7P		413	345.047435	true	GMP	true	non_hardcoded
+Phosphoguanosine (K)	K		None	H12C10N5O7P		413	345.047435	true	GMP	true	non_hardcoded
+PhosphoHex (ST)	S, T		None	H11C6O8P	H11C6O8P	429	242.019154	true	pHx	true	non_hardcoded
+PhosphoHex(2) (N)	N		None	H21C12O13P	H21C12O13P	1413	404.071978	true		true	non_hardcoded
+PhosphoHex(2) (ST)	S, T		None	H21C12O13P	H21C12O13P	1413	404.071978	true		true	non_hardcoded
+PhosphoHexNAc (ST)	S, T		None	H14C8NO8P	H14C8NO8P	428	283.045704	true	pHc	true	non_hardcoded
+Phosphopantetheine (S)	S		None	H21C11N2O6PS		49	340.085794	true	PPE	true	non_hardcoded
+Phosphopropargyl (S)	S		None	H4C3NO2P		959	116.997965	true		true	non_hardcoded
+Phosphopropargyl (T)	T		None	H4C3NO2P		959	116.997965	true		true	non_hardcoded
+Phosphopropargyl (Y)	Y		None	H4C3NO2P		959	116.997965	true		true	non_hardcoded
+phosphoRibosyl (D)	D		None	H9C5O7P		1356	212.00859	true	pRb	true	non_hardcoded
+phosphoRibosyl (E)	E		None	H9C5O7P		1356	212.00859	true	pRb	true	non_hardcoded
+phosphoRibosyl (R)	R		None	H9C5O7P		1356	212.00859	true	pRb	true	non_hardcoded
+PhosphoribosyldephosphoCoA (S)	S		None	H42C26N7O19P3S		395	881.146904	true	PRC	true	non_hardcoded
+PhosphoUridine (H)	H		None	H11C9N2O8P		417	306.025302	true	UMP	true	non_hardcoded
+PhosphoUridine (Y)	Y		None	H11C9N2O8P		417	306.025302	true	UMP	true	non_hardcoded
+Phycocyanobilin (C)	C		None	H38C33N4O6		387	586.279135	true	pcb	true	non_hardcoded
+Phycoerythrobilin (C)	C		None	H40C33N4O6		388	588.294785	true	pct	true	non_hardcoded
+Phytochromobilin (C)	C		None	H36C33N4O6		389	584.263485	true	pcm	true	non_hardcoded
+Piperidine (K)	K		None	H8C5		520	68.0626	true		true	non_hardcoded
+Piperidine (N-term)		N	None	H8C5		520	68.0626	true		true	non_hardcoded
+pRBS-ID_4-thiouridine (F)	F		None	H10C9N2O5	H8C5O4	2054	226.058972	true		true	non_hardcoded
+pRBS-ID_6-thioguanosine (W)	W		None	H11C10N5O4	H8C5O4	2055	265.081104	true		true	non_hardcoded
+Pro+O(2) (H)	H		None	H7C5NO3		2035	129.042593	true		true	non_hardcoded
+Pro->HAVA (P)	P		None	H2O		1922	18.010565	true		true	non_hardcoded
+Pro->pyro-Glu (P)	P		None	O - H2		359	13.979265	true	PGP	true	non_hardcoded
+Pro->Pyrrolidinone (P)	P		None	-H2CO		360	-30.010565	true	PYD	true	non_hardcoded
+Pro->Pyrrolidone (P)	P		None	-CO		369	-27.994915	true		true	non_hardcoded
+probiotinhydrazide (P)	P		None	H18C10N4O2S		357	258.115047	true		true	non_hardcoded
+Propargylamine (C-term)		C	None	H3C3N - O		958	37.031634	true		true	non_hardcoded
+Propargylamine (D)	D		None	H3C3N - O		958	37.031634	true		true	non_hardcoded
+Propargylamine (E)	E		None	H3C3N - O		958	37.031634	true		true	non_hardcoded
+Propionamide (K)	K		None	C3H5NO		24	71.037114	true	PPa	true	non_hardcoded
+Propionamide (N-term)		N	None	C3H5NO		24	71.037114	true	PPa	true	non_hardcoded
+Propionyl (K)	K		None	C3H4O		58	56.026215	true	Poy	true	non_hardcoded
+Propionyl (N-term)		N	None	C3H4O		58	56.026215	true	Poy	true	non_hardcoded
+Propionyl (S)	S		None	C3H4O		58	56.026215	true	Poy	true	non_hardcoded
+Propionyl (T)	T		None	C3H4O		58	56.026215	true	Poy	true	non_hardcoded
+Propiophenone (C)	C		None	H8C9O		1310	132.057515	true		true	non_hardcoded
+Propiophenone (H)	H		None	H8C9O		1310	132.057515	true		true	non_hardcoded
+Propiophenone (K)	K		None	H8C9O		1310	132.057515	true		true	non_hardcoded
+Propiophenone (R)	R		None	H8C9O		1310	132.057515	true		true	non_hardcoded
+Propiophenone (S)	S		None	H8C9O		1310	132.057515	true		true	non_hardcoded
+Propiophenone (T)	T		None	H8C9O		1310	132.057515	true		true	non_hardcoded
+Propiophenone (W)	W		None	H8C9O		1310	132.057515	true		true	non_hardcoded
+Propyl (C-term)		C	None	C3H6		1305	42.04695	true	Prp	true	non_hardcoded
+Propyl (D)	D		None	C3H6		1305	42.04695	true	Prp	true	non_hardcoded
+Propyl (E)	E		None	C3H6		1305	42.04695	true	Prp	true	non_hardcoded
+Propyl (K)	K		None	C3H6		1305	42.04695	true	Prp	true	non_hardcoded
+Propyl (N-term)		N	None	C3H6		1305	42.04695	true	Prp	true	non_hardcoded
+Propyl:2H(6) (K)	K		None	H'6C3		1306	48.084611	true	Pr6	true	non_hardcoded
+Propyl:2H(6) (N-term)		N	None	H'6C3		1306	48.084611	true	Pr6	true	non_hardcoded
+PropylNAGthiazoline (C)	C		None	H14C9NO4S		514	232.064354	true		true	non_hardcoded
+PS_Hapten (C)	C		None	H4C7O2		1345	120.021129	true		true	non_hardcoded
+PS_Hapten (H)	H		None	H4C7O2		1345	120.021129	true		true	non_hardcoded
+PS_Hapten (K)	K		None	H4C7O2		1345	120.021129	true		true	non_hardcoded
+pupylation (K)	K		None	H13C9N3O5		1264	243.085521	true	Pup	true	non_hardcoded
+Puromycin (C-term)		C	None	H27C22N7O4		973	453.212452	true	Pmn	true	non_hardcoded
+PyMIC (N-term)		N	None	H6C7N2O		501	134.048013	true		true	non_hardcoded
+PyridoxalPhosphate (K)	K		None	H8C8NO5P		46	229.014009	true	PyP	true	non_hardcoded
+PyridoxalPhosphateH2 (K)	K		None	H10C8NO5P		1383	231.02966	true		true	non_hardcoded
+Pyridylacetyl (K)	K		None	H5C7NO		25	119.037114	true	PyA	true	non_hardcoded
+Pyridylacetyl (N-term)		N	None	H5C7NO		25	119.037114	true	PyA	true	non_hardcoded
+Pyro-QQTGG (K)	K		None	H26C18N6O8		2083	454.181212	true		true	non_hardcoded
+pyrophospho (S)	S		None	H2O6P2	H3O7P2	898	159.932662	true		true	non_hardcoded
+pyrophospho (T)	T		None	H2O6P2	H3O7P2	898	159.932662	true		true	non_hardcoded
+PyruvicAcidIminyl (K)	K		None	H2C3O2		422	70.005479	true	PAI	true	non_hardcoded
+PyruvicAcidIminyl (Protein N-term C)	C	N	None	H2C3O2		422	70.005479	true	PAI	true	non_hardcoded
+PyruvicAcidIminyl (Protein N-term V)	V	N	None	H2C3O2		422	70.005479	true	PAI	true	non_hardcoded
+QAT (C)	C		None	C9H19N2O		195	171.149738	true	QT0	true	non_hardcoded
+QEQTGG (K)	K		None	H36C23N8O11		876	600.250354	true		true	non_hardcoded
+QQQTGG (K)	K		None	H37C23N9O10		877	599.266339	true	SU2	true	non_hardcoded
+QQTGG (K)	K		None	H29C18N7O8		2082	471.207761	true		true	non_hardcoded
+QTGG (K)	K		None	H21C13N5O6		1293	343.149184	true	SU1	true	non_hardcoded
+Quinone (W)	W		None	O2 - H2		392	29.974179	true	Qin	true	non_hardcoded
+Quinone (Y)	Y		None	O2 - H2		392	29.974179	true	Qin	true	non_hardcoded
+RBS-ID_Uridine (Y)	Y		None	H12C9N2O6		2044	244.069536	true		true	non_hardcoded
+Retinylidene (K)	K		None	H26C20		380	266.203451	true	Ret	true	non_hardcoded
+RNPXL (N-term K)	K	N	None	H13C9N2O9P	H13C9N2O9P	1825	324.035867	true		true	non_hardcoded
+RNPXL (N-term R)	R	N	None	H13C9N2O9P	H13C9N2O9P	1825	324.035867	true		true	non_hardcoded
+s-GlcNAc (ST)	S, T		None	H13C8NO8S	H13C8NO8S	1412	283.036187	true		true	non_hardcoded
+Saligenin (H)	H		None	H6C7O		1254	106.041865	true		true	non_hardcoded
+Saligenin (K)	K		None	H6C7O		1254	106.041865	true		true	non_hardcoded
+Ser->LacticAcid (Protein N-term S)	S	N	None	-HN		403	-15.010899	true	SLA	true	non_hardcoded
+Ser/Thr-KDO (ST)	S, T		None	H12C8O7	H12C8O7	2022	220.058303	true		true	non_hardcoded
+serotonylation (Q)	Q		None	H9C10NO		1992	159.068414	true		true	non_hardcoded
+shTMT (K)	K		None	H20C3C'9N'2O2		2015	235.176741	true		true	non_hardcoded
+shTMT (N-term)		N	None	H20C3C'9N'2O2		2015	235.176741	true		true	non_hardcoded
+shTMTpro (K)	K		None	H25C'15N'3O3		2050	313.231019	true		true	non_hardcoded
+shTMTpro (N-term)		N	None	H25C'15N'3O3		2050	313.231019	true		true	non_hardcoded
+SMA (K)	K		None	H9C6NO2		29	127.063329	true	SMA	true	non_hardcoded
+SMA (N-term)		N	None	H9C6NO2		29	127.063329	true	SMA	true	non_hardcoded
+spermidine (Q)	Q		None	H16C7N2		1421	128.131349	true		true	non_hardcoded
+spermine (Q)	Q		None	H23C10N3		1420	185.189198	true		true	non_hardcoded
+SPITC (K)	K		None	C7H5NO3S2		261	214.971084	true	SI0	true	non_hardcoded
+SPITC (N-term)		N	None	C7H5NO3S2		261	214.971084	true	SI0	true	non_hardcoded
+Succinyl (K)	K		None	C4H4O3		64	100.016044	true	Suc	true	non_hardcoded
+Succinyl (N-term)		N	None	C4H4O3		64	100.016044	true	Suc	true	non_hardcoded
+SulfanilicAcid (C-term)		C	None	C6H5NO2S		285	155.004099	true	SA0	true	non_hardcoded
+SulfanilicAcid (D)	D		None	C6H5NO2S		285	155.004099	true	SA0	true	non_hardcoded
+SulfanilicAcid (E)	E		None	C6H5NO2S		285	155.004099	true	SA0	true	non_hardcoded
+Sulfide (C)	C		None	S		421	31.972071	true	Sud	true	non_hardcoded
+Sulfide (D)	D		None	S		421	31.972071	true	Sud	true	non_hardcoded
+Sulfide (W)	W		None	S		421	31.972071	true	Sud	true	non_hardcoded
+Sulfo (C)	C		None	O3S		40	79.956815	true	SuO	true	non_hardcoded
+sulfo+amino (Y)	Y		None	HNO3S		997	94.967714	true		true	non_hardcoded
+Sulfo-NHS-LC-LC-Biotin (K)	K		None	H36C22N4O4S		523	452.245726	true		true	non_hardcoded
+Sulfo-NHS-LC-LC-Biotin (N-term)		N	None	H36C22N4O4S		523	452.245726	true		true	non_hardcoded
+SulfoGMBS (C)	C		None	H26C22N4O5S		942	458.162391	true		true	non_hardcoded
+SulfurDioxide (C)	C		None	O2S		1327	63.9619	true		true	non_hardcoded
+SUMO2135 (K)	K		None	H137C90N21O37S		960	2135.920496	true		true	non_hardcoded
+SUMO3549 (K)	K		None	H224C150N38O60S		961	3549.536568	true		true	non_hardcoded
+TAMRA-FP (S)	S		None	H46C37N3O6P		1038	659.312423	true		true	non_hardcoded
+TAMRA-FP (Y)	Y		None	H46C37N3O6P		1038	659.312423	true		true	non_hardcoded
+Thiadiazole (C)	C		None	H6C9N2S		1035	174.025169	true		true	non_hardcoded
+Thiazolidine (C)	C		None	C		1009	12	true	FRT	true	non_hardcoded
+Thiazolidine (F)	F		None	C		1009	12	true	FRT	true	non_hardcoded
+Thiazolidine (H)	H		None	C		1009	12	true	FRT	true	non_hardcoded
+Thiazolidine (K)	K		None	C		1009	12	true	FRT	true	non_hardcoded
+Thiazolidine (R)	R		None	C		1009	12	true	FRT	true	non_hardcoded
+Thiazolidine (W)	W		None	C		1009	12	true	FRT	true	non_hardcoded
+Thiazolidine (Y)	Y		None	C		1009	12	true	FRT	true	non_hardcoded
+thioacylPA (K)	K		None	H9C6NO2S		967	159.035399	true		true	non_hardcoded
+Thiophos-S-S-biotin (S)	S		None	H34C19N4O5PS3	H34C19N4O5PS3	332	525.142894	true	TSB	true	non_hardcoded
+Thiophos-S-S-biotin (T)	T		None	H34C19N4O5PS3	H34C19N4O5PS3	332	525.142894	true	TSB	true	non_hardcoded
+Thiophos-S-S-biotin (Y)	Y		None	H34C19N4O5PS3	H34C19N4O5PS3	332	525.142894	true	TSB	true	non_hardcoded
+Thiophospho (S)	S		None	HO2PS		260	95.943487	true	ThP	true	non_hardcoded
+Thiophospho (T)	T		None	HO2PS		260	95.943487	true	ThP	true	non_hardcoded
+Thiophospho (Y)	Y		None	HO2PS		260	95.943487	true	ThP	true	non_hardcoded
+Thrbiotinhydrazide (T)	T		None	H16C10N4OS		361	240.104482	true		true	non_hardcoded
+Thyroxine (Y)	Y		None	C6OI4		398	595.612807	true	Trx	true	non_hardcoded
+TMAB (K)	K		None	H14C7NO	H9C3N	476	128.107539	true		true	non_hardcoded
+TMAB (N-term)		N	None	H14C7NO	H9C3N	476	128.107539	true		true	non_hardcoded
+TMAB:2H(9) (K)	K		None	H5H'9C7NO	H'9C3N	477	137.16403	true		true	non_hardcoded
+TMAB:2H(9) (N-term)		N	None	H5H'9C7NO	H'9C3N	477	137.16403	true		true	non_hardcoded
+TMPP-Ac (K)	K		None	C29H33O10P		827	572.181134	true		true	non_hardcoded
+TMPP-Ac (N-term)		N	None	C29H33O10P		827	572.181134	true		true	non_hardcoded
+TMPP-Ac (Y)	Y		None	C29H33O10P		827	572.181134	true		true	non_hardcoded
+TMT (H)	H		None	H20C12N2O2		739	224.152478	true	TM0	true	non_hardcoded
+TMT (K)	K		None	H20C12N2O2		739	224.152478	true	TM0	true	non_hardcoded
+TMT (N-term)		N	None	H20C12N2O2		739	224.152478	true	TM0	true	non_hardcoded
+TMT (S)	S		None	H20C12N2O2		739	224.152478	true	TM0	true	non_hardcoded
+TMT (T)	T		None	H20C12N2O2		739	224.152478	true	TM0	true	non_hardcoded
+TMT2plex (H)	H		None	H20C11C'N2O2		738	225.155833	true	TM2	true	non_hardcoded
+TMT2plex (S)	S		None	H20C11C'N2O2		738	225.155833	true	TM2	true	non_hardcoded
+TMT2plex (T)	T		None	H20C11C'N2O2		738	225.155833	true	TM2	true	non_hardcoded
+TMT6plex (H)	H		None	H20C8C'4NN'O2		737	229.162932	true	TM6	true	non_hardcoded
+TMT6plex (S)	S		None	H20C8C'4NN'O2		737	229.162932	true	TM6	true	non_hardcoded
+TMT6plex (T)	T		None	H20C8C'4NN'O2		737	229.162932	true	TM6	true	non_hardcoded
+TMTpro (H)	H		None	H25C8C'7NN'2O3		2016	304.207146	true		true	non_hardcoded
+TMTpro (S)	S		None	H25C8C'7NN'2O3		2016	304.207146	true		true	non_hardcoded
+TMTpro (T)	T		None	H25C8C'7NN'2O3		2016	304.207146	true		true	non_hardcoded
+TMTpro_zero (H)	H		None	H25C15N3O3		2017	295.189592	true		true	non_hardcoded
+TMTpro_zero (K)	K		None	H25C15N3O3		2017	295.189592	true		true	non_hardcoded
+TMTpro_zero (N-term)		N	None	H25C15N3O3		2017	295.189592	true		true	non_hardcoded
+TMTpro_zero (S)	S		None	H25C15N3O3		2017	295.189592	true		true	non_hardcoded
+TMTpro_zero (T)	T		None	H25C15N3O3		2017	295.189592	true		true	non_hardcoded
+TNBS (K)	K		None	HC6N3O6		751	210.986535	true		true	non_hardcoded
+TNBS (N-term)		N	None	HC6N3O6		751	210.986535	true		true	non_hardcoded
+trifluoro (L)	L		None	F3 - H3		750	53.971735	true		true	non_hardcoded
+Triiodo (Y)	Y		None	I3 - H3		131	377.689944	true	3Io	true	non_hardcoded
+Triiodothyronine (Y)	Y		None	HC6OI3		397	469.716159	true	3IT	true	non_hardcoded
+Trimethyl (K)	K		None	C3H6	H9C3N	37	42.04695	true	3Me	true	non_hardcoded
+Trimethyl (Protein N-term A)	A	N	None	C3H6		37	42.04695	true	3Me	true	non_hardcoded
+Trimethyl (R)	R		None	C3H6		37	42.04695	true	3Me	true	non_hardcoded
+Trioxidation (C)	C		None	O3		345	47.984744	true	3Ox	true	non_hardcoded
+Trioxidation (F)	F		None	O3		345	47.984744	true	3Ox	true	non_hardcoded
+Trioxidation (W)	W		None	O3		345	47.984744	true	3Ox	true	non_hardcoded
+Trioxidation (Y)	Y		None	O3		345	47.984744	true	3Ox	true	non_hardcoded
+Tripalmitate (Protein N-term C)	C	N	None	H96C51O5		51	788.725777	true	3Pa	true	non_hardcoded
+Tris (N)	N		None	H10C4NO2		1831	104.071154	true		true	non_hardcoded
+Triton (C-term)		C	None	H20C14		1836	188.156501	true		true	non_hardcoded
+Triton (N-term)		N	None	H20C14		1836	188.156501	true		true	non_hardcoded
+Trp->Hydroxykynurenin (W)	W		None	O2 - C		350	19.989829	true	HKy	true	non_hardcoded
+Trp->Kynurenin (W)	W		None	O - C		351	3.994915	true	Kyn	true	non_hardcoded
+Trp->Oxolactone (W)	W		None	O - H2		288	13.979265	true	Oxo	true	non_hardcoded
+Tween20 (N-term)		N	None	H21C12		1834	165.164326	true		true	non_hardcoded
+Tween80 (C-term)		C	None	H31C18O		1835	263.237491	true		true	non_hardcoded
+Tyr->Dha (Y)	Y		None	-H6C6O		400	-94.041865	true	YDA	true	non_hardcoded
+Ub-Br2 (C)	C		None	H8C4N2O		1257	100.063663	true		true	non_hardcoded
+Ub-fluorescein (C)	C		None	H29C31N6O7		1261	597.209772	true		true	non_hardcoded
+Ub-VME (C)	C		None	H12C7N2O3		1258	172.084792	true		true	non_hardcoded
+UgiJoullie (D)	D		None	H60C47N23O10		1276	1106.48935	true		true	non_hardcoded
+UgiJoullie (E)	E		None	H60C47N23O10		1276	1106.48935	true		true	non_hardcoded
+UgiJoullieProGly (D)	D		None	H10C7N2O2		1282	154.074228	true		true	non_hardcoded
+UgiJoullieProGly (E)	E		None	H10C7N2O2		1282	154.074228	true		true	non_hardcoded
+UgiJoullieProGlyProGly (D)	D		None	H20C14N4O4		1283	308.148455	true		true	non_hardcoded
+UgiJoullieProGlyProGly (E)	E		None	H20C14N4O4		1283	308.148455	true		true	non_hardcoded
+Unknown:162 (C-term)		C	None	H18C8O3		1970	162.125595	true		true	non_hardcoded
+Unknown:162 (DE)	D, E		None	H18C8O3		1970	162.125595	true		true	non_hardcoded
+Unknown:162 (N-term)		N	None	H18C8O3		1970	162.125595	true		true	non_hardcoded
+Unknown:177 (C-term)		C	None	OFe3 - H7		1971	176.744957	true		true	non_hardcoded
+Unknown:177 (DE)	D, E		None	OFe3 - H7		1971	176.744957	true		true	non_hardcoded
+Unknown:177 (N-term)		N	None	OFe3 - H7		1971	176.744957	true		true	non_hardcoded
+Unknown:210 (C-term)		C	None	H22C13O2		1972	210.16198	true		true	non_hardcoded
+Unknown:210 (DE)	D, E		None	H22C13O2		1972	210.16198	true		true	non_hardcoded
+Unknown:210 (N-term)		N	None	H22C13O2		1972	210.16198	true		true	non_hardcoded
+Unknown:216 (C-term)		C	None	H16C10O5		1973	216.099774	true		true	non_hardcoded
+Unknown:216 (DE)	D, E		None	H16C10O5		1973	216.099774	true		true	non_hardcoded
+Unknown:216 (N-term)		N	None	H16C10O5		1973	216.099774	true		true	non_hardcoded
+Unknown:234 (C-term)		C	None	H14C9O7		1974	234.073953	true		true	non_hardcoded
+Unknown:234 (DE)	D, E		None	H14C9O7		1974	234.073953	true		true	non_hardcoded
+Unknown:234 (N-term)		N	None	H14C9O7		1974	234.073953	true		true	non_hardcoded
+Unknown:248 (C-term)		C	None	H28C13O4		1975	248.19876	true		true	non_hardcoded
+Unknown:248 (DE)	D, E		None	H28C13O4		1975	248.19876	true		true	non_hardcoded
+Unknown:248 (N-term)		N	None	H28C13O4		1975	248.19876	true		true	non_hardcoded
+Unknown:250 (C-term)		C	None	H4C10NO5S		1976	249.981018	true		true	non_hardcoded
+Unknown:250 (DE)	D, E		None	H4C10NO5S		1976	249.981018	true		true	non_hardcoded
+Unknown:250 (N-term)		N	None	H4C10NO5S		1976	249.981018	true		true	non_hardcoded
+Unknown:302 (C-term)		C	None	H8C4N5O7S2		1977	301.986514	true		true	non_hardcoded
+Unknown:302 (DE)	D, E		None	H8C4N5O7S2		1977	301.986514	true		true	non_hardcoded
+Unknown:302 (N-term)		N	None	H8C4N5O7S2		1977	301.986514	true		true	non_hardcoded
+Unknown:306 (C-term)		C	None	H18C12O9		1978	306.095082	true		true	non_hardcoded
+Unknown:306 (DE)	D, E		None	H18C12O9		1978	306.095082	true		true	non_hardcoded
+Unknown:306 (N-term)		N	None	H18C12O9		1978	306.095082	true		true	non_hardcoded
+Unknown:420 (C-term)		C	None	H24C12N2O6S4	H24C12N2O6S4	1979	420.051719	true		true	non_hardcoded
+Unknown:420 (N-term)		N	None	H24C12N2O6S4	H24C12N2O6S4	1979	420.051719	true		true	non_hardcoded
+VFQQQTGG (K)	K		None	H55C37N11O12		932	845.403166	true		true	non_hardcoded
+VIEVYQEQTGG (K)	K		None	H81C53N13O19		933	1203.577168	true		true	non_hardcoded
+Withaferin (C)	C		None	H38C28O6		1036	470.266839	true		true	non_hardcoded
+Xlink:B10621 (C)	C		None	H30C31N4O6SI		323	713.093079	true	XB1	true	non_hardcoded
+Xlink:BMOE (C)	C		None	H8C10N2O4		824	220.048407	true		true	non_hardcoded
+Xlink:BS2G[113] (K)	K		None	H7C5NO2		1906	113.047679	true		true	non_hardcoded
+Xlink:BS2G[114] (K)	K		None	H6C5O3		1907	114.031694	true		true	non_hardcoded
+Xlink:BS2G[217] (K)	K		None	H15C9NO5		1908	217.095023	true		true	non_hardcoded
+Xlink:BS2G[96] (K)	K		None	H4C5O2		1905	96.021129	true		true	non_hardcoded
+Xlink:BuUrBu[111] (K)	K		None	H5C5NO2		1885	111.032028	true		true	non_hardcoded
+Xlink:BuUrBu[196] (K)	K		None	H12C9N2O3		1899	196.084792	true		true	non_hardcoded
+Xlink:BuUrBu[213] (K)	K		None	H15C9N3O3		1887	213.111341	true		true	non_hardcoded
+Xlink:BuUrBu[214] (K)	K		None	H14C9N2O4		1888	214.095357	true		true	non_hardcoded
+Xlink:BuUrBu[317] (K)	K		None	H23C13N3O6		1889	317.158686	true		true	non_hardcoded
+Xlink:BuUrBu[85] (K)	K		None	H7C4NO		1886	85.052764	true		true	non_hardcoded
+Xlink:DFDNB (K)	K		None	C6N2O4		825	163.985807	true		true	non_hardcoded
+Xlink:DFDNB (N)	N		None	C6N2O4		825	163.985807	true		true	non_hardcoded
+Xlink:DFDNB (Q)	Q		None	C6N2O4		825	163.985807	true		true	non_hardcoded
+Xlink:DFDNB (R)	R		None	C6N2O4		825	163.985807	true		true	non_hardcoded
+Xlink:DMP[122] (K)	K		None	H10C7N2		1912	122.084398	true		true	non_hardcoded
+Xlink:DMP[139] (K)	K		None	H13C7N3		1911	139.110947	true		true	non_hardcoded
+Xlink:DMP[140] (K)	K		None	H12C7N2O		1027	140.094963	true		true	non_hardcoded
+Xlink:DMP[154] (K)	K		None	H14C8N2O		455	154.110613	true		true	non_hardcoded
+Xlink:DSPP[210] (K)	K		None	H3C8O5P		2058	209.97181	true		true	non_hardcoded
+Xlink:DSPP[226] (K)	K		None	H5C8NO5P		2061	225.990534	true		true	non_hardcoded
+Xlink:DSPP[228] (K)	K		None	H5C8O6P		2059	227.982375	true		true	non_hardcoded
+Xlink:DSPP[331] (K)	K		None	H14C12NO8P		2060	331.045704	true		true	non_hardcoded
+Xlink:DSS[138] (K)	K		None	H10C8O2		1898	138.06808	true		true	non_hardcoded
+Xlink:DSS[155] (K)	K		None	H13C8NO2		1789	155.094629	true		true	non_hardcoded
+Xlink:DSS[156] (K)	K		None	H12C8O3		1020	156.078644	true		true	non_hardcoded
+Xlink:DSS[259] (K)	K		None	H21C12NO5		1877	259.141973	true		true	non_hardcoded
+Xlink:DSSO[104] (K)	K		None	H4C3O2S		1883	103.9932	true		true	non_hardcoded
+Xlink:DSSO[158] (K)	K		None	H6C6O3S		1896	158.003765	true		true	non_hardcoded
+Xlink:DSSO[175] (K)	K		None	H9C6NO3S		1879	175.030314	true		true	non_hardcoded
+Xlink:DSSO[176] (K)	K		None	H8C6O4S		1878	176.01433	true		true	non_hardcoded
+Xlink:DSSO[279] (K)	K		None	H17C10NO6S		1880	279.077658	true		true	non_hardcoded
+Xlink:DSSO[54] (K)	K		None	H2C3O		1881	54.010565	true		true	non_hardcoded
+Xlink:DSSO[86] (K)	K		None	H2C3OS		1882	85.982635	true		true	non_hardcoded
+Xlink:DST[114] (K)	K		None	H2C4O4		1901	113.995309	true		true	non_hardcoded
+Xlink:DST[132] (K)	K		None	H4C4O5		1022	132.005873	true		true	non_hardcoded
+Xlink:DST[56] (K)	K		None	C2O2		1999	55.989829	true		true	non_hardcoded
+Xlink:DTBP[172] (K)	K		None	H8C6N2S2		1900	172.01289	true		true	non_hardcoded
+Xlink:DTBP[87] (K)	K		None	H5C3NS		324	87.01427	true		true	non_hardcoded
+Xlink:DTSSP[174] (K)	K		None	H6C6O2S2		1902	173.980921	true		true	non_hardcoded
+Xlink:DTSSP[192] (K)	K		None	H8C6O3S2		1023	191.991486	true		true	non_hardcoded
+Xlink:DTSSP[88] (K)	K		None	H4C3OS		126	87.998285	true		true	non_hardcoded
+Xlink:EGS[115] (K)	K		None	H5C4NO3		1028	115.026943	true		true	non_hardcoded
+Xlink:EGS[226] (K)	K		None	H10C10O6		1897	226.047738	true		true	non_hardcoded
+Xlink:EGS[244] (K)	K		None	H12C10O7		1021	244.058303	true		true	non_hardcoded
+Xlink:SMCC[219] (C)	C		None	H13C12NO3		1903	219.089543	true		true	non_hardcoded
+Xlink:SMCC[219] (K)	K		None	H13C12NO3		1903	219.089543	true		true	non_hardcoded
+Xlink:SMCC[237] (C)	C		None	H15C12NO4		1024	237.100108	true		true	non_hardcoded
+Xlink:SMCC[237] (K)	K		None	H15C12NO4		1024	237.100108	true		true	non_hardcoded
+Xlink:SMCC[321] (C)	C		None	H27C17N3O3		908	321.205242	true		true	non_hardcoded
+ZGB (K)	K		None	H53C37N6O6F2SB		861	758.380841	true		true	non_hardcoded
+ZGB (N-term)		N	None	H53C37N6O6F2SB		861	758.380841	true		true	non_hardcoded
+ZQG (K)	K		None	H16C15N2O6	H6C8O2	2001	320.100836	true		true	non_hardcoded
+Acetyl:13C(2) (K)	K		None	C'2 - C2		1372	44.017274	false		true	non_hardcoded
+Acetyl:2H(3) (H)	H		None	H'3 - H3		56	45.029395	false	DAc	true	non_hardcoded
+Acetyl:2H(3) (K)	K		None	H'3 - H3		56	45.029395	false	DAc	true	non_hardcoded
+Acetyl:2H(3) (N-term)		N	None	H'3 - H3		56	45.029395	false	DAc	true	non_hardcoded
+Acetyl:2H(3) (S)	S		None	H'3 - H3		56	45.029395	false	DAc	true	non_hardcoded
+Acetyl:2H(3) (T)	T		None	H'3 - H3		56	45.029395	false	DAc	true	non_hardcoded
+Acetyl:2H(3) (Y)	Y		None	H'3 - H3		56	45.029395	false	DAc	true	non_hardcoded
+AEC-MAEC:2H(4) (S)	S		None	H'4 - H4		792	63.044462	false		true	non_hardcoded
+AEC-MAEC:2H(4) (T)	T		None	H'4 - H4		792	63.044462	false		true	non_hardcoded
+BEMAD_C:2H(6) (C)	C		None	H'6 - H6		764	126.062161	false		true	non_hardcoded
+BEMAD_ST:2H(6) (S)	S		None	H'6 - H6		763	142.039317	false		true	non_hardcoded
+BEMAD_ST:2H(6) (T)	T		None	H'6 - H6		763	142.039317	false		true	non_hardcoded
+Carboxymethyl:13C(2) (C)	C		None	C'2 - C2		775	60.012189	false		true	non_hardcoded
+Cys->SecNEM:2H(5) (C)	C		None	H'5 - H5		1034	178.023511	false		true	non_hardcoded
+Dimethyl:2H(6) (K)	K		None	H'6 - H6		1291	34.068961	false	DM6	true	non_hardcoded
+Dimethyl:2H(6) (N-term)		N	None	H'6 - H6		1291	34.068961	false	DM6	true	non_hardcoded
+Dimethyl:2H(6) (R)	R		None	H'6 - H6		1291	34.068961	false	DM6	true	non_hardcoded
+Dimethyl:2H(6)13C(2) (K)	K		None	C'2H'6 - C2H6		330	36.07567	false	DM8	true	non_hardcoded
+Dimethyl:2H(6)13C(2) (N-term)		N	None	C'2H'6 - C2H6		330	36.07567	false	DM8	true	non_hardcoded
+Dimethyl:2H(6)13C(2) (R)	R		None	C'2H'6 - C2H6		330	36.07567	false	DM8	true	non_hardcoded
+EQAT:2H(5) (C)	C		None	H'5 - H5		198	189.188947	false	EQ5	true	non_hardcoded
+ESP:2H(10) (K)	K		None	H'10 - H10		91	348.240414	false	E10	true	non_hardcoded
+ESP:2H(10) (N-term)		N	None	H'10 - H10		91	348.240414	false	E10	true	non_hardcoded
+GIST-Quat:2H(3) (K)	K		None	H'3 - H3		61	130.118544	false	GQ3	true	non_hardcoded
+GIST-Quat:2H(3) (N-term)		N	None	H'3 - H3		61	130.118544	false	GQ3	true	non_hardcoded
+GIST-Quat:2H(6) (K)	K		None	H'6 - H6		62	133.137375	false	GQ6	true	non_hardcoded
+GIST-Quat:2H(6) (N-term)		N	None	H'6 - H6		62	133.137375	false	GQ6	true	non_hardcoded
+GIST-Quat:2H(9) (K)	K		None	H'9 - H9		63	136.156205	false	GQ9	true	non_hardcoded
+GIST-Quat:2H(9) (N-term)		N	None	H'9 - H9		63	136.156205	false	GQ9	true	non_hardcoded
+Glu->pyro-Glu+Methyl:2H(2)13C(1) (N-term E)	E	N	None	C'H'2 - CH2		1827	-0.979006	false		true	non_hardcoded
+ICAT-G:2H(8) (C)	C		None	H'8 - H8		9	494.30142	false	GG8	true	non_hardcoded
+ICAT-H:13C(6) (C)	C		None	C'6 - C6		124	351.118044	false	GH6	true	non_hardcoded
+ICDID:2H(6) (C)	C		None	H'6 - H6		1019	144.10574	false		true	non_hardcoded
+ICPL:2H(4) (N-term)		N	None	H'4 - H4		687	109.046571	false	IP4	true	non_hardcoded
+IGBP:13C(2) (C)	C		None	C'2 - C2		499	298.022748	false	ID2	true	non_hardcoded
+IMID:2H(4) (K)	K		None	H'4 - H4		95	72.062555	false	IM4	true	non_hardcoded
+Iodoacetanilide:13C(6) (C)	C		None	C'6 - C6		1398	139.072893	false		true	non_hardcoded
+Iodoacetanilide:13C(6) (K)	K		None	C'6 - C6		1398	139.072893	false		true	non_hardcoded
+Iodoacetanilide:13C(6) (N-term)		N	None	C'6 - C6		1398	139.072893	false		true	non_hardcoded
+Label:13C(1)2H(3) (M)	M		None	H'3C' - H3C		862	4.022185	false		true	non_hardcoded
+Label:13C(2)15N(2) (K)	K		None	C'2N'2 - C2N2		1787	4.00078	false		true	non_hardcoded
+Label:13C(3) (A)	A		C13			1296	3.010064	false	+3a	true	non_hardcoded
+Label:13C(3)15N(1) (A)	A		C13|N15			1297	4.007099	false	+4a	true	non_hardcoded
+Label:13C(3)15N(1) (S)	S		C13|N15			1297	4.007099	false	+4a	true	non_hardcoded
+Label:13C(4) (M)	M		None	C'4 - C4		1266	4.013419	false	+4b	true	non_hardcoded
+Label:13C(4)15N(1) (D)	D		C13|N15			1298	5.010454	false	+05	true	non_hardcoded
+Label:13C(5) (P)	P		C13			772	5.016774	false	+5b	true	non_hardcoded
+Label:13C(5)15N(1) (E)	E		C13|N15			268	6.013809	false	+6a	true	non_hardcoded
+Label:13C(5)15N(1) (M)	M		C13|N15			268	6.013809	false	+6a	true	non_hardcoded
+Label:13C(5)15N(1) (P)	P		C13|N15			268	6.013809	false	+6a	true	non_hardcoded
+Label:13C(5)15N(1) (V)	V		C13|N15			268	6.013809	false	+6a	true	non_hardcoded
+Label:13C(6) (I)	I		C13			188	6.020129	false	+06	true	non_hardcoded
+Label:13C(6) (K)	K		C13			188	6.020129	false	+06	true	non_hardcoded
+Label:13C(6) (L)	L		C13			188	6.020129	false	+06	true	non_hardcoded
+Label:13C(6) (R)	R		C13			188	6.020129	false	+06	true	non_hardcoded
+Label:13C(6)15N(1) (I)	I		C13|N15			695	7.017164	false	+07	true	non_hardcoded
+Label:13C(6)15N(1) (L)	L		C13|N15			695	7.017164	false	+07	true	non_hardcoded
+Label:13C(6)15N(2) (K)	K		C13|N15			259	8.014199	false	+08	true	non_hardcoded
+Label:13C(6)15N(4) (R)	R		C13|N15			267	10.008269	false	+10	true	non_hardcoded
+Label:13C(9) (F)	F		C13			184	9.030193	false	+09	true	non_hardcoded
+Label:13C(9) (Y)	Y		C13			184	9.030193	false	+09	true	non_hardcoded
+Label:13C(9)15N(1) (F)	F		C13|N15			269	10.027228	false	10a	true	non_hardcoded
+Label:15N(1) (A)	A		N15			994	0.997035	false	+01	true	non_hardcoded
+Label:15N(1) (C)	C		N15			994	0.997035	false	+01	true	non_hardcoded
+Label:15N(1) (D)	D		N15			994	0.997035	false	+01	true	non_hardcoded
+Label:15N(1) (E)	E		N15			994	0.997035	false	+01	true	non_hardcoded
+Label:15N(1) (F)	F		N15			994	0.997035	false	+01	true	non_hardcoded
+Label:15N(1) (G)	G		N15			994	0.997035	false	+01	true	non_hardcoded
+Label:15N(1) (I)	I		N15			994	0.997035	false	+01	true	non_hardcoded
+Label:15N(1) (L)	L		N15			994	0.997035	false	+01	true	non_hardcoded
+Label:15N(1) (M)	M		N15			994	0.997035	false	+01	true	non_hardcoded
+Label:15N(1) (P)	P		N15			994	0.997035	false	+01	true	non_hardcoded
+Label:15N(1) (S)	S		N15			994	0.997035	false	+01	true	non_hardcoded
+Label:15N(1) (T)	T		N15			994	0.997035	false	+01	true	non_hardcoded
+Label:15N(1) (V)	V		N15			994	0.997035	false	+01	true	non_hardcoded
+Label:15N(1) (Y)	Y		N15			994	0.997035	false	+01	true	non_hardcoded
+Label:15N(2) (K)	K		N15			995	1.99407	false	+02	true	non_hardcoded
+Label:15N(2) (N)	N		N15			995	1.99407	false	+02	true	non_hardcoded
+Label:15N(2) (Q)	Q		N15			995	1.99407	false	+02	true	non_hardcoded
+Label:15N(2) (W)	W		N15			995	1.99407	false	+02	true	non_hardcoded
+Label:15N(2)2H(9) (K)	K		None	H'9N'2 - H9N2		944	11.050561	false		true	non_hardcoded
+Label:15N(3) (H)	H		N15			996	2.991105	false	+03	true	non_hardcoded
+Label:15N(4) (R)	R		N15			897	3.98814	false	+04	true	non_hardcoded
+Label:18O(1) (S)	S		None	O' - O		258	2.004246	false	Ob1	true	non_hardcoded
+Label:18O(1) (T)	T		None	O' - O		258	2.004246	false	Ob1	true	non_hardcoded
+Label:18O(1) (Y)	Y		None	O' - O		258	2.004246	false	Ob1	true	non_hardcoded
+Label:2H(10) (L)	L		None	H'10 - H10		1299	10.062767	false	D10	true	non_hardcoded
+Label:2H(3) (L)	L		None	H'3 - H3		262	3.01883	false	D03	true	non_hardcoded
+Label:2H(3) (M)	M		None	H'3 - H3		262	3.01883	false	D03	true	non_hardcoded
+Label:2H(4) (A)	A		None	H'4 - H4		481	4.025107	false	D04	true	non_hardcoded
+Label:2H(4) (F)	F		None	H'4 - H4		481	4.025107	false	D04	true	non_hardcoded
+Label:2H(4) (K)	K		None	H'4 - H4		481	4.025107	false	D04	true	non_hardcoded
+Label:2H(4) (U)	U		None	H'4 - H4		481	4.025107	false	D04	true	non_hardcoded
+Label:2H(4) (Y)	Y		None	H'4 - H4		481	4.025107	false	D04	true	non_hardcoded
+Label:2H(4)13C(1) (R)	R		None	H'4C' - H4C		1300	5.028462	false	+5a	true	non_hardcoded
+Label:2H(6)15N(1) (P)	P		None	H'6N' - H6N		1403	7.034695	false		true	non_hardcoded
+Label:2H(7)15N(4) (R)	R		None	H'7N'4 - H7N4		1402	11.032077	false		true	non_hardcoded
+Label:2H(9)13C(6)15N(2) (K)	K		None	H'9C'6N'2 - H9C6N2		696	17.07069	false		true	non_hardcoded
+Methyl:2H(3) (C-term)		C	None	H'3 - H3		298	17.03448	false	M+3	true	non_hardcoded
+Methyl:2H(3) (D)	D		None	H'3 - H3		298	17.03448	false	M+3	true	non_hardcoded
+Methyl:2H(3) (E)	E		None	H'3 - H3		298	17.03448	false	M+3	true	non_hardcoded
+Methyl:2H(3) (K)	K		None	H'3 - H3		298	17.03448	false	M+3	true	non_hardcoded
+Methyl:2H(3) (R)	R		None	H'3 - H3		298	17.03448	false	M+3	true	non_hardcoded
+Methyl:2H(3)13C(1) (K)	K		None	C'H'3 - CH3		329	18.037835	false	eMe	true	non_hardcoded
+Methyl:2H(3)13C(1) (N-term)		N	None	C'H'3 - CH3		329	18.037835	false	eMe	true	non_hardcoded
+Methyl:2H(3)13C(1) (R)	R		None	C'H'3 - CH3		329	18.037835	false	eMe	true	non_hardcoded
+mTRAQ:13C(3)15N(1) (H)	H		None	C'3N' - C3N		889	144.102063	false	M04	true	non_hardcoded
+mTRAQ:13C(3)15N(1) (S)	S		None	C'3N' - C3N		889	144.102063	false	M04	true	non_hardcoded
+mTRAQ:13C(3)15N(1) (T)	T		None	C'3N' - C3N		889	144.102063	false	M04	true	non_hardcoded
+mTRAQ:13C(6)15N(2) (H)	H		None	C'6N'2 - C6N2		1302	148.109162	false	M08	true	non_hardcoded
+mTRAQ:13C(6)15N(2) (S)	S		None	C'6N'2 - C6N2		1302	148.109162	false	M08	true	non_hardcoded
+mTRAQ:13C(6)15N(2) (T)	T		None	C'6N'2 - C6N2		1302	148.109162	false	M08	true	non_hardcoded
+Phenylisocyanate:2H(5) (N-term)		N	None	H'5 - H5		412	124.068498	false	Pc5	true	non_hardcoded
+Propionamide:2H(3) (C)	C		None	H'3 - H3		97	74.055944	false	PP3	true	non_hardcoded
+Propionyl:13C(3) (K)	K		None	C'3 - C3		59	59.036279	false	Po3	true	non_hardcoded
+Propionyl:13C(3) (N-term)		N	None	C'3 - C3		59	59.036279	false	Po3	true	non_hardcoded
+QAT:2H(3) (C)	C		None	H'3 - H3		196	174.168569	false	QT3	true	non_hardcoded
+SPITC:13C(6) (K)	K		None	C'6 - C6		464	220.991213	false	SI6	true	non_hardcoded
+SPITC:13C(6) (N-term)		N	None	C'6 - C6		464	220.991213	false	SI6	true	non_hardcoded
+Succinyl:13C(4) (K)	K		None	C'4 - C4		66	104.029463	false	Su4	true	non_hardcoded
+Succinyl:13C(4) (N-term)		N	None	C'4 - C4		66	104.029463	false	Su4	true	non_hardcoded
+Succinyl:2H(4) (K)	K		None	H'4 - H4		65	104.041151	false	Sd4	true	non_hardcoded
+Succinyl:2H(4) (N-term)		N	None	H'4 - H4		65	104.041151	false	Sd4	true	non_hardcoded
+SulfanilicAcid:13C(6) (C-term)		C	None	C'6 - C6		286	161.024228	false	SA6	true	non_hardcoded
+SulfanilicAcid:13C(6) (D)	D		None	C'6 - C6		286	161.024228	false	SA6	true	non_hardcoded
+SulfanilicAcid:13C(6) (E)	E		None	C'6 - C6		286	161.024228	false	SA6	true	non_hardcoded
+TMPP-Ac:13C(9) (K)	K		None	C'9 - C9		1993	581.211328	false		true	non_hardcoded
+TMPP-Ac:13C(9) (N-term)		N	None	C'9 - C9		1993	581.211328	false		true	non_hardcoded
+TMPP-Ac:13C(9) (Y)	Y		None	C'9 - C9		1993	581.211328	false		true	non_hardcoded
+Trimethyl:13C(3)2H(9) (K)	K		None	C'3H'9 - C3H9		1414	54.113505	false		true	non_hardcoded
+Trimethyl:13C(3)2H(9) (R)	R		None	C'3H'9 - C3H9		1414	54.113505	false		true	non_hardcoded
+Trimethyl:2H(9) (K)	K		None	H'9 - H9		1371	51.103441	false		true	non_hardcoded
+Trimethyl:2H(9) (R)	R		None	H'9 - H9		1371	51.103441	false		true	non_hardcoded
+
+#Unable to match: Acetyl (Protein N-term)
+#Unable to match: Amidated (Protein C-term)
+#Unable to match: Formyl (Protein N-term)
+#Unable to match: ICPL (Protein N-term)
+#Unable to match: ICPL:13C(6) (Protein N-term)
+#Unable to match: ICPL:13C(6)2H(4) (Protein N-term)
+#Unable to match: ICPL:2H(4) (Protein N-term)
+#Unable to match: Acetyl:13C(2) (Protein N-term)
+#Unable to match: Acetyl:2H(3) (Protein N-term)
+#Unable to match: AEBS (Protein N-term)
+#Unable to match: BDMAPP (Protein N-term)
+#Unable to match: Biotin-PEO-Amine (Protein C-term)
+#Unable to match: biotinAcrolein298 (Protein N-term)
+#Unable to match: CAMthiopropanoyl (Protein N-term)
+#Unable to match: Carbamyl (Protein N-term)
+#Unable to match: Cholesterol (Protein C-term)
+#Unable to match: Delta:H(2)C(2) (Protein N-term)
+#Unable to match: Delta:H(4)C(3) (Protein N-term)
+#Unable to match: Delta:H(6)C(3)O(1) (Protein N-term)
+#Unable to match: Delta:H(8)C(6)O(1) (Protein N-term)
+#Unable to match: Di_L-Gln_N-propargyl-L-Gln_desthiobiotin (D)
+#Unable to match: Di_L-Gln_N-propargyl-L-Gln_desthiobiotin (E)
+#Unable to match: Di_L-Glu_N-propargyl-L-Gln_desthiobiotin (D)
+#Unable to match: Di_L-Glu_N-propargyl-L-Gln_desthiobiotin (E)
+#Unable to match: DiART6plex (Protein N-term)
+#Unable to match: DiART6plex115 (Protein N-term)
+#Unable to match: DiART6plex116/119 (Protein N-term)
+#Unable to match: DiART6plex117 (Protein N-term)
+#Unable to match: DiART6plex118 (Protein N-term)
+#Unable to match: Dimethyl (Protein N-term)
+#Unable to match: Dimethyl:2H(4) (Protein N-term)
+#Unable to match: Dimethyl:2H(4)13C(2) (Protein N-term)
+#Unable to match: Dimethyl:2H(6)13C(2) (Protein N-term)
+#Unable to match: Ethyl (Protein N-term)
+#Unable to match: FormylMet (Protein N-term)
+#Unable to match: GG (Protein N-term)
+#Unable to match: Glu (Protein C-term)
+#Unable to match: Glucuronyl (Protein N-term)
+#Unable to match: GluGlu (Protein C-term)
+#Unable to match: GluGluGlu (Protein C-term)
+#Unable to match: GluGluGluGlu (Protein C-term)
+#Unable to match: Glyceroyl (Protein N-term)
+#Unable to match: GPIanchor (Protein C-term)
+#Unable to match: iTRAQ4plex (Protein N-term)
+#Unable to match: iTRAQ8plex (Protein N-term)
+#Unable to match: LG-Hlactam-K (Protein N-term)
+#Unable to match: LG-lactam-K (Protein N-term)
+#Unable to match: MesitylOxide (Protein N-term)
+#Unable to match: Methyl (Protein N-term)
+#Unable to match: Microcin (Protein C-term)
+#Unable to match: MicrocinC7 (Protein C-term)
+#Unable to match: Mono_N-propargyl-L-Gln_desthiobiotin (C)
+#Unable to match: Palmitoyl (Protein N-term)
+#Unable to match: Propionyl (Protein N-term)
+#Unable to match: Propyl (Protein C-term)
+#Unable to match: shTMT (Protein N-term)
+#Unable to match: shTMTpro (Protein N-term)
+#Unable to match: Succinyl (Protein N-term)
+#Unable to match: Thiazolidine (Protein N-term)
+#Unable to match: TMT (Protein N-term)
+#Unable to match: TMT2plex (Protein N-term)
+#Unable to match: TMT6plex (Protein N-term)
+#Unable to match: TMTpro (Protein N-term)
+#Unable to match: TMTpro_zero (Protein N-term)
+#Unable to match: Xlink:BS2G[113] (Protein N-term)
+#Unable to match: Xlink:BS2G[114] (Protein N-term)
+#Unable to match: Xlink:BS2G[217] (Protein N-term)
+#Unable to match: Xlink:BS2G[96] (Protein N-term)
+#Unable to match: Xlink:BuUrBu[111] (Protein N-term)
+#Unable to match: Xlink:BuUrBu[196] (Protein N-term)
+#Unable to match: Xlink:BuUrBu[213] (Protein N-term)
+#Unable to match: Xlink:BuUrBu[214] (Protein N-term)
+#Unable to match: Xlink:BuUrBu[317] (Protein N-term)
+#Unable to match: Xlink:BuUrBu[85] (Protein N-term)
+#Unable to match: Xlink:DMP[122] (Protein N-term)
+#Unable to match: Xlink:DMP[139] (Protein N-term)
+#Unable to match: Xlink:DMP[140] (Protein N-term)
+#Unable to match: Xlink:DMP[154] (Protein N-term)
+#Unable to match: Xlink:DSPP[210] (Protein N-term)
+#Unable to match: Xlink:DSPP[226] (Protein N-term)
+#Unable to match: Xlink:DSPP[228] (Protein N-term)
+#Unable to match: Xlink:DSPP[331] (Protein N-term)
+#Unable to match: Xlink:DSS[138] (Protein N-term)
+#Unable to match: Xlink:DSS[155] (Protein N-term)
+#Unable to match: Xlink:DSS[156] (Protein N-term)
+#Unable to match: Xlink:DSS[259] (Protein N-term)
+#Unable to match: Xlink:DSSO[104] (Protein N-term)
+#Unable to match: Xlink:DSSO[158] (Protein N-term)
+#Unable to match: Xlink:DSSO[175] (Protein N-term)
+#Unable to match: Xlink:DSSO[176] (Protein N-term)
+#Unable to match: Xlink:DSSO[279] (Protein N-term)
+#Unable to match: Xlink:DSSO[54] (Protein N-term)
+#Unable to match: Xlink:DSSO[86] (Protein N-term)
+#Unable to match: Xlink:DST[114] (Protein N-term)
+#Unable to match: Xlink:DST[132] (Protein N-term)
+#Unable to match: Xlink:DST[56] (Protein N-term)
+#Unable to match: Xlink:DTBP[172] (Protein N-term)
+#Unable to match: Xlink:DTBP[87] (Protein N-term)
+#Unable to match: Xlink:DTSSP[174] (Protein N-term)
+#Unable to match: Xlink:DTSSP[192] (Protein N-term)
+#Unable to match: Xlink:DTSSP[88] (Protein N-term)
+#Unable to match: Xlink:EGS[115] (Protein N-term)
+#Unable to match: Xlink:EGS[226] (Protein N-term)
+#Unable to match: Xlink:EGS[244] (Protein N-term)
+#Unable to match: Xlink:SMCC[219] (Protein N-term)
+#Unable to match: Xlink:SMCC[237] (Protein N-term)
+#Unused code: arg-add = +1R
+#Unused code: benzyl = Bnz
+#Unused code: benzyloxycarbonyl = CBZ
+#Unused code: boc = Boc
+#Unused code: cholesterol = Chl
+#Unused code: c-terminal ethyl = 1Et
+#Unused code: c-terminal methyl = 1Me
+#Unused code: c-terminal methyl:2h(3) = M+3
+#Unused code: cys->hcy = CHC
+#Unused code: cys->pyro-cam = PCa
+#Unused code: cys->pyro-cmc = PCm
+#Unused code: delta:h(-1)o(-1)18o(1) = DeW
+#Unused code: diart6plex  = DRT
+#Unused code: dinitrophenyl = 2Np
+#Unused code: dipropionyl = 2Pr
+#Unused code: dtt_c = DTS
+#Unused code: dtt_st = DTO
+#Unused code: ethylamide = EAm
+#Unused code: fmoc = Fmc
+#Unused code: formylmet = FMA
+#Unused code: gpianchor = GPI
+#Unused code: hex(3)hexnac(2)p(1) = GdP
+#Unused code: hex(6) = 6Hx
+#Unused code: hn2_mustard  = Mu2
+#Unused code: hn3_mustard  = Mu3
+#Unused code: hydrazide = Hyz
+#Unused code: iodoacetanilide  = An0
+#Unused code: iodoacetanilide:13c(6)  = An6
+#Unused code: itraq8plexcold = T8C
+#Unused code: label:2h(6)15n(1)  = +7a
+#Unused code: label:2h(7)15n(4)  = +11
+#Unused code: lys->hydroxyallysine = HAA
+#Unused code: lys-add = +1K
+#Unused code: met->aha+tag = MAT
+#Unused code: met->aha+tagmcl = MAC
+#Unused code: met->carbamidomethyl-hcy = CaS
+#Unused code: met->carboxymethyl-hcy = CoS
+#Unused code: met->hcy = MHC
+#Unused code: methyl+propionyl = MeP
+#Unused code: microcin = Mic
+#Unused code: microcinc7 = Mi7
+#Unused code: naphthyl = Npl
+#Unused code: napthylacetyl = NpA
+#Unused code: n-ethylmaleimide = NEM
+#Unused code: n-ethylmaleimide+water = NMH
+#Unused code: nhs-fluorescein  = Flr
+#Unused code: n-methylmaleimide = NMM
+#Unused code: n-methylmaleimide+water = MMH
+#Unused code: n-terminal ethyl = 1Et
+#Unused code: n-terminal methyl = 1Me
+#Unused code: oxidation+nem  = OxN
+#Unused code: phospho(ser,thr) = Pho
+#Unused code: phosphoglyceryl = Pgl
+#Unused code: pmc = PMC
+#Unused code: propionyl:2h(5) = PD5
+#Unused code: sec->dha = UHA
+#Unused code: ser->oxoalanine = SOa
+#Unused code: thioacyl = ThA
+#Unused code: trifluoroacetyl = TFA
+#Unused code: trinitrophenyl = 3Np
+#Unused code: xlink:ssd = XSD

@@ -30,8 +30,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
@@ -52,7 +54,7 @@ public class CmdWriteSubMzml extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, Path jarFragpipe, int ramGb, int nThreads, Map<String, LcmsFileGroup> lcmsFileGroups, float probabilityThreshold, boolean isRunMSFragger, boolean hasDia, boolean hasGpfDia, boolean hasDiaLib, boolean hasDdaPlus) {
+  public boolean configure(Component comp, Path binMSFragger, Path jarFragpipe, int ramGb, int nThreads, Map<String, LcmsFileGroup> lcmsFileGroups, float probabilityThreshold, boolean isRunMSFragger, boolean hasDia, boolean hasGpfDia, boolean hasDiaLib, boolean hasDdaPlus) {
     initPreConfig();
 
     if (!isRunMSFragger) {
@@ -77,7 +79,7 @@ public class CmdWriteSubMzml extends CmdBase {
       log.debug("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
     }
 
-    List<String> toJoin = classpathJars.stream().map(p -> p.toAbsolutePath().normalize().toString()).collect(Collectors.toList());
+    Set<String> toJoin = classpathJars.stream().map(p -> p.toAbsolutePath().normalize().toString()).collect(Collectors.toSet());
     try {
       toJoin.addAll(Files.walk(libsDir).
           filter(p -> p.getFileName().toString().endsWith(".jar")).
@@ -94,13 +96,32 @@ public class CmdWriteSubMzml extends CmdBase {
     toJoin.add(jarFragpipe.toAbsolutePath().normalize().toString());
     final String classpath = OsUtils.asSingleArgument(String.join(System.getProperties().getProperty("path.separator"), toJoin));
 
+    Path extLibsBruker = CmdMsfragger.searchExtLibsBruker(Collections.singletonList(binMSFragger.getParent()));
+    Path extLibsThermo = CmdMsfragger.searchExtLibsThermo(Collections.singletonList(binMSFragger.getParent()));
+
     int idx = 0;
-    int batchNum = Math.min(32, nThreads);
+    int batchNum = Math.min(2, nThreads);
     for (Map.Entry<String, LcmsFileGroup> e : lcmsFileGroups.entrySet()) {
       for (InputLcmsFile inputLcmsFile : e.getValue().lcmsFiles) {
         List<String> cmd = new ArrayList<>();
         cmd.add(Fragpipe.getBinJava());
         cmd.add("-Xmx" + ramGb + "G");
+        if (extLibsBruker == null) {
+          if (inputLcmsFile.getPath().toString().toLowerCase().endsWith(".d")) {
+            SwingUtils.showErrorDialog(comp, "Could not find the Bruker library for " + inputLcmsFile.getPath().toAbsolutePath() + ". Please make sure that there are ext folder along with the MSFragger jar file.", "Error");
+            return false;
+          }
+        } else {
+          cmd.add(createJavaDParamString("libs.bruker.dir", extLibsBruker.toAbsolutePath().toString()));
+        }
+        if (extLibsThermo == null) {
+          if (inputLcmsFile.getPath().toString().toLowerCase().endsWith(".raw")) {
+            SwingUtils.showErrorDialog(comp, "Could not find the Thermo library for " + inputLcmsFile.getPath().toAbsolutePath() + ". Please make sure that there are ext folder along with the MSFragger jar file.", "Error");
+            return false;
+          }
+        } else {
+          cmd.add(createJavaDParamString("libs.thermo.dir", extLibsThermo.toAbsolutePath().toString()));
+        }
         cmd.add("-cp");
         cmd.add(classpath);
         cmd.add(WriteSubMzml.class.getCanonicalName());

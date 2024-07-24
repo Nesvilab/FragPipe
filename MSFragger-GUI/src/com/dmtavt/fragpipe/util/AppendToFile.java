@@ -18,6 +18,8 @@
 package com.dmtavt.fragpipe.util;
 
 import java.io.*;
+import java.util.HashSet;
+import java.util.Set;
 
 public class AppendToFile {
 
@@ -31,7 +33,7 @@ public class AppendToFile {
              * - file to append to
              * - file to append from
              */
-            appendFileContents(args[0].trim(), args[1].trim());
+            appendMassesFileContents(args[0].trim(), args[1].trim());
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
@@ -39,17 +41,30 @@ public class AppendToFile {
     }
 
     /**
-     * Append the contents of "fileAppendFrom" to the end of "fileAppendTo"
+     * Append the contents of "fileAppendFrom" to the end of "fileAppendTo", removing duplicate masses if present.
      * @param fileAppendTo destination file
      * @param fileAppendFrom source file
      */
-    private static void appendFileContents(String fileAppendTo, String fileAppendFrom) throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader(fileAppendFrom));
+    private static void appendMassesFileContents(String fileAppendTo, String fileAppendFrom) throws IOException {
+        BufferedReader appendFromReader = new BufferedReader(new FileReader(fileAppendFrom));
+        BufferedReader appendToReader = new BufferedReader(new FileReader(fileAppendTo));
+
         BufferedWriter writer = new BufferedWriter(new FileWriter(fileAppendTo, true));
 
+        Set<Long> masses = new HashSet<>();
+        // read all masses in the file to append to so we can avoid duplicates while appending
         String readline;
-        while ((readline = reader.readLine()) != null) {
-            writer.write(readline + "\n");
+        while ((readline = appendToReader.readLine()) != null) {
+            long mass = Math.round(Double.parseDouble(readline.trim()) * 100);
+            masses.add(mass);
+        }
+
+        // read new masses and append, checking for duplicates
+        while ((readline = appendFromReader.readLine()) != null) {
+            long mass = Math.round(Double.parseDouble(readline.trim()) * 100);
+            if (!masses.contains(mass)) {
+                writer.write(readline + "\n");
+            }
         }
         writer.close();
     }

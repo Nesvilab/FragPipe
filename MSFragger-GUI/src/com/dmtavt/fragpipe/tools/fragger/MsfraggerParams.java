@@ -84,6 +84,7 @@ public class MsfraggerParams extends AbstractParams {
     public static final String PROP_check_spectral_files = "check_spectral_files";
     public static final String PROP_require_precursor = "require_precursor";
     public static final String PROP_activation_filter = "activation_types";
+    public static final String PROP_analyzer_types = "analyzer_types";
     public static final String PROP_write_calibrated_mzml = "write_calibrated_mzml";
     public static final String PROP_write_uncalibrated_mgf = "write_uncalibrated_mgf";
     public static final String PROP_write_mzbin_all = "write_mzbin_all";
@@ -235,6 +236,7 @@ public class MsfraggerParams extends AbstractParams {
         PROP_add,
         PROP_add_enabled,
         PROP_activation_filter,
+        PROP_analyzer_types
     };
 
     public static final Set<String> PROP_NAMES_SET;
@@ -268,6 +270,11 @@ public class MsfraggerParams extends AbstractParams {
     public static final String ACTIVATION_TYPE_ECD = "ECD";
     public static final List<String> ACTIVATION_TYPES = Arrays
             .asList(ACTIVATION_TYPE_ALL, ACTIVATION_TYPE_HCD, ACTIVATION_TYPE_ETD, ACTIVATION_TYPE_CID, ACTIVATION_TYPE_ECD);
+
+    public static final String ANALYZER_TYPE_ALL = "all";
+    public static final String ANALYZER_TYPE_FTMS = "FTMS";
+    public static final String ANALYZER_TYPE_ITMS = "ITMS";
+    public static final List<String> ANALYZER_TYPES = Arrays.asList(ANALYZER_TYPE_ALL, ANALYZER_TYPE_FTMS, ANALYZER_TYPE_ITMS);
 
     public static final Map<String, String> ADDON_MAP_NAME2HUMAN = new HashMap<>(ADDON_NAMES.length);
     public static final Map<String, String> ADDON_MAP_HUMAN2NAME = new HashMap<>(ADDON_NAMES.length);
@@ -338,7 +345,7 @@ public class MsfraggerParams extends AbstractParams {
         c.put(PROP_precursor_true_units, "True precursor mass tolerance units (0 for Da, 1 for ppm).");
         c.put(PROP_fragment_mass_tolerance, "Fragment mass tolerance (window is +/- this value).");
         c.put(PROP_fragment_mass_units, "Fragment mass tolerance units (0 for Da, 1 for ppm).");
-        c.put(PROP_data_type, "Data type (0 for DDA, 1 for DIA, 2 for gas-phase fractionation DIA, 3 for wide-window acquisition DDA).");
+        c.put(PROP_data_type, "Data type (0 for DDA, 1 for DIA, 2 for gas-phase fractionation DIA, 3 for DDA+).");
         c.put(PROP_calibrate_mass, "Perform mass calibration (0 for OFF, 1 for ON, 2 for ON and find optimal parameters, 4 for ON and find the optimal fragment mass tolerance).");
         c.put(PROP_use_all_mods_in_first_search, "Use all variable modifications in first search (0 for No, 1 for Yes).");
         c.put(PROP_write_calibrated_mzml, "Write calibrated MS2 scan to a mzML file (0 for No, 1 for Yes).");
@@ -404,6 +411,7 @@ public class MsfraggerParams extends AbstractParams {
         c.put(PROP_min_sequence_matches, "[nglycan/labile search_mode only] Minimum number of sequence-specific (not Y) ions to record a match.");
         c.put(PROP_diagnostic_intensity_filter, "[nglycan/labile search_mode only]. Minimum relative intensity for SUM of all detected oxonium ions to achieve for spectrum to contain diagnostic fragment evidence. Calculated relative to spectrum base peak. 0 <= value.");
         c.put(PROP_activation_filter, "Filter to only search scans of provided activation type(s). Allowed: All, HCD, CID, ETD, ECD.");
+        c.put(PROP_analyzer_types, "Filter to only include scans matching the provided analyzer type(s) in search. Only support the mzML and raw format. Allowed types: all, FTMS, ITMS.");
         return c;
     }
 

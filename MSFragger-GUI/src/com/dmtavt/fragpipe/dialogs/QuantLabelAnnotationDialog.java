@@ -120,10 +120,9 @@ public class QuantLabelAnnotationDialog extends javax.swing.JDialog {
         throw new IllegalStateException("Label from dropdown menu not present: " + labelName);
       }
       model.dataClear();
-      for (int i = 0; i < label.get().getReagentNames().size(); i++) {
-        String reagent = label.get().getReagentNames().get(i);
-        QuantLabelAnnotation annotation = new QuantLabelAnnotation(reagent,
-            String.format("sample-%02d", i + 1));
+      for (String s : label.get().getReagentNames()) {
+        QuantLabelAnnotation annotation = new QuantLabelAnnotation(s,
+            String.format("%s_%s", expNameToFilePathRow.expName, s));
         model.dataAdd(annotation);
       }
     });

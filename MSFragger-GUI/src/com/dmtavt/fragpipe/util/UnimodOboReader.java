@@ -184,7 +184,7 @@ public class UnimodOboReader {
       this.charge = charge;
     }
     
-    public Precursor(String modifiedSequence, int length, int charge, Map<String, Float> unimodMassMap) {
+    public Precursor(String modifiedSequence, int length, int charge, Map<String, Float> unimodMassMap, Map<String, Float> diannLabelMassMap) {
       modifications = new float[length];
       this.charge = charge;
       cTermMod = 0; // DIA-NN seems not support C-term modification
@@ -193,7 +193,7 @@ public class UnimodOboReader {
 
       Matcher matcher = pattern5.matcher(s);
       if (matcher.find()) {
-        a = getModMass(matcher.group(1), unimodMassMap);
+        a = getModMass(matcher.group(1), unimodMassMap, diannLabelMassMap);
         s = s.substring(matcher.end());
       }
 
@@ -205,7 +205,7 @@ public class UnimodOboReader {
           modifications[idx++] = 0;
           sb.append(matcher.group(1));
         } else {
-          modifications[idx++] = getModMass(matcher.group(3), matcher.group(1).charAt(0), unimodMassMap);
+          modifications[idx++] = getModMass(matcher.group(3), matcher.group(1).charAt(0), unimodMassMap, diannLabelMassMap);
           sb.append(matcher.group(1));
         }
       }
@@ -214,17 +214,21 @@ public class UnimodOboReader {
       nTermMod = a;
     }
 
-    private static float getModMass(String s, char site, Map<String, Float> unimodMassMap) {
+    private static float getModMass(String s, char site, Map<String, Float> unimodMassMap, Map<String, Float> diannLabelMassMap) {
       if (s.startsWith("UniMod:")) {
         return unimodMassMap.get(s.toLowerCase());
+      } else if (diannLabelMassMap != null && !diannLabelMassMap.isEmpty() && s.startsWith("label-")) {
+        return diannLabelMassMap.get(s);
       } else {
         return Float.parseFloat(s) - AAMasses[site - 'A'];
       }
     }
 
-    private static float getModMass(String s, Map<String, Float> unimodMassMap) {
+    private static float getModMass(String s, Map<String, Float> unimodMassMap, Map<String, Float> diannLabelMassMap  ) {
       if (s.startsWith("UniMod:")) {
         return unimodMassMap.get(s.toLowerCase());
+      } else if (diannLabelMassMap != null && !diannLabelMassMap.isEmpty() && s.startsWith("label-")) {
+        return diannLabelMassMap.get(s);
       } else {
         return Float.parseFloat(s);
       }

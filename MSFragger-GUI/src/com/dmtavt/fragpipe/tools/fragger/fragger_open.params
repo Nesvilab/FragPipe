@@ -25,6 +25,7 @@ remove_precursor_peak = 1
 remove_precursor_range = -1.5,1.5
 intensity_transform = 0
 activation_types =
+analyzer_types = all
 group_variable = 0
 require_precursor = 0
 reuse_dia_fragment_peaks = 0

@@ -40,10 +40,10 @@ public class InputLcmsFile implements Comparable<InputLcmsFile> {
     public static final String REASON_DOTS = "has dots";
     public static final String REASON_MULTIPLE_DOTS = "has multiple dots";
     public static final String REASON_SPACES = "has spaces";
-    public static final String allowedChars = "[A-Za-z0-9-_+.\\[\\]()]";
     public static final String disallowedChars = "[^A-Za-z0-9-_ +.\\[\\]()]";
     public static final Pattern disallowedExperimentPattern = Pattern.compile("[^A-Za-z0-9_]");
-    public static final String REASON_DISALLOWED_CHARS = "has characters other than: " + allowedChars;
+    public static final String REASON_DISALLOWED_CHARS = "has disallowed characters";
+    public static final String dirDisallowedChars = "[&.]";
 
     public InputLcmsFile(Path path, String experiment, Integer replicate, String dataType) {
         this.path = path;
@@ -78,7 +78,11 @@ public class InputLcmsFile implements Comparable<InputLcmsFile> {
 
     private String guessDataType(Path filePath) {
         String fileName = filePath.toAbsolutePath().toString();
-        if (fileName.endsWith(".d") || fileName.toLowerCase().contains("dda") || fileName.contains("_Q1.") || fileName.contains("_Q2.") || fileName.contains("_Q3.")) { // DDA has higher priority.
+        if (fileName.toLowerCase().contains("dda")
+            || fileName.contains("_Q1.")
+            || fileName.contains("_Q2.")
+            || fileName.contains("_Q3.")
+            || fileName.contains("_diatracer.")) { // DDA has higher priority.
             return "DDA";
         } else if (fileName.contains("DIA")) { // DIA has to be upper case.
             return "DIA";
@@ -167,18 +171,15 @@ public class InputLcmsFile implements Comparable<InputLcmsFile> {
     }
 
     public static Set<String> validatePath(String dir) {
-//        if (p.getFileName().toString().contains("2file space")) {
-//            int a = 1;
-//        }
         Set<String> reasons = new HashSet<>();
         addNonNull(reasons, testIsNotAscii(dir));
         addNonNull(reasons, testHasSpaces(dir));
+        addNonNull(reasons, testDirHasNonAllowedChars(dir));
         return reasons;
     }
 
     public static Set<String> validateFilename(String fn) {
         Set<String> reasons = new HashSet<>();
-        //addNonNull(reasons, testIsNotAscii(fn));
         addNonNull(reasons, testHasSpaces(fn));
         addNonNull(reasons, testHasMoreThanOneDot(fn));
         addNonNull(reasons, testHasNonAllowedChars(fn));
@@ -206,6 +207,13 @@ public class InputLcmsFile implements Comparable<InputLcmsFile> {
             return null;
         }
         return Pattern.compile(disallowedChars).matcher(s).find() ? REASON_DISALLOWED_CHARS : null;
+    }
+
+    private static String testDirHasNonAllowedChars(String s) {
+        if (s == null) {
+            return null;
+        }
+        return Pattern.compile(dirDisallowedChars).matcher(s).find() ? REASON_DISALLOWED_CHARS : null;
     }
 
     public static Path renameBadFile(Path p) {

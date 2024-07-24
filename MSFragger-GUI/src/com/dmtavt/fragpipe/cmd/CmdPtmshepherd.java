@@ -22,6 +22,7 @@ import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
 import com.dmtavt.fragpipe.tools.ptmshepherd.PtmshepherdParams;
+import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.SwingUtils;
 import java.awt.Component;
 import java.io.BufferedWriter;
@@ -35,6 +36,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 import org.jooq.lambda.Seq;
@@ -46,7 +48,7 @@ public class CmdPtmshepherd extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdPtmshepherd.class);
   public static final String NAME = "PTMShepherd";
   public static final String CONFIG_FN = "shepherd.config";
-  public static final String JAR_SHEPHERD_NAME = "ptmshepherd-2.0.6.jar";
+  public static final String JAR_SHEPHERD_NAME = "ptmshepherd-3.0.1-rc1.jar";
   /** Fully qualified name, such as one you'd use for `java -cp my.jar com.example.MyClass`. */
   public static final String JAR_SHEPHERD_MAIN_CLASS = "edu.umich.andykong.ptmshepherd.PTMShepherd";
   public static final String[] JAR_DEPS = {ToolingUtils.BATMASS_IO_JAR, "commons-math3-3.6.1.jar", "hipparchus-1.8/hipparchus-core-1.8.jar", "hipparchus-1.8/hipparchus-stat-1.8.jar"};
@@ -63,7 +65,7 @@ public class CmdPtmshepherd extends CmdBase {
   }
 
   public boolean configure(Component comp, boolean isDryRun, Path binFragger, int ramGb,
-      Path db, Map<LcmsFileGroup, Path> mapGroupsToProtxml, Map<String, String> additionalProps) {
+      Path db, Map<LcmsFileGroup, Path> mapGroupsToProtxml, Map<String, String> additionalProps, Path jarFragpipe) {
 
     initPreConfig();
 
@@ -93,6 +95,27 @@ public class CmdPtmshepherd extends CmdBase {
     if (classpathJars == null) {
       return false;
     }
+
+    Path root = FragpipeLocations.get().getDirFragpipeRoot();
+    Path libsDir = root.resolve("lib");
+    if (Files.isDirectory(jarFragpipe)) {
+      libsDir = jarFragpipe.getParent().getParent().getParent().getParent().resolve("build/install/fragpipe/lib");
+      log.debug("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
+    }
+
+    Set<String> toJoin = classpathJars.stream().map(p -> p.toAbsolutePath().normalize().toString()).collect(Collectors.toSet());
+    try {
+      toJoin.addAll(Files.walk(libsDir).filter(p -> p.getFileName().toString().endsWith(".jar")).
+          filter(p -> p.getFileName().toString().startsWith("commons-lang3")).
+          map(p -> p.toAbsolutePath().normalize().toString()).collect(Collectors.toList())
+      );
+    } catch (IOException ex) {
+      ex.printStackTrace();
+      return false;
+    }
+
+    toJoin.add(jarFragpipe.toAbsolutePath().normalize().toString());
+    final String classpath = OsUtils.asSingleArgument(String.join(System.getProperties().getProperty("path.separator"), toJoin));
 
     PtmshepherdParams params = new PtmshepherdParams(wd, db, mapGroupsToProtxml, additionalProps);
     String config;
@@ -145,7 +168,7 @@ public class CmdPtmshepherd extends CmdBase {
       cmd.add(createJavaDParamString("libs.thermo.dir", extLibsThermo.toString()));
     }
     cmd.add("-cp");
-    cmd.add(constructClasspathString(classpathJars));
+    cmd.add(classpath);
     cmd.add(JAR_SHEPHERD_MAIN_CLASS);
     cmd.add("\"" + pathConfig.toAbsolutePath() + "\"");
     ProcessBuilder pb = new ProcessBuilder(cmd);

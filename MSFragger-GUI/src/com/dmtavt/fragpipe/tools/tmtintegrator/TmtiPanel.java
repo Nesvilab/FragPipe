@@ -29,7 +29,6 @@ import com.dmtavt.fragpipe.messages.MessageType;
 import com.dmtavt.fragpipe.messages.NoteConfigTmtI;
 import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.dmtavt.fragpipe.tools.tmtintegrator.TmtAnnotationTable.ExpNameToAnnotationFile;
-import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FileChooserUtils;
@@ -49,6 +48,7 @@ import java.awt.Dimension;
 import java.awt.ItemSelectable;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
@@ -175,6 +175,7 @@ public class TmtiPanel extends JPanelBase {
   private UiCombo uiComboAbnType;
   private UiCombo uiComboNorm;
   private UiCombo uiComboIntensityExtractionTool;
+  private UiCheck uiCheckMsstats;
 
   private static Supplier<? extends RuntimeException> supplyRunEx(String message) {
     return () -> new RuntimeException(message);
@@ -347,6 +348,9 @@ public class TmtiPanel extends JPanelBase {
             + "2: GN (median centering variance scaling) <br/>\n"
             + "-1: generate reports with all normalization options)");
 
+    uiCheckMsstats = new UiCheck("Generate MSstats files (using Philosopher)", null, false);
+    FormEntry feCheckMSstats = new FormEntry("philosopher-msstats", "", uiCheckMsstats, "<html>Option to generate an MSstats-compatible report with Philosopher.<br>Require selecting <b>Philosopher</b> as the \"intensity extraction tool\".");
+
     uiComboAddRef = UiUtils.createUiCombo(TmtiConfProps.COMBO_ADD_REF.stream()
         .map(ComboValue::getValInUi).collect(Collectors.toList()));
     FormEntry feAddRef = fe(TmtiConfProps.PROP_add_Ref,
@@ -376,6 +380,7 @@ public class TmtiPanel extends JPanelBase {
     addRowLabelComp(p, feRefTag);
     addRowLabelComp(p, feGroupBy);
     addRowLabelComp(p, feProtNorm);
+    addRowLabelComp(p, feCheckMSstats);
 //    addRowLabelComp(p, feAbnType);
 
     return p;
@@ -387,6 +392,10 @@ public class TmtiPanel extends JPanelBase {
 
   public String getNormMethod() {
     return (String) uiComboNorm.getSelectedItem();
+  }
+
+  public boolean isMsstats() {
+    return uiCheckMsstats.isSelected();
   }
 
   private JPanel createPanelOptsAdvanced() {
@@ -641,14 +650,47 @@ public class TmtiPanel extends JPanelBase {
     return getSelectedLabel().getReagentNames().size();
   }
 
-  public Map<LcmsFileGroup, Path> getAnnotations() {
+  public Map<LcmsFileGroup, Path> getAnnotations(Path wd, boolean isDryRun) {
     ArrayList<ExpNameToAnnotationFile> annotations = tmtAnnotationTable.fetchModel()
         .dataCopy();
     Map<LcmsFileGroup, Path> map = new TreeMap<>();
     for (ExpNameToAnnotationFile row : annotations) {
-      map.put(new LcmsFileGroup(row.expName, new ArrayList<>(row.lcmsFiles)), Paths.get(row.getPath()));
+      Path p;
+      if (row.getPath().contentEquals(STRING_NO_PATH_SET)) {
+        try {
+          p = generateDummyAnnotationFile(wd, row.expName, getSelectedLabel(), isDryRun);
+        } catch (Exception ex) {
+          SwingUtils.showErrorDialogWithStacktrace(ex, this);
+          return new TreeMap<>();
+        }
+      } else {
+        p = Paths.get(row.getPath());
+        if (!Files.exists(p) || !Files.isRegularFile(p) || !Files.isReadable(p)) {
+          SwingUtils.showErrorDialog(this, "Annotation file not found or not readable: " + p, "Annotation file not found");
+          return new TreeMap<>();
+        }
+      }
+
+      row.setPath(p.toAbsolutePath().toString());
+      map.put(new LcmsFileGroup(row.expName, new ArrayList<>(row.lcmsFiles)), p);
     }
+
     return map;
+  }
+
+  private Path generateDummyAnnotationFile(Path outDir, String experimentName, QuantLabel quantLabel, boolean isDryRun) throws Exception {
+    Path p = outDir.resolve(experimentName).resolve(experimentName + "_annotation.txt");
+
+    if (!isDryRun) {
+      Files.createDirectories(outDir.resolve(experimentName));
+      BufferedWriter bw = Files.newBufferedWriter(p);
+      for (String s : quantLabel.getReagentNames()) {
+        bw.write(String.format("%s %s_%s\n", s, experimentName, s));
+      }
+      bw.close();
+    }
+
+    return p;
   }
 
   public String getQuantLevel() {
@@ -711,11 +753,11 @@ public class TmtiPanel extends JPanelBase {
       line = line.trim();
       if (StringUtils.isNullOrWhitespace(line))
         continue;
-      String[] split = line.split("\\s+", 2);
-      if (split.length > 1) {
+      String[] split = line.split("\\s+");
+      if (split.length == 2) {
         annotations.add(new QuantLabelAnnotation(split[0].trim(), split[1]));
       } else {
-        annotations.add(new QuantLabelAnnotation(split[0].trim(), "NA"));
+        throw new RuntimeException("Invalid line in annotation file " + file.getAbsoluteFile() + ": " + line);
       }
     }
     return annotations;
@@ -741,7 +783,7 @@ public class TmtiPanel extends JPanelBase {
           + (unknownLabelNames.isEmpty() ? "" : ("\nUnknown label names: " + unknownLabelNames)));
     }
     if (matching.size() > 1) {
-      throw new TmtAnnotationValidationException("Multiple known quant label types match labeling\n"
+      log.warn("Multiple known quant label types match labeling\n"
           + "reagent names in given annotations:\n" + matching.stream()
           .map(QuantLabel::getName).collect(Collectors.joining(", ")));
     }
@@ -789,8 +831,8 @@ public class TmtiPanel extends JPanelBase {
               .map(lcms -> lcms.getPath().getParent()).distinct().toList();
           if (fileDirs.size() == 1) {
             // only if all files are in the same directory, we'll try to auto-detect annotations file
-            List<Path> annotations = PathUtils.findFilesQuietly(fileDirs.get(0),
-                p -> p.getFileName().toString().endsWith("annotation.txt"))
+            List<Path> annotations = Files.list(fileDirs.get(0))
+                .filter(p -> p.getFileName().toString().endsWith("annotation.txt"))
                 .collect(Collectors.toList());
             if (annotations.size()
                 == 1) {// this is in case the predicate is changed such that it can match multiple files
@@ -1089,7 +1131,7 @@ public class TmtiPanel extends JPanelBase {
     return null;
   }
 
-  public Map<String, String> formToConfig(int ramGb, String decoyTag, String pathTmtiJar, String pathOutput, QuantLabel quantLabel, boolean isSecondUnmodRun) {
+  public Map<String, String> formToConfig(String pathOutput, QuantLabel quantLabel, boolean isSecondUnmodRun) {
     Map<String, String> map = SwingUtils.valuesGet(this, null);
     final TreeMap<String, String> mapConv = new TreeMap<>();
     map.forEach((k, v) ->
@@ -1126,10 +1168,7 @@ public class TmtiPanel extends JPanelBase {
       }
     });
 
-    mapConv.put("path", pathTmtiJar);
-    mapConv.put("memory", Integer.toString(ramGb));
     mapConv.put("output", pathOutput);
-    mapConv.put("prefix", decoyTag);
 
     return mapConv;
   }

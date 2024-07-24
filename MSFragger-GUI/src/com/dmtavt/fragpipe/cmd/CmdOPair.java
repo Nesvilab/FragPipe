@@ -24,7 +24,9 @@ import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
 import com.dmtavt.fragpipe.exceptions.UnexpectedException;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
+import com.dmtavt.fragpipe.tabs.TabGlyco;
 import com.dmtavt.fragpipe.tools.enums.ActivationTypes;
+import com.dmtavt.fragpipe.tools.glyco.GlycoMassLoader;
 import com.dmtavt.fragpipe.tools.opair.OPairParams;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.StringUtils;
@@ -35,6 +37,7 @@ import java.io.BufferedWriter;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +51,9 @@ import javax.swing.JOptionPane;
 public class CmdOPair  extends CmdBase {
     private static final Logger log = LoggerFactory.getLogger(CmdOPair.class);
     public static String NAME = "OPair";
+    public static final String OPAIR_FOLDER = "opair";
+    public static final String OPAIR_MODS_FOLDER = "Glycan_Mods";
+    public static final String DEFAULT_OXO_FILE = "OxoniumFilter.tsv";
 
     public CmdOPair(boolean isRun, Path workDir) {
         super(isRun, workDir);
@@ -138,6 +144,29 @@ public class CmdOPair  extends CmdBase {
                 return false;
             }
 
+            // get glycan residue and mod definition files
+            final Path dirTools = FragpipeLocations.get().getDirTools();
+            Path glycanDBfolder = Paths.get(dirTools.toString(), TabGlyco.glycanDBfolder);
+            Path modsFolder = Paths.get(dirTools.toString(), OPAIR_FOLDER, OPAIR_MODS_FOLDER);
+            Path residuesPath = glycanDBfolder.resolve(GlycoMassLoader.GLYCAN_RESIDUES_NAME);
+            if (!Files.exists(residuesPath)) {
+                if (Fragpipe.headless) {
+                    log.error(String.format("Could not find Glycan residue definitions file at %s. Please make sure this file has not been removed and try again.", residuesPath));
+                } else {
+                    SwingUtils.showErrorDialog(comp, String.format("Could not find Glycan residue definitions file at %s. Please make sure this file has not been removed and try again.", residuesPath), "Error");
+                }
+                return false;
+            }
+            Path modsPath = glycanDBfolder.resolve(GlycoMassLoader.GLYCAN_MODS_NAME);
+            if (!Files.exists(modsPath)) {
+                if (Fragpipe.headless) {
+                    log.error(String.format("Could not find Glycan mod definitions file at %s. Please make sure this file has not been removed and try again.", modsPath));
+                } else {
+                    SwingUtils.showErrorDialog(comp, String.format("Could not find Glycan mod definitions file at %s. Please make sure this file has not been removed and try again.", modsPath), "Error");
+                }
+                return false;
+            }
+
             if (OsUtils.isUnix()) {
                 cmd.add("dotnet");
             }
@@ -149,7 +178,17 @@ public class CmdOPair  extends CmdBase {
             cmd.add("-c " + params.getPrecursorPPMtol());
             if (params.isFilterOxonium()) {
                 if (params.getOxoRulesFilePath().isEmpty()) {
-                    cmd.add("-f default");
+                    // no file provided - use default file in FragPipe
+                    Path oxoPath = modsFolder.resolve(DEFAULT_OXO_FILE);
+                    if (!Files.exists(oxoPath)) {
+                        if (Fragpipe.headless) {
+                            log.error(String.format("Could not find default oxonium ion definitions file at %s. Please make sure this file has not been removed and try again.", oxoPath));
+                        } else {
+                            SwingUtils.showErrorDialog(comp, String.format("Could not find default oxonium ion definitions file at %s. Please make sure this file has not been removed and try again.", oxoPath), "Error");
+                        }
+                        return false;
+                    }
+                    cmd.add("-f " + oxoPath.toAbsolutePath());
                 } else {
                     cmd.add("-f " + params.getOxoRulesFilePath());
                 }
@@ -158,6 +197,8 @@ public class CmdOPair  extends CmdBase {
             if (params.getOglycanDB().length() > 0) {
                 cmd.add("-g " + params.getOglycanDB());
             }
+            cmd.add("-x " + residuesPath.toAbsolutePath());
+            cmd.add("-y " + modsPath.toAbsolutePath());
             cmd.add("-n " + params.getMaxNumGlycans());
             cmd.add("-t " + numThreads);
             cmd.add("-i " + params.getMinIsotope());

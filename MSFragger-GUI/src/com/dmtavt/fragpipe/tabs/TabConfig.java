@@ -26,13 +26,14 @@ import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.Notifications;
 import com.dmtavt.fragpipe.api.PyInfo;
-import com.dmtavt.fragpipe.dialogs.DownloadIonQuantPanel;
-import com.dmtavt.fragpipe.dialogs.DownloadMSFraggerPanel;
+import com.dmtavt.fragpipe.dialogs.DownloadToolsPanel;
 import com.dmtavt.fragpipe.exceptions.NoStickyException;
 import com.dmtavt.fragpipe.exceptions.UnexpectedException;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
 import com.dmtavt.fragpipe.messages.MessageBalloon;
 import com.dmtavt.fragpipe.messages.MessageClearCache;
+import com.dmtavt.fragpipe.messages.MessageDiaTracerNewBin;
+import com.dmtavt.fragpipe.messages.MessageDiaTracerUpdateAvailable;
 import com.dmtavt.fragpipe.messages.MessageDiannNewBin;
 import com.dmtavt.fragpipe.messages.MessageFindSystemPython;
 import com.dmtavt.fragpipe.messages.MessageInstallEasyPQP;
@@ -40,30 +41,26 @@ import com.dmtavt.fragpipe.messages.MessageIonQuantNewBin;
 import com.dmtavt.fragpipe.messages.MessageIonQuantUpdateAvailable;
 import com.dmtavt.fragpipe.messages.MessageMsfraggerNewBin;
 import com.dmtavt.fragpipe.messages.MessageMsfraggerUpdateAvailable;
-import com.dmtavt.fragpipe.messages.MessagePhilosopherNewBin;
 import com.dmtavt.fragpipe.messages.MessagePythonNewBin;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
-import com.dmtavt.fragpipe.messages.MessageSkylineNewBin;
 import com.dmtavt.fragpipe.messages.MessageUiRevalidate;
 import com.dmtavt.fragpipe.messages.NoteConfigDbsplit;
+import com.dmtavt.fragpipe.messages.NoteConfigDiaTracer;
 import com.dmtavt.fragpipe.messages.NoteConfigDiann;
 import com.dmtavt.fragpipe.messages.NoteConfigIonQuant;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
-import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.dmtavt.fragpipe.messages.NoteConfigPython;
-import com.dmtavt.fragpipe.messages.NoteConfigSkyline;
 import com.dmtavt.fragpipe.messages.NoteConfigSpeclibgen;
 import com.dmtavt.fragpipe.messages.NoteFragpipeUpdate;
 import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.dmtavt.fragpipe.tools.diann.Diann;
+import com.dmtavt.fragpipe.tools.diatracer.DiaTracer;
+import com.dmtavt.fragpipe.tools.diatracer.DiaTracerVersionFetcherServer;
 import com.dmtavt.fragpipe.tools.fragger.Msfragger;
 import com.dmtavt.fragpipe.tools.fragger.Msfragger.Version;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerVersionFetcherServer;
 import com.dmtavt.fragpipe.tools.ionquant.IonQuant;
 import com.dmtavt.fragpipe.tools.ionquant.IonQuantVersionFetcherServer;
-import com.dmtavt.fragpipe.tools.philosopher.Philosopher;
-import com.dmtavt.fragpipe.tools.philosopher.Philosopher.UpdateInfo;
-import com.dmtavt.fragpipe.tools.skyline.Skyline;
 import com.dmtavt.fragpipe.util.GitHubJson;
 import com.github.chhh.utils.JarUtils;
 import com.github.chhh.utils.OsUtils;
@@ -94,7 +91,6 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -109,6 +105,8 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.TreeMap;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import javax.imageio.ImageIO;
@@ -121,7 +119,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
@@ -131,15 +128,13 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
-import rx.schedulers.Schedulers;
 
 public class TabConfig extends JPanelWithEnablement {
 
   private static final Logger log = LoggerFactory.getLogger(TabConfig.class);
-  private static final DefaultArtifactVersion msfraggerMinVersion = new DefaultArtifactVersion("4.0");
-  private static final DefaultArtifactVersion ionquantMinVersion = new DefaultArtifactVersion("1.10.12");
-  private static final DefaultArtifactVersion philosopherMinVersion = new DefaultArtifactVersion("5.1.0");
+  private static final DefaultArtifactVersion msfraggerMinVersion = new DefaultArtifactVersion("4.1");
+  private static final DefaultArtifactVersion ionquantMinVersion = new DefaultArtifactVersion("1.10.27");
+  private static final DefaultArtifactVersion diatracerMinVersion = new DefaultArtifactVersion("1.1.3");
   public static final DefaultArtifactVersion pythonMinVersion = new DefaultArtifactVersion("3.9");
 
   private static final MigUtils mu = MigUtils.get();
@@ -147,16 +142,12 @@ public class TabConfig extends JPanelWithEnablement {
 
   public static final String TAB_NAME = "Config";
 
-  private UiText uiTextBinFragger;
-  private UiText uiTextBinIonQuant;
+  private UiText uiTextToolsFolder;
   private HtmlStyledJEditorPane epFraggerVer;
   private HtmlStyledJEditorPane epIonQuantVer;
-  private UiText uiTextBinPhi;
+  private HtmlStyledJEditorPane epDiaTracerVer;
   private UiText uiTextBinDiann;
-  private UiText uiTextBinSkyline;
-  private HtmlStyledJEditorPane epPhiVer;
   private HtmlStyledJEditorPane epDiannVer;
-  private HtmlStyledJEditorPane epSkylineVer;
   private UiText uiTextBinPython;
   private HtmlStyledJEditorPane epPythonVer;
   private HtmlStyledJEditorPane epDbsplitText;
@@ -165,11 +156,11 @@ public class TabConfig extends JPanelWithEnablement {
   private HtmlStyledJEditorPane epEasyPQPText;
   private Container epSpeclibgenParent;
   private JButton btnAbout;
+
   public static final String TIP_MSFRAGGER_BIN = "tip.msfragger.bin";
   public static final String TIP_IONQUANT_BIN = "tip.ionquant.bin";
-  public static final String TIP_PHILOSOPHER_BIN = "tip.pholosopher.bin";
+  public static final String TIP_DIATRACER_BIN = "tip.diatracer.bin";
   public static final String TIP_DIANN_BIN = "tip.diann.bin";
-  public static final String TIP_SKYLINE_BIN = "tip.skyline.bin";
   public static final String TIP_PYTHON_BIN = "tip.python.bin";
   private static final String TIP_DBSPLIT = "tip.dbsplit";
   private static final String TIP_SPECLIBGEN = "tip.speclibgen";
@@ -181,8 +172,10 @@ public class TabConfig extends JPanelWithEnablement {
   public static String userEmail = null;
   public static String userInstitution = null;
 
-  private static final Pattern msfraggerRegex = Pattern.compile("msfragger.*\\.jar", Pattern.CASE_INSENSITIVE);
-  private static final Pattern ionquantRegex = Pattern.compile("ionquant.*\\.jar", Pattern.CASE_INSENSITIVE);
+  private static final Pattern msfraggerRegex = Pattern.compile("msfragger-(.*)\\.jar", Pattern.CASE_INSENSITIVE);
+  private static final Pattern ionquantRegex = Pattern.compile("ionquant-(.*)\\.jar", Pattern.CASE_INSENSITIVE);
+  private static final Pattern diatracerRegex = Pattern.compile("diatracer-(.*)\\.jar", Pattern.CASE_INSENSITIVE);
+
   private final TextConsole console;
 
   public TabConfig(TextConsole console) {
@@ -191,12 +184,28 @@ public class TabConfig extends JPanelWithEnablement {
     initMore();
   }
 
-  public String getIonQuantPath() {
-    return uiTextBinIonQuant.getNonGhostText().trim();
-  }
-
-  public String getIonQuantVersion() {
-    return epIonQuantVer.getTextLessHtml().trim();
+  public String getJarPath(String s, Pattern pattern) {
+    if (!s.isEmpty()) {
+      Path p = Paths.get(s);
+      if (Files.exists(p) && Files.isDirectory(p)) {
+        try {
+          TreeMap<DefaultArtifactVersion, Path> map = new TreeMap<>();
+          Files.walk(p).forEach(pp -> {
+            Matcher m = pattern.matcher(pp.getFileName().toString());
+            if (m.matches()) {
+              map.put(new DefaultArtifactVersion(m.group(1)), pp);
+            }
+          });
+          if (!map.isEmpty()) {
+            uiTextToolsFolder.setText(s);
+            return map.lastEntry().getValue().toAbsolutePath().toString();
+          }
+        } catch (Exception ex) {
+          SwingUtils.showErrorDialogWithStacktrace(ex, null);
+        }
+      }
+    }
+    return "";
   }
 
   private void initMore() {
@@ -206,11 +215,8 @@ public class TabConfig extends JPanelWithEnablement {
   private void init() {
     this.setLayout(new MigLayout(new LC().fillX()));
     add(createPanelTopButtons(), new CC().growX().wrap());
-    add(createPanelFragger(), new CC().growX().wrap());
-    add(createPanelIonQuant(), new CC().growX().wrap());
-    add(createPanelPhilosopher(), new CC().growX().wrap());
+    add(createPanelTools(), new CC().growX().wrap());
     add(createPanelDiann(), new CC().growX().wrap());
-    add(createPanelSkyline(), new CC().growX().wrap());
     add(createPanelPython(), new CC().growX().wrap());
     add(createPanelDbsplit(), new CC().growX().wrap());
     add(createPanelSpeclibgen(), new CC().growX().wrap());
@@ -284,57 +290,49 @@ public class TabConfig extends JPanelWithEnablement {
     return p;
   }
 
-  private JPanel createPanelFragger() {
+  private JPanel createPanelTools() {
     JPanel p = newMigPanel();
-    p.setBorder(new TitledBorder("MSFragger"));
+    p.setBorder(new TitledBorder("MSFragger, IonQuant, diaTracer"));
 
-    final String binMsfraggerTip = "Select path to MSFragger.jar";
-    uiTextBinFragger = UiUtils.uiTextBuilder().create();
-    uiTextBinFragger.addFocusListener(new ContentChangedFocusAdapter(uiTextBinFragger, (s, s2) -> {
-      Bus.post(new MessageMsfraggerNewBin(s2));
-    }));
-    FormEntry feBinMsfragger = fe(uiTextBinFragger, "bin-msfragger", TAB_PREFIX).tooltip(binMsfraggerTip).create();
+    final String toolsFolderTip = "Select path to the folder containing the tools";
+    uiTextToolsFolder = UiUtils.uiTextBuilder().create();
+    uiTextToolsFolder.addActionListener(e -> {
+      Bus.post(new MessageMsfraggerNewBin(getJarPath(uiTextToolsFolder.getNonGhostText(), msfraggerRegex)));
+      Bus.post(new MessageIonQuantNewBin(getJarPath(uiTextToolsFolder.getNonGhostText(), ionquantRegex)));
+      Bus.post(new MessageDiaTracerNewBin(getJarPath(uiTextToolsFolder.getNonGhostText(), diatracerRegex)));
+    });
+    FormEntry feBinMsfragger = fe(uiTextToolsFolder, "tools-folder", TAB_PREFIX).tooltip(toolsFolderTip).create();
     p.add(feBinMsfragger.comp, ccL().split().growX());
 
-    JButton btnBrowse = feBinMsfragger.browseButton("Browse", binMsfraggerTip, this::createFraggerFileChooser, paths -> {
-      paths.stream().findFirst().ifPresent(jar -> Bus.post(new MessageMsfraggerNewBin(jar.toString())));
+    JButton btnBrowse = feBinMsfragger.browseButton("Browse", toolsFolderTip, this::createToolsFolderChooser, paths -> {
+      paths.stream().findFirst().ifPresent(pp -> {
+        Bus.post(new MessageMsfraggerNewBin(getJarPath(pp.toString(), msfraggerRegex)));
+        Bus.post(new MessageIonQuantNewBin(getJarPath(pp.toString(), ionquantRegex)));
+        Bus.post(new MessageDiaTracerNewBin(getJarPath(pp.toString(), diatracerRegex)));
+      });
     });
     p.add(btnBrowse, ccL());
-    JButton btnUpdate = UiUtils.createButton("Download / Update", this::actionMsfraggerUpdate);
+    JButton btnUpdate = UiUtils.createButton("Download / Update", this::actionToolsDownload);
 
     epFraggerVer = new HtmlStyledJEditorPane("MSFragger version: N/A");
-    p.add(btnUpdate, ccL().wrap());
-    p.add(Fragpipe.renameNoCache(epFraggerVer, "msfragger.version-info", TAB_PREFIX), ccL().split());
-    
-    JEditorPane ep = SwingUtils.createClickableHtml(createFraggerCitationBody());
-    p.add(ep, ccL().spanX().growX().wrap());
-    return p;
-  }
-
-  private JPanel createPanelIonQuant() {
-    JPanel p = newMigPanel();
-    p.setBorder(new TitledBorder("IonQuant"));
-
-    final String binIonQuantTip = "Select path to IonQuant.jar";
-    uiTextBinIonQuant = UiUtils.uiTextBuilder().create();
-    uiTextBinIonQuant.addFocusListener(new ContentChangedFocusAdapter(uiTextBinIonQuant, (s, s2) -> {
-      Bus.post(new MessageIonQuantNewBin(s2));
-    }));
-    FormEntry feBinIonQuant = fe(uiTextBinIonQuant, "bin-ionquant", TAB_PREFIX).tooltip(binIonQuantTip).create();
-    p.add(feBinIonQuant.comp, ccL().split().growX());
-
-    JButton btnBrowse = feBinIonQuant.browseButton("Browse", binIonQuantTip, this::createIonQuantFileChooser, paths -> {
-      paths.stream().findFirst().ifPresent(jar -> Bus.post(new MessageIonQuantNewBin(jar.toString())));
-    });
-    p.add(btnBrowse, ccL());
-    JButton btnUpdate = UiUtils.createButton("Download / Update", this::actionIonQuantUpdate);
-
     epIonQuantVer = new HtmlStyledJEditorPane("IonQuant version: N/A");
-    p.add(btnUpdate, ccL().wrap());
-    p.add(Fragpipe.renameNoCache(epIonQuantVer, "ionquant.version-info", TAB_PREFIX), ccL().split());
+    epDiaTracerVer = new HtmlStyledJEditorPane("diaTracer version: N/A");
 
-    JEditorPane ep = SwingUtils.createClickableHtml(createIonQuantCitationBody());
-    p.add(ep, ccL().spanX().growX().wrap());
+    JEditorPane msfraggerCitation = SwingUtils.createClickableHtml(createFraggerCitationBody());
+    JEditorPane ionQuantCitation = SwingUtils.createClickableHtml(createIonQuantCitationBody());
+    JEditorPane diaTracerCitation = SwingUtils.createClickableHtml(createDiaTracerCitationBody());
+
+    p.add(btnUpdate, ccL().wrap());
+
+    p.add(Fragpipe.renameNoCache(epFraggerVer, "msfragger.version-info", TAB_PREFIX), ccL().split());
+    p.add(msfraggerCitation, ccL().spanX().growX().wrap());
+
+    p.add(Fragpipe.renameNoCache(epIonQuantVer, "ionquant.version-info", TAB_PREFIX), ccL().split());
+    p.add(ionQuantCitation, ccL().spanX().growX().wrap());
+
+    p.add(Fragpipe.renameNoCache(epDiaTracerVer, "diatracer.version-info", TAB_PREFIX), ccL().split());
+    p.add(diaTracerCitation, ccL().spanX().growX().wrap());
+
     return p;
   }
 
@@ -375,7 +373,7 @@ public class TabConfig extends JPanelWithEnablement {
     if (!StringUtils.isNullOrWhitespace(m.manualDownloadUrl)) {
       JButton btnManualUpdate = new JButton("Download update");
       btnManualUpdate.addActionListener(
-        this::actionMsfraggerUpdate
+        this::actionToolsDownload
       );
       pBtns.add(btnManualUpdate);
     }
@@ -389,7 +387,7 @@ public class TabConfig extends JPanelWithEnablement {
     pBtns.add(btnClose);
     content.add(pBtns, BorderLayout.SOUTH);
 
-    Bus.post(new MessageBalloon(TIP_MSFRAGGER_BIN, uiTextBinFragger, content));
+    Bus.post(new MessageBalloon(TIP_MSFRAGGER_BIN, uiTextToolsFolder, content));
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
@@ -405,7 +403,7 @@ public class TabConfig extends JPanelWithEnablement {
     if (!StringUtils.isNullOrWhitespace(m.manualDownloadUrl)) {
       JButton btnManualUpdate = new JButton("Download update");
       btnManualUpdate.addActionListener(
-          this::actionIonQuantUpdate
+          this::actionToolsDownload
       );
       pBtns.add(btnManualUpdate);
     }
@@ -419,7 +417,37 @@ public class TabConfig extends JPanelWithEnablement {
     pBtns.add(btnClose);
     content.add(pBtns, BorderLayout.SOUTH);
 
-    Bus.post(new MessageBalloon(TIP_IONQUANT_BIN, uiTextBinIonQuant, content));
+    Bus.post(new MessageBalloon(TIP_IONQUANT_BIN, uiTextToolsFolder, content));
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(MessageDiaTracerUpdateAvailable m) {
+    JEditorPane ep = SwingUtils.createClickableHtml(String.format("There is a newer version of diaTracer available [%s].<br>\n", m.newVersion), Notifications.BG_COLOR);
+    JPanel content = new JPanel(new BorderLayout());
+    content.setBackground(ep.getBackground());
+
+    JPanel pBtns = new JPanel();
+    pBtns.setBackground(ep.getBackground());
+    pBtns.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
+
+    if (!StringUtils.isNullOrWhitespace(m.manualDownloadUrl)) {
+      JButton btnManualUpdate = new JButton("Download update");
+      btnManualUpdate.addActionListener(
+          this::actionToolsDownload
+      );
+      pBtns.add(btnManualUpdate);
+    }
+
+    JButton btnClose = new JButton("Close");
+    btnClose.addActionListener(e -> {
+      Bus.post(new MessageBalloon(TIP_DIATRACER_BIN));
+    });
+
+    content.add(ep, BorderLayout.CENTER);
+    pBtns.add(btnClose);
+    content.add(pBtns, BorderLayout.SOUTH);
+
+    Bus.post(new MessageBalloon(TIP_DIATRACER_BIN, uiTextToolsFolder, content));
   }
 
   private CC ccL() {
@@ -434,9 +462,9 @@ public class TabConfig extends JPanelWithEnablement {
     return new JPanel(new MigLayout(new LC().fillX()));
   }
 
-  private void actionMsfraggerUpdate(ActionEvent evt) {
+  private void actionToolsDownload(ActionEvent evt) {
     try {
-      DownloadMSFraggerPanel p = new DownloadMSFraggerPanel();
+      DownloadToolsPanel p = new DownloadToolsPanel();
       int confirmation = SwingUtils.showConfirmDialog2(this, p, "Please agree to the terms of the licenses.", JOptionPane.YES_NO_CANCEL_OPTION);
       if (JOptionPane.OK_OPTION == confirmation) {
         if (p.getName() == null || p.getName().isEmpty()) {
@@ -461,106 +489,73 @@ public class TabConfig extends JPanelWithEnablement {
           return;
         }
 
-        Path toolsPath = PathUtils.createDirs(FragpipeLocations.get().getDirTools());
-        MsfraggerVersionFetcherServer msfraggerVersionFetcherServer = new MsfraggerVersionFetcherServer(p.getName(), p.getEmail(), p.getInstitution(), p.wantReceiveEmail());
-        new Thread(() -> {
-          try {
-            Path msfraggerPath = msfraggerVersionFetcherServer.autoUpdate(toolsPath);
-            if (msfraggerPath != null) {
-              Bus.post(new MessageMsfraggerNewBin(msfraggerPath.toAbsolutePath().toString()));
-            } else {
-              Bus.postSticky(new NoteConfigMsfragger("N/A", "N/A", null));
+        Path toolsPath = PathUtils.createDirs(FragpipeLocations.get().getDirTools()).normalize();
+
+        if (p.downloadMSFragger()) {
+          MsfraggerVersionFetcherServer msfraggerVersionFetcherServer = new MsfraggerVersionFetcherServer(p.getName(), p.getEmail(), p.getInstitution(), p.wantReceiveEmail());
+          new Thread(() -> {
+            try {
+              Path msfraggerPath = msfraggerVersionFetcherServer.autoUpdate(toolsPath);
+              if (msfraggerPath != null) {
+                Bus.post(new MessageMsfraggerNewBin(msfraggerPath.toAbsolutePath().toString()));
+              } else {
+                Bus.postSticky(new NoteConfigMsfragger("N/A", "N/A", null));
+              }
+            } catch (Exception ex) {
+              Bus.postSticky(new NoteConfigMsfragger("N/A", "N/A", ex));
             }
-          } catch (Exception ex) {
-            Bus.postSticky(new NoteConfigMsfragger("N/A", "N/A", ex));
-          }
-        }).start();
+          }).start();
+        } else {
+          Bus.post(new MessageMsfraggerNewBin(getJarPath(toolsPath.toAbsolutePath().toString(), msfraggerRegex)));
+        }
+
+        if (p.downloadIonQuant()) {
+          IonQuantVersionFetcherServer ionQuantVersionFetcherServer = new IonQuantVersionFetcherServer(p.getName(), p.getEmail(), p.getInstitution(), p.wantReceiveEmail());
+          new Thread(() -> {
+            try {
+              Path ionquantPath = ionQuantVersionFetcherServer.autoUpdate(toolsPath);
+              if (ionquantPath != null) {
+                Bus.post(new MessageIonQuantNewBin(ionquantPath.toAbsolutePath().toString()));
+              } else {
+                Bus.postSticky(new NoteConfigIonQuant("N/A", "N/A", false, false, new ValidationException("IonQuant path is null.")));
+              }
+            } catch (Exception ex) {
+              Bus.postSticky(new NoteConfigIonQuant("N/A", "N/A", false, false, ex));
+            }
+          }).start();
+        } else {
+          Bus.post(new MessageIonQuantNewBin(getJarPath(toolsPath.toAbsolutePath().toString(), ionquantRegex)));
+        }
+
+        if (p.downloadDiaTracer()) {
+          DiaTracerVersionFetcherServer diaTracerVersionFetcherServer = new DiaTracerVersionFetcherServer(p.getName(), p.getEmail(), p.getInstitution(), p.wantReceiveEmail());
+          new Thread(() -> {
+            try {
+              Path diatracerPath = diaTracerVersionFetcherServer.autoUpdate(toolsPath);
+              if (diatracerPath != null) {
+                Bus.post(new MessageDiaTracerNewBin(diatracerPath.toAbsolutePath().toString()));
+              } else {
+                Bus.postSticky(new NoteConfigDiaTracer("N/A", "N/A", false, false, new ValidationException("diaTracer path is null.")));
+              }
+            } catch (Exception ex) {
+              Bus.postSticky(new NoteConfigDiaTracer("N/A", "N/A", false, false, ex));
+            }
+          }).start();
+        } else {
+          Bus.post(new MessageDiaTracerNewBin(getJarPath(toolsPath.toAbsolutePath().toString(), diatracerRegex)));
+        }
+
+        uiTextToolsFolder.setText(toolsPath.toAbsolutePath().toString());
       }
     } catch (Exception ex) {
       Bus.postSticky(new NoteConfigMsfragger("N/A", "N/A", ex));
     }
   }
 
-  private void actionIonQuantUpdate(ActionEvent evt) {
-    try {
-      DownloadIonQuantPanel p = new DownloadIonQuantPanel();
-      int confirmation = SwingUtils.showConfirmDialog2(this, p, "Please agree to the terms of the licenses.", JOptionPane.YES_NO_CANCEL_OPTION);
-      if (JOptionPane.OK_OPTION == confirmation) {
-        if (p.getName() == null || p.getName().isEmpty()) {
-          JOptionPane.showMessageDialog(this, "Please fill in your name.", "Error", JOptionPane.ERROR_MESSAGE);
-          return;
-        }
-        if (p.getEmail() == null || p.getEmail().isEmpty() || !emailPattern.matcher(p.getEmail()).matches()) {
-          JOptionPane.showMessageDialog(this, "Please fill in an valid email.", "Error", JOptionPane.ERROR_MESSAGE);
-          return;
-        }
-        if (p.getInstitution() == null || p.getInstitution().isEmpty()) {
-          JOptionPane.showMessageDialog(this, "Please fill in your institution.", "Error", JOptionPane.ERROR_MESSAGE);
-          return;
-        }
-
-        userName = p.getName();
-        userEmail = p.getEmail();
-        userInstitution = p.getInstitution();
-
-        if (!p.licensesChecked()) {
-          JOptionPane.showMessageDialog(this, "Please read and check all of the licenses.", "Error", JOptionPane.ERROR_MESSAGE);
-          return;
-        }
-
-        Path toolsPath = PathUtils.createDirs(FragpipeLocations.get().getDirTools());
-        IonQuantVersionFetcherServer ionQuantVersionFetcherServer = new IonQuantVersionFetcherServer(p.getName(), p.getEmail(), p.getInstitution(), p.wantReceiveEmail());
-        new Thread(() -> {
-          try {
-            Path ionquantPath = ionQuantVersionFetcherServer.autoUpdate(toolsPath);
-            if (ionquantPath != null) {
-              Bus.post(new MessageIonQuantNewBin(ionquantPath.toAbsolutePath().toString()));
-            } else {
-              Bus.postSticky(new NoteConfigIonQuant("N/A", "N/A", false, false, new ValidationException("IonQuant path is null.")));
-            }
-          } catch (Exception ex) {
-            Bus.postSticky(new NoteConfigIonQuant("N/A", "N/A", false, false, ex));
-          }
-        }).start();
-      }
-    } catch (Exception ex) {
-      Bus.postSticky(new NoteConfigIonQuant("N/A", "N/A", false, false, ex));
-    }
-  }
-
-  private JFileChooser createFraggerFileChooser() {
-    final FileNameExtensionFilter fileNameExtensionFilter = new FileNameExtensionFilter("JAR files", "jar");
-    JFileChooser fc = FileChooserUtils.create("Select MSFragger jar", "Select", false, FcMode.FILES_ONLY, true, fileNameExtensionFilter);
-    fc.setFileFilter(fileNameExtensionFilter);
-    FileChooserUtils.setPath(fc, Stream.of(uiTextBinFragger.getNonGhostText(), Fragpipe.propsVarGet(ThisAppProps.PROP_BINARIES_IN), FragpipeLocations.get().getDirFragpipeRoot().toString()));
+  private JFileChooser createToolsFolderChooser() {
+    JFileChooser fc = FileChooserUtils.create("Select tools folder", "Select", false, FcMode.DIRS_ONLY, true);
+    FileChooserUtils.setPath(fc, Stream.of(uiTextToolsFolder.getNonGhostText(), Fragpipe.propsVarGet(ThisAppProps.PROP_BINARIES_IN), FragpipeLocations.get().getDirFragpipeRoot().toString()));
     return fc;
-  }
-
-  private JFileChooser createIonQuantFileChooser() {
-    final FileNameExtensionFilter fileNameExtensionFilter = new FileNameExtensionFilter("JAR files", "jar");
-    JFileChooser fc = FileChooserUtils.create("Select IonQuant jar", "Select", false, FcMode.FILES_ONLY, true, fileNameExtensionFilter);
-    fc.setFileFilter(fileNameExtensionFilter);
-    FileChooserUtils.setPath(fc, Stream.of(uiTextBinIonQuant.getNonGhostText(), Fragpipe.propsVarGet(ThisAppProps.PROP_BINARIES_IN), FragpipeLocations.get().getDirFragpipeRoot().toString()));
-    return fc;
-  }
-
-  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
-  public void on(MessagePhilosopherNewBin m) {
-    if (StringUtils.isBlank(m.path)) {
-      Bus.postSticky(new NoteConfigPhilosopher(null, "N/A"));
-      return;
-    }
-    try {
-      Philosopher.Version v = Philosopher.validate(m.path);
-      DefaultArtifactVersion defaultArtifactVersion = new DefaultArtifactVersion(v.version);
-      if (defaultArtifactVersion.compareTo(philosopherMinVersion) >= 0) {
-        Bus.postSticky(new NoteConfigPhilosopher(m.path, v.version));
-      } else {
-        Bus.postSticky(new NoteConfigPhilosopher(m.path, "N/A", new ValidationException("Philosopher version " + philosopherMinVersion + "+ is required.")));
-      }
-    } catch (ValidationException | UnexpectedException e) {
-      Bus.postSticky(new NoteConfigPhilosopher(m.path, "N/A", e));
-    }
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
@@ -583,49 +578,6 @@ public class TabConfig extends JPanelWithEnablement {
     }
   }
 
-  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
-  public void on(MessageSkylineNewBin m) {
-    if (StringUtils.isBlank(m.path) || !Files.exists(Paths.get(m.path.replaceAll("\"", "")))) {
-      Bus.postSticky(new NoteConfigSkyline(new NullPointerException("Skyline path is null.")));
-      return;
-    }
-
-    if (m.path.contains(" ") && !m.path.startsWith("\"") && !m.path.endsWith("\"")) {
-      m.path = "\"" + m.path + "\"";
-    }
-
-    try {
-      Skyline.Version v = Skyline.validate(m.path);
-      Bus.postSticky(new NoteConfigSkyline(m.path, v, null, true));
-    } catch (Exception e) {
-      e.printStackTrace();
-      Bus.postSticky(new NoteConfigSkyline(e));
-    }
-  }
-
-  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
-  public void on(NoteConfigPhilosopher m) {
-    log.debug("Got {}", m);
-    uiTextBinPhi.setText(m.path);
-
-    Path existing = PathUtils.existing(m.path);
-    if (existing != null) {
-      Fragpipe.propsVarSet(ThisAppProps.PROP_BINARIES_IN, existing.toString());
-      if (existing.toString().contains(" ")) {
-        SwingUtils.showErrorDialog(this, "Space is not allowed in Philosopher path.", "Spaces in path");
-      }
-    }
-
-    if (m.ex != null) {
-      epPhiVer.setText("Philosopher version: N/A");
-      showConfigError(m.ex, TIP_PHILOSOPHER_BIN, uiTextBinPhi, true);
-    } else {
-      epPhiVer.setText("Philosopher version: " + m.version);
-      Notifications.tryClose(TIP_PHILOSOPHER_BIN);
-      checkPhilosopherUpdateAsync(m.path);
-    }
-  }
-
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteConfigDiann m) {
     log.debug("Got {}", m);
@@ -645,55 +597,14 @@ public class TabConfig extends JPanelWithEnablement {
     }
   }
 
-  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
-  public void on(NoteConfigSkyline m) {
-    log.debug("Got {}", m);
-    uiTextBinSkyline.setText(m.path);
-
-    Path existing = PathUtils.existing(m.path);
-    if (existing != null) {
-      Fragpipe.propsVarSet(ThisAppProps.PROP_BINARIES_IN, existing.toString());
-    }
-
-    if (m.ex != null) {
-      epSkylineVer.setText("Skyline version: N/A");
-      TabRun tabRun = Bus.getStickyEvent(TabRun.class);
-      if (tabRun != null) {
-        tabRun.btnOpenSkyline.setEnabled(false);
-      }
-    } else {
-      epSkylineVer.setText("Skyline version: " + m.version);
-      TabRun tabRun = Bus.getStickyEvent(TabRun.class);
-      if (tabRun != null) {
-        tabRun.btnOpenSkyline.setEnabled(true);
-      }
-      Notifications.tryClose(TIP_SKYLINE_BIN);
-    }
-  }
-
-  private void checkPhilosopherUpdateAsync(String path) {
-    Observable<UpdateInfo> obs = Observable
-        .fromCallable(() -> Philosopher.checkUpdates(path))
-        .subscribeOn(Schedulers.io());
-    obs.subscribe(info -> {
-      log.debug("Got philosopher update info with updateAvailable={}", info.isUpdateAvailable);
-      if (info.isUpdateAvailable) {
-        MessageBalloon tip = new MessageBalloon(TIP_PHILOSOPHER_BIN, uiTextBinPhi, SwingUtils.makeHtml("Philosopher update available."), false);
-        Notifications.tryOpen(tip);
-      }
-    }, throwable -> {
-      log.warn("Something happened when checking for philosopher updates", throwable);
-    });
-  }
-
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageMsfraggerNewBin m) {
     if (StringUtils.isBlank(m.binPath) || !Files.exists(Paths.get(m.binPath))) {
-      Bus.postSticky(new NoteConfigMsfragger(m.binPath, "N/A", false, new ValidationException(m.binPath + " does not exist.")));
+      Bus.postSticky(new NoteConfigMsfragger(m.binPath, "N/A", false, new ValidationException("MSFragger path " + m.binPath + " does not exist.")));
       return;
     }
 
-    if (!validateMsfraggerJarContents(Paths.get(m.binPath))) {
+    if (!validateJarContents(Paths.get(m.binPath), "MSFragger.class", msfraggerRegex)) {
       Bus.postSticky(new NoteConfigMsfragger(m.binPath, "N/A", false, new ValidationException("Not a MSFragger jar.")));
       return;
     }
@@ -723,11 +634,11 @@ public class TabConfig extends JPanelWithEnablement {
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageIonQuantNewBin m) {
     if (StringUtils.isBlank(m.binPath) || !Files.exists(Paths.get(m.binPath))) {
-      Bus.postSticky(new NoteConfigIonQuant(m.binPath, "N/A", false, false, new ValidationException(m.binPath + " does not exist.")));
+      Bus.postSticky(new NoteConfigIonQuant(m.binPath, "N/A", false, false, new ValidationException("IonQuant path " + m.binPath + " does not exist.")));
       return;
     }
 
-    if (!validateIonQuantJarContents(Paths.get(m.binPath))) {
+    if (!validateJarContents(Paths.get(m.binPath), "IonQuant.class", ionquantRegex)) {
       Bus.postSticky(new NoteConfigIonQuant(m.binPath, "N/A", false, false, new ValidationException("Not an IonQuant jar.")));
       return;
     }
@@ -754,32 +665,41 @@ public class TabConfig extends JPanelWithEnablement {
     }
   }
 
-  private static boolean validateMsfraggerJarContents(Path p) {
-    final boolean[] found = {false};
-    try (FileSystem fs = FileSystems.newFileSystem(p, ClassLoader.getSystemClassLoader())) {
-      for (Path root : fs.getRootDirectories()) {
-        Files.walkFileTree(root, new SimpleFileVisitor<>() {
-          @Override
-          public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-            String fileName = file.getFileName().toString();
-            if ("MSFragger.class".equalsIgnoreCase(fileName)) {
-              found[0] = true;
-              return FileVisitResult.TERMINATE;
-            } else if (msfraggerRegex.matcher(fileName).find()) {
-              found[0] = true;
-              return FileVisitResult.TERMINATE;
-            }
-            return FileVisitResult.CONTINUE;
-          }
-        });
-      }
-    } catch (IOException ex) {
-      log.warn("Error while checking MSFragger jar contents", ex);
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(MessageDiaTracerNewBin m) {
+    if (StringUtils.isBlank(m.binPath) || !Files.exists(Paths.get(m.binPath))) {
+      Bus.postSticky(new NoteConfigDiaTracer(m.binPath, "N/A", false, false, new ValidationException("diaTracer path " + m.binPath + " does not exist.")));
+      return;
     }
-    return found[0];
+
+    if (!validateJarContents(Paths.get(m.binPath), "diaTracerMainClass.class", diatracerRegex)) {
+      Bus.postSticky(new NoteConfigDiaTracer(m.binPath, "N/A", false, false, new ValidationException("Not an diaTracer jar.")));
+      return;
+    }
+
+    if (m.binPath.contains(" ")) {
+      Bus.postSticky(new NoteConfigDiaTracer(m.binPath, "N/A", false, false, new ValidationException("There are spaces in the path: \"" + m.binPath + "\"")));
+      return;
+    }
+
+    Version v;
+    try {
+      v = DiaTracer.getVersion(Paths.get(m.binPath));
+      if (v.isVersionParsed) {
+        if (v.version.compareTo(diatracerMinVersion) >= 0) {
+          Bus.postSticky(new NoteConfigDiaTracer(m.binPath, v.version.toString(), false, true, null));
+        } else {
+          Bus.postSticky(new NoteConfigDiaTracer(m.binPath, v.version.toString(), true, false, null));
+        }
+      } else {
+        Bus.postSticky(new NoteConfigDiaTracer(m.binPath, "N/A", false, false, new ValidationException("Could not parse the version.")));
+      }
+    } catch (Exception e) {
+      Bus.postSticky(new NoteConfigDiaTracer(m.binPath, "N/A", false, false, e));
+    }
   }
 
-  private static boolean validateIonQuantJarContents(Path p) {
+  private static boolean validateJarContents(Path p, String mainClass, Pattern pattern) {
     final boolean[] found = {false};
     try (FileSystem fs = FileSystems.newFileSystem(p, ClassLoader.getSystemClassLoader())) {
       for (Path root : fs.getRootDirectories()) {
@@ -787,10 +707,10 @@ public class TabConfig extends JPanelWithEnablement {
           @Override
           public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
             String fileName = file.getFileName().toString();
-            if ("IonQuant.class".equalsIgnoreCase(fileName)) {
+            if (mainClass.equalsIgnoreCase(fileName)) {
               found[0] = true;
               return FileVisitResult.TERMINATE;
-            } else if (ionquantRegex.matcher(fileName).find()) {
+            } else if (pattern.matcher(fileName).find()) {
               found[0] = true;
               return FileVisitResult.TERMINATE;
             }
@@ -799,7 +719,7 @@ public class TabConfig extends JPanelWithEnablement {
         });
       }
     } catch (IOException ex) {
-      log.warn("Error while checking MSFragger jar contents", ex);
+      log.warn("Error while checking " + p.toAbsolutePath() + " contents", ex);
     }
     return found[0];
   }
@@ -807,7 +727,6 @@ public class TabConfig extends JPanelWithEnablement {
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteConfigMsfragger m) {
     log.debug("Got {}", m);
-    uiTextBinFragger.setText(m.path);
 
     Path existing = PathUtils.existing(m.path);
     if (existing != null) {
@@ -819,10 +738,10 @@ public class TabConfig extends JPanelWithEnablement {
 
     if (m.ex != null) {
       epFraggerVer.setText("MSFragger version: N/A");
-      showConfigError(m.ex, TIP_MSFRAGGER_BIN, uiTextBinFragger, true);
+      showConfigError(m.ex, TIP_MSFRAGGER_BIN, uiTextToolsFolder, true);
     } else if (m.isTooOld) {
       epFraggerVer.setText("MSFragger version: too old, not supported anymore");
-      Bus.post(new MessageBalloon(TIP_MSFRAGGER_BIN, uiTextBinFragger, "MSFragger " + msfraggerMinVersion + " is required.", true));
+      Bus.post(new MessageBalloon(TIP_MSFRAGGER_BIN, uiTextToolsFolder, "MSFragger " + msfraggerMinVersion + " is required.", true));
     } else {
       epFraggerVer.setText("MSFragger version: " + m.version);
       Notifications.tryClose(TIP_MSFRAGGER_BIN);
@@ -834,9 +753,6 @@ public class TabConfig extends JPanelWithEnablement {
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteConfigIonQuant m) {
-    log.debug("Got {}", m);
-    uiTextBinIonQuant.setText(m.path);
-
     Path existing = PathUtils.existing(m.path);
     if (existing != null) {
       Fragpipe.propsVarSet(ThisAppProps.PROP_BINARIES_IN, existing.toString());
@@ -847,10 +763,10 @@ public class TabConfig extends JPanelWithEnablement {
 
     if (m.ex != null) {
       epIonQuantVer.setText("IonQuant version: N/A");
-      showConfigError(m.ex, TIP_IONQUANT_BIN, uiTextBinIonQuant, true);
+      showConfigError(m.ex, TIP_IONQUANT_BIN, uiTextToolsFolder, true);
     } else if (m.isTooOld) {
       epIonQuantVer.setText("IonQuant version: too old, not supported anymore");
-      Bus.post(new MessageBalloon(TIP_IONQUANT_BIN, uiTextBinIonQuant, "IonQuant " + ionquantMinVersion + " is required.", true));
+      Bus.post(new MessageBalloon(TIP_IONQUANT_BIN, uiTextToolsFolder, "IonQuant " + ionquantMinVersion + " is required.", true));
     } else {
       epIonQuantVer.setText("IonQuant version: " + m.version);
       Notifications.tryClose(TIP_IONQUANT_BIN);
@@ -860,33 +776,44 @@ public class TabConfig extends JPanelWithEnablement {
     }
   }
 
+  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(NoteConfigDiaTracer m) {
+    Path existing = PathUtils.existing(m.path);
+    if (existing != null) {
+      Fragpipe.propsVarSet(ThisAppProps.PROP_BINARIES_IN, existing.toString());
+      if (existing.toString().contains(" ")) {
+        SwingUtils.showErrorDialog(this, "Space is not allowed in diaTracer path.", "Spaces in path");
+      }
+    }
+
+    if (m.ex != null) {
+      epDiaTracerVer.setText("diaTracer version: N/A");
+      showConfigError(m.ex, TIP_DIATRACER_BIN, uiTextToolsFolder, true);
+    } else if (m.isTooOld) {
+      epDiaTracerVer.setText("diaTracer version: too old, not supported anymore");
+      Bus.post(new MessageBalloon(TIP_DIATRACER_BIN, uiTextToolsFolder, "diaTracer " + diatracerMinVersion + " is required.", true));
+    } else {
+      epDiaTracerVer.setText("diaTracer version: " + m.version);
+      Notifications.tryClose(TIP_DIATRACER_BIN);
+    }
+    if (m.isValid() && !m.isTooOld) {
+      DiaTracer.checkUpdates(m);
+    }
+  }
+
   @Subscribe
   public void on(MessageUiRevalidate m) {
     log.debug("Got MessageUiRevalidate");
     if (m.updateBins) {
-      String binFragger = uiTextBinFragger.getNonGhostText();
-      if (StringUtils.isNotBlank(binFragger)) {
-        Bus.post(new MessageMsfraggerNewBin(binFragger));
-      }
-      String binIonQuant = uiTextBinIonQuant.getNonGhostText();
-      if (StringUtils.isNotBlank(binIonQuant)) {
-        Bus.post(new MessageIonQuantNewBin(binIonQuant));
-      }
-      String binPhi = uiTextBinPhi.getNonGhostText();
-      if (StringUtils.isNotBlank(binPhi)) {
-        Bus.post(new MessagePhilosopherNewBin(binPhi));
-      }
+      Bus.post(new MessageMsfraggerNewBin(getJarPath(uiTextToolsFolder.getNonGhostText().trim(), msfraggerRegex)));
+      Bus.post(new MessageIonQuantNewBin(getJarPath(uiTextToolsFolder.getNonGhostText().trim(), ionquantRegex)));
+      Bus.post(new MessageDiaTracerNewBin(getJarPath(uiTextToolsFolder.getNonGhostText().trim(), diatracerRegex)));
+
       String binDiann = uiTextBinDiann.getNonGhostText();
       if (StringUtils.isNotBlank(binDiann)) {
         Bus.post(new MessageDiannNewBin(binDiann));
       } else {
         Bus.post(new MessageDiannNewBin());
-      }
-      String binSkyline = uiTextBinSkyline.getNonGhostText();
-      if (StringUtils.isNotBlank(binSkyline)) {
-        Bus.post(new MessageSkylineNewBin(binSkyline));
-      } else {
-        Bus.post(new MessageSkylineNewBin());
       }
       String binPython = uiTextBinPython.getNonGhostText();
       if (StringUtils.isNotBlank(binPython)) {
@@ -923,10 +850,6 @@ public class TabConfig extends JPanelWithEnablement {
       final boolean fileExists = Files.exists(path) || (OsUtils.isWindows() && Files.exists(Paths.get(path + ".exe")));
       if ((path.isAbsolute() && !fileExists) || StringUtils.isBlank(path.toString())) {
         throw new ValidationException("File does not exist: \"" + path + "\"");
-      }
-
-      if (path.toAbsolutePath().toString().contains(" ")) {
-        throw new ValidationException("There are spaces in the path: \"" + path.toAbsolutePath() + "\"");
       }
 
       // if paths.get didn't throw, we can try the binary, it might be on PATH
@@ -1084,6 +1007,7 @@ public class TabConfig extends JPanelWithEnablement {
         .append(", <a href=\"").append("https://tmt-integrator.nesvilab.org/").append("\">TMT-Integrator</a>")
         .append(", <a href=\"").append("https://github.com/grosenberger/easypqp").append("\">EasyPQP</a>")
         .append(", <a href=\"").append("https://github.com/Nesvilab/FragPipe-PDV").append("\">FragPipe-PDV</a>")
+        .append(", <a href=\"").append("https://skyline.ms/project/home/software/Skyline/begin.view").append("\">Skyline</a>")
         .append(", <a href=\"").append("https://saint-apms.sourceforge.net/Main.html").append("\">SAINT</a>");
     return sb.toString();
   }
@@ -1100,31 +1024,10 @@ public class TabConfig extends JPanelWithEnablement {
     return sb.toString();
   }
 
-  private JPanel createPanelPhilosopher() {
-    JPanel p = newMigPanel();
-    p.setBorder(new TitledBorder("Philosopher"));
-
-    final String tip = "Select path to Philosopher binary";
-    uiTextBinPhi = UiUtils.uiTextBuilder().create();
-    uiTextBinPhi.addFocusListener(new ContentChangedFocusAdapter(uiTextBinPhi, (s, s2) -> {
-      Bus.post(new MessagePhilosopherNewBin(s2));
-    }));
-    FormEntry feBin = fe(uiTextBinPhi, "bin-philosopher", TAB_PREFIX)
-        .tooltip(tip).create();
-    p.add(feBin.comp, ccL().split().growX());
-
-    JButton btnBrowse = feBin
-        .browseButton("Browse", tip, this::createPhilosopherFilechooser,
-            paths -> paths.stream().findFirst()
-                .ifPresent(bin -> Bus.post(new MessagePhilosopherNewBin(bin.toString()))));
-    p.add(btnBrowse, ccL());
-    JButton btnDownload = UiUtils.createButton("Download / Update", this::actionPhilosopherDownload);
-    p.add(btnDownload, ccL().wrap());
-
-    epPhiVer = new HtmlStyledJEditorPane("Philosopher version: N/A");
-    p.add(Fragpipe.rename(epPhiVer, "philosopher.version-info", TAB_PREFIX, true), ccL().split());
-    p.add(SwingUtils.createClickableHtml(createPhilosopherCitationBody()), ccL().spanX().growX().wrap());
-    return p;
+  private static String createDiaTracerCitationBody() {
+    final StringBuilder sb = new StringBuilder();
+    sb.append("&emsp;More info and docs: <a href=\"").append("https://diatracer.nesvilab.org/").append("\">diaTracer</a>");
+    return sb.toString();
   }
 
   private JPanel createPanelDiann() {
@@ -1149,31 +1052,6 @@ public class TabConfig extends JPanelWithEnablement {
     epDiannVer = new HtmlStyledJEditorPane("DIA-NN version: N/A");
     p.add(Fragpipe.rename(epDiannVer, "diann.version-info", TAB_PREFIX, true), ccL().split());
     p.add(SwingUtils.createClickableHtml(createDiannCitationBody()), ccL().spanX().growX().wrap());
-    return p;
-  }
-
-  private JPanel createPanelSkyline() {
-    JPanel p = newMigPanel();
-    p.setBorder(new TitledBorder("Skyline (optional)"));
-
-    final String tip = "Select path to SkylineCmd.exe";
-    uiTextBinSkyline = UiUtils.uiTextBuilder().create();
-    uiTextBinSkyline.addFocusListener(new ContentChangedFocusAdapter(uiTextBinSkyline, (s, s2) -> {
-      Bus.post(new MessageSkylineNewBin(s2));
-    }));
-    FormEntry feBin = fe(uiTextBinSkyline, "bin-skyline", TAB_PREFIX).tooltip(tip).create();
-    p.add(feBin.comp, ccL().split().growX());
-
-    JButton btnBrowse = feBin.browseButton("Browse", tip, this::createSkylineFilechooser, paths -> paths.stream().findFirst().ifPresent(bin -> Bus.post(new MessageSkylineNewBin(bin.toString()))));
-    p.add(btnBrowse, ccL());
-    JButton btnDownload = UiUtils.createButton("Download", this::actionSkylineDownload);
-    p.add(btnDownload, ccL().wrap());
-
-    p.add(SwingUtils.createClickableHtml("Path to SkylineCmd.exe."), ccL().spanX().growX().wrap());
-
-    epSkylineVer = new HtmlStyledJEditorPane("Skyline version: N/A");
-    p.add(Fragpipe.rename(epSkylineVer, "skyline.version-info", TAB_PREFIX, true), ccL().split());
-    p.add(SwingUtils.createClickableHtml(createSkylineCitationBody()), ccL().spanX().growX().wrap());
     return p;
   }
 
@@ -1320,44 +1198,12 @@ public class TabConfig extends JPanelWithEnablement {
     return p;
   }
 
-  private JFileChooser createPhilosopherFilechooser() {
-    JFileChooser fc = FileChooserUtils.create("Select Philosopher binary", "Select",
-        false, FcMode.FILES_ONLY, true);
-    if (OsUtils.isWindows()) {
-      fc.addChoosableFileFilter(new FileNameExtensionFilter("Executables", "exe"));
-    }
-    FileChooserUtils.setPath(fc, Stream.of(
-        uiTextBinPhi.getNonGhostText(),
-        Fragpipe.propsVarGet(ThisAppProps.PROP_BINARIES_IN),
-        JarUtils.getCurrentJarPath()));
-    return fc;
-  }
-
   private JFileChooser createDiannFilechooser() {
     JFileChooser fc = FileChooserUtils.create("Select DIA-NN binary", "Select", false, FcMode.FILES_ONLY, true);
     if (OsUtils.isWindows()) {
       fc.addChoosableFileFilter(new FileNameExtensionFilter("Executables", "exe"));
     }
     FileChooserUtils.setPath(fc, Stream.of(uiTextBinDiann.getNonGhostText(), Fragpipe.propsVarGet(ThisAppProps.PROP_BINARIES_IN), JarUtils.getCurrentJarPath()));
-    return fc;
-  }
-
-  private JFileChooser createSkylineFilechooser() {
-    FileFilter filter = new FileFilter() {
-      public boolean accept(File file) {
-        if (file.isDirectory()) {
-          return true;
-        }
-        return file.getName().equals("SkylineCmd.exe");
-      }
-      public String getDescription() {
-        return "SkylineCmd.exe";
-      }
-    };
-
-    JFileChooser fc = FileChooserUtils.create("Select SkylineCmd.exe", "Select", false, FcMode.FILES_ONLY, true);
-    fc.setFileFilter(filter);
-    FileChooserUtils.setPath(fc, System.getenv("ProgramFiles"));
     return fc;
   }
 
@@ -1402,36 +1248,7 @@ public class TabConfig extends JPanelWithEnablement {
     return sb.toString();
   }
 
-  private String createSkylineCitationBody() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("&emsp;More info and docs: <a href=\"https://skyline.ms/project/home/software/Skyline/begin.view\">Skyline</a>");
-    return sb.toString();
-  }
-
-  private void actionPhilosopherDownload(ActionEvent e) {
-    int choice = SwingUtils.showChoiceDialog(TabConfig.this, "Choose download type", "Do you want to download automatically?\nIf you choose \"Manually\", you will be redirected to the download website.", new String[]{"Automatically", "Manually", "Cancel"}, 0);
-    switch (choice) {
-      case 0:
-        new Thread(() -> {
-          try {
-            SwingUtils.setUncaughtExceptionHandlerMessageDialog(TabConfig.this);
-            Philosopher.downloadPhilosopherAutomatically();
-          } catch (IOException ex) {
-            throw new IllegalStateException("Error downloading Philosopher automatically", ex);
-          }
-        }).start();
-        break;
-      case 1:
-        Philosopher.downloadPhilosopherManually();
-        break;
-    }
-  }
-
   private void actionDiannDownload(ActionEvent e) {
     Diann.downloadDiannManually();
-  }
-
-  private void actionSkylineDownload(ActionEvent e) {
-    Skyline.downloadSkylineManually();
   }
 }

@@ -107,8 +107,14 @@ public class FileChooserUtils {
   }
 
   public static JFileChooser create(String title, String approveButton, boolean multiSelection,
-      FcMode selectionMode, boolean isAcceptAllUsed, javax.swing.filechooser.FileFilter... filters) {
-    JFileChooser fc = new JFileChooser();
+                                    FcMode selectionMode, boolean isAcceptAllUsed, javax.swing.filechooser.FileFilter... filters) {
+    return create(null, title, approveButton, multiSelection, selectionMode, isAcceptAllUsed, filters);
+  }
+
+  public static JFileChooser create(JFileChooser fc, String title, String approveButton, boolean multiSelection,
+                                    FcMode selectionMode, boolean isAcceptAllUsed, javax.swing.filechooser.FileFilter... filters) {
+    if (fc == null)
+      fc = new JFileChooser();
     fc.setDialogTitle(title);
     fc.setApproveButtonText(approveButton);
     fc.setMultiSelectionEnabled(multiSelection);

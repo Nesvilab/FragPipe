@@ -41,7 +41,6 @@ import com.dmtavt.fragpipe.messages.MessageSaveUiState;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
 import com.dmtavt.fragpipe.messages.MessageUiRevalidate;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
-import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.dmtavt.fragpipe.messages.NoteConfigSpeclibgen;
 import com.dmtavt.fragpipe.messages.NoteConfigTips;
 import com.dmtavt.fragpipe.messages.NoteFragpipeCache;
@@ -59,6 +58,7 @@ import com.dmtavt.fragpipe.tabs.TabPtms;
 import com.dmtavt.fragpipe.tabs.TabQuantificationLabeling;
 import com.dmtavt.fragpipe.tabs.TabQuantificationLfq;
 import com.dmtavt.fragpipe.tabs.TabRun;
+import com.dmtavt.fragpipe.tabs.TabSkyline;
 import com.dmtavt.fragpipe.tabs.TabSpecLib;
 import com.dmtavt.fragpipe.tabs.TabDiaPseudoMs2;
 import com.dmtavt.fragpipe.tabs.TabValidation;
@@ -147,11 +147,10 @@ public class Fragpipe extends JFrameHeadless {
   public static int ram = 0;
   static int nThreadsHeadlessOnly = Math.max(1, Math.min(Runtime.getRuntime().availableProcessors() - 1, maxProcessors)); // Note: this variable is only for headless mode. For the GUI mode, please get the number of threads using TabWorkflow:getThreads().
   public static String workdir = null;
-  public static String msfraggerBinPath = null;
+  public static String toolsFolderPath = null;
   public static String philosopherBinPath = null;
   public static String diannBinPath = null;
   public static String pythonBinPath = null;
-  public static String ionquantBinPath = null;
 
   public static final String UI_STATE_CACHE_FN = "fragpipe-ui.cache";
   private static final Logger log = LoggerFactory.getLogger(Fragpipe.class);
@@ -209,6 +208,7 @@ public class Fragpipe extends JFrameHeadless {
   private UiTab uiTabQuantLabeled;
   private UiTab uiTabSpecLib;
   private UiTab uiTabDiann;
+  private UiTab uiTabSkyline;
   private UiTab uiTabRun;
   private UiTab uiTabDownstream;
 
@@ -407,11 +407,8 @@ public class Fragpipe extends JFrameHeadless {
       } else if (workdir == null || workdir.isEmpty()) {
         System.err.println("The path to workdir does not look right.");
         System.exit(1);
-      } else if (msfraggerBinPath != null && (msfraggerBinPath.isEmpty() || !Files.exists(Paths.get(msfraggerBinPath)) || !Files.isReadable(Paths.get(msfraggerBinPath)) || !Files.isRegularFile(Paths.get(msfraggerBinPath)))) {
-        System.err.println("MSFragger jar file path " + msfraggerBinPath + " does not seem right.");
-        System.exit(1);
-      } else if (ionquantBinPath != null && (ionquantBinPath.isEmpty() || !Files.exists(Paths.get(ionquantBinPath)) || !Files.isReadable(Paths.get(ionquantBinPath)))) {
-        System.err.println("IonQuant path " + ionquantBinPath + " does not seem right.");
+      } else if (toolsFolderPath != null && (toolsFolderPath.isEmpty() || !Files.exists(Paths.get(toolsFolderPath)) || !Files.isReadable(Paths.get(toolsFolderPath)))) {
+        System.err.println("Tools folder path " + toolsFolderPath + " does not seem right.");
         System.exit(1);
       } else if (philosopherBinPath != null && (philosopherBinPath.isEmpty() || !Files.exists(Paths.get(philosopherBinPath)) || !Files.isReadable(Paths.get(philosopherBinPath)) || !Files.isRegularFile(Paths.get(philosopherBinPath)))) {
         System.err.println("Philosopher binary file path " + philosopherBinPath + " does not seem right.");
@@ -424,11 +421,8 @@ public class Fragpipe extends JFrameHeadless {
         System.exit(1);
       } else {
         workdir = Paths.get(workdir).toAbsolutePath().toString();
-        if (msfraggerBinPath != null) {
-          msfraggerBinPath = Paths.get(msfraggerBinPath).toAbsolutePath().toString();
-        }
-        if (ionquantBinPath != null) {
-          ionquantBinPath = Paths.get(ionquantBinPath).toAbsolutePath().toString();
+        if (toolsFolderPath != null) {
+          toolsFolderPath = Paths.get(toolsFolderPath).toAbsolutePath().toString();
         }
         if (philosopherBinPath != null) {
           philosopherBinPath = Paths.get(philosopherBinPath).toAbsolutePath().toString();
@@ -462,14 +456,8 @@ public class Fragpipe extends JFrameHeadless {
     propsFile.setProperty("workflow.ram", Fragpipe.ram + "");
     propsFile.setProperty("workflow.threads", Fragpipe.nThreadsHeadlessOnly + "");
     propsFile.setProperty("workdir", Fragpipe.workdir);
-    if (msfraggerBinPath != null) {
-      propsFile.setProperty("fragpipe-config.bin-msfragger", msfraggerBinPath);
-    }
-    if (ionquantBinPath != null) {
-      propsFile.setProperty("fragpipe-config.bin-ionquant", ionquantBinPath);
-    }
-    if (philosopherBinPath != null) {
-      propsFile.setProperty("fragpipe-config.bin-philosopher", philosopherBinPath);
+    if (toolsFolderPath != null) {
+      propsFile.setProperty("fragpipe-config.tools-folder", toolsFolderPath);
     }
     if (diannBinPath != null) {
       propsFile.setProperty("fragpipe-config.bin-diann", diannBinPath);
@@ -637,6 +625,7 @@ public class Fragpipe extends JFrameHeadless {
     TabGlyco tabGlyco = new TabGlyco();
     TabSpecLib tabSpecLib = new TabSpecLib();
     TabDiann tabDiann = new TabDiann();
+    TabSkyline tabSkyline = new TabSkyline();
     TabDownstream tabDownstream = new TabDownstream();
     TabRun tabRun = new TabRun(console, tabDownstream);
 
@@ -661,6 +650,7 @@ public class Fragpipe extends JFrameHeadless {
       "/com/dmtavt/fragpipe/icons/icon-library-16.png", null, true);
     uiTabDiann = new UiTab("Quant (DIA)", tabDiann,
       "/com/dmtavt/fragpipe/icons/icon-diann-16.png", null, true);
+    uiTabSkyline = new UiTab("Skyline", tabSkyline, "/com/dmtavt/fragpipe/icons/icon-skyline-16.png", null, true);
     uiTabRun = new UiTab("Run", tabRun, "/com/dmtavt/fragpipe/icons/video-play-16.png", null, false);
     uiTabDownstream = new UiTab("Downstream", tabDownstream, "/com/dmtavt/fragpipe/icons/icon-saint-20.png", null, false);
 
@@ -676,6 +666,7 @@ public class Fragpipe extends JFrameHeadless {
     addTab(tp, uiTabQuantLabeled);
     addTab(tp, uiTabSpecLib);
     addTab(tp, uiTabDiann);
+    addTab(tp, uiTabSkyline);
     addTab(tp, uiTabRun);
     addTab(tp, uiTabDownstream);
 
@@ -694,7 +685,8 @@ public class Fragpipe extends JFrameHeadless {
       fp.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
       fp.setTitle(Version.PROGRAM_TITLE + " (v" + Version.version() + ")");
       fp.setLocale(Locale.ROOT);
-      fp.setMinimumSize(new Dimension(640, 480));
+      fp.setMinimumSize(new Dimension(700, 480));
+      fp.setPreferredSize(new Dimension(1300, 1300));
       fp.setLayout(new MigLayout(new LC().fill()));
     }
     defFont = new JLabel("dummy label to get default font from");
@@ -850,6 +842,7 @@ public class Fragpipe extends JFrameHeadless {
         + "<a href=\"" + linkSite + "\">Alexey Nesvizhskii lab</a><br/>&nbsp;<br/>"
         + "Components (lead developers):<br>"
         + "<a href='https://diaumpire.nesvilab.org/'>DIA-Umpire</a>: Chih-Chiang Tsou<br>"
+        + "<a href='https://diatracer.nesvilab.org/'>diaTracer</a>: Kai Li, Fengchao Yu<br>"
         + "<a href='https://msfragger.nesvilab.org/'>MSFragger</a>: Andy Kong, Fengchao Yu, Guo-Ci Teo, Dmitry Avtonomov<br>"
         + "MSFragger Glyco mode: Daniel Polasky, Fengchao Yu, Guo-Ci Teo<br>"
         + "<a href='https://www.nesvilab.org/Crystal-C/'>Crystal-C</a>: Hui-Yin Chang<br>"
@@ -866,6 +859,7 @@ public class Fragpipe extends JFrameHeadless {
         + "<a href='https://github.com/grosenberger/easypqp'>EasyPQP</a>: George Rosenberger, Guo-Ci Teo, Fengchao Yu<br>"
         + "<a href='https://github.com/vdemichev/DiaNN'>DIA-NN</a>: Vadim Demichev<br>"
         + "<a href='https://github.com/Nesvilab/FragPipe-PDV'>FragPipe-PDV</a>: Kai Li, Bo Wen<br>"
+        + "<a href='https://skyline.ms/project/home/software/Skyline/begin.view'>Skyline</a>: Brendan MacLean<br>"
         + "<a href='https://saint-apms.sourceforge.net/Main.html'>SAINT</a>: Hyungwon Choi<br>"
         + "Websites and tutorials: Sarah Haynes<br>"
         + "Special thanks to Lukas Käll (Percolator), George Rosenberger (EasyPQP), Vadim Demichev (DIA-NN), and David Shteynberg (TPP, PTMProphet).<br><br>"
@@ -961,10 +955,7 @@ public class Fragpipe extends JFrameHeadless {
   public static <T> T getStickyStrict(Class<T> clazz) {
     T sticky = Bus.getStickyEvent(clazz);
     if (sticky == null) {
-      if (clazz.getName().contentEquals("com.dmtavt.fragpipe.messages.NoteConfigPhilosopher")) {
-        Bus.postSticky(new NoteConfigPhilosopher(null, "N/A"));
-        sticky = Bus.getStickyEvent(clazz);
-      } else if (clazz.getName().contentEquals("com.dmtavt.fragpipe.messages.NoteConfigSpeclibgen")) {
+      if (clazz.getName().contentEquals("com.dmtavt.fragpipe.messages.NoteConfigSpeclibgen")) {
         Bus.postSticky(new NoteConfigSpeclibgen(null, new ValidationException("Python binary or EasyPQP not valid")));
         sticky = Bus.getStickyEvent(clazz);
       } else {
@@ -1008,9 +999,7 @@ public class Fragpipe extends JFrameHeadless {
     sb.append("\t--dry-run                       # (optional) Dry run, not really run FragPipe.\n");
     sb.append("\t--ram <integer>                 # (optional) Specify the maximum allowed memory size. The unit is GB. Set it to 0 to let FragPipe decide. Default = 0\n");
     sb.append("\t--threads <integer>             # (optional) Specify the number of threads. Default = core number - 1\n");
-    sb.append("\t--config-msfragger <string>     # (optional) specify the location of the MSFragger jar file. If not specified, using the one in the cache.\n");
-    sb.append("\t--config-ionquant <string>      # (optional) specify the location of the IonQuant jar file. If not specified, using the one in the cache.\n");
-    sb.append("\t--config-philosopher <string>   # (optional) specify the location of the Philosopher binary file. If not specified, using the one in the cache.\n");
+    sb.append("\t--config-tools-folder <string>  # (optional) specify the folder containing MSFragger, IonQuant, and dirTracer. If not specified, using the one in the cache.\n");
     sb.append("\t--config-diann <string>         # (optional) specify the location of the DIA-NN binary file (the actual executable file `DiaNN.exe`, not the DIA-NN installation file). If not specified, using the one in the cache. It could be from the previously configured or the build-in one.\n");
     sb.append("\t--config-python <string>        # (optional) specify the location of the Python directory. If not specified, using the one in the cache.\n");
     sb.append("To let FragPipe find the TMT annotation file, put the mzML files from the same experiment in the same folder. Then, create the annotation file with the name ending with annotation.txt in the folder.");

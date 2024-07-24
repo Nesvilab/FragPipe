@@ -11,7 +11,6 @@ msfragger.calibrate_mass :: None <=> 0
 msfragger.calibrate_mass :: Off <=> 0
 msfragger.calibrate_mass :: Mass calibration <=> 1
 msfragger.calibrate_mass :: Mass calibration, parameter optimization <=> 2
-msfragger.calibrate_mass :: Mass calibration, mass tol optimization <=> 4
 msfragger.fragment_mass_units :: PPM <=> 1
 msfragger.fragment_mass_units :: Da <=> 0
 
@@ -88,6 +87,8 @@ tmtintegrator.channel_num :: iTRAQ-4 <=> 4
 tmtintegrator.channel_num :: iTRAQ-8 <=> 8
 tmtintegrator.channel_num :: sCLIP-6 <=> 6
 tmtintegrator.channel_num :: IBT-16 <=> 16
+tmtintegrator.channel_num :: DiLeu-12 <=> 12
+tmtintegrator.channel_num :: DiLeu-1 <=> 1
 tmtintegrator.channel_num :: develop <=> 32
 tmtintegrator.channel_num :: develop2 <=> 29
 tmtintegrator.groupby :: Gene level <=> 0
@@ -142,3 +143,5 @@ msbooster.spectra-model::Prosit 2020 Intensity CID <=> Prosit_2020_intensity_CID
 msbooster.spectra-model::Prosit 2020 Intensity TMT <=> Prosit_2020_intensity_TMT
 msbooster.spectra-model::Prosit 2020 Intensity HCD <=> Prosit_2020_intensity_HCD
 
+skyline.skyline-mode::Use speclib as input <=> 0
+skyline.skyline-mode::Use pep.xml as input <=> 1

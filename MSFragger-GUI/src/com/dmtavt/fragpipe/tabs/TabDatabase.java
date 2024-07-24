@@ -17,6 +17,8 @@
 
 package com.dmtavt.fragpipe.tabs;
 
+import static com.dmtavt.fragpipe.Fragpipe.philosopherBinPath;
+
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.DownloadDbHelper;
@@ -26,7 +28,6 @@ import com.dmtavt.fragpipe.messages.MessageDbNewPath;
 import com.dmtavt.fragpipe.messages.MessageDecoyTag;
 import com.dmtavt.fragpipe.messages.MessageUiRevalidate;
 import com.dmtavt.fragpipe.messages.NoteConfigDatabase;
-import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.github.chhh.utils.FastaUtils;
 import com.github.chhh.utils.FastaUtils.FastaContent;
@@ -87,15 +88,8 @@ public class TabDatabase extends JPanelWithEnablement {
     initMore();
   }
 
-  private void setTooltipBtnDownload(boolean isEnabled) {
-    String tip = isEnabled ? null : "Configure Philosopher to enable download button";
-    btnDownload.setToolTipText(tip);
-  }
-
   private void initMore() {
-    updateEnabledStatus(btnDownload, false);
-    setTooltipBtnDownload(false);
-
+    updateEnabledStatus(btnDownload, true);
     Bus.register(this);
     Bus.postSticky(this);
   }
@@ -156,12 +150,6 @@ public class TabDatabase extends JPanelWithEnablement {
   }
 
   private void actionDbAddDecoys(ActionEvent event) {
-    NoteConfigPhilosopher conf = Bus.getStickyEvent(NoteConfigPhilosopher.class);
-    if (conf == null || !conf.isValid()) {
-      Notifications.showException(TIP_DB_UPDATE, btnUpdate, new ValidationException("Philosopher not configured"), false);
-      return;
-    }
-
     String fasta = getFastaPath();
     if (StringUtils.isBlank(fasta)) {
       SwingUtils.showInfoDialog(this, "Select a FASTA file first.", "Select FASTA file");
@@ -179,7 +167,7 @@ public class TabDatabase extends JPanelWithEnablement {
       return;
     }
     try {
-      DownloadDbHelper.updateDb(this, conf.path, fastaPath, choice == 1);
+      DownloadDbHelper.updateDb(this, philosopherBinPath, fastaPath, choice == 1);
     } catch (Exception e) {
       log.error("Database update command error", e);
     }
@@ -311,20 +299,9 @@ public class TabDatabase extends JPanelWithEnablement {
     }
   }
 
-  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
-  public void on(NoteConfigPhilosopher m) {
-    updateEnabledStatus(btnDownload, m.isValid());
-    setTooltipBtnDownload(m.isValid());
-  }
-
   private void actionDbDownload(ActionEvent e) {
-    NoteConfigPhilosopher conf = Bus.getStickyEvent(NoteConfigPhilosopher.class);
-    if (conf == null || !conf.isValid()) {
-      Notifications.showException(TIP_DB_DOWNLOAD, btnDownload, new ValidationException("Philosopher not configured"), false);
-      return;
-    }
     try {
-      DownloadDbHelper.downloadDb(this, conf.path, getFastaPath());
+      DownloadDbHelper.downloadDb(this, philosopherBinPath, getFastaPath());
     } catch (Exception ex) {
       Notifications.showException(TIP_DB_DOWNLOAD, btnDownload, ex, true);
     }

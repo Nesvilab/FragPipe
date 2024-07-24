@@ -16,3 +16,4 @@ dataSources.local.xml
 /.idea/httpRequests/
 rest-client.private.env.json
 http-client.private.env.json
+.DS_Store

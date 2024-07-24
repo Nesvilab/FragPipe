@@ -33,7 +33,7 @@ import com.dmtavt.fragpipe.api.LcmsFileGroup;
 import com.dmtavt.fragpipe.messages.NoteConfigDiann;
 import com.dmtavt.fragpipe.tools.diann.Diann;
 import com.dmtavt.fragpipe.tools.diann.DiannToMsstats;
-import com.dmtavt.fragpipe.tools.diann.Localization;
+import com.dmtavt.fragpipe.tools.diann.Propagation;
 import com.dmtavt.fragpipe.tools.diann.PlexDiaHelper;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.StringUtils;
@@ -46,14 +46,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -68,7 +61,7 @@ public class CmdDiann extends CmdBase {
   private static final String NAME = "DIA-NN";
   private static final List<String> SUPPORTED_FORMATS_WIN = Arrays.asList("mzML", "d", "dia", "wiff", "raw");
   private static final List<String> SUPPORTED_FORMATS_LINUX = Arrays.asList("mzML", "d", "dia");
-  private static final Pattern labelPattern = Pattern.compile("([A-Znc*]+)([\\d.+-]+)");
+  public static final Pattern labelPattern = Pattern.compile("([A-Znc*]+)([\\d.+-]+)");
 
   private final String diannPath;
   private final String LD_PRELOAD_str;
@@ -89,9 +82,14 @@ public class CmdDiann extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, Collection<LcmsFileGroup> lcmsFileGroups, int nThreads, Set<String> quantificationStrategy, boolean usePredict, boolean unrelatedRuns, float qvalue, boolean useRunSpecificProteinQvalue, String libraryPath, String additionalCmdOpts, boolean isDryRun, boolean isRunPlex, boolean generateMsstats, String lightString, String mediumString, String heavyString, Path jarFragpipe) {
+  public boolean configure(Component comp, Collection<LcmsFileGroup> lcmsFileGroups, int nThreads, Set<String> quantificationStrategy, boolean usePredict, boolean unrelatedRuns, float qvalue, boolean useRunSpecificProteinQvalue, String libraryPath, String additionalCmdOpts, boolean isDryRun, boolean isRunPlex, boolean generateMsstats, String lightString, String mediumString, String heavyString, Path jarFragpipe, boolean isRunSkyline) {
 
     initPreConfig();
+
+    if (libraryPath != null && !libraryPath.trim().isEmpty()) {
+      System.out.println("There are external spectral library. Will not generate the MSstats file.");
+      generateMsstats = false;
+    }
 
     if (isRunPlex) {
       if ((lightString == null || lightString.isEmpty()) && (mediumString == null || mediumString.isEmpty()) && (heavyString == null || heavyString.isEmpty())) {
@@ -111,7 +109,7 @@ public class CmdDiann extends CmdBase {
         log.debug("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
       }
 
-      List<String> toJoin = classpathJars.stream().map(p -> p.toAbsolutePath().normalize().toString()).collect(Collectors.toList());
+      Set<String> toJoin = classpathJars.stream().map(p -> p.toAbsolutePath().normalize().toString()).collect(Collectors.toSet());
       try {
         toJoin.addAll(Files.walk(libsDir).
             filter(p -> p.getFileName().toString().endsWith(".jar")).
@@ -329,6 +327,14 @@ public class CmdDiann extends CmdBase {
         pb2.directory(groupWd.toFile());
         pbis.add(PbiBuilder.from(pb2));
       }
+
+      // Add process to rename the speclib file for skyline once it has been generated (only needed for Skyline v23.1 and older)
+      if (isRunSkyline) {
+        Path speclibFromDIANN = wd.resolve("library.tsv.speclib");
+        Path speclibForSkyline = wd.resolve("diann-output").resolve("report.tsv.speclib");
+        List<ProcessBuilder> pbsMove = ToolingUtils.pbsRenameFiles(jarFragpipe, speclibForSkyline, true, Collections.singletonList(speclibFromDIANN));
+        pbis.addAll(PbiBuilder.from(pbsMove, NAME + " move speclib for skyline"));
+      }
     }
 
     {
@@ -344,7 +350,7 @@ public class CmdDiann extends CmdBase {
         return false;
       }
 
-      List<String> toJoin = classpathJars.stream().map(p -> p.toAbsolutePath().normalize().toString()).collect(Collectors.toList());
+      Set<String> toJoin = classpathJars.stream().map(p -> p.toAbsolutePath().normalize().toString()).collect(Collectors.toSet());
 
       try {
         toJoin.addAll(Files.walk(libsDir).filter(p -> p.getFileName().toString().endsWith(".jar")).filter(p -> {
@@ -363,11 +369,14 @@ public class CmdDiann extends CmdBase {
       cmd.add(Fragpipe.getBinJava());
       cmd.add("-cp");
       cmd.add(classpath);
-      cmd.add(Localization.class.getCanonicalName());
+      cmd.add(Propagation.class.getCanonicalName());
       cmd.add(wd.toAbsolutePath().toString());
+      cmd.add((lightString == null || lightString.isEmpty()) ? "-" : lightString);
+      cmd.add(mediumString == null || mediumString.isEmpty() ? "-" : mediumString);
+      cmd.add(heavyString == null || heavyString.isEmpty() ? "-" : heavyString);
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(wd.resolve("diann-output").toFile());
-      pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + ": Propagate localization").create());
+      pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + ": Propagate information").create());
     }
 
     if (generateMsstats) {
@@ -378,7 +387,7 @@ public class CmdDiann extends CmdBase {
         log.debug("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
       }
 
-      List<String> toJoin = new ArrayList<>();
+      Set<String> toJoin = new TreeSet<>();
       try {
         toJoin.addAll(Files.walk(libsDir).
             filter(p -> p.getFileName().toString().endsWith(".jar")).
@@ -431,7 +440,7 @@ public class CmdDiann extends CmdBase {
 //        log.debug("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
 //      }
 //
-//      List<String> toJoin = classpathJars.stream().map(p -> p.toAbsolutePath().normalize().toString()).collect(Collectors.toList());
+//      Set<String> toJoin = classpathJars.stream().map(p -> p.toAbsolutePath().normalize().toString()).collect(Collectors.toSet());
 //      try {
 //        toJoin.addAll(Files.walk(libsDir).
 //            filter(p -> p.getFileName().toString().endsWith(".jar")).

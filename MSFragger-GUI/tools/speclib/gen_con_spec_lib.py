@@ -108,6 +108,8 @@ class easyPQPparams(object):
 		self.spectra_files = sorted(pathlib.Path(e) for e in sys.argv[3].split(os.pathsep))
 		if len(sys.argv) >= 13 and sys.argv[12] == 'delete_intermediate_files':
 			self.delete_temp_files = True
+		else:
+			self.delete_temp_files = False
 		if self.spectra_files == [pathlib.Path('unused')] and len(sys.argv) >= 14:
 			self.spectra_files = [pathlib.Path(e) for e in sys.argv[13:]]
 			if len(self.spectra_files) >= 1 and self.spectra_files[0].name.endswith('.txt'):  # check if file is a file list
@@ -321,7 +323,9 @@ def main_easypqp(params, irt_df, allcmds, easypqp_convert_cmds) -> None:
 	assert all(p.returncode == 0 for p in procs)
 	use_iRT = params.irt_choice is not Irt_choice.no_iRT
 	use_im = params.im_choice is not Im_choice.no_im
-	p = subprocess.run(easypqp_library_cmd(params, use_iRT, use_im), cwd=os_fspath(params.workdir), check=False)
+	easypqp_lib_cmd = easypqp_library_cmd(params, use_iRT, use_im)
+	print(f'Executing {easypqp_lib_cmd}')
+	p = subprocess.run(easypqp_lib_cmd, cwd=os_fspath(params.workdir), check=False)
 	if p.returncode != 0 and not use_iRT:
 		print('''Not enough peptides could be found for alignment.
 Using ciRT for alignment''')
@@ -333,7 +337,7 @@ Please try using other options for alignment (e.g. ciRT if used other options)''
 		sys.exit('Library not generated, not enough peptides could be found for alignment.')
 
 
-def easypqp_lib_export(lib_type: str):
+def easypqp_lib_export(lib_type: str, params: easyPQPparams):
 	import pandas as pd
 
 	easypqp_lib = pd.read_csv('easypqp_lib_openswath.tsv', sep='\t')
@@ -353,7 +357,27 @@ def easypqp_lib_export(lib_type: str):
 	avg_experimental_rt = pd.Series(avg_experimental_rt0, name='AverageExperimentalRetentionTime')
 	if lib_type == 'Spectronaut':
 		easypqp_lib['ModifiedPeptideSequence'] = easypqp_lib['ModifiedPeptideSequence'].str.replace('.(UniMod:', '(UniMod:', regex=False)
-	pd.concat([easypqp_lib, frag_df, avg_experimental_rt], axis=1).to_csv(f'library.tsv', sep='\t', index=False)
+
+	df_lib = pd.concat([easypqp_lib, frag_df, avg_experimental_rt], axis=1)
+
+	df_psm = pd.read_csv(params.iproph_RT_aligned / 'psm.tsv', sep='\t', na_values='')
+
+	df_psm['AllMappedProteins'] = df_psm.apply(lambda x: f"{x['Protein']};{x['Mapped Proteins']}" if pd.notna(x['Mapped Proteins']) else x['Protein'], axis=1)
+	t = dict(zip(df_psm['Peptide'], df_psm['AllMappedProteins']))
+	df_lib['AllMappedProteins'] = df_lib['PeptideSequence'].map(t)
+
+	df_psm['AllMappedGenes'] = df_psm.apply(lambda x: f"{x['Gene']};{x['Mapped Genes']}" if pd.notna(x['Mapped Genes']) else x['Gene'], axis=1)
+	t = dict(zip(df_psm['Peptide'], df_psm['AllMappedGenes']))
+	df_lib['AllMappedGenes'] = df_lib['PeptideSequence'].map(t)
+
+	tt = df_psm.apply(lambda x: 1 if pd.isna(x['Mapped Genes']) else 0, axis=1)
+	ttt = dict(zip(df_psm['Peptide'], tt))
+
+	df_lib['Proteotypic'] = df_lib['PeptideSequence'].map(ttt)
+	df_lib['Proteotypic'].fillna(0, inplace=True)
+	df_lib['Proteotypic'] = df_lib['Proteotypic'].astype(int)
+
+	df_lib.to_csv(f'library.tsv', sep='\t', index=False)
 
 
 def get_spectra_files(params: easyPQPparams):
@@ -529,7 +553,7 @@ def main():
 
 	main_easypqp(params, irt_df, allcmds, easypqp_convert_cmds)
 	os.chdir(os_fspath(params.workdir))
-	easypqp_lib_export('Spectronaut')
+	easypqp_lib_export('Spectronaut', params)
 	if params.delete_temp_files:
 		for f in easyPQP_tempfiles:
 			try:

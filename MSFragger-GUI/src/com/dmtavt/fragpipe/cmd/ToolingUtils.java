@@ -25,14 +25,11 @@ import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
-import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.dmtavt.fragpipe.tabs.TabWorkflow;
 import com.github.chhh.utils.FileCopy;
 import com.github.chhh.utils.FileDelete;
 import com.github.chhh.utils.FileMove;
 import com.github.chhh.utils.JarUtils;
-import com.github.chhh.utils.OsUtils;
-import com.github.chhh.utils.StringUtils;
 import java.awt.Component;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -43,20 +40,14 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.ResourceBundle;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 import org.apache.commons.io.FilenameUtils;
 import org.jooq.lambda.Seq;
@@ -67,7 +58,7 @@ public class ToolingUtils {
   private static final Logger log = LoggerFactory.getLogger(ToolingUtils.class);
   private ToolingUtils() {}
 
-  public static final String BATMASS_IO_JAR = "batmass-io-1.31.2.jar";
+  public static final String BATMASS_IO_JAR = "batmass-io-1.32.5.jar";
   public static final String JFREECHART_JAR = "jfreechart-1.5.3.jar";
   public static final String UNIMOD_OBO = "unimod.obo";
 
@@ -91,13 +82,13 @@ public class ToolingUtils {
     return workingDir.resolve(combinedProtFn).normalize().toAbsolutePath();
   }
 
-  private enum Op {COPY, MOVE, DELETE}
+  private enum Op {COPY, MOVE, DELETE, RENAME}
 
   /**
    * @param jarFragpipe Use {@link JarUtils#getCurrentJarUri()} to get that from the current Jar.
    */
   public static List<ProcessBuilder> pbsCopyFiles(Path jarFragpipe, Path dest, List<Path> files) {
-    return pbsCopyMoveDeleteFiles(jarFragpipe, Op.COPY, dest, false, files);
+    return pbsCopyMoveDeleteRenameFiles(jarFragpipe, Op.COPY, dest, false, files);
   }
 
   /**
@@ -105,21 +96,25 @@ public class ToolingUtils {
    */
   public static List<ProcessBuilder> pbsMoveFiles(Path jarFragpipe, Path dest,
       boolean ignoreMissingFiles, List<Path> files) {
-    return pbsCopyMoveDeleteFiles(jarFragpipe, Op.MOVE, dest, ignoreMissingFiles, files);
+    return pbsCopyMoveDeleteRenameFiles(jarFragpipe, Op.MOVE, dest, ignoreMissingFiles, files);
   }
 
   /**
    * @param jarFragpipe Use {@link JarUtils#getCurrentJarUri()} to get that from the current Jar.
    */
   public static List<ProcessBuilder> pbsDeleteFiles(Path jarFragpipe, List<Path> files) {
-    return pbsCopyMoveDeleteFiles(jarFragpipe, Op.DELETE, null, false, files);
+    return pbsCopyMoveDeleteRenameFiles(jarFragpipe, Op.DELETE, null, false, files);
+  }
+
+  public static List<ProcessBuilder> pbsRenameFiles(Path jarFragpipe, Path dest, boolean ignoreMissingFiles, List<Path> files) {
+    return pbsCopyMoveDeleteRenameFiles(jarFragpipe, Op.RENAME, dest, ignoreMissingFiles, files);
   }
 
   /**
    * @param jarFragpipe Use {@link JarUtils#getCurrentJarUri()} to get that from the current Jar.
    */
-  private static List<ProcessBuilder> pbsCopyMoveDeleteFiles(Path jarFragpipe, Op operation, Path dest,
-      boolean ignoreMissingFiles, List<Path> files) {
+  private static List<ProcessBuilder> pbsCopyMoveDeleteRenameFiles(Path jarFragpipe, Op operation, Path dest,
+                                                                   boolean ignoreMissingFiles, List<Path> files) {
     if (jarFragpipe == null) {
       throw new IllegalArgumentException("jar can't be null");
     }
@@ -142,6 +137,7 @@ public class ToolingUtils {
           cmd.add(FileCopy.class.getCanonicalName());
           break;
         case MOVE:
+        case RENAME:
           cmd.add(FileMove.class.getCanonicalName());
           break;
         case DELETE:
@@ -154,19 +150,17 @@ public class ToolingUtils {
         cmd.add(FileMove.NO_ERR);
       }
       cmd.add(file.toAbsolutePath().normalize().toString());
-      if (dest != null)
-        cmd.add(dest.resolve(file.getFileName()).toString());
+      if (dest != null) {
+        if (operation != Op.RENAME) {
+          cmd.add(dest.resolve(file.getFileName()).toString());
+        } else {
+          cmd.add(dest.toString());
+        }
+      }
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pbs.add(pb);
     }
     return pbs;
-  }
-
-  public static Map<InputLcmsFile, Path> getPepxmlFilePathsAfterSearch(List<InputLcmsFile> lcmsFiles, String ext) {
-    HashMap<InputLcmsFile, Path> pepxmls = new HashMap<>();
-    for (InputLcmsFile f : lcmsFiles)
-      pepxmls.put(f, Paths.get(StringUtils.upToLastDot(f.getPath().toString()) + "." + ext));
-    return pepxmls;
   }
 
   public static String getBinJava(Component errroDialogParent, String programsDir) {
@@ -204,45 +198,6 @@ public class ToolingUtils {
     return images;
   }
 
-  public static List<String> getUmpireSeMgfsForMzxml(String inputMzxmlFileName) {
-    String baseName = StringUtils.upToLastDot(inputMzxmlFileName);
-    final int n = 3;
-    List<String> mgfs = new ArrayList<>(n);
-    for (int i = 1; i <= n; i++) {
-      mgfs.add(baseName + "_Q" + i + ".mgf");
-    }
-    return mgfs;
-  }
-
-  public static List<Path> getUmpireCreatedMzxmlFiles(List<InputLcmsFile> lcmsFiles, Path workingDir) {
-    return lcmsFiles.stream()
-        .map(f -> workingDir.resolve(f.getPath().getFileName()))
-        .collect(Collectors.toList());
-  }
-
-  public static String getDefaultBinMsfragger() {
-    log.debug("Loading MSFragger bin path: ThisAppProps.load(ThisAppProps.PROP_BIN_PATH_MSFRAGGER)");
-    String path = ThisAppProps.load(ThisAppProps.PROP_BIN_PATH_MSFRAGGER);
-    return path == null ? "MSFragger.jar" : path;
-  }
-
-  public static String getDefaultBinPhilosopher() {
-    String path = ThisAppProps.load(ThisAppProps.PROP_BIN_PATH_PHILOSOPHER);
-    if (path != null) {
-      return path;
-    }
-    ResourceBundle bundle = ThisAppProps.getLocalBundle();
-    String winName = bundle.getString("default.philosopher.win"); // NOI18N
-    String nixName = bundle.getString("default.philosopher.nix"); // NOI18N
-    return OsUtils.isWindows() ? winName : nixName;
-  }
-
-  static boolean isPhilosopherAndNotTpp(String binPathToCheck) {
-    Pattern isPhilosopherRegex = Pattern.compile("philosopher", Pattern.CASE_INSENSITIVE);
-    Matcher matcher = isPhilosopherRegex.matcher(binPathToCheck);
-    return matcher.find();
-  }
-
   static void generateLFQExperimentAnnotation(Path wd, int type) throws Exception {
     BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(wd.resolve("experiment_annotation.tsv").toFile()));
     bufferedWriter.write("file\tsample\tsample_name\tcondition\treplicate\n");
@@ -250,11 +205,15 @@ public class ToolingUtils {
     TabWorkflow tabWorkflow = Bus.getStickyEvent(TabWorkflow.class);
     Collection<LcmsFileGroup> ttt = tabWorkflow.getLcmsFileGroups2().values();
 
+    boolean hasDia = false;
     Set<String> fileNameSet = new HashSet<>();
     for (LcmsFileGroup lcmsFileGroup : ttt) {
       for (InputLcmsFile inputLcmsFile : lcmsFileGroup.lcmsFiles) {
         String baseName = FilenameUtils.getBaseName(inputLcmsFile.getPath().getFileName().toString());
         fileNameSet.add(baseName);
+        if (inputLcmsFile.getDataType().contentEquals("DIA") || inputLcmsFile.getDataType().contentEquals("DIA-Quant")) {
+          hasDia = true;
+        }
       }
     }
     String commonPrefix = getCommonPrefix(fileNameSet.toArray(new String[0]));
@@ -263,6 +222,9 @@ public class ToolingUtils {
     if (ttt.size() == 1 && ttt.iterator().next().name.isEmpty()) { // There is no group info from the manifest. Parse from the file name.
       for (LcmsFileGroup lcmsFileGroup : ttt) {
         for (InputLcmsFile inputLcmsFile : lcmsFileGroup.lcmsFiles) {
+          if (filterRun(hasDia, inputLcmsFile)) {
+            continue;
+          }
           String baseName = FilenameUtils.getBaseName(inputLcmsFile.getPath().getFileName().toString());
           String sampleName = baseName.substring(a);
           String[] tt = sampleName.split("_");
@@ -288,6 +250,9 @@ public class ToolingUtils {
     } else { // There is group info from the manifest.
       for (LcmsFileGroup lcmsFileGroup : ttt) {
         for (InputLcmsFile inputLcmsFile : lcmsFileGroup.lcmsFiles) {
+          if (filterRun(hasDia, inputLcmsFile)) {
+            continue;
+          }
           String[] parts = inputLcmsFile.getExperiment().split("_");
           if (type == 0) {
             bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getGroup2() + "\t" + inputLcmsFile.getGroup2() + "\t" + parts[0].trim() + "\t" + (inputLcmsFile.getReplicate() == null ? 1 : inputLcmsFile.getReplicate()) + "\n");
@@ -300,6 +265,16 @@ public class ToolingUtils {
     bufferedWriter.close();
   }
 
+  private static boolean filterRun(boolean hasDia, InputLcmsFile inputLcmsFile) {
+    if (inputLcmsFile.getDataType().contentEquals("GPF-DIA") || inputLcmsFile.getDataType().contentEquals("DIA-Lib")) {
+      return true;
+    }
+    if (hasDia && !(inputLcmsFile.getDataType().contentEquals("DIA") || inputLcmsFile.getDataType().contentEquals("DIA-Quant"))) {
+      return true;
+    }
+    return false;
+  }
+
   public static void writeIsobaricQuantExperimentAnnotation(Path wd, Map<LcmsFileGroup, Path> annotations) throws Exception {
     String line;
     BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(wd.resolve("experiment_annotation.tsv").toFile()));
@@ -310,7 +285,7 @@ public class ToolingUtils {
         line = line.trim();
         if (!line.isEmpty()) {
           String[] parts = line.split("\\s");
-          if (parts[1].trim().equalsIgnoreCase("na")) {
+          if (parts.length < 2 || parts[1].trim().equalsIgnoreCase("na")) {
             continue;
           }
           String[] parts2 = parts[1].trim().split("_");

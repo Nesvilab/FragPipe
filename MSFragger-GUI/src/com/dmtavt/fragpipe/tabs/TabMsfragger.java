@@ -23,6 +23,10 @@ import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.ACTIVATION_TYPE_
 import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.ACTIVATION_TYPE_ECD;
 import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.ACTIVATION_TYPE_ETD;
 import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.ACTIVATION_TYPE_HCD;
+import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.ANALYZER_TYPES;
+import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.ANALYZER_TYPE_ALL;
+import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.ANALYZER_TYPE_FTMS;
+import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.ANALYZER_TYPE_ITMS;
 import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTIONS;
 import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTION_labile;
 import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTION_nglycan;
@@ -174,7 +178,7 @@ public class TabMsfragger extends JPanelBase {
   private static final Set<String> PROPS_MISC_NAMES;
   private static final Map<String, Function<String, String>> CONVERT_TO_FILE;
   private static final Map<String, Function<String, String>> CONVERT_TO_GUI;
-  private static final String[] CALIBRATE_LABELS = {"None", "Mass calibration", "Mass calibration, parameter optimization", "Mass calibration, mass tol optimization"};
+  private static final String[] CALIBRATE_LABELS = {"None", "Mass calibration", "Mass calibration, parameter optimization"};
   private static final String[] MASS_DIFF_TO_VAR_MOD = {"No", "Yes, keep delta mass", "Yes, remove delta mass"};
   private static final String[] GROUP_VARIABLE = {"None", "Number of enzymatic termini", "Protein evidence from FASTA file"};
   private static final String[] DEISOTOPE = {"No", "Yes", "Yes, use charge 1 and 2 for undeisotoped peaks"};
@@ -183,8 +187,11 @@ public class TabMsfragger extends JPanelBase {
       .asList(GLYCO_OPTION_off, GLYCO_OPTION_nglycan, GLYCO_OPTION_labile);
   private static final List<String> ACTIVATION_TYPES_UI = Arrays
           .asList(ACTIVATION_TYPE_ALL, ACTIVATION_TYPE_HCD, ACTIVATION_TYPE_ETD, ACTIVATION_TYPE_CID, ACTIVATION_TYPE_ECD);
+  private static final List<String> ANALYZER_TYPES_UI = Arrays.asList(ANALYZER_TYPE_ALL, ANALYZER_TYPE_FTMS, ANALYZER_TYPE_ITMS);
   private static final String LOAD_CUSTOM_CONFIG_OPTION = "Custom MSFragger parameter file from disk";
   private static final HashMap<String, String> ACTIVATION_MAP;  // to handle input of "" or "all" for activation param
+  private static final Map<String, String> ANALYZER_MAP = new HashMap<>();
+
   static {
     ACTIVATION_MAP = new HashMap<>();
     ACTIVATION_MAP.put("ALL", ACTIVATION_TYPE_ALL);
@@ -193,6 +200,11 @@ public class TabMsfragger extends JPanelBase {
     ACTIVATION_MAP.put("ETD", ACTIVATION_TYPE_ETD);
     ACTIVATION_MAP.put("CID", ACTIVATION_TYPE_CID);
     ACTIVATION_MAP.put("ECD", ACTIVATION_TYPE_ECD);
+
+    ANALYZER_MAP.put("", ANALYZER_TYPE_ALL);
+    ANALYZER_MAP.put("ALL", ANALYZER_TYPE_ALL);
+    ANALYZER_MAP.put("FTMS", ANALYZER_TYPE_FTMS);
+    ANALYZER_MAP.put("ITMS", ANALYZER_TYPE_ITMS);
   }
 
   private static final List<MsfraggerEnzyme> ENZYMES = new EnzymeProvider().get();
@@ -259,8 +271,6 @@ public class TabMsfragger extends JPanelBase {
         return "1";
       } else if (s.contentEquals(CALIBRATE_LABELS[2])) {
         return "2";
-      } else if (s.contentEquals(CALIBRATE_LABELS[3])) {
-        return "4";
       } else {
         return "0";
       }
@@ -276,6 +286,7 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_reuse_dia_fragment_peaks, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_require_precursor, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_activation_filter, s -> ACTIVATION_TYPES.get(ACTIVATION_TYPES_UI.indexOf(ACTIVATION_MAP.get(s.toUpperCase()))));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_analyzer_types, s -> ANALYZER_TYPES.get(ANALYZER_TYPES_UI.indexOf(ANALYZER_MAP.get(s.toUpperCase()))));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_localize_delta_mass, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_clip_nTerm_M, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_override_charge, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
@@ -323,8 +334,6 @@ public class TabMsfragger extends JPanelBase {
         return CALIBRATE_LABELS[1];
       } else if (s.contentEquals("2")) {
         return CALIBRATE_LABELS[2];
-      } else if (s.contentEquals("4")) {
-        return CALIBRATE_LABELS[3];
       } else {
         return CALIBRATE_LABELS[0];
       }
@@ -337,6 +346,7 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_reuse_dia_fragment_peaks, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_require_precursor, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_activation_filter, s -> ACTIVATION_TYPES_UI.get(ACTIVATION_TYPES.indexOf(ACTIVATION_MAP.get(s.toUpperCase()))));
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_analyzer_types, s -> ANALYZER_TYPES_UI.get(ANALYZER_TYPES.indexOf(ANALYZER_MAP.get(s.toUpperCase()))));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_localize_delta_mass, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_clip_nTerm_M, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_override_charge, s -> Boolean.toString(Integer.parseInt(s) > 0));
@@ -1196,7 +1206,7 @@ public class TabMsfragger extends JPanelBase {
     pOffsetRegular = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
     pOffsetDetailed = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
 
-    uiTextRestrictDeltamassTo = UiUtils.uiTextBuilder().ghost("Restrict delta mass to certain amino acids").filter("[^A-Zall-]")
+    uiTextRestrictDeltamassTo = UiUtils.uiTextBuilder().ghost("Restrict delta mass to certain amino acids").filter("[^A-Zal\\-nc\\[\\]^*]")
         .cols(20).create();
     FormEntry feRestrictDeltamassTo = mu.feb(uiTextRestrictDeltamassTo).name(MsfraggerParams.PROP_restrict_deltamass_to)
         .tooltip("Allowed mod sites in Open Search / Mass Offset Search /Glyco mode").label("Restrict delta mass to")
@@ -1307,6 +1317,8 @@ public class TabMsfragger extends JPanelBase {
             .tooltip("Filter to include only scans matching the corresponding activation type.\n" +
                     "NOTE: not all instruments and activation types are supported. Use ETD for EThcd\n" +
                     "or other hybrid data.").create();
+    FormEntry feAnalyzerTypes = mu.feb(MsfraggerParams.PROP_analyzer_types, UiUtils.createUiCombo(ANALYZER_TYPES_UI)).label("Analyzer Filter")
+        .tooltip("Filter to include only scans matching the corresponding analyzer type.\nNOTE: only support mzML and raw format files.").create();
     FormEntry feCheckRequirePrecursor = mu.feb(MsfraggerParams.PROP_require_precursor, UiUtils.createUiCheck("Require precursor", true))
         .tooltip("If required, PSMs with no precursor peaks will be discarded. For DIA data type only.").create();
 
@@ -1317,20 +1329,22 @@ public class TabMsfragger extends JPanelBase {
     mu.add(p, feCheckSpectralFiles.comp);
     mu.add(p, feCheckRequirePrecursor.comp).pushX().wrap();
 
+    mu.add(p, feAnalyzerTypes.label()).split(2);
+    mu.add(p, feAnalyzerTypes.comp);
     mu.add(p, feMinPeaks.label()).split(2);
     mu.add(p, feMinPeaks.comp);
     mu.add(p, feUseTopN.label()).split(2);
     mu.add(p, feUseTopN.comp);
     mu.add(p, feMinRatio.label()).split(2);
-    mu.add(p, feMinRatio.comp);
-    mu.add(p, feCheckReuseDiaFragmentPeaks.comp).wrap();
+    mu.add(p, feMinRatio.comp).wrap();
 
     mu.add(p, feClearRangeMzLo.label()).split(4);
     mu.add(p, feClearRangeMzLo.comp);
     mu.add(p, new JLabel("-"));
     mu.add(p, feClearRangeMzHi.comp);
     mu.add(p, feIntensityTransform.label()).split(2);
-    mu.add(p, feIntensityTransform.comp).wrap();
+    mu.add(p, feIntensityTransform.comp);
+    mu.add(p, feCheckReuseDiaFragmentPeaks.comp).wrap();
 
     mu.add(p, feRemovePrecPeak.label()).split(2);
     mu.add(p, feRemovePrecPeak.comp);
@@ -1579,7 +1593,7 @@ public class TabMsfragger extends JPanelBase {
     return p;
   }
 
-  private void setJTableColSize(JTable table, int colIndex, int minW, int maxW, int prefW) {
+  public static void setJTableColSize(JTable table, int colIndex, int minW, int maxW, int prefW) {
     table.getColumnModel().getColumn(colIndex).setMinWidth(minW);
     table.getColumnModel().getColumn(colIndex).setMaxWidth(maxW);
     table.getColumnModel().getColumn(colIndex).setPreferredWidth(prefW);
@@ -1898,8 +1912,6 @@ public class TabMsfragger extends JPanelBase {
       return 1;
     } else if (uiComboMassCalibrate.getSelectedIndex() == 2) {
       return 2;
-    } else if (uiComboMassCalibrate.getSelectedIndex() == 3) {
-      return 4;
     } else {
       return 0;
     }

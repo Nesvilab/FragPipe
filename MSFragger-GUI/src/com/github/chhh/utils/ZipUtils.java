@@ -24,7 +24,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.Collections;
@@ -33,7 +32,6 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
-
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -83,7 +81,7 @@ public class ZipUtils {
     if (!Files.isDirectory(destDir)) {
       throw new IOException("Destination not a directory");
     }
-    try(final org.apache.commons.compress.archivers.zip.ZipFile zipFile = new org.apache.commons.compress.archivers.zip.ZipFile(fileZip.toFile())) {
+    try(final org.apache.commons.compress.archivers.zip.ZipFile zipFile = org.apache.commons.compress.archivers.zip.ZipFile.builder().setFile(fileZip.toFile()).get()) {
       for (final ZipArchiveEntry zipEntry : Collections.list(zipFile.getEntries())) {
         final File newFile = newFile(destDir.toFile(), zipEntry);
         try (final FileOutputStream fos = new FileOutputStream(newFile)) {

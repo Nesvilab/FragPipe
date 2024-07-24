@@ -59,7 +59,7 @@ import com.dmtavt.fragpipe.messages.NoteConfigPtmShepherd;
 import com.dmtavt.fragpipe.messages.NoteConfigTmtI;
 import com.dmtavt.fragpipe.messages.NoteConfigUmpire;
 import com.dmtavt.fragpipe.params.ThisAppProps;
-import com.dmtavt.fragpipe.tools.diapasefscentric.DiaPasefSCentricPanel;
+import com.dmtavt.fragpipe.tools.diatracer.DiaTracerPanel;
 import com.dmtavt.fragpipe.tools.tmtintegrator.QuantLabel;
 import com.dmtavt.fragpipe.tools.umpire.UmpirePanel;
 import com.dmtavt.fragpipe.util.SDRFtable;
@@ -178,8 +178,8 @@ public class TabWorkflow extends JPanelWithEnablement {
   private JButton btnGroupsClearBioreplicate;
   private JButton btnManifestSave;
   private JButton btnManifestLoad;
-
   private HtmlStyledJEditorPane epWorkflowsInfo;
+  private JLabel numSelectedFilesLabel;
   private UiSpinnerInt uiSpinnerRam;
   private UiSpinnerInt uiSpinnerThreads;
   private Map<String, PropsFile> workflows;
@@ -270,6 +270,14 @@ public class TabWorkflow extends JPanelWithEnablement {
     builtInWorkflows.add("DIA_SpecLib_Quant_Phospho");
     builtInWorkflows.add("TMT16-ubiquitination-K_tmt_or_ubiq");
     builtInWorkflows.add("TMT16-ubiquitination-K_tmt_plus_ubiq");
+    builtInWorkflows.add("glyco-O-DIA-OPair");
+    builtInWorkflows.add("glyco-O-DIA-HCD");
+    builtInWorkflows.add("DIA_SpecLib_Quant_Phospho_diaPASEF");
+    builtInWorkflows.add("DIA_SpecLib_Quant_diaPASEF");
+    builtInWorkflows.add("Nonspecific-HLA-diaPASEF");
+    builtInWorkflows.add("PAL");
+    builtInWorkflows.add("glyco-N-DIA");
+    builtInWorkflows.add("Nonspecific-HLA-DIA-Astral");
   }
 
   // Ok, if we could keep some workflows pinned toward the top,  I would say Default, SpecLib, Open, Common-mass-offset, LFQ-MBR,  then the rest
@@ -660,15 +668,29 @@ public class TabWorkflow extends JPanelWithEnablement {
     List<Path> searchPaths = Fragpipe.getExtBinSearchPaths();
     final javax.swing.filechooser.FileFilter ff = CmdMsfragger.getFileChooserFilter(searchPaths);
     Predicate<File> supportedFilePredicate = CmdMsfragger.getSupportedFilePredicate(searchPaths);
-    JFileChooser fc = FileChooserUtils.create("Choose raw data files", "Select", true, FcMode.ANY, true, ff);
+    final var fc = new JFileChooser() {
+      @Override
+      public boolean isTraversable(final File f) {
+        return f.isDirectory() && !f.toString().endsWith(".d");
+      }
+    };
+    FileChooserUtils.create(fc, "Choose raw data files", "Select", true, FcMode.ANY, true, ff);
     fc.setFileFilter(ff);
     tableModelRawFiles.dataCopy();
-    FileChooserUtils.setPath(fc, Stream.of(ThisAppProps.load(ThisAppProps.PROP_LCMS_FILES_IN)));
-
-    int result = fc.showDialog(this, "Select");
-    if (JFileChooser.APPROVE_OPTION != result) {
-      return;
-    }
+    File cwd = null;
+    File[] sf;
+    do {
+      if (cwd == null)
+        FileChooserUtils.setPath(fc, Stream.of(ThisAppProps.load(ThisAppProps.PROP_LCMS_FILES_IN)));
+      else
+        fc.setCurrentDirectory(cwd);
+      int result = fc.showDialog(this, "Select");
+      if (JFileChooser.APPROVE_OPTION != result) {
+        return;
+      }
+      sf = fc.getSelectedFiles();
+      cwd = sf[0];
+    } while (sf.length == 1 && sf[0].isDirectory() && !sf[0].toString().endsWith(".d"));
     final List<Path> paths = Arrays.stream(fc.getSelectedFiles()).filter(supportedFilePredicate).map(File::toPath).collect(Collectors.toList());
     if (paths.isEmpty()) {
       JOptionPane.showMessageDialog(this, "None of selected files/folders are supported.\nIf you are analyzing timsTOF (.d) data, please make sure that you have the latest MSFragger with ext folder exist.", "Warning", JOptionPane.WARNING_MESSAGE);
@@ -838,7 +860,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     mu.add(p, ep).spanX().wrap();
 
     final List<Path> defaultWorkflows = new ArrayList<>();
-    JarUtils.walkResources("/workflows", defaultWorkflows::add);
+    JarUtils.walkResources("/resources/workflows", defaultWorkflows::add);
     log.debug("Found default workflows in jar: {}", defaultWorkflows);
 
     while (true) {
@@ -937,7 +959,8 @@ public class TabWorkflow extends JPanelWithEnablement {
       log.debug("Figured that '{}' workflow was added", newName.get());
       uiComboWorkflows.setSelectedItem(newName.get());
     } else {
-      log.debug("Cant figure which workflow name was added");
+      log.debug("Cant figure which workflow name was added. Use the previously selected one.");
+      uiComboWorkflows.setSelectedItem(previouslySelected);
     }
   }
 
@@ -1008,6 +1031,8 @@ public class TabWorkflow extends JPanelWithEnablement {
     btnManifestSave = button("Save as manifest", MessageManifestSave::new);
     btnManifestLoad = button("Load manifest", MessageManifestLoad::new);
 
+    numSelectedFilesLabel = new JLabel();
+
     createFileTable();
 
     mu.add(p, btnFilesAddFiles).split();
@@ -1071,6 +1096,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     mu.add(p, emptySpace2).growX().pushX().split();
     mu.add(p, btnSetDiaQuant);
     mu.add(p, btnSetDiaLib).wrap();
+    mu.add(p, numSelectedFilesLabel).grow().pushX().wrap();
 
 
     p.add(scrollPaneRawFiles, mu.ccGx().wrap());
@@ -1102,7 +1128,12 @@ public class TabWorkflow extends JPanelWithEnablement {
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnSetDdaPlus);
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsClearExperiment);
     tableRawFiles.addComponentsEnabledOnNonEmptyData(btnGroupsClearBioreplicate);
-
+    tableRawFiles.getSelectionModel().addListSelectionListener(e -> {
+      if (!e.getValueIsAdjusting()) { // This check ensures we handle only the final event in a series
+        updateSelectedFilesTextField();
+      }
+    });
+    updateSelectedFilesTextField();
     tableRawFiles.addComponentsEnabledOnNonEmptySelection(btnFilesRemove);
     tableRawFiles.addComponentsEnabledOnNonEmptySelection(btnSetExp);
     tableRawFiles.addComponentsEnabledOnNonEmptySelection(btnSetRep);
@@ -1444,8 +1475,8 @@ public class TabWorkflow extends JPanelWithEnablement {
     if (hasDataType("DIA") || hasDataType("DIA-Lib") || hasDataType("GPF-DIA")) {
       Bus.post(new NoteConfigUmpire(true));
       UmpirePanel umpirePanel = Fragpipe.getStickyStrict(UmpirePanel.class);
-      DiaPasefSCentricPanel diaPasefSCentricPanel = Fragpipe.getStickyStrict(DiaPasefSCentricPanel.class);
-      if (umpirePanel.isRun() || diaPasefSCentricPanel.isRun()) {
+      DiaTracerPanel diaTracerPanel = Fragpipe.getStickyStrict(DiaTracerPanel.class);
+      if (umpirePanel.isRun() || diaTracerPanel.isRun()) {
         Bus.post(new NoteConfigCrystalC(true));
         Bus.post(new NoteConfigPeptideProphet(true));
         Bus.post(new NoteConfigPtmProphet(true));
@@ -1541,27 +1572,15 @@ public class TabWorkflow extends JPanelWithEnablement {
     if (selectedRows.isEmpty()) {
       for (int i = 0; i < m.dataSize(); ++i) {
         InputLcmsFile f = m.dataGet(i);
-        if (checkDataTypeCompatibility(f, dataType)) {
-          m.dataSet(i, new InputLcmsFile(f.getPath(), f.getExperiment(), f.getReplicate(), dataType));
-        }
+        m.dataSet(i, new InputLcmsFile(f.getPath(), f.getExperiment(), f.getReplicate(), dataType));
       }
     } else {
       for (int selectedRow : selectedRows) {
         int i = tableRawFiles.convertRowIndexToModel(selectedRow);
         InputLcmsFile f = m.dataGet(i);
-        if (checkDataTypeCompatibility(f, dataType)) {
-          m.dataSet(i, new InputLcmsFile(f.getPath(), f.getExperiment(), f.getReplicate(), dataType));
-        }
+        m.dataSet(i, new InputLcmsFile(f.getPath(), f.getExperiment(), f.getReplicate(), dataType));
       }
     }
-  }
-
-  private boolean checkDataTypeCompatibility(InputLcmsFile f, String dataType) {
-    if ((dataType.contentEquals("GPF-DIA") || dataType.contentEquals("DIA-Lib") || dataType.contentEquals("DDA+")) && f.getPath().toString().endsWith(".d")) {
-      SwingUtils.showErrorDialog(this, "timsTOF data is only compatible with DIA, DDA, and DIA-Quant data type.", "Incompatible data type");
-      return false;
-    }
-    return true;
   }
 
   private void actionByFileName() {
@@ -1633,6 +1652,12 @@ public class TabWorkflow extends JPanelWithEnablement {
     return tableModelRawFiles.dataCopy();
   }
 
+  private void updateSelectedFilesTextField() {
+    int totalRows = tableRawFiles.getRowCount();
+    int selectedRows = tableRawFiles.getSelectedRows().length;
+    numSelectedFilesLabel.setText("Total raw files: " + totalRows + ", Selected raw files: " + selectedRows);
+  }
+
   public boolean hasDataType(String dataType) {
     for (InputLcmsFile inputLcmsFile : tableModelRawFiles.dataCopy()) {
       if (inputLcmsFile.getDataType().contentEquals(dataType)) {
@@ -1701,9 +1726,7 @@ public class TabWorkflow extends JPanelWithEnablement {
       }
 
       // Do not load the config paths from the workflow, which likely to be the paths in another user's computer.
-      propsFile.remove("fragpipe-config.bin-ionquant");
-      propsFile.remove("fragpipe-config.bin-msfragger");
-      propsFile.remove("fragpipe-config.bin-philosopher");
+      propsFile.remove("fragpipe-config.tools-folder");
       propsFile.remove("fragpipe-config.bin-python");
 
       epWorkflowsDesc.setText(propsFile.getProperty(PROP_WORKFLOW_DESC, "Description not present"));

@@ -46,6 +46,8 @@ import umich.ms.fileio.filetypes.mzml.MZMLFile;
 import umich.ms.fileio.filetypes.mzml.MZMLWriter;
 import umich.ms.fileio.filetypes.mzml.MZMLWriter.ProcessingMethod;
 import umich.ms.fileio.filetypes.mzml.jaxb.ProcessingMethodType;
+import umich.ms.fileio.filetypes.mzxml.MZXMLFile;
+import umich.ms.fileio.filetypes.thermo.ThermoRawFile;
 
 public class WriteSubMzml {
 
@@ -97,7 +99,17 @@ public class WriteSubMzml {
     ScanCollectionDefault scanCollectionDefault = new ScanCollectionDefault();
     scanCollectionDefault.setDefaultStorageStrategy(StorageStrategy.STRONG);
     scanCollectionDefault.isAutoloadSpectra(true);
-    AbstractLCMSDataSource<?> source = new MZMLFile(f.getAbsolutePath());
+    AbstractLCMSDataSource<?> source;
+    if (f.getName().toLowerCase().endsWith(".mzml")) {
+      source = new MZMLFile(f.getAbsolutePath());
+    } else if (f.getName().toLowerCase().endsWith(".raw")) {
+      source = new ThermoRawFile(f.getAbsolutePath());
+    } else if (f.getName().toLowerCase().endsWith(".mzxml")) {
+      source = new MZXMLFile(f.getAbsolutePath());
+    } else {
+      throw new Exception("Unsupported file format: " + f.getName());
+    }
+
     source.setNumThreadsForParsing(1);
     source.setExcludeEmptyScans(false);
     scanCollectionDefault.setDataSource(source);
@@ -171,7 +183,7 @@ public class WriteSubMzml {
           if (split[i].equals("Spectrum")) {
             scanNameIdx = i;
           }
-          if (split[i].equals("PeptideProphet Probability")) {
+          if (split[i].equals("PeptideProphet Probability") || split[i].equals("Probability")) {
             probabilityThresholdIdx = i;
           }
         }

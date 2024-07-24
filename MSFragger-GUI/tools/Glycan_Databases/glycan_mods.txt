@@ -1,0 +1,12 @@
+#Name	Mass	yProb+	yProb-	Alternate Names	Elemental Composition	Required Residue(s)
+Phospho	79.96633148	2	0.5	P,phosph,phosphorylation,phosphate	P	Hex
+Sulfo	79.95681763			S,sulfo,sulf,sulfation	S	HexNAc
+NH4	17.02655029			ammonium,nh3,ammonia	NH4	
+Na	21.98194313	2	0.5	sodium adduct,sodium,Na+	Na	
+Fe	52.91146088	2	0.5	Fe3,iron,iron adduct,Fe3+	Fe	
+Ca	37.94693756	2	0.5	calcium,calcium adduct,Ca2+	Ca	
+Al	23.95806122	2	0.5	Al3,aluminum,aluminum adduct,Al3+	Al	
+K	38.96370697	2	0.5	K+,potassium,potassium adduct	K	
+Formyl	27.99490929	2	0.5	formylation,M	CO	
+Acetyl	42.01055908	2	0.5	acetylation,Ac,C	C2H2O	
+Succinyl	100.0160828	2	0.5	succinylation,U	C4H4O3	

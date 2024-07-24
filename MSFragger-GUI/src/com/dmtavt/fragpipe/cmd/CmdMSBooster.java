@@ -47,7 +47,7 @@ public class CmdMSBooster extends CmdBase {
 
   private static final Logger log = LoggerFactory.getLogger(CmdMSBooster.class);
   public static String NAME = "MSBooster";
-  public static final String JAR_MSBOOSTER_NAME = "msbooster-1.2.2.jar";
+  public static final String JAR_MSBOOSTER_NAME = "MSBooster-1.2.31.jar";
   public static final String JAR_MSBOOSTER_MAIN_CLASS = "Features.MainClass";
   private static final String[] JAR_DEPS = {BATMASS_IO_JAR};
   private static final Pattern pattern1 = Pattern.compile("\\.pepXML$");
@@ -72,7 +72,28 @@ public class CmdMSBooster extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, int ramGb, int threads, Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml, boolean predictRT, boolean predictSpectra, boolean useCorrelatedFeatures, boolean hasDda, boolean hasDia, boolean hasGpfDia, boolean hasDiaLib, boolean hasDdaPlus, boolean isRunDiaU, boolean isRunDiaPasefSCentric, boolean isOpenSearch, String rtModel, String spectraModel) {
+  public boolean configure(Component comp,
+      int ramGb,
+      int threads,
+      Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml,
+      boolean predictRT,
+      boolean predictSpectra,
+      boolean hasDda,
+      boolean hasDia,
+      boolean hasGpfDia,
+      boolean hasDiaLib,
+      boolean hasDdaPlus,
+      boolean isRunDiaU,
+      boolean isRunDiaTracer,
+      boolean isOpenSearch,
+      String rtModel,
+      String spectraModel,
+      boolean findBestRtModel,
+      boolean findBestSpectraModel,
+      String koinaURL,
+      String testRtModels,
+      String testSpectraModels) {
+
     initPreConfig();
 
     // MSBooster does not compatible with open search and mass-offset search.
@@ -81,13 +102,28 @@ public class CmdMSBooster extends CmdBase {
       return false;
     }
 
+    if (!predictRT && !predictSpectra) {
+      SwingUtils.showErrorDialog(comp, "At least one of <b>Predict RT</b> or <b>Predict spectra</b> must be enabled if you want to run MSBooster.", NAME + " parameter error");
+      return false;
+    }
+
     final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(JAR_MSBOOSTER_NAME).concat(JAR_DEPS));
     if (classpathJars == null) {
       return false;
     }
 
+    if (koinaURL.isEmpty() && (!rtModel.contentEquals("DIA-NN") || !spectraModel.contentEquals("DIA-NN"))) {
+      SwingUtils.showErrorDialog(comp, "Koina URL is required for non DIA-NN models.\nPlease go to <b>Validation</b> tab and adjust the settings.", NAME + " error");
+      return false;
+    }
+
+    if (koinaURL.isEmpty() && (findBestRtModel || findBestSpectraModel)) {
+      SwingUtils.showErrorDialog(comp, "Koina URL is required for <b>Find best RT/spectral model</b>.\nPlease go to <b>Validation</b> tab and adjust the settings.", NAME + " error");
+      return false;
+    }
+
     String fraggerParams;
-    if (hasDda || isRunDiaU || isRunDiaPasefSCentric) {
+    if (hasDda || isRunDiaU || isRunDiaTracer) {
       if (hasDia || hasDiaLib || hasGpfDia) {
         fraggerParams = wd.resolve("fragger_dda.params").toAbsolutePath().toString();
       } else {
@@ -119,6 +155,11 @@ public class CmdMSBooster extends CmdBase {
         bufferedWriter.write("deletePreds = false\n"); // FragPipe-PDV need the prediction files.
         bufferedWriter.write("rtModel = " + rtModel + "\n");
         bufferedWriter.write("spectraModel = " + spectraModel + "\n");
+        bufferedWriter.write("findBestRtModel = " + (findBestRtModel ? "true" : "false") + "\n");
+        bufferedWriter.write("findBestSpectraModel = " + (findBestSpectraModel ? "true" : "false") + "\n");
+        bufferedWriter.write("KoinaURL = " + koinaURL + "\n");
+        bufferedWriter.write("rtSearchModelsString = " + testRtModels + "\n");
+        bufferedWriter.write("ms2SearchModelsString = " + testSpectraModels + "\n");
 
         // compute unique lcms file directories
         bufferedWriter.write("mzmlDirectory = ");
@@ -142,7 +183,7 @@ public class CmdMSBooster extends CmdBase {
           }
         }
         bufferedWriter.write(String.join(" ", pinFiles) + "\n");
-        bufferedWriter.write("useMultipleCorrelatedFeatures = " + useCorrelatedFeatures);
+        bufferedWriter.write("useMultipleCorrelatedFeatures = false");
         bufferedWriter.close();
       } catch (IOException ex) {
         ex.printStackTrace();

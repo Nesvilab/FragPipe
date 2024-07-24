@@ -17,11 +17,14 @@
 
 package com.dmtavt.fragpipe;
 
+import static com.dmtavt.fragpipe.FragPipeMain.PHILOSOPHER_VERSION;
+import static com.dmtavt.fragpipe.Fragpipe.philosopherBinPath;
 import static com.dmtavt.fragpipe.messages.MessagePrintToConsole.toConsole;
 import static com.dmtavt.fragpipe.tabs.TabDatabase.databaseSizeLimit;
 import static com.dmtavt.fragpipe.tabs.TabWorkflow.manifestExt;
 import static com.dmtavt.fragpipe.tabs.TabWorkflow.workflowExt;
 import static com.dmtavt.fragpipe.tools.diann.DiannPanel.NEW_VERSION;
+import static com.dmtavt.fragpipe.tools.skyline.Skyline.skylineVersionT;
 import static com.github.chhh.utils.FileDelete.deleteFileOrFolder;
 import static com.github.chhh.utils.SwingUtils.wrapInScrollForDialog;
 
@@ -33,7 +36,7 @@ import com.dmtavt.fragpipe.cmd.CmdAppendFile;
 import com.dmtavt.fragpipe.cmd.CmdBase;
 import com.dmtavt.fragpipe.cmd.CmdCheckCentroid;
 import com.dmtavt.fragpipe.cmd.CmdCrystalc;
-import com.dmtavt.fragpipe.cmd.CmdDiaPasefSCentric;
+import com.dmtavt.fragpipe.cmd.CmdDiaTracer;
 import com.dmtavt.fragpipe.cmd.CmdDiann;
 import com.dmtavt.fragpipe.cmd.CmdFpopQuant;
 import com.dmtavt.fragpipe.cmd.CmdFreequant;
@@ -55,6 +58,7 @@ import com.dmtavt.fragpipe.cmd.CmdPhilosopherWorkspaceCleanInit;
 import com.dmtavt.fragpipe.cmd.CmdProteinProphet;
 import com.dmtavt.fragpipe.cmd.CmdPtmProphet;
 import com.dmtavt.fragpipe.cmd.CmdPtmshepherd;
+import com.dmtavt.fragpipe.cmd.CmdSkyline;
 import com.dmtavt.fragpipe.cmd.CmdSpecLibGen;
 import com.dmtavt.fragpipe.cmd.CmdStart;
 import com.dmtavt.fragpipe.cmd.CmdTmtIntegrator;
@@ -75,12 +79,11 @@ import com.dmtavt.fragpipe.messages.MessageSaveLog;
 import com.dmtavt.fragpipe.messages.MessageSaveUiState;
 import com.dmtavt.fragpipe.messages.MessageStartProcesses;
 import com.dmtavt.fragpipe.messages.NoteConfigDatabase;
+import com.dmtavt.fragpipe.messages.NoteConfigDiaTracer;
 import com.dmtavt.fragpipe.messages.NoteConfigDiann;
 import com.dmtavt.fragpipe.messages.NoteConfigIonQuant;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
-import com.dmtavt.fragpipe.messages.NoteConfigPhilosopher;
 import com.dmtavt.fragpipe.messages.NoteConfigSpeclibgen;
-import com.dmtavt.fragpipe.messages.NoteConfigSkyline;
 import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.dmtavt.fragpipe.process.ProcessDescription;
 import com.dmtavt.fragpipe.process.ProcessDescription.Builder;
@@ -95,7 +98,7 @@ import com.dmtavt.fragpipe.tabs.TabWorkflow.InputDataType;
 import com.dmtavt.fragpipe.tools.crystalc.CrystalcPanel;
 import com.dmtavt.fragpipe.tools.crystalc.CrystalcParams;
 import com.dmtavt.fragpipe.tools.diann.DiannPanel;
-import com.dmtavt.fragpipe.tools.diapasefscentric.DiaPasefSCentricPanel;
+import com.dmtavt.fragpipe.tools.diatracer.DiaTracerPanel;
 import com.dmtavt.fragpipe.tools.fpop.FpopQuantPanel;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerParams;
 import com.dmtavt.fragpipe.tools.ionquant.QuantPanelLabelfree;
@@ -109,6 +112,8 @@ import com.dmtavt.fragpipe.tools.protproph.ProtProphPanel;
 import com.dmtavt.fragpipe.tools.ptmprophet.PtmProphetPanel;
 import com.dmtavt.fragpipe.tools.ptmshepherd.PTMSGlycanAssignPanel;
 import com.dmtavt.fragpipe.tools.ptmshepherd.PtmshepherdPanel;
+import com.dmtavt.fragpipe.tools.skyline.Skyline;
+import com.dmtavt.fragpipe.tools.skyline.SkylinePanel;
 import com.dmtavt.fragpipe.tools.speclibgen.SpecLibGen2;
 import com.dmtavt.fragpipe.tools.speclibgen.SpeclibPanel;
 import com.dmtavt.fragpipe.tools.tmtintegrator.QuantLabel;
@@ -154,6 +159,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 import org.jgrapht.traverse.ClosestFirstIterator;
@@ -415,7 +421,7 @@ public class FragpipeRun {
       final TmtiPanel tmtiPanel = Fragpipe.getStickyStrict(TmtiPanel.class);
       if (tmtiPanel.isRun()) {
         toConsole("~~~~~~annotation files~~~~~~~", tabRun.console);
-        for (Path p : tmtiPanel.getAnnotations().values()) {
+        for (Path p : tmtiPanel.getAnnotations(wd, isDryRun).values()) {
           try {
             toConsole(p.toFile().getCanonicalPath() + ":", tabRun.console);
             Files.lines(p.toFile().getCanonicalFile().toPath()).forEach(e -> toConsole(e.trim(), tabRun.console));
@@ -644,28 +650,6 @@ public class FragpipeRun {
           }
         }
 
-        NoteConfigSkyline noteConfigSkyline = Bus.getStickyEvent(NoteConfigSkyline.class);
-        if (noteConfigSkyline.isValid()) {
-          if (noteConfigSkyline.compareVersion("23.1.0.380") <= 0) {
-            // 23.1 released version of Skyline requires moving the speclib file to where the DIANN report.tsv is located
-            DiannPanel diannPanel = Bus.getStickyEvent(DiannPanel.class);
-            if (diannPanel != null && diannPanel.isRun()) {
-              try {
-                Files.walk(wd).filter(p -> p.getFileName().toString().endsWith(".speclib")).forEach(p -> {
-                  try {
-                    Path ppp = wd.resolve("diann-output");
-                    if (Files.exists(ppp) && Files.isDirectory(ppp)) {
-                      Files.move(p, ppp.resolve("report.tsv.speclib"));
-                    }
-                  } catch (Exception ignored) {
-                  }
-                });
-              } catch (Exception ignored) {
-              }
-            }
-          }
-        }
-
         printReference(tabRun.console);
         String totalTime = String.format("%.1f", (System.nanoTime() - startTime) * 1e-9 / 60);
         toConsole(Fragpipe.COLOR_RED_DARKEST, "\n=============================================================ALL JOBS DONE IN " + totalTime + " MINUTES=============================================================", true, tabRun.console);
@@ -697,13 +681,19 @@ public class FragpipeRun {
       toConsole(Fragpipe.COLOR_BLACK, "DIA-Umpire: comprehensive computational framework for data-independent acquisition proteomics. Nat Methods 12:258 (2015)", true, console);
     }
 
+    DiaTracerPanel diaTracerPanel = Bus.getStickyEvent(DiaTracerPanel.class);
+    if (diaTracerPanel != null && diaTracerPanel.isRun()) {
+      toConsole(Fragpipe.COLOR_CMDLINE, "(pseudo-MS/MS generation with diaTracer) ", false, console);
+      toConsole(Fragpipe.COLOR_BLACK, "diaTracer enables spectrum-centric analysis of diaPASEF proteomics data. bioRxiv (2024)", true, console);
+    }
+
     TabMsfragger tabMsfragger = Bus.getStickyEvent(TabMsfragger.class);
     if (tabMsfragger != null && tabMsfragger.isRun()) {
       toConsole(Fragpipe.COLOR_CMDLINE, "(Any searches) ", false, console);
       toConsole(Fragpipe.COLOR_BLACK, "MSFragger: ultrafast and comprehensive peptide identification in mass spectrometry–based proteomics. Nat Methods 14:513 (2017)", true, console);
       toConsole(Fragpipe.COLOR_CMDLINE, "(Any searches) ", false, console);
       toConsole(Fragpipe.COLOR_BLACK, "Fast deisotoping algorithm and its implementation in the MSFragger search engine. J. Proteome Res. 20:498 (2021)", true, console);
-      toConsole(Fragpipe.COLOR_CMDLINE, "(timsTOF PASEF) ", false, console);
+      toConsole(Fragpipe.COLOR_CMDLINE, "(timsTOF ddaPASEF) ", false, console);
       toConsole(Fragpipe.COLOR_BLACK, "Fast quantitative analysis of timsTOF PASEF data with MSFragger and IonQuant. Mol Cell Proteomics 19:1575 (2020)", true, console);
       toConsole(Fragpipe.COLOR_CMDLINE, "(Open search) ", false, console);
       toConsole(Fragpipe.COLOR_BLACK, "Identification of modified peptides using localization-aware open search. Nat Commun. 11:4065 (2020)", true, console);
@@ -808,6 +798,9 @@ public class FragpipeRun {
 
     toConsole(Fragpipe.COLOR_CMDLINE, "(Visualization with FragPipe-PDV) ", false, console);
     toConsole(Fragpipe.COLOR_BLACK, "PDV: an integrative proteomics data viewer. Bioinformatics. 35(7):1249 (2019)", true, console);
+
+    toConsole(Fragpipe.COLOR_CMDLINE, "(Visualization with Skyline) ", false, console);
+    toConsole(Fragpipe.COLOR_BLACK, "Skyline: an open source document editor for creating and analyzing targeted proteomics experiments. Bioinformatics. 26(7):966 (2010)", true, console);
   }
 
 
@@ -1000,7 +993,7 @@ public class FragpipeRun {
   public static String createVersionsString() {
     String msfraggerVersion;
     String ionQuantVersion = NoteConfigIonQuant.version;
-    String philosopherVersion;
+    String diaTracerVersion = NoteConfigDiaTracer.version;
 
     try {
       msfraggerVersion = Fragpipe.getStickyStrict(NoteConfigMsfragger.class).version;
@@ -1015,20 +1008,16 @@ public class FragpipeRun {
       ionQuantVersion = "N/A";
     }
 
-    try {
-      philosopherVersion = Fragpipe.getStickyStrict(NoteConfigPhilosopher.class).version;
-      if (philosopherVersion == null || philosopherVersion.trim().isEmpty()) {
-        throw new NullPointerException();
-      }
-    } catch (Exception e) {
-      philosopherVersion = "N/A";
+    if (diaTracerVersion == null || diaTracerVersion.trim().isEmpty()) {
+      diaTracerVersion = "N/A";
     }
 
     StringBuilder sb = new StringBuilder();
     sb.append(Version.PROGRAM_TITLE).append(" version ").append(Version.version()).append("\n");
     sb.append("MSFragger version ").append(msfraggerVersion).append("\n");
     sb.append("IonQuant version ").append(ionQuantVersion).append("\n");
-    sb.append("Philosopher version ").append(philosopherVersion).append("\n");
+    sb.append("diaTracer version ").append(diaTracerVersion).append("\n");
+    sb.append("Philosopher version ").append(PHILOSOPHER_VERSION).append("\n");
 
     return sb.toString();
   }
@@ -1110,13 +1099,7 @@ public class FragpipeRun {
     final ProtProphPanel protProphPanel = Fragpipe.getStickyStrict(ProtProphPanel.class);
     final ReportPanel reportPanel = Fragpipe.getStickyStrict(ReportPanel.class);
 
-    final NoteConfigPhilosopher configPhi = Fragpipe.getStickyStrict(NoteConfigPhilosopher.class);
-
-    if (!configPhi.isValid()) {
-      SwingUtils.showErrorDialog(parent, "Philosopher was not configured properly. Please check the config tab if you want to use it.", "Philosopher is not available");
-    }
-
-    final UsageTrigger usePhi = new UsageTrigger(configPhi.path, "Philosopher");
+    final UsageTrigger usePhi = new UsageTrigger(philosopherBinPath, "Philosopher");
 
     // all the configurations are aggregated before being executed
     // because some commands might require others to run
@@ -1160,7 +1143,7 @@ public class FragpipeRun {
         }
       }
 
-      // Don't include DIA-Quant and diaPASEF.
+      // Don't include DIA-Quant.
       for (Map.Entry<String, LcmsFileGroup> e : tabWorkflow.getLcmsFileGroups().entrySet()) {
         List<InputLcmsFile> ttt = e.getValue().lcmsFiles.stream().filter(f -> !f.getDataType().contentEquals("DIA-Quant")).collect(Collectors.toList());
         if (!ttt.isEmpty()) {
@@ -1228,27 +1211,29 @@ public class FragpipeRun {
       return true;
     });
 
-    final DiaPasefSCentricPanel diaPasefSCentricPanel = Fragpipe.getStickyStrict(DiaPasefSCentricPanel.class);
-    final CmdDiaPasefSCentric cmdDiaPasefSCentric = new CmdDiaPasefSCentric(diaPasefSCentricPanel.isRun(), wd);
-    addConfig.accept(cmdDiaPasefSCentric, () -> {
-      cmdDiaPasefSCentric.setRun(cmdDiaPasefSCentric.isRun() && !sharedLcmsFiles.isEmpty());
-      if (cmdDiaPasefSCentric.isRun()) {
-        if (!cmdDiaPasefSCentric.configure(
+    final UsageTrigger binDiaTracer = new UsageTrigger(NoteConfigDiaTracer.path, "diaTracer");
+    final DiaTracerPanel diaTracerPanel = Fragpipe.getStickyStrict(DiaTracerPanel.class);
+    final CmdDiaTracer cmdDiaTracer = new CmdDiaTracer(diaTracerPanel.isRun(), wd);
+    addConfig.accept(cmdDiaTracer, () -> {
+      cmdDiaTracer.setRun(cmdDiaTracer.isRun() && !sharedLcmsFiles.isEmpty());
+      if (cmdDiaTracer.isRun()) {
+        if (!cmdDiaTracer.configure(
             parent,
             ramGb,
             threads,
             Paths.get(binMsfragger.getBin()),
-            diaPasefSCentricPanel.writeIntermediateFiles(),
-            diaPasefSCentricPanel.imTolerance(),
-            diaPasefSCentricPanel.mzToleranceUnit(),
-            diaPasefSCentricPanel.mzTolerance(),
-            diaPasefSCentricPanel.apexScanDeltaRange(),
-            diaPasefSCentricPanel.imToleranceMs1Ms2(),
-            diaPasefSCentricPanel.apexScanDeltaRangeMs1Ms2(),
+            Paths.get(binDiaTracer.getBin()),
+            diaTracerPanel.writeIntermediateFiles(),
+            diaTracerPanel.imTolerance(),
+            diaTracerPanel.apexScanDeltaRange(),
+            diaTracerPanel.massDefectFilter(),
+            diaTracerPanel.massDefectOffset(),
+            diaTracerPanel.ms1MS2Corr(),
+            diaTracerPanel.topNPeaks(),
             sharedLcmsFiles)) {
           return false;
         }
-        List<InputLcmsFile> outputs = cmdDiaPasefSCentric.outputs(sharedLcmsFiles);
+        List<InputLcmsFile> outputs = cmdDiaTracer.outputs(sharedLcmsFiles);
         sharedLcmsFiles.clear();
         sharedLcmsFiles.addAll(outputs);
       }
@@ -1270,6 +1255,12 @@ public class FragpipeRun {
     }
 
     final String decoyTag = tabDatabase.getDecoyTag();
+
+    if (decoyTag.trim().isEmpty()) {
+      SwingUtils.showErrorDialog(parent, "<b>Decoy protein prefix</b> is empty. Please fix it in <b>Database</b> tab.", "Decoy tag is empty");
+      return false;
+    }
+
     MsfraggerParams p = tabMsf.getParams();
     final CmdMsfragger cmdMsfragger = new CmdMsfragger(tabMsf.isRun(), wd, p.getOutputFormat(), tabMsf.getOutputReportTopNDia1(), tabMsf.getOutputReportTopNDdaPlus());
 
@@ -1279,7 +1270,7 @@ public class FragpipeRun {
     addConfig.accept(cmdMsfragger, () -> {
       cmdMsfragger.setRun(cmdMsfragger.isRun() && !sharedLcmsFiles.isEmpty());
       if (cmdMsfragger.isRun()) {
-        if (!cmdMsfragger.configure(parent, isDryRun, jarPath, binMsfragger, fastaFile, tabMsf.getParams(), tabMsf.getNumDbSlices(), ramGb, sharedLcmsFiles, decoyTag, tabWorkflow.hasDataType("DDA"), tabWorkflow.hasDataType("DIA"), tabWorkflow.hasDataType("GPF-DIA"), tabWorkflow.hasDataType("DIA-Lib"), tabWorkflow.hasDataType("DDA+"), cmdUmpire.isRun(), cmdDiaPasefSCentric.isRun(), tabRun.isWriteSubMzml())) {
+        if (!cmdMsfragger.configure(parent, isDryRun, jarPath, binMsfragger, fastaFile, tabMsf.getParams(), tabMsf.getNumDbSlices(), ramGb, sharedLcmsFiles, decoyTag, tabWorkflow.hasDataType("DDA"), tabWorkflow.hasDataType("DIA"), tabWorkflow.hasDataType("GPF-DIA"), tabWorkflow.hasDataType("DIA-Lib"), tabWorkflow.hasDataType("DDA+"), cmdUmpire.isRun(), cmdDiaTracer.isRun(), tabRun.isWriteSubMzml())) {
           return false;
         }
 
@@ -1352,7 +1343,27 @@ public class FragpipeRun {
     addConfig.accept(cmdMSBooster, () -> {
       cmdMSBooster.setRun(cmdMSBooster.isRun() && !sharedPepxmlFilesFromMsfragger.isEmpty());
       if (cmdMSBooster.isRun()) {
-        return cmdMSBooster.configure(parent, ramGb, threads, sharedPepxmlFilesFromMsfragger, MSBoosterPanel.predictRt(), MSBoosterPanel.predictSpectra(), MSBoosterPanel.useCorrelatedFeatures(), tabWorkflow.hasDataType("DDA"), tabWorkflow.hasDataType("DIA"), tabWorkflow.hasDataType("GPF-DIA"), tabWorkflow.hasDataType("DIA-Lib"), tabWorkflow.hasDataType("DDA+"), cmdUmpire.isRun(), cmdDiaPasefSCentric.isRun(), tabMsf.isOpenSearch(), MSBoosterPanel.rtModel(), MSBoosterPanel.spectraModel());
+        return cmdMSBooster.configure(parent,
+            ramGb,
+            threads,
+            sharedPepxmlFilesFromMsfragger,
+            MSBoosterPanel.predictRt(),
+            MSBoosterPanel.predictSpectra(),
+            tabWorkflow.hasDataType("DDA"),
+            tabWorkflow.hasDataType("DIA"),
+            tabWorkflow.hasDataType("GPF-DIA"),
+            tabWorkflow.hasDataType("DIA-Lib"),
+            tabWorkflow.hasDataType("DDA+"),
+            cmdUmpire.isRun(),
+            cmdDiaTracer.isRun(),
+            tabMsf.isOpenSearch(),
+            MSBoosterPanel.rtModel(),
+            MSBoosterPanel.spectraModel(),
+            MSBoosterPanel.findBestRtModel(),
+            MSBoosterPanel.findBestSpectraModel(),
+            MSBoosterPanel.koinaUrl(),
+            MSBoosterPanel.rtTestModels(),
+            MSBoosterPanel.spectraTestModels());
       }
       return true;
     });
@@ -1541,13 +1552,17 @@ public class FragpipeRun {
 
     // run Report - Report command itself
     final CmdPhilosopherReport cmdPhilosopherReport = new CmdPhilosopherReport(reportPanel.isRun() || quantPanelLabelfree.isRunFreeQuant(), wd);
-    final boolean doPrintDecoys = reportPanel.isPrintDecoys();
-    final boolean doMSstats = reportPanel.isMsstats() && !quantPanelLabelfree.isRunIonQuant(); // Don't let Philosopher generate MSstats files if IonQuant is going to run because IonQuant will generate them.
+    boolean philosopherGenerateMSstats = tmtiPanel.isRun() && tmtiPanel.isMsstats();
+
+    if (philosopherGenerateMSstats && tmtiPanel.getIntensityExtractionTool() == 0) {
+      SwingUtils.showErrorDialog(parent, "<b>Generate MSstats files (using Philosopher)</b> was enabled but Philosopher was not selected as <b>Intensity Extraction Tool</b>.", "Parameter incompatibility");
+      return false;
+    }
 
     addConfig.accept(cmdPhilosopherReport, () -> {
       cmdPhilosopherReport.setRun(cmdPhilosopherReport.isRun() && !sharedMapGroupsToProtxml.isEmpty());
       if (cmdPhilosopherReport.isRun()) {
-        return cmdPhilosopherReport.configure(parent, ramGb, threads, usePhi, doPrintDecoys, doMSstats, sharedLcmsFileGroups.size() > 1, reportPanel.isRemoveContaminants(), sharedMapGroupsToProtxml);
+        return cmdPhilosopherReport.configure(parent, ramGb, threads, usePhi, reportPanel.isPrintDecoys(), philosopherGenerateMSstats, sharedLcmsFileGroups.size() > 1, reportPanel.isRemoveContaminants(), sharedMapGroupsToProtxml);
       }
       return true;
     });
@@ -1555,7 +1570,7 @@ public class FragpipeRun {
     // run Report - Multi-Experiment report
     final CmdPhilosopherAbacus cmdPhilosopherAbacus = new CmdPhilosopherAbacus(false, wd);
     addConfig.accept(cmdPhilosopherAbacus, () -> {
-      final boolean doRunAbacus = cmdPhilosopherReport.isRun() && (sharedLcmsFileGroups.size() > 1) && !quantPanelLabelfree.isRunIonQuant() && (doMSstats || (!reportPanel.isNoProtXml() && reportPanel.isProtSummary()) || reportPanel.isPepSummary());
+      final boolean doRunAbacus = cmdPhilosopherReport.isRun() && (sharedLcmsFileGroups.size() > 1) && !quantPanelLabelfree.isRunIonQuant() && (philosopherGenerateMSstats || (!reportPanel.isNoProtXml() && reportPanel.isProtSummary()) || reportPanel.isPepSummary());
       cmdPhilosopherAbacus.setRun(doRunAbacus);
       if (cmdPhilosopherAbacus.isRun()) {
         int plex = 0;
@@ -1635,7 +1650,7 @@ public class FragpipeRun {
             throw new IllegalStateException("OPairPanel has not been posted to the bus");
           }
 
-          return cmdIonquant.configure(parent, Paths.get(binMsfragger.getBin()), Paths.get(binIonQuant.getBin()), ramGb, quantPanelLabelfree.toMap(), tabWorkflow.getInputDataType(), sharedPepxmlFilesFromMsfragger, sharedMapGroupsToProtxml, threads, oPairPanel.isRun() ? null : modMassSet, isDryRun, true, true);
+          return cmdIonquant.configure(parent, Paths.get(binMsfragger.getBin()), Paths.get(binIonQuant.getBin()), ramGb, quantPanelLabelfree.toMap(), tabWorkflow.getInputDataType(), sharedPepxmlFilesFromMsfragger, sharedMapGroupsToProtxml, threads, oPairPanel.isRun() ? null : modMassSet, isDryRun, true, true, true);
         }
         return true;
       });
@@ -1649,7 +1664,11 @@ public class FragpipeRun {
           SwingUtils.showWarningDialog(parent, CmdTmtIntegrator.NAME + " only supports mzML and raw files.\nPlease remove other files from the input list.", CmdTmtIntegrator.NAME + " error");
           return false;
         }
-        return cmdTmt.configure(tmtiPanel, isDryRun, ramGb, decoyTag, sharedMapGroupsToProtxml, doMSstats, tmtiPanel.getAnnotations(), false);
+        Map<LcmsFileGroup, Path> annotations = tmtiPanel.getAnnotations(wd, isDryRun);
+        if (annotations.isEmpty()) {
+          return false;
+        }
+        return cmdTmt.configure(tmtiPanel, isDryRun, ramGb, sharedMapGroupsToProtxml, philosopherGenerateMSstats, annotations, false);
       }
       return true;
     });
@@ -1678,7 +1697,7 @@ public class FragpipeRun {
             }
           }
         }
-        Map<LcmsFileGroup, Path> annotations = tmtiPanel.getAnnotations();
+        Map<LcmsFileGroup, Path> annotations = tmtiPanel.getAnnotations(wd, isDryRun);
         boolean hasMissing = Seq.seq(annotations.values()).map(PathUtils::existing).anyMatch(Objects::isNull);
         if (hasMissing) {
           SwingUtils.showErrorDialog(parent,
@@ -1695,7 +1714,10 @@ public class FragpipeRun {
       double minprob = tmtiPanel.getMinprob();
       double purity = tmtiPanel.getPurity();
       double minIntensityPercant = tmtiPanel.getMinIntensityPercent();
-      Map<LcmsFileGroup, Path> annotations = tmtiPanel.getAnnotations();
+      Map<LcmsFileGroup, Path> annotations = tmtiPanel.getAnnotations(wd, isDryRun);
+      if (annotations.isEmpty()) {
+        return false;
+      }
 
       if (tmtiPanel.getIntensityExtractionTool() == 0) {
         addConfig.accept(cmdTmtIonquant, () -> {
@@ -1705,7 +1727,7 @@ public class FragpipeRun {
             if (oPairPanel == null) {
               throw new IllegalStateException("OPairPanel has not been posted to the bus");
             }
-            return cmdTmtIonquant.configure(parent, Paths.get(binMsfragger.getBin()), Paths.get(binIonQuant.getBin()), ramGb, null, tabWorkflow.getInputDataType(), sharedPepxmlFilesFromMsfragger, sharedMapGroupsToProtxml, threads, oPairPanel.isRun() ? null : modMassSet, isDryRun, false, false);
+            return cmdTmtIonquant.configure(parent, Paths.get(binMsfragger.getBin()), Paths.get(binIonQuant.getBin()), ramGb, null, tabWorkflow.getInputDataType(), sharedPepxmlFilesFromMsfragger, sharedMapGroupsToProtxml, threads, oPairPanel.isRun() ? null : modMassSet, isDryRun, false, false, false);
           }
           return true;
         });
@@ -1716,7 +1738,7 @@ public class FragpipeRun {
             if (oPairPanel == null) {
               throw new IllegalStateException("OPairPanel has not been posted to the bus");
             }
-            return cmdTmtIonquantIsobaric.configure(parent, Paths.get(binMsfragger.getBin()), Paths.get(binIonQuant.getBin()), ramGb, null, tabWorkflow.getInputDataType(), sharedPepxmlFilesFromMsfragger, sharedMapGroupsToProtxml, threads, oPairPanel.isRun() ? null : modMassSet, isDryRun, false, true, false, tolerance, Integer.parseInt(quantLevel), label.getName(), annotations, true);
+            return cmdTmtIonquantIsobaric.configure(parent, Paths.get(binMsfragger.getBin()), Paths.get(binIonQuant.getBin()), ramGb, null, tabWorkflow.getInputDataType(), sharedPepxmlFilesFromMsfragger, sharedMapGroupsToProtxml, threads, oPairPanel.isRun() ? null : modMassSet, isDryRun, false, true, false, false, tolerance, Integer.parseInt(quantLevel), label.getName(), annotations, true);
           }
           return true;
         });
@@ -1812,7 +1834,7 @@ public class FragpipeRun {
             .filter(StringUtils::isNotBlank)
             .ifPresent(v -> additionalShepherdParams.put("isotope_error", v));
         return cmdPtmshepherd.configure(parent, isDryRun, Paths.get(binMsfragger.getBin()),
-            ramGb, fastaPath, sharedMapGroupsToProtxml, additionalShepherdParams);
+            ramGb, fastaPath, sharedMapGroupsToProtxml, additionalShepherdParams, jarPath);
       }
       return true;
     });
@@ -1843,7 +1865,11 @@ public class FragpipeRun {
           SwingUtils.showWarningDialog(parent, CmdTmtIntegrator.NAME + " only supports mzML and raw files.\nPlease remove other files from the input list.", CmdTmtIntegrator.NAME + " error");
           return false;
         }
-        return cmdTmtFpop.configure(tmtiPanel, isDryRun, ramGb, decoyTag, sharedMapGroupsToProtxml, doMSstats, tmtiPanel.getAnnotations(), true);
+        Map<LcmsFileGroup, Path> annotations = tmtiPanel.getAnnotations(wd, isDryRun);
+        if (annotations.isEmpty()) {
+          return false;
+        }
+        return cmdTmtFpop.configure(tmtiPanel, isDryRun, ramGb, sharedMapGroupsToProtxml, philosopherGenerateMSstats, annotations, true);
       });
     }
 
@@ -1898,11 +1924,29 @@ public class FragpipeRun {
       isNew = false;
     }
 
+    final SkylinePanel skylinePanel = Fragpipe.getStickyStrict(SkylinePanel.class);
+    boolean moveSpeclibForSkyline;
+    if (skylinePanel.isRun()) {
+      DefaultArtifactVersion v = Skyline.getSkylineVersion();
+      moveSpeclibForSkyline = v != null && v.compareTo(skylineVersionT) <= 0;
+    } else {
+        moveSpeclibForSkyline = false;
+    }
+
     final DiannPanel diannPanel = Fragpipe.getStickyStrict(DiannPanel.class);
     final CmdDiann cmdDiann = new CmdDiann(diannPanel.isRun(), wd);
     addConfig.accept(cmdDiann,  () -> {
       if (cmdDiann.isRun()) {
-        return cmdDiann.configure(parent, sharedLcmsFileGroupsAll.values(), threads, diannPanel.getDiannQuantificationStrategy(isNew), diannPanel.usePredict(), diannPanel.unrelatedRuns(), diannPanel.getDiannQvalue(), diannPanel.useRunSpecificProteinQvalue(), diannPanel.getLibraryPath(), diannPanel.getCmdOpts(), isDryRun, diannPanel.isRunPlex(), diannPanel.generateMsstats(), diannPanel.getLight(), diannPanel.getMedium(), diannPanel.getHeavy(), jarPath);
+        return cmdDiann.configure(parent, sharedLcmsFileGroupsAll.values(), threads, diannPanel.getDiannQuantificationStrategy(isNew), diannPanel.usePredict(), diannPanel.unrelatedRuns(), diannPanel.getDiannQvalue(), diannPanel.useRunSpecificProteinQvalue(), diannPanel.getLibraryPath(), diannPanel.getCmdOpts(), isDryRun, diannPanel.isRunPlex(), diannPanel.generateMsstats(), diannPanel.getLight(), diannPanel.getMedium(), diannPanel.getHeavy(), jarPath, moveSpeclibForSkyline);
+      }
+      return true;
+    });
+
+
+    final CmdSkyline cmdSkyline = new CmdSkyline(skylinePanel.isRun(), wd);
+    addConfig.accept(cmdSkyline, () -> {
+      if (cmdSkyline.isRun()) {
+        return cmdSkyline.configure(parent, skylinePanel.getSkylinePath(), skylinePanel.getSkylineVersion(), jarPath, ramGb, skylinePanel.getMode(), skylinePanel.getModsMode());
       }
       return true;
     });
@@ -1913,7 +1957,7 @@ public class FragpipeRun {
     addConfig.accept(cmdWriteSubMzml, () -> {
       cmdWriteSubMzml.setRun(cmdWriteSubMzml.isRun() && !sharedLcmsFileGroups.isEmpty());
       if (cmdWriteSubMzml.isRun()) {
-        return cmdWriteSubMzml.configure(parent, jarPath, ramGb, threads, sharedLcmsFileGroups, tabRun.getSubMzmlProbThreshold(), tabMsf.isRun(), tabWorkflow.hasDataType("DIA"), tabWorkflow.hasDataType("GPF-DIA"), tabWorkflow.hasDataType("DIA-Lib"), tabWorkflow.hasDataType("DDA+"));
+        return cmdWriteSubMzml.configure(parent, Paths.get(binMsfragger.getBin()), jarPath, ramGb, threads, sharedLcmsFileGroups, tabRun.getSubMzmlProbThreshold(), tabMsf.isRun(), tabWorkflow.hasDataType("DIA"), tabWorkflow.hasDataType("GPF-DIA"), tabWorkflow.hasDataType("DIA-Lib"), tabWorkflow.hasDataType("DDA+"));
       }
       return true;
     });
@@ -1950,9 +1994,9 @@ public class FragpipeRun {
     addToGraph(graphOrder, cmdStart, DIRECTION.IN);
     addToGraph(graphOrder, cmdCheckCentroid, DIRECTION.IN, cmdStart);
     addToGraph(graphOrder, cmdUmpire, DIRECTION.IN, cmdCheckCentroid);
-    addToGraph(graphOrder, cmdDiaPasefSCentric, DIRECTION.IN, cmdCheckCentroid);
+    addToGraph(graphOrder, cmdDiaTracer, DIRECTION.IN, cmdCheckCentroid);
     addToGraph(graphOrder, cmdMsfragger, DIRECTION.IN, cmdCheckCentroid, cmdUmpire);
-    addToGraph(graphOrder, cmdMsfragger, DIRECTION.IN, cmdCheckCentroid, cmdDiaPasefSCentric);
+    addToGraph(graphOrder, cmdMsfragger, DIRECTION.IN, cmdCheckCentroid, cmdDiaTracer);
 
     addToGraph(graphOrder, cmdCrystalc, DIRECTION.IN, cmdMsfragger);
     addToGraph(graphOrder, cmdMSBooster, DIRECTION.IN, cmdMsfragger);
@@ -1983,6 +2027,7 @@ public class FragpipeRun {
     addToGraph(graphOrder, cmdFpopQuant, DIRECTION.IN, cmdIonquant, cmdTmt, cmdTmtFpop);
     addToGraph(graphOrder, cmdSpecLibGen, DIRECTION.IN, cmdPhilosopherReport, cmdOPair);
     addToGraph(graphOrder, cmdDiann, DIRECTION.IN, cmdSpecLibGen);
+    addToGraph(graphOrder, cmdSkyline, DIRECTION.IN, cmdDiann, cmdSpecLibGen, cmdPhilosopherReport);
     addToGraph(graphOrder, cmdWriteSubMzml, DIRECTION.IN, cmdPhilosopherReport);
 
     // compose graph of required dependencies

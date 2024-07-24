@@ -175,14 +175,17 @@ public class CmdSpecLibGen extends CmdBase {
       final String fragment_types = speclibPanel.getEasypqp_fragment_types(); // EasyPQP convert
       final double rt_lowess_fraction = speclibPanel.getEasypqpRTLowessFraction(); // EasyPQP library
 
-      cmd.add(OsUtils.asSingleArgument(String.format("--max_delta_unimod %s --max_delta_ppm %s --fragment_types %s %s%s%s%s",
+      cmd.add(OsUtils.asSingleArgument(String.format("--unimod %s --max_delta_unimod %s --max_delta_ppm %s --fragment_types %s %s%s%s%s",
+              unimodPath.toAbsolutePath().toString().replace("\\", "/"),
               max_delta_unimod,
               max_delta_ppm,
               fragment_types.replace("'", "\\'"),
               speclibPanel.hasNeutralLoss() ? "--enable_unspecific_losses " : "",
-              speclibPanel.getEasyPQPignoreUnannotatedOption() ? "--ignore_unannotated " : "",
+              speclibPanel.isConvertPSM() && speclibPanel.getEasyPQPignoreUnannotatedOption() ? "--ignore_unannotated " : "",
               speclibPanel.isConvertPSM() ? "--decoy_prefix " + decoyTag + " ": "",
-              speclibPanel.getEasypqpGlycoOption().isEmpty() ? "" : "--labile_mods " + speclibPanel.getEasypqpGlycoOption())));   // EasyPQP convert args
+              speclibPanel.isConvertPSM() && !speclibPanel.getEasypqpGlycoOption().isEmpty() ? "--labile_mods " + speclibPanel.getEasypqpGlycoOption() + " " : "",
+              speclibPanel.isConvertPSM() ? String.format("--max_glycan_q %s ", speclibPanel.getEasypqpMaxGlycanQ()) : ""
+      )));   // EasyPQP convert extra args
 
       cmd.add(OsUtils.asSingleArgument(String.format("--rt_lowess_fraction %s", rt_lowess_fraction))); // EasyPQP library args
 

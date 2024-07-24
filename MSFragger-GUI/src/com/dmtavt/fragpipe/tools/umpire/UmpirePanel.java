@@ -48,7 +48,6 @@ import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.messages.MessageIsUmpireRun;
 import com.dmtavt.fragpipe.messages.NoteConfigCrystalC;
-import com.dmtavt.fragpipe.messages.NoteConfigIonQuant;
 import com.dmtavt.fragpipe.messages.NoteConfigPeptideProphet;
 import com.dmtavt.fragpipe.messages.NoteConfigPtmProphet;
 import com.dmtavt.fragpipe.messages.NoteConfigPtmShepherd;
@@ -67,7 +66,6 @@ import com.github.chhh.utils.swing.UiCombo;
 import com.github.chhh.utils.swing.UiUtils;
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.ItemSelectable;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
@@ -86,10 +84,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 import javax.imageio.ImageIO;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
@@ -112,7 +110,6 @@ public class UmpirePanel extends JPanelBase {
   public JCheckBox checkRunUmpireSe;
   private JPanel keyPanel;
   private JPanel pSe;
-  private JPanel textPanel;
   private ImageIcon icon;
   private UiCombo uiComboLoadDefaultsNames;
   private String customParamsPath = null;
@@ -164,7 +161,7 @@ public class UmpirePanel extends JPanelBase {
     icon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/dmtavt/fragpipe/icons/dia-umpire-16x16.png")));
 
     this.setLayout(new MigLayout(new LC().flowY().fillX()));
-    this.setBorder(new TitledBorder("DIA-Umpire"));
+    this.setBorder(new TitledBorder("DIA Spectrum Deconvolution"));
 
     LC lc = new LC();//.debug();
 
@@ -305,38 +302,16 @@ public class UmpirePanel extends JPanelBase {
     pSe.add(feExportPrecursorPeak.label(), ccLbl);
     pSe.add(feExportPrecursorPeak.comp, ccFmtWrap);
 
-    textPanel = new JPanel(new MigLayout(lc));
-    textPanel.setBorder(new TitledBorder("Notes"));
-    JEditorPane epInfo = SwingUtils.createClickableHtml("<b>Sensitivity vs. Runtime:</b><br>"
-        + "<table>\n"
-        + "<tbody>\n"
-        + "  <tr>\n"
-        + "    <td class=\"tg-zv4m\">Highest sensitivity</td>\n"
-        + "    <td class=\"tg-zv4m\">Max Missed Scans: 2; Remove Background: OFF</td>\n"
-        + "  </tr>\n"
-        + "  <tr>\n"
-        + "    <td class=\"tg-zv4m\">Default</td>\n"
-        + "    <td class=\"tg-zv4m\">Max Missed Scans: 1; Remove Background: OFF</td>\n"
-        + "  </tr>\n"
-        + "  <tr>\n"
-        + "    <td class=\"tg-zv4m\">Fastest runtime</td>\n"
-        + "    <td class=\"tg-zv4m\">Max Missed Scans: 1; Remove Background: ON</td>\n"
-        + "  </tr>\n"
-        + "</tbody>\n"
-        + "</table>\n"
-        + "<br>"
-        + "<b>PTM searches:</b><br>"
-        + "Change Mass Defect Filter to OFF<br><br>"
-        + "<b>Sciex 5600/6600 data:</b><br>"
-        + "Max Missed Scans: 1; Remove Background: ON;  MS1 SN: 2; MS2 SN: 2<br><br>");
-    epInfo.setPreferredSize(new Dimension(500, 100));
-    textPanel.add(epInfo);
+    JPanel emptyPanel = mu.newPanel("", mu.lcFillXNoInsetsTopBottom());
+    emptyPanel.setLayout(new BoxLayout(emptyPanel, BoxLayout.X_AXIS));
+    emptyPanel.setBorder(null);
+
+    mu.add(emptyPanel, keyPanel).spanX();
+    mu.add(emptyPanel, pSe).spanX().wrap();
 
     CC ccGrowX = new CC().growX();
     this.add(pTop, ccGrowX);
-    this.add(keyPanel, ccGrowX);
-    this.add(pSe, ccGrowX);
-    this.add(textPanel, ccGrowX);
+    this.add(emptyPanel, ccGrowX);
 
     enablePanels(checkRunUmpireSe.isSelected());
     checkRunUmpireSe.addChangeListener(e -> {

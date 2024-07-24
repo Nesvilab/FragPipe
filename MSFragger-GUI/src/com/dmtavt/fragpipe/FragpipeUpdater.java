@@ -107,6 +107,10 @@ public class FragpipeUpdater {
    */
   private static Path downloadToUpdatesDir(String link) throws IOException {
     Path dlDir = FragpipeLocations.get().getOrMakeDirInRoot("updates");
+    if (dlDir == null) {
+      log.warn("Could not get or make updates dir");
+      return null;
+    }
     String fn = Seq.of(link.split("/")).findLast().orElseThrow(
         () -> new IllegalStateException("Could not get the last part of download URL"));
     Path dlLocation = dlDir.resolve(fn);
@@ -204,6 +208,9 @@ public class FragpipeUpdater {
       }
       String fn = split[split.length - 1];
       Path dest = FragpipeLocations.get().getOrMakeDirInRoot("updates");
+      if (dest == null) {
+        continue;
+      }
       Optional<Path> ours = PathUtils
           .findFilesQuietly(dest, path -> path.getFileName().toString().equals(fn)).findAny();
       if (ours.isPresent()) {

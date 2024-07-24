@@ -40,8 +40,10 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.swing.JOptionPane;
@@ -53,8 +55,8 @@ public class CmdTmtIntegrator extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdTmtIntegrator.class);
 
   public static final String NAME = "TmtIntegrator";
-  public static final String JAR_NAME = "tmt-integrator-5.0.7.jar";
-  public static final String JAR_MAIN = "TMTIntegrator";
+  public static final String JAR_NAME = "tmt-integrator-6.0.0.jar";
+  public static final String JAR_MAIN = "tmtintegrator.TMTIntegrator";
   public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML", "raw");
   public static final String CONFIG_FN = "tmt-integrator-conf.yml";
   public static final String CONFIG_FN_2 = "tmt-integrator-conf-unmod.yml";
@@ -72,16 +74,16 @@ public class CmdTmtIntegrator extends CmdBase {
     List<String> notSupportedExts = getNotSupportedExts(mapGroupsToProtxml, SUPPORTED_FORMATS);
     if (!notSupportedExts.isEmpty()) {
       if (Fragpipe.headless) {
-        log.error(String.format("TMT analysis doesn't support '.%s' files. Please replace with mzML format.", String.join(", ", notSupportedExts)));
+        log.error(String.format("Philosopher as the TMT intensity extraction tool doesn't support '.%s' files. Please replace with mzML format or set IonQuant as the TMT intensity extraction tool.", String.join(", ", notSupportedExts)));
       } else {
-        JOptionPane.showMessageDialog(comp, String.format("<html>TMT analysis doesn't support '.%s' files.<br>Please replace with mzML format.", String.join(", ", notSupportedExts)), NAME + " error", JOptionPane.WARNING_MESSAGE);
+        JOptionPane.showMessageDialog(comp, String.format("<html>Philosopher as the TMT intensity extraction tool doesn't support '.%s' files.<br>Please replace with mzML format or set IonQuant as the TMT intensity extraction tool.", String.join(", ", notSupportedExts)), NAME + " error", JOptionPane.WARNING_MESSAGE);
       }
       return false;
     }
     return true;
   }
 
-  public boolean configure(TmtiPanel panel, boolean isDryRun, int ramGb, String decoyTag, Map<LcmsFileGroup, Path> mapGroupsToProtxml, boolean doMsstats, Map<LcmsFileGroup, Path> groupAnnotationMap, boolean isSecondUnmodRun) {
+  public boolean configure(TmtiPanel panel, boolean isDryRun, int ramGb, Map<LcmsFileGroup, Path> mapGroupsToProtxml, boolean doMsstats, Map<LcmsFileGroup, Path> groupAnnotationMap, boolean isSecondUnmodRun) {
     isConfigured = false;
 
     List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Stream.of(JAR_NAME));
@@ -167,7 +169,7 @@ public class CmdTmtIntegrator extends CmdBase {
         log.debug(NAME + " config required presence of output work dir, creating: {}", pathConf.getParent());
         Files.createDirectories(pathConf.getParent());
       }
-      Map<String, String> conf = panel.formToConfig(ramGb, decoyTag, classpathJars.get(0).toString(), outDir.toString(), panel.getSelectedLabel(), isSecondUnmodRun);
+      Map<String, String> conf = panel.formToConfig(outDir.toString(), panel.getSelectedLabel(), isSecondUnmodRun);
 
       // check that there is a reference channel set in each annotation file
       String refTag = conf.get("ref_tag");
@@ -176,10 +178,21 @@ public class CmdTmtIntegrator extends CmdBase {
             + "in " + NAME + " config, unless selecting Virtual reference option.", NAME + " Config");
       }
 
+      Set<String> ss = new HashSet<>();
+      for (Path path : groupAnnotationMap.values()) {
+        List<QuantLabelAnnotation> annotations = TmtiPanel.parseTmtAnnotationFile(path.toFile());
+        for (QuantLabelAnnotation a : annotations) {
+          if (!a.getSample().equalsIgnoreCase("na") && !ss.add(a.getSample())) {
+            SwingUtils.showErrorDialog(panel, "Duplicate samples found in annotation files. The sample names must be unique among all experiments.", "ERROR: duplicate label");
+            return false;
+          }
+        }
+      }
+
       List<Path> filesWithoutRefChannel = new ArrayList<>();
       // only check for presence of reference channels if "Define Reference is set to "Reference Sample"
       if (TmtiConfProps.COMBO_ADD_REF_CHANNEL.equalsIgnoreCase(panel.getDefineReference())) {
-        for (Path path : panel.getAnnotations().values()) {
+        for (Path path : groupAnnotationMap.values()) {
           List<QuantLabelAnnotation> annotations = TmtiPanel
               .parseTmtAnnotationFile(path.toFile());
           if (annotations.stream().noneMatch(a -> a.getSample().contains(refTag))) {
@@ -198,6 +211,16 @@ public class CmdTmtIntegrator extends CmdBase {
 
             NAME + " Config");
         return false;
+      }
+
+      for (Path path : groupAnnotationMap.values()) {
+        List<QuantLabelAnnotation> annotations = TmtiPanel.parseTmtAnnotationFile(path.toFile());
+        for (QuantLabelAnnotation a : annotations) {
+          if (a.getSample().trim().isEmpty()) {
+            SwingUtils.showErrorDialog(panel, "Empty sample name found in annotation file: " + path.toAbsolutePath() + ".<br>To exclude a channel, use <b>NA</b> as the sample name.", "ERROR: empty sample name");
+            return false;
+          }
+        }
       }
 
       // TMT-Integrator can crash if a mod site probability is >= 0 when no mods are provided

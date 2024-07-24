@@ -17,9 +17,18 @@
 
 package com.dmtavt.fragpipe;
 
+import static com.github.chhh.utils.OsUtils.isUnix;
+import static com.github.chhh.utils.OsUtils.isWindows;
+
+import com.github.chhh.utils.SwingUtils;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class FragPipeMain {
+
+  public static final String PHILOSOPHER_VERSION = "5.1.1";
+
   public static void main(String[] args) {
     if (args.length == 1 && (args[0].equalsIgnoreCase("--help") || args[0].equalsIgnoreCase("-h"))) {
       System.out.print(Fragpipe.help());
@@ -41,16 +50,12 @@ public class FragPipeMain {
           Fragpipe.nThreadsHeadlessOnly = Integer.parseInt(args[++i]);
         } else if (args[i].equalsIgnoreCase("--workdir")) {
           Fragpipe.workdir = args[++i].trim();
-        } else if (args[i].equalsIgnoreCase("--config-msfragger")) {
-          Fragpipe.msfraggerBinPath = args[++i].trim();
-        } else if (args[i].equalsIgnoreCase("--config-philosopher")) {
-          Fragpipe.philosopherBinPath = args[++i].trim();
+        } else if (args[i].equalsIgnoreCase("--config-tools-folder")) {
+          Fragpipe.toolsFolderPath = args[++i].trim();
         } else if (args[i].equalsIgnoreCase("--config-diann")) {
           Fragpipe.diannBinPath = args[++i].trim();
         } else if (args[i].equalsIgnoreCase("--config-python")) {
           Fragpipe.pythonBinPath = args[++i].trim();
-        } else if (args[i].equalsIgnoreCase("--config-ionquant")){
-          Fragpipe.ionquantBinPath = args[++i].trim();
         } else {
           System.err.println("Cannot recognize the argument " + args[i]);
           System.exit(1);
@@ -58,6 +63,29 @@ public class FragPipeMain {
       }
     }
 
+    getPhilosopherBin();
+
     Fragpipe.main0();
+  }
+
+  private static void getPhilosopherBin() {
+    String s;
+    if (isWindows()) {
+      s = "philosopher-v" + PHILOSOPHER_VERSION + ".exe";
+    } else if (isUnix()) {
+      s = "philosopher-v" + PHILOSOPHER_VERSION;
+    } else {
+      SwingUtils.showErrorDialog(null, "Philosopher only supports Windows and Unix systems", "Philosopher not supported in this OS");
+      Fragpipe.philosopherBinPath = null;
+      return;
+    }
+
+    final Path p = FragpipeLocations.get().getDirTools().resolve("Philosopher").resolve(s).normalize();
+    if (Files.exists(p)) {
+      Fragpipe.philosopherBinPath = p.toAbsolutePath().toString();
+    } else {
+      SwingUtils.showErrorDialog(null, "Philosopher binary not found at " + p, "Philosopher not found");
+      Fragpipe.philosopherBinPath = null;
+    }
   }
 }

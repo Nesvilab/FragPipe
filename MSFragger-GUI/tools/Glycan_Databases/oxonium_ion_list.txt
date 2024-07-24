@@ -1,0 +1,16 @@
+# Residue requirement	Ion Composition	Mass adjustment	Comment	Hit Prob Ratio	Miss Prob Ratio	Expected Rel Intensity
+NeuAc	NeuAc(1)	-18.0106	-H2O	2	0.05	0.2
+NeuAc	NeuAc(1)	0		2	0.05	0.2
+NeuAc	HexNAc(1)Hex(1)NeuAc(1)	0		2	0.05	0.2
+NeuGc	NeuGc(1)	-18.0106	-H2O	2	0.05	0.2
+NeuGc	NeuGc(1)	0		2	0.05	0.2
+NeuGc	HexNAc(1)Hex(1)NeuGc(1)	0		2	0.05	0.2
+Phospho	Hex(1)Phospho(1)	0		2	0.05	0.2
+Phospho	Hex(2)Phospho(1)	0		2	0.05	0.2
+Phospho	Hex(2)Phospho(2)	0		2	0.05	0.2
+Sulfo	HexNAc(1)Sulfo(1)	0		2	0.05	0.2
+Sulfo	HexNAc(1)Hex(1)Sulfo(1)	0		2	0.05	0.2
+Sulfo	HexNAc(2)Hex(2)Sulfo(1)	0		2	0.05	0.2
+dHex	HexNAc(1)dHex(1)	0		2	0.5	0.1
+dHex	HexNAc(1)Hex(1)dHex(1)	0		2	0.5	0.1
+dHex	HexNAc(2)dHex(1)	0		2	0.5	0.1

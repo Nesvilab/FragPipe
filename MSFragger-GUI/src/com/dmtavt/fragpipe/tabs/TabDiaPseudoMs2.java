@@ -19,16 +19,21 @@ package com.dmtavt.fragpipe.tabs;
 
 import static com.dmtavt.fragpipe.tabs.TabRun.mu;
 
-import com.dmtavt.fragpipe.tools.diapasefscentric.DiaPasefSCentricPanel;
+import com.dmtavt.fragpipe.tools.diatracer.DiaTracerPanel;
 import com.dmtavt.fragpipe.tools.umpire.UmpirePanel;
+import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.JPanelWithEnablement;
+import java.awt.Dimension;
+import javax.swing.JEditorPane;
+import javax.swing.JPanel;
+import javax.swing.border.TitledBorder;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 
 public class TabDiaPseudoMs2 extends JPanelWithEnablement {
 
   private UmpirePanel umpirePanel;
-  private DiaPasefSCentricPanel diaPasefSCentricPanel;
+  private DiaTracerPanel diaTracerPanel;
 
   public TabDiaPseudoMs2() {
     init();
@@ -43,9 +48,17 @@ public class TabDiaPseudoMs2 extends JPanelWithEnablement {
     this.setLayout(new MigLayout(new LC().fillX()));
 
     umpirePanel = new UmpirePanel();
-    diaPasefSCentricPanel = new DiaPasefSCentricPanel();
+    diaTracerPanel = new DiaTracerPanel();
+
+    JPanel textPanel = new JPanel(new MigLayout());
+    textPanel.setBorder(new TitledBorder("Notes"));
+    JEditorPane epInfo = SwingUtils.createClickableHtml("<b>PTM searches:</b><br>"
+        + "Change Mass Defect Filter to OFF<br><br>");
+    epInfo.setPreferredSize(new Dimension(500, 50));
+    textPanel.add(epInfo);
 
     mu.add(this, umpirePanel).growX().wrap();
-    mu.add(this, diaPasefSCentricPanel).growX().wrap();
+    mu.add(this, diaTracerPanel).growX().wrap();
+    mu.add(this, textPanel).growX().wrap();
   }
 }
