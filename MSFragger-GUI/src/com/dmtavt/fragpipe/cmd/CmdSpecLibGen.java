@@ -27,6 +27,7 @@ import com.dmtavt.fragpipe.tabs.TabWorkflow.InputDataType;
 import com.dmtavt.fragpipe.tools.speclibgen.SpecLibGen2;
 import com.dmtavt.fragpipe.tools.speclibgen.SpeclibPanel;
 import com.github.chhh.utils.OsUtils;
+import com.github.chhh.utils.SwingUtils;
 import java.awt.Component;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -167,6 +168,11 @@ public class CmdSpecLibGen extends CmdBase {
         unimodPath = getUnimodOboPath("unimod_old.xml"); // Use the same old unimod file as in OpenMS to avoid an error due to mismatches of some modifications.
       } catch (Exception ex) {
         ex.printStackTrace();
+        return false;
+      }
+
+      if (unimodPath.toAbsolutePath().toString().contains(" ")) {
+        SwingUtils.showErrorDialog(comp, "There are spaces in " + unimodPath.toAbsolutePath() + ". Please put FragPipe to a place where there are no spaces in the path.", "Spaces are not allowed");
         return false;
       }
 
