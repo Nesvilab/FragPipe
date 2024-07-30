@@ -996,9 +996,14 @@ public class FragpipeRun {
     String diaTracerVersion = NoteConfigDiaTracer.version;
 
     try {
-      msfraggerVersion = Fragpipe.getStickyStrict(NoteConfigMsfragger.class).version;
-      if (msfraggerVersion == null || msfraggerVersion.trim().isEmpty()) {
-        throw new NullPointerException();
+      NoteConfigMsfragger noteConfigMsfragger = Fragpipe.getStickyStrict(NoteConfigMsfragger.class);
+      if (noteConfigMsfragger == null) {
+        msfraggerVersion = "N/A";
+      } else {
+        msfraggerVersion = noteConfigMsfragger.version;
+        if (msfraggerVersion == null || msfraggerVersion.trim().isEmpty()) {
+          msfraggerVersion = "N/A";
+        }
       }
     } catch (Exception e) {
       msfraggerVersion = "N/A";
