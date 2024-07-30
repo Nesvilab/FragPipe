@@ -297,10 +297,7 @@ def main_easypqp(params, irt_df, allcmds, easypqp_convert_cmds) -> None:
 	if params.im_choice is Im_choice.userIM:
 		shutil.copyfile(params.userIM_file, params.im_file)
 
-	print(f'''Spectral library building
-	Commands to execute:
-	{allcmds}
-	{'~' * 69}''', flush=True)
+	print(f'''Spectral library building\nCommands to execute:\n{allcmds}\n{'~' * 69}''', flush=True)
 
 	(output_directory / 'cmds.txt').write_text(allcmds)
 	subprocess.run([os.fspath(params.easypqp), '--version'], check=True)
