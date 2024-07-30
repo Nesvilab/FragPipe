@@ -912,14 +912,18 @@ public class TabConfig extends JPanelWithEnablement {
     this.revalidate();
   }
 
-  private String textEasyPQP(String easypqpLocalVersion, String easypqpLatestVersion, boolean enableEasypqp, String errMsg) {
+  private String textEasyPQP(String easypqpLocalVersion, String easypqpLatestVersion, String pandasLocalVersion, String numpyLocalVersion, boolean enableEasypqp, String errMsg) {
     StringBuilder sb = new StringBuilder();
     if (enableEasypqp && !easypqpLocalVersion.contentEquals("N/A")) {
       if (!easypqpLatestVersion.contentEquals("N/A") && VersionComparator.cmp(easypqpLocalVersion, easypqpLatestVersion) < 0) {
         sb.append("EasyPQP: <b>Available</b>. Version: " + easypqpLocalVersion + "<br>"
             + "<p style=\"color:red\">There is a new version (" + easypqpLatestVersion + "). Please upgrade it by clicking the button below and waiting.<br>");
+        sb.append("Pandas: <b>Available</b>. Version: ").append(pandasLocalVersion).append("<br>");
+        sb.append("Numpy: <b>Available</b>. Version: ").append(numpyLocalVersion).append("<br>");
       } else {
         sb.append("EasyPQP: <b>Available</b>. Version: " + easypqpLocalVersion + "<br>");
+        sb.append("Pandas: <b>Available</b>. Version: ").append(pandasLocalVersion).append("<br>");
+        sb.append("Numpy: <b>Available</b>. Version: ").append(numpyLocalVersion).append("<br>");
       }
     } else {
       if (errMsg.isEmpty()) {
@@ -939,7 +943,7 @@ public class TabConfig extends JPanelWithEnablement {
     epEasyPQPText.setVisible(true);
     if (m.ex != null) {
       log.debug("Got NoteConfigSpeclibgen with exception set");
-      epEasyPQPText.setText(textEasyPQP("N/A", "N/A", false, m.ex.getMessage()));
+      epEasyPQPText.setText(textEasyPQP("N/A", "N/A", "N/A", "N/A", false, m.ex.getMessage()));
       showConfigError(m.ex, TIP_SPECLIBGEN, epEasyPQPText, false);
       this.revalidate();
       return;
@@ -949,10 +953,6 @@ public class TabConfig extends JPanelWithEnablement {
       throw new IllegalStateException("If no exception is reported from Speclibgen init, instance should not be null");
     }
 
-    log.debug("Got NoteConfigSpeclibgen without exceptions");
-
-    // get EasyPQP local version
-    String easypqpLocalVersion = "N/A";
     try {
       if (m.instance.isEasypqpOk()) {
         final ProcessBuilder pb = new ProcessBuilder(m.instance.getPython().getCommand(), "-c",
@@ -962,10 +962,40 @@ public class TabConfig extends JPanelWithEnablement {
                         "except importlib.metadata.PackageNotFoundError:\n" +
                         "    print('N/A')"
         );
-        easypqpLocalVersion = ProcessUtils.captureOutput(pb);
+        m.easypqpLocalVersion = ProcessUtils.captureOutput(pb);
       }
     } catch (Exception ex) {
-      easypqpLocalVersion = "N/A";
+      m.easypqpLocalVersion = "N/A";
+    }
+
+    try {
+      if (m.instance.isEasypqpOk()) {
+        final ProcessBuilder pb = new ProcessBuilder(m.instance.getPython().getCommand(), "-c",
+            "import importlib.metadata\n" +
+                "try:\n" +
+                "    print(importlib.metadata.version('pandas'))\n" +
+                "except importlib.metadata.PackageNotFoundError:\n" +
+                "    print('N/A')"
+        );
+        m.pandasLocalVersion = ProcessUtils.captureOutput(pb);
+      }
+    } catch (Exception ex) {
+      m.pandasLocalVersion = "N/A";
+    }
+
+    try {
+      if (m.instance.isEasypqpOk()) {
+        final ProcessBuilder pb = new ProcessBuilder(m.instance.getPython().getCommand(), "-c",
+            "import importlib.metadata\n" +
+                "try:\n" +
+                "    print(importlib.metadata.version('numpy'))\n" +
+                "except importlib.metadata.PackageNotFoundError:\n" +
+                "    print('N/A')"
+        );
+        m.numpyLocalVersion = ProcessUtils.captureOutput(pb);
+      }
+    } catch (Exception ex) {
+      m.numpyLocalVersion = "N/A";
     }
 
     // get EasyPQP latest version
@@ -980,7 +1010,7 @@ public class TabConfig extends JPanelWithEnablement {
       easypqpLatestVersion = "N/A";
     }
 
-    epEasyPQPText.setText(textEasyPQP(easypqpLocalVersion, easypqpLatestVersion, true, ""));
+    epEasyPQPText.setText(textEasyPQP(m.easypqpLocalVersion, easypqpLatestVersion, m.pandasLocalVersion, m.numpyLocalVersion, true, ""));
 
     this.revalidate();
   }

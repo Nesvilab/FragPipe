@@ -83,6 +83,7 @@ import com.dmtavt.fragpipe.messages.NoteConfigDiaTracer;
 import com.dmtavt.fragpipe.messages.NoteConfigDiann;
 import com.dmtavt.fragpipe.messages.NoteConfigIonQuant;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
+import com.dmtavt.fragpipe.messages.NoteConfigPython;
 import com.dmtavt.fragpipe.messages.NoteConfigSpeclibgen;
 import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.dmtavt.fragpipe.process.ProcessDescription;
@@ -994,6 +995,9 @@ public class FragpipeRun {
     String msfraggerVersion;
     String ionQuantVersion = NoteConfigIonQuant.version;
     String diaTracerVersion = NoteConfigDiaTracer.version;
+    String easypqpVersion;
+    String pandasVersion;
+    String numpyVersion;
 
     try {
       NoteConfigMsfragger noteConfigMsfragger = Fragpipe.getStickyStrict(NoteConfigMsfragger.class);
@@ -1017,12 +1021,57 @@ public class FragpipeRun {
       diaTracerVersion = "N/A";
     }
 
+    try {
+      NoteConfigSpeclibgen noteConfigSpeclibgen = Fragpipe.getStickyStrict(NoteConfigSpeclibgen.class);
+      if (noteConfigSpeclibgen == null) {
+        easypqpVersion = "N/A";
+      } else {
+        easypqpVersion = noteConfigSpeclibgen.easypqpLocalVersion;
+        if (easypqpVersion == null || easypqpVersion.trim().isEmpty()) {
+          easypqpVersion = "N/A";
+        }
+      }
+    } catch (Exception e) {
+      easypqpVersion = "N/A";
+    }
+
+    try {
+      NoteConfigSpeclibgen noteConfigSpeclibgen = Fragpipe.getStickyStrict(NoteConfigSpeclibgen.class);
+      if (noteConfigSpeclibgen == null) {
+        pandasVersion = "N/A";
+      } else {
+        pandasVersion = noteConfigSpeclibgen.pandasLocalVersion;
+        if (pandasVersion == null || pandasVersion.trim().isEmpty()) {
+          pandasVersion = "N/A";
+        }
+      }
+    } catch (Exception e) {
+      pandasVersion = "N/A";
+    }
+
+    try {
+      NoteConfigSpeclibgen noteConfigSpeclibgen = Fragpipe.getStickyStrict(NoteConfigSpeclibgen.class);
+      if (noteConfigSpeclibgen == null) {
+        numpyVersion = "N/A";
+      } else {
+        numpyVersion = noteConfigSpeclibgen.numpyLocalVersion;
+        if (numpyVersion == null || numpyVersion.trim().isEmpty()) {
+          numpyVersion = "N/A";
+        }
+      }
+    } catch (Exception e) {
+      numpyVersion = "N/A";
+    }
+
     StringBuilder sb = new StringBuilder();
     sb.append(Version.PROGRAM_TITLE).append(" version ").append(Version.version()).append("\n");
     sb.append("MSFragger version ").append(msfraggerVersion).append("\n");
     sb.append("IonQuant version ").append(ionQuantVersion).append("\n");
     sb.append("diaTracer version ").append(diaTracerVersion).append("\n");
     sb.append("Philosopher version ").append(PHILOSOPHER_VERSION).append("\n");
+    sb.append("EasyPQP version ").append(easypqpVersion).append("\n");
+    sb.append("Pandas version ").append(pandasVersion).append("\n");
+    sb.append("Numpy version ").append(numpyVersion).append("\n");
 
     return sb.toString();
   }
