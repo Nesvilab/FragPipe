@@ -1711,9 +1711,16 @@ public class FragpipeRun {
     }
 
     // run TMT-Integrator
-    final CmdTmtIntegrator cmdTmt = new CmdTmtIntegrator(tmtiPanel.isRun(), wd);
+    final CmdTmtIntegrator cmdTmt = new CmdTmtIntegrator(
+        tmtiPanel.isRun() &&
+        !sharedMapGroupsToProtxml.isEmpty() &&
+        !tabWorkflow.hasDataType("DIA") &&
+        !tabWorkflow.hasDataType("DIA-Lib") &&
+        !tabWorkflow.hasDataType("DIA-Quant") &&
+        !tabWorkflow.hasDataType("GPF-DIA"), wd);
+
     addConfig.accept(cmdTmt, () -> {
-      if (tmtiPanel.isRun() && !sharedMapGroupsToProtxml.isEmpty()) {
+      if (tmtiPanel.isRun()) {
         if (sharedLcmsFiles.stream().anyMatch(f -> !f.getPath().getFileName().toString().toLowerCase().endsWith(".mzml") && !f.getPath().getFileName().toString().toLowerCase().endsWith(".raw"))) {
           SwingUtils.showWarningDialog(parent, CmdTmtIntegrator.NAME + " only supports mzML and raw files.\nPlease remove other files from the input list.", CmdTmtIntegrator.NAME + " error");
           return false;
@@ -1897,7 +1904,15 @@ public class FragpipeRun {
     // run FPOP script
     final TabDownstream tabDownstream = Fragpipe.getStickyStrict(TabDownstream.class);
     final CmdFpopQuant cmdFpopQuant = new CmdFpopQuant(tabDownstream.pFpop.isRunFpopQuant(), wd);
-    final CmdTmtIntegrator cmdTmtFpop = new CmdTmtIntegrator(tmtiPanel.isRun() && cmdFpopQuant.isRun() && tabDownstream.pFpop.isFpopTmt(), wd);
+    final CmdTmtIntegrator cmdTmtFpop = new CmdTmtIntegrator(
+        tmtiPanel.isRun() &&
+        cmdFpopQuant.isRun() &&
+        tabDownstream.pFpop.isFpopTmt() &&
+        !sharedMapGroupsToProtxml.isEmpty() &&
+        !tabWorkflow.hasDataType("DIA") &&
+        !tabWorkflow.hasDataType("DIA-Lib") &&
+        !tabWorkflow.hasDataType("DIA-Quant") &&
+        !tabWorkflow.hasDataType("GPF-DIA"), wd);
 
     if (tabDownstream.pFpop.isFpopTmt() && cmdFpopQuant.isRun()) {
       addCheck.accept(() -> {
@@ -1914,7 +1929,7 @@ public class FragpipeRun {
 
       // run TMT-Integrator a second time to provide unmodified peptide data as well as modified (does NOT rerun freequant/labelquant)
       addConfig.accept(cmdTmtFpop, () -> {
-        cmdTmtFpop.setRun(cmdTmtFpop.isRun() && !sharedMapGroupsToProtxml.isEmpty());
+        cmdTmtFpop.setRun(cmdTmtFpop.isRun());
         if (sharedLcmsFiles.stream().anyMatch(f -> !f.getPath().getFileName().toString().toLowerCase().endsWith(".mzml") && !f.getPath().getFileName().toString().toLowerCase().endsWith(".raw"))) {
           SwingUtils.showWarningDialog(parent, CmdTmtIntegrator.NAME + " only supports mzML and raw files.\nPlease remove other files from the input list.", CmdTmtIntegrator.NAME + " error");
           return false;
@@ -1988,7 +2003,8 @@ public class FragpipeRun {
     }
 
     final DiannPanel diannPanel = Fragpipe.getStickyStrict(DiannPanel.class);
-    final CmdDiann cmdDiann = new CmdDiann(diannPanel.isRun(), wd);
+    final CmdDiann cmdDiann = new CmdDiann(
+        diannPanel.isRun() && (tabWorkflow.hasDataType("DIA") || tabWorkflow.hasDataType("DIA-Quant")), wd);
     addConfig.accept(cmdDiann,  () -> {
       if (cmdDiann.isRun()) {
         return cmdDiann.configure(parent, sharedLcmsFileGroupsAll.values(), threads, diannPanel.getDiannQuantificationStrategy(isNew), diannPanel.usePredict(), diannPanel.unrelatedRuns(), diannPanel.getDiannQvalue(), diannPanel.useRunSpecificProteinQvalue(), diannPanel.getLibraryPath(), diannPanel.getCmdOpts(), isDryRun, diannPanel.isRunPlex(), diannPanel.generateMsstats(), diannPanel.getLight(), diannPanel.getMedium(), diannPanel.getHeavy(), jarPath, moveSpeclibForSkyline);
