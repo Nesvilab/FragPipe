@@ -89,7 +89,11 @@ public class PropsFile extends Properties {
 
     final String p3 = getProperty("database.db-path");
     if (p3 != null) {
-      setProperty("database.db-path", Paths.get(p3).toAbsolutePath().toString());
+      String s = "";
+      try {
+        s = Paths.get(p3).toAbsolutePath().toString();
+      } catch (Exception e) {}
+      setProperty("database.db-path", s);
     }
   }
 
