@@ -83,6 +83,7 @@ import com.dmtavt.fragpipe.messages.NoteConfigDiaTracer;
 import com.dmtavt.fragpipe.messages.NoteConfigDiann;
 import com.dmtavt.fragpipe.messages.NoteConfigIonQuant;
 import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
+import com.dmtavt.fragpipe.messages.NoteConfigPython;
 import com.dmtavt.fragpipe.messages.NoteConfigSpeclibgen;
 import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.dmtavt.fragpipe.process.ProcessDescription;
@@ -994,11 +995,19 @@ public class FragpipeRun {
     String msfraggerVersion;
     String ionQuantVersion = NoteConfigIonQuant.version;
     String diaTracerVersion = NoteConfigDiaTracer.version;
+    String easypqpVersion;
+    String pandasVersion;
+    String numpyVersion;
 
     try {
-      msfraggerVersion = Fragpipe.getStickyStrict(NoteConfigMsfragger.class).version;
-      if (msfraggerVersion == null || msfraggerVersion.trim().isEmpty()) {
-        throw new NullPointerException();
+      NoteConfigMsfragger noteConfigMsfragger = Fragpipe.getStickyStrict(NoteConfigMsfragger.class);
+      if (noteConfigMsfragger == null) {
+        msfraggerVersion = "N/A";
+      } else {
+        msfraggerVersion = noteConfigMsfragger.version;
+        if (msfraggerVersion == null || msfraggerVersion.trim().isEmpty()) {
+          msfraggerVersion = "N/A";
+        }
       }
     } catch (Exception e) {
       msfraggerVersion = "N/A";
@@ -1012,12 +1021,57 @@ public class FragpipeRun {
       diaTracerVersion = "N/A";
     }
 
+    try {
+      NoteConfigSpeclibgen noteConfigSpeclibgen = Fragpipe.getStickyStrict(NoteConfigSpeclibgen.class);
+      if (noteConfigSpeclibgen == null) {
+        easypqpVersion = "N/A";
+      } else {
+        easypqpVersion = noteConfigSpeclibgen.easypqpLocalVersion;
+        if (easypqpVersion == null || easypqpVersion.trim().isEmpty()) {
+          easypqpVersion = "N/A";
+        }
+      }
+    } catch (Exception e) {
+      easypqpVersion = "N/A";
+    }
+
+    try {
+      NoteConfigSpeclibgen noteConfigSpeclibgen = Fragpipe.getStickyStrict(NoteConfigSpeclibgen.class);
+      if (noteConfigSpeclibgen == null) {
+        pandasVersion = "N/A";
+      } else {
+        pandasVersion = noteConfigSpeclibgen.pandasLocalVersion;
+        if (pandasVersion == null || pandasVersion.trim().isEmpty()) {
+          pandasVersion = "N/A";
+        }
+      }
+    } catch (Exception e) {
+      pandasVersion = "N/A";
+    }
+
+    try {
+      NoteConfigSpeclibgen noteConfigSpeclibgen = Fragpipe.getStickyStrict(NoteConfigSpeclibgen.class);
+      if (noteConfigSpeclibgen == null) {
+        numpyVersion = "N/A";
+      } else {
+        numpyVersion = noteConfigSpeclibgen.numpyLocalVersion;
+        if (numpyVersion == null || numpyVersion.trim().isEmpty()) {
+          numpyVersion = "N/A";
+        }
+      }
+    } catch (Exception e) {
+      numpyVersion = "N/A";
+    }
+
     StringBuilder sb = new StringBuilder();
     sb.append(Version.PROGRAM_TITLE).append(" version ").append(Version.version()).append("\n");
     sb.append("MSFragger version ").append(msfraggerVersion).append("\n");
     sb.append("IonQuant version ").append(ionQuantVersion).append("\n");
     sb.append("diaTracer version ").append(diaTracerVersion).append("\n");
     sb.append("Philosopher version ").append(PHILOSOPHER_VERSION).append("\n");
+    sb.append("EasyPQP version ").append(easypqpVersion).append("\n");
+    sb.append("Pandas version ").append(pandasVersion).append("\n");
+    sb.append("Numpy version ").append(numpyVersion).append("\n");
 
     return sb.toString();
   }
@@ -1657,9 +1711,16 @@ public class FragpipeRun {
     }
 
     // run TMT-Integrator
-    final CmdTmtIntegrator cmdTmt = new CmdTmtIntegrator(tmtiPanel.isRun(), wd);
+    final CmdTmtIntegrator cmdTmt = new CmdTmtIntegrator(
+        tmtiPanel.isRun() &&
+        !sharedMapGroupsToProtxml.isEmpty() &&
+        !tabWorkflow.hasDataType("DIA") &&
+        !tabWorkflow.hasDataType("DIA-Lib") &&
+        !tabWorkflow.hasDataType("DIA-Quant") &&
+        !tabWorkflow.hasDataType("GPF-DIA"), wd);
+
     addConfig.accept(cmdTmt, () -> {
-      if (tmtiPanel.isRun() && !sharedMapGroupsToProtxml.isEmpty()) {
+      if (tmtiPanel.isRun()) {
         if (sharedLcmsFiles.stream().anyMatch(f -> !f.getPath().getFileName().toString().toLowerCase().endsWith(".mzml") && !f.getPath().getFileName().toString().toLowerCase().endsWith(".raw"))) {
           SwingUtils.showWarningDialog(parent, CmdTmtIntegrator.NAME + " only supports mzML and raw files.\nPlease remove other files from the input list.", CmdTmtIntegrator.NAME + " error");
           return false;
@@ -1843,7 +1904,15 @@ public class FragpipeRun {
     // run FPOP script
     final TabDownstream tabDownstream = Fragpipe.getStickyStrict(TabDownstream.class);
     final CmdFpopQuant cmdFpopQuant = new CmdFpopQuant(tabDownstream.pFpop.isRunFpopQuant(), wd);
-    final CmdTmtIntegrator cmdTmtFpop = new CmdTmtIntegrator(tmtiPanel.isRun() && cmdFpopQuant.isRun() && tabDownstream.pFpop.isFpopTmt(), wd);
+    final CmdTmtIntegrator cmdTmtFpop = new CmdTmtIntegrator(
+        tmtiPanel.isRun() &&
+        cmdFpopQuant.isRun() &&
+        tabDownstream.pFpop.isFpopTmt() &&
+        !sharedMapGroupsToProtxml.isEmpty() &&
+        !tabWorkflow.hasDataType("DIA") &&
+        !tabWorkflow.hasDataType("DIA-Lib") &&
+        !tabWorkflow.hasDataType("DIA-Quant") &&
+        !tabWorkflow.hasDataType("GPF-DIA"), wd);
 
     if (tabDownstream.pFpop.isFpopTmt() && cmdFpopQuant.isRun()) {
       addCheck.accept(() -> {
@@ -1860,7 +1929,7 @@ public class FragpipeRun {
 
       // run TMT-Integrator a second time to provide unmodified peptide data as well as modified (does NOT rerun freequant/labelquant)
       addConfig.accept(cmdTmtFpop, () -> {
-        cmdTmtFpop.setRun(cmdTmtFpop.isRun() && !sharedMapGroupsToProtxml.isEmpty());
+        cmdTmtFpop.setRun(cmdTmtFpop.isRun());
         if (sharedLcmsFiles.stream().anyMatch(f -> !f.getPath().getFileName().toString().toLowerCase().endsWith(".mzml") && !f.getPath().getFileName().toString().toLowerCase().endsWith(".raw"))) {
           SwingUtils.showWarningDialog(parent, CmdTmtIntegrator.NAME + " only supports mzML and raw files.\nPlease remove other files from the input list.", CmdTmtIntegrator.NAME + " error");
           return false;
@@ -1934,7 +2003,8 @@ public class FragpipeRun {
     }
 
     final DiannPanel diannPanel = Fragpipe.getStickyStrict(DiannPanel.class);
-    final CmdDiann cmdDiann = new CmdDiann(diannPanel.isRun(), wd);
+    final CmdDiann cmdDiann = new CmdDiann(
+        diannPanel.isRun() && (tabWorkflow.hasDataType("DIA") || tabWorkflow.hasDataType("DIA-Quant")), wd);
     addConfig.accept(cmdDiann,  () -> {
       if (cmdDiann.isRun()) {
         return cmdDiann.configure(parent, sharedLcmsFileGroupsAll.values(), threads, diannPanel.getDiannQuantificationStrategy(isNew), diannPanel.usePredict(), diannPanel.unrelatedRuns(), diannPanel.getDiannQvalue(), diannPanel.useRunSpecificProteinQvalue(), diannPanel.getLibraryPath(), diannPanel.getCmdOpts(), isDryRun, diannPanel.isRunPlex(), diannPanel.generateMsstats(), diannPanel.getLight(), diannPanel.getMedium(), diannPanel.getHeavy(), jarPath, moveSpeclibForSkyline);

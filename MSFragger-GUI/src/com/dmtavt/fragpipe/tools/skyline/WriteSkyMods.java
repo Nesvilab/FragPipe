@@ -18,6 +18,7 @@
 package com.dmtavt.fragpipe.tools.skyline;
 
 
+import static com.dmtavt.fragpipe.tools.glyco.GlycoMassLoader.GLYCAN_MODS_NAME;
 import static com.dmtavt.fragpipe.tools.glyco.GlycoMassLoader.GLYCAN_RESIDUES_NAME;
 import static com.dmtavt.fragpipe.tools.skyline.Skyline.getSkylineVersion;
 
@@ -38,6 +39,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.jooq.lambda.Seq;
 import umich.ms.glyco.Glycan;
+import umich.ms.glyco.GlycanMod;
 import umich.ms.glyco.GlycanParser;
 import umich.ms.glyco.GlycanResidue;
 import umich.ms.util.ElementalComposition;
@@ -300,7 +302,11 @@ public class WriteSkyMods {
     sites = cleanupSites(sites);
 
     if (glycoList != null && !glycoList.isEmpty()) {
+      // load glycan residue and mod definitions to use in parsing the glycan list
       HashMap<String, GlycanResidue> glycanResidues = GlycanParser.parseGlycoResiduesDB(FragpipeLocations.get().getDirTools().resolve("Glycan_Databases").resolve(GLYCAN_RESIDUES_NAME).toString());
+      HashMap<String, GlycanMod> glycanMods = GlycanParser.parseGlycoModsDB(FragpipeLocations.get().getDirTools().resolve("Glycan_Databases").resolve(GLYCAN_MODS_NAME).toString(), glycanResidues.size(), glycanResidues);
+      glycanResidues.putAll(glycanMods);
+
       ArrayList<Glycan> parsedGlycans = GlycanParser.parseGlycanDatabaseString(glycoList, glycanResidues);
       // sequence mods
       List<String> resSites = new ArrayList<>();

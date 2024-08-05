@@ -207,7 +207,7 @@ public class TabMsfragger extends JPanelBase {
     ANALYZER_MAP.put("ITMS", ANALYZER_TYPE_ITMS);
   }
 
-  private static final List<MsfraggerEnzyme> ENZYMES = new EnzymeProvider().get();
+  public static final List<MsfraggerEnzyme> ENZYMES = new EnzymeProvider().get();
   //public static FileNameExtensionFilter fnExtFilter = new FileNameExtensionFilter("LCMS files (mzML/mzXML/mgf/raw/d)", "mzml", "mzxml", "mgf", "raw", "d");
   private static String[] PROPS_MISC = {
       PROP_misc_adjust_precurosr_mass,

@@ -297,16 +297,13 @@ def main_easypqp(params, irt_df, allcmds, easypqp_convert_cmds) -> None:
 	if params.im_choice is Im_choice.userIM:
 		shutil.copyfile(params.userIM_file, params.im_file)
 
-	print(f'''Spectral library building
-	Commands to execute:
-	{allcmds}
-	{'~' * 69}''', flush=True)
+	print(f'''Spectral library building\nCommands to execute:\n{allcmds}\n{'~' * 69}''', flush=True)
 
 	(output_directory / 'cmds.txt').write_text(allcmds)
 	subprocess.run([os.fspath(params.easypqp), '--version'], check=True)
 	procs = []
 	for i, e in enumerate(easypqp_convert_cmds):
-		print(f'Executing {e}')
+		print('Executing "' + ' '.join(e) + '"')
 		subprocess.run(e, cwd=os_fspath(params.workdir))
 
 	for p in procs:
@@ -324,7 +321,7 @@ def main_easypqp(params, irt_df, allcmds, easypqp_convert_cmds) -> None:
 	use_iRT = params.irt_choice is not Irt_choice.no_iRT
 	use_im = params.im_choice is not Im_choice.no_im
 	easypqp_lib_cmd = easypqp_library_cmd(params, use_iRT, use_im)
-	print(f'Executing {easypqp_lib_cmd}')
+	print('Executing "' + ' '.join(easypqp_lib_cmd) + '"')
 	p = subprocess.run(easypqp_lib_cmd, cwd=os_fspath(params.workdir), check=False)
 	if p.returncode != 0 and not use_iRT:
 		print('''Not enough peptides could be found for alignment.

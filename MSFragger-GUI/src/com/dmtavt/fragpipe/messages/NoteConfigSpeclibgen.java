@@ -20,8 +20,12 @@ package com.dmtavt.fragpipe.messages;
 import com.dmtavt.fragpipe.tools.speclibgen.SpecLibGen2;
 
 public class NoteConfigSpeclibgen implements INoteConfig {
+
   public final SpecLibGen2 instance;
   public final Throwable ex;
+  public String easypqpLocalVersion = "N/A";
+  public String pandasLocalVersion = "N/A";
+  public String numpyLocalVersion = "N/A";
 
   public NoteConfigSpeclibgen(SpecLibGen2 instance, Throwable ex) {
     this.instance = instance;

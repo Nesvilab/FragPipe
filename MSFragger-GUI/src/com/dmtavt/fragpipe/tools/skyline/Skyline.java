@@ -17,6 +17,7 @@
 
 package com.dmtavt.fragpipe.tools.skyline;
 
+import static com.dmtavt.fragpipe.tabs.TabMsfragger.ENZYMES;
 import static com.dmtavt.fragpipe.tabs.TabWorkflow.workflowExt;
 import static com.github.chhh.utils.OsUtils.isWindows;
 
@@ -27,6 +28,7 @@ import com.dmtavt.fragpipe.cmd.ProcessBuilderInfo;
 import com.dmtavt.fragpipe.exceptions.UnexpectedException;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
 import com.dmtavt.fragpipe.process.ProcessResult;
+import com.dmtavt.fragpipe.tools.fragger.MsfraggerEnzyme;
 import com.dmtavt.fragpipe.tools.skyline.WriteSkyMods.Mod;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.ProcessUtils;
@@ -46,6 +48,7 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import com.github.chhh.utils.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.jooq.lambda.Seq;
@@ -231,7 +234,7 @@ public class Skyline {
         if (pf.getProperty("msfragger.labile_search_mode").equals("nglycan")) {
           writer.write("--pep-max-variable-mods=1 ");    // loading N-glyco lists takes too long otherwise (user can change this later in skyline)
         }
-        writer.write(getEnzyme(pf.getProperty("msfragger.misc.fragger.enzyme-dropdown-1"), pf.getProperty("msfragger.misc.fragger.enzyme-dropdown-2")));
+        writer.write(getEnzyme(pf));
       }
       writer.write("--tran-precursor-ion-charges=\"2,3,4,5,6\" ");
       writer.write("--tran-product-ion-charges=\"1,2\" ");
@@ -391,20 +394,43 @@ public class Skyline {
   /**
    * Generate an enzyme parameter for Skyline. If either MSFragger enzyme is an allowed Skyline enzyme,
    * use it. If both are allowed, default to the first one (since Skyline only supports 1 on command line).
+   *
+   * Note: Matches enzymes using the search cuts/nocuts/sense rather than name to ensure match to the actual
+   * search settings.
    */
-  private static String getEnzyme(String fraggerEnzymeStr1, String fraggerEnzymeStr2) {
-    String enz1 = enzymesMap.getOrDefault(fraggerEnzymeStr1, "");
-    String enz2 = enzymesMap.getOrDefault(fraggerEnzymeStr2, "");
-    if (enz1.isEmpty()) {
-      if (enz2.isEmpty()) {
-        // no known mapping, do not specify parameter to avoid crashing Skyline
-        return "";
-      } else {
-        return String.format("--pep-digest-enzyme=%s ", enz2);
+  private static String getEnzyme(PropsFile pf) {
+    String cuts1 = pf.getProperty("msfragger.search_enzyme_cut_1");
+    String cuts2 = pf.getProperty("msfragger.search_enzyme_cut_2");
+    String nocuts1 = pf.getProperty("msfragger.search_enzyme_nocut_1");
+    String nocuts2 = pf.getProperty("msfragger.search_enzyme_nocut_2");
+    String sense1 = pf.getProperty("msfragger.search_enzyme_sense_1");
+    String sense2 = pf.getProperty("msfragger.search_enzyme_sense_2");
+
+    List<MsfraggerEnzyme> enzymes = ENZYMES.stream()
+            .map(e -> new MsfraggerEnzyme(e.name, StringUtils.sortedChars(e.cut),
+                    StringUtils.sortedChars(e.nocuts), e.sense))
+            .collect(Collectors.toList());
+    List<MsfraggerEnzyme> matching1 = enzymes.stream()
+            .filter(e -> e.cut.equals(cuts1) && e.nocuts.equals(nocuts1) && e.sense.equals(sense1))
+            .collect(Collectors.toList());
+    List<MsfraggerEnzyme> matching2 = enzymes.stream()
+            .filter(e -> e.cut.equals(cuts2) && e.nocuts.equals(nocuts2) && e.sense.equals(sense2))
+            .collect(Collectors.toList());
+
+    // return the first enzyme with a matching name, since Skyline only supports a single enzyme via cmd
+    for (MsfraggerEnzyme enzyme : matching1) {
+      if (enzymesMap.containsKey(enzyme.name)) {
+        return String.format("--pep-digest-enzyme=%s ", enzymesMap.get(enzyme.name));
       }
-    } else {
-      return String.format("--pep-digest-enzyme=%s ", enz1);
     }
+    for (MsfraggerEnzyme enzyme : matching2) {
+      if (enzymesMap.containsKey(enzyme.name)) {
+        return String.format("--pep-digest-enzyme=%s ", enzymesMap.get(enzyme.name));
+      }
+    }
+    // no known mapping, do not specify parameter to avoid crashing Skyline
+    System.out.println("Warning: no enzyme from MSFragger search matched a Skyline-supported enzyme. Skyline will default to trypsin.");
+    return "";
   }
 
   private static void sub(String s) throws Exception {
