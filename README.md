@@ -22,7 +22,6 @@ FragPipe is a comprehensive computational platform for analyzing mass spectromet
   * [Custom mass offset workflow (RNA crosslinking example)](https://fragpipe.nesvilab.org/docs/tutorial_custom_mass_offset.html) 
   * [Diagnostic ion mining](https://fragpipe.nesvilab.org/docs/tutorial_diagnostic_mining.html)
   * [FPOP](https://fragpipe.nesvilab.org/docs/tutorial_fpop.html)
-  
 * TMT/iTRAQ quantification
   * [Single plex](https://fragpipe.nesvilab.org/docs/tutorial_tmt.html)
   * [Multiple plexes with a pooled reference sample](https://fragpipe.nesvilab.org/docs/tutorial_tmt-2plexes.html)
@@ -32,6 +31,7 @@ FragPipe is a comprehensive computational platform for analyzing mass spectromet
 * [DIA analysis](https://fragpipe.nesvilab.org/docs/tutorial_DIA.html)
 * [Novel/variant peptide detection using two-pass search](https://fragpipe.nesvilab.org/docs/tutorial_two_pass_search.html)
 * [Group FDR estimation for novel/variant peptide analysis](https://fragpipe.nesvilab.org/docs/tutorial_group_fdr.html)
+* [Use peptide prediction models from Koina for MSBooster feature generation](https://fragpipe.nesvilab.org/docs/tutorial_koina.html)
 
 #### Resources
 * [Interpreting output files](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_outputs.html)
