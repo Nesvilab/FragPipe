@@ -18,12 +18,12 @@ downloaded from the [Google Drive link here](https://drive.google.com/drive/fold
 Koina is available as of version 22.0.
 2. Load your mzML file.
 
-   ![Alt text](../images/Koina_mzml_loading.png)
+   ![Alt text](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/Koina_mzml_loading.png)
 
 3. Load the "Nonspecific-HLA" workflow from the workflow tab. Then you can uncheck the MSFragger checkbox, only running
 the steps in the validation tab. It should look like this.
 
-   ![Alt text](../images/Koina_validation.png)
+   ![Alt text](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/Koina_validation.png)
 
 4. Set your output directory in the run tab to the Koina_MSBooster_tutorial folder
 
@@ -46,7 +46,7 @@ with confidential data, consider [setting up your own Koina server](https://gith
 
 Next, use the dropdown menus to choose the Prosit models.
 
-![Alt text](../images/Koina_prosit.png)
+![Alt text](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/Koina_prosit.png)
 
 Run this workflow now, and we get 2818 peptides. 200 more IDs!
 
@@ -58,7 +58,7 @@ to Koina, the number of models to choose from may become overwhelming. To addres
 heuristic search" algorithm that tries to find the model best suited for you data. You can activate it by checking the
 `Find best ___ model` checkboxes. Both DIA-NN and Koina models will be considered.
 
-![Alt text](../images/Koina_best.png)
+![Alt text](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/Koina_best.png)
 
 Let's look at the log to see what's going on:
 ```
@@ -129,7 +129,7 @@ experimental vs predicted spectra for both DIA-NN and Koina models. The predicti
 model you ran last (printed in msbooster_params.txt). Koina predictions are saved in the file ending in `koina.mgf`. 
 While DIA-NN does not predict y/b-1/2 ions, many of the Koina models do. Peep the y1 and y2 ions!
 
-![Alt text](../images/Koina_pdv.png)
+![Alt text](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/Koina_pdv.png)
 
 ## Summary
 MSBooster uses the Koina API to gain access to many more prediction models, leading to increased peptide IDs when there 
