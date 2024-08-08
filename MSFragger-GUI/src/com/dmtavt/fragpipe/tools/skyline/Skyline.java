@@ -144,9 +144,15 @@ public class Skyline {
       float probThreshold = 1.1f;
       TreeSet<Path> pepxmlFiles = new TreeSet<>();
       List<Path> speclibFiles = Files.walk(wd).filter(p -> p.getFileName().toString().endsWith(".speclib")).collect(Collectors.toList());
+      List<Path> libraryTsvFiles = Files.walk(wd).filter(p -> p.getFileName().toString().endsWith("library.tsv")).collect(Collectors.toList());
 
       if (mode == 0 && speclibFiles.isEmpty()) {
         System.out.println("No speclib files found in " + wd + " but Skyline was set to use the speclib as input. Let Skyline build its own speclib.");
+        mode = 1;
+      }
+
+      if (mode == 2 && libraryTsvFiles.isEmpty()) {
+        System.out.println("No library.tsv files found in " + wd + " but Skyline was set to use the library.tsv as input. Let Skyline build its own speclib.");
         mode = 1;
       }
 
@@ -211,6 +217,8 @@ public class Skyline {
         writer.write((writeSkyMods.nonUnimodMods.isEmpty() ? "--new=" : "--out=") + skylineOutputDir.resolve("fragpipe.sky").toAbsolutePath() + " ");
       } else if (mode == 1) {
         writer.write((writeSkyMods.nonUnimodMods.isEmpty() ? "--new=" : "--out=") + skylineOutputDir.resolve("fragpipe_skylib.sky").toAbsolutePath() + " ");
+      } else if (mode == 2) {
+        writer.write((writeSkyMods.nonUnimodMods.isEmpty() ? "--new=" : "--out=") + skylineOutputDir.resolve("fragpipe.sky").toAbsolutePath() + " ");
       } else {
         throw new RuntimeException("Unsupported Skyline mode: " + mode);
       }
@@ -221,6 +229,8 @@ public class Skyline {
         for (Path p : pepxmlFiles) {
           writer.write("--import-search-file=" + p.toAbsolutePath() + " ");
         }
+      } else if (mode == 2) {
+        writer.write("--import-transition-list=" + libraryTsvFiles.get(0).toAbsolutePath() + " ");
       } else {
         writer.write("--import-search-cutoff-score=0.01 ");
         writer.write("--import-search-file=" + speclibFiles.get(0).toAbsolutePath() + " ");
@@ -280,15 +290,19 @@ public class Skyline {
       for (String s : lcmsFiles) {
         writer.write("--import-file=" + s + " ");
       }
-      writer.write("--import-search-exclude-library-sources ");
 
-      Files.walk(wd).filter(p -> p.getFileName().toString().contentEquals("protein.fas")).forEach(p -> {
-        try {
-          writer.write("--import-fasta=" + p.toAbsolutePath() + " ");
-        } catch (IOException ex) {
-          throw new RuntimeException(ex);
-        }
-      });
+      // do not specify fasta file for transition list import because it is very slow
+      if (mode != 2) {
+        writer.write("--import-search-exclude-library-sources ");
+
+        Files.walk(wd).filter(p -> p.getFileName().toString().contentEquals("protein.fas")).forEach(p -> {
+          try {
+            writer.write("--import-fasta=" + p.toAbsolutePath() + " ");
+          } catch (IOException ex) {
+            throw new RuntimeException(ex);
+          }
+        });
+      }
       writer.write("--associate-proteins-shared-peptides=DuplicatedBetweenProteins ");
 
       writer.close();

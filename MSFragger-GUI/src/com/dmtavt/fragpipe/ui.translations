@@ -145,3 +145,4 @@ msbooster.spectra-model::Prosit 2020 Intensity HCD <=> Prosit_2020_intensity_HCD
 
 skyline.skyline-mode::Use speclib as input <=> 0
 skyline.skyline-mode::Use pep.xml as input <=> 1
+skyline.skyline-mode::Use library.tsv as transition list <=> 2
