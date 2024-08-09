@@ -161,8 +161,14 @@ public class CmdIonquant extends CmdBase {
 
     if (annotationMap != null && !annotationMap.isEmpty()) {
       for (Map.Entry<LcmsFileGroup, Path> annotation : annotationMap.entrySet()) {
+        String a = wd.resolve(annotation.getKey().name).resolve("psm.tsv").toString();
+        String b = annotation.getValue().toAbsolutePath().toString();
+        if (a.contains("=") || b.contains("=")) {
+          SwingUtils.showErrorDialog(comp, "There are '=' sign in " + a + " or " + b + ". Please rename the file or directory.", "Error");
+          return false;
+        }
         cmd.add("--annotation");
-        cmd.add(wd.resolve(annotation.getKey().name).resolve("psm.tsv") + "=" + annotation.getValue().toAbsolutePath());
+        cmd.add(a + "=" + b);
       }
     }
 
