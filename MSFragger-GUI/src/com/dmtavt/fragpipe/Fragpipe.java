@@ -508,7 +508,7 @@ public class Fragpipe extends JFrameHeadless {
           int result = JOptionPane.showConfirmDialog(fp, "Do you want to exit now?", "FragPipe", JOptionPane.YES_NO_OPTION);
           if (result == JOptionPane.YES_OPTION) {
             fp.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-          } else if (result == JOptionPane.NO_OPTION) {
+          } else {
             fp.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
           }
         }
