@@ -21,6 +21,8 @@ import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.messages.MessageDlProgress;
 import com.github.chhh.utils.FileUtils;
 import com.github.chhh.utils.SwingUtils;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.disposables.Disposable;
 import java.awt.Dimension;
 import java.util.concurrent.TimeUnit;
 import javax.swing.JFrame;
@@ -35,9 +37,6 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Emitter.BackpressureMode;
-import rx.Observable;
-import rx.Subscription;
 
 public class DownloadProgress {
   private static final Logger log = LoggerFactory.getLogger(DownloadProgress.class);
@@ -46,7 +45,7 @@ public class DownloadProgress {
   public boolean isCancel = false;
   private On<MessageDlProgress> onEvent;
   private Observable<MessageDlProgress> obs;
-  private Subscription sub;
+  private Disposable sub;
   private final String busTopic;
 
   public DownloadProgress(String downloadName, String busTopic) {
@@ -105,10 +104,9 @@ public class DownloadProgress {
   private void init() {
     obs = Observable.create(emitter -> {
       onEvent = emitter::onNext;
-      emitter.setCancellation(() -> onEvent = null);
-    }, BackpressureMode.LATEST);
+      emitter.setCancellable(() -> onEvent = null);
+    });
 
-    //sub = obs.subscribe(m -> {
     sub = obs.sample(100, TimeUnit.MILLISECONDS).subscribe(m -> {
       log.debug("Finally got message: {}", m);
       SwingUtilities.invokeLater(() -> {

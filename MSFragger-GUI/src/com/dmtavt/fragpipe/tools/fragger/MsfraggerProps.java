@@ -60,7 +60,7 @@ public class MsfraggerProps {
 
 
     private static class HolderRemote {
-        private static final Properties propsRemote = PropertiesUtils.initProperties(PROPERTIES_URLS);
+        private static final Properties propsRemote = PropertiesUtils.initProperties(PROPERTIES_URLS, 30);
         public static Properties getRemoteProperties() {
             return propsRemote;
         }
