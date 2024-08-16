@@ -371,7 +371,7 @@ def easypqp_lib_export(lib_type: str, params: easyPQPparams):
 	ttt = dict(zip(df_psm['Peptide'], tt))
 
 	df_lib['Proteotypic'] = df_lib['PeptideSequence'].map(ttt)
-	df_lib['Proteotypic'].fillna(0, inplace=True)
+	df_lib['Proteotypic'] = df_lib['Proteotypic'].fillna(0)
 	df_lib['Proteotypic'] = df_lib['Proteotypic'].astype(int)
 
 	df_lib.to_csv(f'library.tsv', sep='\t', index=False)
