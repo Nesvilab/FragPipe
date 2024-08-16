@@ -556,7 +556,7 @@ def main():
 			try:
 				f.unlink()
 			except FileNotFoundError as e:
-				lg.info(f'{f} does not exist')
+				pass
 	os.chdir(CWD)
 
 	# Move alignment PDF files to easypqp_files directory
