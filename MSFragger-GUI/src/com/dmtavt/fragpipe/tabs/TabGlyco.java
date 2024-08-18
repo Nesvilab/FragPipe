@@ -104,10 +104,7 @@ public class TabGlyco extends JPanelWithEnablement {
         List<String> glycanDBnames = new ArrayList<>(glycanDBs.keySet());
         glycanDBnames.add(0, "Custom");     // for custom DB loading
         uiComboLoadBuiltinGlycans = UiUtils.createUiCombo(glycanDBnames);
-
-        JButton btnLoadGlycanMasses = new JButton("Load Glycan Database");
-        btnLoadGlycanMasses.addActionListener(this::actionBtnLoadGlycans);
-        btnLoadGlycanMasses.setToolTipText("Load glycans from a file. Supported formats: Byonic, pGlyco, text (.csv, .tsv, .txt, .glyc files)");
+        uiComboLoadBuiltinGlycans.addActionListener(this::actionBtnLoadGlycans);
         textLoadGlycans = new UiText();
 
         JButton btnEditGlycanResiduesTable = new JButton("Edit Glycan Residue Definitions");
@@ -125,7 +122,6 @@ public class TabGlyco extends JPanelWithEnablement {
 
         mu.add(p, jLabelLoadGlycanDB).split();
         mu.add(p, uiComboLoadBuiltinGlycans).split();
-        mu.add(p, btnLoadGlycanMasses).spanX().split().wrap();
         mu.add(p, textLoadGlycans).spanX().growX().wrap();
         mu.add(p, btnEditGlycanResiduesTable).split();
         mu.add(p, btnEditGlycanModsTable).split();

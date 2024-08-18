@@ -636,14 +636,14 @@ public class TabWorkflow extends JPanelWithEnablement {
         epWorkflowsDesc.setText("");
       }
     });
-    JButton btnWorkflowLoad = UiUtils.createButton("Load workflow", this::actionLoadSelectedWorkflow);
+    uiComboWorkflows.addActionListener(this::actionLoadSelectedWorkflow);
+
     FormEntry feComboWorkflow = Fragpipe.feNoCache(uiComboWorkflows, "workflow-option").label("Select a workflow:").tooltip("Conveniently loads appropriate defaults for various standard workflows\n").create();
     JButton btnOpenInExplorer = SwingUtils.createButtonOpenInFileManager(this, "Open built-in folder", () -> FragpipeLocations.get().getDirWorkflows());
 
     mu.add(p, epWorkflowsInfo).growX().spanX().wrap();
     mu.add(p, feComboWorkflow.label()).split();
     mu.add(p, feComboWorkflow.comp);
-    mu.add(p, btnWorkflowLoad);
     mu.add(p, new JLabel("or save current settings as workflow")).gapLeft("15px");
     mu.add(p, UiUtils.createButton("Save to built-in folder", e -> Bus.post(new MessageSaveAsWorkflow(false))));
     mu.add(p, UiUtils.createButton("Save to custom folder", e -> Bus.post(new MessageSaveAsWorkflow(true))));
@@ -1734,28 +1734,25 @@ public class TabWorkflow extends JPanelWithEnablement {
 
       Bus.post(new MessageLoadUi(propsFile, true, false));
     } else {
-      int confirmation = SwingUtils.showConfirmDialog(this, new JLabel("Do you want to load workflow: " + workflow + "?"), "Confirmation");
-      if (JOptionPane.OK_OPTION == confirmation) {
-        log.debug("Loading workflow/ui state: {}", workflow);
-        PropsFile propsFile = workflows.get(workflow);
-        if (propsFile == null) {
-          SwingUtils.showErrorDialog(this, "Couldn't load workflow file: " + workflow, "Workflow loading error");
-          return;
-        }
-
-        log.debug("Reloading file from disk, in case it has changed: {}", propsFile.getPath());
-        try {
-          propsFile.load();
-        } catch (IOException ex) {
-          SwingUtils.showErrorDialogWithStacktrace(ex, this, true);
-          log.error("Error re-loading workflow file", ex);
-        }
-
-        if (propsFile.containsKey("workflow.workflow-option")) {
-          propsFile.setProperty("workflow.workflow-option", workflow);
-        }
-        Bus.post(new MessageLoadUi(propsFile, true, false));
+      log.debug("Loading workflow/ui state: {}", workflow);
+      PropsFile propsFile = workflows.get(workflow);
+      if (propsFile == null) {
+        SwingUtils.showErrorDialog(this, "Couldn't load workflow file: " + workflow, "Workflow loading error");
+        return;
       }
+
+      log.debug("Reloading file from disk, in case it has changed: {}", propsFile.getPath());
+      try {
+        propsFile.load();
+      } catch (IOException ex) {
+        SwingUtils.showErrorDialogWithStacktrace(ex, this, true);
+        log.error("Error re-loading workflow file", ex);
+      }
+
+      if (propsFile.containsKey("workflow.workflow-option")) {
+        propsFile.setProperty("workflow.workflow-option", workflow);
+      }
+      Bus.post(new MessageLoadUi(propsFile, true, false));
     }
   }
 

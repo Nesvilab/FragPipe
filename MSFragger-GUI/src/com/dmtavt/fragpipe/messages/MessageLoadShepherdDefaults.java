@@ -21,11 +21,10 @@ import com.dmtavt.fragpipe.api.SearchTypeProp;
 import java.util.StringJoiner;
 
 public class MessageLoadShepherdDefaults {
-  public final boolean doAskUser;
+
   public final SearchTypeProp type;
 
-  public MessageLoadShepherdDefaults(boolean doAskUser, SearchTypeProp type) {
-    this.doAskUser = doAskUser;
+  public MessageLoadShepherdDefaults(SearchTypeProp type) {
     this.type = type;
   }
 
@@ -33,7 +32,6 @@ public class MessageLoadShepherdDefaults {
   public String toString() {
     return new StringJoiner(", ", MessageLoadShepherdDefaults.class.getSimpleName() + "[",
         "]")
-        .add("doAskUser=" + doAskUser)
         .add("type=" + type)
         .toString();
   }
