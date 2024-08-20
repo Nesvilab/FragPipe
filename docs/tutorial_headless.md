@@ -21,9 +21,9 @@ Options:
         --config-tools-folder <string>  # (optional) specify the folder containing MSFragger, IonQuant, and dirTracer. If not specified, using the one in the cache.
         --config-diann <string>         # (optional) specify the location of the DIA-NN binary file (the actual executable file `DiaNN.exe`, not the DIA-NN installation file). If not specified, using the one in the cache. It could be from the previously configured or the build-in one.
         --config-python <string>        # (optional) specify the location of the Python directory. If not specified, using the one in the cache.
-To let FragPipe find the TMT annotation file, put the mzML files from the same experiment in the same folder. Then, create the annotation file with the name ending with annotation.txt in the folder.
-Note: There must be only one annotation file in each folder.
 ```
+
+__Note: For the first time running FragPipe in command line mode, must specify `--config-tools-folder`, `--config-diann`, and `--config-python`.__
 
 To let FragPipe find the TMT annotation file in the headless mode, put the mzML files from the same experiment in the same folder. Then, create the annotation file with the name ending with `annotation.txt` in the folder.
 
