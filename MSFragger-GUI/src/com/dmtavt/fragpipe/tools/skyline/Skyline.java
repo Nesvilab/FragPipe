@@ -196,6 +196,17 @@ public class Skyline {
       Path modXmlPath = wd.resolve("mod.xml");
       WriteSkyMods writeSkyMods = new WriteSkyMods(modXmlPath, pf, modsMode, matchUnimod);
 
+      if (mode == 2) {
+        WriteTransitionList transitionWriter = new WriteTransitionList();
+        int addPrecs;
+        try {
+          addPrecs = Integer.parseInt(pf.getProperty("skyline.add-precursors"));
+        } catch (NullPointerException e) {
+          addPrecs = 0;
+        }
+        transitionWriter.writeTransitionList(libraryTsvFiles.get(0).toAbsolutePath(), addPrecs, modsMode);
+      }
+
       Path pp = wd.resolve("filelist_skyline.txt");
 
       BufferedWriter writer = Files.newBufferedWriter(pp);
@@ -230,7 +241,7 @@ public class Skyline {
           writer.write("--import-search-file=" + p.toAbsolutePath() + " ");
         }
       } else if (mode == 2) {
-        writer.write("--import-transition-list=" + libraryTsvFiles.get(0).toAbsolutePath() + " ");
+        writer.write("--import-transition-list=" + libraryTsvFiles.get(0).toAbsolutePath().getParent().resolve("library_skyline.tsv").toAbsolutePath() + " ");
       } else {
         writer.write("--import-search-cutoff-score=0.01 ");
         writer.write("--import-search-file=" + speclibFiles.get(0).toAbsolutePath() + " ");
