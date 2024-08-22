@@ -59,7 +59,7 @@ public class WriteTransitionList {
                     currentModifiedPeptide = modifiedPeptide;
                     double start_mz = Double.parseDouble(splits[columns.get("PrecursorMz")]);
                     double charge = Double.parseDouble(splits[columns.get("PrecursorCharge")]);
-                    for (int i=0; i <= addPrecursors; i++) {
+                    for (int i = 0; i < addPrecursors; i++) {
                         String[] newline = new String[splits.length];
                         String new_mz = String.format("%.5f", start_mz + (i * AVERAGINE_ISOTOPE) / charge);
                         for (int j=0; j < splits.length; j++) {

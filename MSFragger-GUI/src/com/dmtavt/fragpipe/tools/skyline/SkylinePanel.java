@@ -162,7 +162,7 @@ public class SkylinePanel extends JPanelBase {
     uiComboModsMode.setSelectedIndex(0);
     FormEntry feComboModsMode = new FormEntry("skyline-mods-mode", "Special Modifications Mode", uiComboModsMode, "Special modification support. If O-glyco, uses O-Pair glycan database instead of mass offsets list. If N-glyco, uses Glycan Composition Assignment glycan database instead of mass offsets list.");
 
-    UiSpinnerInt addPrecursorsSpinner = UiUtils.spinnerInt(2, 0, 4, 1).create();
+    UiSpinnerInt addPrecursorsSpinner = UiUtils.spinnerInt(3, 0, 4, 1).create();
     FormEntry feAddPrecursors = new FormEntry("add-precursors", "Add precursors", addPrecursorsSpinner, "Add precursor isotopes (number refers to the number of isotope peaks to track, starting with the monoisotope at 1) to the transition list for Skyline to trace. ONLY applicable if using library.tsv as a transition list. Set to 0 to disable");
 
     mu.add(panelBasic, feRadioSkyline.comp);
