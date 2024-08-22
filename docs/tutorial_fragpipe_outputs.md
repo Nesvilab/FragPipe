@@ -317,27 +317,32 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 
 **Top Peptide Probability** best peptide probability of supporting peptides
 
-**Total Peptides** total number of peptides (stripped sequences) in support of the protein
+**Total Peptides** number of peptides (stripped sequences) that can be mapped to the protein. There could be 
+1. peptides only mapped to this protein
+2. peptides can be mapped to multiple proteins but the protein inference algorithm assigns it to this protein
+3. peptides can be mapped to multiple proteins but the protein inference algorithm assigns it to the other protein
 
-**Unique Peptides** number of peptides (stripped sequences) in support of the protein that do not map to other identified proteins
+**Unique Peptides** number of peptides (stripped sequences) that only mapped to the protein
 
-**Razor Peptides** total number of peptides (stripped sequences) in support of the protein identification
+**Razor Peptides** number of peptides (stripped sequences) in support of the protein identification. There could be
+1. peptides only mapped to this protein
+2. peptides can be mapped to multiple proteins but the protein inference algorithm assigns it to this protein
 
-**Total Spectral Count** total number of PSMs in support of the protein
+**Total Spectral Count** number of PSMs corresponding to the __total peptides__
 
-**Unique Spectral Count** total number of PSMs that do not map to other identified proteins
+**Unique Spectral Count** number of PSMs corresponding to the __unique peptides__
 
-**Razor Spectral Count** number of PSMs in support of the protein identification (unique + razor)
+**Razor Spectral Count** number of PSMs corresponding to the __razor peptides__
 
-**Total Intensity** sum of the top 3 peptide abundances, including peptides that may map to another identified protein
+**Total Intensity** protein intensity calculated using the __total peptides__ (from the top-N algorithm)
 
-**Unique Intensity** sum of the top 3 unique peptide abundances (only those that do not map to another identified protein)
+**Unique Intensity** protein intensity calculated using the __unique peptides__ (from the top-N algorithm)
 
-**Razor Intensity** sum of the top 3 peptide abundances (unique + razor)
+**Razor Intensity** protein intensity calculated using the __unique peptides__ (from the top-N algorithm)
 
-**Razor Assigned Modifications** modifications from supporting razor peptides
+**Razor Assigned Modifications** modifications from the __razor peptides__
 
-**Razor Observed Modifications** Delta Mass values from supporting razor peptides
+**Razor Observed Modifications** Delta Mass values from the __razor peptides__
 
 **Indistinguishable Proteins** proteins that are equally supported by the evidence and cannot be distinguished from the identification in the 'Protein' column
 
@@ -495,31 +500,34 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 
 **Top Peptide Probability** highest PeptideProphet confidence score from all peptides that map to the protein
 
-**Combined Total Peptides** total number of peptides (stripped sequences) mapping to the selected protein, includes shared peptides
+**Combined Total Peptides** number of peptides (stripped sequences) that can be mapped to the protein. There could be 
+1. peptides only mapped to this protein
+2. peptides can be mapped to multiple proteins but the protein inference algorithm assigns it to this protein
+3. peptides can be mapped to multiple proteins but the protein inference algorithm assigns it to the other protein
 
-**Combined Spectral Count** number of PSMs where the selected protein is the razor assignment for that PSM
+**Combined Spectral Count** number of PSMs corresponding to the __razor peptides__. Check the description about the __razor peptides__.
 
-**Combined Unique Spectral Count** number of PSMs with sequences mapping only to the selected protein
+**Combined Unique Spectral Count** number of PSMs corresponding to the __unique peptides__. Check the description about the __unique peptides__ for details.
 
-**Combined Total Spectral Count** total number of PSMs with sequences mapping to the selected protein, includes shared PSMs
+**Combined Total Spectral Count** number of PSMs corresponding to the __total peptides__. Check the description about the __unique peptides__ for details.
 
-**[experiment] Spectral Count** number of PSMs in the sample where the selected protein is the razor assignment for that PSM
+**[experiment] Spectral Count** number of PSMs in the sample corresponding to the __razor peptides__
 
-**[experiment] Unique Spectral Count** number of PSMs in the sample with sequences mapping only to the selected protein
+**[experiment] Unique Spectral Count** number of PSMs in the sample corresponding to the __unique peptides__
 
-**[experiment] Total Spectral Count** total number of PSMs in the sample with sequences mapping to the selected protein, includes shared PSMs
+**[experiment] Total Spectral Count** number of PSMs in the sample corresponding to the __total peptides__
 
-**[experiment] Intensity** normalized protein intensity using the sequences after razor assignment (from the top-N algorithm)
+**[experiment] Intensity** normalized (by default) protein intensity using the __razor peptides__ (from the top-N algorithm)
 
-**[experiment] Unique Intensity** normalized protein intensity from the sequences mapping only to the selected protein (from the top-N algorithm)
+**[experiment] Unique Intensity** normalized (by default) protein intensity using the __unique peptides__ (from the top-N algorithm)
 
-**[experiment] Total Intensity** normalized protein intensity from all sequences mapping to the selected protein (from the top-N algorithm)
+**[experiment] Total Intensity** normalized (by default) protein intensity using the __total peptides__ (from the top-N algorithm)
 
-**[experiment] MaxLFQ Intensity** normalized protein intensity using the unique+razor sequences after razor assignment calculated using the MaxLFQ method
+**[experiment] MaxLFQ Intensity** normalized (by default) protein intensity using the __razor peptides__ (from the MaxLFQ method)
 
-**[experiment] MaxLFQ Unique Intensity** normalized protein intensity from the sequences mapping only to the selected protein calculated using the MaxLFQ method
+**[experiment] MaxLFQ Unique Intensity** normalized (by default) protein intensity using the __unique peptides__ (from the MaxLFQ method)
 
-**[experiment] MaxLFQ Total Intensity** normalized protein intensity from all sequences (including shared peptides) mapping to the selected protein calculated using the MaxLFQ method
+**[experiment] MaxLFQ Total Intensity** normalized (by default) protein intensity using the __total peptides__ (from the MaxLFQ method)
 
 
 **Indistinguishable Proteins** proteins that cannot be distinguished from the selected protein given all sequences/evidence identified in the experiment
