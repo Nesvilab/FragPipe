@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 
 import static com.dmtavt.fragpipe.cmd.ToolingUtils.UNIMOD_OBO;
 import static com.dmtavt.fragpipe.cmd.ToolingUtils.getUnimodOboPath;
+import static com.dmtavt.fragpipe.util.Utils.AAMasses;
 
 public class WriteTransitionList {
 
@@ -20,6 +21,7 @@ public class WriteTransitionList {
     private static final double AVERAGINE_ISOTOPE = 1.00235;
     private static final Pattern nGlycoPattern = Pattern.compile("(N)\\(UniMod:(\\d+)\\)");
     private static final Pattern oGlycoPattern = Pattern.compile("([ST])\\(UniMod:(\\d+)\\)");
+    private static final Pattern unannotatedPattern = Pattern.compile("(\\w)\\[(\\d+\\.\\d+)\\]");
 
     static {
         // init Unimod DB for mod matching
@@ -71,11 +73,11 @@ public class WriteTransitionList {
                                 newline[j] = splits[j];
                             }
                         }
-                        output.add(editGlycans(newline, modsMode));
+                        output.add(editModifiedPeptide(newline, modsMode));
                     }
                 }
             }
-            output.add(editGlycans(splits, modsMode));
+            output.add(editModifiedPeptide(splits, modsMode));
         }
 
         Path outputPath = libraryTSV.getParent().resolve("library_skyline.tsv").toAbsolutePath();
@@ -89,7 +91,7 @@ public class WriteTransitionList {
     /**
      * Convert glycan mods to masses if using a glycan mode. Mods mode 0 = regular, 1 = O-glyco, 2 = N-glyco
      */
-    private String editGlycans(String[] splits, int modsMode) {
+    private String editModifiedPeptide(String[] splits, int modsMode) {
         if (modsMode != 0) {
             String modifiedPeptide = splits[columns.get("ModifiedPeptideSequence")];
             Matcher matcher = modsMode == 1 ? oGlycoPattern.matcher(modifiedPeptide) : nGlycoPattern.matcher(modifiedPeptide);
@@ -101,6 +103,22 @@ public class WriteTransitionList {
             matcher.appendTail(sb);
             splits[columns.get("ModifiedPeptideSequence")] = sb.toString();
         }
+
+        // convert unmatched modifications from easyPQP to a Skyline-acceptable format (otherwise they cause a crash if placed alongside a unimod mod)
+        String modifiedPeptide = splits[columns.get("ModifiedPeptideSequence")];
+        Matcher matcher = unannotatedPattern.matcher(modifiedPeptide);
+        StringBuilder sb = new StringBuilder();
+        while (matcher.find()) {
+            // subtract amino acid mass and reformat to Skyline format "(+mass)"
+            String AA = matcher.group(1);
+            double deltaMass = Double.parseDouble(matcher.group(2));
+            double finalMass = deltaMass - AAMasses[AA.charAt(0) - 'A'];
+            String newModStr = String.format("%s(+%.5f)", AA, finalMass);
+            matcher.appendReplacement(sb, newModStr);
+        }
+        matcher.appendTail(sb);
+        splits[columns.get("ModifiedPeptideSequence")] = sb.toString();
+
         return String.join("\t", splits) + "\n";
     }
 
