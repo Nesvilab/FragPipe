@@ -1,18 +1,21 @@
 package com.dmtavt.fragpipe.tools.skyline;
 
-import com.dmtavt.fragpipe.util.UnimodOboReader;
+import static com.dmtavt.fragpipe.cmd.ToolingUtils.UNIMOD_OBO;
+import static com.dmtavt.fragpipe.cmd.ToolingUtils.getUnimodOboPath;
+import static com.dmtavt.fragpipe.util.Utils.AAMasses;
 
-import java.io.*;
+import com.dmtavt.fragpipe.util.UnimodOboReader;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static com.dmtavt.fragpipe.cmd.ToolingUtils.UNIMOD_OBO;
-import static com.dmtavt.fragpipe.cmd.ToolingUtils.getUnimodOboPath;
-import static com.dmtavt.fragpipe.util.Utils.AAMasses;
 
 public class WriteTransitionList {
 
@@ -57,14 +60,14 @@ public class WriteTransitionList {
                 if (!currentModifiedPeptide.equals(modifiedPeptide)) {
                     // new peptide entry: add precursor lines here
                     currentModifiedPeptide = modifiedPeptide;
-                    double start_mz = Double.parseDouble(splits[columns.get("PrecursorMz")]);
+                    double startMz = Double.parseDouble(splits[columns.get("PrecursorMz")]);
                     double charge = Double.parseDouble(splits[columns.get("PrecursorCharge")]);
                     for (int i = 0; i < addPrecursors; i++) {
                         String[] newline = new String[splits.length];
-                        String new_mz = String.format("%.5f", start_mz + (i * AVERAGINE_ISOTOPE) / charge);
-                        for (int j=0; j < splits.length; j++) {
+                        String newMz = String.valueOf(startMz + (i * AVERAGINE_ISOTOPE) / charge);
+                        for (int j = 0; j < splits.length; j++) {
                             if (j == columns.get("ProductMz")) {
-                                newline[j] = new_mz;
+                                newline[j] = newMz;
                             } else if (j == columns.get("Annotation")) {
                                 newline[j] = "precursor";
                             } else if (j == columns.get("FragmentType") || j == columns.get("FragmentCharge") || j == columns.get("FragmentSeriesNumber")) {
@@ -97,7 +100,7 @@ public class WriteTransitionList {
             Matcher matcher = modsMode == 1 ? oGlycoPattern.matcher(modifiedPeptide) : nGlycoPattern.matcher(modifiedPeptide);
             StringBuilder sb = new StringBuilder();
             while (matcher.find()) {
-                String newGlycanStr = String.format("%s(+%.5f)", matcher.group(1), getGlycanMass(matcher.group(2)));
+                String newGlycanStr = String.format("%s(+%f)", matcher.group(1), getGlycanMass(matcher.group(2)));
                 matcher.appendReplacement(sb, newGlycanStr);
             }
             matcher.appendTail(sb);
@@ -113,7 +116,7 @@ public class WriteTransitionList {
             String AA = matcher.group(1);
             double deltaMass = Double.parseDouble(matcher.group(2));
             double finalMass = deltaMass - AAMasses[AA.charAt(0) - 'A'];
-            String newModStr = String.format("%s(+%.5f)", AA, finalMass);
+            String newModStr = String.format("%s(+%f)", AA, finalMass);
             matcher.appendReplacement(sb, newModStr);
         }
         matcher.appendTail(sb);
@@ -130,7 +133,7 @@ public class WriteTransitionList {
     private String initHeader(String header) {
         columns = new HashMap<>();
         String[] splits = header.split("\t");
-        for (int i=0 ; i<splits.length ; i++) {
+        for (int i = 0 ; i < splits.length ; i++) {
             columns.put(splits[i], i);
         }
         return header;
