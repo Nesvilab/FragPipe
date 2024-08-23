@@ -165,6 +165,10 @@ public class SkylinePanel extends JPanelBase {
     UiSpinnerInt addPrecursorsSpinner = UiUtils.spinnerInt(3, 0, 5, 1).create();
     FormEntry feAddPrecursors = new FormEntry("add-precursors", "Add precursors", addPrecursorsSpinner, "Add precursor isotopes (number refers to the number of isotope peaks to track, starting with the monoisotope at 1) to the transition list for Skyline to trace. ONLY applicable if using library.tsv as a transition list. Set to 0 to disable");
 
+    uiComboMode.addItemListener(e -> {
+      updateEnabledStatus(feAddPrecursors.comp, uiComboMode.getSelectedIndex() == 2);
+    });
+
     mu.add(panelBasic, feRadioSkyline.comp);
     mu.add(panelBasic, feRadioSkylineDaily.comp);
     mu.add(panelBasic, feRadioSkylineCustom.comp);
