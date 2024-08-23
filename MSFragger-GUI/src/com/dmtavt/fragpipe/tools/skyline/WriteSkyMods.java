@@ -181,6 +181,11 @@ public class WriteSkyMods {
       if (mod.unimodDatas.isEmpty()) {
         nonUnimodMods.add(mod);
       } else {
+        // manually check that carbamidomethylation only uses the Unimod definition if it is a fixed mod (because Skyline assumes it is fixed if defined as Unimod).
+        if (Math.abs(mod.monoMass - 57.02146) < smallFloat && mod.aas.contains("C") && mod.isVariable) {
+          nonUnimodMods.add(mod);
+          continue;
+        }
         unimodMods.add(mod);
       }
     }
