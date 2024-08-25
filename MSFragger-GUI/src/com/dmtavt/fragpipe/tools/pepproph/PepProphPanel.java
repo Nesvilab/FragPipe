@@ -137,7 +137,7 @@ public class PepProphPanel extends JPanelBase {
     defaults.put("Non-Specific Search", SearchTypeProp.nonspecific);
     defaults.put("Offset Search", SearchTypeProp.offset);
     final UiCombo uiComboDefaults = UiUtils.createUiCombo(new ArrayList<>(defaults.keySet()));
-    uiComboDefaults.addActionListener(e -> {
+    uiComboDefaults.addItemListener(e -> {
       SearchTypeProp type = defaults.get((String) uiComboDefaults.getSelectedItem());
       loadDefaults(type);
     });

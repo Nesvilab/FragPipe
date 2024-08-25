@@ -234,7 +234,7 @@ public class TabRun extends JPanelWithEnablement {
       throw new NullPointerException("Sticky note not on the bus: ReportPanel");
     }
 
-    uiCheckWriteSubMzml.addActionListener(e -> {
+    uiCheckWriteSubMzml.addItemListener(e -> {
       uiSpinnerProbThreshold.setEnabled(uiCheckWriteSubMzml.isSelected());
       reportPanel.setPrintDecoys(uiCheckWriteSubMzml.isSelected());
     });

@@ -334,8 +334,8 @@ public class PtmshepherdPanel extends JPanelBase {
     defaults.put("Offset Search", SearchTypeProp.offset);
     defaults.put("Glyco Search", SearchTypeProp.glyco);
     final UiCombo uiComboDefaults = UiUtils.createUiCombo(new ArrayList<>(defaults.keySet()));
-    uiComboDefaults.addActionListener(e -> {
-      SearchTypeProp type = defaults.get(uiComboDefaults.getSelectedItem());
+    uiComboDefaults.addItemListener(e -> {
+      SearchTypeProp type = defaults.get((String) uiComboDefaults.getSelectedItem());
       Bus.post(new MessageLoadShepherdDefaults(type));
     });
 
