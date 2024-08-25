@@ -193,7 +193,8 @@ public class FragpipeCacheUtils {
       }
       List<UiTranslation> matchingTs = Seq.seq(ts).filter(t -> t.inConf.equalsIgnoreCase(v)).toList();
       if (matchingTs.isEmpty()) {
-        throw new IllegalStateException(String.format("Found no ui.translation for loaded element key [%s] with value [%s]", k, v));
+        log.warn(String.format("Found no ui.translation for loaded element key [%s] with value [%s]", k, v));
+        return v;
       }
       if (matchingTs.size() > 1) {
         log.debug(String.format("Found multiple ui.translations for loaded element key [%s] with value [%s]", k, v));

@@ -18,7 +18,6 @@
 package com.github.chhh.utils.swing;
 
 import com.github.chhh.utils.SwingUtils;
-import java.util.NoSuchElementException;
 import javax.swing.JComboBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +37,8 @@ public class UiCombo extends JComboBox<String> implements StringRepresentable {
     if (!isInModel(s)) {
       String message = "String '" + s + "' is not in the UiCombo current range.\n"
           + "Component name: [" + getName() + "]\n"
-          + "Selection will be set to the first value in list: " + getModel().getElementAt(0);
+          + "Selection will be set to the first value in list: " + getModel().getElementAt(0) + "\n"
+          + "You are probably using an incompatible workflow file or cached configurations.";
       log.error(message);
       SwingUtils.showErrorDialog(null, message, "Dropdown menu options changed");
       //throw new NoSuchElementException(message);
