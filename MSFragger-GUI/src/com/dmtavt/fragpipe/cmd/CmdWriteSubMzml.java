@@ -75,7 +75,7 @@ public class CmdWriteSubMzml extends CmdBase {
     Path root = FragpipeLocations.get().getDirFragpipeRoot();
     Path libsDir = root.resolve("lib");
     if (Files.isDirectory(jarFragpipe)) {
-      libsDir = jarFragpipe.getParent().getParent().getParent().getParent().resolve("build/install/fragpipe/lib");
+      libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe/lib");
       log.debug("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
     }
 
@@ -96,8 +96,8 @@ public class CmdWriteSubMzml extends CmdBase {
     toJoin.add(jarFragpipe.toAbsolutePath().normalize().toString());
     final String classpath = OsUtils.asSingleArgument(String.join(System.getProperties().getProperty("path.separator"), toJoin));
 
-    Path extLibsBruker = CmdMsfragger.searchExtLibsBruker(Collections.singletonList(binMSFragger.getParent()));
-    Path extLibsThermo = CmdMsfragger.searchExtLibsThermo(Collections.singletonList(binMSFragger.getParent()));
+    Path extLibsBruker = CmdMsfragger.searchExtLibsBruker(Collections.singletonList(binMSFragger.toAbsolutePath().getParent()));
+    Path extLibsThermo = CmdMsfragger.searchExtLibsThermo(Collections.singletonList(binMSFragger.toAbsolutePath().getParent()));
 
     int idx = 0;
     int batchNum = Math.min(2, nThreads);

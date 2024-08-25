@@ -84,7 +84,7 @@ public class RewritePepxml {
 
   public static Path rewriteRawPath(Path origPepxml, boolean replaceOriginal, String... replacement) throws IOException {
     log.debug("Rewriting pepxml: {}", origPepxml);
-    Path dir = origPepxml.getParent();
+    Path dir = origPepxml.toAbsolutePath().getParent();
     Path fn = origPepxml.getFileName();
     Path rewritten = Files.createTempFile(dir, fn.toString(), ".temp-rewrite");
     log.debug("Temp file chosen to rewrite pepxml: {}", rewritten);

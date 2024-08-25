@@ -479,7 +479,7 @@ public class FragpipeRun {
           for (LcmsFileGroup lcmsFileGroup : lcmsFileGroups.values()) {
             for (InputLcmsFile inputLcmsFile : lcmsFileGroup.lcmsFiles) {
               String baseName = FilenameUtils.getBaseName(inputLcmsFile.getPath().getFileName().toString());
-              Path path = inputLcmsFile.getPath().getParent().resolve(baseName + "_calibrated.mzML");
+              Path path = inputLcmsFile.getPath().toAbsolutePath().getParent().resolve(baseName + "_calibrated.mzML");
               if (Files.exists(path)) {
                 try {
                   toConsole(Fragpipe.COLOR_TOOL, "Delete ", false, tabRun.console);

@@ -142,7 +142,7 @@ public class CmdMSBooster extends CmdBase {
 
     final Path paramPath = wd.resolve("msbooster_params.txt");
 
-    if (Files.exists(paramPath.getParent())) { // Dry run does not make directories, so does not write the file.
+    if (Files.exists(paramPath.toAbsolutePath().getParent())) { // Dry run does not make directories, so does not write the file.
       try {
         BufferedWriter bufferedWriter = Files.newBufferedWriter(paramPath);
         bufferedWriter.write("useDetect = false\n");
@@ -163,7 +163,7 @@ public class CmdMSBooster extends CmdBase {
 
         // compute unique lcms file directories
         bufferedWriter.write("mzmlDirectory = ");
-        Set<Path> lcmsDirsUnique = Seq.seq(lcmsToFraggerPepxml.keySet()).map(lcms -> lcms.getPath().getParent()).toSet();
+        Set<Path> lcmsDirsUnique = Seq.seq(lcmsToFraggerPepxml.keySet()).map(lcms -> lcms.getPath().toAbsolutePath().getParent()).toSet();
         for (Path path : lcmsDirsUnique) {
           bufferedWriter.write(path.toString() + " ");
         }

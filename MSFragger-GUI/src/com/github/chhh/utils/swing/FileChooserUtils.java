@@ -150,7 +150,7 @@ public class FileChooserUtils {
     try {
       if (Files.exists(path)) {
         if (Files.isDirectory(path)) {
-          fc.setCurrentDirectory(path.getParent().toFile());
+          fc.setCurrentDirectory(path.toAbsolutePath().getParent().toFile());
           fc.setSelectedFile(path.toFile());
         } else { // Files.exists(path) && !Files.isDirectory(path)
           fc.setCurrentDirectory(path.toFile());

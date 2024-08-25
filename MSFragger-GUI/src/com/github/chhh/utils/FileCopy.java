@@ -46,8 +46,8 @@ public class FileCopy {
             System.err.println("Origin file does not exist: " + origin.toString());
             System.exit(1);
         }
-        if (!Files.exists(destination.getParent())) {
-            System.err.println("Destination directory does not exist: " + destination.getParent());
+        if (!Files.exists(destination.toAbsolutePath().getParent())) {
+            System.err.println("Destination directory does not exist: " + destination.toAbsolutePath().getParent());
             System.exit(1);
         }
 

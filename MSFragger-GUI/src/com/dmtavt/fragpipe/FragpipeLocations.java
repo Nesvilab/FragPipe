@@ -81,7 +81,7 @@ public class FragpipeLocations {
         log.error("Could not figure fragpipe jar location at runtime");
         throw new IllegalStateException("Could not figure fragpipe jar location at runtime");
       }
-      Path jarPath = Paths.get(fragpipeJar);
+      Path jarPath = Paths.get(fragpipeJar).toAbsolutePath();
       log.debug("Jar path: {}", jarPath);
       final Path jarDir = Files.isDirectory(jarPath) ? jarPath : jarPath.getParent();
       log.debug("Jar dir: {}", jarDir);
@@ -138,7 +138,7 @@ public class FragpipeLocations {
   }
 
   public Path getDirFragpipeRoot() {
-    return getJarPath().getParent().getParent();
+    return getJarPath().toAbsolutePath().getParent().getParent();
   }
 
   public Path getOrMakeDirInRoot(String dir) {

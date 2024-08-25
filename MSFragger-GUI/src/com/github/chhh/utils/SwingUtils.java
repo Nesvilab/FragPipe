@@ -264,10 +264,10 @@ public class SwingUtils {
     for (Entry<Path, Path> kv : paths.entrySet()) {
       data[++index][0] = kv.getKey().getFileName().toString();
       data[index][1] = kv.getValue().getFileName().toString();
-      if (!kv.getValue().getParent().equals(kv.getKey().getParent())) {
+      if (!kv.getValue().toAbsolutePath().getParent().equals(kv.getKey().toAbsolutePath().getParent())) {
         throw new IllegalArgumentException("Files must be siblings");
       }
-      data[index][2] = kv.getKey().getParent().toString();
+      data[index][2] = kv.getKey().toAbsolutePath().getParent().toString();
     }
 
     DefaultTableModel model = new DefaultTableModel(data, columns);
@@ -1174,7 +1174,7 @@ public class SwingUtils {
     if (path == null || Files.exists(path)) {
       return path;
     } else {
-      return findExistingUpstreamPath(path.getParent());
+      return findExistingUpstreamPath(path.toAbsolutePath().getParent());
     }
   }
 

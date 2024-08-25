@@ -92,7 +92,7 @@ public class CmdFreequant extends CmdBase {
       final LcmsFileGroup group = e.getKey();
 
       final Set<Path> lcmsDirsForProtxml = group.lcmsFiles.stream()
-          .map(f -> f.getPath().getParent())
+          .map(f -> f.getPath().toAbsolutePath().getParent())
           .collect(Collectors.toSet());
       if (lcmsDirsForProtxml.size() > 1) {
         if (Fragpipe.headless) {

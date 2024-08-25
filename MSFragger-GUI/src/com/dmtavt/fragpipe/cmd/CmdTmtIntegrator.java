@@ -164,9 +164,9 @@ public class CmdTmtIntegrator extends CmdBase {
         Files.createDirectories(outDir);
       }
       log.debug("Writing {} config file", NAME);
-      if (!Files.exists(pathConf.getParent())) {
-        log.debug(NAME + " config required presence of output work dir, creating: {}", pathConf.getParent());
-        Files.createDirectories(pathConf.getParent());
+      if (!Files.exists(pathConf.toAbsolutePath().getParent())) {
+        log.debug(NAME + " config required presence of output work dir, creating: {}", pathConf.toAbsolutePath().getParent());
+        Files.createDirectories(pathConf.toAbsolutePath().getParent());
       }
       Map<String, String> conf = panel.formToConfig(outDir.toString(), panel.getSelectedLabel(), isSecondUnmodRun);
 

@@ -86,7 +86,7 @@ public class CmdCrystalc extends CmdBase {
     Map<InputLcmsFile, List<Path>> m = new HashMap<>();
     for (Entry<InputLcmsFile, List<Path>> e : inputs.entrySet()) {
       for (Path p : e.getValue()) {
-        Path dir = p.getParent();
+        Path dir = p.toAbsolutePath().getParent();
         String pepxmlFn = p.getFileName().toString();
         List<Path> t = m.get(e.getKey());
         if (t == null) {
@@ -127,7 +127,7 @@ public class CmdCrystalc extends CmdBase {
     initPreConfig();
 
     final List<String> sup = new ArrayList<>(SUPPORTED_FORMATS);
-    final Path extLibsThermo = CmdMsfragger.searchExtLibsThermo(Collections.singletonList(binFragger.getParent()));
+    final Path extLibsThermo = CmdMsfragger.searchExtLibsThermo(Collections.singletonList(binFragger.toAbsolutePath().getParent()));
     if (extLibsThermo != null) {
       sup.add(THERMO_RAW_EXT);
     }
@@ -184,7 +184,7 @@ public class CmdCrystalc extends CmdBase {
         try {
           ccp = ccParams;
           String ext = StringUtils.afterLastDot(lcmsFn);
-          ccp.setRawFileLocation(lcms.getPath().getParent().toString());
+          ccp.setRawFileLocation(lcms.getPath().toAbsolutePath().getParent().toString());
           ccp.setRawFileExt(ext);
           ccp.setOutputLocation(outDir.toString());
           ccp.setFasta(fastaPath);

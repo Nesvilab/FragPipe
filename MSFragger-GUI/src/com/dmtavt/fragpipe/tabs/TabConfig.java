@@ -1257,7 +1257,7 @@ public class TabConfig extends JPanelWithEnablement {
         .flatMap(text -> {
           try {
             Path p = Paths.get(text);
-            return p.isAbsolute() ? Stream.of(p, p.getParent()) : Stream.of(p);
+            return p.isAbsolute() ? Stream.of(p, p.toAbsolutePath().getParent()) : Stream.of(p);
           } catch (Exception e) {
             return Stream.empty();
           }

@@ -110,7 +110,7 @@ public class CmdUmpireSe extends CmdBase {
     }
 
     // run umpire for each file
-    final Path extLibsThermo = CmdMsfragger.searchExtLibsThermo(Collections.singletonList(binFragger.getParent()));
+    final Path extLibsThermo = CmdMsfragger.searchExtLibsThermo(Collections.singletonList(binFragger.toAbsolutePath().getParent()));
     final String javaDParmsStringLibsThermoDir = extLibsThermo == null ? null :
             createJavaDParamString("libs.thermo.dir", extLibsThermo.toString());
     final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(UmpireParams.JAR_UMPIRESE_NAME).concat(JAR_DEPS));
@@ -120,7 +120,7 @@ public class CmdUmpireSe extends CmdBase {
         continue;
       }
 
-      Path inputDir = f.getPath().getParent();
+      Path inputDir = f.getPath().toAbsolutePath().getParent();
       Path destDir = f.outputDir(wd);
 
       // Umpire-SE

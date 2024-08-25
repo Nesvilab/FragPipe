@@ -73,7 +73,7 @@ public class CmdSkyline extends CmdBase {
     Path root = FragpipeLocations.get().getDirFragpipeRoot();
     Path libsDir = root.resolve("lib");
     if (Files.isDirectory(jarFragpipe)) {
-      libsDir = jarFragpipe.getParent().getParent().getParent().getParent().resolve("build/install/fragpipe/lib");
+      libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe/lib");
       log.debug("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
     }
 

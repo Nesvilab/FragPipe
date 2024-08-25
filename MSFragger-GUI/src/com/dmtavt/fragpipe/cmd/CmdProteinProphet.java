@@ -145,18 +145,18 @@ public class CmdProteinProphet extends CmdBase {
         return false;
       }
       Path protxml = interactProtXmls.iterator().next();
-      if (!protxml.getParent().equals(wd)) {
+      if (!protxml.toAbsolutePath().getParent().equals(wd)) {
         throw new IllegalStateException("Protxml not in global output directory when groups processed together.");
       }
       List<String> pepxmlsPaths = pepxmlFiles.entrySet().stream()
           .flatMap(pepxml -> pepxml.getValue().stream()).map(Path::toString)
           .distinct()
           .collect(Collectors.toList());
-      List<String> cmd = createCmdStub(usePhilosopher, protxml.getParent(), proteinProphetParams);
+      List<String> cmd = createCmdStub(usePhilosopher, protxml.toAbsolutePath().getParent(), proteinProphetParams);
 
       final Path filelist = wd.resolve("filelist_proteinprophet.txt");
 
-      if (Files.exists(filelist.getParent())) { // Dry run does not make directories, so does not write the file.
+      if (Files.exists(filelist.toAbsolutePath().getParent())) { // Dry run does not make directories, so does not write the file.
         try (BufferedWriter bw = Files.newBufferedWriter(filelist)) {
           for (String f : pepxmlsPaths) {
             bw.write(f);
@@ -170,7 +170,7 @@ public class CmdProteinProphet extends CmdBase {
       cmd.add(filelist.toString());
 
       ProcessBuilder pb = new ProcessBuilder(cmd);
-      pb.directory(protxml.getParent().toFile());
+      pb.directory(protxml.toAbsolutePath().getParent().toFile());
       pbis.add(PbiBuilder.from(pb));
     }
 

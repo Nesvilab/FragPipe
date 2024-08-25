@@ -42,7 +42,7 @@ public class PlexDiaHelperTest {
 
   @Test
   public void testPreparePlexLibrary1() throws Exception {
-    Path libraryPath = Paths.get(Objects.requireNonNull(PlexDiaHelperTest.class.getResource("/library_1.tsv")).toURI());
+    Path libraryPath = Paths.get(Objects.requireNonNull(PlexDiaHelperTest.class.getResource("/library_1.tsv")).toURI()).toAbsolutePath();
     Path generatedLibraryPath = libraryPath.getParent().resolve("library_1_plex.tsv");
 
     TreeMap<Character, Float> lightLabels = new TreeMap<>();
@@ -97,7 +97,7 @@ public class PlexDiaHelperTest {
 
   @Test
   public void testPreparePlexLibrary2() throws Exception {
-    Path libraryPath = Paths.get(Objects.requireNonNull(PlexDiaHelperTest.class.getResource("/library_2.tsv")).toURI());
+    Path libraryPath = Paths.get(Objects.requireNonNull(PlexDiaHelperTest.class.getResource("/library_2.tsv")).toURI()).toAbsolutePath();
     Path generatedLibraryPath = libraryPath.getParent().resolve("library_2_plex.tsv");
 
     TreeMap<Character, Float> lightLabels = new TreeMap<>();
@@ -148,7 +148,7 @@ public class PlexDiaHelperTest {
 
   @Test
   public void testPreparePlexLibrary3() throws Exception {
-    Path libraryPath = Paths.get(Objects.requireNonNull(PlexDiaHelperTest.class.getResource("/library_1.tsv")).toURI());
+    Path libraryPath = Paths.get(Objects.requireNonNull(PlexDiaHelperTest.class.getResource("/library_1.tsv")).toURI()).toAbsolutePath();
     Path generatedLibraryPath = libraryPath.getParent().resolve("library_1_light_only.tsv");
 
     TreeMap<Character, Float> lightLabels = new TreeMap<>();
@@ -203,7 +203,7 @@ public class PlexDiaHelperTest {
 
   @Test
   public void testPreparePlexLibrary4() throws Exception {
-    Path libraryPath = Paths.get(Objects.requireNonNull(PlexDiaHelperTest.class.getResource("/library_2.tsv")).toURI());
+    Path libraryPath = Paths.get(Objects.requireNonNull(PlexDiaHelperTest.class.getResource("/library_2.tsv")).toURI()).toAbsolutePath();
     Path generatedLibraryPath = libraryPath.getParent().resolve("library_2_light_only.tsv");
 
     TreeMap<Character, Float> lightLabels = new TreeMap<>();
@@ -254,7 +254,7 @@ public class PlexDiaHelperTest {
 
   @Test
   public void testPreparePlexLibrary5() throws Exception {
-    Path libraryPath = Paths.get(Objects.requireNonNull(PlexDiaHelperTest.class.getResource("/library_1.tsv")).toURI());
+    Path libraryPath = Paths.get(Objects.requireNonNull(PlexDiaHelperTest.class.getResource("/library_1.tsv")).toURI()).toAbsolutePath();
     Path generatedLibraryPath = libraryPath.getParent().resolve("library_1_light_only.tsv");
 
     TreeMap<Character, Float> lightLabels = new TreeMap<>();
@@ -309,7 +309,7 @@ public class PlexDiaHelperTest {
 
   @Test
   public void testPreparePlexLibrary6() throws Exception {
-    Path libraryPath = Paths.get(Objects.requireNonNull(PlexDiaHelperTest.class.getResource("/library_2.tsv")).toURI());
+    Path libraryPath = Paths.get(Objects.requireNonNull(PlexDiaHelperTest.class.getResource("/library_2.tsv")).toURI()).toAbsolutePath();
     Path generatedLibraryPath = libraryPath.getParent().resolve("library_2_light_only_2.tsv");
 
     TreeMap<Character, Float> lightLabels = new TreeMap<>();
@@ -360,7 +360,7 @@ public class PlexDiaHelperTest {
 
   @Test
   public void testPreparePlexLibrary7() throws Exception {
-    Path libraryPath = Paths.get(Objects.requireNonNull(PlexDiaHelperTest.class.getResource("/library_3.tsv")).toURI());
+    Path libraryPath = Paths.get(Objects.requireNonNull(PlexDiaHelperTest.class.getResource("/library_3.tsv")).toURI()).toAbsolutePath();
     Path generatedLibraryPath = libraryPath.getParent().resolve("library_3_light_only.tsv");
 
     TreeMap<Character, Float> lightLabels = new TreeMap<>();

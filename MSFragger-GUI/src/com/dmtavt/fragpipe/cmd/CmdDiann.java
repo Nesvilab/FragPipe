@@ -105,7 +105,7 @@ public class CmdDiann extends CmdBase {
       Path root = FragpipeLocations.get().getDirFragpipeRoot();
       Path libsDir = root.resolve("lib");
       if (Files.isDirectory(jarFragpipe)) {
-        libsDir = jarFragpipe.getParent().getParent().getParent().getParent().resolve("build/install/fragpipe/lib");
+        libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe/lib");
         log.debug("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
       }
 
@@ -234,7 +234,7 @@ public class CmdDiann extends CmdBase {
 
       try {
         final Path diannOutputDirectory = groupWd.resolve("diann-output");
-        if (Files.exists(diannOutputDirectory.getParent())) { // Dry run does not make directories, so does not write the file.
+        if (Files.exists(diannOutputDirectory.toAbsolutePath().getParent())) { // Dry run does not make directories, so does not write the file.
           Files.createDirectories(diannOutputDirectory);
         }
       } catch (IOException ex) {
@@ -296,7 +296,7 @@ public class CmdDiann extends CmdBase {
 
       try {
         final Path filelist = groupWd.resolve("filelist_diann.txt");
-        if (Files.exists(filelist.getParent())) { // Dry run does not make directories, so does not write the file.
+        if (Files.exists(filelist.toAbsolutePath().getParent())) { // Dry run does not make directories, so does not write the file.
           BufferedWriter bufferedWriter = Files.newBufferedWriter(filelist);
           for (Path p : sizeInputLcms.values().stream().flatMap(List::stream).collect(Collectors.toList())) {
             bufferedWriter.write("--f " + p.toAbsolutePath() + "\n");
@@ -341,7 +341,7 @@ public class CmdDiann extends CmdBase {
       Path root = FragpipeLocations.get().getDirFragpipeRoot();
       Path libsDir = root.resolve("lib");
       if (Files.isDirectory(jarFragpipe)) {
-        libsDir = jarFragpipe.getParent().getParent().getParent().getParent().resolve("build/install/fragpipe/lib");
+        libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe/lib");
         log.debug("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
       }
 
@@ -383,7 +383,7 @@ public class CmdDiann extends CmdBase {
       Path root = FragpipeLocations.get().getDirFragpipeRoot();
       Path libsDir = root.resolve("lib");
       if (Files.isDirectory(jarFragpipe)) {
-        libsDir = jarFragpipe.getParent().getParent().getParent().getParent().resolve("build/install/fragpipe/lib");
+        libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe/lib");
         log.debug("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
       }
 

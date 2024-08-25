@@ -85,7 +85,7 @@ public class CmdPeptideProphet extends CmdBase {
       InputLcmsFile lcms = e.getKey();
       for (Path pepxml : e.getValue()) {
         final String cleanFn = pepxml.getFileName().toString();
-        final Path cleanDir = pepxml.getParent();
+        final Path cleanDir = pepxml.toAbsolutePath().getParent();
 
         Path interactXml;
         if (!combine) {
@@ -219,7 +219,7 @@ public class CmdPeptideProphet extends CmdBase {
       int batchNum = Math.min(32, threads);
       for (Map.Entry<InputLcmsFile, List<Path>> e : pepxmlFiles.entrySet()) {
         for (Path pepxmlPath : e.getValue()) {
-          final Path pepxmlDir = pepxmlPath.getParent();
+          final Path pepxmlDir = pepxmlPath.toAbsolutePath().getParent();
           final String pepxmlFn = pepxmlPath.getFileName().toString();
 
 
@@ -432,7 +432,7 @@ public class CmdPeptideProphet extends CmdBase {
     Path root = FragpipeLocations.get().getDirFragpipeRoot();
     String libsDir = root.resolve("lib") + "/*";
     if (Files.isDirectory(jarFragpipe)) {
-      libsDir = jarFragpipe.getParent().getParent().getParent().getParent().resolve("build/install/fragpipe/lib") + "/*";
+      libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe/lib") + "/*";
       log.debug("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
     }
     cmd.add(libsDir);

@@ -326,7 +326,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     final HashMap<Path, Set<String>> reasonsFn = new HashMap<>();
 
     for (Path path : files.paths) {
-      Set<String> why = InputLcmsFile.validatePath(path.getParent().toString());
+      Set<String> why = InputLcmsFile.validatePath(path.toAbsolutePath().getParent().toString());
       if (!why.isEmpty()) {
         reasonsDir.put(path, why);
       }
@@ -445,7 +445,7 @@ public class TabWorkflow extends JPanelWithEnablement {
               renamedOk.put(kv.getKey(), kv.getValue());
             } catch (Exception e) {
               log.error(String.format("From '%s' to '%s' at '%s'",
-                  kv.getKey().getFileName(), kv.getValue().getFileName(), kv.getKey().getParent()));
+                  kv.getKey().getFileName(), kv.getValue().getFileName(), kv.getKey().toAbsolutePath().getParent()));
               couldNotRename.put(kv.getKey(), kv.getValue());
             }
           }
@@ -706,7 +706,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     if (m.recursiveAdditionRoot != null) {
       saveDir = m.recursiveAdditionRoot.toString();
     } else if (!m.paths.isEmpty()) {
-      saveDir = m.paths.get(0).getParent().toString();
+      saveDir = m.paths.get(0).toAbsolutePath().getParent().toString();
     }
     if (saveDir != null) {
       Fragpipe.propsVarSet(ThisAppProps.PROP_LCMS_FILES_IN, saveDir);
@@ -834,7 +834,7 @@ public class TabWorkflow extends JPanelWithEnablement {
       if (savePath == null) {
         return;
       }
-      saveDir = savePath.getParent();
+      saveDir = savePath.toAbsolutePath().getParent();
       Fragpipe.propsVarSet(PROP_WORKFLOW_SAVEDIR, saveDir.toString());
     }
 
@@ -1169,7 +1169,7 @@ public class TabWorkflow extends JPanelWithEnablement {
 
         Path openLoc = path;
         while (openLoc != null && !Files.isDirectory(openLoc)) {
-          openLoc = openLoc.getParent();
+          openLoc = openLoc.toAbsolutePath().getParent();
         }
         if (openLoc == null) {
           SwingUtils.showInfoDialog(TabWorkflow.this, "Could not locate parent directory to open", "Error opening in file manager");
@@ -1370,7 +1370,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     Path path = getSaveFilePath(m.path, ThisAppProps.CONFIG_SAVE_LOCATION, fileNameEndingFilter, manifestExt, m.quite, this);
 
     if (path != null) {
-      Fragpipe.propsVarSet(ThisAppProps.CONFIG_SAVE_LOCATION, path.getParent().toString());
+      Fragpipe.propsVarSet(ThisAppProps.CONFIG_SAVE_LOCATION, path.toAbsolutePath().getParent().toString());
       try {
         manifestSave(path);
       } catch (IOException e) {
@@ -1389,7 +1389,7 @@ public class TabWorkflow extends JPanelWithEnablement {
       if (f == null)
         return;
       try {
-        Fragpipe.propsVarSet(ThisAppProps.CONFIG_SAVE_LOCATION, f.getParent());
+        Fragpipe.propsVarSet(ThisAppProps.CONFIG_SAVE_LOCATION, f.getAbsoluteFile().getParent());
         manifestLoad(f.toPath());
       } catch (IOException e) {
         SwingUtils.showErrorDialogWithStacktrace(e, this);
@@ -1403,7 +1403,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     Path path = getSaveFilePath(m.path, ThisAppProps.CONFIG_SAVE_LOCATION, fileNameEndingFilter, sdrfExt, m.quiet, this);
 
     if (path != null) {
-      Fragpipe.propsVarSet(ThisAppProps.CONFIG_SAVE_LOCATION, path.getParent().toString());
+      Fragpipe.propsVarSet(ThisAppProps.CONFIG_SAVE_LOCATION, path.toAbsolutePath().getParent().toString());
       TabMsfragger tabMsfragger = getStickyStrict(TabMsfragger.class);
       try {
         sdrfSave(path, m.label, tabMsfragger.getSDRFenzymes(), tabMsfragger.getSDRFmods(), tabMsfragger.getPrecTolString(), tabMsfragger.getProdTolString(m.logText));
@@ -1683,7 +1683,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     }
 
     if (path != null) {
-      Fragpipe.propsVarSet(defaultSaveDir, path.getParent().toString());
+      Fragpipe.propsVarSet(defaultSaveDir, path.toAbsolutePath().getParent().toString());
       try {
         if (quiet) {
           Files.deleteIfExists(path);
@@ -1731,7 +1731,7 @@ public class TabWorkflow extends JPanelWithEnablement {
       propsFile.remove("fragpipe-config.bin-python");
 
       epWorkflowsDesc.setText(propsFile.getProperty(PROP_WORKFLOW_DESC, "Description not present"));
-      Fragpipe.propsVarSet(PROP_WORKFLOW_SAVEDIR, propsFile.getPath().getParent().toString());
+      Fragpipe.propsVarSet(PROP_WORKFLOW_SAVEDIR, propsFile.getPath().toAbsolutePath().getParent().toString());
 
       Bus.post(new MessageLoadUi(propsFile, true, false));
     } else {

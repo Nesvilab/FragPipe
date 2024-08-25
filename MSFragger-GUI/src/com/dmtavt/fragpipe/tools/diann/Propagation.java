@@ -233,7 +233,7 @@ public class Propagation {
       s = "report.pr_matrix2.tsv";
       firstLineMarker = "Protein.Group\tProtein.Ids\t";
     }
-    Path p2 = p.getParent().resolve(s);
+    Path p2 = p.toAbsolutePath().getParent().resolve(s);
 
     int strippedSequenceColumnIdx = -1;
     int modifiedSequenceColumnIdx = -1;

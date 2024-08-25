@@ -75,11 +75,11 @@ public class CmdIonquant extends CmdBase {
     initPreConfig();
 
     List<String> sup = new ArrayList<>(SUPPORTED_FORMATS);
-    final Path extLibsBruker = CmdMsfragger.searchExtLibsBruker(Collections.singletonList(binFragger.getParent()));
+    final Path extLibsBruker = CmdMsfragger.searchExtLibsBruker(Collections.singletonList(binFragger.toAbsolutePath().getParent()));
     if (extLibsBruker != null) {
       sup.add("d");
     }
-    final Path extLibsThermo = CmdMsfragger.searchExtLibsThermo(Collections.singletonList(binFragger.getParent()));
+    final Path extLibsThermo = CmdMsfragger.searchExtLibsThermo(Collections.singletonList(binFragger.toAbsolutePath().getParent()));
     if (extLibsThermo != null) {
       sup.add("raw");
     }
@@ -274,7 +274,7 @@ public class CmdIonquant extends CmdBase {
     try {
       final Path filelist = wd.resolve("filelist_ionquant.txt");
 
-      if (Files.exists(filelist.getParent())) { // Dry run does not make directories, so does not write the file.
+      if (Files.exists(filelist.toAbsolutePath().getParent())) { // Dry run does not make directories, so does not write the file.
         BufferedWriter bufferedWriter = Files.newBufferedWriter(filelist);
         bufferedWriter.write("flag\tvalue\n");
 
@@ -293,7 +293,7 @@ public class CmdIonquant extends CmdBase {
         }
 
         // compute unique lcms file directories
-        Set<Path> lcmsDirsUnique = Seq.seq(lcmsToFraggerPepxml.keySet()).map(lcms -> lcms.getPath().getParent())
+        Set<Path> lcmsDirsUnique = Seq.seq(lcmsToFraggerPepxml.keySet()).map(lcms -> lcms.getPath().toAbsolutePath().getParent())
             .toSet();
         for (Path path : lcmsDirsUnique) {
           bufferedWriter.write("--specdir");
@@ -310,7 +310,7 @@ public class CmdIonquant extends CmdBase {
 
       if (modMassSet != null) {
         Path modMassListPath = wd.resolve("modmasses_ionquant.txt");
-        if (Files.exists(modMassListPath.getParent())) { // Dry run does not make directories, so does not write the file.
+        if (Files.exists(modMassListPath.toAbsolutePath().getParent())) { // Dry run does not make directories, so does not write the file.
           BufferedWriter bufferedWriter = Files.newBufferedWriter(modMassListPath);
           for (float modMass : modMassSet) {
             bufferedWriter.write(modMass + "\n");
