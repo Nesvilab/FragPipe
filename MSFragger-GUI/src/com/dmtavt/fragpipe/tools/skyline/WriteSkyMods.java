@@ -355,6 +355,11 @@ public class WriteSkyMods {
   }
 
   private static String cleanupSites(String sites) {
+    sites = sites.replace("N-Term Peptide", "n^");
+    sites = sites.replace("C-Term Peptide", "c^");
+    sites = sites.replace("N-Term Protein", "[^");
+    sites = sites.replace("C-Term Protein", "]^");
+
     if (sites.contains(" ")) {
       sites = sites.substring(0, sites.indexOf(" "));
     }
