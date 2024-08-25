@@ -1703,6 +1703,7 @@ public class TabWorkflow extends JPanelWithEnablement {
   }
 
   private void actionLoadSelectedWorkflow(ActionEvent e) {
+    uiComboWorkflows.hidePopup(); // Make the popup disappear in case it is still open when loading the (custom) workflow
     String workflow = (String) uiComboWorkflows.getSelectedItem();
     log.debug("Load workflow button clicked: {}", workflow);
     if (workflow == null || workflow.equalsIgnoreCase("Custom")) {
