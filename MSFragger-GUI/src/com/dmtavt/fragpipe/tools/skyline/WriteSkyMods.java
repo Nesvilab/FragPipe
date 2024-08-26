@@ -333,7 +333,9 @@ public class WriteSkyMods {
           if (!losses.isEmpty()) {
             ElementalComposition lossElementalComp = glycan.getElementalCompositionOfIon();
             if (!remainderComposition.composition.isEmpty()) {
-              lossElementalComp.addComposition(remainderComposition, true, 1);
+              if (lossElementalComp.isValidSubtraction(remainderComposition, 1)) {
+                lossElementalComp.addComposition(remainderComposition, true, 1);
+              }
             }
             lossElementalComps.add(lossElementalComp.toString());
           }
