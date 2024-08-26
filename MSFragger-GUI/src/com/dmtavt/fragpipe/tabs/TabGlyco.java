@@ -60,7 +60,7 @@ public class TabGlyco extends JPanelWithEnablement {
     private LinkedHashMap<String, File> glycanDBs;
     public static final String glycanDBfolder = "Glycan_Databases";
     public static final String GLYCAN_RESIDUE_HEADER = "#Name\tMass\tyProb+\tyProb-\tAlternate Names\tElemental Composition";
-    public static final String GLYCAN_MOD_HEADER = "#Name\tMass\tyProb+\tyProb-\tAlternate Names\tElemental Composition\tRequired Residue(s)";
+    public static final String GLYCAN_MOD_HEADER = "#Name\tMass\tyProb+\tyProb-\tAlternate Names\tElemental Composition\tRequired Residue(s)\tIntrinsic Charge";
     public GlycoMassLoader glycanDBloader;
     private Path glycoDBpath;
 
