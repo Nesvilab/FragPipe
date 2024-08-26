@@ -677,7 +677,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     };
     FileChooserUtils.create(fc, "Choose raw data files", "Select", true, FcMode.ANY, true, ff);
     fc.setFileFilter(ff);
-    tableModelRawFiles.dataCopy();
+    tableModelRawFiles.dataCopy(); // redundant?
     File cwd = null;
     File[] sf;
     do {

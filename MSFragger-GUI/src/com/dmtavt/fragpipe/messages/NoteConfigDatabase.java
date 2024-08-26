@@ -17,30 +17,35 @@
 
 package com.dmtavt.fragpipe.messages;
 
-import java.nio.file.Path;
+import com.dmtavt.fragpipe.tools.database.FastaTable.FastaEntry;
+import java.util.ArrayList;
+import java.util.List;
 
 public class NoteConfigDatabase implements INoteConfig {
 
-  public final Path path;
-  public final int numEntries;
-  public final int decoysCnt;
-  public final boolean isBigDatabase;
+  public final List<FastaEntry> fastaEntryList;
   public final boolean isValid;
 
-  public NoteConfigDatabase(Path path, int numEntries, int decoysCnt, boolean isBigDatabase, boolean isValid) {
-    this.path = path;
-    this.numEntries = numEntries;
-    this.decoysCnt = decoysCnt;
-    this.isBigDatabase = isBigDatabase;
+  public NoteConfigDatabase(List<FastaEntry> fastaEntryList, boolean isValid) {
+    this.fastaEntryList = fastaEntryList;
     this.isValid = isValid;
   }
 
   public NoteConfigDatabase() {
-    path = null;
-    numEntries = -1;
-    decoysCnt = -1;
-    isBigDatabase = false;
+    fastaEntryList = new ArrayList<>(0);
     this.isValid = false;
+  }
+
+  public boolean hasBigDatabase() {
+    return fastaEntryList.stream().anyMatch(e -> e.isBigDatabase);
+  }
+
+  public int getProteinCount() {
+    return fastaEntryList.stream().mapToInt(e -> e.proteinCount).sum();
+  }
+
+  public int getDecoyCount() {
+    return fastaEntryList.stream().mapToInt(e -> e.decoyCount).sum();
   }
 
   @Override

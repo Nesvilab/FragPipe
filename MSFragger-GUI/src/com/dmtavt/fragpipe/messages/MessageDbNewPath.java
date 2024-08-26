@@ -17,10 +17,14 @@
 
 package com.dmtavt.fragpipe.messages;
 
-public class MessageDbNewPath {
-  public final String path;
+import com.dmtavt.fragpipe.tools.database.FastaTable.FastaEntry;
+import java.util.List;
 
-  public MessageDbNewPath(String path) {
-    this.path = path;
+public class MessageDbNewPath {
+
+  public final List<FastaEntry> fastaEntryList;
+
+  public MessageDbNewPath(List<FastaEntry> t) {
+    this.fastaEntryList = t;
   }
 }

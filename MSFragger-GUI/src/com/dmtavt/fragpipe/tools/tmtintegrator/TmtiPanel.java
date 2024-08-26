@@ -913,7 +913,7 @@ public class TmtiPanel extends JPanelBase {
     JFileChooser fc = new JFileChooser();
     fc.setAcceptAllFileFilterUsed(true);
     fc.setMultiSelectionEnabled(false);
-    Optional<Path> exisitngFile = Stream
+    Optional<Path> existingFile = Stream
         .of(row.path,
             expDir.toString(),
             ThisAppProps.load(PROP_LAST_ANNOTATION_PATH),
@@ -928,9 +928,9 @@ public class TmtiPanel extends JPanelBase {
         .filter(Objects::nonNull).filter(path -> Files.exists(path))
         .findFirst();
 
-    exisitngFile.ifPresent(path -> fc.setCurrentDirectory(path.toFile()));
-    if (exisitngFile.isPresent() && Files.isRegularFile(exisitngFile.get())) {
-      fc.setSelectedFile(exisitngFile.get().toFile());
+    existingFile.ifPresent(path -> fc.setCurrentDirectory(path.toFile()));
+    if (existingFile.isPresent() && Files.isRegularFile(existingFile.get())) {
+      fc.setSelectedFile(existingFile.get().toFile());
     }
 
     fc.setFileFilter(new javax.swing.filechooser.FileFilter() {

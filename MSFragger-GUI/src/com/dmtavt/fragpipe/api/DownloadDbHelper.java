@@ -78,19 +78,9 @@ public class DownloadDbHelper {
   /**
    * Call from EDT only.
    *
-   * @param binPhi Philosopher binary path.
+   * @param binPhi           Philosopher binary path.
    */
   public static void downloadDb(Component parent, String binPhi) throws Exception {
-    downloadDb(parent, binPhi);
-  }
-
-  /**
-   * Call from EDT only.
-   *
-   * @param binPhi           Philosopher binary path.
-   * @param hintSaveLocation Can be null, if not null - used to set file chooser init path.
-   */
-  public static void downloadDb(Component parent, String binPhi, String hintSaveLocation) throws Exception {
     DbUniprotIdPanel p = new DbUniprotIdPanel();
     final int confirmation = SwingUtils.showConfirmDialog2(parent, p, "Download options", OK_CANCEL_OPTION);
     if (JOptionPane.OK_OPTION == confirmation) {
@@ -112,7 +102,7 @@ public class DownloadDbHelper {
       }
 
       JFileChooser fc = FileChooserUtils.create("Download to directory", "Select directory", false, FcMode.DIRS_ONLY, true);
-      FileChooserUtils.setPath(fc, Stream.of(hintSaveLocation, ThisAppProps.load(ThisAppProps.PROP_DB_SAVE_PATH)));
+      FileChooserUtils.setPath(fc, ThisAppProps.load(ThisAppProps.PROP_DB_SAVE_PATH));
       if (fc.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION) {
         Path dir = fc.getSelectedFile().toPath();
         ThisAppProps.save(ThisAppProps.PROP_DB_SAVE_PATH, dir.toAbsolutePath().normalize().toString());
