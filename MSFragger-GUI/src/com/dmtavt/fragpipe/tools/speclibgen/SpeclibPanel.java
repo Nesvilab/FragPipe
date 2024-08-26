@@ -303,6 +303,17 @@ public class SpeclibPanel extends JPanelBase {
             .label("Max glycan q-value")
             .tooltip("Maximum glycan q-value from glycan composition assignment to use a glycopeptide PSM when building the library. Set to 1 to ignore.").create();
 
+    pepxmlConvertButton.addItemListener(e -> {
+      updateEnabledStatus(checkIgnoreUnannotated, !pepxmlConvertButton.isSelected());
+    });
+
+    psmConvertButton.addItemListener(e -> {
+      updateEnabledStatus(checkIgnoreUnannotated, psmConvertButton.isSelected());
+    });
+
+    uiComboGlycoMode.addItemListener(e -> {
+      updateEnabledStatus(uiSpinner_max_glycan_qval, uiComboGlycoMode.getSelectedIndex() > 0);
+    });
 
     mu.add(p, convertTypeLabel);
     mu.add(p, pepxmlConvertButton).split();

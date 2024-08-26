@@ -21,15 +21,9 @@ import static com.github.chhh.utils.OsUtils.isWindows;
 
 import com.dmtavt.fragpipe.messages.MessageUiRevalidate;
 import com.github.chhh.utils.SwingUtils;
-import com.github.chhh.utils.swing.FileChooserUtils;
+import com.github.chhh.utils.swing.*;
 import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
-import com.github.chhh.utils.swing.FormEntry;
-import com.github.chhh.utils.swing.JPanelBase;
-import com.github.chhh.utils.swing.UiCheck;
-import com.github.chhh.utils.swing.UiCombo;
-import com.github.chhh.utils.swing.UiRadio;
-import com.github.chhh.utils.swing.UiText;
-import com.github.chhh.utils.swing.UiUtils;
+
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.ItemSelectable;
@@ -160,7 +154,7 @@ public class SkylinePanel extends JPanelBase {
       updateEnabledStatus(jButtonSkylineCustom, uiRadioSkylineCustom.isSelected());
     });
 
-    uiComboMode = UiUtils.createUiCombo(Arrays.asList("Use speclib as input", "Use pep.xml as input"));
+    uiComboMode = UiUtils.createUiCombo(Arrays.asList("Use speclib as input", "Use pep.xml as input", "Use library.tsv as transition list"));
     uiComboMode.setSelectedIndex(0);
     FormEntry feComboMode = new FormEntry("skyline-mode", "Skyline running mode", uiComboMode, "Let Skyline take FragPipe speclib as input or build its own speclib");
 
@@ -168,14 +162,23 @@ public class SkylinePanel extends JPanelBase {
     uiComboModsMode.setSelectedIndex(0);
     FormEntry feComboModsMode = new FormEntry("skyline-mods-mode", "Special Modifications Mode", uiComboModsMode, "Special modification support. If O-glyco, uses O-Pair glycan database instead of mass offsets list. If N-glyco, uses Glycan Composition Assignment glycan database instead of mass offsets list.");
 
+    UiSpinnerInt addPrecursorsSpinner = UiUtils.spinnerInt(3, 0, 5, 1).create();
+    FormEntry feAddPrecursors = new FormEntry("add-precursors", "Add precursors", addPrecursorsSpinner, "Add precursor isotopes (number refers to the number of isotope peaks to track, starting with the monoisotope at 1) to the transition list for Skyline to trace. ONLY applicable if using library.tsv as a transition list. Set to 0 to disable");
+
+    uiComboMode.addItemListener(e -> {
+      updateEnabledStatus(feAddPrecursors.comp, uiComboMode.getSelectedIndex() == 2);
+    });
+
     mu.add(panelBasic, feRadioSkyline.comp);
     mu.add(panelBasic, feRadioSkylineDaily.comp);
-    mu.add(panelBasic, feRadioSkylineCustom.comp).split(3);
+    mu.add(panelBasic, feRadioSkylineCustom.comp);
     mu.add(panelBasic, feSkylineCustom.comp).growX().pushX();
     mu.add(panelBasic, jButtonSkylineCustom).wrap();
 
     mu.add(panelBasic, feComboMode.label(), mu.ccL());
-    mu.add(panelBasic, feComboMode.comp).wrap();
+    mu.add(panelBasic, feComboMode.comp);
+    mu.add(panelBasic, feAddPrecursors.label(), mu.ccL());
+    mu.add(panelBasic, feAddPrecursors.comp).wrap();
 
     mu.add(panelBasic, feComboModsMode.label(), mu.ccL());
     mu.add(panelBasic, feComboModsMode.comp).wrap();

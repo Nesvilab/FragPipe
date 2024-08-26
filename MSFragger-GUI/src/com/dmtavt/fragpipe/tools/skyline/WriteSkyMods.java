@@ -181,6 +181,11 @@ public class WriteSkyMods {
       if (mod.unimodDatas.isEmpty()) {
         nonUnimodMods.add(mod);
       } else {
+        // manually check that carbamidomethylation only uses the Unimod definition if it is a fixed mod (because Skyline assumes it is fixed if defined as Unimod).
+        if (Math.abs(mod.monoMass - 57.02146) < smallFloat && mod.aas.contains("C") && mod.isVariable) {
+          nonUnimodMods.add(mod);
+          continue;
+        }
         unimodMods.add(mod);
       }
     }
@@ -350,6 +355,11 @@ public class WriteSkyMods {
   }
 
   private static String cleanupSites(String sites) {
+    sites = sites.replace("N-Term Peptide", "n^");
+    sites = sites.replace("C-Term Peptide", "c^");
+    sites = sites.replace("N-Term Protein", "[^");
+    sites = sites.replace("C-Term Protein", "]^");
+
     if (sites.contains(" ")) {
       sites = sites.substring(0, sites.indexOf(" "));
     }
