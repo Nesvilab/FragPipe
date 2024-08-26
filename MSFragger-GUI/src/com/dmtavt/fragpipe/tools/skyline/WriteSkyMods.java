@@ -331,13 +331,13 @@ public class WriteSkyMods {
 
           ArrayList<String> lossElementalComps = new ArrayList<>();
           if (!losses.isEmpty()) {
-            ElementalComposition lossElementalComp = glycan.getElementalComposition();
+            ElementalComposition lossElementalComp = glycan.getElementalCompositionOfIon();
             if (!remainderComposition.composition.isEmpty()) {
               lossElementalComp.addComposition(remainderComposition, true, 1);
             }
             lossElementalComps.add(lossElementalComp.toString());
           }
-          mods.add(new Mod(glycan.name, String.join(", ", resSites), '\0', true, (float) glycan.mass, (float) glycan.mass, losses, losses, glycan.getElementalComposition().toString(), lossElementalComps, matchUnimod));
+          mods.add(new Mod(glycan.name, String.join(", ", resSites), '\0', true, (float) glycan.mass, (float) glycan.mass, losses, losses, glycan.getElementalCompositionOfIon().toString(), lossElementalComps, matchUnimod));
         }
       }
     }
