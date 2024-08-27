@@ -136,8 +136,8 @@ public class CmdPercolator extends CmdBase {
           continue;
         // Percolator
         List<String> cmdPp = new ArrayList<>();
-        final String percolator_bin = OsUtils.isUnix() ? "percolator_3_6_5/linux/percolator" :
-                OsUtils.isWindows() ? "percolator_3_6_5/windows/percolator.exe" : null;
+        final String percolator_bin = OsUtils.isUnix() ? "percolator_3_7_1/linux/percolator" :
+                OsUtils.isWindows() ? "percolator_3_7_1/windows/percolator.exe" : null;
         cmdPp.add(FragpipeLocations.checkToolsMissing(Seq.of(percolator_bin)).get(0).toString());
 
         String strippedBaseName;
