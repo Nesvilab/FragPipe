@@ -28,12 +28,7 @@ import com.google.common.collect.TreeMultimap;
 import java.io.BufferedWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -77,7 +72,7 @@ public class WriteSkyMods {
     }
   }
 
-  public WriteSkyMods(Path path, PropsFile pf, int modsMode, boolean matchUnimod) throws Exception {
+  public WriteSkyMods(Path path, PropsFile pf, int modsMode, boolean matchUnimod, boolean isSSL, HashMap<String, HashSet<String>> addedMods) throws Exception {
     List<Mod> mods = new ArrayList<>(4);
 
     String fixModStr = pf.getProperty("msfragger.table.fix-mods");
@@ -115,6 +110,12 @@ public class WriteSkyMods {
           }
         }
       }
+    }
+
+    // add any combined mods (multiple at one site) found during peptide list generation
+    for (Map.Entry<String, HashSet<String>> entry : addedMods.entrySet()) {
+      mass = Float.parseFloat(entry.getKey());
+      mods.addAll(convertMods(String.join("", entry.getValue()), true, mass, mass, new ArrayList<>(), new ArrayList<>(), false));
     }
 
     // Override offsets from MSFragger for glyco searches get correct glycan masses, neutral losses, and elemental compositions
@@ -209,10 +210,12 @@ public class WriteSkyMods {
             (mod.elementalComposition.isEmpty() ? "\" massdiff_average=\"" + mod.avgMass : "") +
             (mod.elementalComposition.isEmpty() ? "" : "\" formula=\"" + mod.elementalComposition) +
             "\">\n");
+        String alwaysStr = isSSL ? "\" inclusion=\"Always" : "";  // Add NLs always for SSL list import, otherwise use library
         for (int i = 0; i < mod.lossMonoMasses.size(); i++) {
           bw.write("            <potential_loss massdiff_monoisotopic=\"" + mod.lossMonoMasses.get(i) +
               "\" massdiff_average=\"" + mod.lossAvgMasses.get(i) +
               (mod.lossElementalComposition.isEmpty() ? "" : "\" formula=\"" + mod.lossElementalComposition.get(i)) +
+              alwaysStr +
               "\" />\n");
         }
         bw.write("          </static_modification>\n");
@@ -361,6 +364,8 @@ public class WriteSkyMods {
     sites = sites.replace("C-Term Peptide", "c^");
     sites = sites.replace("N-Term Protein", "[^");
     sites = sites.replace("C-Term Protein", "]^");
+    sites = sites.replace("N-Term", "n^");
+    sites = sites.replace("C-Term", "c^");
 
     if (sites.contains(" ")) {
       sites = sites.substring(0, sites.indexOf(" "));

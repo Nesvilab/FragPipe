@@ -21,7 +21,11 @@ import static com.dmtavt.fragpipe.cmd.ToolingUtils.BATMASS_IO_JAR;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
+import com.dmtavt.fragpipe.tools.diann.DiannPanel;
+import com.dmtavt.fragpipe.tools.ionquant.QuantPanelLabelfree;
 import com.dmtavt.fragpipe.tools.skyline.Skyline;
+import com.dmtavt.fragpipe.tools.skyline.SkylineMode;
+import com.dmtavt.fragpipe.tools.speclibgen.SpeclibPanel;
 import com.github.chhh.utils.OsUtils;
 import java.awt.Component;
 import java.io.IOException;
@@ -51,7 +55,7 @@ public class CmdSkyline extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, String skylinePath, String skylineVersion, Path jarFragpipe, int ramGb, int mode, int modsMode) {
+  public boolean configure(Component comp, String skylinePath, String skylineVersion, Path jarFragpipe, int ramGb, boolean isRunDIANN, int modsMode, boolean overridePeakBounds) {
     initPreConfig();
 
     if (skylinePath == null) {
@@ -80,10 +84,10 @@ public class CmdSkyline extends CmdBase {
     Set<String> toJoin = classpathJars.stream().map(p -> p.toAbsolutePath().normalize().toString()).collect(Collectors.toSet());
     try {
       toJoin.addAll(Files.walk(libsDir).filter(p -> p.getFileName().toString().endsWith(".jar")).
-          filter(p -> p.getFileName().toString().startsWith("maven-artifact") ||
-              p.getFileName().toString().startsWith("commons-lang3") ||
-              p.getFileName().toString().startsWith("fragpipe-")).
-          map(p -> p.toAbsolutePath().normalize().toString()).collect(Collectors.toList())
+              filter(p -> p.getFileName().toString().startsWith("maven-artifact") ||
+                      p.getFileName().toString().startsWith("commons-lang3") ||
+                      p.getFileName().toString().startsWith("fragpipe-")).
+              map(p -> p.toAbsolutePath().normalize().toString()).collect(Collectors.toList())
       );
     } catch (IOException ex) {
       ex.printStackTrace();
@@ -105,8 +109,9 @@ public class CmdSkyline extends CmdBase {
     cmd.add(skylinePath);
     cmd.add(wd.toAbsolutePath().toString());
     cmd.add(skylineVersion);
-    cmd.add(String.valueOf(mode));
+    cmd.add(String.valueOf(isRunDIANN));
     cmd.add(String.valueOf(modsMode));
+    cmd.add(String.valueOf(overridePeakBounds));
 
     ProcessBuilder pb = new ProcessBuilder(cmd);
     pb.directory(wd.toFile());
@@ -115,5 +120,6 @@ public class CmdSkyline extends CmdBase {
     isConfigured = true;
     return true;
   }
+
 }
 

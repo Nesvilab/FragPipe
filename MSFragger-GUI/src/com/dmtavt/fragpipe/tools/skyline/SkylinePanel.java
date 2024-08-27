@@ -19,7 +19,10 @@ package com.dmtavt.fragpipe.tools.skyline;
 
 import static com.github.chhh.utils.OsUtils.isWindows;
 
+import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.messages.MessageUiRevalidate;
+import com.dmtavt.fragpipe.tools.diann.DiannPanel;
+import com.dmtavt.fragpipe.tools.speclibgen.SpeclibPanel;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.*;
 import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
@@ -61,7 +64,7 @@ public class SkylinePanel extends JPanelBase {
   private UiRadio uiRadioSkylineDaily;
   private UiRadio uiRadioSkylineCustom;
   private UiText uiTextSkylineCustom;
-  private UiCombo uiComboMode;
+  private UiCheck uiCheckOverridePeakBounds;
   private UiCombo uiComboModsMode;
 
   @Override
@@ -154,20 +157,14 @@ public class SkylinePanel extends JPanelBase {
       updateEnabledStatus(jButtonSkylineCustom, uiRadioSkylineCustom.isSelected());
     });
 
-    uiComboMode = UiUtils.createUiCombo(Arrays.asList("Use speclib as input", "Use pep.xml as input", "Use library.tsv as transition list"));
-    uiComboMode.setSelectedIndex(0);
-    FormEntry feComboMode = new FormEntry("skyline-mode", "Skyline running mode", uiComboMode, "Let Skyline take FragPipe speclib as input or build its own speclib");
+    String peakBoundsTooltip = "IonQuant and DIA-NN determine peak integration boundaries for DDA and DIA quant, respectively. If this box is not checked, those bounds will be displayed in the Skyline document. Check the box to override those bounds and have Skyline calculate its own peak boundaries (note: this does NOT affect the output tables from FragPipe). If IonQuant/DIANN are not run, Skyline bounds will be used regardless of this setting.";
+    uiCheckOverridePeakBounds = UiUtils.createUiCheck("Let Skyline override peak bounds", false);
+    uiCheckOverridePeakBounds.setName("override-peak-bounds");
+    uiCheckOverridePeakBounds.setToolTipText(peakBoundsTooltip);
 
     uiComboModsMode = UiUtils.createUiCombo(Arrays.asList("Default", "O-glyco", "N-glyco"));
     uiComboModsMode.setSelectedIndex(0);
     FormEntry feComboModsMode = new FormEntry("skyline-mods-mode", "Special Modifications Mode", uiComboModsMode, "Special modification support. If O-glyco, uses O-Pair glycan database instead of mass offsets list. If N-glyco, uses Glycan Composition Assignment glycan database instead of mass offsets list.");
-
-    UiSpinnerInt addPrecursorsSpinner = UiUtils.spinnerInt(3, 0, 5, 1).create();
-    FormEntry feAddPrecursors = new FormEntry("add-precursors", "Add precursors", addPrecursorsSpinner, "Add precursor isotopes (number refers to the number of isotope peaks to track, starting with the monoisotope at 1) to the transition list for Skyline to trace. ONLY applicable if using library.tsv as a transition list. Set to 0 to disable");
-
-    uiComboMode.addItemListener(e -> {
-      updateEnabledStatus(feAddPrecursors.comp, uiComboMode.getSelectedIndex() == 2);
-    });
 
     mu.add(panelBasic, feRadioSkyline.comp);
     mu.add(panelBasic, feRadioSkylineDaily.comp);
@@ -175,10 +172,7 @@ public class SkylinePanel extends JPanelBase {
     mu.add(panelBasic, feSkylineCustom.comp).growX().pushX();
     mu.add(panelBasic, jButtonSkylineCustom).wrap();
 
-    mu.add(panelBasic, feComboMode.label(), mu.ccL());
-    mu.add(panelBasic, feComboMode.comp);
-    mu.add(panelBasic, feAddPrecursors.label(), mu.ccL());
-    mu.add(panelBasic, feAddPrecursors.comp).wrap();
+    mu.add(panelBasic, uiCheckOverridePeakBounds).wrap();
 
     mu.add(panelBasic, feComboModsMode.label(), mu.ccL());
     mu.add(panelBasic, feComboModsMode.comp).wrap();
@@ -271,8 +265,8 @@ public class SkylinePanel extends JPanelBase {
     }
   }
 
-  public int getMode() {
-    return uiComboMode.getSelectedIndex();
+  public boolean isOverridePeakBounds() {
+    return uiCheckOverridePeakBounds.isSelected();
   }
 
   public int getModsMode() {
