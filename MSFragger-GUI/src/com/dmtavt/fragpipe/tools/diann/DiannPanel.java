@@ -17,7 +17,6 @@
 
 package com.dmtavt.fragpipe.tools.diann;
 
-import static com.dmtavt.fragpipe.Fragpipe.fe;
 import static com.github.chhh.utils.SwingUtils.createClickableHtml;
 import static com.github.chhh.utils.SwingUtils.isEnabledAndChecked;
 
@@ -210,12 +209,10 @@ public class DiannPanel extends JPanelBase {
     });
 
     uiTextCmdOpts = UiUtils.uiTextBuilder().cols(20).text("").create();
-    FormEntry feCmdOpts = fe(uiTextCmdOpts, "cmd-opts")
-        .label("Cmd line opts:")
-        .tooltip("These options will be passed on to DIA-NN.\n"
-            + "This set will be merged with other options in this tab.\n"
-            + "To set --threads, please adjust the Parallelism setting in the Workflow tab.\n"
-            + "See output log (e.g. dry-run results) for the complete command.").create();
+    FormEntry feCmdOpts = new FormEntry("cmd-opts", "Cmd line opts", uiTextCmdOpts, "These options will be passed on to DIA-NN.\n"
+        + "This set will be merged with other options in this tab.\n"
+        + "To set --threads, please adjust the Parallelism setting in the Workflow tab.\n"
+        + "See output log (e.g. dry-run results) for the complete command.");
 
     mu.add(panelBasic, feQvalue.label(), mu.ccL());
     mu.add(panelBasic, feQvalue.comp).wrap();
