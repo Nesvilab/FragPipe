@@ -1391,6 +1391,7 @@ public class TabWorkflow extends JPanelWithEnablement {
       try {
         Fragpipe.propsVarSet(ThisAppProps.CONFIG_SAVE_LOCATION, f.getAbsoluteFile().getParent());
         manifestLoad(f.toPath());
+        adjustToolsBasedOnDataTypes();
       } catch (IOException e) {
         SwingUtils.showErrorDialogWithStacktrace(e, this);
       }
