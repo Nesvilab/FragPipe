@@ -53,7 +53,7 @@ public class CmdOPair  extends CmdBase {
     public static String NAME = "OPair";
     public static final String OPAIR_FOLDER = "opair";
     public static final String OPAIR_MODS_FOLDER = "Glycan_Mods";
-    public static final String DEFAULT_OXO_FILE = "OxoniumFilter.tsv";
+    public static final String DEFAULT_OXO_FILE = "oxonium_filter.txt";
 
     public CmdOPair(boolean isRun, Path workDir) {
         super(isRun, workDir);
