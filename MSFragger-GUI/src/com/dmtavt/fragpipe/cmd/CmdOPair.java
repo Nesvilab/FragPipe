@@ -200,6 +200,7 @@ public class CmdOPair  extends CmdBase {
             cmd.add("-x " + residuesPath.toAbsolutePath());
             cmd.add("-y " + modsPath.toAbsolutePath());
             cmd.add("-n " + params.getMaxNumGlycans());
+            cmd.add("-z " + params.getAllowedSites());
             cmd.add("-t " + numThreads);
             cmd.add("-i " + params.getMinIsotope());
             cmd.add("-j " + params.getMaxIsotope());
