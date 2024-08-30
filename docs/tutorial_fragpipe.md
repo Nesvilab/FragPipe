@@ -52,7 +52,7 @@ FragPipe runs on Windows and Linux operating systems. While very simple analyses
 ### Configure FragPipe
 When FragPipe launches, the first tab in the window ('Config') will be used to configure the program.
 1. Connect FragPipe to a MSFragger.jar, IonQuant.jar, and diaTracer.jar program files. If you already have the latest versions and they are in the same folder, use the 'Browse' button to select the folder. Use 'Download/Update' to fetch the latest versions if you don't have them.
-2. Optional: download and install the latest DIA-NN if you want. After installation, specify the path to `DiaNN.txt` in FragPipe. FragPipe bundles DIA-NN that should be good for most analysis.
+2. Optional: download and install the latest DIA-NN if you want. After installation, specify the path to `DiaNN.exe` in FragPipe. FragPipe bundles DIA-NN that should be good for most analysis.
 3. Optional: Python is needed to perform database splitting (necessary in complex searches/low memory situations) and spectral library generation. If you already have Python 3.8 - 3.11 plus a few additional packages installed use 'Browse' to locate your python.exe file. 'Download' will take you to install Python. See [Python installation help](https://fragpipe.nesvilab.org/docs/tutorial_setup_fragpipe.html#optional-install-update-or-use-an-already-installed-version-of-python) for details.
 
 __Note: FragPipe requires Python 3.8 - 3.11__.
