@@ -182,7 +182,7 @@ public class TabWorkflow extends JPanelWithEnablement {
   private JLabel numSelectedFilesLabel;
   private UiSpinnerInt uiSpinnerRam;
   private UiSpinnerInt uiSpinnerThreads;
-  private Map<String, PropsFile> workflows;
+  public Map<String, PropsFile> workflows;
   private UiCombo uiComboWorkflows;
   public static final String PROP_WORKFLOW_DESC = "workflow.description";
   public static final String PROP_WORKFLOW_SAVED_WITH_VER = "workflow.saved-with-ver";
