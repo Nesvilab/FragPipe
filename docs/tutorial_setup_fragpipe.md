@@ -42,9 +42,11 @@ Windows: download the installer from [here](https://www.python.org/ftp/python/3.
 
 Linux: different Linux distributions have different commands to install Python. Please figure it out by yourself. If you are not familiar with the command line interface, please switching to Windows.
 
-2)  To enable spectral library building with EasyPQP (which also works for timsTOF data), click `Install/Upgrade EasyPQP` at the bottom of the `Config` tab and wait for a few minutes. FragPipe will froze during the installation.
+2) In FragPipe -> Config -> Python, use the 'Browse' button to navigate to the installation location and select **python.exe**. When FragPipe refreshes, DB Splitting and Spectral Library Generation should now be enabled.
 
-3) In FragPipe -> Config -> Python, use the 'Browse' button to navigate to the installation location and select **python.exe**. When FragPipe refreshes, DB Splitting and Spectral Library Generation should now be enabled.
+3)  To enable spectral library building with EasyPQP (which also works for timsTOF data), click `Install/Upgrade EasyPQP` at the bottom of the `Config` tab and wait for a few minutes. FragPipe will froze during the installation.
+
+
 
 
 #### Next: see the [FragPipe usage tutorial](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html).
