@@ -231,7 +231,7 @@ To perform label-free quantification or stable isotope-based quantification (e.g
 
 The optimal choice of MBR parameters depends on the experimental design. For example, in an AP-MS experiment with three replicates of Bait protein and 3 replicates of Negative Controls, one may want to set 'MBR top runs' parameter to 2, so only runs of the same kind can be used as donor runs for MBR. As a result, MBR will be performed only between Bait IP runs, or between the Control runs, but not between the two groups. 
  
-If you want to allow transfer between all runs in the dataset, set 'MBR top runs' to a large value (larger than the number of runs in the dataset) and set 'Min MBR correlation' to 0.
+If you want to allow transfer between all runs in the dataset, set 'MBR top runs' to a large value (larger than the number of runs in the dataset) and set 'MBR min correlation' to 0.
  
 MBR is [FDR-controlled](https://www.mcponline.org/article/S1535-9476(21)00050-5/fulltext), we recommend 0.01 (i.e., 1%) ion-level FDR (default value). However, to allow more transfers (at the risk of introducing more quantification error/noise), MBR ion FDR can be relaxed, e.g. to 0.05 (5%). 
 
