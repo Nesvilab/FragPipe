@@ -185,7 +185,7 @@ Note that A.fas and B.fas should not contain decoys or contaminants. The `--cust
  <br>
 
 ### Configure MSFragger search
-In the 'MSFragger' tab, you can check that the search parameters are suitable for your analysis. You can choose to save a customized parameter file to load for future use, or save the entire workflow (from either the 'Workflow' or the 'Run' tab).
+In the 'MSFragger' tab, you can check that the search parameters are suitable for your analysis. You can choose to save a customized parameter file to load for future use, or save the entire workflow (from the 'Workflow' tab).
 
 **Note about calibration and optimization:** 'Calibration and Optimization' is set, by default, to "Mass Calibration, Parameter Optimization". It will effectively perform multiple simplified MSFragger searches with different parameters to find the optimal settings for your data. In practice, it results in 5-10% improvement in the number of identified PSMs at the expense of increased analysis time. To save time, consider changing this option to "Mass Calibration" or even "None", especially if you already know your data (e.g. from previous searches of the same or similar files) and can adjust the corresponding MSFragger parameters (fragment tolerance, number of peaks used, intensity transformation) manually, if needed.    
 
