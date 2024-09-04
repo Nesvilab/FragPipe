@@ -60,6 +60,7 @@ public class SDRFtable {
     private final String COL_mods = "comment[modification parameters]";
     private final String COL_precTol = "comment[precursor mass tolerance]";
     private final String COL_prodTol = "comment[fragment mass tolerance]";
+    private final String emptyStr = "not available";
 
     // convert our names to ontology names
     // names from https://www.ebi.ac.uk/ols4/ontologies/ms/classes/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FMS_1001045
@@ -216,7 +217,7 @@ public class SDRFtable {
         outputLines.add(String.join("\t", header));
         for (String[] row : rows) {
             List<String> temp = Arrays.asList(row);
-            Collections.replaceAll(temp, null, "");     // prevent empty values from printing "null"
+            Collections.replaceAll(temp, null, emptyStr);     // prevent empty values from printing "null"
             outputLines.add(String.join("\t", temp));
         }
         FileUtils.write(path.toFile(), String.join("\n", outputLines), StandardCharsets.UTF_8, false);
