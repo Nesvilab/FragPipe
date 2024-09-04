@@ -24,6 +24,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import static com.dmtavt.fragpipe.cmd.ToolingUtils.UNIMOD_OBO;
 import static com.dmtavt.fragpipe.cmd.ToolingUtils.getUnimodOboPath;
 
@@ -33,34 +36,36 @@ public class SDRFtable {
     private ArrayList<String> header;
     private int firstEnzymeIndex;
     private int firstModIndex;
+    private static final Pattern uniprotPattern = Pattern.compile("OS=([\\w\\s]+) (OX=|GN=|PE=|SV=)");
+    private final String guessedOrganism;
 
     // column names
-    private final String COL_source = "source name";
-    private final String COL_organism = "characteristics[organism]";
-    private final String COL_strain = "characteristics[strain/breed]";
-    private final String COL_cultivar = "characteristics[ecotype/cultivar]";
-    private final String COL_ancestry = "characteristics[ancestry category]";
-    private final String COL_age = "characteristics[age]";
-    private final String COL_stage = "characteristics[developmental stage]";
-    private final String COL_sex = "characteristics[sex]";
-    private final String COL_disease = "characteristics[disease]";
-    private final String COL_part = "characteristics[organism part]";
-    private final String COL_cellType = "characteristics[cell type]";
-    private final String COL_indvidual = "characteristics[individual]";
-    private final String COL_cellLine = "characteristics[cell line]";
-    private final String COL_bioReplicate = "characteristics[biological replicate]";
-    private final String COL_technology = "technology type";
-    private final String COL_assay = "assay name";
-    private final String COL_datafile = "comment[data file]";
-    private final String COL_replicate = "comment[technical replicate]";
-    private final String COL_fraction = "comment[fraction identifier]";
-    private final String COL_label = "comment[label]";
-    private final String COL_instrument = "comment[instrument]";
-    private final String COL_enzyme = "comment[cleavage agent details]";
-    private final String COL_mods = "comment[modification parameters]";
-    private final String COL_precTol = "comment[precursor mass tolerance]";
-    private final String COL_prodTol = "comment[fragment mass tolerance]";
-    private final String emptyStr = "not available";
+    private static final String COL_source = "source name";
+    private static final String COL_organism = "characteristics[organism]";
+    private static final String COL_strain = "characteristics[strain/breed]";
+    private static final String COL_cultivar = "characteristics[ecotype/cultivar]";
+    private static final String COL_ancestry = "characteristics[ancestry category]";
+    private static final String COL_age = "characteristics[age]";
+    private static final String COL_stage = "characteristics[developmental stage]";
+    private static final String COL_sex = "characteristics[sex]";
+    private static final String COL_disease = "characteristics[disease]";
+    private static final String COL_part = "characteristics[organism part]";
+    private static final String COL_cellType = "characteristics[cell type]";
+    private static final String COL_indvidual = "characteristics[individual]";
+    private static final String COL_cellLine = "characteristics[cell line]";
+    private static final String COL_bioReplicate = "characteristics[biological replicate]";
+    private static final String COL_technology = "technology type";
+    private static final String COL_assay = "assay name";
+    private static final String COL_datafile = "comment[data file]";
+    private static final String COL_replicate = "comment[technical replicate]";
+    private static final String COL_fraction = "comment[fraction identifier]";
+    private static final String COL_label = "comment[label]";
+    private static final String COL_instrument = "comment[instrument]";
+    private static final String COL_enzyme = "comment[cleavage agent details]";
+    private static final String COL_mods = "comment[modification parameters]";
+    private static final String COL_precTol = "comment[precursor mass tolerance]";
+    private static final String COL_prodTol = "comment[fragment mass tolerance]";
+    private static final String emptyStr = "not available";
 
     // convert our names to ontology names
     // names from https://www.ebi.ac.uk/ols4/ontologies/ms/classes/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FMS_1001045
@@ -105,9 +110,10 @@ public class SDRFtable {
         }
     }
 
-    public SDRFtable(SDRFtypes type, int numEnzymes, int numMods) {
+    public SDRFtable(SDRFtypes type, int numEnzymes, int numMods, List<String> proteinHeaders) {
         rows = new ArrayList<>();
         header = new ArrayList<>();
+        guessedOrganism = guessOrganism(proteinHeaders);
 
         // set up header for general sample characteristics
         initHeaderCharacteristics(type);
@@ -180,6 +186,7 @@ public class SDRFtable {
      */
     public void addSampleLFQ(String lcmsfileName, String replicate, ArrayList<String> enzymes, ArrayList<String> mods, String precTol, String prodTol) {
         String[] row = new String[header.size()];
+        row[header.indexOf(COL_organism)] = guessedOrganism;
         row[header.indexOf(COL_datafile)] = lcmsfileName;
         row[header.indexOf(COL_replicate)] = replicate;
         row[header.indexOf(COL_precTol)] = precTol;
@@ -196,6 +203,7 @@ public class SDRFtable {
     public void addSampleTMT(String lcmsfileName, String replicate, ArrayList<String> enzymes, ArrayList<String> mods, QuantLabel quantLabel, String precTol, String prodTol) {
         for (String label : quantLabel.getReagentNames()) {
             String[] row = new String[header.size()];
+            row[header.indexOf(COL_organism)] = guessedOrganism;
             row[header.indexOf(COL_datafile)] = lcmsfileName;
             row[header.indexOf(COL_replicate)] = replicate;
             row[header.indexOf(COL_precTol)] = precTol;
@@ -250,6 +258,31 @@ public class SDRFtable {
             return inputEnzyme;
         }
         return converted;
+    }
+
+    /**
+     * Use the protein headers from checking the fasta at the beginning of the run to try to guess the organism
+     * used in the search. If an organism can't be guessed, returns the SDRF default empty string.
+     * @param proteinHeaders list of protein header strings from the fasta
+     * @return
+     */
+    public static String guessOrganism(List<String> proteinHeaders) {
+        HashMap<String, Integer> organismCounts = new HashMap<>();
+        for (String header : proteinHeaders) {
+            Matcher m = uniprotPattern.matcher(header);
+            if (m.find()) {
+                organismCounts.put(m.group(1), organismCounts.getOrDefault(m.group(1), 0) + 1);
+            }
+        }
+        int highest = 0;
+        String highestOrganism = emptyStr;
+        for (Map.Entry<String, Integer> entry : organismCounts.entrySet()) {
+            if (entry.getValue() > highest) {
+                highestOrganism = entry.getKey();
+                highest = entry.getValue();
+            }
+        }
+        return highestOrganism;
     }
 
     /**
