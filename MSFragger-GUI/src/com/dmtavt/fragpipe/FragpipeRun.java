@@ -531,7 +531,7 @@ public class FragpipeRun {
         if (tabRun.isSaveSDRF()) {
           QuantLabel label = tmtiPanel.isRun() ? tmtiPanel.getSelectedLabel() : null;
           Path sdrfPath = wd.resolve("sdrf.tsv");
-          Bus.post(new MessageSDRFsave(sdrfPath, true, label, tabRun.console.getText()));
+          Bus.post(new MessageSDRFsave(sdrfPath, true, tabRun.getSDRFtype(), label, tabRun.console.getText()));
         }
 
         if (tabRun.isWriteSubMzml()) { // write sub workflow and manifest files for the second-pass

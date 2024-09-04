@@ -35,6 +35,22 @@ public class SDRFtable {
     private int firstModIndex;
 
     // column names
+    private final String COL_source = "source name";
+    private final String COL_organism = "characteristics[organism]";
+    private final String COL_strain = "characteristics[strain/breed]";
+    private final String COL_cultivar = "characteristics[ecotype/cultivar]";
+    private final String COL_ancestry = "characteristics[ancestry category]";
+    private final String COL_age = "characteristics[age]";
+    private final String COL_stage = "characteristics[developmental stage]";
+    private final String COL_sex = "characteristics[sex]";
+    private final String COL_disease = "characteristics[disease]";
+    private final String COL_part = "characteristics[organism part]";
+    private final String COL_cellType = "characteristics[cell type]";
+    private final String COL_indvidual = "characteristics[individual]";
+    private final String COL_cellLine = "characteristics[cell line]";
+    private final String COL_bioReplicate = "characteristics[biological replicate]";
+    private final String COL_technology = "technology type";
+    private final String COL_assay = "assay name";
     private final String COL_datafile = "comment[data file]";
     private final String COL_replicate = "comment[technical replicate]";
     private final String COL_fraction = "comment[fraction identifier]";
@@ -88,9 +104,12 @@ public class SDRFtable {
         }
     }
 
-    public SDRFtable(int numEnzymes, int numMods) {
+    public SDRFtable(SDRFtypes type, int numEnzymes, int numMods) {
         rows = new ArrayList<>();
         header = new ArrayList<>();
+
+        // set up header for general sample characteristics
+        initHeaderCharacteristics(type);
 
         // headers for lcms run/search information
         header.add(COL_datafile);
@@ -110,6 +129,49 @@ public class SDRFtable {
         for (int i=0; i < numMods; i++){
             header.add(COL_mods);
         }
+    }
+
+    /**
+     * Header setup for various types of SDRF files.
+     * @param type type of template to generate
+     */
+    private void initHeaderCharacteristics(SDRFtypes type) {
+        header.add(COL_source);
+        header.add(COL_organism);
+        switch (type) {
+            case Human:
+                header.add(COL_ancestry);
+                header.add(COL_age);
+                header.add(COL_stage);
+                header.add(COL_sex);
+                header.add(COL_indvidual);
+                break;
+            case Vertebrates:
+                header.add(COL_age);
+                header.add(COL_stage);
+                header.add(COL_sex);
+                header.add(COL_indvidual);
+                break;
+            case NonVertebrates:
+                header.add(COL_strain);
+                header.add(COL_age);
+                header.add(COL_stage);
+                header.add(COL_sex);
+                header.add(COL_indvidual);
+            case Plants:
+                header.add(COL_cultivar);
+                header.add(COL_age);
+                header.add(COL_stage);
+                header.add(COL_indvidual);
+            case CellLines:
+                header.add(COL_cellLine);
+        }
+        header.add(COL_disease);
+        header.add(COL_part);
+        header.add(COL_cellType);
+        header.add(COL_bioReplicate);
+        header.add(COL_technology);
+        header.add(COL_assay);
     }
 
     /**
@@ -160,6 +222,22 @@ public class SDRFtable {
         FileUtils.write(path.toFile(), String.join("\n", outputLines), StandardCharsets.UTF_8, false);
     }
 
+    public enum SDRFtypes {
+        Default("default"),
+        Human("human"),
+        CellLines("cell-lines"),
+        Vertebrates("vertebrates"),
+        NonVertebrates("non-vertebrates"),
+        Plants("plants");
+
+        private final String text;
+        SDRFtypes(String _text) {
+            this.text = _text;
+        }
+        public String getText() {
+            return this.text;
+        }
+    }
 
     /**
      * Map our enyzme names to the supported ontology names. If user has input something that's not one of
