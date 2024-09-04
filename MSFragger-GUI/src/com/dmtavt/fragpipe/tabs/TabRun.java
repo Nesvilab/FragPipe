@@ -337,14 +337,14 @@ public class TabRun extends JPanelWithEnablement {
       ex.printStackTrace();
     }
 
-    uiCheckSaveSDRF = new UiCheck("Save Technical SDRF", null,true);
+    uiCheckSaveSDRF = new UiCheck("Save SDRF template", null,true);
     uiCheckSaveSDRF.setName("workflow.misc.save-sdrf");
     uiCheckSaveSDRF.setToolTipText("Save a template SDRF file with technical columns (search parameters) for this FragPipe run. \n" +
         "NOTE: this is not a complete SDRF file, information about the samples needs to be added to complete it.");
 
     List<String> sdrfTypes =  Arrays.stream(SDRFtable.SDRFtypes.values()).map(Enum::name).collect(Collectors.toList());
     uiComboSDRFtype = UiUtils.createUiCombo(sdrfTypes);
-
+    FormEntry feComboSDRFtype = new FormEntry("workflow.misc.sdrf-type", "SDRF Type", uiComboSDRFtype, "SDRF template type to use");
 
     JPanel p = mu.newPanel(null, true);
     mu.add(p, btnAbout).wrap();
@@ -356,8 +356,9 @@ public class TabRun extends JPanelWithEnablement {
     mu.add(p, btnRun).split(3);
     mu.add(p, btnStop);
     mu.add(p, uiCheckDryRun);
-    mu.add(p, uiCheckSaveSDRF);
-    mu.add(p, uiComboSDRFtype);
+    mu.add(p, uiCheckSaveSDRF).split(3);
+    mu.add(p, feComboSDRFtype.label(), mu.ccR());
+    mu.add(p, feComboSDRFtype.comp);
 
     mu.add(p, btnExport).split(3);
     mu.add(p, btnReportErrors);
