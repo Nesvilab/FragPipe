@@ -18,8 +18,8 @@ lysc-p : cut(K) sense(C)
 lysn : cut(K) sense(N)
 lysn_promisc : cut(KR) sense(N)
 
-nonspecific : cut(-) sense(C)
-nocleavage : cut(-) nocuts(-) sense(C)
+nonspecific : cut(@) sense(C)
+nocleavage : cut(@) nocuts(@) sense(C)
 
 trypsin/chymotrypsin : cut(FYWLKR) nocuts(P) sense(C)
 
