@@ -17,6 +17,8 @@
 
 package com.dmtavt.fragpipe;
 
+import static com.dmtavt.fragpipe.FragpipeLocations.Holder.locations;
+
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.Notifications;
 import com.dmtavt.fragpipe.messages.MessageLoaderUpdate;
@@ -122,6 +124,12 @@ public class FragpipeLoader {
       frameLoading.setVisible(false);
       frameLoading.dispose();
     }
+
+    if (locations.getJarPath().toAbsolutePath().toString().contains(" ") || locations.getJarPath().toAbsolutePath().toString().contains("\t")) {
+      SwingUtils.showErrorDialog(null, "FragPipe cannot be run from a path that contains spaces or tabs. Please move the FragPipe folder to a path without spaces or tabs.", "Spaces in path");
+      System.exit(1);
+    }
+
     Fragpipe.displayMainWindow();
   }
 
