@@ -20,6 +20,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MBGchooseResiduesDialog extends javax.swing.JDialog  {
@@ -32,6 +33,8 @@ public class MBGchooseResiduesDialog extends javax.swing.JDialog  {
     private static final String[] TABLE_MODS_COL_NAMES = {"Enabled", "Name", "Mass"};
     public static final String TAB_PREFIX = "mbg.";
     private static final ArrayList<String> DEFAULT_ENABLED_RESIDUES;
+    private final String initialResidues;
+
     static {
         DEFAULT_ENABLED_RESIDUES = new ArrayList<>();
         DEFAULT_ENABLED_RESIDUES.add("HexNAc");
@@ -40,10 +43,11 @@ public class MBGchooseResiduesDialog extends javax.swing.JDialog  {
     }
 
 
-    public MBGchooseResiduesDialog(Frame parent, GlycoMassLoader loader) {
+    public MBGchooseResiduesDialog(Frame parent, GlycoMassLoader loader, String currentResidues) {
         super(parent);
         this.parent = parent;
         this.glycoLoader = loader;
+        this.initialResidues = currentResidues;
         init();
         postInit();
     }
@@ -158,21 +162,41 @@ public class MBGchooseResiduesDialog extends javax.swing.JDialog  {
     /**
      * Convert GlycanResidues to GlycanMods to have access to the "enabled" attribute for specifying which residues/mods
      * to use for MBG. Creates new objects so as not to mess with the residue/mod definitions.
-     * @return
+     * @return list of GlycanMods
      */
     private List<GlycanMod> getResiduesAndMods() {
         ArrayList<GlycanMod> residuesAndMods = new ArrayList<>();
+        // initialize previously entered residue(s) if present
+        ArrayList<String> initialResList = new ArrayList<>();
+        if (!initialResidues.isEmpty()) {
+            String[] residues = initialResidues.split("[\\s,;/]+");
+            initialResList.addAll(Arrays.asList(residues));
+        }
+
         for (GlycanResidue residue: glycoLoader.glycanResidueDefinitions) {
             GlycanMod newResidue = new GlycanMod(residue);
-            if (DEFAULT_ENABLED_RESIDUES.contains(newResidue.name)) {
-                newResidue.isEnabled = true;
+            if (initialResidues.isEmpty()) {
+                // use defaults if the param is not set
+                if (DEFAULT_ENABLED_RESIDUES.contains(newResidue.name)) {
+                    newResidue.isEnabled = true;
+                }
+            } else {
+                // use previous setting
+                if (initialResList.contains(newResidue.name)) {
+                    newResidue.isEnabled = true;
+                }
             }
             residuesAndMods.add(newResidue);
         }
         for (GlycanMod mod: glycoLoader.glycanModDefinitions) {
-            residuesAndMods.add(new GlycanMod(mod));
+            GlycanMod newMod = new GlycanMod(mod);
+            if (!initialResidues.isEmpty()) {
+                if (initialResList.contains(newMod.name)) {
+                    newMod.isEnabled = true;
+                }
+            }
+            residuesAndMods.add(newMod);
         }
-
         return residuesAndMods;
     }
 }
