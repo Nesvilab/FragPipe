@@ -2,16 +2,15 @@ package com.dmtavt.fragpipe.tools.mbg;
 
 public class MBGParams {
     private String residuesToAdd;
-    private String residueDB;
     private double maxGlycanQ;
     private int minPSMs;
-    private float fdr;
+    private double fdr;
 
-    public float getFdr() {
+    public double getFdr() {
         return fdr;
     }
 
-    public void setFdr(float fdr) {
+    public void setFdr(double fdr) {
         this.fdr = fdr;
     }
 
@@ -31,14 +30,6 @@ public class MBGParams {
 
     public void setResiduesToAdd(String glycanDB) {
         this.residuesToAdd = glycanDB;
-    }
-
-    public String getResidueDB() {
-        return residueDB;
-    }
-
-    public void setResidueDB(String residueDB) {
-        this.residueDB = residueDB;
     }
 
     public double getMaxGlycanQ() {

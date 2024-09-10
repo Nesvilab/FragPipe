@@ -122,11 +122,11 @@ public class CmdMBGMatch  extends CmdBase {
             cmd.add(String.valueOf(params.getFdr()));
             cmd.add("--mztol");
             // get tolerances from IonQuant params
-            cmd.add(uiCompsRepresentation.get("mztol"));
+            cmd.add(uiCompsRepresentation.get("ionquant.mztol"));
             cmd.add("--rttol");
-            cmd.add(uiCompsRepresentation.get("rttol"));
+            cmd.add(uiCompsRepresentation.get("ionquant.rttol"));
             cmd.add("--imtol");
-            cmd.add(uiCompsRepresentation.get("imtol"));
+            cmd.add(uiCompsRepresentation.get("ionquant.imtol"));
             boolean noPASEF = inputDataType != TabWorkflow.InputDataType.ImMsTimsTof;
             cmd.add("--nopasef");
             cmd.add(String.valueOf(noPASEF));

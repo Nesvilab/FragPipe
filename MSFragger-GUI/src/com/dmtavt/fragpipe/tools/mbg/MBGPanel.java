@@ -96,7 +96,7 @@ public class MBGPanel extends JPanelBase {
                 uiSpinnerMaxQ);
 
         uiSpinnerFDR = UiSpinnerDouble.builder(0.01, 0, 1.0, 0.01)
-                .setFormat(new DecimalFormat("0.00#")).setCols(4).create();
+                .setFormat(new DecimalFormat("0.000#")).setCols(4).create();
         uiSpinnerFDR.setToolTipText("FDR for matching between glycans");
         FormEntry feFDR = new FormEntry(PROP_MBG_FDR, "MBG FDR", uiSpinnerFDR);
 
@@ -177,6 +177,7 @@ public class MBGPanel extends JPanelBase {
 
     public MBGParams getMBGParams() {
         MBGParams params = new MBGParams();
+        params.setFdr(uiSpinnerFDR.getActualValue());
         params.setMaxGlycanQ(uiSpinnerMaxQ.getActualValue());
         params.setMinPSMs(uiSpinnerMinPSMs.getActualValue());
         params.setIntGlycans(uiSpinnerMinGlycans.getActualValue());
