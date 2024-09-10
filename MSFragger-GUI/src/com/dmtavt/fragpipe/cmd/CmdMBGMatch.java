@@ -42,7 +42,7 @@ import javax.swing.JOptionPane;
 public class CmdMBGMatch  extends CmdBase {
     private static final Logger log = LoggerFactory.getLogger(CmdOPair.class);
     public static String NAME = "MBG";
-    private static final String JAR_MBG_NAME = "MBG-0.2.1.jar";
+    private static final String JAR_MBG_NAME = "MBG-0.2.2.jar";
     public static final String JAR_MBG_MAIN_CLASS = "com.mbg.MBG";
     public static final String[] JAR_DEPS = {ToolingUtils.BATMASS_IO_JAR};
 
