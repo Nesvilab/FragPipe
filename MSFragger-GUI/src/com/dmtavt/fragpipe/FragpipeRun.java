@@ -43,7 +43,6 @@ import com.dmtavt.fragpipe.cmd.CmdFreequant;
 import com.dmtavt.fragpipe.cmd.CmdIonquant;
 import com.dmtavt.fragpipe.cmd.CmdIprophet;
 import com.dmtavt.fragpipe.cmd.CmdLabelquant;
-import com.dmtavt.fragpipe.cmd.CmdMBGCleanup;
 import com.dmtavt.fragpipe.cmd.CmdMBGMatch;
 import com.dmtavt.fragpipe.cmd.CmdMSBooster;
 import com.dmtavt.fragpipe.cmd.CmdMsfragger;
@@ -1684,16 +1683,6 @@ public class FragpipeRun {
       return true;
     });
 
-    // match-between-glycans cleanup (run after quant)
-    final CmdMBGCleanup cmdMBGCleanup = new CmdMBGCleanup(mbgPanel.isRun(), wd);
-    addConfig.accept(cmdMBGCleanup, () -> {
-      cmdMBGCleanup.setRun(cmdMBGCleanup.isRun() && !sharedMapGroupsToProtxml.isEmpty());
-      if (cmdMBGCleanup.isRun()) {
-        return cmdMBGCleanup.configure(parent, wd, sharedMapGroupsToProtxml, mbgPanel.getMBGParams(), isDryRun, tabMsf.isWriteCalMzml() && tabMsf.getMassCalibration() > 0, threads);
-      }
-      return true;
-    });
-
     // run Report - IonQuant (Labelfree)
     final CmdIonquant cmdIonquant = new CmdIonquant(quantPanelLabelfree.isRunIonQuant(), wd);
     if (quantPanelLabelfree.isChecked() && quantPanelLabelfree.isIonQuantChecked() && (!quantPanelLabelfree.isIonQuantEnabled() || !quantPanelLabelfree.isCheckRunEnabled()) && !tabWorkflow.hasDataType("DIA") && !tabWorkflow.hasDataType("GPF-DIA") && !tabWorkflow.hasDataType("DIA-Quant") && !tabWorkflow.hasDataType("DIA-Lib")) {
@@ -1737,35 +1726,6 @@ public class FragpipeRun {
           }
 
           return cmdIonquant.configure(parent, Paths.get(binMsfragger.getBin()), Paths.get(binIonQuant.getBin()), ramGb, quantPanelLabelfree.toMap(), tabWorkflow.getInputDataType(), sharedPepxmlFilesFromMsfragger, sharedMapGroupsToProtxml, threads, oPairPanel.isRun() ? null : modMassSet, isDryRun, true, true, true);
-        }
-        return true;
-      });
-    }
-
-    // second ionquant run for MBG
-    if (cmdIonquant.isRun() && cmdMBGCleanup.isRun()) {
-      final NoteConfigIonQuant configIonQuant;
-      try {
-        configIonQuant = Fragpipe.getSticky(NoteConfigIonQuant.class);
-      } catch (NoStickyException e) {
-        SwingUtils.showErrorDialog(parent, "Looks like IonQuant was not configured.\nIonQuant is currently required.", "No IonQuant");
-        return false;
-      }
-
-      if (!configIonQuant.isValid()) {
-        SwingUtils.showErrorDialog(parent, "Looks like IonQuant was not configured.\nIonQuant is currently required.", "IonQuant not available");
-        return false;
-      }
-
-      addConfig.accept(cmdIonquant2_forMBG,  () -> {
-        cmdIonquant2_forMBG.setRun(cmdIonquant2_forMBG.isRun() && !sharedPepxmlFilesFromMsfragger.isEmpty());
-        if (cmdIonquant2_forMBG.isRun()) {
-          OPairPanel oPairPanel = Bus.getStickyEvent(OPairPanel.class);
-          if (oPairPanel == null) {
-            throw new IllegalStateException("OPairPanel has not been posted to the bus");
-          }
-
-          return cmdIonquant2_forMBG.configure(parent, Paths.get(binMsfragger.getBin()), Paths.get(binIonQuant.getBin()), ramGb, quantPanelLabelfree.toMap(), tabWorkflow.getInputDataType(), sharedPepxmlFilesFromMsfragger, sharedMapGroupsToProtxml, threads, oPairPanel.isRun() ? null : modMassSet, isDryRun, true, true, true);
         }
         return true;
       });
@@ -2172,8 +2132,6 @@ public class FragpipeRun {
     addToGraph(graphOrder, cmdAppendFile, DIRECTION.IN, cmdPtmshepherd);
     addToGraph(graphOrder, cmdMBGMatch, DIRECTION.IN, cmdPhilosopherReport, cmdPhilosopherAbacus, cmdPtmshepherd, cmdOPair);
     addToGraph(graphOrder, cmdIonquant, DIRECTION.IN, cmdPhilosopherReport, cmdPhilosopherAbacus, cmdPtmshepherd, cmdMBGMatch);
-    addToGraph(graphOrder, cmdMBGCleanup, DIRECTION.IN, cmdIonquant, cmdPhilosopherReport, cmdPhilosopherAbacus, cmdPtmshepherd, cmdOPair);
-    addToGraph(graphOrder, cmdIonquant2_forMBG, DIRECTION.IN, cmdMBGCleanup);
     addToGraph(graphOrder, cmdTmtIonquant, DIRECTION.IN, cmdPhilosopherReport, cmdPhilosopherAbacus, cmdPtmshepherd);
     addToGraph(graphOrder, cmdTmtIonquantIsobaric, DIRECTION.IN, cmdPhilosopherReport, cmdPhilosopherAbacus, cmdPtmshepherd, cmdIonquant);
     addToGraph(graphOrder, cmdTmt, DIRECTION.IN, cmdPhilosopherReport, cmdTmtFreequant, cmdTmtLabelQuant, cmdPhilosopherAbacus, cmdPtmshepherd, cmdTmtIonquant, cmdTmtIonquantIsobaric);
