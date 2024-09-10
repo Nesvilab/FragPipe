@@ -44,7 +44,7 @@ public class CmdMBGMatch  extends CmdBase {
     public static String NAME = "MBG";
     private static final String JAR_MBG_NAME = "MBG-0.2.2.jar";
     public static final String JAR_MBG_MAIN_CLASS = "com.mbg.MBG";
-    public static final String[] JAR_DEPS = {ToolingUtils.BATMASS_IO_JAR};
+    public static final String[] JAR_DEPS = {ToolingUtils.BATMASS_IO_JAR, ToolingUtils.PTMS_JAR};
 
     public CmdMBGMatch(boolean isRun, Path workDir) {
         super(isRun, workDir);

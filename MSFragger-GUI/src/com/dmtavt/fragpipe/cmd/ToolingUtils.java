@@ -59,6 +59,7 @@ public class ToolingUtils {
   private ToolingUtils() {}
 
   public static final String BATMASS_IO_JAR = "batmass-io-1.32.5.jar";
+  public static final String PTMS_JAR = "ptmshepherd-3.0.1-rc1.jar";
   public static final String JFREECHART_JAR = "jfreechart-1.5.3.jar";
   public static final String UNIMOD_OBO = "unimod.obo";
 
