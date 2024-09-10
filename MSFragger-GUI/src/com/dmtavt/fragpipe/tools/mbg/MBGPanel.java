@@ -17,12 +17,9 @@
 
 package com.dmtavt.fragpipe.tools.mbg;
 
-import com.dmtavt.fragpipe.Fragpipe;
-import com.dmtavt.fragpipe.dialogs.GlycanResidueEditDialog;
 import com.dmtavt.fragpipe.dialogs.MBGchooseResiduesDialog;
 import com.dmtavt.fragpipe.tools.glyco.GlycoMassLoader;
 import com.github.chhh.utils.SwingUtils;
-import com.github.chhh.utils.swing.FileChooserUtils;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelBase;
 import com.github.chhh.utils.swing.MigUtils;
@@ -34,17 +31,10 @@ import com.github.chhh.utils.swing.UiUtils;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.nio.file.Path;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Stream;
 import javax.swing.*;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import umich.ms.glyco.GlycanResidue;
 
 import static com.dmtavt.fragpipe.tabs.TabGlyco.stopJTableEditing;
 
@@ -68,7 +58,7 @@ public class MBGPanel extends JPanelBase {
     private UiSpinnerInt uiSpinnerMinGlycans;
     private UiText uiTextResiduesToAdd;
 
-    private GlycoMassLoader glycoLoader;
+    private final GlycoMassLoader glycoLoader;
 
     public MBGPanel(GlycoMassLoader glycoLoader) {
         super();
@@ -161,7 +151,7 @@ public class MBGPanel extends JPanelBase {
      * @param actionEvent
      */
     private void actionBtnChooseMBGresidues(ActionEvent actionEvent) {
-        MBGchooseResiduesDialog tableDialog = new MBGchooseResiduesDialog(SwingUtils.findParentFrame(this), glycoLoader);
+        MBGchooseResiduesDialog tableDialog = new MBGchooseResiduesDialog(SwingUtils.findParentFrame(this), glycoLoader, uiTextResiduesToAdd.getNonGhostText());
 
         tableDialog.setVisible(true);
         if (tableDialog.getDialogResult() != JOptionPane.OK_OPTION) {

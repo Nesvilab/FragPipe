@@ -155,17 +155,6 @@ public class MBGchooseResiduesDialog extends javax.swing.JDialog  {
         return data;
     }
 
-    // Check if any glycan mods have been enabled in the table
-    public boolean isGlycanModsChanged() {
-        List<GlycanMod> tableMods = tableGlycoMods.model.getModifications(glycoLoader);
-        for (GlycanMod mod: tableMods) {
-            if (mod.isEnabled) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     /**
      * Convert GlycanResidues to GlycanMods to have access to the "enabled" attribute for specifying which residues/mods
      * to use for MBG. Creates new objects so as not to mess with the residue/mod definitions.
