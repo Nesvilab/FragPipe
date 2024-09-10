@@ -1668,6 +1668,8 @@ public class FragpipeRun {
       return true;
     });
 
+    final UsageTrigger binIonQuant = new UsageTrigger(NoteConfigIonQuant.path, "IonQuant");
+
     // match-between-glycans (aka glycoform inference) - first part
     MBGPanel mbgPanel = Fragpipe.getStickyStrict(MBGPanel.class);
     TabGlyco tabGlyco = Fragpipe.getStickyStrict(TabGlyco.class);
@@ -1675,7 +1677,7 @@ public class FragpipeRun {
     addConfig.accept(cmdMBGMatch, () -> {
       cmdMBGMatch.setRun(cmdMBGMatch.isRun() && !sharedMapGroupsToProtxml.isEmpty());
       if (cmdMBGMatch.isRun()) {
-        return cmdMBGMatch.configure(parent, wd, sharedMapGroupsToProtxml, mbgPanel.getMBGParams(), isDryRun, threads, tabWorkflow.getInputDataType(), quantPanelLabelfree.toMap(), tabGlyco.glycanDBloader, wd.resolve("fragpipe-files" + manifestExt));
+        return cmdMBGMatch.configure(parent, wd, sharedMapGroupsToProtxml, mbgPanel.getMBGParams(), isDryRun, threads, tabWorkflow.getInputDataType(), quantPanelLabelfree.toMap(), tabGlyco.glycanDBloader, wd.resolve("fragpipe-files" + manifestExt), Paths.get(binIonQuant.getBin()));
       }
       return true;
     });
@@ -1687,14 +1689,10 @@ public class FragpipeRun {
       return false;
     }
 
-    final CmdIonquant cmdIonquant2_forMBG = new CmdIonquant(quantPanelLabelfree.isRunIonQuant(), wd);
     if (quantPanelLabelfree.isChecked() && quantPanelLabelfree.isIonQuantChecked() && (!quantPanelLabelfree.isIonQuantEnabled() || !quantPanelLabelfree.isCheckRunEnabled()) && !tabWorkflow.hasDataType("DIA") && !tabWorkflow.hasDataType("GPF-DIA") && !tabWorkflow.hasDataType("DIA-Quant") && !tabWorkflow.hasDataType("DIA-Lib")) {
       SwingUtils.showErrorDialog(parent, "Looks like IonQuant was not configured.\nIonQuant is currently required.", "No IonQuant");
       return false;
     }
-
-    final UsageTrigger binIonQuant = new UsageTrigger(NoteConfigIonQuant.path, "IonQuant");
-
     Set<Float> modMassSet = new TreeSet<>();
     modMassSet.addAll(tabMsf.getVarModMassSet());
     modMassSet.addAll(tabMsf.getFixedModMassSet());

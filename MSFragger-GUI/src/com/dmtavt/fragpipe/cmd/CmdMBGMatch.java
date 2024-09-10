@@ -55,7 +55,7 @@ public class CmdMBGMatch  extends CmdBase {
         return NAME;
     }
 
-    public boolean configure(Component comp, Path workdir, Map<LcmsFileGroup, Path> sharedMapGroupsToProtxml, MBGParams params, boolean isDryRun, int numThreads, TabWorkflow.InputDataType inputDataType, Map<String, String> uiCompsRepresentation, GlycoMassLoader glycoLoader, Path manifestPath) {
+    public boolean configure(Component comp, Path workdir, Map<LcmsFileGroup, Path> sharedMapGroupsToProtxml, MBGParams params, boolean isDryRun, int numThreads, TabWorkflow.InputDataType inputDataType, Map<String, String> uiCompsRepresentation, GlycoMassLoader glycoLoader, Path manifestPath, Path binIonQuant) {
         initPreConfig();
 
         final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(JAR_MBG_NAME).concat(JAR_DEPS));
@@ -68,7 +68,7 @@ public class CmdMBGMatch  extends CmdBase {
             List<String> cmd = new ArrayList<>();
             cmd.add(Fragpipe.getBinJava());
             cmd.add("-cp");
-            cmd.add(constructClasspathString(classpathJars));
+            cmd.add(constructClasspathString(classpathJars, binIonQuant));
             cmd.add(JAR_MBG_MAIN_CLASS);
             cmd.add("--match");
 
