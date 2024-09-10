@@ -20,6 +20,8 @@ package com.dmtavt.fragpipe.cmd;
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
+import com.dmtavt.fragpipe.tabs.TabWorkflow;
+import com.dmtavt.fragpipe.tools.glyco.GlycoMassLoader;
 import com.dmtavt.fragpipe.tools.mbg.MBGParams;
 
 import java.awt.Component;
@@ -32,6 +34,8 @@ import java.util.Map;
 import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import umich.ms.glyco.GlycanResidue;
+
 import javax.swing.JOptionPane;
 
 
@@ -51,7 +55,7 @@ public class CmdMBGMatch  extends CmdBase {
         return NAME;
     }
 
-    public boolean configure(Component comp, Path workdir, Map<LcmsFileGroup, Path> sharedMapGroupsToProtxml, MBGParams params, boolean isDryRun, boolean hasCalibratedMzml, int numThreads) {
+    public boolean configure(Component comp, Path workdir, Map<LcmsFileGroup, Path> sharedMapGroupsToProtxml, MBGParams params, boolean isDryRun, int numThreads, TabWorkflow.InputDataType inputDataType, Map<String, String> uiCompsRepresentation, GlycoMassLoader glycoLoader) {
         initPreConfig();
 
         final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(JAR_MBG_NAME).concat(JAR_DEPS));
@@ -72,9 +76,19 @@ public class CmdMBGMatch  extends CmdBase {
             cmd.add("--psm");
             cmd.add(psmPath.toString());
 
-            if (params.getGlycanDB().length() > 0) {
-                cmd.add("--glycandb");
-                cmd.add(params.getGlycanDB());
+            if (!params.getResiduesToAdd().isEmpty()) {
+                if (!verifyResidues(params.getResiduesToAdd(), glycoLoader, comp)) {
+                    return false;
+                }
+                cmd.add("--toaddresiduals");
+                cmd.add(params.getResiduesToAdd());
+            } else {
+                if (Fragpipe.headless) {
+                    log.error("Error: no glycan residues or mods specified for MBG. Please set residue(s) to match and try again.");
+                } else {
+                    JOptionPane.showMessageDialog(comp, "Error: no glycan residues or mods specified for MBG. Please set residue(s) to match and try again.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+                return false;
             }
             Path fragpipeResiduesFile = FragpipeLocations.get().getDirTools().resolve("Glycan_Databases").resolve("glycan_residues.txt");
             if (!Files.exists(fragpipeResiduesFile)) {
@@ -85,14 +99,39 @@ public class CmdMBGMatch  extends CmdBase {
                 }
                 return false;
             }
+            Path fragpipeModsFile = FragpipeLocations.get().getDirTools().resolve("Glycan_Databases").resolve("glycan_mods.txt");
+            if (!Files.exists(fragpipeModsFile)) {
+                if (Fragpipe.headless) {
+                    log.error(String.format("Error: internal FragPipe glycan mods text file at %s not found! Please check your FragPipe configuration.", fragpipeModsFile));
+                } else {
+                    JOptionPane.showMessageDialog(comp, String.format("Error: internal FragPipe glycan mods text file at %s not found! Please check your FragPipe configuration.", fragpipeModsFile), "Error", JOptionPane.ERROR_MESSAGE);
+                }
+                return false;
+            }
             cmd.add("--residuedb");
             cmd.add(fragpipeResiduesFile.toString());
+            cmd.add("--glycanmoddb");
+            cmd.add(fragpipeModsFile.toString());
             cmd.add("--maxq");
             cmd.add(String.valueOf(params.getMaxGlycanQ()));
             cmd.add("--minpsms");
             cmd.add(String.valueOf(params.getMinPSMs()));
             cmd.add("--minglycans");
             cmd.add(String.valueOf(params.getMinGlycans()));
+            cmd.add("--fdr");
+            cmd.add(String.valueOf(params.getFdr()));
+            cmd.add("--mztol");
+            // get tolerances from IonQuant params
+            cmd.add(uiCompsRepresentation.get("mztol"));
+            cmd.add("--rttol");
+            cmd.add(uiCompsRepresentation.get("rttol"));
+            cmd.add("--imtol");
+            cmd.add(uiCompsRepresentation.get("imtol"));
+            boolean noPASEF = inputDataType != TabWorkflow.InputDataType.ImMsTimsTof;
+            cmd.add("--nopasef");
+            cmd.add(String.valueOf(noPASEF));
+            cmd.add("--numthreads");
+            cmd.add(String.valueOf(numThreads));
 
             ProcessBuilder pb = new ProcessBuilder(cmd);
             pb.directory(wd.toFile());
@@ -101,5 +140,42 @@ public class CmdMBGMatch  extends CmdBase {
         }
         isConfigured = true;
         return true;
+    }
+
+    /**
+     * Confirm that all provided strings are valid residues or mods
+     */
+
+    private boolean verifyResidues(String residuesToAdd, GlycoMassLoader glycoLoader, Component comp) {
+        String[] splits = residuesToAdd.split("[\\s,;/]+");
+        for (String s : splits) {
+            if (!glycoLoader.glycanResidues.containsKey(s)) {
+                if (!glycoLoader.glycanMods.containsKey(s)) {
+                    // check alternate names for residues and mods
+                    if (!canFindAltName(s, glycoLoader.glycanResidueDefinitions)) {
+                        if (!canFindAltName(s, glycoLoader.glycanModDefinitions)) {
+                            // could not find a match for this name anywhere
+                            if (Fragpipe.headless) {
+                                log.error(String.format("Error: no glycan residue or mod could be matched to input %s. MBG cannot be run.", s));
+                            } else {
+                                JOptionPane.showMessageDialog(comp, String.format("Error: no glycan residue or mod could be matched to input %s. MBG cannot be run.", s), "Error", JOptionPane.ERROR_MESSAGE);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    private boolean canFindAltName(String name, List<? extends GlycanResidue> residues) {
+        for (GlycanResidue residue: residues) {
+            for (String altname : residue.alternateNames) {
+                if (altname.equals(name)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

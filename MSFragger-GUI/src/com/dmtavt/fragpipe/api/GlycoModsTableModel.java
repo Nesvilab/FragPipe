@@ -35,7 +35,7 @@ public class GlycoModsTableModel extends DefaultTableModel {
     private static final long serialVersionUID = 1L;
     private Class<?>[] classes;
     private String[] colNames;
-    private boolean [] canEdit;
+    private boolean[] canEdit;
 
     private static final int COL_ENABLED = 0;
     private static final int COL_NAME = 1;
@@ -45,13 +45,12 @@ public class GlycoModsTableModel extends DefaultTableModel {
     private static final int COL_MAX_OCCURS = 5;
 
     /**
-     *
-     * @param colNames  Names of columns.
+     * @param colNames Names of columns.
      * @param classes  Types of columns.
      * @param canEdit  Which columns are editable.
-     * @param data  Can be null.
+     * @param data     Can be null.
      */
-    public GlycoModsTableModel(String[] colNames, Class<?> [] classes, boolean [] canEdit, Object[][] data) {
+    public GlycoModsTableModel(String[] colNames, Class<?>[] classes, boolean[] canEdit, Object[][] data) {
         super(data, colNames);
         this.colNames = colNames;
         this.canEdit = canEdit;
@@ -59,11 +58,11 @@ public class GlycoModsTableModel extends DefaultTableModel {
     }
 
     public Class<?> getColumnClass(int columnIndex) {
-        return classes [columnIndex];
+        return classes[columnIndex];
     }
 
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return canEdit [columnIndex];
+        return canEdit[columnIndex];
     }
 
     public List<GlycanMod> getModifications(GlycoMassLoader glycoLoader) {
@@ -107,5 +106,15 @@ public class GlycoModsTableModel extends DefaultTableModel {
             }
         }
         return list;
+    }
+
+    public String getMBGresidues() {
+        ArrayList<String> residues = new ArrayList<>();
+        for (Vector<?> row : dataVector) {
+            if ((Boolean) row.get(COL_ENABLED)) {
+                residues.add((String) row.get(COL_NAME));
+            }
+        }
+        return StringUtils.join(residues, ",");
     }
 }

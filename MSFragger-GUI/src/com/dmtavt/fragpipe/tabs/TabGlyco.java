@@ -82,7 +82,7 @@ public class TabGlyco extends JPanelWithEnablement {
         panelLoadGlycans = createPanelLoadGlycans();
         panelGlycanAssign = new PTMSGlycanAssignPanel();
         panelOPair = new OPairPanel();
-        panelMBG = new MBGPanel();
+        panelMBG = new MBGPanel(glycanDBloader);
 
         mu.add(this, panelLoadGlycans).spanX().growX().wrap();
         mu.add(this, panelGlycanAssign).spanX().growX().wrap();
@@ -125,7 +125,7 @@ public class TabGlyco extends JPanelWithEnablement {
                 "For details on how to edit these files, please see the glyco tutorial pages at fragpipe.nesvilab.org.");
 
         mu.add(p, jLabelLoadGlycanDB).split();
-        mu.add(p, uiComboLoadBuiltinGlycans).split();
+        mu.add(p, uiComboLoadBuiltinGlycans).split().wrap();
         mu.add(p, textLoadGlycans).spanX().growX().wrap();
         mu.add(p, btnEditGlycanResiduesTable).split();
         mu.add(p, btnEditGlycanModsTable).split();

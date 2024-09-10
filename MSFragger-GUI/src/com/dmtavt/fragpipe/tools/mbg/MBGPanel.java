@@ -18,6 +18,9 @@
 package com.dmtavt.fragpipe.tools.mbg;
 
 import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.dialogs.GlycanResidueEditDialog;
+import com.dmtavt.fragpipe.dialogs.MBGchooseResiduesDialog;
+import com.dmtavt.fragpipe.tools.glyco.GlycoMassLoader;
 import com.github.chhh.utils.SwingUtils;
 import com.github.chhh.utils.swing.FileChooserUtils;
 import com.github.chhh.utils.swing.FormEntry;
@@ -28,19 +31,22 @@ import com.github.chhh.utils.swing.UiSpinnerDouble;
 import com.github.chhh.utils.swing.UiSpinnerInt;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
-import java.awt.Component;
-import java.awt.ItemSelectable;
+
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import umich.ms.glyco.GlycanResidue;
+
+import static com.dmtavt.fragpipe.tabs.TabGlyco.stopJTableEditing;
 
 public class MBGPanel extends JPanelBase {
     private static final Logger log = LoggerFactory.getLogger(com.dmtavt.fragpipe.tools.opair.OPairPanel.class);
@@ -53,15 +59,20 @@ public class MBGPanel extends JPanelBase {
     private static final String PROP_minPSMs = "min_psms";
     private static final String PROP_minGlycans = "min_glycans";
     private static final String PROP_maxGlycanQ = "max_glycan_q";
-    private static final String PROP_glycanDB = "glycan_db";
+    private static final String PROP_residues_to_add = "residues_to_add";
+    private static final String PROP_MBG_FDR = "fdr";
 
     private UiSpinnerDouble uiSpinnerMaxQ;
+    private UiSpinnerDouble uiSpinnerFDR;
     private UiSpinnerInt uiSpinnerMinPSMs;
     private UiSpinnerInt uiSpinnerMinGlycans;
-    private UiText uiTextGlycanDBFile;
+    private UiText uiTextResiduesToAdd;
 
-    public MBGPanel() {
+    private GlycoMassLoader glycoLoader;
+
+    public MBGPanel(GlycoMassLoader glycoLoader) {
         super();
+        this.glycoLoader = glycoLoader;
     }
 
     @Override
@@ -94,6 +105,11 @@ public class MBGPanel extends JPanelBase {
         FormEntry feMaxQ = new FormEntry(PROP_maxGlycanQ, "Max Glycan q-value",
                 uiSpinnerMaxQ);
 
+        uiSpinnerFDR = UiSpinnerDouble.builder(0.01, 0, 1.0, 0.01)
+                .setFormat(new DecimalFormat("0.00#")).setCols(4).create();
+        uiSpinnerFDR.setToolTipText("FDR for matching between glycans");
+        FormEntry feFDR = new FormEntry(PROP_MBG_FDR, "MBG FDR", uiSpinnerFDR);
+
         uiSpinnerMinPSMs = new UiSpinnerInt(5, 1, 10000, 1);
         uiSpinnerMinPSMs.setToolTipText("Minimum number of glycoPSMs for a given glycosite to perform glycan inference at that site");
         FormEntry feMinPSMs = new FormEntry(PROP_minPSMs, "Min PSMs", uiSpinnerMinPSMs);
@@ -102,35 +118,27 @@ public class MBGPanel extends JPanelBase {
         uiSpinnerMinGlycans.setToolTipText("Minimum number of glycans observed at a given glycosite to perform glycan inference at that site");
         FormEntry feMinGlycans = new FormEntry(PROP_minGlycans, "Min Glycans", uiSpinnerMinGlycans);
 
-        String tooltipGlycanDBFile = "Glycan database file (.txt). Will use an internal default glycan list if not provided.";
-        uiTextGlycanDBFile = UiUtils.uiTextBuilder().cols(85).create();
-        List<FileFilter> glycFilters = new ArrayList<>();
-        FileFilter filter = new FileNameExtensionFilter("Glycan Database file (txt)", "txt");
-        glycFilters.add(filter);
-        FormEntry feGlycanDBFile = mu.feb(PROP_glycanDB, uiTextGlycanDBFile)
-                .label("Glycan Database").tooltip(tooltipGlycanDBFile).create();
-        JButton btnBrosweGlycanDBFile = feGlycanDBFile.browseButton("Browse", tooltipGlycanDBFile,
-                () -> FileChooserUtils.builder("Select custom glycan database file")
-                        .approveButton("Select").mode(FileChooserUtils.FcMode.FILES_ONLY).acceptAll(false).multi(false).filters(glycFilters)
-                        .paths(Stream.of(Fragpipe.propsVarGet(PROP_glycanDB))).create(),
-                paths -> {
-                    if (paths != null && !paths.isEmpty()) {
-                        String path = paths.get(0).toString();
-                        Fragpipe.propsVarSet(PROP_glycanDB, path);
-                        uiTextGlycanDBFile.setText(path);
-                    }
-                });
+        uiTextResiduesToAdd = UiUtils.uiTextBuilder().create();
+        uiTextResiduesToAdd.setPreferredSize(new Dimension(200, 25));
+        FormEntry feResiduesToAdd = mu.feb(PROP_residues_to_add, uiTextResiduesToAdd)
+                .label("Residues to Add:").tooltip("Choose which glycan residues/mods are considered for MBG matching").create();
 
-        mu.add(pContent, feMaxQ.label(), mu.ccR());
-        mu.add(pContent, feMaxQ.comp);
+        mu.add(pContent, feMaxQ.label(), mu.ccL()).split(8);
+        mu.add(pContent, feMaxQ.comp).split();
         mu.add(pContent, feMinPSMs.label(), mu.ccR());
         mu.add(pContent, feMinPSMs.comp);
         mu.add(pContent, feMinGlycans.label(), mu.ccR());
-        mu.add(pContent, feMinGlycans.comp).wrap();
+        mu.add(pContent, feMinGlycans.comp);
+        mu.add(pContent, feFDR.label(), mu.ccR());
+        mu.add(pContent, feFDR.comp).wrap();
 
-        mu.add(pContent, feGlycanDBFile.label()).split().spanX();
-        mu.add(pContent, btnBrosweGlycanDBFile);
-        mu.add(pContent, feGlycanDBFile.comp).wrap();
+        JButton btnChooseMBGresidues = new JButton("Pick Residues");
+        btnChooseMBGresidues.addActionListener(this::actionBtnChooseMBGresidues);
+        btnChooseMBGresidues.setToolTipText("Select glycan residues and/or mods from the reference tables to use.");
+
+        mu.add(pContent, btnChooseMBGresidues).split(3);
+        mu.add(pContent, feResiduesToAdd.label(), mu.ccR());
+        mu.add(pContent, feResiduesToAdd.comp).wrap();
 
         mu.add(this, pTop).growX().wrap();
         mu.add(this, pContent).growX().wrap();
@@ -142,10 +150,28 @@ public class MBGPanel extends JPanelBase {
 
         checkRun = new UiCheck("Run Glycoform Inference", null, false);
         checkRun.setName("run-mbg");
-        JLabel info = new JLabel("<html>MS1 glycoform inference.");
+        JLabel info = new JLabel("<html>MBG: Glycoform inference.");
 
         mu.add(p, checkRun).split();
         return p;
+    }
+
+    /**
+     * Open the table editor to modify the glycan residue definitions file
+     * @param actionEvent
+     */
+    private void actionBtnChooseMBGresidues(ActionEvent actionEvent) {
+        MBGchooseResiduesDialog tableDialog = new MBGchooseResiduesDialog(SwingUtils.findParentFrame(this), glycoLoader);
+
+        tableDialog.setVisible(true);
+        if (tableDialog.getDialogResult() != JOptionPane.OK_OPTION) {
+            return;
+        }
+
+        // get new data
+        stopJTableEditing(tableDialog.tableGlycoMods);
+        String enabledResidues = tableDialog.tableGlycoMods.model.getMBGresidues();
+        uiTextResiduesToAdd.setText(enabledResidues);
     }
 
     public boolean isRun() {
@@ -164,11 +190,8 @@ public class MBGPanel extends JPanelBase {
         params.setMaxGlycanQ(uiSpinnerMaxQ.getActualValue());
         params.setMinPSMs(uiSpinnerMinPSMs.getActualValue());
         params.setIntGlycans(uiSpinnerMinGlycans.getActualValue());
-        params.setGlycanDB(uiTextGlycanDBFile.getNonGhostText());
+        params.setResiduesToAdd(uiTextResiduesToAdd.getNonGhostText());
         return params;
     }
 
-    public void setGlycanDatabase(String path) {
-        uiTextGlycanDBFile.setText(path);
-    }
 }
