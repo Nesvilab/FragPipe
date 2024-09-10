@@ -55,7 +55,7 @@ public class CmdMBGMatch  extends CmdBase {
         return NAME;
     }
 
-    public boolean configure(Component comp, Path workdir, Map<LcmsFileGroup, Path> sharedMapGroupsToProtxml, MBGParams params, boolean isDryRun, int numThreads, TabWorkflow.InputDataType inputDataType, Map<String, String> uiCompsRepresentation, GlycoMassLoader glycoLoader) {
+    public boolean configure(Component comp, Path workdir, Map<LcmsFileGroup, Path> sharedMapGroupsToProtxml, MBGParams params, boolean isDryRun, int numThreads, TabWorkflow.InputDataType inputDataType, Map<String, String> uiCompsRepresentation, GlycoMassLoader glycoLoader, Path manifestPath) {
         initPreConfig();
 
         final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(JAR_MBG_NAME).concat(JAR_DEPS));
@@ -75,6 +75,8 @@ public class CmdMBGMatch  extends CmdBase {
             Path psmPath = group.outputDir(workdir).resolve("psm.tsv");     // psm file path relative to group output dir
             cmd.add("--psm");
             cmd.add(psmPath.toString());
+            cmd.add("--manifest");
+            cmd.add(manifestPath.toAbsolutePath().toString());
 
             if (!params.getResiduesToAdd().isEmpty()) {
                 if (!verifyResidues(params.getResiduesToAdd(), glycoLoader, comp)) {
