@@ -37,7 +37,7 @@ import java.util.*;
 import java.util.List;
 
 public class CmdFpopQuant extends CmdBase{
-    private static final Logger log = LoggerFactory.getLogger(CmdFreequant.class);
+    private static final Logger log = LoggerFactory.getLogger(CmdFpopQuant.class);
     public static final String NAME = "FPOP";
     private static final String SCRIPT_FPOP_QUANT = "fpop/FragPipe_FPOP_Analysis.py";
 

@@ -34,42 +34,7 @@ import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.IConfig;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
-import com.dmtavt.fragpipe.cmd.CmdAppendFile;
-import com.dmtavt.fragpipe.cmd.CmdBase;
-import com.dmtavt.fragpipe.cmd.CmdCheckCentroid;
-import com.dmtavt.fragpipe.cmd.CmdCrystalc;
-import com.dmtavt.fragpipe.cmd.CmdDiaTracer;
-import com.dmtavt.fragpipe.cmd.CmdDiann;
-import com.dmtavt.fragpipe.cmd.CmdFpopQuant;
-import com.dmtavt.fragpipe.cmd.CmdFreequant;
-import com.dmtavt.fragpipe.cmd.CmdIonquant;
-import com.dmtavt.fragpipe.cmd.CmdIprophet;
-import com.dmtavt.fragpipe.cmd.CmdLabelquant;
-import com.dmtavt.fragpipe.cmd.CmdMSBooster;
-import com.dmtavt.fragpipe.cmd.CmdMsfragger;
-import com.dmtavt.fragpipe.cmd.CmdOPair;
-import com.dmtavt.fragpipe.cmd.CmdPairScans;
-import com.dmtavt.fragpipe.cmd.CmdPeptideProphet;
-import com.dmtavt.fragpipe.cmd.CmdPercolator;
-import com.dmtavt.fragpipe.cmd.CmdPhilosopherAbacus;
-import com.dmtavt.fragpipe.cmd.CmdPhilosopherDbAnnotate;
-import com.dmtavt.fragpipe.cmd.CmdPhilosopherFilter;
-import com.dmtavt.fragpipe.cmd.CmdPhilosopherReport;
-import com.dmtavt.fragpipe.cmd.CmdPhilosopherWorkspaceClean;
-import com.dmtavt.fragpipe.cmd.CmdPhilosopherWorkspaceCleanInit;
-import com.dmtavt.fragpipe.cmd.CmdProteinProphet;
-import com.dmtavt.fragpipe.cmd.CmdPtmProphet;
-import com.dmtavt.fragpipe.cmd.CmdPtmshepherd;
-import com.dmtavt.fragpipe.cmd.CmdSkyline;
-import com.dmtavt.fragpipe.cmd.CmdSpecLibGen;
-import com.dmtavt.fragpipe.cmd.CmdStart;
-import com.dmtavt.fragpipe.cmd.CmdTmtIntegrator;
-import com.dmtavt.fragpipe.cmd.CmdUmpireSe;
-import com.dmtavt.fragpipe.cmd.CmdWriteSubMzml;
-import com.dmtavt.fragpipe.cmd.PbiBuilder;
-import com.dmtavt.fragpipe.cmd.ProcessBuilderInfo;
-import com.dmtavt.fragpipe.cmd.ProcessBuildersDescriptor;
-import com.dmtavt.fragpipe.cmd.ToolingUtils;
+import com.dmtavt.fragpipe.cmd.*;
 import com.dmtavt.fragpipe.exceptions.NoStickyException;
 import com.dmtavt.fragpipe.internal.DefEdge;
 import com.dmtavt.fragpipe.messages.MessageClearConsole;
@@ -2058,9 +2023,19 @@ public class FragpipeRun {
       return true;
     });
 
+    // run FPOP coADAPTr converter
+    final DiannPanel diannPanel = Fragpipe.getStickyStrict(DiannPanel.class);
+    final TabDownstream tabDownstream = Fragpipe.getStickyStrict(TabDownstream.class);
+    CmdFPOPcoadaptr cmdFPOPcoadaptr = new CmdFPOPcoadaptr(tabDownstream.pFpopCoadaptr.isRun(), wd);
+    addConfig.accept(cmdFPOPcoadaptr, () -> {
+      cmdFPOPcoadaptr.setRun(cmdFPOPcoadaptr.isRun() && !sharedMapGroupsToProtxml.isEmpty());
+      if (cmdFPOPcoadaptr.isRun()) {
+        return cmdFPOPcoadaptr.configure(diannPanel.isRun(), jarPath);
+      }
+      return true;
+    });
 
     // run FPOP script
-    final TabDownstream tabDownstream = Fragpipe.getStickyStrict(TabDownstream.class);
     final CmdFpopQuant cmdFpopQuant = new CmdFpopQuant(tabDownstream.pFpop.isRunFpopQuant(), wd);
     final CmdTmtIntegrator cmdTmtFpop = new CmdTmtIntegrator(
         tmtiPanel.isRun() &&
@@ -2160,7 +2135,6 @@ public class FragpipeRun {
         moveSpeclibForSkyline = false;
     }
 
-    final DiannPanel diannPanel = Fragpipe.getStickyStrict(DiannPanel.class);
     final CmdDiann cmdDiann = new CmdDiann(
         diannPanel.isRun() && (tabWorkflow.hasDataType("DIA") || tabWorkflow.hasDataType("DIA-Quant")), wd);
     addConfig.accept(cmdDiann,  () -> {
@@ -2287,6 +2261,7 @@ public class FragpipeRun {
     addToGraph(graphOrder, cmdFpopQuant, DIRECTION.IN, cmdIonquant, cmdTmt, cmdTmtFpop);
     addToGraph(graphOrder, cmdSpecLibGen, DIRECTION.IN, cmdPhilosopherReport, cmdOPair);
     addToGraph(graphOrder, cmdDiann, DIRECTION.IN, cmdSpecLibGen);
+    addToGraph(graphOrder, cmdFPOPcoadaptr, DIRECTION.IN, cmdPhilosopherReport, cmdIonquant, cmdTmt, cmdDiann);
     addToGraph(graphOrder, cmdSkyline, DIRECTION.IN, cmdDiann, cmdSpecLibGen, cmdPhilosopherReport);
     addToGraph(graphOrder, cmdWriteSubMzml, DIRECTION.IN, cmdPhilosopherReport);
 

@@ -32,14 +32,14 @@ public class FpopQuantPanel extends JPanelBase {
     private UiText uiTextControl;
     private UiText uiTextFPOP;
     private UiSpinnerInt uiSpinnerRegionSize;
-    private static final String PREFIX = "fpop.";
+    private static final String PREFIX = "fpop.fragpipe.";
     private JPanel pTop;
     private JPanel pContent;
 
     @Override
     protected void init() {
         this.setLayout(new BorderLayout());
-        this.setBorder(new TitledBorder("FPOP Quant"));
+        this.setBorder(new TitledBorder("FPOP FragPipe Quant"));
 
         pTop = createPanelTop();
         pContent = createPanelFPOP();
@@ -88,9 +88,9 @@ public class FpopQuantPanel extends JPanelBase {
     private JPanel createPanelTop() {
         JPanel p = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
 
-        checkFPOP = UiUtils.createUiCheck("Run FPOP-specific Quant", false);
+        checkFPOP = UiUtils.createUiCheck("Run FPOP-specific Quantitation", false);
         checkFPOP.setName("fpop.run-fpop");
-        checkFPOP.setToolTipText("Run downstream processing for FPOP analyses. Computes % oxidation for each peptide and site based on either LFQ or TMT quant tables.");
+        checkFPOP.setToolTipText("Run downstream processing for FPOP analyses using the FragPipe method. Computes % oxidation for each peptide and site based on either LFQ or TMT quant tables.");
 
         mu.add(p, checkFPOP).wrap();
         return p;
