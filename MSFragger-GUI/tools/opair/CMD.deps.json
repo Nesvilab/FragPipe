@@ -375,7 +375,10 @@
           "mzLib": "1.0.537"
         },
         "runtime": {
-          "PTMLocalization.dll": {}
+          "PTMLocalization.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       }
     }
