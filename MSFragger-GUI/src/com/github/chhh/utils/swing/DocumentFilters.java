@@ -38,27 +38,27 @@ public class DocumentFilters {
 
   private DocumentFilters() {}
 
-  /**
-   * Filter that removes all substrings matching the provided regular expression.
-   * @param filteredCharsRegex Regular expression for filtering out characters.
-   */
-  public static PlainDocument getFilter(final String filteredCharsRegex) {
+  public static PlainDocument getFilter(final String filteredCharsRegex, final String replacement) {
     PlainDocument doc = new PlainDocument();
     final Pattern regex = Pattern.compile(filteredCharsRegex);
     doc.setDocumentFilter(new DocumentFilter() {
       @Override
       public void insertString(DocumentFilter.FilterBypass fb, int off, String str, AttributeSet attr)
           throws BadLocationException {
-        fb.insertString(off, regex.matcher(str).replaceAll(""), attr);
+        fb.insertString(off, regex.matcher(str).replaceAll(replacement), attr);
       }
 
       @Override
       public void replace(DocumentFilter.FilterBypass fb, int off, int len, String str, AttributeSet attr)
           throws BadLocationException {
-        fb.replace(off, len, regex.matcher(str).replaceAll(""), attr);
+        fb.replace(off, len, regex.matcher(str).replaceAll(replacement), attr);
       }
     });
     return doc;
+  }
+
+  public static PlainDocument getFilter(final String filteredCharsRegex) {
+    return getFilter(filteredCharsRegex, "");
   }
 
   public static PlainDocument getDigitsOnlyFilter() {

@@ -100,9 +100,13 @@ public class UiUtils {
       return this;
     }
 
-    public UiTextBuilder filter(String filterRegex) {
-      uiText.setDocument(DocumentFilters.getFilter(filterRegex));
+    public UiTextBuilder filter(String filterRegex, String replacement) {
+      uiText.setDocument(DocumentFilters.getFilter(filterRegex, replacement));
       return this;
+    }
+
+    public UiTextBuilder filter(String filterRegex) {
+      return filter(filterRegex, "");
     }
 
     public UiTextBuilder text(String text) {
