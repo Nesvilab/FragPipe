@@ -55,7 +55,7 @@ public class CmdMBGMatch  extends CmdBase {
         return NAME;
     }
 
-    public boolean configure(Component comp, Path workdir, Map<LcmsFileGroup, Path> sharedMapGroupsToProtxml, MBGParams params, boolean isDryRun, int numThreads, TabWorkflow.InputDataType inputDataType, Map<String, String> uiCompsRepresentation, GlycoMassLoader glycoLoader, Path manifestPath, Path binIonQuant) {
+    public boolean configure(Component comp, Path workdir, Map<LcmsFileGroup, Path> sharedMapGroupsToProtxml, MBGParams params, boolean isDryRun, int numThreads, TabWorkflow.InputDataType inputDataType, Map<String, String> uiCompsRepresentation, GlycoMassLoader glycoLoader, Path manifestPath, Path binIonQuant, boolean isRunTmt) {
         initPreConfig();
 
         final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(JAR_MBG_NAME).concat(JAR_DEPS));
@@ -134,6 +134,12 @@ public class CmdMBGMatch  extends CmdBase {
             cmd.add(String.valueOf(noPASEF));
             cmd.add("--numthreads");
             cmd.add(String.valueOf(numThreads));
+            cmd.add("--runtmt");
+            cmd.add(String.valueOf(isRunTmt));
+            if (params.getExpandDB() > 0) {
+                cmd.add("--expanddb");
+                cmd.add(String.valueOf(params.getExpandDB()));
+            }
 
             ProcessBuilder pb = new ProcessBuilder(cmd);
             pb.directory(wd.toFile());

@@ -6,6 +6,16 @@ public class MBGParams {
     private int minPSMs;
     private double fdr;
 
+    public int getExpandDB() {
+        return expandDB;
+    }
+
+    public void setExpandDB(int expandDB) {
+        this.expandDB = expandDB;
+    }
+
+    private int expandDB;
+
     public double getFdr() {
         return fdr;
     }

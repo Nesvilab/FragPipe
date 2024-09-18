@@ -51,11 +51,13 @@ public class MBGPanel extends JPanelBase {
     private static final String PROP_maxGlycanQ = "max_glycan_q";
     private static final String PROP_residues_to_add = "residues_to_add";
     private static final String PROP_MBG_FDR = "fdr";
+    private static final String PROP_MBG_expand_DB = "expand_db";
 
     private UiSpinnerDouble uiSpinnerMaxQ;
     private UiSpinnerDouble uiSpinnerFDR;
     private UiSpinnerInt uiSpinnerMinPSMs;
     private UiSpinnerInt uiSpinnerMinGlycans;
+    private UiSpinnerInt uiSpinnerIntExpandDB;
     private UiText uiTextResiduesToAdd;
 
     private final GlycoMassLoader glycoLoader;
@@ -108,19 +110,25 @@ public class MBGPanel extends JPanelBase {
         uiSpinnerMinGlycans.setToolTipText("Minimum number of glycans observed at a given glycosite to perform glycan inference at that site");
         FormEntry feMinGlycans = new FormEntry(PROP_minGlycans, "Min Glycans", uiSpinnerMinGlycans);
 
+        uiSpinnerIntExpandDB = new UiSpinnerInt(0, 0, 10, 1);
+        uiSpinnerIntExpandDB.setToolTipText("Allow inference of glycoforms not in the database by adding up to this many residues. Successive residues can only be added if intermediates are found.");
+        FormEntry feExpandDB = new FormEntry(PROP_MBG_expand_DB, "Min Glycans", uiSpinnerIntExpandDB);
+
         uiTextResiduesToAdd = UiUtils.uiTextBuilder().create();
         uiTextResiduesToAdd.setPreferredSize(new Dimension(200, 25));
         FormEntry feResiduesToAdd = mu.feb(PROP_residues_to_add, uiTextResiduesToAdd)
                 .label("Residues to Add:").tooltip("Choose which glycan residues/mods are considered for MBG matching").create();
 
-        mu.add(pContent, feMaxQ.label(), mu.ccL()).split(8);
+        mu.add(pContent, feMaxQ.label(), mu.ccL()).split(10);
         mu.add(pContent, feMaxQ.comp).split();
         mu.add(pContent, feMinPSMs.label(), mu.ccR());
         mu.add(pContent, feMinPSMs.comp);
         mu.add(pContent, feMinGlycans.label(), mu.ccR());
         mu.add(pContent, feMinGlycans.comp);
         mu.add(pContent, feFDR.label(), mu.ccR());
-        mu.add(pContent, feFDR.comp).wrap();
+        mu.add(pContent, feFDR.comp);
+        mu.add(pContent, feExpandDB.label(), mu.ccR());
+        mu.add(pContent, feExpandDB.comp).wrap();
 
         JButton btnChooseMBGresidues = new JButton("Pick Residues");
         btnChooseMBGresidues.addActionListener(this::actionBtnChooseMBGresidues);
@@ -182,6 +190,7 @@ public class MBGPanel extends JPanelBase {
         params.setMinPSMs(uiSpinnerMinPSMs.getActualValue());
         params.setIntGlycans(uiSpinnerMinGlycans.getActualValue());
         params.setResiduesToAdd(uiTextResiduesToAdd.getNonGhostText());
+        params.setExpandDB(uiSpinnerIntExpandDB.getActualValue());
         return params;
     }
 

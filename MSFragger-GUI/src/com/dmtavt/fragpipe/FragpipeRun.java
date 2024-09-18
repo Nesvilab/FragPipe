@@ -1677,7 +1677,7 @@ public class FragpipeRun {
     addConfig.accept(cmdMBGMatch, () -> {
       cmdMBGMatch.setRun(cmdMBGMatch.isRun() && !sharedMapGroupsToProtxml.isEmpty());
       if (cmdMBGMatch.isRun()) {
-        return cmdMBGMatch.configure(parent, wd, sharedMapGroupsToProtxml, mbgPanel.getMBGParams(), isDryRun, threads, tabWorkflow.getInputDataType(), quantPanelLabelfree.toMap(), tabGlyco.glycanDBloader, wd.resolve("fragpipe-files" + manifestExt), Paths.get(binIonQuant.getBin()));
+        return cmdMBGMatch.configure(parent, wd, sharedMapGroupsToProtxml, mbgPanel.getMBGParams(), isDryRun, threads, tabWorkflow.getInputDataType(), quantPanelLabelfree.toMap(), tabGlyco.glycanDBloader, wd.resolve("fragpipe-files" + manifestExt), Paths.get(binIonQuant.getBin()), tmtiPanel.isRun());
       }
       return true;
     });
