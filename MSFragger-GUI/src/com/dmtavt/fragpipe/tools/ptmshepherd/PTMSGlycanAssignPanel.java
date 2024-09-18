@@ -76,7 +76,7 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
     private static final String PROP_print_extended_params = "print_full_glyco_params";
     private static final String PROP_use_new_speclib = "use_glycan_fragment_probs";
     private static final String PROP_min_speclib_psms = "glyco_min_lib_psms";
-
+    private static final String PROP_speclib_max_q = "glyco_lib_max_q";
     private static final String PROP_nglyco_mode = "n_glyco";
 
     public PTMSGlycanAssignPanel() {
@@ -212,6 +212,10 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
         FormEntry feMinPSMsSpeclib = new FormEntry(PROP_min_speclib_psms, "Min speclib PSMs per Glycan:",
                 new UiSpinnerInt(5, 0, 10000, 1, 4),
                 "Minimum number PSMs per glycan to be included in the glycan spectral library.");
+        UiSpinnerDouble uiSpinnerGlycanLibMaxQ = UiSpinnerDouble.builder(0.01, 0, 1.0, 0.01)
+                .setFormat(new DecimalFormat("0.00#")).setCols(3).create();
+        FormEntry feGlycanSpeclibMaxQ = new FormEntry(PROP_speclib_max_q, "Max Glycan Q", uiSpinnerGlycanLibMaxQ,
+                "Max q-value to include a glycan in the speclib. Default 0.01 (1%)\n");
 
         mu.add(pGlycoAssignContent, feGlycanFDR.label()).split(2);
         mu.add(pGlycoAssignContent, feGlycanFDR.comp);
@@ -251,7 +255,9 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
 
         mu.add(pGlycoAdvParams, feUseGlycoSpeclib.comp);
         mu.add(pGlycoAdvParams, feMinPSMsSpeclib.label()).split();
-        mu.add(pGlycoAdvParams, feMinPSMsSpeclib.comp).wrap();
+        mu.add(pGlycoAdvParams, feMinPSMsSpeclib.comp);
+        mu.add(pGlycoAdvParams, feGlycanSpeclibMaxQ.label());
+        mu.add(pGlycoAdvParams, feGlycanSpeclibMaxQ.comp).wrap();
 
         mu.add(pGlycanAssignment, uiCheckGlycoAdvParams).split().spanX().wrap();
         mu.add(pGlycanAssignment, pGlycoAdvParams).growX().wrap();
