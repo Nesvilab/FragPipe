@@ -1019,6 +1019,8 @@ public class TabWorkflow extends JPanelWithEnablement {
         () -> new MessageLcmsGroupAction(Type.SET_DDA));
     btnSetDia = button("Set DIA",
         () -> new MessageLcmsGroupAction(Type.SET_DIA));
+    btnSetGpfDia = button("Set GPF-DIA",
+        () -> new MessageLcmsGroupAction(Type.SET_GPF_DIA));
     btnSetDiaQuant = button("Set DIA-Quant",
         () -> new MessageLcmsGroupAction(Type.SET_DIA_QUANT));
     btnSetDiaLib = button("Set DIA-Lib",
@@ -1084,6 +1086,7 @@ public class TabWorkflow extends JPanelWithEnablement {
 
     mu.add(p, btnSetDda);
     mu.add(p, btnSetDdaPlus);
+//    mu.add(p, btnSetGpfDia);
     mu.add(p, btnSetDia).wrap();
 
     mu.add(p, new JLabel("Set bioreplicates")).split();

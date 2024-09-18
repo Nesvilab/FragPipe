@@ -109,7 +109,7 @@ public class CmdMsfragger extends CmdBase {
           }
         } else if (f.getDataType().contentEquals("GPF-DIA")) {
           if (paramsGpfDia == null) {
-            maxRank = 3;
+            maxRank = paramsGpfDia.getOutputReportTopN();
           } else {
             maxRank = paramsGpfDia.getOutputReportTopN();
           }
@@ -673,7 +673,7 @@ public class CmdMsfragger extends CmdBase {
       }
     } else if (dataType.contentEquals("GPF-DIA")) {
       paramsNew.setDataType(2);
-      paramsNew.setOutputReportTopN(3);
+      paramsNew.setOutputReportTopN(outputReportTopNDia1);
     } else if (dataType.contentEquals("DDA+")) {
       paramsNew.setDataType(3);
       paramsNew.setOutputReportTopN(outputReportTopNDdaPlus);
