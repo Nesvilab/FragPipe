@@ -112,7 +112,7 @@ public class MBGPanel extends JPanelBase {
 
         uiSpinnerIntExpandDB = new UiSpinnerInt(0, 0, 10, 1);
         uiSpinnerIntExpandDB.setToolTipText("Allow inference of glycoforms not in the database by adding up to this many residues. Successive residues can only be added if intermediates are found.");
-        FormEntry feExpandDB = new FormEntry(PROP_MBG_expand_DB, "Min Glycans", uiSpinnerIntExpandDB);
+        FormEntry feExpandDB = new FormEntry(PROP_MBG_expand_DB, "Expand Glycan DB (max steps)", uiSpinnerIntExpandDB);
 
         uiTextResiduesToAdd = UiUtils.uiTextBuilder().create();
         uiTextResiduesToAdd.setPreferredSize(new Dimension(200, 25));
