@@ -866,7 +866,7 @@ public class TabMsfragger extends JPanelBase {
     UiSpinnerDouble uiSpinnerDigestMassLo = new UiSpinnerDouble(200, 0, 50000, 100,
         new DecimalFormat("0.#"));
     uiSpinnerDigestMassLo.setColumns(6);
-    FormEntry fePepMassLo = mu.feb(PROP_misc_fragger_digest_mass_lo, uiSpinnerDigestMassLo).label("Peptide mass range").create();
+    FormEntry fePepMassLo = mu.feb(PROP_misc_fragger_digest_mass_lo, uiSpinnerDigestMassLo).label("Peptide mass range (Da)").create();
     UiSpinnerDouble uiSpinnerDigestMassHi = new UiSpinnerDouble(5000, 0, 50000, 100,
         new DecimalFormat("0.#"));
     uiSpinnerDigestMassHi.setColumns(6);
