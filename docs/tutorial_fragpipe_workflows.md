@@ -4,24 +4,24 @@ Listed below are the analysis workflows provided with FragPipe. Workflows can be
 
 
 #### Closed (standard) database searches
-* [Default](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#basic-search-default)
+* [Default](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#default)
 
 #### DIA
-* [DIA_SpecLib_Quant](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#dia-speclib-quant)
-* [DIA_SpecLib_Quant_Phospho](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#dia-speclib-quant-phospho)
-* [DIA_SpecLib_Quant_diaPASEF](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#dia-speclib-quant-diapasef)
-* [DIA_SpecLib_Quant_Phospho_diaPASEF](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#dia-speclib-quant-phospho-diapasef)
-* [DIA_DIA-Umpire_SpecLib_Quant](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#dia-umpire-speclib-quant)
+* [DIA_SpecLib_Quant](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#dia_speclib_quant)
+* [DIA_SpecLib_Quant_Phospho](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#dia_speclib_quant_phospho)
+* [DIA_SpecLib_Quant_diaPASEF](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#dia_speclib_quant_diapasef)
+* [DIA_SpecLib_Quant_Phospho_diaPASEF](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#dia_speclib_quant_phospho_diapasef)
+* [DIA_DIA-Umpire_SpecLib_Quant](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#dia_dia-umpire_speclib_quant)
 
 #### Non-specific digestion
-* [Nonspecific-HLA](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#hla-peptide-search-nonspecific-hla)
-* [Nonspecific-HLA-C57](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#hla-peptide-search-nonspecific-hla-c57)
-* [Nonspecific-HLA-TMT10](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#hla-peptide-search-nonspecific-hla-tmt10)
-* [Nonspecific-HLA-phospho](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#hla-peptide-search-nonspecific-hla-phospho)
-* [Nonspecific-HLA-glyco](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#hla-peptide-search-nonspecific-hla-glyco)
-* [Nonspecific-HLA-DIA](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#hla-peptide-search-nonspecific-hla-dia)
-* [Nonspecific-HLA-DIA-Astral](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#hla-peptide-search-nonspecific-hla-dia-astral)
-* [Nonspecific-HLA-diaPASEF](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#hla-peptide-search-nonspecific-hla-diapasef)
+* [Nonspecific-HLA](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#nonspecific-hla)
+* [Nonspecific-HLA-C57](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#nonspecific-hla-c57)
+* [Nonspecific-HLA-TMT10](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#nonspecific-hla-tmt10)
+* [Nonspecific-HLA-phospho](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#nonspecific-hla-phospho)
+* [Nonspecific-HLA-glyco](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#nonspecific-hla-glyco)
+* [Nonspecific-HLA-DIA](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#nonspecific-hla-dia)
+* [Nonspecific-HLA-DIA-Astral](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#nonspecific-hla-dia-astral)
+* [Nonspecific-HLA-diaPASEF](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#nonspecific-hla-diapasef)
 * [Nonspecific-peptidome](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#nonspecific-peptidome)
 
 #### DDA label-free quantification
@@ -57,7 +57,7 @@ Listed below are the analysis workflows provided with FragPipe. Workflows can be
 * [SILAC3-phospho](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#silac3-phospho)
 
 #### Open and mass offset
-* [Open](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#open-search)
+* [Open](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#open)
 * [Mass-Offset-CommonPTMs](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#mass-offset-commonptms)
 * [Open-quickscan](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#open-quickscan)
 * [Diagnostic-ion-mining](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#diagnostic-ion-mining)
@@ -65,8 +65,8 @@ Listed below are the analysis workflows provided with FragPipe. Workflows can be
 * [FPOP](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#fpop)
 
 #### Labile PTM Searches
-* [Labile_phospho](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#labile-phospho)
-* [Labile_ADP-ribosylation](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#labile-adp-ribosylation)
+* [Labile_phospho](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#labile_phospho)
+* [Labile_ADP-ribosylation](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#labile_adp_ribosylation)
 
 #### Glyco
 * [glyco-N-HCD](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#glyco-n-hcd)
@@ -86,14 +86,14 @@ Listed below are the analysis workflows provided with FragPipe. Workflows can be
 
 #### Chemoproteomics
 * [isoDTB-ABPP](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#isodtb-abpp)
-* [diaTOP_ABPP](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#diatop-abpp)
+* [diaTOP_ABPP](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#diatop_abpp)
 * [ipIAA-ABPP](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#ipiaa-abpp)
 * [isoTOP-ABPP](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#isotop-abpp)
 * [SLC-ABPP](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#slc-abpp)
 * [PAL](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#pal)
 
 #### Wide-window DDA
-* [WWA](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#wide-window-dda)
+* [WWA](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#wwa)
 
 <br>
 
