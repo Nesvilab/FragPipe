@@ -862,12 +862,8 @@ public class SwingUtils {
       final String name = kv.getKey();
       Component comp = comps.get(name);
       if (comp == null) {
-        //log.trace("No component with name [{}]", name);
         continue;
       }
-//      if (kv.getKey().contains(MsfraggerParams.PROP_search_enzyme_butnotafter) || kv.getKey().contains("search_enzyme_")) {
-//        log.trace("Calling valueSet(comp, kv.getValue()) for [key={}], [val={}]", kv.getKey(), kv.getValue());
-//      }
       valueSet(comp, kv.getValue());
     }
   }

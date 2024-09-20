@@ -1731,8 +1731,9 @@ public class TabWorkflow extends JPanelWithEnablement {
       }
 
       // Do not load the config paths from the workflow, which likely to be the paths in another user's computer.
-      propsFile.remove("fragpipe-config.tools-folder");
-      propsFile.remove("fragpipe-config.bin-python");
+      propsFile.remove(TabConfig.TAB_PREFIX + "tools-folder");
+      propsFile.remove(TabConfig.TAB_PREFIX + "bin-diann");
+      propsFile.remove(TabConfig.TAB_PREFIX + "bin-python");
 
       epWorkflowsDesc.setText(propsFile.getProperty(PROP_WORKFLOW_DESC, "Description not present"));
       Fragpipe.propsVarSet(PROP_WORKFLOW_SAVEDIR, propsFile.getPath().toAbsolutePath().getParent().toString());

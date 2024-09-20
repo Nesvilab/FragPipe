@@ -19,6 +19,7 @@ package com.dmtavt.fragpipe;
 
 import static com.dmtavt.fragpipe.Version.PROP_LAST_RELEASE_VER;
 import static com.dmtavt.fragpipe.Version.version;
+import static com.dmtavt.fragpipe.tabs.TabWorkflow.TAB_PREFIX;
 import static com.dmtavt.fragpipe.tabs.TabWorkflow.maxProcessors;
 
 import com.dmtavt.fragpipe.api.Bus;
@@ -457,13 +458,13 @@ public class Fragpipe extends JFrameHeadless {
     propsFile.setProperty("workflow.threads", Fragpipe.nThreadsHeadlessOnly + "");
     propsFile.setProperty("workdir", Fragpipe.workdir);
     if (toolsFolderPath != null) {
-      propsFile.setProperty("fragpipe-config.tools-folder", toolsFolderPath);
+      propsFile.setProperty(TabConfig.TAB_PREFIX + "tools-folder", toolsFolderPath);
     }
     if (diannBinPath != null) {
-      propsFile.setProperty("fragpipe-config.bin-diann", diannBinPath);
+      propsFile.setProperty(TabConfig.TAB_PREFIX + "bin-diann", diannBinPath);
     }
     if (pythonBinPath != null) {
-      propsFile.setProperty("fragpipe-config.bin-python", pythonBinPath);
+      propsFile.setProperty(TabConfig.TAB_PREFIX + "bin-python", pythonBinPath);
     }
 
     Bus.post(new MessageLoadUi(propsFile, true, true));
