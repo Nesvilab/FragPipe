@@ -145,8 +145,8 @@ public class Fragpipe extends JFrameHeadless {
   public static java.util.concurrent.CountDownLatch loadWorkflowDone = new java.util.concurrent.CountDownLatch(1);
   public static java.util.concurrent.CountDownLatch runDone = new java.util.concurrent.CountDownLatch(1);
   public static boolean dryRun = false;
-  public static int ram = 0;
-  static int nThreadsHeadlessOnly = Math.max(1, Math.min(Runtime.getRuntime().availableProcessors() - 1, maxProcessors)); // Note: this variable is only for headless mode. For the GUI mode, please get the number of threads using TabWorkflow:getThreads().
+  public static Integer ram = null;
+  static Integer nThreadsHeadlessOnly = null; // Note: this variable is only for headless mode. For the GUI mode, please get the number of threads using TabWorkflow:getThreads().
   public static String workdir = null;
   public static String toolsFolderPath = null;
   public static String philosopherBinPath = null;
@@ -399,10 +399,10 @@ public class Fragpipe extends JFrameHeadless {
       } else if (manifestFile == null || !Files.exists(manifestFile) || !Files.isReadable(manifestFile) || !Files.isRegularFile(manifestFile)) {
         System.err.println("Please provide --manifest <path to manifest file> in the headless mode.");
         System.exit(1);
-      } else if (ram < 0) {
+      } else if (ram != null && ram < 0) {
         System.err.println("ram is smaller than 0.");
         System.exit(1);
-      } else if (nThreadsHeadlessOnly < 0) {
+      } else if (nThreadsHeadlessOnly != null && nThreadsHeadlessOnly < 0) {
         System.err.println("Number of threads is smaller than 0.");
         System.exit(1);
       } else if (workdir == null || workdir.isEmpty()) {
@@ -434,7 +434,7 @@ public class Fragpipe extends JFrameHeadless {
         if (pythonBinPath != null) {
           pythonBinPath = Paths.get(pythonBinPath).toAbsolutePath().toString();
         }
-        if (nThreadsHeadlessOnly == 0) {
+        if (nThreadsHeadlessOnly != null && nThreadsHeadlessOnly == 0) {
           nThreadsHeadlessOnly = Math.max(1, Math.min(Runtime.getRuntime().availableProcessors(), maxProcessors));
         }
         headless(workflowFile);
@@ -454,8 +454,16 @@ public class Fragpipe extends JFrameHeadless {
     PropsFile propsFile = fpl.tryLoadSilently(workflowFile, "user");
 
     // If there are parameters from command, they have the higher priority than those in the workflow file.
-    propsFile.setProperty("workflow.ram", Fragpipe.ram + "");
-    propsFile.setProperty("workflow.threads", Fragpipe.nThreadsHeadlessOnly + "");
+    if (Fragpipe.ram != null) {
+      propsFile.setProperty("workflow.ram", Fragpipe.ram + "");
+    } else if (propsFile.getProperty("workflow.ram") == null) {
+      propsFile.setProperty("workflow.ram", "0");
+    }
+    if (Fragpipe.nThreadsHeadlessOnly != null) {
+      propsFile.setProperty("workflow.threads", Fragpipe.nThreadsHeadlessOnly + "");
+    } else if (propsFile.getProperty("workflow.threads") == null) {
+      propsFile.setProperty("workflow.threads", Math.max(1, Math.min(Runtime.getRuntime().availableProcessors() - 1, maxProcessors)) + "");
+    }
     propsFile.setProperty("workdir", Fragpipe.workdir);
     if (toolsFolderPath != null) {
       propsFile.setProperty(TabConfig.TAB_PREFIX + "tools-folder", toolsFolderPath);
