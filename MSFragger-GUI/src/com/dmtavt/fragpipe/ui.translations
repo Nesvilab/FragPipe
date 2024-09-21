@@ -6,6 +6,9 @@ diann.quantification-strategy :: Any LC (high accuracy) <=> 0
 diann.quantification-strategy :: Any LC (high precision) <=> 1
 diann.quantification-strategy :: Robust LC (high accuracy) <=> 2
 diann.quantification-strategy :: Robust LC (high precision) <=> 3
+diann.quantification-strategy-2 :: Legacy (direct) <=> 0
+diann.quantification-strategy-2 :: QuantUMS (high accuracy) <=> 1
+diann.quantification-strategy-2 :: QuantUMS (high precision) <=> 2
 
 msfragger.calibrate_mass :: None <=> 0
 msfragger.calibrate_mass :: Off <=> 0

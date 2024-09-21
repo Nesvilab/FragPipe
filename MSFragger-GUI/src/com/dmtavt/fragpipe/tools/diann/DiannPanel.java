@@ -182,7 +182,7 @@ public class DiannPanel extends JPanelBase {
     labelQuantificationStrategy = feQuantificationStrategy.label();
 
     uiComboQuantificationStrategy2 = UiUtils.createUiCombo(Arrays.asList("Legacy (direct)", "QuantUMS (high accuracy)", "QuantUMS (high precision)"));
-    FormEntry feQuantificationStrategy2 = new FormEntry("quantification-strategy-2", "Quantification strategy (" + NEW_VERSION + ")+", uiComboQuantificationStrategy2);
+    FormEntry feQuantificationStrategy2 = new FormEntry("quantification-strategy-2", "Quantification strategy", uiComboQuantificationStrategy2);
     uiComboQuantificationStrategy2.setSelectedIndex(2);
     labelQuantificationStrategy2 = feQuantificationStrategy2.label();
 
