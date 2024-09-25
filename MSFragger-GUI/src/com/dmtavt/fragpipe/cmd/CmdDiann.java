@@ -362,7 +362,7 @@ public class CmdDiann extends CmdBase {
       }
     }
 
-    {
+    if (!isRunPlex) {
       Path root = FragpipeLocations.get().getDirFragpipeRoot();
       Path libsDir = root.resolve("lib");
       if (Files.isDirectory(jarFragpipe)) {
@@ -404,7 +404,7 @@ public class CmdDiann extends CmdBase {
       pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + ": Propagate information").create());
     }
 
-    if (generateMsstats) {
+    if (!isRunPlex && generateMsstats) {
       Path root = FragpipeLocations.get().getDirFragpipeRoot();
       Path libsDir = root.resolve("lib");
       if (Files.isDirectory(jarFragpipe)) {
