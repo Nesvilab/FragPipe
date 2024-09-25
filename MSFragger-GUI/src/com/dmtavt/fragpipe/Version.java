@@ -528,7 +528,7 @@ public class Version {
 
   /**
    * To print changelog using just the jar file use:<br/>
-   * <code>java -cp ./build/install/fragpipe/lib/* com.dmtavt.fragpipe.Version true 2</code>
+   * <code>java -cp ./build/install/fragpipe-" + Version.version() + "/lib/* com.dmtavt.fragpipe.Version true 2</code>
    *
    * @param args The 1st param is a boolean whether to print GitHub release info preamble or not.
    *             Use true, to indicate "yes", any other string for "no". The 2nd parameter is an

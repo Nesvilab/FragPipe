@@ -27,6 +27,7 @@ import static com.github.chhh.utils.SwingUtils.showErrorDialogWithStacktrace;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
+import com.dmtavt.fragpipe.Version;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
@@ -105,7 +106,7 @@ public class CmdDiann extends CmdBase {
       Path root = FragpipeLocations.get().getDirFragpipeRoot();
       Path libsDir = root.resolve("lib");
       if (Files.isDirectory(jarFragpipe)) {
-        libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe/lib");
+        libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe-" + Version.version() + "/lib");
         log.debug("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
       }
 
@@ -341,7 +342,7 @@ public class CmdDiann extends CmdBase {
       Path root = FragpipeLocations.get().getDirFragpipeRoot();
       Path libsDir = root.resolve("lib");
       if (Files.isDirectory(jarFragpipe)) {
-        libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe/lib");
+        libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe-" + Version.version() + "/lib");
         log.debug("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
       }
 
@@ -383,7 +384,7 @@ public class CmdDiann extends CmdBase {
       Path root = FragpipeLocations.get().getDirFragpipeRoot();
       Path libsDir = root.resolve("lib");
       if (Files.isDirectory(jarFragpipe)) {
-        libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe/lib");
+        libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe-" + Version.version() + "/lib");
         log.debug("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
       }
 
@@ -436,7 +437,7 @@ public class CmdDiann extends CmdBase {
 //      Path root = FragpipeLocations.get().getDirFragpipeRoot();
 //      Path libsDir = root.resolve("lib");
 //      if (Files.isDirectory(jarFragpipe)) {
-//        libsDir = jarFragpipe.getParent().getParent().getParent().getParent().resolve("build/install/fragpipe/lib");
+//        libsDir = jarFragpipe.getParent().getParent().getParent().getParent().resolve("build/install/fragpipe-" + Version.version() + "/lib");
 //        log.debug("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
 //      }
 //

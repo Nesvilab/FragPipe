@@ -21,6 +21,7 @@ import static com.dmtavt.fragpipe.cmd.ToolingUtils.BATMASS_IO_JAR;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
+import com.dmtavt.fragpipe.Version;
 import com.dmtavt.fragpipe.tools.diann.DiannPanel;
 import com.dmtavt.fragpipe.tools.ionquant.QuantPanelLabelfree;
 import com.dmtavt.fragpipe.tools.skyline.Skyline;
@@ -77,7 +78,7 @@ public class CmdSkyline extends CmdBase {
     Path root = FragpipeLocations.get().getDirFragpipeRoot();
     Path libsDir = root.resolve("lib");
     if (Files.isDirectory(jarFragpipe)) {
-      libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe/lib");
+      libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe-" + Version.version() + "/lib");
       log.debug("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
     }
 

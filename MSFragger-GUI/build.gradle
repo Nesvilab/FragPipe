@@ -172,7 +172,7 @@ task makeExeAndCopyToScripts(type: Copy, group: 'chhh-release', description: 'Th
     into getLayout().buildDirectory.dir('scripts').get().asFile
 }
 
-task copyJre(type: Copy, group: 'chhh-release', description: 'Copies JRE to build/install/fragpipe') {
+task copyJre(type: Copy, group: 'chhh-release', description: "Copies JRE to build/install/${project.name}-${project.version}") {
     from getLayout().buildDirectory.dir('../../jre/OpenJDK17U-jre_x64_windows_hotspot_17.0.10_7').get()
     into getLayout().buildDirectory.dir("install/${project.name}-${project.version}").get().asFile
 }

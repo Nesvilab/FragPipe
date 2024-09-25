@@ -20,6 +20,7 @@ package com.dmtavt.fragpipe.cmd;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
+import com.dmtavt.fragpipe.Version;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
 import com.dmtavt.fragpipe.tools.ptmshepherd.PtmshepherdParams;
 import com.github.chhh.utils.OsUtils;
@@ -99,7 +100,7 @@ public class CmdPtmshepherd extends CmdBase {
     Path root = FragpipeLocations.get().getDirFragpipeRoot();
     Path libsDir = root.resolve("lib");
     if (Files.isDirectory(jarFragpipe)) {
-      libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe/lib");
+      libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe-" + Version.version() + "/lib");
       log.debug("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
     }
 
