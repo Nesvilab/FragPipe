@@ -9,6 +9,8 @@ diann.quantification-strategy :: Robust LC (high precision) <=> 3
 diann.quantification-strategy-2 :: Legacy (direct) <=> 0
 diann.quantification-strategy-2 :: QuantUMS (high accuracy) <=> 1
 diann.quantification-strategy-2 :: QuantUMS (high precision) <=> 2
+diann.channel-normalization-strategy :: Run specific <=> 0
+diann.channel-normalization-strategy :: Channel specific <=> 1
 
 msfragger.calibrate_mass :: None <=> 0
 msfragger.calibrate_mass :: Off <=> 0

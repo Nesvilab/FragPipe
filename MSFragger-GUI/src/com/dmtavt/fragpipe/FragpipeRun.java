@@ -2010,7 +2010,26 @@ public class FragpipeRun {
     addConfig.accept(cmdDiann,  () -> {
       cmdDiann.setRun(cmdDiann.isRun() && !sharedLcmsFileGroupsAll.isEmpty());
       if (cmdDiann.isRun()) {
-        return cmdDiann.configure(parent, sharedLcmsFileGroupsAll.values(), threads, diannPanel.getDiannQuantificationStrategy(isNew), diannPanel.usePredict(), diannPanel.unrelatedRuns(), diannPanel.getDiannQvalue(), diannPanel.useRunSpecificProteinQvalue(), diannPanel.getLibraryPath(), diannPanel.getCmdOpts(), isDryRun, diannPanel.isRunPlex(), diannPanel.generateMsstats(), diannPanel.getLight(), diannPanel.getMedium(), diannPanel.getHeavy(), jarPath, moveSpeclibForSkyline);
+        return cmdDiann.configure(parent,
+            sharedLcmsFileGroupsAll.values(),
+            threads,
+            diannPanel.getDiannQuantificationStrategy(isNew),
+            diannPanel.getDiannChannelNormalizationStrategy(),
+            diannPanel.usePredict(),
+            diannPanel.unrelatedRuns(),
+            diannPanel.getDiannQvalue(),
+            diannPanel.useRunSpecificProteinQvalue(),
+            diannPanel.getLibraryPath(),
+            diannPanel.getCmdOpts(),
+            isDryRun,
+            diannPanel.isRunPlex(),
+            diannPanel.generateMsstats(),
+            diannPanel.getLight(),
+            diannPanel.getMedium(),
+            diannPanel.getHeavy(),
+            jarPath,
+            moveSpeclibForSkyline,
+            isNew);
       }
       return true;
     });

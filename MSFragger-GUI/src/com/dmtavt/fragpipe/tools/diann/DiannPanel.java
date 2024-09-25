@@ -71,6 +71,8 @@ public class DiannPanel extends JPanelBase {
   private UiCombo uiComboQuantificationStrategy2;
   private JLabel labelQuantificationStrategy;
   private JLabel labelQuantificationStrategy2;
+  private UiCombo uiComboChannelNormalizationStrategy;
+  private JLabel labelChannelNormalizationStrategy;
   private UiText uiTextCmdOpts;
   private UiSpinnerDouble uiSpinnerQvalue;
   private UiText uiTextLibrary;
@@ -94,18 +96,13 @@ public class DiannPanel extends JPanelBase {
   public void on(NoteConfigDiann m) {
     if (m.isValid()) {
       updateEnabledStatus(this, true);
-
-      if (m.compareVersion(NEW_VERSION) < 0) {
-        uiComboQuantificationStrategy.setVisible(true);
-        uiComboQuantificationStrategy2.setVisible(false);
-        labelQuantificationStrategy.setVisible(true);
-        labelQuantificationStrategy2.setVisible(false);
-      } else {
-        uiComboQuantificationStrategy.setVisible(false);
-        uiComboQuantificationStrategy2.setVisible(true);
-        labelQuantificationStrategy.setVisible(false);
-        labelQuantificationStrategy2.setVisible(true);
-      }
+      boolean isNewVersion = m.compareVersion(NEW_VERSION) >= 0;
+      uiComboQuantificationStrategy.setVisible(!isNewVersion);
+      uiComboQuantificationStrategy2.setVisible(isNewVersion);
+      labelQuantificationStrategy.setVisible(!isNewVersion);
+      labelQuantificationStrategy2.setVisible(isNewVersion);
+      uiComboChannelNormalizationStrategy.setVisible(isNewVersion);
+      labelChannelNormalizationStrategy.setVisible(isNewVersion);
     } else {
       updateEnabledStatus(this, false);
     }
@@ -245,6 +242,9 @@ public class DiannPanel extends JPanelBase {
     uiTextMedium = UiUtils.uiTextBuilder().cols(40).create();
     uiTextHeavy = UiUtils.uiTextBuilder().cols(40).create();
 
+    uiComboChannelNormalizationStrategy = UiUtils.createUiCombo(new String[]{"Run specific", "Channel specific"});
+    uiComboChannelNormalizationStrategy.setSelectedIndex(0);
+
     FormEntry feLight = new FormEntry("light", "Light    ", uiTextLight,
         "String description of mass deltas. <b>A-Z</b> for amino acids and <b>n</b> for N-terminus.<br>"
             + "E.g. (1) for SILAC: <b>K0;R0</b> (2) for dimethyl labeling: <b>Kn28.0313</b><br>"
@@ -258,16 +258,30 @@ public class DiannPanel extends JPanelBase {
             + "E.g. (1) for SILAC: <b>K8.014199;R10.008269</b> (2) for dimethyl labeling: <b>Kn36.075670</b><br>"
             + "If the amino acid has both fixed and variable modifications, should sum up the <b>both</b> masses.");
 
+    FormEntry feChannelNormalizationStrategy = new FormEntry("channel-normalization-strategy", "Channel normalization strategy", uiComboChannelNormalizationStrategy,
+        "Run specific: Normalization of multiplexed samples will be performed in run-specific manner.<br>"
+            + "To perform normalization, for each precursor ion DIA-NN will sum the respective channels within each run and normalize these sums across runs.<br>"
+            + "Used, for example, for protein turnover SILAC experiments.<br>"
+            + "Channel specific: Normalization of multiplexed samples will be performed in channel-specific manner.<br>"
+            + "Each channel in each run is treated as a separate sample to be normalised.<br>"
+            + "Used, for example, to analyse experiments wherein multiplexing of independent samples is used to boost throughput.");
+    labelChannelNormalizationStrategy = feChannelNormalizationStrategy.label();
+
     updateEnabledStatus(uiTextLibrary, !isRunPlex());
     updateEnabledStatus(uiTextLight, isRunPlex());
     updateEnabledStatus(uiTextMedium, isRunPlex());
     updateEnabledStatus(uiTextHeavy, isRunPlex());
+    updateEnabledStatus(uiComboChannelNormalizationStrategy, isRunPlex());
+    updateEnabledStatus(labelChannelNormalizationStrategy, isRunPlex());
+    updateEnabledStatus(uiCheckGenerateMsstats, !isRunPlex());
 
     checkRunPlex.addItemListener(e -> {
       updateEnabledStatus(uiTextLibrary, !isRunPlex());
       updateEnabledStatus(uiTextLight, isRunPlex());
       updateEnabledStatus(uiTextMedium, isRunPlex());
       updateEnabledStatus(uiTextHeavy, isRunPlex());
+      updateEnabledStatus(uiComboChannelNormalizationStrategy, isRunPlex());
+      updateEnabledStatus(labelChannelNormalizationStrategy, isRunPlex());
       updateEnabledStatus(uiCheckGenerateMsstats, !isRunPlex());
     });
 
@@ -278,6 +292,8 @@ public class DiannPanel extends JPanelBase {
     mu.add(panelPlex, feMedium.comp).growX().wrap();
     mu.add(panelPlex, feHeavy.label(), mu.ccL()).split(2);
     mu.add(panelPlex, feHeavy.comp).growX().wrap();
+    mu.add(panelPlex, labelChannelNormalizationStrategy, mu.ccL()).split(2);
+    mu.add(panelPlex, feChannelNormalizationStrategy.comp).wrap();
 
     updateEnabledStatus(panelPlex, true);
     return panelPlex;
@@ -357,6 +373,17 @@ public class DiannPanel extends JPanelBase {
         default:
           return new HashSet<>();
       }
+    }
+  }
+
+  public String getDiannChannelNormalizationStrategy() {
+    switch (uiComboChannelNormalizationStrategy.getSelectedIndex()) {
+      case 0:
+        return "--channel-run-norm";
+      case 1:
+        return "--channel-spec-norm";
+      default:
+        return "";
     }
   }
 

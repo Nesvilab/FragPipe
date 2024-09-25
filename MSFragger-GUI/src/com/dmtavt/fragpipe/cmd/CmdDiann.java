@@ -83,8 +83,27 @@ public class CmdDiann extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, Collection<LcmsFileGroup> lcmsFileGroups, int nThreads, Set<String> quantificationStrategy, boolean usePredict, boolean unrelatedRuns, float qvalue, boolean useRunSpecificProteinQvalue, String libraryPath, String additionalCmdOpts, boolean isDryRun, boolean isRunPlex, boolean generateMsstats, String lightString, String mediumString, String heavyString, Path jarFragpipe, boolean isRunSkyline) {
-
+  public boolean configure(Component comp,
+      Collection<LcmsFileGroup> lcmsFileGroups,
+      int nThreads,
+      Set<String> quantificationStrategy,
+      String channelNormalizationStrategy,
+      boolean usePredict,
+      boolean unrelatedRuns,
+      float qvalue,
+      boolean useRunSpecificProteinQvalue,
+      String libraryPath,
+      String additionalCmdOpts,
+      boolean isDryRun,
+      boolean isRunPlex,
+      boolean generateMsstats,
+      String lightString,
+      String mediumString,
+      String heavyString,
+      Path jarFragpipe,
+      boolean isRunSkyline,
+      boolean isNew
+  ) {
     initPreConfig();
 
     if (libraryPath != null && !libraryPath.trim().isEmpty()) {
@@ -278,7 +297,9 @@ public class CmdDiann extends CmdBase {
         cmd.add("--predictor");
         cmd.add("--dl-no-rt");
         cmd.add("--dl-no-im");
-        cmd.add("--strip-unknown-mods");
+        if (!isNew) {
+          cmd.add("--strip-unknown-mods");
+        }
       }
       if (generateMsstats) {
         cmd.add("--report-lib-info");
@@ -289,6 +310,9 @@ public class CmdDiann extends CmdBase {
         } catch (Exception e) {
           SwingUtils.showErrorDialog(comp, e.getMessage(), "Error parsing plex settings");
           return false;
+        }
+        if (isNew) {
+          cmd.add(channelNormalizationStrategy);
         }
       }
       if (!additionalCmdOpts.isEmpty()) {
