@@ -318,7 +318,7 @@ public class CmdMsfragger extends CmdBase {
         return false;
       }
 
-      if ((!isRunDiaU || !isRunDiaTracer) && (hasDia || hasGpfDia || hasDiaLib || hasDdaPlus)) {
+      if ((!isRunDiaU && !isRunDiaTracer) && (hasDia || hasGpfDia || hasDiaLib || hasDdaPlus)) {
         SwingUtils.showErrorDialog(comp, "<html>MSFrgger-DIA <code>split database</code> is incompatible with DIA, GPF-DIA, DIA-Lib, or DDA+ data types.\n"
             + "Please set the split database to 1.\n"
             + "For DIA and DIA-Lib data types, you can also use the DIA-Umpire based DIA workflow (DIA_DIA-Umpire_SpecLib_Quant workflow), which supports the split database option.", "Incompatible options");
