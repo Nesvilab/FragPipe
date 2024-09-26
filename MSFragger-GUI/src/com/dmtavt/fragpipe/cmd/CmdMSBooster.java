@@ -78,6 +78,7 @@ public class CmdMSBooster extends CmdBase {
       Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml,
       boolean predictRT,
       boolean predictSpectra,
+      boolean predictIm,
       boolean hasDda,
       boolean hasDia,
       boolean hasGpfDia,
@@ -88,8 +89,10 @@ public class CmdMSBooster extends CmdBase {
       boolean isOpenSearch,
       String rtModel,
       String spectraModel,
+      String imModel,
       boolean findBestRtModel,
       boolean findBestSpectraModel,
+      boolean findBestImModel,
       String koinaURL,
       String testRtModels,
       String testSpectraModels) {
@@ -112,12 +115,12 @@ public class CmdMSBooster extends CmdBase {
       return false;
     }
 
-    if (koinaURL.isEmpty() && (!rtModel.contentEquals("DIA-NN") || !spectraModel.contentEquals("DIA-NN"))) {
+    if (koinaURL.isEmpty() && (!rtModel.contentEquals("DIA-NN") || !spectraModel.contentEquals("DIA-NN") || !imModel.contentEquals("DIA-NN"))) {
       SwingUtils.showErrorDialog(comp, "Koina URL is required for non DIA-NN models.\nPlease go to <b>Validation</b> tab and adjust the settings.", NAME + " error");
       return false;
     }
 
-    if (koinaURL.isEmpty() && (findBestRtModel || findBestSpectraModel)) {
+    if (koinaURL.isEmpty() && (findBestRtModel || findBestSpectraModel || findBestImModel)) {
       SwingUtils.showErrorDialog(comp, "Koina URL is required for <b>Find best RT/spectral model</b>.\nPlease go to <b>Validation</b> tab and adjust the settings.", NAME + " error");
       return false;
     }
@@ -140,6 +143,14 @@ public class CmdMSBooster extends CmdBase {
       return false;
     }
 
+    boolean hasTimsTof = false;
+    for (InputLcmsFile t : lcmsToFraggerPepxml.keySet()) {
+      if (t.getPath().getFileName().toString().endsWith(".d")) {
+        hasTimsTof = true;
+        break;
+      }
+    }
+
     final Path paramPath = wd.resolve("msbooster_params.txt");
 
     if (Files.exists(paramPath.toAbsolutePath().getParent())) { // Dry run does not make directories, so does not write the file.
@@ -151,12 +162,15 @@ public class CmdMSBooster extends CmdBase {
         bufferedWriter.write("renamePin = 1\n");
         bufferedWriter.write("useRT = " + (predictRT ? "true" : "false") + "\n");
         bufferedWriter.write("useSpectra = " + (predictSpectra ? "true" : "false") + "\n");
+        bufferedWriter.write("useIM = " + ((hasTimsTof && predictIm) ? "true" : "false") + "\n");
         bufferedWriter.write("fragger = " + fraggerParams + "\n");
         bufferedWriter.write("deletePreds = false\n"); // FragPipe-PDV need the prediction files.
         bufferedWriter.write("rtModel = " + rtModel + "\n");
         bufferedWriter.write("spectraModel = " + spectraModel + "\n");
+        bufferedWriter.write("imModel = " + imModel + "\n");
         bufferedWriter.write("findBestRtModel = " + (findBestRtModel ? "true" : "false") + "\n");
         bufferedWriter.write("findBestSpectraModel = " + (findBestSpectraModel ? "true" : "false") + "\n");
+        bufferedWriter.write("findBestImModel = " + ((hasTimsTof && findBestImModel) ? "true" : "false") + "\n");
         bufferedWriter.write("KoinaURL = " + koinaURL + "\n");
         bufferedWriter.write("rtSearchModelsString = " + testRtModels + "\n");
         bufferedWriter.write("ms2SearchModelsString = " + testSpectraModels + "\n");

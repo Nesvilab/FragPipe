@@ -58,16 +58,20 @@ public class MSBoosterPanel extends JPanelBase {
   private JPanel pp;
   private static final MigUtils mu = MigUtils.get();
   private UiCheck checkRun;
-  private UiCheck uiCheckPredictRT;
+  private UiCheck uiCheckPredictRt;
   private UiCheck uiCheckPredictSpectra;
+  private UiCheck uiCheckPredictIm;
   private UiCheck uiCheckFindBestRtModel;
   private UiCheck uiCheckFindBestSpectraModel;
-  private UiCombo uiComboRTModel;
+  private UiCheck uiCheckFindBestImModel;
+  private UiCombo uiComboRtModel;
   private UiCombo uiComboSpectraModel;
+  private UiCombo uiComboImModel;
   private UiText uiTextKoinaUrl;
   private JEditorPane uiLabelKoinaUrl;
   private ModelsTable tableRtModels;
   private ModelsTable tableSpectraModels;
+  private ModelsTable tableImModels;
 
   static {
     modelMap.put("DIA-NN", "DIA-NN");
@@ -82,6 +86,7 @@ public class MSBoosterPanel extends JPanelBase {
     modelMap.put("Prosit 2020 Intensity CID", "Prosit_2020_intensity_CID");
     modelMap.put("Prosit 2020 Intensity TMT", "Prosit_2020_intensity_TMT");
     modelMap.put("Prosit 2020 Intensity HCD", "Prosit_2020_intensity_HCD");
+    modelMap.put("AlphaPept CCS Generic", "AlphaPept_ccs_generic");
   }
 
   public MSBoosterPanel() {
@@ -114,11 +119,14 @@ public class MSBoosterPanel extends JPanelBase {
 
     pTop = createPanelTop();
 
-    uiCheckPredictRT = new UiCheck("Predict RT", null, true);
-    uiCheckPredictRT.setName("predict-rt");
+    uiCheckPredictRt = new UiCheck("Predict RT", null, true);
+    uiCheckPredictRt.setName("predict-rt");
 
     uiCheckPredictSpectra = new UiCheck("Predict spectra", null, true);
     uiCheckPredictSpectra.setName("predict-spectra");
+
+    uiCheckPredictIm = new UiCheck("Predict IM (it applicable)", null, true);
+    uiCheckPredictIm.setName("predict-im");
 
     uiTextKoinaUrl = new UiText("", "put your Koina server URL");
     uiTextKoinaUrl.setColumns(20);
@@ -129,14 +137,14 @@ public class MSBoosterPanel extends JPanelBase {
 
     uiLabelKoinaUrl = createClickableHtml("Fill in your Koina server URL if you want to use the models in <a href=\"https://koina.wilhelmlab.org/\">Koina</a>. The public one is https://koina.wilhelmlab.org:443/v2/models/");
 
-    uiComboRTModel = createUiCombo(new String[]{
+    uiComboRtModel = createUiCombo(new String[]{
         "DIA-NN",
         "DeepLC HeLa HF",
         "AlphaPept RT Generic",
         "Prosit 2019 iRT",
         "Prosit 2020 iRT TMT"
     });
-    FormEntry feRTModel = mu.feb("rt-model", uiComboRTModel)
+    FormEntry feRtModel = mu.feb("rt-model", uiComboRtModel)
         .label("Model: ")
         .tooltip("If using the model other than 'DIA-NN', MSBooster will query the Koina server to get the prediction.")
         .create();
@@ -156,19 +164,34 @@ public class MSBoosterPanel extends JPanelBase {
         .tooltip("If using the model other than 'DIA-NN', MSBooster will query the Koina server to get the prediction.")
         .create();
 
+    uiComboImModel = createUiCombo(new String[]{
+        "DIA-NN",
+        "AlphaPept CCS Generic"
+    });
+    FormEntry feImModel = mu.feb("im-model", uiComboImModel)
+        .label("Model: ")
+        .tooltip("If using the model other than 'DIA-NN', MSBooster will query the Koina server to get the prediction.")
+        .create();
+
     JPanel uiRtTable = createRtModelsPanel();
     JPanel uiSpectraTable = createSpectraModelsPanel();
+    JPanel uiImTable = createImModelsPanel();
 
     pContent = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
-    mu.add(pContent, uiCheckPredictRT);
-    mu.add(pContent, feRTModel.label()).split(2);
-    mu.add(pContent, feRTModel.comp);
+    mu.add(pContent, uiCheckPredictRt);
+    mu.add(pContent, feRtModel.label()).split(2);
+    mu.add(pContent, feRtModel.comp);
     mu.add(pContent, uiCheckFindBestRtModel).wrap();
 
     mu.add(pContent, uiCheckPredictSpectra);
     mu.add(pContent, feSpectraModel.label()).split(2);
     mu.add(pContent, feSpectraModel.comp);
     mu.add(pContent, uiCheckFindBestSpectraModel).wrap();
+
+    mu.add(pContent, uiCheckPredictIm);
+    mu.add(pContent, feImModel.label()).split(2);
+    mu.add(pContent, feImModel.comp);
+    mu.add(pContent, uiCheckFindBestImModel).wrap();
 
     pp = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
     mu.add(pp, feKoinaUrl.label()).split(2);
@@ -228,7 +251,7 @@ public class MSBoosterPanel extends JPanelBase {
     uiCheckFindBestSpectraModel = new UiCheck("Find best spectral model (requires Koina server)", null, false);
     uiCheckFindBestSpectraModel.setName("find-best-spectra-model");
 
-    JPanel uiTableRtModels = mu.newPanel(null, mu.lcNoInsetsTopBottom());
+    JPanel uiTableSpectraModels = mu.newPanel(null, mu.lcNoInsetsTopBottom());
 
     List<Model> models = List.of(
         new Model("DIA-NN", true),
@@ -248,18 +271,47 @@ public class MSBoosterPanel extends JPanelBase {
 
     JScrollPane tableScroll = new JScrollPane(tableSpectraModels, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
-    mu.add(uiTableRtModels, uiCheckFindBestSpectraModel).wrap();
-    uiTableRtModels.add(tableScroll, new CC().minHeight("50px").maxHeight("100px").growX().spanX().wrap());
+    mu.add(uiTableSpectraModels, uiCheckFindBestSpectraModel).wrap();
+    uiTableSpectraModels.add(tableScroll, new CC().minHeight("50px").maxHeight("100px").growX().spanX().wrap());
 
-    return uiTableRtModels;
+    return uiTableSpectraModels;
   }
 
+  private JPanel createImModelsPanel() {
+    uiCheckFindBestImModel = new UiCheck("Find best IM model if applicable (requires Koina server)", null, false);
+    uiCheckFindBestImModel.setName("find-best-im-model");
+
+    JPanel uiTableImModels = mu.newPanel(null, mu.lcNoInsetsTopBottom());
+
+    List<Model> models = List.of(
+        new Model("DIA-NN", true),
+        new Model("AlphaPept CCS Generic", true)
+    );
+
+    tableImModels = createTableModels(models, "table.im-models");
+    SwingUtilities.invokeLater(() -> {
+      setJTableColSize(tableImModels, 0, 20, 150, 50);
+    });
+
+    JScrollPane tableScroll = new JScrollPane(tableImModels, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+
+    mu.add(uiTableImModels, uiCheckFindBestImModel).wrap();
+    uiTableImModels.add(tableScroll, new CC().minHeight("50px").maxHeight("100px").growX().spanX().wrap());
+
+    return uiTableImModels;
+  }
+
+
   public boolean predictRt() {
-    return uiCheckPredictRT.isSelected();
+    return uiCheckPredictRt.isSelected();
   }
 
   public boolean predictSpectra() {
     return uiCheckPredictSpectra.isSelected();
+  }
+
+  public boolean predictIm() {
+    return uiCheckPredictIm.isSelected();
   }
 
   public boolean findBestRtModel() {
@@ -270,15 +322,19 @@ public class MSBoosterPanel extends JPanelBase {
     return uiCheckFindBestSpectraModel.isSelected();
   }
 
+  public boolean findBestImModel() {
+    return uiCheckFindBestImModel.isSelected();
+  }
+
   public String koinaUrl() {
     return uiTextKoinaUrl.getNonGhostText().trim();
   }
 
   public String rtModel() {
-    if (uiComboRTModel.getSelectedItem() == null) {
+    if (uiComboRtModel.getSelectedItem() == null) {
       return "DIA-NN";
     } else {
-      return modelMap.get((String) uiComboRTModel.getSelectedItem());
+      return modelMap.get((String) uiComboRtModel.getSelectedItem());
     }
   }
 
@@ -287,6 +343,14 @@ public class MSBoosterPanel extends JPanelBase {
       return "DIA-NN";
     } else {
       return modelMap.get((String) uiComboSpectraModel.getSelectedItem());
+    }
+  }
+
+  public String imModel() {
+    if (uiComboImModel.getSelectedItem() == null) {
+      return "DIA-NN";
+    } else {
+      return modelMap.get((String) uiComboImModel.getSelectedItem());
     }
   }
 
@@ -303,6 +367,16 @@ public class MSBoosterPanel extends JPanelBase {
   public String spectraTestModels() {
     List<String> t = new ArrayList<>(modelMap.size());
     for (Model m : tableSpectraModels.model.getModels()) {
+      if (m.isEnabled) {
+        t.add(modelMap.get(m.name));
+      }
+    }
+    return String.join(",", t);
+  }
+
+  public String imTestModels() {
+    List<String> t = new ArrayList<>(modelMap.size());
+    for (Model m : tableImModels.model.getModels()) {
       if (m.isEnabled) {
         t.add(modelMap.get(m.name));
       }

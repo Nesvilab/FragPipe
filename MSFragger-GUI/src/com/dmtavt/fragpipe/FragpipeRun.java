@@ -1394,8 +1394,8 @@ public class FragpipeRun {
     });
 
     // Run MSBooster
-    final MSBoosterPanel MSBoosterPanel = Fragpipe.getStickyStrict(MSBoosterPanel.class);
-    final CmdMSBooster cmdMSBooster = new CmdMSBooster(MSBoosterPanel.isRun(), wd);
+    final MSBoosterPanel msBoosterPanel = Fragpipe.getStickyStrict(MSBoosterPanel.class);
+    final CmdMSBooster cmdMSBooster = new CmdMSBooster(msBoosterPanel.isRun(), wd);
     addConfig.accept(cmdMSBooster, () -> {
       cmdMSBooster.setRun(cmdMSBooster.isRun() && !sharedPepxmlFilesFromMsfragger.isEmpty());
       if (cmdMSBooster.isRun()) {
@@ -1403,8 +1403,9 @@ public class FragpipeRun {
             ramGb,
             threads,
             sharedPepxmlFilesFromMsfragger,
-            MSBoosterPanel.predictRt(),
-            MSBoosterPanel.predictSpectra(),
+            msBoosterPanel.predictRt(),
+            msBoosterPanel.predictSpectra(),
+            msBoosterPanel.predictIm(),
             tabWorkflow.hasDataType("DDA"),
             tabWorkflow.hasDataType("DIA"),
             tabWorkflow.hasDataType("GPF-DIA"),
@@ -1413,13 +1414,15 @@ public class FragpipeRun {
             cmdUmpire.isRun(),
             cmdDiaTracer.isRun(),
             tabMsf.isOpenSearch(),
-            MSBoosterPanel.rtModel(),
-            MSBoosterPanel.spectraModel(),
-            MSBoosterPanel.findBestRtModel(),
-            MSBoosterPanel.findBestSpectraModel(),
-            MSBoosterPanel.koinaUrl(),
-            MSBoosterPanel.rtTestModels(),
-            MSBoosterPanel.spectraTestModels());
+            msBoosterPanel.rtModel(),
+            msBoosterPanel.spectraModel(),
+            msBoosterPanel.imModel(),
+            msBoosterPanel.findBestRtModel(),
+            msBoosterPanel.findBestSpectraModel(),
+            msBoosterPanel.findBestImModel(),
+            msBoosterPanel.koinaUrl(),
+            msBoosterPanel.rtTestModels(),
+            msBoosterPanel.spectraTestModels());
       }
       return true;
     });
