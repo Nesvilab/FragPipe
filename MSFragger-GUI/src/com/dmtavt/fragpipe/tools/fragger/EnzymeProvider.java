@@ -34,9 +34,9 @@ public class EnzymeProvider implements Supplier<List<MsfraggerEnzyme>> {
     if (props == null || props.isEmpty()) {
       throw new IllegalStateException("Could not load " + PROPERTIES_FN + " for MSFragger supported enzymes");
     }
-    final Pattern reCut = Pattern.compile("cut\\(([a-zA-Z-]+)\\)");
-    final Pattern reNocuts = Pattern.compile("nocuts\\(([a-zA-Z-]+)\\)");
-    final Pattern reSense = Pattern.compile("sense\\(([a-zA-Z-]+)\\)");
+    final Pattern reCut = Pattern.compile("cut\\(([A-Z@]+)\\)");
+    final Pattern reNocuts = Pattern.compile("nocuts\\(([A-Z@]+)\\)");
+    final Pattern reSense = Pattern.compile("sense\\(([CN])\\)");
     List<MsfraggerEnzyme> list = props.stringPropertyNames().stream().sorted().map(name -> {
       String val = props.getProperty(name);
       String cut = "";

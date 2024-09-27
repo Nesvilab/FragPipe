@@ -69,7 +69,7 @@ public class CmdLabelquant extends CmdBase {
     for (Map.Entry<LcmsFileGroup, Path> e : annotations.entrySet()) {
       final LcmsFileGroup group = e.getKey();
       final Path annotationFile = e.getValue();
-      final Set<Path> lcmsGroupParentDir = group.lcmsFiles.stream().map(f -> f.getPath().getParent()).collect(Collectors.toSet());
+      final Set<Path> lcmsGroupParentDir = group.lcmsFiles.stream().map(f -> f.getPath().toAbsolutePath().getParent()).collect(Collectors.toSet());
       if (lcmsGroupParentDir.size() > 1) {
         if (Fragpipe.headless) {
           log.error("All LCMS input files for an experiment/group must be located in the same directory for " + NAME + " to work.");
@@ -84,7 +84,7 @@ public class CmdLabelquant extends CmdBase {
       final Path lcmsDir = lcmsGroupParentDir.iterator().next().toAbsolutePath();
       final Path groupWd = group.outputDir(wd);
 
-      if (!lcmsDir.equals(annotationFile.getParent())) {
+      if (!lcmsDir.equals(annotationFile.toAbsolutePath().getParent())) {
         String msg = "LCMS files for an experiment/group must be in the same direcotry\n"
             + "as the annotation file for " + NAME + " to work.";
         SwingUtils.showWarningDialog(comp, msg, NAME + " Config");

@@ -57,11 +57,11 @@ public class CmdPairScans extends CmdBase {
         }
 
         List<String> sup = new ArrayList<>(SUPPORTED_FORMATS);
-        final Path extLibsBruker = CmdMsfragger.searchExtLibsBruker(Collections.singletonList(binFragger.getParent()));
+        final Path extLibsBruker = CmdMsfragger.searchExtLibsBruker(Collections.singletonList(binFragger.toAbsolutePath().getParent()));
         if (extLibsBruker != null) {
             sup.add("d");
         }
-        final Path extLibsThermo = CmdMsfragger.searchExtLibsThermo(Collections.singletonList(binFragger.getParent()));
+        final Path extLibsThermo = CmdMsfragger.searchExtLibsThermo(Collections.singletonList(binFragger.toAbsolutePath().getParent()));
         if (extLibsThermo != null) {
             sup.add("raw");
         }

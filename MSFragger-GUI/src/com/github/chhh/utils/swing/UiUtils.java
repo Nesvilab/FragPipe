@@ -21,6 +21,7 @@ import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.swing.UiSpinnerDouble.Builder;
 import java.awt.Component;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemListener;
 import java.util.List;
 import java.util.stream.Stream;
 import javax.swing.DefaultComboBoxModel;
@@ -50,9 +51,9 @@ public class UiUtils {
     return new UiSpinnerInt.Builder().setInit(init).setMin(min).setMax(max).setStep(step);
   }
 
-  public static UiCheck createUiCheck(String label, boolean selected, ActionListener listener) {
+  public static UiCheck createUiCheck(String label, boolean selected, ItemListener listener) {
     UiCheck ui = new UiCheck(label, null, selected);
-    ui.addActionListener(listener);
+    ui.addItemListener(listener);
     return ui;
   }
   public static UiCheck createUiCheck(String label, boolean selected) {
@@ -99,9 +100,13 @@ public class UiUtils {
       return this;
     }
 
-    public UiTextBuilder filter(String filterRegex) {
-      uiText.setDocument(DocumentFilters.getFilter(filterRegex));
+    public UiTextBuilder filter(String filterRegex, String replacement) {
+      uiText.setDocument(DocumentFilters.getFilter(filterRegex, replacement));
       return this;
+    }
+
+    public UiTextBuilder filter(String filterRegex) {
+      return filter(filterRegex, "");
     }
 
     public UiTextBuilder text(String text) {

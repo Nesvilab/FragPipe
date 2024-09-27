@@ -34,17 +34,13 @@ import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.ProcessUtils;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -92,14 +88,14 @@ public class Skyline {
 
   public static void main(String[] args) {
     try {
-      runSkyline(args[0], Paths.get(args[1]), args[2], Integer.parseInt(args[3]), Integer.parseInt(args[4]));
+      runSkyline(args[0], Paths.get(args[1]), args[2], Boolean.parseBoolean(args[3]), Integer.parseInt(args[4]), Boolean.parseBoolean(args[5]));
     } catch (Exception e) {
       e.printStackTrace();
       System.exit(1);
     }
   }
 
-  private static void runSkyline(String skylinePath, Path wd, String skylineVersion, int mode, int modsMode) throws Exception {
+  private static void runSkyline(String skylinePath, Path wd, String skylineVersion, boolean isRunDIANN, int modsMode, boolean overridePeakBounds) throws Exception {
     if (skylinePath == null || skylinePath.isEmpty()) {
       throw new RuntimeException("Cannot find the Skyline executable file.");
     } else {
@@ -108,6 +104,7 @@ public class Skyline {
       pf.load();
 
       TreeSet<String> lcmsFiles = new TreeSet<>();
+      TreeSet<String> ddaAndDIAfiles = new TreeSet<>();
 
       String dataType = "DDA";
       String line;
@@ -123,6 +120,7 @@ public class Skyline {
         }
       }
       reader.close();
+      boolean useSpeclib = isRunDIANN && !overridePeakBounds;
 
       reader = Files.newBufferedReader(wd.resolve("fragpipe-files.fp-manifest"));
       while ((line = reader.readLine()) != null) {
@@ -135,50 +133,19 @@ public class Skyline {
           if (parts[3].contains("DIA")) {
             lcmsFiles.add(parts[0]);
           }
+          ddaAndDIAfiles.add(parts[0]);
         } else {
           lcmsFiles.add(parts[0]);
         }
       }
       reader.close();
 
-      float probThreshold = 1.1f;
-      TreeSet<Path> pepxmlFiles = new TreeSet<>();
       List<Path> speclibFiles = Files.walk(wd).filter(p -> p.getFileName().toString().endsWith(".speclib")).collect(Collectors.toList());
+      TreeSet<Path> psmTsvFiles = Files.walk(wd).filter(p -> p.getFileName().toString().startsWith("psm.tsv") && p.getFileName().toString().endsWith("psm.tsv")).collect(Collectors.toCollection(TreeSet::new));
 
-      if (mode == 0 && speclibFiles.isEmpty()) {
-        System.out.println("No speclib files found in " + wd + " but Skyline was set to use the speclib as input. Let Skyline build its own speclib.");
-        mode = 1;
-      }
-
-      if (mode == 1) {
-        List<Path> logFiles = Files.walk(wd).filter(p -> p.getFileName().toString().contentEquals("filter.log")).collect(Collectors.toList());
-
-        if (logFiles.isEmpty()) {
-          throw new FileNotFoundException("No filter.log files found in " + wd);
-        }
-
-        reader = Files.newBufferedReader(logFiles.get(logFiles.size() - 1));
-        while ((line = reader.readLine()) != null) {
-          line = line.trim();
-          if (line.isEmpty()) {
-            continue;
-          }
-          Matcher matcher = pattern.matcher(line);
-          if (matcher.find()) {
-            float f = Float.parseFloat(matcher.group(1));
-            if (f < probThreshold) {
-              probThreshold = f;
-            }
-          }
-        }
-        reader.close();
-
-        if (probThreshold > 1) {
-          throw new RuntimeException("Could not find the probability threshold in the filter.log.");
-        }
-
-        pepxmlFiles = Files.walk(wd).filter(p -> p.getFileName().toString().startsWith("interact-") && p.getFileName().toString().endsWith(".pep.xml")).collect(Collectors.toCollection(TreeSet::new));
-        pepxmlFiles.addAll(Files.walk(wd).filter(p -> p.getFileName().toString().contentEquals("interact.pep.xml")).collect(Collectors.toCollection(TreeSet::new)));
+      if (useSpeclib && speclibFiles.isEmpty()) {
+        System.out.println("No DIA-NN .speclib files found in " + wd + " but Skyline was set to use the spectral library as input and DIA-NN was enabled. Did the DIA-NN run fail? No Skyline document will be generated.");
+        System.exit(1);
       }
 
       Path skylineOutputDir = wd.resolve("skyline-output");
@@ -187,8 +154,24 @@ public class Skyline {
       DefaultArtifactVersion v = new DefaultArtifactVersion(skylineVersion);
       boolean matchUnimod = v.compareTo(new DefaultArtifactVersion("23.1.1.418")) >= 0;
 
+      Path peptideListPath = skylineOutputDir.resolve("peptide_list.tsv").toAbsolutePath();
+      WritePeptideList pepWriter = new WritePeptideList();
+      HashMap<String, HashSet<String>> addedMods = pepWriter.writePeptideList(psmTsvFiles, peptideListPath);
+
       Path modXmlPath = wd.resolve("mod.xml");
-      WriteSkyMods writeSkyMods = new WriteSkyMods(modXmlPath, pf, modsMode, matchUnimod);
+      WriteSkyMods writeSkyMods = new WriteSkyMods(modXmlPath, pf, modsMode, matchUnimod, !useSpeclib, addedMods);
+
+      Path sslPath = skylineOutputDir.resolve("psm.ssl").toAbsolutePath();
+      if (!useSpeclib) {
+        boolean isPercolator = Boolean.parseBoolean(pf.getProperty("percolator.run-percolator"));
+        WriteSSL sslWriter = new WriteSSL();
+        if (dataType.contentEquals("DIA")) {
+          // psm.tsv refers to DDA files, need to provide as well
+          sslWriter.writeSSL(psmTsvFiles, sslPath, isPercolator, ddaAndDIAfiles, !overridePeakBounds);
+        } else {
+          sslWriter.writeSSL(psmTsvFiles, sslPath, isPercolator, lcmsFiles, !overridePeakBounds);
+        }
+      }
 
       Path pp = wd.resolve("filelist_skyline.txt");
 
@@ -207,21 +190,15 @@ public class Skyline {
       }
 
       writer.write("--overwrite ");
-      if (mode == 0) {
-        writer.write((writeSkyMods.nonUnimodMods.isEmpty() ? "--new=" : "--out=") + skylineOutputDir.resolve("fragpipe.sky").toAbsolutePath() + " ");
-      } else if (mode == 1) {
-        writer.write((writeSkyMods.nonUnimodMods.isEmpty() ? "--new=" : "--out=") + skylineOutputDir.resolve("fragpipe_skylib.sky").toAbsolutePath() + " ");
-      } else {
-        throw new RuntimeException("Unsupported Skyline mode: " + mode);
-      }
+      writer.write((writeSkyMods.nonUnimodMods.isEmpty() ? "--new=" : "--out=") + skylineOutputDir.resolve("fragpipe.sky").toAbsolutePath() + " ");
       writer.write("--full-scan-acquisition-method=" + dataType + " ");
 
-      if (mode == 1) {
-        writer.write("--import-search-cutoff-score=" + probThreshold + " ");
-        for (Path p : pepxmlFiles) {
-          writer.write("--import-search-file=" + p.toAbsolutePath() + " ");
-        }
+      // always import pep list (it replaces fasta import, not search result import)
+      writer.write("--import-pep-list=" + peptideListPath.toAbsolutePath() + " ");
+      if (!useSpeclib) {
+        writer.write("--import-search-file=" + sslPath.toAbsolutePath() + " ");
       } else {
+        // DIA-NN
         writer.write("--import-search-cutoff-score=0.01 ");
         writer.write("--import-search-file=" + speclibFiles.get(0).toAbsolutePath() + " ");
       }
@@ -231,8 +208,9 @@ public class Skyline {
         writer.write("--pep-min-length=" + pf.getProperty("msfragger.digest_min_length") + " ");
         writer.write("--pep-max-length=" + pf.getProperty("msfragger.digest_max_length") + " ");
         writer.write("--pep-exclude-nterminal-aas=0 ");
-        if (pf.getProperty("msfragger.labile_search_mode").equals("nglycan")) {
-          writer.write("--pep-max-variable-mods=1 ");    // loading N-glyco lists takes too long otherwise (user can change this later in skyline)
+        int maxVarmods = Integer.parseInt(pf.getProperty("msfragger.max_variable_mods_per_peptide"));
+        if (maxVarmods != 3){
+          writer.write(String.format("--pep-max-variable-mods=%s ", maxVarmods));
         }
         writer.write(getEnzyme(pf));
       }
@@ -277,20 +255,15 @@ public class Skyline {
         writer.write("--full-scan-isolation-scheme=\"Results only\" ");
       }
 
-      for (String s : lcmsFiles) {
-        writer.write("--import-file=" + s + " ");
-      }
-      writer.write("--import-search-exclude-library-sources ");
-
-      Files.walk(wd).filter(p -> p.getFileName().toString().contentEquals("protein.fas")).forEach(p -> {
-        try {
-          writer.write("--import-fasta=" + p.toAbsolutePath() + " ");
-        } catch (IOException ex) {
-          throw new RuntimeException(ex);
+      if (dataType.contentEquals("DIA") && overridePeakBounds) {
+        // lc-ms file import is automatic when reading peptide list, but needs the DIA files imported separated for DIA SSL
+        for (String s : lcmsFiles) {
+          writer.write("--import-file=" + s + " ");
         }
-      });
-      writer.write("--associate-proteins-shared-peptides=DuplicatedBetweenProteins ");
+      }
 
+      // todo: waiting for a fix (or clarification) from Brendan. Skyline does not allow this unless fasta has been imported
+//      writer.write("--associate-proteins-shared-peptides=DuplicatedBetweenProteins ");
       writer.close();
 
       List<String> cmd = new ArrayList<>();

@@ -17,6 +17,8 @@
 
 package com.dmtavt.fragpipe;
 
+import static com.dmtavt.fragpipe.FragpipeLocations.Holder.locations;
+
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.Notifications;
 import com.dmtavt.fragpipe.messages.MessageLoaderUpdate;
@@ -25,6 +27,9 @@ import com.dmtavt.fragpipe.messages.NoteFragpipeProperties;
 import com.dmtavt.fragpipe.messages.NoteStartupComplete;
 import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.github.chhh.utils.SwingUtils;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.time.Duration;
@@ -45,9 +50,6 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
-import rx.Subscription;
-import rx.schedulers.Schedulers;
 
 public class FragpipeLoader {
 
@@ -122,6 +124,12 @@ public class FragpipeLoader {
       frameLoading.setVisible(false);
       frameLoading.dispose();
     }
+
+    if (locations.getJarPath().toAbsolutePath().toString().contains(" ") || locations.getJarPath().toAbsolutePath().toString().contains("\t")) {
+      SwingUtils.showErrorDialog(null, "FragPipe cannot be run from a path that contains spaces or tabs. Please move the FragPipe folder to a path without spaces or tabs.", "Spaces in path");
+      System.exit(1);
+    }
+
     Fragpipe.displayMainWindow();
   }
 
@@ -158,7 +166,7 @@ public class FragpipeLoader {
           .timeout(timeoutSeconds, TimeUnit.SECONDS)
           .subscribeOn(Schedulers.io());
 
-      Subscription sub = obs.subscribe(
+      Disposable sub = obs.subscribe(
           props -> {
             try {
               log.debug("Got remote properties successfully");

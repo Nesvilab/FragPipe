@@ -182,7 +182,7 @@ public class TabWorkflow extends JPanelWithEnablement {
   private JLabel numSelectedFilesLabel;
   private UiSpinnerInt uiSpinnerRam;
   private UiSpinnerInt uiSpinnerThreads;
-  private Map<String, PropsFile> workflows;
+  public Map<String, PropsFile> workflows;
   private UiCombo uiComboWorkflows;
   public static final String PROP_WORKFLOW_DESC = "workflow.description";
   public static final String PROP_WORKFLOW_SAVED_WITH_VER = "workflow.saved-with-ver";
@@ -326,7 +326,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     final HashMap<Path, Set<String>> reasonsFn = new HashMap<>();
 
     for (Path path : files.paths) {
-      Set<String> why = InputLcmsFile.validatePath(path.getParent().toString());
+      Set<String> why = InputLcmsFile.validatePath(path.toAbsolutePath().getParent().toString());
       if (!why.isEmpty()) {
         reasonsDir.put(path, why);
       }
@@ -445,7 +445,7 @@ public class TabWorkflow extends JPanelWithEnablement {
               renamedOk.put(kv.getKey(), kv.getValue());
             } catch (Exception e) {
               log.error(String.format("From '%s' to '%s' at '%s'",
-                  kv.getKey().getFileName(), kv.getValue().getFileName(), kv.getKey().getParent()));
+                  kv.getKey().getFileName(), kv.getValue().getFileName(), kv.getKey().toAbsolutePath().getParent()));
               couldNotRename.put(kv.getKey(), kv.getValue());
             }
           }
@@ -636,14 +636,14 @@ public class TabWorkflow extends JPanelWithEnablement {
         epWorkflowsDesc.setText("");
       }
     });
-    JButton btnWorkflowLoad = UiUtils.createButton("Load workflow", this::actionLoadSelectedWorkflow);
+    uiComboWorkflows.addActionListener(this::actionLoadSelectedWorkflow);
+
     FormEntry feComboWorkflow = Fragpipe.feNoCache(uiComboWorkflows, "workflow-option").label("Select a workflow:").tooltip("Conveniently loads appropriate defaults for various standard workflows\n").create();
     JButton btnOpenInExplorer = SwingUtils.createButtonOpenInFileManager(this, "Open built-in folder", () -> FragpipeLocations.get().getDirWorkflows());
 
     mu.add(p, epWorkflowsInfo).growX().spanX().wrap();
     mu.add(p, feComboWorkflow.label()).split();
     mu.add(p, feComboWorkflow.comp);
-    mu.add(p, btnWorkflowLoad);
     mu.add(p, new JLabel("or save current settings as workflow")).gapLeft("15px");
     mu.add(p, UiUtils.createButton("Save to built-in folder", e -> Bus.post(new MessageSaveAsWorkflow(false))));
     mu.add(p, UiUtils.createButton("Save to custom folder", e -> Bus.post(new MessageSaveAsWorkflow(true))));
@@ -706,7 +706,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     if (m.recursiveAdditionRoot != null) {
       saveDir = m.recursiveAdditionRoot.toString();
     } else if (!m.paths.isEmpty()) {
-      saveDir = m.paths.get(0).getParent().toString();
+      saveDir = m.paths.get(0).toAbsolutePath().getParent().toString();
     }
     if (saveDir != null) {
       Fragpipe.propsVarSet(ThisAppProps.PROP_LCMS_FILES_IN, saveDir);
@@ -834,7 +834,7 @@ public class TabWorkflow extends JPanelWithEnablement {
       if (savePath == null) {
         return;
       }
-      saveDir = savePath.getParent();
+      saveDir = savePath.toAbsolutePath().getParent();
       Fragpipe.propsVarSet(PROP_WORKFLOW_SAVEDIR, saveDir.toString());
     }
 
@@ -1019,6 +1019,8 @@ public class TabWorkflow extends JPanelWithEnablement {
         () -> new MessageLcmsGroupAction(Type.SET_DDA));
     btnSetDia = button("Set DIA",
         () -> new MessageLcmsGroupAction(Type.SET_DIA));
+    btnSetGpfDia = button("Set GPF-DIA",
+        () -> new MessageLcmsGroupAction(Type.SET_GPF_DIA));
     btnSetDiaQuant = button("Set DIA-Quant",
         () -> new MessageLcmsGroupAction(Type.SET_DIA_QUANT));
     btnSetDiaLib = button("Set DIA-Lib",
@@ -1084,6 +1086,7 @@ public class TabWorkflow extends JPanelWithEnablement {
 
     mu.add(p, btnSetDda);
     mu.add(p, btnSetDdaPlus);
+//    mu.add(p, btnSetGpfDia);
     mu.add(p, btnSetDia).wrap();
 
     mu.add(p, new JLabel("Set bioreplicates")).split();
@@ -1169,7 +1172,7 @@ public class TabWorkflow extends JPanelWithEnablement {
 
         Path openLoc = path;
         while (openLoc != null && !Files.isDirectory(openLoc)) {
-          openLoc = openLoc.getParent();
+          openLoc = openLoc.toAbsolutePath().getParent();
         }
         if (openLoc == null) {
           SwingUtils.showInfoDialog(TabWorkflow.this, "Could not locate parent directory to open", "Error opening in file manager");
@@ -1370,7 +1373,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     Path path = getSaveFilePath(m.path, ThisAppProps.CONFIG_SAVE_LOCATION, fileNameEndingFilter, manifestExt, m.quite, this);
 
     if (path != null) {
-      Fragpipe.propsVarSet(ThisAppProps.CONFIG_SAVE_LOCATION, path.getParent().toString());
+      Fragpipe.propsVarSet(ThisAppProps.CONFIG_SAVE_LOCATION, path.toAbsolutePath().getParent().toString());
       try {
         manifestSave(path);
       } catch (IOException e) {
@@ -1389,8 +1392,9 @@ public class TabWorkflow extends JPanelWithEnablement {
       if (f == null)
         return;
       try {
-        Fragpipe.propsVarSet(ThisAppProps.CONFIG_SAVE_LOCATION, f.getParent());
+        Fragpipe.propsVarSet(ThisAppProps.CONFIG_SAVE_LOCATION, f.getAbsoluteFile().getParent());
         manifestLoad(f.toPath());
+        adjustToolsBasedOnDataTypes();
       } catch (IOException e) {
         SwingUtils.showErrorDialogWithStacktrace(e, this);
       }
@@ -1403,7 +1407,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     Path path = getSaveFilePath(m.path, ThisAppProps.CONFIG_SAVE_LOCATION, fileNameEndingFilter, sdrfExt, m.quiet, this);
 
     if (path != null) {
-      Fragpipe.propsVarSet(ThisAppProps.CONFIG_SAVE_LOCATION, path.getParent().toString());
+      Fragpipe.propsVarSet(ThisAppProps.CONFIG_SAVE_LOCATION, path.toAbsolutePath().getParent().toString());
       TabMsfragger tabMsfragger = getStickyStrict(TabMsfragger.class);
       try {
         sdrfSave(path, m.label, tabMsfragger.getSDRFenzymes(), tabMsfragger.getSDRFmods(), tabMsfragger.getPrecTolString(), tabMsfragger.getProdTolString(m.logText));
@@ -1683,7 +1687,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     }
 
     if (path != null) {
-      Fragpipe.propsVarSet(defaultSaveDir, path.getParent().toString());
+      Fragpipe.propsVarSet(defaultSaveDir, path.toAbsolutePath().getParent().toString());
       try {
         if (quiet) {
           Files.deleteIfExists(path);
@@ -1703,6 +1707,7 @@ public class TabWorkflow extends JPanelWithEnablement {
   }
 
   private void actionLoadSelectedWorkflow(ActionEvent e) {
+    uiComboWorkflows.hidePopup(); // Make the popup disappear in case it is still open when loading the (custom) workflow
     String workflow = (String) uiComboWorkflows.getSelectedItem();
     log.debug("Load workflow button clicked: {}", workflow);
     if (workflow == null || workflow.equalsIgnoreCase("Custom")) {
@@ -1726,36 +1731,34 @@ public class TabWorkflow extends JPanelWithEnablement {
       }
 
       // Do not load the config paths from the workflow, which likely to be the paths in another user's computer.
-      propsFile.remove("fragpipe-config.tools-folder");
-      propsFile.remove("fragpipe-config.bin-python");
+      propsFile.remove(TabConfig.TAB_PREFIX + "tools-folder");
+      propsFile.remove(TabConfig.TAB_PREFIX + "bin-diann");
+      propsFile.remove(TabConfig.TAB_PREFIX + "bin-python");
 
       epWorkflowsDesc.setText(propsFile.getProperty(PROP_WORKFLOW_DESC, "Description not present"));
-      Fragpipe.propsVarSet(PROP_WORKFLOW_SAVEDIR, propsFile.getPath().getParent().toString());
+      Fragpipe.propsVarSet(PROP_WORKFLOW_SAVEDIR, propsFile.getPath().toAbsolutePath().getParent().toString());
 
       Bus.post(new MessageLoadUi(propsFile, true, false));
     } else {
-      int confirmation = SwingUtils.showConfirmDialog(this, new JLabel("Do you want to load workflow: " + workflow + "?"), "Confirmation");
-      if (JOptionPane.OK_OPTION == confirmation) {
-        log.debug("Loading workflow/ui state: {}", workflow);
-        PropsFile propsFile = workflows.get(workflow);
-        if (propsFile == null) {
-          SwingUtils.showErrorDialog(this, "Couldn't load workflow file: " + workflow, "Workflow loading error");
-          return;
-        }
-
-        log.debug("Reloading file from disk, in case it has changed: {}", propsFile.getPath());
-        try {
-          propsFile.load();
-        } catch (IOException ex) {
-          SwingUtils.showErrorDialogWithStacktrace(ex, this, true);
-          log.error("Error re-loading workflow file", ex);
-        }
-
-        if (propsFile.containsKey("workflow.workflow-option")) {
-          propsFile.setProperty("workflow.workflow-option", workflow);
-        }
-        Bus.post(new MessageLoadUi(propsFile, true, false));
+      log.debug("Loading workflow/ui state: {}", workflow);
+      PropsFile propsFile = workflows.get(workflow);
+      if (propsFile == null) {
+        SwingUtils.showErrorDialog(this, "Couldn't load workflow file: " + workflow, "Workflow loading error");
+        return;
       }
+
+      log.debug("Reloading file from disk, in case it has changed: {}", propsFile.getPath());
+      try {
+        propsFile.load();
+      } catch (IOException ex) {
+        SwingUtils.showErrorDialogWithStacktrace(ex, this, true);
+        log.error("Error re-loading workflow file", ex);
+      }
+
+      if (propsFile.containsKey("workflow.workflow-option")) {
+        propsFile.setProperty("workflow.workflow-option", workflow);
+      }
+      Bus.post(new MessageLoadUi(propsFile, true, false));
     }
   }
 

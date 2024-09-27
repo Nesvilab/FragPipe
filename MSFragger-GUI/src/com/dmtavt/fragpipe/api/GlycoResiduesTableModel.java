@@ -46,9 +46,10 @@ public class GlycoResiduesTableModel extends DefaultTableModel {
     private static final int COL_PROB2 = 5;
     private static final int COL_ELEMENTAL = 6;
     private static final int COL_REQUIRED_RES = 7;
+    private static final int COL_INTRINSIC_CHARGE = 8;
 
     private static final int NUM_COLS = 7;
-    private static final int NUM_MOD_COLS = 8;
+    private static final int NUM_MOD_COLS = 9;
 
     /**
      *
@@ -91,9 +92,10 @@ public class GlycoResiduesTableModel extends DefaultTableModel {
         for (Vector<?> row : dataVector) {
             GlycanResidue res = parseResidueDefinition(row, printIndex);
             String requiredRes = row.get(COL_REQUIRED_RES) != null ? (String) row.get(COL_REQUIRED_RES) : "";
+            int intrinsicCharge = row.get(COL_INTRINSIC_CHARGE) != null ? (Integer) row.get(COL_INTRINSIC_CHARGE) : 0;
             if (res != null) {
                 printIndex++;
-                GlycanMod mod = new GlycanMod(res, requiredRes, glycanResidues);
+                GlycanMod mod = new GlycanMod(res, requiredRes, glycanResidues, intrinsicCharge);
                 list.add(mod);
             }
         }
@@ -198,6 +200,7 @@ public class GlycoResiduesTableModel extends DefaultTableModel {
             data[i][5] = m.yProbMinus == -1 ? null : m.yProbMinus;
             data[i][6] = m.elementalComp;
             data[i][7] = m.getRequiredResStr();
+            data[i][8] = m.intrinsicCharge == 0 ? null : m.intrinsicCharge;
         }
         return data;
     }

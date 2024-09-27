@@ -99,7 +99,7 @@ public class TabRun extends JPanelWithEnablement {
   public static final String TAB_PREFIX = "tab-run.";
   private static final String LAST_WORK_DIR = "workdir.last-path";
   private static final String PROP_FILECHOOSER_LAST_PATH = TAB_PREFIX + "filechooser.last-path";
-  private static final String PDV_NAME = "/FP-PDV/FP-PDV-1.2.2.jar";
+  private static final String PDV_NAME = "/FP-PDV/FP-PDV-1.2.4.jar";
   private static final String FRAGPIPE_ANALYST_URL = Fragpipe.propsFix().getProperty("fragpipe-analyst-url", "http://fragpipe-analyst.nesvilab.org/");
 
   public final TextConsole console;
@@ -234,7 +234,7 @@ public class TabRun extends JPanelWithEnablement {
       throw new NullPointerException("Sticky note not on the bus: ReportPanel");
     }
 
-    uiCheckWriteSubMzml.addActionListener(e -> {
+    uiCheckWriteSubMzml.addItemListener(e -> {
       uiSpinnerProbThreshold.setEnabled(uiCheckWriteSubMzml.isSelected());
       reportPanel.setPrintDecoys(uiCheckWriteSubMzml.isSelected());
     });

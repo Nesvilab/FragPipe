@@ -17,7 +17,6 @@
 
 package com.dmtavt.fragpipe.tools.downstream;
 
-import static com.dmtavt.fragpipe.Fragpipe.fe;
 import static com.github.chhh.utils.SwingUtils.createClickableHtml;
 
 import com.github.chhh.utils.SwingUtils;
@@ -116,10 +115,8 @@ public class SaintexpressPanel extends JPanelBase {
     FormEntry feVirtualControls = mu.feb(uiSpinVirtualControls).name("virtual-controls").label("Number of virtual controls (-L)").create();
 
     uiTextCmdOpts = UiUtils.uiTextBuilder().cols(20).text("").create();
-    FormEntry feCmdOpts = fe(uiTextCmdOpts, "cmd-opts")
-        .label("Cmd line opts:")
-        .tooltip("These options will be passed on to SAINTexpress.\n"
-            + "See output log (e.g. dry-run results) for the complete command.").create();
+    FormEntry feCmdOpts = new FormEntry("cmd-opts", "Cmd line opts", uiTextCmdOpts, "These options will be passed on to SAINTexpress.\n"
+        + "See output log (e.g. dry-run results) for the complete command.");
 
 
     mu.add(p, feMaxReplicates.label(), mu.ccL());

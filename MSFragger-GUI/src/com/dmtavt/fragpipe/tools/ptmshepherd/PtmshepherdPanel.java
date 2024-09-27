@@ -63,7 +63,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import net.java.balloontip.BalloonTip;
@@ -199,13 +198,6 @@ public class PtmshepherdPanel extends JPanelBase {
   @Subscribe
   public void on(MessageLoadShepherdDefaults m) {
     log.debug("Got MessageLoadShepherdDefaults: {}", m);
-    if (m.doAskUser) {
-      int answer = SwingUtils.showConfirmDialog(this, new JLabel(String.format("<html>Load PTMShepherd defaults for %s?", m.type.name())));
-      if (JOptionPane.OK_OPTION != answer) {
-        log.debug("User cancelled Loading Shepherd defaults");
-        return;
-      }
-    }
     loadDefaults(2, m.type);
   }
 
@@ -342,11 +334,10 @@ public class PtmshepherdPanel extends JPanelBase {
     defaults.put("Offset Search", SearchTypeProp.offset);
     defaults.put("Glyco Search", SearchTypeProp.glyco);
     final UiCombo uiComboDefaults = UiUtils.createUiCombo(new ArrayList<>(defaults.keySet()));
-    JButton btnLoadDefaults = UiUtils
-        .createButton("Load", "Load PTM-Shepherd settings for given search type", e -> {
-          SearchTypeProp type = defaults.get(uiComboDefaults.getSelectedItem());
-          Bus.post(new MessageLoadShepherdDefaults(true, type));
-        });
+    uiComboDefaults.addItemListener(e -> {
+      SearchTypeProp type = defaults.get((String) uiComboDefaults.getSelectedItem());
+      Bus.post(new MessageLoadShepherdDefaults(type));
+    });
 
     FormEntry feExtendedOut = new FormEntry(PROP_output_extended, "not-shown",
             new UiCheck("Extended output", null, false),
@@ -365,7 +356,6 @@ public class PtmshepherdPanel extends JPanelBase {
 
     mu.add(pTop, labelDefaults).split(4);
     mu.add(pTop, uiComboDefaults);
-    mu.add(pTop, btnLoadDefaults);
     mu.add(pTop, feExtendedOut.comp).wrap();
 
     return pTop;

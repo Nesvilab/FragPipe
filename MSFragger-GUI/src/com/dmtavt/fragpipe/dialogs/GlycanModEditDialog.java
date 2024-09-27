@@ -51,7 +51,7 @@ public class GlycanModEditDialog extends javax.swing.JDialog {
     private Frame parent;
     private int dialogResult = JOptionPane.CLOSED_OPTION;
     private static final String[] MOD_TABLE_COL_NAMES = {"Name", "Mass", "Alternate Names (optional)",
-            "is labile?", "Y prob +", "Y prob -", "Elemental Composition", "Required Residue(s)"};
+            "is labile?", "Y prob +", "Y prob -", "Elemental Composition", "Required Residue(s)", "Intrinsic Charge"};
     public static final String TAB_PREFIX = "glycan-database.";
 
     public GlycanModEditDialog(java.awt.Frame parent, List<? extends GlycanResidue> initialResidues) {
@@ -138,8 +138,8 @@ public class GlycanModEditDialog extends javax.swing.JDialog {
         Object[][] data = GlycoResiduesTableModel.convertGlycoModsToData(initResidues);
         model = new GlycoResiduesTableModel(
                 MOD_TABLE_COL_NAMES,
-                new Class<?>[]{String.class, Double.class, String.class, Boolean.class, Double.class, Double.class, String.class, String.class},
-                new boolean[]{true, true, true, true, true, true, true, true, true, true},
+                new Class<?>[]{String.class, Double.class, String.class, Boolean.class, Double.class, Double.class, String.class, String.class, Integer.class},
+                new boolean[]{true, true, true, true, true, true, true, true, true, true, true},
                 data);
         final GlycoResiduesTable t = new GlycoResiduesTable(model, MOD_TABLE_COL_NAMES, GlycoResiduesTableModel::convertGlycoModsToData);
         Fragpipe.rename(t, "table.glyco-mods", TAB_PREFIX);
@@ -152,7 +152,8 @@ public class GlycanModEditDialog extends javax.swing.JDialog {
                 "Y prob +: required unless labile - empirical score factor for finding Y ions. Default 5<br/>\n" +
                 "Y prob -: required unless labile - empirical score factor for missing Y ions. Default 0.5<br/>\n" +
                 "Elemental Composition: optional - used for Skyline conversion, not required for searches.<br/>\n" +
-                "Required Residue(s): optional - specify glycan residue names (comma separated) to only allow this mod on residue(s).");
+                "Required Residue(s): optional - specify glycan residue names (comma separated) to only allow this mod on residue(s)." +
+                "Intrinsic Charge: optional - specify modification charge (e.g., sodium adduct would be +1). Used to adjust elemental composition when calculating ion m/z");
         t.setDefaultRenderer(Float.class, new TableCellDoubleRenderer());
         t.setDefaultRenderer(Integer.class, new TableCellIntRenderer());
 

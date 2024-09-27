@@ -98,7 +98,7 @@ public class PropsFile extends Properties {
   }
 
   public void save() throws IOException {
-    PathUtils.createDirs(path.getParent());
+    PathUtils.createDirs(path.toAbsolutePath().getParent());
     save(Files.newOutputStream(path));
   }
 

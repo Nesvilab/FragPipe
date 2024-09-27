@@ -102,7 +102,7 @@ public class ProcessResult implements AutoCloseable {
       return null;
     }
     final Path pathLogOut = pb.directory().toPath().resolve(fn);
-    if (!Files.exists(pathLogOut.getParent())) {
+    if (!Files.exists(pathLogOut.toAbsolutePath().getParent())) {
       Files.createDirectories(pathLogOut);
     }
     return new BufferedOutputStream(Files

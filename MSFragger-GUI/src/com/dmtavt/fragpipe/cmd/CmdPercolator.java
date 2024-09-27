@@ -22,6 +22,7 @@ import static com.dmtavt.fragpipe.cmd.CmdPeptideProphet.findOldFilesForDeletion;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
+import com.dmtavt.fragpipe.Version;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.tabs.TabWorkflow;
 import com.dmtavt.fragpipe.tools.msbooster.MSBoosterPanel;
@@ -73,7 +74,7 @@ public class CmdPercolator extends CmdBase {
       InputLcmsFile lcms = e.getKey();
       for (Path pepxml : e.getValue()) {
         final String cleanFn = pepxml.getFileName().toString();
-        final Path cleanDir = pepxml.getParent();
+        final Path cleanDir = pepxml.toAbsolutePath().getParent();
 
         Path interactXml;
         if (!combine) {
@@ -129,15 +130,15 @@ public class CmdPercolator extends CmdBase {
     for (Entry<InputLcmsFile, List<Path>> e : pepxmlFiles.entrySet()) {
       InputLcmsFile inputLcmsFile = e.getKey();
       for (Path pepxmlPath : e.getValue()) {
-        final Path pepxmlDir = pepxmlPath.getParent();
+        final Path pepxmlDir = pepxmlPath.toAbsolutePath().getParent();
         final String nameWithoutExt = FilenameUtils.removeExtension(pepxmlPath.getFileName().toString());
         final String basename = remove_rank_suffix(nameWithoutExt);
         if(!basenames.add(basename))
           continue;
         // Percolator
         List<String> cmdPp = new ArrayList<>();
-        final String percolator_bin = OsUtils.isUnix() ? "percolator_3_6_5/linux/percolator" :
-                OsUtils.isWindows() ? "percolator_3_6_5/windows/percolator.exe" : null;
+        final String percolator_bin = OsUtils.isUnix() ? "percolator_3_7_1/linux/percolator" :
+                OsUtils.isWindows() ? "percolator_3_7_1/windows/percolator.exe" : null;
         cmdPp.add(FragpipeLocations.checkToolsMissing(Seq.of(percolator_bin)).get(0).toString());
 
         String strippedBaseName;
@@ -183,7 +184,7 @@ public class CmdPercolator extends CmdBase {
         if (inputLcmsFile.getPath().getFileName().toString().endsWith("_sub.mzML")) { // It is likely to be the sub mzML file from the first-pass. Find the weights file.
           String ss = inputLcmsFile.getPath().getFileName().toString().replaceFirst("_sub\\.mzML$", "_percolator.weights");
           try {
-            List<Path> pList = Files.walk(inputLcmsFile.getPath().getParent()).filter(p -> {
+            List<Path> pList = Files.walk(inputLcmsFile.getPath().toAbsolutePath().getParent()).filter(p -> {
               String s = p.getFileName().toString();
               return s.endsWith("_percolator.weights") && s.contentEquals(ss);
             }).collect(Collectors.toList());
@@ -223,7 +224,7 @@ public class CmdPercolator extends CmdBase {
 
         // convert the percolator output tsv to PeptideProphet's pep.xml format
         ProcessBuilder pbRewrite = pbConvertToPepxml(jarFragpipe, "interact-" + basename, strippedBaseName, basename, e.getKey().getDataType().contentEquals("DDA"), minProb, lcmsPath);
-        pbRewrite.directory(pepxmlPath.getParent().toFile());
+        pbRewrite.directory(pepxmlPath.toAbsolutePath().getParent().toFile());
         pbisPostParallel.add(new PbiBuilder().setName("Percolator: Convert to pepxml").setPb(pbRewrite).setParallelGroup(ProcessBuilderInfo.GROUP_SEQUENTIAL).create());
 
         // delete intermediate files
@@ -281,7 +282,7 @@ public class CmdPercolator extends CmdBase {
     Path root = FragpipeLocations.get().getDirFragpipeRoot();
     String libsDir = root.resolve("lib") + "/*";
     if (Files.isDirectory(jarFragpipe)) {
-      libsDir = jarFragpipe.getParent().getParent().getParent().getParent().resolve("build/install/fragpipe/lib") + "/*";
+      libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe-" + Version.version() + "/lib") + "/*";
       log.debug("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
     }
     cmd.add(libsDir);

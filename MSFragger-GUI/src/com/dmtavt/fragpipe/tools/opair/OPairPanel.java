@@ -72,6 +72,7 @@ public class OPairPanel extends JPanelBase {
     private static final String PROP_filterOxonium = "filterOxonium";
     private static final String PROP_oxoMinInt = "oxonium_minimum_intensity";
     private static final String PROP_oxoRulesFile = "oxonium_filtering_file";
+    private static final String PROP_allowedSites = "allowed_sites";
 
     private UiSpinnerDouble uiSpinnerMS2Tol;
     private UiSpinnerDouble uiSpinnerMS1Tol;
@@ -84,6 +85,7 @@ public class OPairPanel extends JPanelBase {
     private UiCheck uiCheckSingleScanType;
     private UiCheck uiCheckFilterOxonium;
     private UiSpinnerDouble uiSpinnerOxoMinInt;
+    private UiText uiTextAllowedSites;
 
     public OPairPanel() {
         super();
@@ -158,6 +160,10 @@ public class OPairPanel extends JPanelBase {
         FormEntry feGlycanDBFile = mu.feb(PROP_glycoDB, uiTextOGlycanDBFile)
                 .label("O-Pair Database").tooltip(tooltipGlycanDBFile).create();
 
+        uiTextAllowedSites = UiUtils.uiTextBuilder().cols(10).create();
+        FormEntry feAllowedSites = mu.feb(PROP_allowedSites, uiTextAllowedSites)
+                .label("Allowed Sites").tooltip("Allowed residues. Default: ST").create();
+
         String tooltipOxoniumFilterFile = "(Optional) Load custom oxonium filter rules from file. Will use default filtering rules if not provided.";
         uiTextOxoRuleFile = UiUtils.uiTextBuilder().cols(59).create();
         List<FileFilter> oxoFilters = new ArrayList<>();
@@ -194,7 +200,9 @@ public class OPairPanel extends JPanelBase {
         mu.add(pContent, feMS1SpectraTol.label(), mu.ccR());
         mu.add(pContent, feMS1SpectraTol.comp);
         mu.add(pContent, feMaxGlycans.label(), mu.ccR());
-        mu.add(pContent, feMaxGlycans.comp).wrap();
+        mu.add(pContent, feMaxGlycans.comp);
+        mu.add(pContent, feAllowedSites.label(), mu.ccR());
+        mu.add(pContent, feAllowedSites.comp).wrap();
 
         mu.add(pContent, feGlycanDBFile.label()).split().spanX();
         mu.add(pContent, feGlycanDBFile.comp).wrap();
@@ -265,6 +273,7 @@ public class OPairPanel extends JPanelBase {
         params.setFilterOxonium(uiCheckFilterOxonium.isSelected());
         params.setOxoRulesFilePath(uiTextOxoRuleFile.getNonGhostText());
         params.setOxoMinInt(uiSpinnerOxoMinInt.getActualValue());
+        params.setAllowedSites(uiTextAllowedSites.getNonGhostText());
         return params;
     }
 

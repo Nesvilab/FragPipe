@@ -828,7 +828,7 @@ public class TmtiPanel extends JPanelBase {
         } else {
           // maybe there already is annotation.txt file?
           List<Path> fileDirs = Seq.seq(e.getValue())
-              .map(lcms -> lcms.getPath().getParent()).distinct().toList();
+              .map(lcms -> lcms.getPath().toAbsolutePath().getParent()).distinct().toList();
           if (fileDirs.size() == 1) {
             // only if all files are in the same directory, we'll try to auto-detect annotations file
             List<Path> annotations = Files.list(fileDirs.get(0))
@@ -852,7 +852,7 @@ public class TmtiPanel extends JPanelBase {
   }
 
   private Path computePlexDir(String expName, Set<InputLcmsFile> lcmsFiles) {
-    List<Path> dirs = lcmsFiles.stream().map(f -> f.getPath().getParent()).distinct()
+    List<Path> dirs = lcmsFiles.stream().map(f -> f.getPath().toAbsolutePath().getParent()).distinct()
         .collect(Collectors.toList());
     if (dirs.size() > 1) {
       String m = String
@@ -943,7 +943,7 @@ public class TmtiPanel extends JPanelBase {
         return;
       }
 
-      if (getIntensityExtractionTool() == 1 && !expDir.equals(selectedFile.toPath().getParent())) {
+      if (getIntensityExtractionTool() == 1 && !expDir.equals(selectedFile.toPath().toAbsolutePath().getParent())) {
         String m = String.format(
             "Philosopher requires the annotation file to be\n"
                 + "in the same directory as corresponding LCMS files.\n"
@@ -966,7 +966,7 @@ public class TmtiPanel extends JPanelBase {
       // copy the file
       Path selectedPath = selectedFile.toPath();
       Path dest = expDir.resolve(selectedPath.getFileName());
-      if (!selectedPath.getParent().equals(expDir)) {
+      if (!selectedPath.toAbsolutePath().getParent().equals(expDir)) {
         try {
           Files.copy(selectedPath, dest, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException ex) {
@@ -1052,7 +1052,7 @@ public class TmtiPanel extends JPanelBase {
       int userSelection = fc.showSaveDialog(parent);
       if (JFileChooser.APPROVE_OPTION == userSelection) {
         selectedPath = fc.getSelectedFile().toPath();
-        if (getIntensityExtractionTool() == 1 && !selectedPath.getParent().equals(saveDir)) {
+        if (getIntensityExtractionTool() == 1 && !selectedPath.toAbsolutePath().getParent().equals(saveDir)) {
           String msg = "<html>Philosopher requires annotation files to be saved<br/>\n"
               + "in the same directory as LCMS files for that plex. Please save the file in:<br/>\n<br/>\n" + saveDir + "\n"
               + "or switch to IonQuant for the intensity extraction method.";

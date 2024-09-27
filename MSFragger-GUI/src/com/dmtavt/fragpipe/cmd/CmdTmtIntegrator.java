@@ -55,8 +55,7 @@ public class CmdTmtIntegrator extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdTmtIntegrator.class);
 
   public static final String NAME = "TmtIntegrator";
-  public static final String JAR_NAME = "tmt-integrator-6.0.0.jar";
-  public static final String JAR_MAIN = "tmtintegrator.TMTIntegrator";
+  public static final String JAR_NAME = "TMT-Integrator-6.0.1.jar";
   public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML", "raw");
   public static final String CONFIG_FN = "tmt-integrator-conf.yml";
   public static final String CONFIG_FN_2 = "tmt-integrator-conf-unmod.yml";
@@ -165,9 +164,9 @@ public class CmdTmtIntegrator extends CmdBase {
         Files.createDirectories(outDir);
       }
       log.debug("Writing {} config file", NAME);
-      if (!Files.exists(pathConf.getParent())) {
-        log.debug(NAME + " config required presence of output work dir, creating: {}", pathConf.getParent());
-        Files.createDirectories(pathConf.getParent());
+      if (!Files.exists(pathConf.toAbsolutePath().getParent())) {
+        log.debug(NAME + " config required presence of output work dir, creating: {}", pathConf.toAbsolutePath().getParent());
+        Files.createDirectories(pathConf.toAbsolutePath().getParent());
       }
       Map<String, String> conf = panel.formToConfig(outDir.toString(), panel.getSelectedLabel(), isSecondUnmodRun);
 
@@ -239,9 +238,8 @@ public class CmdTmtIntegrator extends CmdBase {
       }
       List<String> cmdCheck = new ArrayList<>();
       cmdCheck.add(Fragpipe.getBinJava());
-      cmdCheck.add("-cp");
+      cmdCheck.add("-jar");
       cmdCheck.add(constructClasspathString(classpathJars));
-      cmdCheck.add(JAR_MAIN);
       cmdCheck.add(pathConf.toString());
       cmdCheck.add("--ValParam");
       ProcessBuilder pb = new ProcessBuilder(cmdCheck);
@@ -268,9 +266,8 @@ public class CmdTmtIntegrator extends CmdBase {
     List<String> cmd = new ArrayList<>();
     cmd.add(Fragpipe.getBinJava());
     cmd.add("-Xmx" + ramGb + "G");
-    cmd.add("-cp");
+    cmd.add("-jar");
     cmd.add(constructClasspathString(classpathJars));
-    cmd.add(JAR_MAIN);
     cmd.add(pathConf.toString());
     mapGroupsToProtxml.keySet().forEach(g -> {
       cmd.add(g.outputDir(wd).resolve("psm.tsv").toString());

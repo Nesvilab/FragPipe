@@ -48,7 +48,7 @@ diagnostic_fragments =
 remainder_fragment_masses =
 
 search_enzyme_name_1 = nonspecific
-search_enzyme_cut_1 = -
+search_enzyme_cut_1 = @
 search_enzyme_nocut_1 =
 search_enzyme_sense_1 = C
 allowed_missed_cleavage_1 = 2

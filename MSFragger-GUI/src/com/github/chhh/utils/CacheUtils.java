@@ -78,9 +78,9 @@ public class CacheUtils {
    */
   public static Path getTempFile(String fn) {
     Path p = getTempDir().resolve(fn);
-    if (!Files.exists(p.getParent())) {
+    if (!Files.exists(p.toAbsolutePath().getParent())) {
       try {
-        Files.createDirectories(p.getParent());
+        Files.createDirectories(p.toAbsolutePath().getParent());
       } catch (IOException e) {
         throw new IllegalStateException("Could not create directory structure for a temporary file: " + p.toString());
       }

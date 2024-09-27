@@ -6,6 +6,11 @@ diann.quantification-strategy :: Any LC (high accuracy) <=> 0
 diann.quantification-strategy :: Any LC (high precision) <=> 1
 diann.quantification-strategy :: Robust LC (high accuracy) <=> 2
 diann.quantification-strategy :: Robust LC (high precision) <=> 3
+diann.quantification-strategy-2 :: Legacy (direct) <=> 0
+diann.quantification-strategy-2 :: QuantUMS (high accuracy) <=> 1
+diann.quantification-strategy-2 :: QuantUMS (high precision) <=> 2
+diann.channel-normalization-strategy :: Run specific <=> 0
+diann.channel-normalization-strategy :: Channel specific <=> 1
 
 msfragger.calibrate_mass :: None <=> 0
 msfragger.calibrate_mass :: Off <=> 0
@@ -142,6 +147,8 @@ msbooster.spectra-model::Prosit 2023 Intensity timsTOF <=> Prosit_2023_intensity
 msbooster.spectra-model::Prosit 2020 Intensity CID <=> Prosit_2020_intensity_CID
 msbooster.spectra-model::Prosit 2020 Intensity TMT <=> Prosit_2020_intensity_TMT
 msbooster.spectra-model::Prosit 2020 Intensity HCD <=> Prosit_2020_intensity_HCD
+msbooster.im-model::DIA-NN <=> DIA-NN
+msbooster.im-model::AlphaPept CCS Generic <=> AlphaPept_ccs_generic
 
-skyline.skyline-mode::Use speclib as input <=> 0
-skyline.skyline-mode::Use pep.xml as input <=> 1
+skyline.skyline-mode::Import DIA-NN result <=> 0
+skyline.skyline-mode::Import PSM result <=> 1

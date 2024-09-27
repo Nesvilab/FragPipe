@@ -109,7 +109,7 @@ public class CmdMsfragger extends CmdBase {
           }
         } else if (f.getDataType().contentEquals("GPF-DIA")) {
           if (paramsGpfDia == null) {
-            maxRank = 3;
+            maxRank = paramsGpfDia.getOutputReportTopN();
           } else {
             maxRank = paramsGpfDia.getOutputReportTopN();
           }
@@ -258,7 +258,7 @@ public class CmdMsfragger extends CmdBase {
     synchronized (CmdMsfragger.class) {
       Path rel = Paths.get("ext/bruker");
       List<Path> dirs = searchLocations.stream()
-          .map(path -> Files.isDirectory(path) ? path : path.getParent()).distinct().collect(
+          .map(path -> Files.isDirectory(path) ? path : path.toAbsolutePath().getParent()).distinct().collect(
               Collectors.toList());
       List<Path> locs = createRelSearchPaths(dirs, rel);
       pathBruker = searchExtLibsByPattern(locs, timsdataPattern.stream().map(Pattern::compile).collect(Collectors.toList()));
@@ -276,7 +276,7 @@ public class CmdMsfragger extends CmdBase {
           "BatmassIoThermoServer.exe"
       );
       List<Path> dirs = searchLocations.stream()
-          .map(path -> Files.isDirectory(path) ? path : path.getParent()).distinct().collect(
+          .map(path -> Files.isDirectory(path) ? path : path.toAbsolutePath().getParent()).distinct().collect(
               Collectors.toList());
       List<Path> locs = createRelSearchPaths(dirs, rel);
       pathThermo = searchExtLibsByPath(locs, files.stream().map(Paths::get).collect(Collectors.toList()));
@@ -291,7 +291,7 @@ public class CmdMsfragger extends CmdBase {
         if (Files.isDirectory(p)) {
           locs.add(p.resolve(rel));
         } else {
-          Path parent = p.getParent();
+          Path parent = p.toAbsolutePath().getParent();
           if (parent != null)
           locs.add(parent.resolve(rel));
         }
@@ -318,7 +318,7 @@ public class CmdMsfragger extends CmdBase {
         return false;
       }
 
-      if ((!isRunDiaU || !isRunDiaTracer) && (hasDia || hasGpfDia || hasDiaLib || hasDdaPlus)) {
+      if ((!isRunDiaU && !isRunDiaTracer) && (hasDia || hasGpfDia || hasDiaLib || hasDdaPlus)) {
         SwingUtils.showErrorDialog(comp, "<html>MSFrgger-DIA <code>split database</code> is incompatible with DIA, GPF-DIA, DIA-Lib, or DDA+ data types.\n"
             + "Please set the split database to 1.\n"
             + "For DIA and DIA-Lib data types, you can also use the DIA-Umpire based DIA workflow (DIA_DIA-Umpire_SpecLib_Quant workflow), which supports the split database option.", "Incompatible options");
@@ -358,7 +358,7 @@ public class CmdMsfragger extends CmdBase {
 
     boolean isThermoRaw = lcmsFiles.stream().anyMatch(f -> f.getPath().toString().toLowerCase().endsWith(".raw"));
     if (isThermoRaw) {
-      Path fraggerJarLoc = Paths.get(binFragger.getBin()).getParent();
+      Path fraggerJarLoc = Paths.get(binFragger.getBin()).toAbsolutePath().getParent();
       Path libs = searchExtLibsThermo(Collections.singletonList(fraggerJarLoc));
       if (libs == null) {
         if (Fragpipe.headless) {
@@ -590,10 +590,10 @@ public class CmdMsfragger extends CmdBase {
               throw new IllegalStateException("LCMS file mapped to no pepxml file");
             for (Path pepxmlWhereItShouldBe : pepxmlWhereItShouldBeList) {
               String pepxmlFn = pepxmlWhereItShouldBe.getFileName().toString();
-              Path pepxmlAsCreatedByFragger = f.getPath().getParent().resolve(pepxmlFn);
+              Path pepxmlAsCreatedByFragger = f.getPath().toAbsolutePath().getParent().resolve(pepxmlFn);
               if (!pepxmlAsCreatedByFragger.equals(pepxmlWhereItShouldBe)) {
                 List<ProcessBuilder> pbsMove = ToolingUtils
-                    .pbsMoveFiles(jarFragpipe, pepxmlWhereItShouldBe.getParent(), true,
+                    .pbsMoveFiles(jarFragpipe, pepxmlWhereItShouldBe.toAbsolutePath().getParent(), true,
                         Collections.singletonList(pepxmlAsCreatedByFragger));
                 pbis.addAll(PbiBuilder.from(pbsMove, NAME + " move pepxml"));
               }
@@ -604,10 +604,10 @@ public class CmdMsfragger extends CmdBase {
             List<Path> tsvWhereItShouldBeList = mapLcmsToTsv.get(f);
             for (Path tsvWhereItShouldBe : tsvWhereItShouldBeList) {
               String tsvFn = tsvWhereItShouldBe.getFileName().toString();
-              Path tsvAsCreatedByFragger = f.getPath().getParent().resolve(tsvFn);
+              Path tsvAsCreatedByFragger = f.getPath().toAbsolutePath().getParent().resolve(tsvFn);
               if (!tsvAsCreatedByFragger.equals(tsvWhereItShouldBe)) {
                 List<ProcessBuilder> pbsMove = ToolingUtils
-                    .pbsMoveFiles(jarFragpipe, tsvWhereItShouldBe.getParent(), true,
+                    .pbsMoveFiles(jarFragpipe, tsvWhereItShouldBe.toAbsolutePath().getParent(), true,
                         Collections.singletonList(tsvAsCreatedByFragger));
                 pbis.addAll(PbiBuilder.from(pbsMove, NAME + " move tsv"));
               }
@@ -618,10 +618,10 @@ public class CmdMsfragger extends CmdBase {
             List<Path> pinWhereItShouldBeList = mapLcmsToPin.get(f);
             for (Path pinWhereItShouldBe : pinWhereItShouldBeList) {
               String pinFn = pinWhereItShouldBe.getFileName().toString();
-              Path pinAsCreatedByFragger = f.getPath().getParent().resolve(pinFn);
+              Path pinAsCreatedByFragger = f.getPath().toAbsolutePath().getParent().resolve(pinFn);
               if (!pinAsCreatedByFragger.equals(pinWhereItShouldBe)) {
                 List<ProcessBuilder> pbsMove = ToolingUtils
-                    .pbsMoveFiles(jarFragpipe, pinWhereItShouldBe.getParent(), true,
+                    .pbsMoveFiles(jarFragpipe, pinWhereItShouldBe.toAbsolutePath().getParent(), true,
                         Collections.singletonList(pinAsCreatedByFragger));
                 pbis.addAll(PbiBuilder.from(pbsMove, NAME + " move pin"));
               }
@@ -673,7 +673,7 @@ public class CmdMsfragger extends CmdBase {
       }
     } else if (dataType.contentEquals("GPF-DIA")) {
       paramsNew.setDataType(2);
-      paramsNew.setOutputReportTopN(3);
+      paramsNew.setOutputReportTopN(outputReportTopNDia1);
     } else if (dataType.contentEquals("DDA+")) {
       paramsNew.setDataType(3);
       paramsNew.setOutputReportTopN(outputReportTopNDdaPlus);

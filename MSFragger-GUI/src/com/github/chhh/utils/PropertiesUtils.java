@@ -30,11 +30,11 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.net.URI;
+import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -42,14 +42,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
-import rx.schedulers.Schedulers;
 
 /**
  *
@@ -198,28 +195,12 @@ public final class PropertiesUtils {
         return base;
     }
 
-    public static Properties initProperties(List<String> urls, String propFileName, Class<?> clazz) {
-        Properties propsLocal = PropertiesUtils.loadPropertiesLocal(clazz, propFileName);
-        Properties propsRemote = null;
-        try {
-            propsRemote = PropertiesUtils.fetchPropertiesFromRemote(urls);
-        } catch (Exception e) {
-            log.warn("Could not fetch properties from remote", e);
-        }
-        if (propsRemote == null) {
-            log.info("Did not get {} from any of remote sources", propFileName);
-            propsRemote = new Properties();
-        }
-
-        return PropertiesUtils.merge(propsLocal, propsRemote);
-    }
-
-    public static Properties initProperties(List<String> urls) {
+    public static Properties initProperties(List<String> urls, int timeout) {
         Properties props = null;
         try {
-            props = PropertiesUtils.fetchPropertiesFromRemote(urls);
+            props = PropertiesUtils.fetchPropertiesFromRemote(urls, timeout);
         } catch (Exception e) {
-            log.warn("Could not fetch propertiess from remote", e);
+            log.warn("Could not fetch properties from remote", e);
         }
         if (props == null) {
             log.debug("Did not get properties from any of remote sources");
@@ -278,65 +259,22 @@ public final class PropertiesUtils {
             return null;
         }
     }
-    
-    /**
-     * Downloads a properties file from a remote URL.
-     * @param uri To download .properties file from.
-     * @return null in case of any errors during downloading or parsing.
-     */
-    public static Properties loadPropertiesRemote(URI uri) {
-//        try {
-//            String remoteText = org.apache.commons.io.IOUtils.toString(uri.toURL(), StandardCharsets.UTF_8);
-//            final Properties p = new Properties();
-//            p.load(new StringReader(remoteText));
-//            return p;
-//        } catch (Exception ex) {
-//            return null;
-//        }
-        return loadPropertiesRemote(uri, Duration.ofSeconds(3));
-    }
 
-    public static Properties loadPropertiesRemote(URI uri, Duration timeout) {
-        Observable<String> obs = Observable
-            .fromCallable(() -> IOUtils.toString(uri.toURL(), StandardCharsets.UTF_8))
-            .subscribeOn(Schedulers.immediate());
-            //.subscribeOn(Schedulers.io());
-        if (timeout != null) {
-            //obs = obs.timeout(timeout.getSeconds(), TimeUnit.SECONDS);
-        }
-        final StringBuilder sb = new StringBuilder();
-        final AtomicBoolean isSuccess = new AtomicBoolean(false);
-        obs.subscribe(remoteText -> {
-            isSuccess.set(true);
-            log.debug("Got remote text from URI before timeout: {}", uri.toASCIIString());
-            sb.append(remoteText);
-        }, throwable -> {
-            log.debug("Got exception while fetching URI: " + uri.toASCIIString(), throwable);
-        });
-
-        if (!isSuccess.get())
-            return null;
-
-        final Properties p = new Properties();
+    private static Properties loadPropertiesRemote(URI uri, int timeout) {
         try {
-            p.load(new StringReader(sb.toString()));
+            URLConnection connection = uri.toURL().openConnection();
+            connection.setConnectTimeout(timeout);
+            connection.setReadTimeout(timeout);
+
+            String remoteText = IOUtils.toString(connection.getInputStream(), StandardCharsets.UTF_8);
+
+            final Properties p = new Properties();
+            p.load(new StringReader(remoteText));
+
             return p;
         } catch (Exception ex) {
-            log.debug("Error creating properties from remote response", ex);
             return null;
         }
-        
-    }
-    
-    public static Properties loadPropertiesRemoteOrLocal(List<URI> uris, Class<?> clazz, String propertiesFile) {
-        try {
-            for (URI uri : uris) {
-                Properties props = loadPropertiesRemote(uri);
-                if (props != null)
-                    return props;
-            }
-        } catch (Exception ignore) {}
-        return loadPropertiesLocal(clazz, propertiesFile);
     }
 
     /**
@@ -454,11 +392,11 @@ public final class PropertiesUtils {
      * @return null if properties could not be obtained from any source. Getting empty property file
      * doesn't count, it will be returned as null (and other sources will be tried first).
      */
-    public static Properties fetchPropertiesFromRemote(List<String> urls) {
+    public static Properties fetchPropertiesFromRemote(List<String> urls, int timeout) {
         Properties props = null;
         for (String url : urls) {
             try {
-                Properties p = loadPropertiesRemote(URI.create(url));
+                Properties p = loadPropertiesRemote(URI.create(url), timeout);
                 if (p == null || p.isEmpty()) {
                     log.debug("Didn't get properties from: {}", url);
                     continue;

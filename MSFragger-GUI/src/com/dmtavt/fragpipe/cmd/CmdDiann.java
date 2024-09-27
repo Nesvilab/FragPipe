@@ -27,6 +27,7 @@ import static com.github.chhh.utils.SwingUtils.showErrorDialogWithStacktrace;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
+import com.dmtavt.fragpipe.Version;
 import com.dmtavt.fragpipe.api.Bus;
 import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
@@ -82,8 +83,27 @@ public class CmdDiann extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, Collection<LcmsFileGroup> lcmsFileGroups, int nThreads, Set<String> quantificationStrategy, boolean usePredict, boolean unrelatedRuns, float qvalue, boolean useRunSpecificProteinQvalue, String libraryPath, String additionalCmdOpts, boolean isDryRun, boolean isRunPlex, boolean generateMsstats, String lightString, String mediumString, String heavyString, Path jarFragpipe, boolean isRunSkyline) {
-
+  public boolean configure(Component comp,
+      Collection<LcmsFileGroup> lcmsFileGroups,
+      int nThreads,
+      Set<String> quantificationStrategy,
+      String channelNormalizationStrategy,
+      boolean usePredict,
+      boolean unrelatedRuns,
+      float qvalue,
+      boolean useRunSpecificProteinQvalue,
+      String libraryPath,
+      String additionalCmdOpts,
+      boolean isDryRun,
+      boolean isRunPlex,
+      boolean generateMsstats,
+      String lightString,
+      String mediumString,
+      String heavyString,
+      Path jarFragpipe,
+      boolean isRunSkyline,
+      boolean isNew
+  ) {
     initPreConfig();
 
     if (libraryPath != null && !libraryPath.trim().isEmpty()) {
@@ -105,7 +125,7 @@ public class CmdDiann extends CmdBase {
       Path root = FragpipeLocations.get().getDirFragpipeRoot();
       Path libsDir = root.resolve("lib");
       if (Files.isDirectory(jarFragpipe)) {
-        libsDir = jarFragpipe.getParent().getParent().getParent().getParent().resolve("build/install/fragpipe/lib");
+        libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe-" + Version.version() + "/lib");
         log.debug("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
       }
 
@@ -234,7 +254,7 @@ public class CmdDiann extends CmdBase {
 
       try {
         final Path diannOutputDirectory = groupWd.resolve("diann-output");
-        if (Files.exists(diannOutputDirectory.getParent())) { // Dry run does not make directories, so does not write the file.
+        if (Files.exists(diannOutputDirectory.toAbsolutePath().getParent())) { // Dry run does not make directories, so does not write the file.
           Files.createDirectories(diannOutputDirectory);
         }
       } catch (IOException ex) {
@@ -277,7 +297,9 @@ public class CmdDiann extends CmdBase {
         cmd.add("--predictor");
         cmd.add("--dl-no-rt");
         cmd.add("--dl-no-im");
-        cmd.add("--strip-unknown-mods");
+        if (!isNew) {
+          cmd.add("--strip-unknown-mods");
+        }
       }
       if (generateMsstats) {
         cmd.add("--report-lib-info");
@@ -289,6 +311,9 @@ public class CmdDiann extends CmdBase {
           SwingUtils.showErrorDialog(comp, e.getMessage(), "Error parsing plex settings");
           return false;
         }
+        if (isNew) {
+          cmd.add(channelNormalizationStrategy);
+        }
       }
       if (!additionalCmdOpts.isEmpty()) {
         cmd.add(additionalCmdOpts);
@@ -296,7 +321,7 @@ public class CmdDiann extends CmdBase {
 
       try {
         final Path filelist = groupWd.resolve("filelist_diann.txt");
-        if (Files.exists(filelist.getParent())) { // Dry run does not make directories, so does not write the file.
+        if (Files.exists(filelist.toAbsolutePath().getParent())) { // Dry run does not make directories, so does not write the file.
           BufferedWriter bufferedWriter = Files.newBufferedWriter(filelist);
           for (Path p : sizeInputLcms.values().stream().flatMap(List::stream).collect(Collectors.toList())) {
             bufferedWriter.write("--f " + p.toAbsolutePath() + "\n");
@@ -337,11 +362,11 @@ public class CmdDiann extends CmdBase {
       }
     }
 
-    {
+    if (!isRunPlex) {
       Path root = FragpipeLocations.get().getDirFragpipeRoot();
       Path libsDir = root.resolve("lib");
       if (Files.isDirectory(jarFragpipe)) {
-        libsDir = jarFragpipe.getParent().getParent().getParent().getParent().resolve("build/install/fragpipe/lib");
+        libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe-" + Version.version() + "/lib");
         log.debug("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
       }
 
@@ -379,11 +404,11 @@ public class CmdDiann extends CmdBase {
       pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + ": Propagate information").create());
     }
 
-    if (generateMsstats) {
+    if (!isRunPlex && generateMsstats) {
       Path root = FragpipeLocations.get().getDirFragpipeRoot();
       Path libsDir = root.resolve("lib");
       if (Files.isDirectory(jarFragpipe)) {
-        libsDir = jarFragpipe.getParent().getParent().getParent().getParent().resolve("build/install/fragpipe/lib");
+        libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe-" + Version.version() + "/lib");
         log.debug("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
       }
 
@@ -436,7 +461,7 @@ public class CmdDiann extends CmdBase {
 //      Path root = FragpipeLocations.get().getDirFragpipeRoot();
 //      Path libsDir = root.resolve("lib");
 //      if (Files.isDirectory(jarFragpipe)) {
-//        libsDir = jarFragpipe.getParent().getParent().getParent().getParent().resolve("build/install/fragpipe/lib");
+//        libsDir = jarFragpipe.getParent().getParent().getParent().getParent().resolve("build/install/fragpipe-" + Version.version() + "/lib");
 //        log.debug("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
 //      }
 //

@@ -117,7 +117,7 @@ public class CmdPhilosopherAbacus extends CmdBase {
       cmdAddonParts.add("--reprint");
 
       List<String> cmd = new ArrayList<>();
-      final Path executeInDir = protxml.getParent();
+      final Path executeInDir = protxml.toAbsolutePath().getParent();
       cmd.add(usePhilosopher.useBin(executeInDir));
       cmd.add("abacus");
       cmd.addAll(cmdAddonParts);

@@ -42,7 +42,7 @@ public class UmpireSeGarbageFiles {
   public static List<Path> getGarbageFiles(Path lcmsFilePath, final boolean withLog, final boolean withMzML) {
     List<Path> toMove = new ArrayList<>();
     String fnLessExt = StringUtils.upToLastDot(lcmsFilePath.getFileName().toString());
-    Path filePath = lcmsFilePath.getParent();
+    Path filePath = lcmsFilePath.toAbsolutePath().getParent();
 
     for (String fileToMove : withLog ? filesToMove : filesToMoveSansLog) {
       toMove.add(filePath.resolve(fileToMove));

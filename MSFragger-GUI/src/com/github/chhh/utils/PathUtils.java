@@ -109,7 +109,7 @@ public class PathUtils {
             if (isDir) {
                 classpaths.add(path.toString());
             } else {
-                Path parent = path.getParent();
+                Path parent = path.toAbsolutePath().getParent();
                 classpaths.add(parent != null ? parent.toString() : ".");
             }
         }

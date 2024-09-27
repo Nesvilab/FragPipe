@@ -18,27 +18,19 @@ package com.dmtavt.fragpipe;
 
 import static com.dmtavt.fragpipe.params.ThisAppProps.PATH_BUNDLE;
 
-import com.dmtavt.fragpipe.api.Bus;
-import com.dmtavt.fragpipe.messages.MessageFragpipeUpdate;
 import com.dmtavt.fragpipe.params.ThisAppProps;
-import com.github.chhh.utils.PropertiesUtils;
-import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.VersionComparator;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.TreeMap;
-import java.util.TreeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -510,25 +502,6 @@ public class Version {
     return Collections.unmodifiableMap(CHANGELOG);
   }
 
-  /**
-   *
-   */
-  public static List<String> updatesSinceCurrentVersion(String versionList) {
-    if (StringUtils.isNullOrWhitespace(versionList)) {
-      return Collections.emptyList();
-    }
-
-    VersionComparator vc = new VersionComparator();
-    String[] split = versionList.trim().split("\\s*,\\s*");
-    List<String> res = new ArrayList<>();
-    for (String updateVersion : split) {
-      if (vc.compare(version(), updateVersion) < 0) {
-        res.add(updateVersion);
-      }
-    }
-    return res;
-  }
-
   public static boolean isDevBuild() {
     return version().toLowerCase().contains("build");
   }
@@ -555,7 +528,7 @@ public class Version {
 
   /**
    * To print changelog using just the jar file use:<br/>
-   * <code>java -cp ./build/install/fragpipe/lib/* com.dmtavt.fragpipe.Version true 2</code>
+   * <code>java -cp ./build/install/fragpipe-" + Version.version() + "/lib/* com.dmtavt.fragpipe.Version true 2</code>
    *
    * @param args The 1st param is a boolean whether to print GitHub release info preamble or not.
    *             Use true, to indicate "yes", any other string for "no". The 2nd parameter is an
@@ -647,150 +620,4 @@ public class Version {
     }
     return props;
   }
-
-  public static Properties loadPropertiesFromBundle() {
-    try (InputStream is = Fragpipe.class.getResourceAsStream("Bundle.properties")) {
-      if (is == null) {
-        throw new IllegalStateException("Could not read Bundle.properties from the classpath");
-      }
-      Properties props = new Properties();
-      props.load(is);
-      return props;
-    } catch (IOException e) {
-      throw new IllegalStateException("Error reading Bundle.properties from the classpath");
-    }
-  }
-
-  public static String loadPropFromBundle(String propName) {
-    Properties props = loadPropertiesFromBundle();
-    String value = props.getProperty(propName);
-    if (value == null) {
-      throw new IllegalStateException("Property " + propName
-          + " was not found in Bundle.properties");
-    }
-    return value;
-  }
-
-  private static List<String> createGuiUpdateMessages(TreeSet<String> newerVersionStrings,
-      Properties propsRemote) {
-    List<String> messages = new ArrayList<>();
-    for (String newerVersion : newerVersionStrings) {
-      String verMsg = propsRemote
-          .getProperty(Version.PROP_DOWNLOAD_MESSAGE + "." + newerVersion, "");
-      if (StringUtils.isNullOrWhitespace(verMsg)) {
-        continue;
-      }
-      messages.add(verMsg);
-    }
-    return messages;
-  }
-
-  public static void checkUpdatesOld() {
-    Properties props = ThisAppProps.getRemoteProperties();
-    if (props == null) {
-      log.info("Didn't get update info from any of the sources");
-      return;
-    }
-
-    String lastVerKey = PROP_LAST_RELEASE_VER;
-    if (!props.stringPropertyNames().contains(lastVerKey)) {
-      List<String> urls = Arrays.asList(
-          "https://raw.githubusercontent.com/Nesvilab/FragPipe/master/MSFragger-GUI/src/"
-              + PATH_BUNDLE + ".properties");
-      props = PropertiesUtils.initProperties(urls);
-      if (props == null) {
-        log.debug("Didn't get dev update info");
-        return;
-      }
-      if (!props.stringPropertyNames().contains(Version.PROP_VER)) {
-        log.info("Release branch didn't contain version info in: {}", Version.PROP_VER);
-        return;
-      }
-      lastVerKey = Version.PROP_VER;
-    }
-
-//      final URI tmp = URI.create("https://raw.githubusercontent.com/chhh/FragPipe/master/MSFragger-GUI/src/" + PATH_BUNDLE + ".properties");
-//      final URI tmp = URI.create("https://raw.githubusercontent.com/chhh/FragPipe/fragger-advanced/MSFragger-GUI/src/" + PATH_BUNDLE + ".properties");
-//      String githubProps = IOUtils.toString(tmp, StandardCharsets.UTF_8);
-//      Properties props = new Properties();
-//      props.load(new StringReader(githubProps));
-
-    // this is used to test functionality without pushing changes to github
-//                        props.put("msfragger.gui.version", "5.7");
-//                        props.put("msfragger.gui.important-updates", "3.1,3.5,4.9,5.2");
-//                        props.put("msfragger.gui.critical-updates", "2.0,3.0,4.6,5.0, 4.7");
-//                        props.put("msfragger.gui.download-message", "Happy new year!");
-//                        props.put("msfragger.gui.download-message.4.7", "Crit 4.7");
-//                        props.put("msfragger.gui.download-message.2.0", "Crit 2.0");
-//                        props.put("msfragger.gui.download-message.5.0", "Crit 4.7");
-//                        props.put("msfragger.gui.download-message.5.0", "Crit 5.0");
-//                        props.put("msfragger.gui.download-message.3.1", "Important 3.1");
-//                        props.put("msfragger.gui.download-message.4.9", "Important 4.9");
-
-    final StringBuilder sb = new StringBuilder();
-    final VersionComparator vc = new VersionComparator();
-
-    // add new versions notification
-    final String githubVersion = props.getProperty(lastVerKey);
-    final String localVersion = Version.version();
-    if (githubVersion != null && vc.compare(localVersion, githubVersion) < 0) {
-      if (sb.length() > 0) {
-        sb.append("<br><br>");
-      }
-      final String defaultDlUrl = loadPropFromBundle(Version.PROP_DOWNLOAD_URL);
-      final String dlUrl = props.getProperty(Version.PROP_DOWNLOAD_URL, defaultDlUrl);
-      sb.append(String.format(Locale.ROOT,
-          "Your %s version is [%s]<br>\n"
-              + "There is a newer version of %s available [%s]).<br/>\n"
-              + "Please <a href=\"%s\">click here</a> to download a newer one.<br/>",
-          Version.PROGRAM_TITLE, localVersion, Version.PROGRAM_TITLE, githubVersion, dlUrl));
-
-      // check for critical or important updates since the current version
-      List<String> updatesImportant = Version.updatesSinceCurrentVersion(
-          props.getProperty(Version.PROP_IMPORTANT_UPDATES, ""));
-      List<String> updatesCritical = Version.updatesSinceCurrentVersion(
-          props.getProperty(Version.PROP_CRITICAL_UPDATES, ""));
-
-      if (!updatesCritical.isEmpty()) {
-        TreeSet<String> newerVersions = new TreeSet<>(updatesCritical);
-        List<String> messages = createGuiUpdateMessages(newerVersions, props);
-        if (!messages.isEmpty()) {
-          sb.append("<br/><br/><b>Critical updates:</b><br><ul>");
-          for (String message : messages) {
-            sb.append("<li>").append(message).append("</li>");
-          }
-          sb.append("</ul>");
-        } else {
-          sb.append("<br/><b>There have been critical updates.</b><br>");
-        }
-      }
-
-      if (!updatesImportant.isEmpty()) {
-        TreeSet<String> newerVersions = new TreeSet<>(updatesImportant);
-        List<String> messages = createGuiUpdateMessages(newerVersions, props);
-        if (!messages.isEmpty()) {
-          sb.append("<br/>Important updates:<br><ul>");
-          for (String message : messages) {
-            sb.append("<li>").append(message).append("</li>");
-          }
-          sb.append("</ul>");
-        } else {
-          sb.append("<br/><br/>There have been important updates.<br>");
-        }
-      }
-    }
-
-    final String downloadMessage = props.getProperty(Version.PROP_DOWNLOAD_MESSAGE, "");
-    if (!StringUtils.isNullOrWhitespace(downloadMessage)) {
-      if (sb.length() > 0) {
-        sb.append("<br><br><b>");
-      }
-      sb.append(downloadMessage).append("</b>");
-    }
-
-    if (sb.length() > 0) {
-      Bus.post(new MessageFragpipeUpdate(Version.PROP_VER, sb.toString()));
-    }
-  }
-
 }

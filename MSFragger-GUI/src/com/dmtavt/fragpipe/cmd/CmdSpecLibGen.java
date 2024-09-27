@@ -201,7 +201,7 @@ public class CmdSpecLibGen extends CmdBase {
             final String fn_sans_extension = FilenameUtils.removeExtension(fn);
             final boolean isTimsTOF = dataType == InputDataType.ImMsTimsTof;
             final boolean isRaw = fn.toLowerCase().endsWith(".raw");
-            final String sans_suffix = lcms.getPath().getParent().resolve(fn_sans_extension).toString();
+            final String sans_suffix = lcms.getPath().toAbsolutePath().getParent().resolve(fn_sans_extension).toString();
             if ((isTimsTOF && fn.toLowerCase().endsWith(".d")) || isRaw) {
               return sans_suffix + "_uncalibrated.mzML";
             } else {
@@ -214,7 +214,7 @@ public class CmdSpecLibGen extends CmdBase {
 
       final Path filelist = groupWd.resolve("filelist_speclibgen.txt");
 
-      if (Files.exists(filelist.getParent())) { // Dry run does not make directories, so does not write the file.
+      if (Files.exists(filelist.toAbsolutePath().getParent())) { // Dry run does not make directories, so does not write the file.
         try (BufferedWriter bw = Files.newBufferedWriter(filelist)) {
           for (String f : lcmsfiles) {
             bw.write(f);

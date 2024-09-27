@@ -109,7 +109,7 @@ public class Propagation {
 
   public void propagate(Path psm_path, Path diann_directory) throws Exception {
     TreeBasedTable<Precursor, String, LocalizedPeptide> precursorModificationLocalizationTable = TreeBasedTable.create();
-    Map<Precursor, String[]> precursorProteinGeneMap = new TreeMap<>();
+    Map<String, String[]> precursorProteinGeneMap = new HashMap<>();
 
     int scanNameColumnIdx = -1;
     int peptideColumnIdx = -1;
@@ -203,9 +203,9 @@ public class Propagation {
         }
         String allMappedGenesStr = String.join(",", allMappedGenes);
 
-        String[] ss = precursorProteinGeneMap.get(precursor);
+        String[] ss = precursorProteinGeneMap.get(precursor.getSequence());
         if (ss == null) {
-          precursorProteinGeneMap.put(precursor, new String[]{allMappedProteinsStr, allMappedGenesStr});
+          precursorProteinGeneMap.put(precursor.getSequence(), new String[]{allMappedProteinsStr, allMappedGenesStr});
         } else if (!ss[0].contentEquals(allMappedProteinsStr) || !ss[1].contentEquals(allMappedGenesStr)) {
           System.err.println("Inconsistent protein or gene mapping for " + precursor + " in " + psm_path + ": " + ss[0] + " vs " + allMappedProteinsStr + ", " + ss[1] + " vs " + allMappedGenesStr);
           System.exit(1);
@@ -223,7 +223,7 @@ public class Propagation {
     editReport(diann_directory.resolve("report.pr_matrix.tsv"), precursorModificationLocalizationTable, modificationArray, precursorProteinGeneMap, 2);
   }
 
-  private void editReport(Path p, Table<Precursor, String, LocalizedPeptide> precursorModificationLocalizationTable, String[] modificationArray, Map<Precursor, String[]> precursorProteinGeneMap, int type) throws Exception {
+  private void editReport(Path p, Table<Precursor, String, LocalizedPeptide> precursorModificationLocalizationTable, String[] modificationArray, Map<String, String[]> precursorProteinGeneMap, int type) throws Exception {
     String s = "";
     String firstLineMarker = "";
     if (type == 1) {
@@ -233,7 +233,7 @@ public class Propagation {
       s = "report.pr_matrix2.tsv";
       firstLineMarker = "Protein.Group\tProtein.Ids\t";
     }
-    Path p2 = p.getParent().resolve(s);
+    Path p2 = p.toAbsolutePath().getParent().resolve(s);
 
     int strippedSequenceColumnIdx = -1;
     int modifiedSequenceColumnIdx = -1;
@@ -296,7 +296,7 @@ public class Propagation {
             unimodOboReader.unimodMassMap,
             diannLabelMassMap);
 
-        String[] ss = precursorProteinGeneMap.get(precursor);
+        String[] ss = precursorProteinGeneMap.get(precursor.getSequence());
         if (ss == null) {
           writer.write("\t\t");
         } else {

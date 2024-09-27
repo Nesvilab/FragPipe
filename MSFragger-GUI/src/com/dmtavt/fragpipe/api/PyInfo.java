@@ -247,7 +247,7 @@ public class PyInfo {
         log.debug("Python bin path is already absolute, should be ok: {}", p.toString());
       }
 
-      final Path root = p.getParent();
+      final Path root = p.toAbsolutePath().getParent();
       if (root == null) {
         throw new IllegalStateException("Could not get parent path for python command");
       }

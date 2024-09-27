@@ -298,7 +298,7 @@ public class DownloadDbHelper {
 
   public static void updateDb(Component parent, String binPhi, Path fasta, boolean isAddContam) throws Exception {
     UsageTrigger usePhi = new UsageTrigger(binPhi, "philosopher binary");
-    Path dir = fasta.getParent();
+    Path dir = fasta.toAbsolutePath().getParent();
     CmdPhilosopherWorkspaceCleanInit cmdCleanInit = new CmdPhilosopherWorkspaceCleanInit(true, dir);
 
     CmdDatabaseUpdate cmdDbUpdate = new CmdDatabaseUpdate(true, dir);

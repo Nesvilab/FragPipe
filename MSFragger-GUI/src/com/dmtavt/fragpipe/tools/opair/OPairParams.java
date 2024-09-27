@@ -31,6 +31,7 @@ public class OPairParams {
     private boolean filterOxonium;
     private String oxoRulesFilePath;
     private double oxoMinInt;
+    private String allowedSites;
 
     public double getProductPPMtol() {
         return productPPMtol;
@@ -123,4 +124,12 @@ public class OPairParams {
     public void setOxoMinInt(double minInt) {
         this.oxoMinInt = minInt;
     }
+
+    public String getAllowedSites() {
+        return allowedSites;
+    }
+    public void setAllowedSites(String sites) {
+        allowedSites = sites;
+    }
+
 }

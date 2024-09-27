@@ -817,11 +817,11 @@ public class TabMsfragger extends JPanelBase {
 
     uiTextEnzymeName = new UiText();
     FormEntry feEnzymeName = mu.feb(MsfraggerParams.PROP_search_enzyme_name_1, uiTextEnzymeName).label("Enzyme name 1").create();
-    uiTextCuts = UiUtils.uiTextBuilder().cols(6).filter("[^A-Z-]").text("KR").create();
+    uiTextCuts = UiUtils.uiTextBuilder().cols(6).filter("[^A-Z@]", "@").text("KR").create();
     uiTextCuts.addFocusListener(enzymeSpecFocusListener);
     FormEntry feCuts = mu.feb(MsfraggerParams.PROP_search_enzyme_cut_1, uiTextCuts).label("Cuts 1")
         .tooltip("Capital letters for amino acids after which the enzyme cuts.").create();
-    uiTextNocuts = UiUtils.uiTextBuilder().cols(3).filter("[^A-Z-]").text("P").create();
+    uiTextNocuts = UiUtils.uiTextBuilder().cols(3).filter("[^A-Z@]", "@").text("P").create();
     uiTextNocuts.addFocusListener(enzymeSpecFocusListener);
     FormEntry feNocuts = mu.feb(MsfraggerParams.PROP_search_enzyme_nocut_1, uiTextNocuts).label("No cuts 1")
         .tooltip("Amino acids before which the enzyme won't cut.").create();
@@ -838,11 +838,11 @@ public class TabMsfragger extends JPanelBase {
 
     uiTextEnzymeName2 = new UiText();
     FormEntry feEnzymeName2 = mu.feb(MsfraggerParams.PROP_search_enzyme_name_2, uiTextEnzymeName2).label("Enzyme name 2").create();
-    uiTextCuts2 = UiUtils.uiTextBuilder().cols(6).filter("[^A-Z-]").text("KR").create();
+    uiTextCuts2 = UiUtils.uiTextBuilder().cols(6).filter("[^A-Z@]", "@").text("KR").create();
     uiTextCuts2.addFocusListener(enzymeSpecFocusListener2);
     FormEntry feCuts2 = mu.feb(MsfraggerParams.PROP_search_enzyme_cut_2, uiTextCuts2).label("Cuts 2")
         .tooltip("Capital letters for amino acids after which the enzyme cuts.").create();
-    uiTextNocuts2 = UiUtils.uiTextBuilder().cols(3).filter("[^A-Z-]").text("P").create();
+    uiTextNocuts2 = UiUtils.uiTextBuilder().cols(3).filter("[^A-Z@]", "@").text("P").create();
     uiTextNocuts2.addFocusListener(enzymeSpecFocusListener2);
     FormEntry feNocuts2 = mu.feb(MsfraggerParams.PROP_search_enzyme_nocut_2, uiTextNocuts2).label("No cuts 2")
         .tooltip("Amino acids before which the enzyme won't cut.").create();
@@ -866,7 +866,7 @@ public class TabMsfragger extends JPanelBase {
     UiSpinnerDouble uiSpinnerDigestMassLo = new UiSpinnerDouble(200, 0, 50000, 100,
         new DecimalFormat("0.#"));
     uiSpinnerDigestMassLo.setColumns(6);
-    FormEntry fePepMassLo = mu.feb(PROP_misc_fragger_digest_mass_lo, uiSpinnerDigestMassLo).label("Peptide mass range").create();
+    FormEntry fePepMassLo = mu.feb(PROP_misc_fragger_digest_mass_lo, uiSpinnerDigestMassLo).label("Peptide mass range (Da)").create();
     UiSpinnerDouble uiSpinnerDigestMassHi = new UiSpinnerDouble(5000, 0, 50000, 100,
         new DecimalFormat("0.#"));
     uiSpinnerDigestMassHi.setColumns(6);
@@ -1075,6 +1075,12 @@ public class TabMsfragger extends JPanelBase {
             "<li>15.9949 M 3(for oxidation on methionine)</li>\n" +
             "<li>79.66331 STY 1(for phosphorylation)</li>\n" +
             "<li>-17.0265 nQnC 1(for pyro-Glu or loss of ammonia at peptide N-terminal)</li>\n" +
+            "<li>42.0106 [^ 1 (acetylation at any protein N-terminal)</li>\n" +
+            "<li>229.16293 n^ 1 (TMT10/11 at any peptide N-terminal)</li>\n" +
+            "<li>100 cK 1 (100 Da modification at peptide C-terminal K)</li>\n" +
+            "<li>50 ]K 1 (50 Da modification at protein C-terminal K)</li>\n" +
+            "<li>60 ]^ 1 (60 Da modification at any protein C-terminal)</li>\n" +
+            "<li>70 c^ 1 (70 Da modification at any peptide C-terminal)</li>\n" +
             "</ul>\n" +
             "Example (M oxidation and N-terminal acetylation):\n" +
             "<ul>\n" +

@@ -214,7 +214,7 @@ public class PtmProphetPanel extends JPanelBase {
 
     checkOverrideDefaults = new UiCheck("Override defaults", null, false);
     checkOverrideDefaults.setName("override-defaults");
-    checkOverrideDefaults.addActionListener(e -> {
+    checkOverrideDefaults.addItemListener(e -> {
       uiJLabelCmd.setVisible(SwingUtils.isEnabledAndChecked(checkOverrideDefaults));
       uiTextCmd.setVisible(SwingUtils.isEnabledAndChecked(checkOverrideDefaults));
     });

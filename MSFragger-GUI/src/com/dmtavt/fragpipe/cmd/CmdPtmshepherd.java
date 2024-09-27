@@ -20,6 +20,7 @@ package com.dmtavt.fragpipe.cmd;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
+import com.dmtavt.fragpipe.Version;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
 import com.dmtavt.fragpipe.tools.ptmshepherd.PtmshepherdParams;
 import com.github.chhh.utils.OsUtils;
@@ -48,7 +49,7 @@ public class CmdPtmshepherd extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdPtmshepherd.class);
   public static final String NAME = "PTMShepherd";
   public static final String CONFIG_FN = "shepherd.config";
-  public static final String JAR_SHEPHERD_NAME = "ptmshepherd-3.0.1-rc1.jar";
+  public static final String JAR_SHEPHERD_NAME = "ptmshepherd-3.0.1-rc2.jar";
   /** Fully qualified name, such as one you'd use for `java -cp my.jar com.example.MyClass`. */
   public static final String JAR_SHEPHERD_MAIN_CLASS = "edu.umich.andykong.ptmshepherd.PTMShepherd";
   public static final String[] JAR_DEPS = {ToolingUtils.BATMASS_IO_JAR, "commons-math3-3.6.1.jar", "hipparchus-1.8/hipparchus-core-1.8.jar", "hipparchus-1.8/hipparchus-stat-1.8.jar"};
@@ -69,7 +70,7 @@ public class CmdPtmshepherd extends CmdBase {
 
     initPreConfig();
 
-    final Path extLibsThermo = CmdMsfragger.searchExtLibsThermo(Collections.singletonList(binFragger.getParent()));
+    final Path extLibsThermo = CmdMsfragger.searchExtLibsThermo(Collections.singletonList(binFragger.toAbsolutePath().getParent()));
     ArrayList<String> sup = new ArrayList<>(SUPPORTED_FORMATS);
     if (extLibsThermo != null) {
       sup.add(THERMO_RAW_EXT);
@@ -77,7 +78,7 @@ public class CmdPtmshepherd extends CmdBase {
 
     // check that each group only has lcms files in one directory
     for (LcmsFileGroup g : mapGroupsToProtxml.keySet()) {
-      List<Path> lcmsPathsForGroup = g.lcmsFiles.stream().map(inputLcmsFile -> inputLcmsFile.getPath().getParent()).distinct().collect(Collectors.toList());
+      List<Path> lcmsPathsForGroup = g.lcmsFiles.stream().map(inputLcmsFile -> inputLcmsFile.getPath().toAbsolutePath().getParent()).distinct().collect(Collectors.toList());
       if (lcmsPathsForGroup.size() != 1) {
         if (Fragpipe.headless) {
           log.error("PTM Shepherd requires all LCMS files in a group/experiment to be in one directory.");
@@ -99,7 +100,7 @@ public class CmdPtmshepherd extends CmdBase {
     Path root = FragpipeLocations.get().getDirFragpipeRoot();
     Path libsDir = root.resolve("lib");
     if (Files.isDirectory(jarFragpipe)) {
-      libsDir = jarFragpipe.getParent().getParent().getParent().getParent().resolve("build/install/fragpipe/lib");
+      libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe-" + Version.version() + "/lib");
       log.debug("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
     }
 

@@ -175,6 +175,7 @@ public class UnimodOboReader {
     final float[] modifications;
     final float nTermMod, cTermMod;
     final int charge;
+    final String precursorStr;
 
     public Precursor(String sequence, float[] modifications, float nTermMod, float cTermMod, int charge) {
       this.sequence = sequence;
@@ -182,6 +183,7 @@ public class UnimodOboReader {
       this.nTermMod = nTermMod;
       this.cTermMod = cTermMod;
       this.charge = charge;
+      precursorStr = getPrecursorStr();
     }
     
     public Precursor(String modifiedSequence, int length, int charge, Map<String, Float> unimodMassMap, Map<String, Float> diannLabelMassMap) {
@@ -212,6 +214,11 @@ public class UnimodOboReader {
 
       sequence = sb.toString();
       nTermMod = a;
+      precursorStr = getPrecursorStr();
+    }
+
+    public String getSequence() {
+      return sequence;
     }
 
     private static float getModMass(String s, char site, Map<String, Float> unimodMassMap, Map<String, Float> diannLabelMassMap) {
@@ -234,35 +241,34 @@ public class UnimodOboReader {
       }
     }
 
+    private String getPrecursorStr() {
+      char[] ncAaArray = sequence.toCharArray();
+      StringBuilder sb = new StringBuilder();
+
+      if (Math.abs(nTermMod) > 0) {
+        sb.append(String.format("n[%.2f]", nTermMod));
+      }
+
+      for (int i = 0; i < modifications.length; ++i) {
+        if (Math.abs(modifications[i]) > 0) {
+          sb.append(String.format("%c[%.2f]", ncAaArray[i], modifications[i]));
+        } else {
+          sb.append(ncAaArray[i]);
+        }
+      }
+
+      if (Math.abs(cTermMod) > 0) {
+        sb.append(String.format("c[%.2f]", cTermMod));
+      }
+
+      sb.append(charge);
+
+      return sb.toString();
+    }
+
     @Override
     public int compareTo(Precursor o) {
-      if (sequence.contentEquals(o.sequence)) {
-        for (int i = 0; i < modifications.length; ++i) {
-          if (modifications[i] - o.modifications[i] > 0.01f) {
-            return 1;
-          } else if (modifications[i] - o.modifications[i] < -0.01f) {
-            return -1;
-          }
-          if (nTermMod - o.nTermMod > 0.01f) {
-            return 1;
-          } else if (nTermMod - o.nTermMod < -0.01f) {
-            return -1;
-          }
-          if (cTermMod - o.cTermMod > 0.01f) {
-            return 1;
-          } else if (cTermMod - o.cTermMod < -0.01f) {
-            return -1;
-          }
-        }
-        if (charge > o.charge) {
-          return 1;
-        } else if (charge < o.charge) {
-          return -1;
-        }
-        return 0;
-      } else {
-        return sequence.compareTo(o.sequence);
-      }
+      return precursorStr.compareTo(o.precursorStr);
     }
 
     @Override
@@ -276,21 +282,12 @@ public class UnimodOboReader {
 
     @Override
     public String toString() {
-      StringBuilder sb = new StringBuilder(sequence);
-      for (float m : modifications) {
-        if (m == 0) {
-          sb.append(",0");
-        } else {
-          sb.append(String.format(",%.2f", m));
-        }
-      }
-      sb.append(String.format(",%.2f,%.2f,%d", nTermMod, cTermMod, charge));
-      return sb.toString();
+      return precursorStr;
     }
 
     @Override
     public int hashCode() {
-      return toString().hashCode();
+      return precursorStr.hashCode();
     }
   }
 }

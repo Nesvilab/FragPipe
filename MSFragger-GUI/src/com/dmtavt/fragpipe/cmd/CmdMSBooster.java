@@ -47,8 +47,8 @@ public class CmdMSBooster extends CmdBase {
 
   private static final Logger log = LoggerFactory.getLogger(CmdMSBooster.class);
   public static String NAME = "MSBooster";
-  public static final String JAR_MSBOOSTER_NAME = "MSBooster-1.2.31.jar";
-  public static final String JAR_MSBOOSTER_MAIN_CLASS = "Features.MainClass";
+  public static final String JAR_MSBOOSTER_NAME = "MSBooster-1.2.54.jar";
+  public static final String JAR_MSBOOSTER_MAIN_CLASS = "mainsteps.MainClass";
   private static final String[] JAR_DEPS = {BATMASS_IO_JAR};
   private static final Pattern pattern1 = Pattern.compile("\\.pepXML$");
   private static final Pattern pattern2 = Pattern.compile("_rank[0-9]+\\.pepXML$");
@@ -78,6 +78,7 @@ public class CmdMSBooster extends CmdBase {
       Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml,
       boolean predictRT,
       boolean predictSpectra,
+      boolean predictIm,
       boolean hasDda,
       boolean hasDia,
       boolean hasGpfDia,
@@ -88,8 +89,10 @@ public class CmdMSBooster extends CmdBase {
       boolean isOpenSearch,
       String rtModel,
       String spectraModel,
+      String imModel,
       boolean findBestRtModel,
       boolean findBestSpectraModel,
+      boolean findBestImModel,
       String koinaURL,
       String testRtModels,
       String testSpectraModels) {
@@ -112,12 +115,12 @@ public class CmdMSBooster extends CmdBase {
       return false;
     }
 
-    if (koinaURL.isEmpty() && (!rtModel.contentEquals("DIA-NN") || !spectraModel.contentEquals("DIA-NN"))) {
+    if (koinaURL.isEmpty() && (!rtModel.contentEquals("DIA-NN") || !spectraModel.contentEquals("DIA-NN") || !imModel.contentEquals("DIA-NN"))) {
       SwingUtils.showErrorDialog(comp, "Koina URL is required for non DIA-NN models.\nPlease go to <b>Validation</b> tab and adjust the settings.", NAME + " error");
       return false;
     }
 
-    if (koinaURL.isEmpty() && (findBestRtModel || findBestSpectraModel)) {
+    if (koinaURL.isEmpty() && (findBestRtModel || findBestSpectraModel || findBestImModel)) {
       SwingUtils.showErrorDialog(comp, "Koina URL is required for <b>Find best RT/spectral model</b>.\nPlease go to <b>Validation</b> tab and adjust the settings.", NAME + " error");
       return false;
     }
@@ -140,9 +143,17 @@ public class CmdMSBooster extends CmdBase {
       return false;
     }
 
+    boolean hasTimsTof = false;
+    for (InputLcmsFile t : lcmsToFraggerPepxml.keySet()) {
+      if (t.getPath().getFileName().toString().endsWith(".d")) {
+        hasTimsTof = true;
+        break;
+      }
+    }
+
     final Path paramPath = wd.resolve("msbooster_params.txt");
 
-    if (Files.exists(paramPath.getParent())) { // Dry run does not make directories, so does not write the file.
+    if (Files.exists(paramPath.toAbsolutePath().getParent())) { // Dry run does not make directories, so does not write the file.
       try {
         BufferedWriter bufferedWriter = Files.newBufferedWriter(paramPath);
         bufferedWriter.write("useDetect = false\n");
@@ -151,19 +162,22 @@ public class CmdMSBooster extends CmdBase {
         bufferedWriter.write("renamePin = 1\n");
         bufferedWriter.write("useRT = " + (predictRT ? "true" : "false") + "\n");
         bufferedWriter.write("useSpectra = " + (predictSpectra ? "true" : "false") + "\n");
+        bufferedWriter.write("useIM = " + ((hasTimsTof && predictIm) ? "true" : "false") + "\n");
         bufferedWriter.write("fragger = " + fraggerParams + "\n");
         bufferedWriter.write("deletePreds = false\n"); // FragPipe-PDV need the prediction files.
         bufferedWriter.write("rtModel = " + rtModel + "\n");
         bufferedWriter.write("spectraModel = " + spectraModel + "\n");
+        bufferedWriter.write("imModel = " + imModel + "\n");
         bufferedWriter.write("findBestRtModel = " + (findBestRtModel ? "true" : "false") + "\n");
         bufferedWriter.write("findBestSpectraModel = " + (findBestSpectraModel ? "true" : "false") + "\n");
+        bufferedWriter.write("findBestImModel = " + ((hasTimsTof && findBestImModel) ? "true" : "false") + "\n");
         bufferedWriter.write("KoinaURL = " + koinaURL + "\n");
         bufferedWriter.write("rtSearchModelsString = " + testRtModels + "\n");
         bufferedWriter.write("ms2SearchModelsString = " + testSpectraModels + "\n");
 
         // compute unique lcms file directories
         bufferedWriter.write("mzmlDirectory = ");
-        Set<Path> lcmsDirsUnique = Seq.seq(lcmsToFraggerPepxml.keySet()).map(lcms -> lcms.getPath().getParent()).toSet();
+        Set<Path> lcmsDirsUnique = Seq.seq(lcmsToFraggerPepxml.keySet()).map(lcms -> lcms.getPath().toAbsolutePath().getParent()).toSet();
         for (Path path : lcmsDirsUnique) {
           bufferedWriter.write(path.toString() + " ");
         }

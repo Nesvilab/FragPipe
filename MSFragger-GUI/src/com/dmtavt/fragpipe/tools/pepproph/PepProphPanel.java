@@ -38,7 +38,6 @@ import java.awt.ItemSelectable;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import javax.swing.ButtonGroup;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -138,11 +137,11 @@ public class PepProphPanel extends JPanelBase {
     defaults.put("Non-Specific Search", SearchTypeProp.nonspecific);
     defaults.put("Offset Search", SearchTypeProp.offset);
     final UiCombo uiComboDefaults = UiUtils.createUiCombo(new ArrayList<>(defaults.keySet()));
-    JButton btnLoadDefaults = UiUtils
-        .createButton("Load", "Load PeptideProphet settings for given search type", e -> {
-          SearchTypeProp type = defaults.get((String) uiComboDefaults.getSelectedItem());
-          loadDefaults(type);
-        });
+    uiComboDefaults.addItemListener(e -> {
+      SearchTypeProp type = defaults.get((String) uiComboDefaults.getSelectedItem());
+      loadDefaults(type);
+    });
+
     uiTextCmdOpts = UiUtils.uiTextBuilder().cols(20).text(defaultCmdOpts()).create();
     FormEntry feCmdOpts = fe(uiTextCmdOpts, "cmd-opts")
         .label("Cmd line opts:")
@@ -169,7 +168,6 @@ public class PepProphPanel extends JPanelBase {
     mu.add(pTop, checkRun).split();
     mu.add(pTop, labelDefaults);
     mu.add(pTop, uiComboDefaults);
-    mu.add(pTop, btnLoadDefaults);
     mu.add(pTop, uiCheckCombinePepxml).gapLeft("80px").wrap();
 
     pContent = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());

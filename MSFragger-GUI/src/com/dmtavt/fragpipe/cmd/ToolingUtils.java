@@ -121,7 +121,7 @@ public class ToolingUtils {
 
     List<ProcessBuilder> pbs = new LinkedList<>();
     for (Path file : files) {
-      if (Objects.equals(file.getParent(), (dest))) {
+      if (Objects.equals(file.toAbsolutePath().getParent(), (dest))) {
         continue;
       }
       List<String> cmd = new ArrayList<>();
