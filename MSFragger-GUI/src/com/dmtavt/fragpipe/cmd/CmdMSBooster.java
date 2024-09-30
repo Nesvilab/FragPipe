@@ -175,7 +175,7 @@ public class CmdMSBooster extends CmdBase {
         bufferedWriter.write("KoinaURL = " + koinaURL + "\n");
         bufferedWriter.write("rtSearchModelsString = " + testRtModels + "\n");
         bufferedWriter.write("ms2SearchModelsString = " + testSpectraModels + "\n");
-        bufferedWriter.write("imSearchModelsString = " + testRtModels + "\n");
+        bufferedWriter.write("imSearchModelsString = " + testImModels + "\n");
 
         // compute unique lcms file directories
         bufferedWriter.write("mzmlDirectory = ");
