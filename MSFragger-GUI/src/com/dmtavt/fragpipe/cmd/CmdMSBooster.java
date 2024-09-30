@@ -106,8 +106,8 @@ public class CmdMSBooster extends CmdBase {
       return false;
     }
 
-    if (!predictRT && !predictSpectra && !predictIm) {
-      SwingUtils.showErrorDialog(comp, "At least one of <b>Predict RT</b> or <b>Predict spectra</b> or <b>Predict IM</b> must be enabled if you want to run MSBooster.", NAME + " parameter error");
+    if (!predictRT && !predictSpectra) {
+      SwingUtils.showErrorDialog(comp, "At least one of <b>Predict RT</b> or <b>Predict spectra</b> must be enabled if you want to run MSBooster.", NAME + " parameter error");
       return false;
     }
 
@@ -144,6 +144,14 @@ public class CmdMSBooster extends CmdBase {
       return false;
     }
 
+    boolean hasTimsTof = false;
+    for (InputLcmsFile t : lcmsToFraggerPepxml.keySet()) {
+      if (t.getPath().getFileName().toString().endsWith(".d")) {
+        hasTimsTof = true;
+        break;
+      }
+    }
+
     final Path paramPath = wd.resolve("msbooster_params.txt");
 
     if (Files.exists(paramPath.toAbsolutePath().getParent())) { // Dry run does not make directories, so does not write the file.
@@ -155,7 +163,7 @@ public class CmdMSBooster extends CmdBase {
         bufferedWriter.write("renamePin = 1\n");
         bufferedWriter.write("useRT = " + (predictRT ? "true" : "false") + "\n");
         bufferedWriter.write("useSpectra = " + (predictSpectra ? "true" : "false") + "\n");
-        bufferedWriter.write("useIM = " + (predictIm ? "true" : "false") + "\n");
+        bufferedWriter.write("useIM = " + ((hasTimsTof && predictIm) ? "true" : "false") + "\n");
         bufferedWriter.write("fragger = " + fraggerParams + "\n");
         bufferedWriter.write("deletePreds = false\n"); // FragPipe-PDV need the prediction files.
         bufferedWriter.write("rtModel = " + rtModel + "\n");
@@ -163,10 +171,11 @@ public class CmdMSBooster extends CmdBase {
         bufferedWriter.write("imModel = " + imModel + "\n");
         bufferedWriter.write("findBestRtModel = " + (findBestRtModel ? "true" : "false") + "\n");
         bufferedWriter.write("findBestSpectraModel = " + (findBestSpectraModel ? "true" : "false") + "\n");
-        bufferedWriter.write("findBestImModel = " + (findBestImModel ? "true" : "false") + "\n");
+        bufferedWriter.write("findBestImModel = " + ((hasTimsTof && findBestImModel) ? "true" : "false") + "\n");
         bufferedWriter.write("KoinaURL = " + koinaURL + "\n");
         bufferedWriter.write("rtSearchModelsString = " + testRtModels + "\n");
         bufferedWriter.write("ms2SearchModelsString = " + testSpectraModels + "\n");
+        bufferedWriter.write("imSearchModelsString = " + testRtModels + "\n");
 
         // compute unique lcms file directories
         bufferedWriter.write("mzmlDirectory = ");

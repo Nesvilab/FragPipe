@@ -173,9 +173,6 @@ public class PercolatorOutputToPepXML {
         if (!Float.isNaN(nttNmc.RTscore)) {
             sb.append(String.format("<search_score name=\"rtscore\" value=\"%f\"/>\n", nttNmc.RTscore));
         }
-        if (!Float.isNaN(nttNmc.ionMobility)) {
-            sb.append(String.format("<search_score name=\"ionmobility\" value=\"%f\"/>\n", nttNmc.ionMobility));
-        }
         if (!Float.isNaN(nttNmc.IMscore)) {
             sb.append(String.format("<search_score name=\"imscore\" value=\"%f\"/>\n", nttNmc.IMscore));
         }
@@ -323,7 +320,6 @@ public class PercolatorOutputToPepXML {
             final int indexOf_expRT = colnames.indexOf("retentiontime");
             int indexOf_spectralSimilarity = -1;
             int indexOf_predRT = -1;
-            int indexOf_ionMobility = -1;
             int indexOf_IMscore = -1;
             if (colnames.contains("bray_curtis")) { //will need to adjust in future, if more scores are allowed
                 indexOf_spectralSimilarity = colnames.indexOf("bray_curtis");
@@ -333,9 +329,6 @@ public class PercolatorOutputToPepXML {
             }
             if (colnames.contains("delta_RT_loess")) {
                 indexOf_predRT = colnames.indexOf("pred_RT_real_units");
-            }
-            if (colnames.contains("ion_mobility")) {
-                indexOf_ionMobility = colnames.indexOf("ion_mobility");
             }
             if (colnames.contains("delta_IM_loess")) {
                 indexOf_IMscore = colnames.indexOf("delta_IM_loess");
@@ -359,16 +352,12 @@ public class PercolatorOutputToPepXML {
                     RTscore = Math.abs(Float.parseFloat(split[indexOf_predRT]) -
                             Float.parseFloat(split[indexOf_expRT]));
                 }
-                float ionMobility = Float.NaN;
-                if (indexOf_ionMobility != -1) {
-                    ionMobility = Float.parseFloat(split[indexOf_ionMobility]);
-                }
                 float IMscore = Float.NaN;
                 if (indexOf_IMscore != -1) {
                     IMscore = Float.parseFloat(split[indexOf_IMscore]);
                 }
                 pinSpectrumRankNttNmc.computeIfAbsent(specId, e -> new NttNmc[max_rank])[rank - 1] =
-                        new NttNmc(ntt, nmc, spectralSimilarity, RTscore, ionMobility, IMscore);
+                        new NttNmc(ntt, nmc, spectralSimilarity, RTscore, IMscore);
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -495,15 +484,13 @@ public class PercolatorOutputToPepXML {
         final int nmc;
         final float spectralSimilarity;
         final float RTscore;
-        final float ionMobility;
         final float IMscore;
 
-        public NttNmc(int ntt, int nmc, float spectralSimilarity, float RTscore, float ionMobility, float IMscore) {
+        public NttNmc(int ntt, int nmc, float spectralSimilarity, float RTscore, float IMscore) {
             this.ntt = ntt;
             this.nmc = nmc;
             this.spectralSimilarity = spectralSimilarity;
             this.RTscore = RTscore;
-            this.ionMobility = ionMobility;
             this.IMscore = IMscore;
         }
     }
