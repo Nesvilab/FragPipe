@@ -125,7 +125,7 @@ public class MSBoosterPanel extends JPanelBase {
     uiCheckPredictSpectra = new UiCheck("Predict spectra", null, true);
     uiCheckPredictSpectra.setName("predict-spectra");
 
-    uiCheckPredictIm = new UiCheck("Predict IM (it applicable)", null, true);
+    uiCheckPredictIm = new UiCheck("Predict IM (if applicable)", null, true);
     uiCheckPredictIm.setName("predict-im");
 
     uiTextKoinaUrl = new UiText("", "put your Koina server URL");
