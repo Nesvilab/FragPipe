@@ -47,7 +47,7 @@ public class CmdMSBooster extends CmdBase {
 
   private static final Logger log = LoggerFactory.getLogger(CmdMSBooster.class);
   public static String NAME = "MSBooster";
-  public static final String JAR_MSBOOSTER_NAME = "MSBooster-1.2.54.jar";
+  public static final String JAR_MSBOOSTER_NAME = "MSBooster-1.2.58.jar";
   public static final String JAR_MSBOOSTER_MAIN_CLASS = "mainsteps.MainClass";
   private static final String[] JAR_DEPS = {BATMASS_IO_JAR};
   private static final Pattern pattern1 = Pattern.compile("\\.pepXML$");
@@ -73,29 +73,30 @@ public class CmdMSBooster extends CmdBase {
   }
 
   public boolean configure(Component comp,
-      int ramGb,
-      int threads,
-      Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml,
-      boolean predictRT,
-      boolean predictSpectra,
-      boolean predictIm,
-      boolean hasDda,
-      boolean hasDia,
-      boolean hasGpfDia,
-      boolean hasDiaLib,
-      boolean hasDdaPlus,
-      boolean isRunDiaU,
-      boolean isRunDiaTracer,
-      boolean isOpenSearch,
-      String rtModel,
-      String spectraModel,
-      String imModel,
-      boolean findBestRtModel,
-      boolean findBestSpectraModel,
-      boolean findBestImModel,
-      String koinaURL,
-      String testRtModels,
-      String testSpectraModels) {
+                           int ramGb,
+                           int threads,
+                           Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml,
+                           boolean predictRT,
+                           boolean predictSpectra,
+                           boolean predictIm,
+                           boolean hasDda,
+                           boolean hasDia,
+                           boolean hasGpfDia,
+                           boolean hasDiaLib,
+                           boolean hasDdaPlus,
+                           boolean isRunDiaU,
+                           boolean isRunDiaTracer,
+                           boolean isOpenSearch,
+                           String rtModel,
+                           String spectraModel,
+                           String imModel,
+                           boolean findBestRtModel,
+                           boolean findBestSpectraModel,
+                           boolean findBestImModel,
+                           String koinaURL,
+                           String testRtModels,
+                           String testSpectraModels,
+                           String testImModels) {
 
     initPreConfig();
 
@@ -121,7 +122,7 @@ public class CmdMSBooster extends CmdBase {
     }
 
     if (koinaURL.isEmpty() && (findBestRtModel || findBestSpectraModel || findBestImModel)) {
-      SwingUtils.showErrorDialog(comp, "Koina URL is required for <b>Find best RT/spectral model</b>.\nPlease go to <b>Validation</b> tab and adjust the settings.", NAME + " error");
+      SwingUtils.showErrorDialog(comp, "Koina URL is required for <b>Find best RT/spectral/IM model</b>.\nPlease go to <b>Validation</b> tab and adjust the settings.", NAME + " error");
       return false;
     }
 
@@ -174,6 +175,7 @@ public class CmdMSBooster extends CmdBase {
         bufferedWriter.write("KoinaURL = " + koinaURL + "\n");
         bufferedWriter.write("rtSearchModelsString = " + testRtModels + "\n");
         bufferedWriter.write("ms2SearchModelsString = " + testSpectraModels + "\n");
+        bufferedWriter.write("imSearchModelsString = " + testImModels + "\n");
 
         // compute unique lcms file directories
         bufferedWriter.write("mzmlDirectory = ");

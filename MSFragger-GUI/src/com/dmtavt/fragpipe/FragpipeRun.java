@@ -1422,7 +1422,8 @@ public class FragpipeRun {
             msBoosterPanel.findBestImModel(),
             msBoosterPanel.koinaUrl(),
             msBoosterPanel.rtTestModels(),
-            msBoosterPanel.spectraTestModels());
+            msBoosterPanel.spectraTestModels(),
+            msBoosterPanel.imTestModels());
       }
       return true;
     });
