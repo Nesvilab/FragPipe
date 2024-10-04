@@ -911,7 +911,11 @@ public class TmtiPanel extends JPanelBase {
     fc.setFileFilter(new javax.swing.filechooser.FileFilter() {
       @Override
       public boolean accept(File f) {
-        return Files.isDirectory(f.toPath()) || f.toPath().getFileName().toString().endsWith("annotation.txt");
+        try {
+          return Files.isDirectory(f.toPath()) || f.toPath().getFileName().toString().endsWith("annotation.txt");
+        } catch (Exception ignore) {
+          return false;
+        }
       }
 
       @Override
