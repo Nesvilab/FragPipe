@@ -184,13 +184,14 @@ public class SDRFtable {
     /**
      * Add a row for an unlabeled sample (single LC-MS file)
      */
-    public void addSampleLFQ(String lcmsfileName, String replicate, ArrayList<String> enzymes, ArrayList<String> mods, String precTol, String prodTol) {
+    public void addSampleLFQ(String lcmsfileName, String replicate, ArrayList<String> enzymes, ArrayList<String> mods, String precTol, String prodTol, String instrument) {
         String[] row = new String[header.size()];
         row[header.indexOf(COL_organism)] = guessedOrganism;
         row[header.indexOf(COL_datafile)] = lcmsfileName;
         row[header.indexOf(COL_replicate)] = replicate;
         row[header.indexOf(COL_precTol)] = precTol;
         row[header.indexOf(COL_prodTol)] = prodTol;
+        row[header.indexOf(COL_instrument)] = instrument == null ? "not available" : ("NT=" + instrument);
         for (int i=0; i < enzymes.size(); i++) {
             row[firstEnzymeIndex + i] = enzymes.get(i);
         }
@@ -200,7 +201,7 @@ public class SDRFtable {
         rows.add(row);
     }
 
-    public void addSampleTMT(String lcmsfileName, String replicate, ArrayList<String> enzymes, ArrayList<String> mods, QuantLabel quantLabel, String precTol, String prodTol) {
+    public void addSampleTMT(String lcmsfileName, String replicate, ArrayList<String> enzymes, ArrayList<String> mods, QuantLabel quantLabel, String precTol, String prodTol, String instrument) {
         for (String label : quantLabel.getReagentNames()) {
             String[] row = new String[header.size()];
             row[header.indexOf(COL_organism)] = guessedOrganism;
@@ -208,6 +209,7 @@ public class SDRFtable {
             row[header.indexOf(COL_replicate)] = replicate;
             row[header.indexOf(COL_precTol)] = precTol;
             row[header.indexOf(COL_prodTol)] = prodTol;
+            row[header.indexOf(COL_instrument)] = instrument == null ? "not available" : ("NT=" + instrument);
             row[header.indexOf(COL_label)] = String.format("%s%s", quantLabel.getType(), label);
             for (int i=0; i < enzymes.size(); i++) {
                 row[firstEnzymeIndex + i] =  enzymes.get(i);
