@@ -285,7 +285,8 @@ public class Skyline {
         int exitValue = skylineProcess.waitFor();
         if (exitValue != 0) {
           String errStr = pr.appendErr(pr.pollStdErr());
-          System.err.println("Process " + pb + " returned non zero value. Message:\n" + (errStr == null ? "" : errStr));
+          System.err.println("Process " + pb + " returned non zero value. Message:\n" + (errStr == null ? "" : errStr.trim()));
+          System.exit(exitValue);
         } else {
           System.out.println("DONE! The Skyline files locate in " + wd.toAbsolutePath());
         }
