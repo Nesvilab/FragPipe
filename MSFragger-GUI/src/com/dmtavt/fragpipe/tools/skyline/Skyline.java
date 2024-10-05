@@ -154,7 +154,7 @@ public class Skyline {
       DefaultArtifactVersion v = new DefaultArtifactVersion(skylineVersion);
       boolean matchUnimod = v.compareTo(new DefaultArtifactVersion("23.1.1.418")) >= 0;
 
-      Path peptideListPath = skylineOutputDir.resolve("peptide_list.tsv").toAbsolutePath();
+      Path peptideListPath = skylineOutputDir.resolve("peptide_list.txt").toAbsolutePath();
       WritePeptideList pepWriter = new WritePeptideList();
       HashMap<String, HashSet<String>> addedMods = pepWriter.writePeptideList(psmTsvFiles, peptideListPath);
 
