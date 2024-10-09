@@ -8,7 +8,7 @@ import java.util.*;
 
 public class WriteSSL {
 
-    private static HashMap<String, Integer> columns;
+    private static Map<String, Integer> columns;
     public static final String COL_SCANID = "Spectrum";
     public static final String COL_CHARGE = "Charge";
     public static final String COL_SCORE = "Probability";
@@ -23,13 +23,13 @@ public class WriteSSL {
      * file     scan    charge  sequence    score-type  score   RT  IM
      * Sequence includes all mods. IM is optional. Score-type can be PERCOLATOR QVALUE or PEPTIDE PROPHET SOMETHING
      */
-    public void writeSSL(TreeSet<Path> psmtsvFiles, Path outputPath, boolean isPercolator, TreeSet<String> lcmsFiles, boolean useIonQuantPeaks) throws IOException {
+    public void writeSSL(Set<Path> psmtsvFiles, Path outputPath, boolean isPercolator, Set<String> lcmsFiles, boolean useIonQuantPeaks) throws IOException {
         ArrayList<String> output = new ArrayList<>();
         boolean isIM = false;
         boolean checkIM = true;
 
         // map file paths to the file names that will be in the psm.tsv
-        HashMap<String, String> lcmsFileNames = new HashMap<>();
+        Map<String, String> lcmsFileNames = new HashMap<>();
         for (String lcmsFile : lcmsFiles) {
             Path path = Paths.get(lcmsFile);
             String fileName = path.getFileName().toString();
@@ -86,6 +86,8 @@ public class WriteSSL {
                 }
                 output.add(sslLine.toString());
             }
+
+            reader.close();
         }
 
         // write output

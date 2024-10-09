@@ -72,7 +72,7 @@ public class WriteSkyMods {
     }
   }
 
-  public WriteSkyMods(Path path, PropsFile pf, int modsMode, boolean matchUnimod, boolean isSSL, HashMap<String, HashSet<String>> addedMods) throws Exception {
+  public WriteSkyMods(Path path, PropsFile pf, int modsMode, boolean matchUnimod, boolean isSSL, Map<String, Set<String>> addedMods) throws Exception {
     List<Mod> mods = new ArrayList<>(4);
 
     String fixModStr = pf.getProperty("msfragger.table.fix-mods");
@@ -113,7 +113,7 @@ public class WriteSkyMods {
     }
 
     // add any combined mods (multiple at one site) found during peptide list generation
-    for (Map.Entry<String, HashSet<String>> entry : addedMods.entrySet()) {
+    for (Map.Entry<String, Set<String>> entry : addedMods.entrySet()) {
       mass = Float.parseFloat(entry.getKey());
       mods.addAll(convertMods(String.join("", entry.getValue()), true, mass, mass, new ArrayList<>(), new ArrayList<>(), false));
     }

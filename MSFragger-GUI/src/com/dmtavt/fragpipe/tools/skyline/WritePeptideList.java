@@ -7,7 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class WritePeptideList {
-    private static HashMap<String, Integer> columns;
+    private static Map<String, Integer> columns;
     private static final Pattern sitePattern = Pattern.compile("(\\d+)\\w\\(");
     private static final Pattern massPattern = Pattern.compile("(\\([\\d.]+\\))");
     private static final Pattern AApattern = Pattern.compile("\\d?([\\w-]+)\\(");
@@ -18,9 +18,9 @@ public class WritePeptideList {
     public static final String COL_PROTEIN = "Protein";
 
 
-    public HashMap<String, HashSet<String>> writePeptideList(TreeSet<Path> psmtsvFiles, Path outputPath) throws IOException {
-        HashMap<String, Set<String>> proteinMap = new HashMap<>();
-        HashMap<String, HashSet<String>> additiveMods = new HashMap<>();
+    public Map<String, Set<String>> writePeptideList(Set<Path> psmtsvFiles, Path outputPath) throws IOException {
+        Map<String, Set<String>> proteinMap = new HashMap<>();
+        Map<String, Set<String>> additiveMods = new HashMap<>();
 
         for (Path psmtsv: psmtsvFiles) {
             BufferedReader reader = new BufferedReader(new FileReader(psmtsv.toFile()));
@@ -35,11 +35,13 @@ public class WritePeptideList {
                     proteinMap.get(protein).add(modpep);
                 } else {
                     // initialize new protein and peptide
-                    HashSet<String> peptides = new HashSet<>();
+                    Set<String> peptides = new HashSet<>();
                     peptides.add(modpep);
                     proteinMap.put(protein, peptides);
                 }
             }
+
+            reader.close();
         }
 
         // write output
@@ -60,11 +62,11 @@ public class WritePeptideList {
      * of "+" characters.
      * @return
      */
-    public static String generateModifiedPeptide(String[] psmSplits, HashMap<String, Integer> columns, boolean addCharge, HashMap<String, HashSet<String>> additiveMods) {
+    public static String generateModifiedPeptide(String[] psmSplits, Map<String, Integer> columns, boolean addCharge, Map<String, Set<String>> additiveMods) {
         String peptide = psmSplits[columns.get(COL_PEPTIDE)];
 
         String[] mods = psmSplits[columns.get(COL_ASSIGNED_MODS)].split(",");
-        HashMap<Integer, String> modMap = new HashMap<>();
+        Map<Integer, String> modMap = new TreeMap<>();
         for (String mod : mods) {
             Matcher siteMatch = sitePattern.matcher(mod);
             int site;
@@ -94,15 +96,14 @@ public class WritePeptideList {
     /**
      * Generate a modified peptide String with all Assigned modifications placed within it
      */
-    private static String insertMods(String peptide, HashMap<Integer, String> modMap) {
-        TreeMap<Integer, String> sortedMods = new TreeMap<>(modMap);
+    private static String insertMods(String peptide, Map<Integer, String> modMap) {
         StringBuilder modifiedPeptide = new StringBuilder(peptide);
 
         // Offset to account for insertions
         int offset = 0;
 
         // Iterate through the sorted entries and insert the mods
-        for (Map.Entry<Integer, String> entry : sortedMods.entrySet()) {
+        for (Map.Entry<Integer, String> entry : modMap.entrySet()) {
             int position = entry.getKey() + offset;
             String mod = entry.getValue();
 

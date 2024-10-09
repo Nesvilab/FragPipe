@@ -64,7 +64,7 @@ public class Skyline {
 
   // convert our names to Skyline names
   // names from Skyline cmd documentation (version 24.0-daily, 7/19/2024)
-  private final static HashMap<String, String> enzymesMap = new HashMap<>();
+  private final static Map<String, String> enzymesMap = new HashMap<>();
   static {
     enzymesMap.put("trypsin", "Trypsin");
     enzymesMap.put("stricttrypsin", "Trypsin/P");
@@ -103,8 +103,8 @@ public class Skyline {
       PropsFile pf = new PropsFile(workflowPath, "for Skyline");
       pf.load();
 
-      TreeSet<String> lcmsFiles = new TreeSet<>();
-      TreeSet<String> ddaAndDIAfiles = new TreeSet<>();
+      Set<String> lcmsFiles = new TreeSet<>();
+      Set<String> ddaAndDIAfiles = new TreeSet<>();
 
       String dataType = "DDA";
       String line;
@@ -141,7 +141,7 @@ public class Skyline {
       reader.close();
 
       List<Path> speclibFiles = Files.walk(wd).filter(p -> p.getFileName().toString().endsWith(".speclib")).collect(Collectors.toList());
-      TreeSet<Path> psmTsvFiles = Files.walk(wd).filter(p -> p.getFileName().toString().startsWith("psm.tsv") && p.getFileName().toString().endsWith("psm.tsv")).collect(Collectors.toCollection(TreeSet::new));
+      Set<Path> psmTsvFiles = Files.walk(wd).filter(p -> p.getFileName().toString().startsWith("psm.tsv") && p.getFileName().toString().endsWith("psm.tsv")).collect(Collectors.toCollection(TreeSet::new));
 
       if (useSpeclib && speclibFiles.isEmpty()) {
         System.out.println("No DIA-NN .speclib files found in " + wd + " but Skyline was set to use the spectral library as input and DIA-NN was enabled. Did the DIA-NN run fail? No Skyline document will be generated.");
@@ -156,7 +156,7 @@ public class Skyline {
 
       Path peptideListPath = skylineOutputDir.resolve("peptide_list.txt").toAbsolutePath();
       WritePeptideList pepWriter = new WritePeptideList();
-      HashMap<String, HashSet<String>> addedMods = pepWriter.writePeptideList(psmTsvFiles, peptideListPath);
+      Map<String, Set<String>> addedMods = pepWriter.writePeptideList(psmTsvFiles, peptideListPath);
 
       Path modXmlPath = wd.resolve("mod.xml");
       WriteSkyMods writeSkyMods = new WriteSkyMods(modXmlPath, pf, modsMode, matchUnimod, !useSpeclib, addedMods);
