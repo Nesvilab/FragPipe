@@ -255,11 +255,8 @@ public class Skyline {
         writer.write("--full-scan-isolation-scheme=\"Results only\" ");
       }
 
-      if (dataType.contentEquals("DIA") && overridePeakBounds) {
-        // lc-ms file import is automatic when reading peptide list, but needs the DIA files imported separated for DIA SSL
-        for (String s : lcmsFiles) {
-          writer.write("--import-file=" + s + " ");
-        }
+      for (String s : lcmsFiles) {
+        writer.write("--import-file=" + s + " ");
       }
 
       // todo: waiting for a fix (or clarification) from Brendan. Skyline does not allow this unless fasta has been imported
