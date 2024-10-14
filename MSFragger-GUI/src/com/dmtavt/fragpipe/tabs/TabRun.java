@@ -38,19 +38,13 @@ import com.dmtavt.fragpipe.messages.MessageSaveLog;
 import com.dmtavt.fragpipe.messages.MessageShowAboutDialog;
 import com.dmtavt.fragpipe.process.ProcessResult;
 import com.dmtavt.fragpipe.tools.philosopher.ReportPanel;
+import com.dmtavt.fragpipe.util.SDRFtable;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
-import com.github.chhh.utils.swing.FileChooserUtils;
+import com.github.chhh.utils.swing.*;
 import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
-import com.github.chhh.utils.swing.FormEntry;
-import com.github.chhh.utils.swing.JPanelWithEnablement;
-import com.github.chhh.utils.swing.MigUtils;
-import com.github.chhh.utils.swing.TextConsole;
-import com.github.chhh.utils.swing.UiCheck;
-import com.github.chhh.utils.swing.UiSpinnerDouble;
-import com.github.chhh.utils.swing.UiText;
-import com.github.chhh.utils.swing.UiUtils;
+
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Desktop;
@@ -69,10 +63,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -121,6 +113,7 @@ public class TabRun extends JPanelWithEnablement {
   private Process pdvProcess = null;
   private TabDownstream tabDownstream;
   private UiCheck uiCheckSaveSDRF;
+  private UiCombo uiComboSDRFtype;
 
   public TabRun(TextConsole console, TabDownstream tabDownstream) {
     this.console = console;
@@ -344,10 +337,14 @@ public class TabRun extends JPanelWithEnablement {
       ex.printStackTrace();
     }
 
-    uiCheckSaveSDRF = new UiCheck("Save Technical SDRF", null,true);
+    uiCheckSaveSDRF = new UiCheck("Save SDRF template", null,true);
     uiCheckSaveSDRF.setName("workflow.misc.save-sdrf");
     uiCheckSaveSDRF.setToolTipText("Save a template SDRF file with technical columns (search parameters) for this FragPipe run. \n" +
         "NOTE: this is not a complete SDRF file, information about the samples needs to be added to complete it.");
+
+    List<String> sdrfTypes =  Arrays.stream(SDRFtable.SDRFtypes.values()).map(Enum::name).collect(Collectors.toList());
+    uiComboSDRFtype = UiUtils.createUiCombo(sdrfTypes);
+    FormEntry feComboSDRFtype = new FormEntry("workflow.misc.sdrf-type", "SDRF Type", uiComboSDRFtype, "SDRF template type to use");
 
     JPanel p = mu.newPanel(null, true);
     mu.add(p, btnAbout).wrap();
@@ -359,7 +356,9 @@ public class TabRun extends JPanelWithEnablement {
     mu.add(p, btnRun).split(3);
     mu.add(p, btnStop);
     mu.add(p, uiCheckDryRun);
-    mu.add(p, uiCheckSaveSDRF);
+    mu.add(p, uiCheckSaveSDRF).split(3);
+    mu.add(p, feComboSDRFtype.label(), mu.ccR());
+    mu.add(p, feComboSDRFtype.comp);
 
     mu.add(p, btnExport).split(3);
     mu.add(p, btnReportErrors);
@@ -399,6 +398,9 @@ public class TabRun extends JPanelWithEnablement {
 
   public float getSubMzmlProbThreshold() {
     return ((Double) uiSpinnerProbThreshold.getValue()).floatValue();
+  }
+  public SDRFtable.SDRFtypes getSDRFtype() {
+    return SDRFtable.SDRFtypes.valueOf(uiComboSDRFtype.getSelectedItem().toString());
   }
 
   public boolean isSaveSDRF() {

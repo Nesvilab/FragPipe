@@ -150,7 +150,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TabMsfragger extends JPanelBase {
+
   private static final Logger log = LoggerFactory.getLogger(TabMsfragger.class);
+  private static final Pattern pattern = Pattern.compile("(.+): Scans .+ Instrument = ([^;\\n\\r]+)");
   private final static MigUtils mu = MigUtils.get();
   private AtomicBoolean hasBeenShown = new AtomicBoolean(false);
   public static final String PROP_FILECHOOSER_LAST_PATH = "msfragger.filechooser.path";
@@ -2432,4 +2434,12 @@ public class TabMsfragger extends JPanelBase {
     }
   }
 
+  public static Map<String, String> getInstrumentMap(String logText) {
+    Map<String, String> out = new HashMap<>();
+    Matcher matcher = pattern.matcher(logText);
+    while (matcher.find()) {
+      out.put(Paths.get(matcher.group(1)).getFileName().toString().trim(), matcher.group(2).trim());
+    }
+    return out;
+  }
 }
