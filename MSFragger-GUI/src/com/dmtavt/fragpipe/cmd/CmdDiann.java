@@ -283,6 +283,7 @@ public class CmdDiann extends CmdBase {
       cmd.add(String.valueOf(qvalue));
       if (useRunSpecificProteinQvalue) {
         cmd.add("--matrix-spec-q");
+        cmd.add(String.valueOf(qvalue));
       }
       cmd.add("--matrices");
       cmd.add("--no-prot-inf");
