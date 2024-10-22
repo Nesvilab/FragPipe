@@ -1,2 +1,17 @@
-FragPipe GUI is licensed under GPL version 3.
-Individual tools, such as MSFragger, DIA-Umpire, Philosopher, MSBooster, PTM-Shepherd, IonQuant, TMT-Integrator, EasyPQP, and DIA-NN, in FragPipe GUI have their own licenses.
+- FragPipe GUI: open source (GPL 3.0)
+- DIA-Umpire: open source (GPL 3.0)
+- diaTracer: free academic [license](https://msfragger-upgrader.nesvilab.org/diatracer/diaTracer%20UM%20%23%202024-417%20Academic%20Research%20Use%20License%2005142024.pdf). Paid non-academic license (contact the University of Michigan Office of Technology Transfer (Drew Bennett, andbenne@umich.edu) to obtain a commercial license.)
+- MSFragger: free academic [license](https://msfragger-upgrader.nesvilab.org/upgrader/MSFragger-LICENSE.pdf). Paid non-academic license (contact the University of Michigan Office of Technology Transfer (Drew Bennett, andbenne@umich.edu) to obtain a commercial license.)
+- Crystal-C: open source (Apache 2.0)
+- MSBooster: open source (Apache 2.0)
+- PeptideProphet: open source (LGPL 2.0, GPL 2.0)
+- ProteinProphet: open source (LGPL 2.0, GPL 2.0)
+- PTMProphet: open source (LGPL 2.0, GPL 2.0)
+- Philosopher: open source (GPL 3.0)
+- PTM-Shepherd: open source (Apache 2.0)
+- IonQuant: free academic [license](https://msfragger-upgrader.nesvilab.org/ionquant/IonQuant%20Academic%20Use%20License%2005162022.pdf). Paid non-academic license (contact the University of Michigan Office of Technology Transfer (Drew Bennett, andbenne@umich.edu) to obtain a commercial license.)
+- TMT-Integrator: open source after the paper published
+- EasyPQP: open source (BSD 3-Clause)
+- DIA-NN: check https://github.com/vdemichev/DiaNN for the license information
+- Skyline: open source (Apache 2.0)
+- SAINTexpress: open source
