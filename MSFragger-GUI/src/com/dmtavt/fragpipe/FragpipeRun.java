@@ -137,6 +137,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -1236,28 +1237,36 @@ public class FragpipeRun {
       return true;
     });
 
-    // run DIA-Umpire SE
-    final NoteConfigMsfragger configMsfragger;
+    NoteConfigMsfragger configMsfragger = null;
     try {
       configMsfragger = Fragpipe.getSticky(NoteConfigMsfragger.class);
-    } catch (NoStickyException e) {
-      SwingUtils.showErrorDialog(parent, "Looks like MSFragger was not configured.\nMSFragger is currently required.", "No MSFragger");
-      return false;
-    }
+    } catch (NoStickyException ignored) {}
 
-    if (!configMsfragger.isValid()) {
-      SwingUtils.showErrorDialog(parent, "MSFragger was not configured properly. Please check the config tab.", "MSFragger is not available");
-      return false;
+    final UsageTrigger binMsfragger;
+    final Path extLibsThermo;
+    final Path extLibsBruker;
+    if (configMsfragger != null && configMsfragger.isValid()) {
+      binMsfragger = new UsageTrigger(configMsfragger.path, "MSFragger");
+      extLibsThermo = CmdMsfragger.searchExtLibsThermo(Collections.singletonList(Paths.get(configMsfragger.path).toAbsolutePath().getParent()));
+      extLibsBruker = CmdMsfragger.searchExtLibsBruker(Collections.singletonList(Paths.get(configMsfragger.path).toAbsolutePath().getParent()));
+    } else {
+      binMsfragger = new UsageTrigger("", "MSFragger");
+      extLibsThermo = null;
+      extLibsBruker = null;
     }
-
-    final UsageTrigger binMsfragger = new UsageTrigger(configMsfragger.path, "MSFragger");
 
     final UmpirePanel umpirePanel = Fragpipe.getStickyStrict(UmpirePanel.class);
     final CmdUmpireSe cmdUmpire = new CmdUmpireSe(umpirePanel.isRun(), wd);
     addConfig.accept(cmdUmpire, () -> {
       cmdUmpire.setRun(cmdUmpire.isRun() && !sharedLcmsFiles.isEmpty());
       if (cmdUmpire.isRun()) {
-        if (!cmdUmpire.configure(parent, isDryRun, jarPath, ramGb, Paths.get(binMsfragger.getBin()), umpirePanel, sharedLcmsFiles)) {
+        if (!cmdUmpire.configure(parent,
+            isDryRun,
+            jarPath,
+            ramGb,
+            extLibsThermo,
+            umpirePanel,
+            sharedLcmsFiles)) {
           return false;
         }
         List<InputLcmsFile> outputs = cmdUmpire.outputs(sharedLcmsFiles, umpirePanel.generateQ1(), umpirePanel.generateQ2(), umpirePanel.generateQ3());
@@ -1277,7 +1286,7 @@ public class FragpipeRun {
             parent,
             ramGb,
             threads,
-            Paths.get(binMsfragger.getBin()),
+            extLibsBruker,
             Paths.get(binDiaTracer.getBin()),
             diaTracerPanel.writeIntermediateFiles(),
             diaTracerPanel.imTolerance(),
@@ -1326,7 +1335,24 @@ public class FragpipeRun {
     addConfig.accept(cmdMsfragger, () -> {
       cmdMsfragger.setRun(cmdMsfragger.isRun() && !sharedLcmsFiles.isEmpty());
       if (cmdMsfragger.isRun()) {
-        if (!cmdMsfragger.configure(parent, isDryRun, jarPath, binMsfragger, fastaFile, tabMsf.getParams(), tabMsf.getNumDbSlices(), ramGb, sharedLcmsFiles, decoyTag, tabWorkflow.hasDataType("DDA"), tabWorkflow.hasDataType("DIA"), tabWorkflow.hasDataType("GPF-DIA"), tabWorkflow.hasDataType("DIA-Lib"), tabWorkflow.hasDataType("DDA+"), cmdUmpire.isRun(), cmdDiaTracer.isRun(), tabRun.isWriteSubMzml())) {
+        if (!cmdMsfragger.configure(parent,
+            isDryRun,
+            jarPath,
+            binMsfragger,
+            fastaFile,
+            tabMsf.getParams(),
+            tabMsf.getNumDbSlices(),
+            ramGb,
+            sharedLcmsFiles,
+            decoyTag,
+            tabWorkflow.hasDataType("DDA"),
+            tabWorkflow.hasDataType("DIA"),
+            tabWorkflow.hasDataType("GPF-DIA"),
+            tabWorkflow.hasDataType("DIA-Lib"),
+            tabWorkflow.hasDataType("DDA+"),
+            cmdUmpire.isRun(),
+            cmdDiaTracer.isRun(),
+            tabRun.isWriteSubMzml())) {
           return false;
         }
 
@@ -1382,7 +1408,15 @@ public class FragpipeRun {
         if (threads > 0) {
           ccParams.setThread(threads);
         }
-        if (!cmdCrystalc.configure(parent, jarPath, isDryRun, Paths.get(binMsfragger.getBin()), "pepXML", ramGb, ccParams, fastaFile, sharedPepxmlFiles)) {
+        if (!cmdCrystalc.configure(parent,
+            jarPath,
+            isDryRun,
+            extLibsThermo,
+            "pepXML",
+            ramGb,
+            ccParams,
+            fastaFile,
+            sharedPepxmlFiles)) {
           return false;
         }
         Map<InputLcmsFile, List<Path>> outputs = cmdCrystalc
@@ -1710,7 +1744,21 @@ public class FragpipeRun {
             throw new IllegalStateException("OPairPanel has not been posted to the bus");
           }
 
-          return cmdIonquant.configure(parent, Paths.get(binMsfragger.getBin()), Paths.get(binIonQuant.getBin()), ramGb, quantPanelLabelfree.toMap(), tabWorkflow.getInputDataType(), sharedPepxmlFilesFromMsfragger, sharedMapGroupsToProtxml, threads, oPairPanel.isRun() ? null : modMassSet, isDryRun, true, true, true);
+          return cmdIonquant.configure(parent,
+              extLibsThermo,
+              extLibsBruker,
+              Paths.get(binIonQuant.getBin()),
+              ramGb,
+              quantPanelLabelfree.toMap(),
+              tabWorkflow.getInputDataType(),
+              sharedPepxmlFilesFromMsfragger,
+              sharedMapGroupsToProtxml,
+              threads,
+              oPairPanel.isRun() ? null : modMassSet,
+              isDryRun,
+              true,
+              true,
+              true);
         }
         return true;
       });
@@ -1794,7 +1842,21 @@ public class FragpipeRun {
             if (oPairPanel == null) {
               throw new IllegalStateException("OPairPanel has not been posted to the bus");
             }
-            return cmdTmtIonquant.configure(parent, Paths.get(binMsfragger.getBin()), Paths.get(binIonQuant.getBin()), ramGb, null, tabWorkflow.getInputDataType(), sharedPepxmlFilesFromMsfragger, sharedMapGroupsToProtxml, threads, oPairPanel.isRun() ? null : modMassSet, isDryRun, false, false, false);
+            return cmdTmtIonquant.configure(parent,
+                extLibsThermo,
+                extLibsBruker,
+                Paths.get(binIonQuant.getBin()),
+                ramGb,
+                null,
+                tabWorkflow.getInputDataType(),
+                sharedPepxmlFilesFromMsfragger,
+                sharedMapGroupsToProtxml,
+                threads,
+                oPairPanel.isRun() ? null : modMassSet,
+                isDryRun,
+                false,
+                false,
+                false);
           }
           return true;
         });
@@ -1805,7 +1867,27 @@ public class FragpipeRun {
             if (oPairPanel == null) {
               throw new IllegalStateException("OPairPanel has not been posted to the bus");
             }
-            return cmdTmtIonquantIsobaric.configure(parent, Paths.get(binMsfragger.getBin()), Paths.get(binIonQuant.getBin()), ramGb, null, tabWorkflow.getInputDataType(), sharedPepxmlFilesFromMsfragger, sharedMapGroupsToProtxml, threads, oPairPanel.isRun() ? null : modMassSet, isDryRun, false, true, false, false, tolerance, Integer.parseInt(quantLevel), label.getName(), annotations, true);
+            return cmdTmtIonquantIsobaric.configure(parent,
+                extLibsThermo,
+                extLibsBruker,
+                Paths.get(binIonQuant.getBin()),
+                ramGb,
+                null,
+                tabWorkflow.getInputDataType(),
+                sharedPepxmlFilesFromMsfragger,
+                sharedMapGroupsToProtxml,
+                threads,
+                oPairPanel.isRun() ? null : modMassSet,
+                isDryRun,
+                false,
+                true,
+                false,
+                false,
+                tolerance,
+                Integer.parseInt(quantLevel),
+                label.getName(),
+                annotations,
+                true);
           }
           return true;
         });
@@ -1850,7 +1932,14 @@ public class FragpipeRun {
     addConfig.accept(cmdPairScans, () -> {
       cmdPairScans.setRun(cmdPairScans.isRun() && !sharedLcmsFiles.isEmpty());
       if (cmdPairScans.isRun()) {
-        return cmdPairScans.configure(parent, Paths.get(binMsfragger.getBin()), jarPath, ramGb, threads, sharedLcmsFiles, oPairPanel.getOPairParams());
+        return cmdPairScans.configure(parent,
+            extLibsThermo,
+            extLibsBruker,
+            jarPath,
+            ramGb,
+            threads,
+            sharedLcmsFiles,
+            oPairPanel.getOPairParams());
       }
       return true;
     });
@@ -1900,8 +1989,14 @@ public class FragpipeRun {
         Optional.ofNullable(tabMsf.getUiTextIsoErr().getNonGhostText())
             .filter(StringUtils::isNotBlank)
             .ifPresent(v -> additionalShepherdParams.put("isotope_error", v));
-        return cmdPtmshepherd.configure(parent, isDryRun, Paths.get(binMsfragger.getBin()),
-            ramGb, fastaPath, sharedMapGroupsToProtxml, additionalShepherdParams, jarPath);
+        return cmdPtmshepherd.configure(parent,
+            isDryRun,
+            extLibsThermo,
+            ramGb,
+            fastaPath,
+            sharedMapGroupsToProtxml,
+            additionalShepherdParams,
+            jarPath);
       }
       return true;
     });
@@ -2053,7 +2148,19 @@ public class FragpipeRun {
     addConfig.accept(cmdWriteSubMzml, () -> {
       cmdWriteSubMzml.setRun(cmdWriteSubMzml.isRun() && !sharedLcmsFileGroups.isEmpty());
       if (cmdWriteSubMzml.isRun()) {
-        return cmdWriteSubMzml.configure(parent, Paths.get(binMsfragger.getBin()), jarPath, ramGb, threads, sharedLcmsFileGroups, tabRun.getSubMzmlProbThreshold(), tabMsf.isRun(), tabWorkflow.hasDataType("DIA"), tabWorkflow.hasDataType("GPF-DIA"), tabWorkflow.hasDataType("DIA-Lib"), tabWorkflow.hasDataType("DDA+"));
+        return cmdWriteSubMzml.configure(parent,
+            extLibsThermo,
+            extLibsBruker,
+            jarPath,
+            ramGb,
+            threads,
+            sharedLcmsFileGroups,
+            tabRun.getSubMzmlProbThreshold(),
+            tabMsf.isRun(),
+            tabWorkflow.hasDataType("DIA"),
+            tabWorkflow.hasDataType("GPF-DIA"),
+            tabWorkflow.hasDataType("DIA-Lib"),
+            tabWorkflow.hasDataType("DDA+"));
       }
       return true;
     });

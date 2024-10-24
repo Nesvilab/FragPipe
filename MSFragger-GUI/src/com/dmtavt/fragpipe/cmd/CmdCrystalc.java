@@ -30,7 +30,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -123,18 +122,22 @@ public class CmdCrystalc extends CmdBase {
   /**
    * @param ccParams Get these by calling {@link CrystalcPanel#toParams()}.
    */
-  public boolean configure(Component comp, Path jarFragpipe, boolean isDryRun, Path binFragger, String msfraggerOutputExt, int ramGb, CrystalcParams ccParams, String fastaPath, Map<InputLcmsFile, List<Path>> pepxmlFiles) {
+  public boolean configure(Component comp,
+      Path jarFragpipe,
+      boolean isDryRun,
+      Path extLibsThermo,
+      String msfraggerOutputExt,
+      int ramGb,
+      CrystalcParams ccParams,
+      String fastaPath,
+      Map<InputLcmsFile, List<Path>> pepxmlFiles) {
     initPreConfig();
 
     final List<String> sup = new ArrayList<>(SUPPORTED_FORMATS);
-    final Path extLibsThermo = CmdMsfragger.searchExtLibsThermo(Collections.singletonList(binFragger.toAbsolutePath().getParent()));
     if (extLibsThermo != null) {
       sup.add(THERMO_RAW_EXT);
     }
-//    final Path extLibsBruker = CmdMsfragger.searchExtLibsBruker(Collections.singletonList(binFragger.getParent()));
-//    if (extLibsBruker != null) {
-//      sup.add(BRUKER_RAW_EXT);
-//    }
+
     if (!checkCompatibleFormats(comp, pepxmlFiles, sup)) {
       return false;
     }

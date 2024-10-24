@@ -38,7 +38,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -66,20 +65,71 @@ public class CmdIonquant extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, Path binFragger, Path binIonQuant, int ramGb, Map<String, String> uiCompsRepresentation, InputDataType dataType, Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml, Map<LcmsFileGroup, Path> mapGroupsToProtxml, int nThreads, Set<Float> modMassSet, boolean isDryRun, boolean generateSiteReport, boolean generateMSstatsInput, boolean writeExperimentAnnotation) {
-    return configure(comp, binFragger, binIonQuant, ramGb, uiCompsRepresentation, dataType, lcmsToFraggerPepxml, mapGroupsToProtxml, nThreads, modMassSet, isDryRun, true, false, generateSiteReport, generateMSstatsInput, 20, 2, "tmt10", null, writeExperimentAnnotation);
+  public boolean configure(Component comp,
+      Path extLibsThermo,
+      Path extLibsBruker,
+      Path binIonQuant,
+      int ramGb,
+      Map<String, String> uiCompsRepresentation,
+      InputDataType dataType,
+      Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml,
+      Map<LcmsFileGroup, Path> mapGroupsToProtxml,
+      int nThreads,
+      Set<Float> modMassSet,
+      boolean isDryRun,
+      boolean generateSiteReport,
+      boolean generateMSstatsInput,
+      boolean writeExperimentAnnotation) {
+    return configure(comp,
+        extLibsThermo,
+        extLibsBruker,
+        binIonQuant,
+        ramGb,
+        uiCompsRepresentation,
+        dataType,
+        lcmsToFraggerPepxml,
+        mapGroupsToProtxml,
+        nThreads,
+        modMassSet,
+        isDryRun,
+        true,
+        false,
+        generateSiteReport,
+        generateMSstatsInput,
+        20,
+        2,
+        "tmt10",
+        null,
+        writeExperimentAnnotation);
   }
 
-  public boolean configure(Component comp, Path binFragger, Path binIonQuant, int ramGb, Map<String, String> uiCompsRepresentation, InputDataType dataType, Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml, Map<LcmsFileGroup, Path> mapGroupsToProtxml, int nThreads, Set<Float> modMassSet, boolean isDryRun, boolean performMS1Quant, boolean performIsobaricQuant, boolean generateSiteReport, boolean generateMSstatsInput, float isoTol, int isoLevel, String isoType, Map<LcmsFileGroup, Path> annotationMap, boolean writeExperimentAnnotation) {
+  public boolean configure(Component comp,
+      Path extLibsThermo,
+      Path extLibsBruker,
+      Path binIonQuant,
+      int ramGb,
+      Map<String, String> uiCompsRepresentation,
+      InputDataType dataType,
+      Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml,
+      Map<LcmsFileGroup, Path> mapGroupsToProtxml,
+      int nThreads, Set<Float> modMassSet,
+      boolean isDryRun,
+      boolean performMS1Quant,
+      boolean performIsobaricQuant,
+      boolean generateSiteReport,
+      boolean generateMSstatsInput,
+      float isoTol,
+      int isoLevel,
+      String isoType,
+      Map<LcmsFileGroup, Path> annotationMap,
+      boolean writeExperimentAnnotation) {
 
     initPreConfig();
 
     List<String> sup = new ArrayList<>(SUPPORTED_FORMATS);
-    final Path extLibsBruker = CmdMsfragger.searchExtLibsBruker(Collections.singletonList(binFragger.toAbsolutePath().getParent()));
     if (extLibsBruker != null) {
       sup.add("d");
     }
-    final Path extLibsThermo = CmdMsfragger.searchExtLibsThermo(Collections.singletonList(binFragger.toAbsolutePath().getParent()));
     if (extLibsThermo != null) {
       sup.add("raw");
     }

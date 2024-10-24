@@ -26,7 +26,6 @@ import java.awt.Component;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import javax.swing.JOptionPane;
 import org.jooq.lambda.Seq;
@@ -50,7 +49,19 @@ public class CmdDiaTracer extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component component, int ramGb, int threads, Path binFragger, Path binDiaTracer, boolean writeIntermediateFiles, float imTolerance, int apexScanDeltaRange, boolean massDefectFilter, float massDefectOffset, float ms1MS2Corr, int rfMax, List<InputLcmsFile> inputs) {
+  public boolean configure(Component component,
+      int ramGb,
+      int threads,
+      Path extLibsBruker,
+      Path binDiaTracer,
+      boolean writeIntermediateFiles,
+      float imTolerance,
+      int apexScanDeltaRange,
+      boolean massDefectFilter,
+      float massDefectOffset,
+      float ms1MS2Corr,
+      int rfMax,
+      List<InputLcmsFile> inputs) {
     initPreConfig();
 
     final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(JAR_DEPS));
@@ -58,7 +69,6 @@ public class CmdDiaTracer extends CmdBase {
       return false;
     }
 
-    final Path extLibsBruker = CmdMsfragger.searchExtLibsBruker(Collections.singletonList(binFragger.toAbsolutePath().getParent()));
     if (extLibsBruker == null) {
       if (Fragpipe.headless) {
         log.error(NAME + " requires native Bruker libraries. Native libraries come with MSFragger zip download, contained in ext sub-directory.");

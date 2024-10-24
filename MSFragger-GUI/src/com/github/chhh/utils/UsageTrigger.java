@@ -60,7 +60,7 @@ public class UsageTrigger {
 
   public String getBin() {
     if (bin.isEmpty()) {
-      throw new RuntimeException(desc + " binary path is empty. Please check if it exists and executable.");
+      System.err.println(desc + " binary path is empty. Please check if it exists and executable.");
     }
     return bin;
   }
@@ -75,7 +75,7 @@ public class UsageTrigger {
    */
   public final String useBin(Path workDir) {
     if (bin.isEmpty()) {
-      throw new RuntimeException(desc + " binary path is empty. Please check if it exists and executable.");
+      System.err.println(desc + " binary path is empty. Please check if it exists and executable.");
     }
     isUsed = true;
     if (workDir != null)

@@ -300,7 +300,24 @@ public class CmdMsfragger extends CmdBase {
     return locs;
   }
 
-  public boolean configure(Component comp, boolean isDryRun, Path jarFragpipe, UsageTrigger binFragger, String pathFasta, MsfraggerParams params, int numSlices, int ramGb, List<InputLcmsFile> lcmsFiles, final String decoyTag, boolean hasDda, boolean hasDia, boolean hasGpfDia, boolean hasDiaLib, boolean hasDdaPlus, boolean isRunDiaU, boolean isRunDiaTracer, boolean writeMzbinAll) {
+  public boolean configure(Component comp,
+      boolean isDryRun,
+      Path jarFragpipe,
+      UsageTrigger binFragger,
+      String pathFasta,
+      MsfraggerParams params,
+      int numSlices,
+      int ramGb,
+      List<InputLcmsFile> lcmsFiles,
+      final String decoyTag,
+      boolean hasDda,
+      boolean hasDia,
+      boolean hasGpfDia,
+      boolean hasDiaLib,
+      boolean hasDdaPlus,
+      boolean isRunDiaU,
+      boolean isRunDiaTracer,
+      boolean writeMzbinAll) {
 
     initPreConfig();
 

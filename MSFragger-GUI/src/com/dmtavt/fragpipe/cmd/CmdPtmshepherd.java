@@ -34,7 +34,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -65,12 +64,17 @@ public class CmdPtmshepherd extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, boolean isDryRun, Path binFragger, int ramGb,
-      Path db, Map<LcmsFileGroup, Path> mapGroupsToProtxml, Map<String, String> additionalProps, Path jarFragpipe) {
+  public boolean configure(Component comp,
+      boolean isDryRun,
+      Path extLibsThermo,
+      int ramGb,
+      Path db,
+      Map<LcmsFileGroup, Path> mapGroupsToProtxml,
+      Map<String, String> additionalProps,
+      Path jarFragpipe) {
 
     initPreConfig();
 
-    final Path extLibsThermo = CmdMsfragger.searchExtLibsThermo(Collections.singletonList(binFragger.toAbsolutePath().getParent()));
     ArrayList<String> sup = new ArrayList<>(SUPPORTED_FORMATS);
     if (extLibsThermo != null) {
       sup.add(THERMO_RAW_EXT);

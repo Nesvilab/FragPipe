@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -55,7 +54,19 @@ public class CmdWriteSubMzml extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, Path binMSFragger, Path jarFragpipe, int ramGb, int nThreads, Map<String, LcmsFileGroup> lcmsFileGroups, float probabilityThreshold, boolean isRunMSFragger, boolean hasDia, boolean hasGpfDia, boolean hasDiaLib, boolean hasDdaPlus) {
+  public boolean configure(Component comp,
+      Path extLibsThermo,
+      Path extLibsBruker,
+      Path jarFragpipe,
+      int ramGb,
+      int nThreads,
+      Map<String, LcmsFileGroup> lcmsFileGroups,
+      float probabilityThreshold,
+      boolean isRunMSFragger,
+      boolean hasDia,
+      boolean hasGpfDia,
+      boolean hasDiaLib,
+      boolean hasDdaPlus) {
     initPreConfig();
 
     if (!isRunMSFragger) {
@@ -96,9 +107,6 @@ public class CmdWriteSubMzml extends CmdBase {
 
     toJoin.add(jarFragpipe.toAbsolutePath().normalize().toString());
     final String classpath = OsUtils.asSingleArgument(String.join(System.getProperties().getProperty("path.separator"), toJoin));
-
-    Path extLibsBruker = CmdMsfragger.searchExtLibsBruker(Collections.singletonList(binMSFragger.toAbsolutePath().getParent()));
-    Path extLibsThermo = CmdMsfragger.searchExtLibsThermo(Collections.singletonList(binMSFragger.toAbsolutePath().getParent()));
 
     int idx = 0;
     int batchNum = Math.min(2, nThreads);

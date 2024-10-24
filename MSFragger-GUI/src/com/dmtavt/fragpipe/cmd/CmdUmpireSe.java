@@ -31,7 +31,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -78,8 +77,12 @@ public class CmdUmpireSe extends CmdBase {
     return out;
   }
 
-  public boolean configure(Component errMsgParent, boolean isDryRun,
-      Path jarFragpipe, int ramGb, final Path binFragger, UmpirePanel umpirePanel,
+  public boolean configure(Component errMsgParent,
+      boolean isDryRun,
+      Path jarFragpipe,
+      int ramGb,
+      final Path extLibsThermo,
+      UmpirePanel umpirePanel,
       List<InputLcmsFile> lcmsFiles) {
 
     initPreConfig();
@@ -110,7 +113,6 @@ public class CmdUmpireSe extends CmdBase {
     }
 
     // run umpire for each file
-    final Path extLibsThermo = CmdMsfragger.searchExtLibsThermo(Collections.singletonList(binFragger.toAbsolutePath().getParent()));
     final String javaDParmsStringLibsThermoDir = extLibsThermo == null ? null :
             createJavaDParamString("libs.thermo.dir", extLibsThermo.toString());
     final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(UmpireParams.JAR_UMPIRESE_NAME).concat(JAR_DEPS));
