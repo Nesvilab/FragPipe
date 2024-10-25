@@ -717,6 +717,8 @@ Quantification results from MS1-based isotopic labeling experiments are generate
 
 **Peptide** stripped peptide sequence containing the modification sites, residues with localized modifications are shown in lower case
 
+**SequenceWindow** peptide sequence around the localized modified site.
+
 **MaxPepProb** highest PeptideProphet probability of the PSMs with the sequence that are used in quantification
 
 **ReferenceIntensity** Real reference channel abundance is used if one has been provided, otherwise these values are virtual reference abundances from the average abundance across the channels in a plex, more usage information [here](https://fragpipe.nesvilab.org/docs/tutorial_tmt.html#quantification-settings). If the experiment contains multiple plexes, average reference intensity across all plexes is used. Values are log2 scaled, with global minimum reference intensity used to impute missing values. 
