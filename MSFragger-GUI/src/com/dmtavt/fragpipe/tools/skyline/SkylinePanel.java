@@ -157,14 +157,20 @@ public class SkylinePanel extends JPanelBase {
       updateEnabledStatus(jButtonSkylineCustom, uiRadioSkylineCustom.isSelected());
     });
 
-    String peakBoundsTooltip = "IonQuant and DIA-NN determine peak integration boundaries for DDA and DIA quant, respectively. If this box is not checked, those bounds will be displayed in the Skyline document. Check the box to override those bounds and have Skyline calculate its own peak boundaries (note: this does NOT affect the output tables from FragPipe). If IonQuant/DIANN are not run, Skyline bounds will be used regardless of this setting.";
+    String peakBoundsTooltip = "IonQuant and DIA-NN determine peak integration boundaries for DDA and DIA quant, respectively.<br>"
+        + "If this box is not checked, those bounds will be displayed in the Skyline document.<br>"
+        + "Check the box to override those bounds and have Skyline calculate its own peak boundaries<br>"
+        + "(note: this does NOT affect the output tables from FragPipe).<br>"
+        + "If IonQuant/DIANN are not run, Skyline bounds will be used regardless of this setting.";
     uiCheckOverridePeakBounds = UiUtils.createUiCheck("Let Skyline override peak bounds", false);
     uiCheckOverridePeakBounds.setName("override-peak-bounds");
-    uiCheckOverridePeakBounds.setToolTipText(peakBoundsTooltip);
+    uiCheckOverridePeakBounds.setToolTipText(SwingUtils.makeHtml(peakBoundsTooltip));
 
     uiComboModsMode = UiUtils.createUiCombo(Arrays.asList("Default", "O-glyco", "N-glyco"));
     uiComboModsMode.setSelectedIndex(0);
-    FormEntry feComboModsMode = new FormEntry("skyline-mods-mode", "Special Modifications Mode", uiComboModsMode, "Special modification support. If O-glyco, uses O-Pair glycan database instead of mass offsets list. If N-glyco, uses Glycan Composition Assignment glycan database instead of mass offsets list.");
+    FormEntry feComboModsMode = new FormEntry("skyline-mods-mode", "Special Modifications Mode", uiComboModsMode, "Special modification support.<br>"
+        + "If O-glyco, uses O-Pair glycan database instead of mass offsets list.<br>"
+        + "If N-glyco, uses Glycan Composition Assignment glycan database instead of mass offsets list.");
 
     mu.add(panelBasic, feRadioSkyline.comp);
     mu.add(panelBasic, feRadioSkylineDaily.comp);
