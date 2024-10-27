@@ -30,8 +30,8 @@ import java.util.stream.Collectors;
 
 public class UnimodDataReader {
 
-  public final List<UnimodData> defaultUnimods = new ArrayList<>(0);
-  public final List<UnimodData> skylineHardcodedUnimods= new ArrayList<>(0);
+  public final List<UnimodData> defaultUnimods = new ArrayList<>(1);
+  public final List<UnimodData> skylineHardcodedUnimods= new ArrayList<>(1);
   public final TreeMultimap<Float, UnimodData> massToUnimod = TreeMultimap.create();
 
   public UnimodDataReader(Path path) throws Exception {
@@ -86,6 +86,11 @@ public class UnimodDataReader {
         }
       } else {
         String name = splits[nameIdx].trim();
+
+        if (name.contentEquals("Ammonia Loss (K, N, Q, R)") || name.contentEquals("Water Loss (D, E, S, T)")) {
+          continue; // Those are not really modifications in Skyline.
+        }
+
         Set<Character> aas = splits[aasIdx].trim().isEmpty() ? new HashSet<>() : Arrays.stream(splits[aasIdx].split(",")).map(e -> e.trim().charAt(0)).collect(Collectors.toSet());
         char terminus = splits[terminusIdx].trim().isEmpty() ? '\0' : splits[terminusIdx].trim().charAt(0);
         int id = splits[idIdx].trim().isEmpty() ? -1 : Integer.parseInt(splits[idIdx].trim());
