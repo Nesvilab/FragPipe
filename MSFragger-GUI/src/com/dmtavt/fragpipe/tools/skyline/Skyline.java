@@ -148,20 +148,20 @@ public class Skyline {
         System.exit(1);
       }
 
-      Path skylineOutputDir = wd.resolve("skyline-output");
-      Files.createDirectories(skylineOutputDir);
+      Path skylineFilesDir = wd.resolve("skyline_files");
+      Files.createDirectories(skylineFilesDir);
 
       DefaultArtifactVersion v = new DefaultArtifactVersion(skylineVersion);
       boolean matchUnimod = v.compareTo(new DefaultArtifactVersion("23.1.1.418")) >= 0;
 
-      Path peptideListPath = skylineOutputDir.resolve("peptide_list.txt").toAbsolutePath();
+      Path peptideListPath = skylineFilesDir.resolve("peptide_list.txt").toAbsolutePath();
       WritePeptideList pepWriter = new WritePeptideList();
       Map<String, Set<String>> addedMods = pepWriter.writePeptideList(psmTsvFiles, peptideListPath);
 
       Path modXmlPath = wd.resolve("mod.xml");
       WriteSkyMods writeSkyMods = new WriteSkyMods(modXmlPath, pf, modsMode, matchUnimod, !useSpeclib, addedMods);
 
-      Path sslPath = skylineOutputDir.resolve("psm.ssl").toAbsolutePath();
+      Path sslPath = skylineFilesDir.resolve("psm.ssl").toAbsolutePath();
       if (!useSpeclib) {
         boolean isPercolator = Boolean.parseBoolean(pf.getProperty("percolator.run-percolator"));
         WriteSSL sslWriter = new WriteSSL();
@@ -190,7 +190,7 @@ public class Skyline {
       }
 
       writer.write("--overwrite ");
-      writer.write((writeSkyMods.nonUnimodMods.isEmpty() ? "--new=" : "--out=") + skylineOutputDir.resolve("fragpipe.sky").toAbsolutePath() + " ");
+      writer.write((writeSkyMods.nonUnimodMods.isEmpty() ? "--new=" : "--out=") + skylineFilesDir.resolve("fragpipe.sky").toAbsolutePath() + " ");
       writer.write("--full-scan-acquisition-method=" + dataType + " ");
 
       // always import pep list (it replaces fasta import, not search result import)
@@ -289,7 +289,7 @@ public class Skyline {
           System.err.println("Process " + pb + " returned non zero value. Message:\n" + (errStr == null ? "" : errStr.trim()));
           System.exit(exitValue);
         } else {
-          System.out.println("DONE! The Skyline files locate in " + wd.toAbsolutePath());
+          System.out.println("DONE! The Skyline files locate in " + skylineFilesDir.toAbsolutePath());
         }
       } catch (Exception ex) {
         System.err.println(ExceptionUtils.getStackTrace(ex));
