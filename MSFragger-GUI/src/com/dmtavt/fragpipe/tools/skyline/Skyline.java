@@ -255,6 +255,7 @@ public class Skyline {
         writer.write("--full-scan-isolation-scheme=\"Results only\" ");
       }
 
+      writer.write("--import-search-exclude-library-sources ");
       for (String s : lcmsFiles) {
         writer.write("--import-file=" + s + " ");
       }
