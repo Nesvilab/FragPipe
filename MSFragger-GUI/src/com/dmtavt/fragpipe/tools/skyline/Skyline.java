@@ -29,9 +29,9 @@ import com.dmtavt.fragpipe.exceptions.UnexpectedException;
 import com.dmtavt.fragpipe.exceptions.ValidationException;
 import com.dmtavt.fragpipe.process.ProcessResult;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerEnzyme;
-import com.dmtavt.fragpipe.tools.skyline.WriteSkyMods.Mod;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.ProcessUtils;
+import com.github.chhh.utils.StringUtils;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -40,11 +40,15 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import com.github.chhh.utils.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.jooq.lambda.Seq;
@@ -156,7 +160,7 @@ public class Skyline {
 
       Path peptideListPath = skylineFilesDir.resolve("peptide_list.txt").toAbsolutePath();
       WritePeptideList pepWriter = new WritePeptideList();
-      Map<String, Set<String>> addedMods = pepWriter.writePeptideList(psmTsvFiles, peptideListPath);
+      Map<Float, Set<String>> addedMods = pepWriter.writePeptideList(psmTsvFiles, peptideListPath);
 
       Path modXmlPath = wd.resolve("mod.xml");
       WriteSkyMods writeSkyMods = new WriteSkyMods(modXmlPath, pf, modsMode, matchUnimod, !useSpeclib, addedMods);
@@ -178,10 +182,8 @@ public class Skyline {
       BufferedWriter writer = Files.newBufferedWriter(pp);
 
       if (!writeSkyMods.unimodMods.isEmpty()) {
-        for (Mod mod : writeSkyMods.unimodMods) {
-          for (UnimodData unimodData : mod.unimodDatas) {
-            writer.write("--pep-add-mod=\"" + unimodData.name + "\" ");
-          }
+        for (UnimodData unimodData : writeSkyMods.unimodMods) {
+          writer.write("--pep-add-mod=\"" + unimodData.name + "\" ");
         }
       }
 

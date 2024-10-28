@@ -51,8 +51,8 @@ public class WriteSkyMods {
   private static List<UnimodData> skylineHardcodedUnimods;
   private static TreeMultimap<Float, UnimodData> massToUnimod;
 
-  public final List<Mod> unimodMods = new ArrayList<>(0);
-  public final List<Mod> nonUnimodMods = new ArrayList<>(0);
+  public final Set<UnimodData> unimodMods = new TreeSet<>();
+  public final List<Mod> nonUnimodMods = new ArrayList<>(1);
 
   static {
     final List<Path> tt = FragpipeLocations.checkToolsMissing(Seq.of("UniModData.tsv"));
@@ -72,9 +72,7 @@ public class WriteSkyMods {
     }
   }
 
-  public WriteSkyMods(Path path, PropsFile pf, int modsMode, boolean matchUnimod, boolean isSSL, Map<String, Set<String>> addedMods) throws Exception {
-    List<Mod> mods = new ArrayList<>(4);
-
+  public WriteSkyMods(Path path, PropsFile pf, int modsMode, boolean matchUnimod, boolean isSSL, Map<Float, Set<String>> addedMods) throws Exception {
     String fixModStr = pf.getProperty("msfragger.table.fix-mods");
     String varModStr = pf.getProperty("msfragger.table.var-mods");
     String massOffsetStr = pf.getProperty("msfragger.mass_offsets");
@@ -94,7 +92,7 @@ public class WriteSkyMods {
         if (m.group(3).equalsIgnoreCase("true")) {
           mass = Float.parseFloat(m.group(1));
           if (Math.abs(mass) > 0.1) {
-            mods.addAll(convertMods(m.group(2), false, mass, mass, new ArrayList<>(0), new ArrayList<>(0), matchUnimod));
+            convertMods(m.group(2), false, mass, mass, new ArrayList<>(1), new ArrayList<>(1), matchUnimod, unimodMods, nonUnimodMods);
           }
         }
       }
@@ -106,26 +104,26 @@ public class WriteSkyMods {
         if (m.group(3).equalsIgnoreCase("true")) {
           mass = Float.parseFloat(m.group(1));
           if (Math.abs(mass) > 0.1) {
-            mods.addAll(convertMods(m.group(2), true, mass, mass, new ArrayList<>(0), new ArrayList<>(0), matchUnimod));
+            convertMods(m.group(2), true, mass, mass, new ArrayList<>(1), new ArrayList<>(1), matchUnimod, unimodMods, nonUnimodMods);
           }
         }
       }
     }
 
     // add any combined mods (multiple at one site) found during peptide list generation
-    for (Map.Entry<String, Set<String>> entry : addedMods.entrySet()) {
-      mass = Float.parseFloat(entry.getKey());
-      mods.addAll(convertMods(String.join("", entry.getValue()), true, mass, mass, new ArrayList<>(), new ArrayList<>(), false));
+    for (Map.Entry<Float, Set<String>> entry : addedMods.entrySet()) {
+      mass = entry.getKey();
+      convertMods(String.join("", entry.getValue()), true, mass, mass, new ArrayList<>(), new ArrayList<>(), false, unimodMods, nonUnimodMods);
     }
 
     // Override offsets from MSFragger for glyco searches get correct glycan masses, neutral losses, and elemental compositions
     // also override unimod matching because it doesn't have the glyco neutral losses
     if (isOglyco) {
       String oglycoList = pf.getProperty("opair.glyco_db");
-      mods.addAll(generateGlycoMods(massOffsetSites, oglycoList, 0, new ElementalComposition(""), false));
+      generateGlycoMods(massOffsetSites, oglycoList, 0, new ElementalComposition(""), false, unimodMods, nonUnimodMods);
     } else if (isNglyco) {
       String nglycoList = pf.getProperty("ptmshepherd.glycodatabase");
-      mods.addAll(generateGlycoMods(massOffsetSites, nglycoList, (float) 203.07937, new ElementalComposition("C8H13N1O5"), false));   // hardcoded N-glycan remainder
+      generateGlycoMods(massOffsetSites, nglycoList, (float) 203.07937, new ElementalComposition("C8H13N1O5"), false, unimodMods, nonUnimodMods);   // hardcoded N-glycan remainder
     } else {
       // non-glyco - use regular method for mass offsets conversion
       if (massOffsetStr != null && !massOffsetStr.isEmpty()) {
@@ -133,8 +131,8 @@ public class WriteSkyMods {
         for (String s : ss) {
           mass = Float.parseFloat(s);
           if (Math.abs(mass) > 0.1) {
-            List<Float> lossMonoMasses = new ArrayList<>(0);
-            List<Float> lossAvgMasses = new ArrayList<>(0);
+            List<Float> lossMonoMasses = new ArrayList<>(1);
+            List<Float> lossAvgMasses = new ArrayList<>(1);
             if (!massOffsetRemainders.isEmpty()) {
               String[] splits = massOffsetRemainders.split("[\\s/,]");
               for (String sp : splits) {
@@ -147,7 +145,7 @@ public class WriteSkyMods {
               lossMonoMasses.add(mass);
               lossAvgMasses.add(mass);
             }
-            mods.addAll(convertMods(massOffsetSites, true, mass, mass, lossMonoMasses, lossAvgMasses, matchUnimod));
+            convertMods(massOffsetSites, true, mass, mass, lossMonoMasses, lossAvgMasses, matchUnimod, unimodMods, nonUnimodMods);
           }
         }
       }
@@ -158,8 +156,8 @@ public class WriteSkyMods {
           mass = Float.parseFloat(m.group(1));
           if (Math.abs(mass) > 0.1) {
             String sites = "*";
-            List<Float> lossMonoMasses = new ArrayList<>(0);
-            List<Float> lossAvgMasses = new ArrayList<>(0);
+            List<Float> lossMonoMasses = new ArrayList<>(1);
+            List<Float> lossAvgMasses = new ArrayList<>(1);
             if (m.group(3) != null) {
               sites = m.group(3);
             }
@@ -171,68 +169,51 @@ public class WriteSkyMods {
                 lossAvgMasses.add(mass - reminderMass);
               }
             }
-            mods.addAll(convertMods(sites, true, mass, mass, lossMonoMasses, lossAvgMasses, matchUnimod));
+            convertMods(sites, true, mass, mass, lossMonoMasses, lossAvgMasses, matchUnimod, unimodMods, nonUnimodMods);
           }
         }
       }
     }
 
-    for (Mod mod : mods) {
-      // fixme: if some amino acids are in UniMod, but not all, the mod will be added to unimodMods but the amino acids not in the UniMod will not be added to nonUnimodMods, which will show in Skyline,
-      if (mod.unimodDatas.isEmpty()) {
-        nonUnimodMods.add(mod);
-      } else {
-        // manually check that carbamidomethylation only uses the Unimod definition if it is a fixed mod (because Skyline assumes it is fixed if defined as Unimod).
-        if (Math.abs(mod.monoMass - 57.02146) < smallFloat && mod.aas.contains("C") && mod.isVariable) {
-          nonUnimodMods.add(mod);
-          continue;
-        }
-        unimodMods.add(mod);
+    BufferedWriter bw = new BufferedWriter(Files.newBufferedWriter(path));
+    bw.write("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+        + "<srm_settings format_version=\"23.1\" software_version=\"Skyline (64-bit) " + getSkylineVersion() + "\">\n"
+        + "  <settings_summary name=\"Extra Mods\">\n"
+        + "    <peptide_settings>\n"
+        + "      <peptide_modifications>\n"
+        + "        <static_modifications>\n");
+
+    for (Mod mod : nonUnimodMods) {
+      bw.write("          <static_modification name=\"" + mod.name +
+          (mod.aas.isEmpty() ? "" : "\" aminoacid=\"" + mod.aas) +
+          (mod.terminus == '\0' ? "" : "\" terminus=\"" + mod.terminus) +
+          "\" variable=\"" + mod.isVariable +
+          // Skyline does not allow masses in a mod if the elemental composition is specified
+          (mod.elementalComposition.isEmpty() ? "\" massdiff_monoisotopic=\"" + mod.monoMass : "") +
+          (mod.elementalComposition.isEmpty() ? "\" massdiff_average=\"" + mod.avgMass : "") +
+          (mod.elementalComposition.isEmpty() ? "" : "\" formula=\"" + mod.elementalComposition) +
+          "\">\n");
+      String alwaysStr = isSSL ? "\" inclusion=\"Always" : "";  // Add NLs always for SSL list import, otherwise use library
+      for (int i = 0; i < mod.lossMonoMasses.size(); i++) {
+        bw.write("            <potential_loss massdiff_monoisotopic=\"" + mod.lossMonoMasses.get(i) +
+            "\" massdiff_average=\"" + mod.lossAvgMasses.get(i) +
+            (mod.lossElementalComposition.isEmpty() ? "" : "\" formula=\"" + mod.lossElementalComposition.get(i)) +
+            alwaysStr +
+            "\" />\n");
       }
+      bw.write("          </static_modification>\n");
     }
 
-    if (!nonUnimodMods.isEmpty()) {
-      BufferedWriter bw = new BufferedWriter(Files.newBufferedWriter(path));
-      bw.write("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-          + "<srm_settings format_version=\"23.1\" software_version=\"Skyline (64-bit) " + getSkylineVersion() + "\">\n"
-          + "  <settings_summary name=\"Extra Mods\">\n"
-          + "    <peptide_settings>\n"
-          + "      <peptide_modifications>\n"
-          + "        <static_modifications>\n");
+    bw.write("        </static_modifications>\n"
+        + "      </peptide_modifications>\n"
+        + "    </peptide_settings>\n"
+        + "  </settings_summary>\n"
+        + "</srm_settings>\n");
 
-      for (Mod mod : nonUnimodMods) {
-        bw.write("          <static_modification name=\"" + mod.name +
-            (mod.aas.isEmpty() ? "" : "\" aminoacid=\"" + mod.aas) +
-            (mod.terminus == '\0' ? "" : "\" terminus=\"" + mod.terminus) +
-            "\" variable=\"" + mod.isVariable +
-            // Skyline does not allow masses in a mod if the elemental composition is specified
-            (mod.elementalComposition.isEmpty() ? "\" massdiff_monoisotopic=\"" + mod.monoMass : "") +
-            (mod.elementalComposition.isEmpty() ? "\" massdiff_average=\"" + mod.avgMass : "") +
-            (mod.elementalComposition.isEmpty() ? "" : "\" formula=\"" + mod.elementalComposition) +
-            "\">\n");
-        String alwaysStr = isSSL ? "\" inclusion=\"Always" : "";  // Add NLs always for SSL list import, otherwise use library
-        for (int i = 0; i < mod.lossMonoMasses.size(); i++) {
-          bw.write("            <potential_loss massdiff_monoisotopic=\"" + mod.lossMonoMasses.get(i) +
-              "\" massdiff_average=\"" + mod.lossAvgMasses.get(i) +
-              (mod.lossElementalComposition.isEmpty() ? "" : "\" formula=\"" + mod.lossElementalComposition.get(i)) +
-              alwaysStr +
-              "\" />\n");
-        }
-        bw.write("          </static_modification>\n");
-      }
-
-      bw.write("        </static_modifications>\n"
-          + "      </peptide_modifications>\n"
-          + "    </peptide_settings>\n"
-          + "  </settings_summary>\n"
-          + "</srm_settings>\n");
-
-      bw.close();
-    }
+    bw.close();
   }
 
-  static List<Mod> convertMods(String sites, boolean isVariable, float monoMass, float avgMass, List<Float> lossMonoMasses, List<Float> lossAvgMasses, boolean matchUnimod) {
-    List<Mod> out = new ArrayList<>(4);
+  static void convertMods(String sites, boolean isVariable, float monoMass, float avgMass, List<Float> lossMonoMasses, List<Float> lossAvgMasses, boolean matchUnimod, Set<UnimodData> unimods, List<Mod> nonUnimods) {
     filterNeutralLosses(lossMonoMasses);
     filterNeutralLosses(lossAvgMasses);
 
@@ -243,7 +224,7 @@ public class WriteSkyMods {
     ArrayList<String> nSites = new ArrayList<>();
     while (m.find()) {
       if (m.group(1).contentEquals("^")) {
-        out.add(new Mod("n_" + monoMass, "", 'N', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses, "", new ArrayList<>(), matchUnimod));
+        parseMods("", 'N', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses, "", new ArrayList<>(), matchUnimod, unimods, nonUnimods);
       } else if (m.group(1).contentEquals("*")) {
         nSites = allAAs;
       } else {
@@ -251,7 +232,7 @@ public class WriteSkyMods {
       }
     }
     if (!nSites.isEmpty()) {
-      out.add(new Mod(String.join("", nSites) + "_" + monoMass, String.join(", ", nSites), 'N', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses, "", new ArrayList<>(), matchUnimod));
+      parseMods(String.join(", ", nSites), 'N', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses, "", new ArrayList<>(), matchUnimod, unimods, nonUnimods);
     }
     sites = p1.matcher(sites).replaceAll("");
 
@@ -260,7 +241,7 @@ public class WriteSkyMods {
     ArrayList<String> cSites = new ArrayList<>();
     while (m.find()) {
       if (m.group(1).contentEquals("^")) {
-        out.add(new Mod("c_" + monoMass, "", 'C', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses, "", new ArrayList<>(), matchUnimod));
+        parseMods("", 'C', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses, "", new ArrayList<>(), matchUnimod, unimods, nonUnimods);
       } else if (m.group(1).contentEquals("*")) {
         cSites = allAAs;
       } else {
@@ -268,7 +249,7 @@ public class WriteSkyMods {
       }
     }
     if (!cSites.isEmpty()) {
-      out.add(new Mod(String.join("", cSites) + "_" + monoMass, String.join(", ", cSites), 'C', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses, "", new ArrayList<>(), matchUnimod));
+      parseMods(String.join(", ", cSites), 'C', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses, "", new ArrayList<>(), matchUnimod, unimods, nonUnimods);
     }
     sites = p2.matcher(sites).replaceAll("");
 
@@ -280,9 +261,8 @@ public class WriteSkyMods {
       resSites = sites.chars().mapToObj(c -> String.valueOf((char) c)).collect(Collectors.toList());
     }
     if (!resSites.isEmpty()) {
-      out.add(new Mod(String.join("", resSites) + "_" + monoMass, String.join(", ", resSites), '\0', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses, "", new ArrayList<>(), matchUnimod));
+      parseMods(String.join(", ", resSites), '\0', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses, "", new ArrayList<>(), matchUnimod, unimods, nonUnimods);
     }
-    return out;
   }
 
   /**
@@ -305,8 +285,7 @@ public class WriteSkyMods {
     return "";
   }
 
-  private List<Mod> generateGlycoMods(String sites, String glycoList, float remainderMass, ElementalComposition remainderComposition, boolean matchUnimod) {
-    ArrayList<Mod> mods = new ArrayList<>();
+  private void generateGlycoMods(String sites, String glycoList, float remainderMass, ElementalComposition remainderComposition, boolean matchUnimod, Set<UnimodData> unimods, List<Mod> nonUnimods) {
     sites = cleanupSites(sites);
 
     if (glycoList != null && !glycoList.isEmpty()) {
@@ -342,11 +321,11 @@ public class WriteSkyMods {
             }
             lossElementalComps.add(lossElementalComp.toString());
           }
-          mods.add(new Mod(glycan.name, String.join(", ", resSites), '\0', true, (float) glycan.mass, (float) glycan.mass, losses, losses, glycan.getElementalCompositionOfIon().toString(), lossElementalComps, matchUnimod));
+
+          parseMods(String.join(", ", resSites), '\0', true, (float) glycan.mass, (float) glycan.mass, losses, losses, glycan.getElementalCompositionOfIon().toString(), lossElementalComps, matchUnimod, unimods, nonUnimods);
         }
       }
     }
-    return mods;
   }
 
   /**
@@ -378,34 +357,25 @@ public class WriteSkyMods {
     return sites;
   }
 
-
-  static class Mod {
-
-    public final String name;
-    public final String aas;
-    public final char terminus;
-    public final boolean isVariable;
-    public final float monoMass;
-    public final float avgMass;
-    public final List<Float> lossMonoMasses;
-    public final List<Float> lossAvgMasses;
-    public final String elementalComposition;
-    public final List<String> lossElementalComposition;
-    public Set<UnimodData> unimodDatas = new TreeSet<>();
-
-    Mod(String name, String aas, char terminus, boolean isVariable, float monoMass, float avgMass, List<Float> lossMonoMasses, List<Float> lossAvgMasses, String elementalComposition, List<String> lossElementalComposition, boolean matchUnimod) {
-      this.name = name;
-      this.aas = aas;
-      this.terminus = terminus;
-      this.isVariable = isVariable;
-      this.monoMass = monoMass;
-      this.avgMass = avgMass;
-      this.lossMonoMasses = lossMonoMasses;
-      this.lossAvgMasses = lossAvgMasses;
-      this.elementalComposition = elementalComposition;
-      this.lossElementalComposition = lossElementalComposition;
-
-      if (matchUnimod) {
+  static void parseMods(String aas, char terminus, boolean isVariable, float monoMass, float avgMass, List<Float> lossMonoMasses, List<Float> lossAvgMasses, String elementalComposition, List<String> lossElementalComposition, boolean matchUnimod, Set<UnimodData> unimods, List<Mod> nonUnimods) {
+    Set<String> nonUnimodAas = new TreeSet<>();
+    if (matchUnimod) {
+      if (aas.isEmpty()) {
+        UnimodData unimodData = null;
+        for (float f : massToUnimod.keySet().subSet(monoMass - smallFloat, false, monoMass + smallFloat, false)) {
+          for (UnimodData m : massToUnimod.get(f)) {
+            if (m.aas.isEmpty() && m.terminus == terminus) {
+              unimodData = m;
+              break;
+            }
+          }
+        }
+        if (unimodData == null) {
+          nonUnimodAas.add(terminus == 'N' ? "N-term" : "C-term"); // terminal modification placeholder
+        } else {
+          unimods.add(unimodData);
+        }
+      } else{
         for (String aa : aas.split(",")) {
           aa = aa.trim();
           UnimodData unimodData = null;
@@ -449,24 +419,66 @@ public class WriteSkyMods {
             }
           }
 
-          if (unimodData != null) {
-            unimodDatas.add(unimodData);
+          // Carbamidomethylation only uses the Unimod definition if it is a fixed mod (because Skyline assumes it is fixed if defined as Unimod).
+          if (isVariable && aa.contentEquals("C") && Math.abs(monoMass - 57.02146) < smallFloat) {
+            unimodData = null;
+          }
+
+          if (unimodData == null) {
+            nonUnimodAas.add(aa);
+          } else {
+            unimods.add(unimodData);
           }
         }
       }
-    }
 
-    private boolean siteMatch(String aa, char terminus, UnimodData unimodData, boolean matchTerminus) {
-      if (aa.isEmpty() && unimodData.aas.isEmpty()) {
-        return terminus == unimodData.terminus;
-      } else if (this.aas.trim().isEmpty() || unimodData.aas.isEmpty()) {
-        return false;
-      } else {
-        if (matchTerminus && terminus != unimodData.terminus) {
-          return false;
-        }
-        return unimodData.aas.contains(aa.charAt(0));
+      if (!nonUnimodAas.isEmpty()) {
+        // The terminal modification doesn't have amino acids.
+        nonUnimodAas.remove("N-term");
+        nonUnimodAas.remove("C-term");
+        nonUnimods.add(new Mod(String.join(",", nonUnimodAas), terminus, isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses, elementalComposition, lossElementalComposition));
       }
+    } else {
+      nonUnimods.add(new Mod(aas, terminus, isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses, elementalComposition, lossElementalComposition));
+    }
+  }
+
+  private static boolean siteMatch(String aa, char terminus, UnimodData unimodData, boolean matchTerminus) {
+    if (unimodData.aas.isEmpty()) {
+      return false;
+    } else {
+      if (matchTerminus && terminus != unimodData.terminus) {
+        return false;
+      }
+      return unimodData.aas.contains(aa.charAt(0));
+    }
+  }
+
+
+  static class Mod {
+
+    public final String name;
+    public final String aas;
+    public final char terminus;
+    public final boolean isVariable;
+    public final float monoMass;
+    public final float avgMass;
+    public final List<Float> lossMonoMasses;
+    public final List<Float> lossAvgMasses;
+    public final String elementalComposition;
+    public final List<String> lossElementalComposition;
+
+    Mod(String aas, char terminus, boolean isVariable, float monoMass, float avgMass, List<Float> lossMonoMasses, List<Float> lossAvgMasses, String elementalComposition, List<String> lossElementalComposition) {
+      this.name = aas + "_" + (terminus == '\0' ? "" : terminus) + "_" + isVariable + "_" + monoMass;
+      this.aas = aas;
+      this.terminus = terminus;
+      this.isVariable = isVariable;
+      this.monoMass = monoMass;
+      this.avgMass = avgMass;
+      this.lossMonoMasses = lossMonoMasses;
+      this.lossAvgMasses = lossAvgMasses;
+      this.elementalComposition = elementalComposition;
+      this.lossElementalComposition = lossElementalComposition;
     }
 
     public String toString() {
