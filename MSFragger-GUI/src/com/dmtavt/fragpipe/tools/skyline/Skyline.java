@@ -290,6 +290,7 @@ public class Skyline {
           System.err.println("Process " + pb + " returned non zero value. Message:\n" + (errStr == null ? "" : errStr.trim()));
           System.exit(exitValue);
         } else {
+          Files.deleteIfExists(wd.resolve("mod.skyd"));
           System.out.println("DONE! The Skyline files locate in " + skylineFilesDir.toAbsolutePath());
         }
       } catch (Exception ex) {
