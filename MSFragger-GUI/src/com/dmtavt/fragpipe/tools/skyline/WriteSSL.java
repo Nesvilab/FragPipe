@@ -61,7 +61,7 @@ public class WriteSSL {
                 sslLine.append(scoreType).append("\t");
                 sslLine.append(splits[columns.get(COL_SCORE)]).append("\t");
                 double rt = Double.parseDouble(splits[columns.get(COL_RT)]);
-                sslLine.append(String.format("%.4f", rt / 60.0)).append("\t");      // RT in minutes
+                sslLine.append(rt / 60f).append("\t");      // RT in minutes
 
                 // add IM if present
                 if (checkIM) {
