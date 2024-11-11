@@ -1223,19 +1223,19 @@ public class TabWorkflow extends JPanelWithEnablement {
     });
   }
 
-  private void sdrfSave(Path path, QuantLabel label, ArrayList<String> enzymes, ArrayList<String> mods, String precTol, String prodTol) throws IOException {
+  private void sdrfSave(Path path, SDRFtable.SDRFtypes type, QuantLabel label, ArrayList<String> enzymes, ArrayList<String> mods, String precTol, String prodTol, List<String> proteinHeaders, Map<String, String> instrumentMap) throws IOException {
     ArrayList<InputLcmsFile> files = tableModelRawFiles.dataCopy();
-    SDRFtable table = new SDRFtable(enzymes.size(), mods.size());
+    SDRFtable table = new SDRFtable(type, enzymes.size(), mods.size(), proteinHeaders);
 
     for (InputLcmsFile file : files) {
       if (label != null) {
         table.addSampleTMT(file.getPath().getFileName().toString(),
                 file.getReplicate() != null ? file.getReplicate().toString() : "",
-                enzymes, mods, label, precTol, prodTol);
+                enzymes, mods, label, precTol, prodTol, instrumentMap.get(file.getPath().getFileName().toString()));
       } else {
         table.addSampleLFQ(file.getPath().getFileName().toString(),
                 file.getReplicate() != null ? file.getReplicate().toString() : "",
-                enzymes, mods, precTol, prodTol);
+                enzymes, mods, precTol, prodTol, instrumentMap.get(file.getPath().getFileName().toString().trim()));
       }
     }
 
@@ -1410,7 +1410,8 @@ public class TabWorkflow extends JPanelWithEnablement {
       Fragpipe.propsVarSet(ThisAppProps.CONFIG_SAVE_LOCATION, path.toAbsolutePath().getParent().toString());
       TabMsfragger tabMsfragger = getStickyStrict(TabMsfragger.class);
       try {
-        sdrfSave(path, m.label, tabMsfragger.getSDRFenzymes(), tabMsfragger.getSDRFmods(), tabMsfragger.getPrecTolString(), tabMsfragger.getProdTolString(m.logText));
+        Map<String, String> instrumentMap = TabMsfragger.getInstrumentMap(m.logText);
+        sdrfSave(path, m.type, m.label, tabMsfragger.getSDRFenzymes(), tabMsfragger.getSDRFmods(), tabMsfragger.getPrecTolString(), tabMsfragger.getProdTolString(m.logText), m.proteinHeaders, instrumentMap);
       } catch (IOException e) {
         SwingUtils.showErrorDialogWithStacktrace(e, this);
       }

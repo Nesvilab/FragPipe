@@ -395,13 +395,14 @@ public class FragpipeRun {
       toConsole("~~~~~~~~~~~~~~~~~~~~~~", tabRun.console);
 
       // Write top 20 lines of the fasta file to the console.
+      List<String> proteinHeaders = new ArrayList<>();
       final TabDatabase tabDatabase = Fragpipe.getStickyStrict(TabDatabase.class);
       toConsole("", tabRun.console);
       toConsole("~~~~~~Sample of " + tabDatabase.getFastaPath() + "~~~~~~~", tabRun.console);
       try {
         Path p = Paths.get(tabDatabase.getFastaPath());
         if (Files.size(p) < databaseSizeLimit) {
-          List<String> proteinHeaders = Files.lines(p).filter(e -> e.startsWith(">")).sorted().collect(Collectors.toList());
+          proteinHeaders = Files.lines(p).filter(e -> e.startsWith(">")).sorted().collect(Collectors.toList());
           int gap = proteinHeaders.size() < 21 ? 1 : (proteinHeaders.size() - 1) / 20;    // make sure gap is always at least 1 to prevent an infinite loop
           int idx = 0;
           while (idx < proteinHeaders.size()) {
@@ -471,6 +472,7 @@ public class FragpipeRun {
       }
 
       // add finalizer process
+      List<String> finalProteinHeaders = proteinHeaders;
       final Runnable finalizerRun = () -> {
         if (tabRun.isDeleteCalibratedFiles() || tabRun.isDeleteTempFiles()) {
           toConsole(Fragpipe.COLOR_TOOL, "\nDelete calibrated or temp files", true, tabRun.console);
@@ -532,7 +534,7 @@ public class FragpipeRun {
         if (tabRun.isSaveSDRF()) {
           QuantLabel label = tmtiPanel.isRun() ? tmtiPanel.getSelectedLabel() : null;
           Path sdrfPath = wd.resolve("sdrf.tsv");
-          Bus.post(new MessageSDRFsave(sdrfPath, true, label, tabRun.console.getText()));
+          Bus.post(new MessageSDRFsave(sdrfPath, true, tabRun.getSDRFtype(), label, tabRun.console.getText(), finalProteinHeaders));
         }
 
         if (tabRun.isWriteSubMzml()) { // write sub workflow and manifest files for the second-pass
@@ -1201,7 +1203,7 @@ public class FragpipeRun {
       }
 
       // Don't include DIA-Quant.
-      for (Map.Entry<String, LcmsFileGroup> e : tabWorkflow.getLcmsFileGroups().entrySet()) {
+      for (Entry<String, LcmsFileGroup> e : tabWorkflow.getLcmsFileGroups().entrySet()) {
         List<InputLcmsFile> ttt = e.getValue().lcmsFiles.stream().filter(f -> !f.getDataType().contentEquals("DIA-Quant")).collect(Collectors.toList());
         if (!ttt.isEmpty()) {
           sharedLcmsFileGroups.put(e.getKey(), new LcmsFileGroup(e.getValue().name, ttt));
