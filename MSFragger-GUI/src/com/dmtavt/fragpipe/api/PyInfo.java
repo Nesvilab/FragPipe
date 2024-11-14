@@ -63,8 +63,10 @@ public class PyInfo {
         .toString();
   }
 
-  private PyInfo() {
+  public static final String pythonWinPath = "python_Windows/python/python.exe";
+  public static final String pythonLinuxPath = "python_Linux/python/bin/python";
 
+  private PyInfo() {
   }
 
   public static PyInfo fromCommand(String command) throws ValidationException, UnexpectedException {
@@ -76,7 +78,7 @@ public class PyInfo {
   /** @param command The command to start python interpreter. */
   private void trySetPythonCommand(String command) throws ValidationException, UnexpectedException {
     this.command = command;
-    this.version = tryGetVersion(command);
+    this.version = tryGetVersion(this.command);
 
     Matcher m = Pattern.compile("python\\s+([0-9.]+)", Pattern.CASE_INSENSITIVE).matcher(this.version);
     if (m.find()) {

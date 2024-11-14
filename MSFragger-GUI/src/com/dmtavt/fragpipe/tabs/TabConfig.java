@@ -126,6 +126,7 @@ import net.miginfocom.swing.MigLayout;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -845,6 +846,16 @@ public class TabConfig extends JPanelWithEnablement {
   public void on(MessagePythonNewBin m) {
     PyInfo pi;
     try {
+      List<Path> pyPaths = List.of(Path.of("invalid"));
+      if (OsUtils.isWindows()) {
+        pyPaths = FragpipeLocations.checkToolsMissing(Seq.of(PyInfo.pythonWinPath));
+      } else if (OsUtils.isUnix()) {
+        pyPaths = FragpipeLocations.checkToolsMissing(Seq.of(PyInfo.pythonLinuxPath));
+      } else {
+        throw new RuntimeException("FragPipe only works in Windows and Linux. FragPipe not supported in this OS");
+      }
+      final var command = pyPaths.get(0).toString();
+      m = new MessagePythonNewBin(command);
       // first check if the path is absolute, then it must exist
       Path path = Paths.get(m.command);
       final boolean fileExists = Files.exists(path) || (OsUtils.isWindows() && Files.exists(Paths.get(path + ".exe")));

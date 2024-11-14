@@ -182,11 +182,32 @@ void createTaskCopyToInstallRelToBuild(String taskNameSuffix, String fromRelToBu
     task (taskName, type: Copy, group: 'chhh-release', description: "Copies JRE") {
         from getLayout().buildDirectory.dir("$fromRelToBuild").get()
         into getLayout().buildDirectory.dir("install/${project.name}-${project.version}/$toRelToInstallProjname").get().asFile
+        exclude { details ->
+            (details.file.name.endsWith('.tar.gz') and details.file.name.startsWith('cpython'))
+                        || (details.file.name == 'python.zip') || (details.file.name == 'python')
+        }
     }
 }
 
 createTaskCopyToInstallRelToBuild('Tools', "../tools", "tools")
 createTaskCopyToInstallRelToBuild('Workflows', "../workflows/", "workflows")
+
+void createTaskUnpackToInstallRelToBuild(String taskNameSuffix, String fromRelToBuild, String toRelToInstallProjname) {
+    String taskName = "unpack" + taskNameSuffix
+    task (taskName, type: Copy, group: 'chhh-release', description: "Unzips $fromRelToBuild to $toRelToInstallProjname") {
+        dependsOn 'copyTools'
+        from zipTree(getLayout().buildDirectory.dir("$fromRelToBuild").get())
+        // tarTree has issues with symlinks, so use zipTree
+        // https://github.com/gradle/gradle/pull/182
+//        from tarTree(getLayout().buildDirectory.dir("$fromRelToBuild").get())
+        into getLayout().buildDirectory.dir("install/${project.name}-${project.version}/$toRelToInstallProjname").get().asFile
+    }
+}
+
+createTaskUnpackToInstallRelToBuild('PythonLinux', "../tools/python_Linux/python.zip", "tools/python_Linux")
+createTaskUnpackToInstallRelToBuild('PythonWindows', "../tools/python_Windows/python.zip", "tools/python_Windows")
+//createTaskUnpackToInstallRelToBuild('PythonLinux', "../tools/python_Linux/cpython-3.11.11+20241206-x86_64-unknown-linux-gnu-install_only.tar.gz", "tools/python_Linux")
+//createTaskUnpackToInstallRelToBuild('PythonWindows', "../tools/python_Windows/cpython-3.11.11+20241206-x86_64-pc-windows-msvc-shared-install_only.tar.gz", "tools/python_Windows")
 
 void createTaskMakeReleaseZip(boolean withJre, String releaseDir, String startClass) {
     String taskName = "makeReleaseZip" + (withJre ? "WithJre" : "NoJre")
@@ -202,6 +223,8 @@ void createTaskMakeReleaseZip(boolean withJre, String releaseDir, String startCl
         dependsOn 'makeExeAndCopyToScripts'
         dependsOn 'installDist'
         dependsOn 'copyTools'
+        dependsOn 'unpackPythonLinux'
+        dependsOn 'unpackPythonWindows'
         dependsOn 'copyWorkflows'
 
         tasks.findByName('test').mustRunAfter 'clean'
