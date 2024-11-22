@@ -59,7 +59,7 @@ public class CmdMSBooster extends CmdBase {
   public CmdMSBooster(boolean isRun, Path workDir) {
     super(isRun, workDir);
     NoteConfigDiann noteConfigDiann = Bus.getStickyEvent(NoteConfigDiann.class);
-    if (noteConfigDiann == null) {
+    if (noteConfigDiann == null || noteConfigDiann.version.contentEquals("1.9.2")) { // DIA-NN 1.9.2 has a bug.
       diannPath = Diann.fallbackDiannPath;
     } else {
       diannPath = noteConfigDiann.path;
