@@ -34,7 +34,7 @@ public class LcmsInputFileTable extends SimpleETable {
       "<html>Replicate number. <b>Integers only. Can be left blank.</b><br/>"
           + "If blank, files from the same experiment will be combined.<br/>"
           + "Leave it blank if it is fractionated data.",
-      "<html>Data types (DDA, DIA, DDA+, DIA-Quant, DIA-Lib).<br/>"
+      "<html>Data types (DDA, DIA, DDA+, DIA-Quant, DIA-Lib, GPF-DIA).<br/>"
           + "<br>"
           + "<b>DDA+:</b> DDA files, full isolation window (chimeric spectrum) search.<br/>"
           + "This data type is compatible with DDA closed search workflows only<br/>"

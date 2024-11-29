@@ -109,7 +109,7 @@ public class CmdMsfragger extends CmdBase {
           }
         } else if (f.getDataType().contentEquals("GPF-DIA")) {
           if (paramsGpfDia == null) {
-            maxRank = paramsGpfDia.getOutputReportTopN();
+            maxRank = outputReportTopNDia1;
           } else {
             maxRank = paramsGpfDia.getOutputReportTopN();
           }

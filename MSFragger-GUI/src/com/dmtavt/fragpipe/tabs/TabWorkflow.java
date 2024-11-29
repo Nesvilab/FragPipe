@@ -309,7 +309,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     TableModelColumn<InputLcmsFile, Integer> colRep = new TableModelColumn<>(
         "Bioreplicate (can be empty and integer)", Integer.class, true, InputLcmsFile::getReplicate);
     TableModelColumn<InputLcmsFile, String> colDataType = new TableModelColumn<>(
-        "Data type (DDA, DDA+, DIA, DIA-Quant, DIA-Lib)", String.class, true, InputLcmsFile::getDataType);
+        "Data type (DDA, DDA+, DIA, DIA-Quant, DIA-Lib, GPF-DIA)", String.class, true, InputLcmsFile::getDataType);
 
     cols.add(colPath);
     cols.add(colExp);
@@ -1086,7 +1086,6 @@ public class TabWorkflow extends JPanelWithEnablement {
 
     mu.add(p, btnSetDda);
     mu.add(p, btnSetDdaPlus);
-//    mu.add(p, btnSetGpfDia);
     mu.add(p, btnSetDia).wrap();
 
     mu.add(p, new JLabel("Set bioreplicates")).split();
@@ -1098,7 +1097,8 @@ public class TabWorkflow extends JPanelWithEnablement {
     emptySpace2.setVisible(false);
     mu.add(p, emptySpace2).growX().pushX().split();
     mu.add(p, btnSetDiaQuant);
-    mu.add(p, btnSetDiaLib).wrap();
+    mu.add(p, btnSetDiaLib);
+    mu.add(p, btnSetGpfDia).wrap();
     mu.add(p, numSelectedFilesLabel).grow().pushX().wrap();
 
 

@@ -1479,7 +1479,7 @@ public class TabMsfragger extends JPanelBase {
 
     FormEntry feReportTopNDia1 = mu.feb(MsfraggerParams.PROP_output_report_topN_dia1, uiSpinnerOutputReportTopNDia1)
         .label("Report top N for DIA")
-        .tooltip("Report top N PSMs per input spectrum for DIA and DIA-Lib data type.").create();
+        .tooltip("Report top N PSMs per input spectrum for DIA, DIA-Lib, and GPF-DIA data type.").create();
 
     FormEntry feReportTopNDdaPlus = mu.feb(MsfraggerParams.PROP_output_report_topN_dda_plus, uiSpinnerOutputReportTopNDdaPlus)
         .label("Report top N for DDA+")
