@@ -668,15 +668,14 @@ public class CmdMsfragger extends CmdBase {
     paramsNew.setShiftedIons(false);
     paramsNew.setLabileSearchMode("off");
     paramsNew.setDeltamassAllowedResidues("all");
-
     paramsNew.setIsotopeError("0");
-    paramsNew.setUseTopNPeaks(Math.max(300, params.getUseTopNPeaks()));
-    paramsNew.setMinimumRatio(0);
     paramsNew.setIntensityTransform(1);
     paramsNew.setRemovePrecursorPeak(1);
 
     if (dataType.contentEquals("DIA")) {
       paramsNew.setDataType(1);
+      paramsNew.setUseTopNPeaks(Math.max(300, params.getUseTopNPeaks()));
+      paramsNew.setMinimumRatio(0);
       paramsNew.setOutputReportTopN(outputReportTopNDia1);
       paramsNew.setPrecursorTrueUnits(MassTolUnits.PPM);
       paramsNew.setPrecursorTrueTolerance(10);
