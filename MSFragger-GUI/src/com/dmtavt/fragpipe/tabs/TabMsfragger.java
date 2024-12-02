@@ -1505,7 +1505,7 @@ public class TabMsfragger extends JPanelBase {
     uiCheckWriteCalibratedMzml = UiUtils.createUiCheck("Write calibrated mzML", false);
     FormEntry feCheckWriteCalibratedMzml = mu.feb(MsfraggerParams.PROP_write_calibrated_mzml, uiCheckWriteCalibratedMzml).create();
 
-    uiCheckWriteUncalibratedMzml = UiUtils.createUiCheck("Write uncalibrated mzML", false);
+    uiCheckWriteUncalibratedMzml = UiUtils.createUiCheck("Write uncalibrated mzML", true);
     FormEntry feCheckWriteUncalibratedMzml = mu.feb(MsfraggerParams.PROP_write_uncalibrated_mzml, uiCheckWriteUncalibratedMzml).tooltip("Only for .raw and .d formats.").create();
 
     uiComboGroupVariable = UiUtils.createUiCombo(Arrays.asList(GROUP_VARIABLE));
