@@ -242,7 +242,7 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_GUI = new HashMap<>();
 
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_write_calibrated_mzml, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
-    CONVERT_TO_FILE.put(MsfraggerParams.PROP_write_uncalibrated_mzml, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_write_uncalibrated_mzml, s -> itos(1));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_write_mzbin_all, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_mass_diff_to_variable_mod, s -> itos(
         MASS_DIFF_TO_VAR_MOD_MAP[ArrayUtils.indexOf(MASS_DIFF_TO_VAR_MOD, s)]));
@@ -321,7 +321,7 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_deneutralloss, s -> s.toLowerCase().contentEquals("yes") ? "1" : "0");
 
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_write_calibrated_mzml, s -> Boolean.toString(Integer.parseInt(s) > 0));
-    CONVERT_TO_GUI.put(MsfraggerParams.PROP_write_uncalibrated_mzml, s -> Boolean.toString(Integer.parseInt(s) > 0));
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_write_uncalibrated_mzml, s -> Boolean.toString(true));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_write_mzbin_all, s -> Boolean.toString(Integer.parseInt(s) > 0));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_mass_diff_to_variable_mod, s-> MASS_DIFF_TO_VAR_MOD[MASS_DIFF_TO_VAR_MOD_MAP[Integer.parseInt(s)]]);
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_group_variable, s-> GROUP_VARIABLE[Integer.parseInt(s)]);
@@ -431,7 +431,6 @@ public class TabMsfragger extends JPanelBase {
   private JPanel pMods;
   private JPanel pAdvanced;
   private UiCheck uiCheckWriteCalibratedMzml;
-  private UiCheck uiCheckWriteUncalibratedMzml;
   private UiCombo uiComboGroupVariable;
   private UiSpinnerInt uiSpinnerOutputReportTopNDda;
   private UiSpinnerInt uiSpinnerOutputReportTopNDia1;
@@ -1505,9 +1504,6 @@ public class TabMsfragger extends JPanelBase {
     uiCheckWriteCalibratedMzml = UiUtils.createUiCheck("Write calibrated mzML", false);
     FormEntry feCheckWriteCalibratedMzml = mu.feb(MsfraggerParams.PROP_write_calibrated_mzml, uiCheckWriteCalibratedMzml).create();
 
-    uiCheckWriteUncalibratedMzml = UiUtils.createUiCheck("Write uncalibrated mzML", true);
-    FormEntry feCheckWriteUncalibratedMzml = mu.feb(MsfraggerParams.PROP_write_uncalibrated_mzml, uiCheckWriteUncalibratedMzml).tooltip("Only for .raw and .d formats.").create();
-
     uiComboGroupVariable = UiUtils.createUiCombo(Arrays.asList(GROUP_VARIABLE));
     FormEntry feGroupVariable= mu.feb(uiComboGroupVariable)
         .name(PROP_group_variable)
@@ -1524,14 +1520,13 @@ public class TabMsfragger extends JPanelBase {
     mu.add(p, feReportTopNDdaPlus.label(), mu.ccR());
     mu.add(p, feReportTopNDdaPlus.comp);
     mu.add(p, feCheckWriteCalibratedMzml.comp).gapLeft("20px");
-    mu.add(p, feGroupVariable.label()).gapLeft("10px");
+    mu.add(p, feGroupVariable.label(), mu.ccR()).gapLeft("10px");
     mu.add(p, feGroupVariable.comp).wrap();
 
     mu.add(p, feReportTopNDia1.label(), mu.ccR());
     mu.add(p, feReportTopNDia1.comp);
-    mu.add(p, feCheckWriteUncalibratedMzml.comp).gapLeft("20px");
-    mu.add(p, feOutputMaxExpect.label()).gapLeft("10px");
-    mu.add(p, feOutputMaxExpect.comp).pushX().wrap();
+    mu.add(p, feOutputMaxExpect.label()).gapLeft("20px").split(2);
+    mu.add(p, feOutputMaxExpect.comp).wrap();
 
     return p;
   }

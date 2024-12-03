@@ -172,7 +172,6 @@ msfragger.use_all_mods_in_first_search=false
 msfragger.use_detailed_offsets=true
 msfragger.use_topN_peaks=150
 msfragger.write_calibrated_mzml=false
-msfragger.write_uncalibrated_mzml=true
 msfragger.zero_bin_accept_expect=0
 msfragger.zero_bin_mult_expect=1
 opair.activation1=HCD
