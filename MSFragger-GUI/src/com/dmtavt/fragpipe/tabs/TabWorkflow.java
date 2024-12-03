@@ -665,9 +665,8 @@ public class TabWorkflow extends JPanelWithEnablement {
   public void on(MessageLcmsAddFiles m) {
     logObjectType(m);
 
-    List<Path> searchPaths = Fragpipe.getExtBinSearchPaths();
-    final javax.swing.filechooser.FileFilter ff = CmdMsfragger.getFileChooserFilter(searchPaths);
-    Predicate<File> supportedFilePredicate = CmdMsfragger.getSupportedFilePredicate(searchPaths);
+    final javax.swing.filechooser.FileFilter ff = CmdMsfragger.getFileChooserFilter();
+    Predicate<File> supportedFilePredicate = CmdMsfragger.getSupportedFilePredicate();
     final var fc = new JFileChooser() {
       @Override
       public boolean isTraversable(final File f) {
@@ -739,12 +738,10 @@ public class TabWorkflow extends JPanelWithEnablement {
       inputPaths = m.dirs;
     }
     else {
-      final javax.swing.filechooser.FileFilter ff = CmdMsfragger
-          .getFileChooserFilter(Fragpipe.getExtBinSearchPaths());
       JFileChooser fc = FileChooserUtils
           .builder("Select a folder with LC/MS files (searched recursively)")
-          .approveButton("Select").mode(FcMode.ANY).multi(true)
-          .acceptAll(true).filters(Seq.of(ff).toList())
+          .approveButton("Select").mode(FcMode.DIRS_ONLY).multi(true)
+          .acceptAll(true)
           .paths(Stream.of(Fragpipe.propsVarGet(ThisAppProps.PROP_LCMS_FILES_IN)))
           .create();
 
@@ -762,7 +759,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     Fragpipe.propsVarSet(ThisAppProps.LAST_RECURSIVE_FOLDER_ADDED, inputPaths.get(0).toString());
 
     for (Path p : inputPaths) {
-      final Predicate<File> pred = CmdMsfragger.getSupportedFilePredicate(Fragpipe.getExtBinSearchPaths());
+      final Predicate<File> pred = CmdMsfragger.getSupportedFilePredicate();
       PathUtils.traverseDirectoriesAcceptingFiles(p.toFile(), pred, accepted, false);
     }
 
@@ -1211,8 +1208,7 @@ public class TabWorkflow extends JPanelWithEnablement {
 
   private FileDrop makeFileDrop() {
     return new FileDrop(this, true, files -> {
-      Predicate<File> pred = CmdMsfragger
-          .getSupportedFilePredicate(Fragpipe.getExtBinSearchPaths());
+      Predicate<File> pred = CmdMsfragger.getSupportedFilePredicate();
       List<Path> accepted = new ArrayList<>(files.length);
       for (File f : files) {
         PathUtils.traverseDirectoriesAcceptingFiles(f, pred, accepted, false);

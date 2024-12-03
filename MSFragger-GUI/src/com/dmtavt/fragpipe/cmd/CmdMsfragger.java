@@ -160,27 +160,23 @@ public class CmdMsfragger extends CmdBase {
 //    };
 //  }
 
-  /**
-   * @param searchPaths Paths were to search for native libraries. Pass in the location of
-   * MSFragger.jar.
-   */
-  public static FileFilter getFileChooserFilter(List<Path> searchPaths) {
+  public static FileFilter getFileChooserFilter() {
     FileFilter local = ff;
     if (local == null) {
       synchronized (CmdMsfragger.class) {
         local = ff;
         if (local == null) {
-          ff = local = createFileChooserFilter(searchPaths);
+          ff = local = createFileChooserFilter();
         }
       }
     }
     return local;
   }
 
-  public static Predicate<File> getSupportedFilePredicate(List<Path> searchPaths) {
+  public static Predicate<File> getSupportedFilePredicate() {
     Predicate<File> local;
     synchronized (CmdMsfragger.class) {
-      final GetSupportedExts exts = new GetSupportedExts(searchPaths).invoke();
+      final GetSupportedExts exts = new GetSupportedExts().invoke();
       supportedFilePredicate = local = file -> {
         String fnLoCase = file.getName().toLowerCase();
         for (String ext : exts.exts) {
@@ -194,10 +190,11 @@ public class CmdMsfragger extends CmdBase {
     return local;
   }
 
-  private static javax.swing.filechooser.FileFilter createFileChooserFilter(List<Path> searchPaths) {
-    GetSupportedExts getSupportedExts = new GetSupportedExts(searchPaths).invoke();
+  private static javax.swing.filechooser.FileFilter createFileChooserFilter() {
+    GetSupportedExts getSupportedExts = new GetSupportedExts().invoke();
     List<String> desc = getSupportedExts.getDesc();
     List<String> exts = getSupportedExts.getExts();
+    List<String> ignoredSuffixes = getSupportedExts.getIgnoredSuffixes();
 
     javax.swing.filechooser.FileFilter filter = new javax.swing.filechooser.FileFilter() {
       @Override
@@ -208,6 +205,11 @@ public class CmdMsfragger extends CmdBase {
         String fnLoCase = f.getName().toLowerCase();
         for (String ext : exts) {
           if (fnLoCase.endsWith(ext)) {
+            for (String s : ignoredSuffixes) {
+              if (fnLoCase.endsWith(s)) {
+                return false;
+              }
+            }
             return true;
           }
         }
@@ -699,13 +701,11 @@ public class CmdMsfragger extends CmdBase {
 
   private static class GetSupportedExts {
 
-    private List<Path> searchPaths;
     private List<String> desc;
     private List<String> exts;
+    private List<String> ignoredSuffixes;
 
-    public GetSupportedExts(List<Path> searchPaths) {
-      this.searchPaths = searchPaths;
-    }
+    public GetSupportedExts() {}
 
     public List<String> getDesc() {
       return desc;
@@ -715,19 +715,14 @@ public class CmdMsfragger extends CmdBase {
       return exts;
     }
 
+    public List<String> getIgnoredSuffixes() {
+      return ignoredSuffixes;
+    }
+
     public GetSupportedExts invoke() {
-      desc = new ArrayList<>(Arrays.asList("mzML", "mzXML", "mgf", "mzBIN"));
-      exts = new ArrayList<>(Arrays.asList(".mgf", ".mzml", ".mzxml", ".mzbin"));
-//      if (searchPaths != null && !searchPaths.isEmpty()) {
-//        if (searchExtLibsThermo(searchPaths) != null) {
-          desc.add("Thermo RAW");
-          exts.add(".raw");
-//        }
-//        if (searchExtLibsBruker(searchPaths) != null) {
-          desc.add("Buker PASEF .d");
-          exts.add(".d");
-//        }
-//      }
+      desc = new ArrayList<>(Arrays.asList("mzML", "mzXML", "mgf", "mzBIN", "Thermo RAW", "Bruker PASEF .d"));
+      exts = new ArrayList<>(Arrays.asList(".mgf", ".mzml", ".mzxml", ".mzbin", ".raw", ".d"));
+      ignoredSuffixes = new ArrayList<>(Arrays.asList("_uncalibrated.mzml", "_calibrated.mzml", "_uncalibrated.mgf", "_calibrated.mgf"));
       return this;
     }
   }
