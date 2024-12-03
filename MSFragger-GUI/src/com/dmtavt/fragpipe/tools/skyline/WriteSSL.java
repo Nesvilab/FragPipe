@@ -34,7 +34,7 @@ public class WriteSSL {
             Path path = Paths.get(lcmsFile);
             String fileName = path.getFileName().toString();
             int dotIndex = fileName.lastIndexOf('.');
-            lcmsFileNames.put(fileName.substring(0, dotIndex), lcmsFile.replace("\\", "\\\\"));
+            lcmsFileNames.put(fileName.substring(0, dotIndex), lcmsFile.replace("\\", "/").replaceFirst("\\.d$", "_uncalibrated.mzML"));
         }
 
         for (Path psmtsv: psmtsvFiles) {
