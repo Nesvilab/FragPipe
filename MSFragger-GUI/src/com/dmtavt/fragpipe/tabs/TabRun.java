@@ -91,7 +91,7 @@ public class TabRun extends JPanelWithEnablement {
   public static final String TAB_PREFIX = "tab-run.";
   private static final String LAST_WORK_DIR = "workdir.last-path";
   private static final String PROP_FILECHOOSER_LAST_PATH = TAB_PREFIX + "filechooser.last-path";
-  private static final String PDV_NAME = "/FP-PDV/FP-PDV-1.3.0.jar";
+  private static final String PDV_NAME = "/FP-PDV/FP-PDV-1.4.0.jar";
   private static final String FRAGPIPE_ANALYST_URL = Fragpipe.propsFix().getProperty("fragpipe-analyst-url", "http://fragpipe-analyst.nesvilab.org/");
 
   public final TextConsole console;
@@ -259,6 +259,7 @@ public class TabRun extends JPanelWithEnablement {
         cmd.add("GUI.GUIMainClass");
         cmd.add(uiTextWorkdir.getNonGhostText());
         cmd.add(nThreads + "");
+        cmd.add("v");
         log.debug("Executing: " + String.join(" ", cmd));
         pdvThread = new Thread(() -> {
           try {
