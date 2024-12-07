@@ -91,12 +91,12 @@ public class TabRun extends JPanelWithEnablement {
   public static final String TAB_PREFIX = "tab-run.";
   private static final String LAST_WORK_DIR = "workdir.last-path";
   private static final String PROP_FILECHOOSER_LAST_PATH = TAB_PREFIX + "filechooser.last-path";
-  private static final String PDV_NAME = "/FP-PDV/FP-PDV-1.4.0.jar";
+  public static final String PDV_NAME = "/FP-PDV/FP-PDV-1.4.0.jar";
   private static final String FRAGPIPE_ANALYST_URL = Fragpipe.propsFix().getProperty("fragpipe-analyst-url", "http://fragpipe-analyst.nesvilab.org/");
 
   public final TextConsole console;
   Color defTextColor;
-  private UiText uiTextWorkdir;
+  public UiText uiTextWorkdir;
   private UiCheck uiCheckDryRun;
   private UiCheck uiCheckDeleteCalibratedFiles;
   private UiCheck uiCheckDeleteTempFiles;
@@ -106,6 +106,7 @@ public class TabRun extends JPanelWithEnablement {
   private JButton btnStop;
   private JButton btnOpenPdv;
   private JButton btnOpenFragPipeAnalyst;
+  private UiCheck uiCheckExportMatchedFragments;
   private Thread pdvThread = null;
   private JPanel pTop;
   private JPanel pConsole;
@@ -216,6 +217,13 @@ public class TabRun extends JPanelWithEnablement {
 
     uiCheckWriteSubMzml = UiUtils.createUiCheck("Write sub mzML", false);
     FormEntry feWriteSubMzml = mu.feb(uiCheckWriteSubMzml).name(TAB_PREFIX + "write_sub_mzml").label("Write sub mzML").tooltip("Write unidentified scans to mzML files. Need to run MSFragger.").create();
+
+    uiCheckExportMatchedFragments = UiUtils.createUiCheck("Export matched fragments", false);
+    FormEntry feExportMatchedFragments = mu.feb(uiCheckExportMatchedFragments)
+        .name(TAB_PREFIX + "export_matched_fragments")
+        .label("Export matched fragments")
+        .tooltip("Export each PSM's matched fragments to the psm.tsv file.")
+        .create();
 
     uiSpinnerProbThreshold = UiUtils.spinnerDouble(0.5, 0.0, 1.0, 0.01).setCols(4).setFormat("#.##").create();
     FormEntry feProbThreshold = mu.feb(uiSpinnerProbThreshold).name(TAB_PREFIX + "sub_mzml_prob_threshold").label("Probability threshold").tooltip(
@@ -372,7 +380,8 @@ public class TabRun extends JPanelWithEnablement {
     mu.add(p, imageLabel2).split(2);
     mu.add(p, btnOpenFragPipeAnalyst);
 
-    mu.add(p, uiCheckDeleteCalibratedFiles).split(2);
+    mu.add(p, feExportMatchedFragments.comp).split(3);
+    mu.add(p, uiCheckDeleteCalibratedFiles);
     mu.add(p, uiCheckDeleteTempFiles);
     mu.add(p, feWriteSubMzml.comp).split(3);
     mu.add(p, feProbThreshold.label());
@@ -395,6 +404,10 @@ public class TabRun extends JPanelWithEnablement {
 
   public boolean isWriteSubMzml() {
     return SwingUtils.isEnabledAndChecked(uiCheckWriteSubMzml);
+  }
+
+  public boolean isExportMatchedFragments() {
+    return SwingUtils.isEnabledAndChecked(uiCheckExportMatchedFragments);
   }
 
   public float getSubMzmlProbThreshold() {

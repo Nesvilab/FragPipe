@@ -19,8 +19,10 @@ package com.dmtavt.fragpipe;
 
 import static com.dmtavt.fragpipe.FragPipeMain.PHILOSOPHER_VERSION;
 import static com.dmtavt.fragpipe.Fragpipe.philosopherBinPath;
+import static com.dmtavt.fragpipe.cmd.CmdBase.constructClasspathString;
 import static com.dmtavt.fragpipe.messages.MessagePrintToConsole.toConsole;
 import static com.dmtavt.fragpipe.tabs.TabDatabase.databaseSizeLimit;
+import static com.dmtavt.fragpipe.tabs.TabRun.PDV_NAME;
 import static com.dmtavt.fragpipe.tabs.TabWorkflow.manifestExt;
 import static com.dmtavt.fragpipe.tabs.TabWorkflow.workflowExt;
 import static com.dmtavt.fragpipe.tools.diann.DiannPanel.NEW_VERSION;
@@ -67,6 +69,7 @@ import com.dmtavt.fragpipe.cmd.CmdWriteSubMzml;
 import com.dmtavt.fragpipe.cmd.PbiBuilder;
 import com.dmtavt.fragpipe.cmd.ProcessBuilderInfo;
 import com.dmtavt.fragpipe.cmd.ProcessBuildersDescriptor;
+import com.dmtavt.fragpipe.cmd.ToolingUtils;
 import com.dmtavt.fragpipe.exceptions.NoStickyException;
 import com.dmtavt.fragpipe.internal.DefEdge;
 import com.dmtavt.fragpipe.messages.MessageClearConsole;
@@ -88,6 +91,7 @@ import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.dmtavt.fragpipe.process.ProcessDescription;
 import com.dmtavt.fragpipe.process.ProcessDescription.Builder;
 import com.dmtavt.fragpipe.process.ProcessManager;
+import com.dmtavt.fragpipe.process.ProcessResult;
 import com.dmtavt.fragpipe.process.RunnableDescription;
 import com.dmtavt.fragpipe.tabs.TabDatabase;
 import com.dmtavt.fragpipe.tabs.TabDownstream;
@@ -193,6 +197,8 @@ public class FragpipeRun {
       Pattern.compile(".+temp-psm\\.tsv")
   };
   private static final Pattern fppdvDbPattern = Pattern.compile(".+\\.db");
+  private static Thread pdvThread = null;
+  private static Process pdvProcess = null;
 
   private FragpipeRun() {
   }
@@ -474,11 +480,58 @@ public class FragpipeRun {
       // add finalizer process
       List<String> finalProteinHeaders = proteinHeaders;
       final Runnable finalizerRun = () -> {
-        if (tabRun.isDeleteCalibratedFiles() || tabRun.isDeleteTempFiles()) {
-          toConsole(Fragpipe.COLOR_TOOL, "\nDelete calibrated or temp files", true, tabRun.console);
+        if (tabRun.isExportMatchedFragments()) {
+          toConsole(Fragpipe.COLOR_TOOL, "\nExport matched fragments", true, tabRun.console);
+          String[] t = {ToolingUtils.BATMASS_IO_JAR};
+          List<Path> pdvPath = FragpipeLocations.checkToolsMissing(Seq.of(PDV_NAME).concat(t));
+          if (pdvPath == null || pdvPath.isEmpty()) {
+            toConsole("Cannot find the visualization executable executable file.", tabRun.console);
+          } else {
+            int nThreads = tabWorkflow.getThreads();
+
+            List<String> cmd = new ArrayList<>();
+            cmd.add(Fragpipe.getBinJava());
+            cmd.add("-cp");
+            cmd.add(constructClasspathString(pdvPath));
+            cmd.add("GUI.GUIMainClass");
+            cmd.add(tabRun.uiTextWorkdir.getNonGhostText());
+            cmd.add(nThreads + "");
+            cmd.add("r");
+            log.debug("Executing: " + String.join(" ", cmd));
+            pdvThread = new Thread(() -> {
+              try {
+                ProcessBuilder pb = new ProcessBuilder(cmd);
+                ProcessBuilderInfo pbi = new PbiBuilder().setPb(pb).setName(pb.toString()).setFnStdOut(null).setFnStdErr(null).setParallelGroup(null).create();
+                ProcessResult pr = new ProcessResult(pbi);
+                pdvProcess = pr.start();
+                if (pdvProcess.waitFor() == 0) {
+                  log.debug("Process output: {}", pr.getOutput().toString());
+                  final int exitValue = pr.getProcess().exitValue();
+                  if (exitValue != 0) {
+                    String errStr = pr.appendErr(pr.pollStdErr());
+                    log.debug("Process " + pb + " returned non zero value. Message:\n" + (errStr == null ? "" : errStr));
+                  }
+                } else {
+                  String errStr = pr.appendErr(pr.pollStdErr());
+                  log.debug("Process " + pb + " returned non zero value. Message:\n " + (errStr == null ? "" : errStr));
+                }
+
+                String outStr = pr.appendOut(pr.pollStdOut());
+                log.debug("Process output: {}", (outStr == null ? "" : outStr));
+              } catch (Exception ex) {
+                ex.printStackTrace();
+                log.error(ExceptionUtils.getStackTrace(ex));
+                if (pdvProcess != null) {
+                  pdvProcess.destroyForcibly();
+                }
+              }
+            });
+            pdvThread.start();
+          }
         }
 
         if (tabRun.isDeleteCalibratedFiles()) {
+          toConsole(Fragpipe.COLOR_TOOL, "\nDelete calibrated mzML files", true, tabRun.console);
           for (LcmsFileGroup lcmsFileGroup : lcmsFileGroups.values()) {
             for (InputLcmsFile inputLcmsFile : lcmsFileGroup.lcmsFiles) {
               String baseName = FilenameUtils.getBaseName(inputLcmsFile.getPath().getFileName().toString());
@@ -497,6 +550,7 @@ public class FragpipeRun {
         }
 
         if (tabRun.isDeleteTempFiles()) {
+          toConsole(Fragpipe.COLOR_TOOL, "\nDelete temp files", true, tabRun.console);
           try {
             Files.walk(wd).filter(p -> {
               for (Pattern pattern : filesToDelete) {
