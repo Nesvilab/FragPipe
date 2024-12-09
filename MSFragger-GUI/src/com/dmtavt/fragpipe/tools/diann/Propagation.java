@@ -21,8 +21,6 @@ import static com.dmtavt.fragpipe.cmd.CmdDiann.labelPattern;
 import static com.dmtavt.fragpipe.cmd.ToolingUtils.UNIMOD_OBO;
 import static com.dmtavt.fragpipe.cmd.ToolingUtils.getUnimodOboPath;
 
-import com.dmtavt.fragpipe.util.UnimodOboReader;
-import com.dmtavt.fragpipe.util.UnimodOboReader.Precursor;
 import com.google.common.collect.Table;
 import com.google.common.collect.TreeBasedTable;
 import java.io.BufferedReader;
@@ -41,6 +39,8 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import umich.ms.fileio.filetypes.unimod.UnimodOboReader;
+import umich.ms.fileio.filetypes.unimod.UnimodOboReader.Precursor;
 
 public class Propagation {
 

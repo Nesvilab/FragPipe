@@ -19,13 +19,10 @@ package com.dmtavt.fragpipe.tools.diann;
 
 import static com.dmtavt.fragpipe.cmd.ToolingUtils.UNIMOD_OBO;
 import static com.dmtavt.fragpipe.cmd.ToolingUtils.getUnimodOboPath;
-import static com.dmtavt.fragpipe.util.Utils.AAMasses;
-import static com.dmtavt.fragpipe.util.Utils.correctModMass;
-import static com.dmtavt.fragpipe.util.Utils.removeClosedModifications;
-import static com.dmtavt.fragpipe.util.Utils.threshold;
+import static umich.ms.fileio.filetypes.library.Utils.correctModMass;
+import static umich.ms.fileio.filetypes.library.Utils.removeClosedModifications;
+import static umich.ms.fileio.filetypes.library.Utils.threshold;
 
-import com.dmtavt.fragpipe.FragpipeLocations;
-import com.dmtavt.fragpipe.util.UnimodOboReader;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -35,12 +32,10 @@ import com.google.common.collect.TreeBasedTable;
 import com.google.common.primitives.Floats;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -57,11 +52,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import org.jooq.lambda.Seq;
+import umich.ms.fileio.filetypes.library.Fragment;
+import umich.ms.fileio.filetypes.library.LibraryTsv;
+import umich.ms.fileio.filetypes.library.Peptide;
+import umich.ms.fileio.filetypes.library.Transition;
 
 public class PlexDiaHelper {
 
-  private static final Pattern aaPattern = Pattern.compile("([A-Zn])(\\((UniMod:\\d+)\\))?([\\(\\[]([\\d+.-]+)[\\]\\)])?"); // EasyPQP does not support C-term mods?
   private static final Pattern labelPattern = Pattern.compile("([A-Znc*]+)([\\d.+-]+)");
   static final Pattern tabPattern = Pattern.compile("\\t");
 
@@ -71,6 +68,7 @@ public class PlexDiaHelper {
   private final Map<Character, Float> heavyAaMassMap;
   private final Map<String, Float> unimodMassMap;
   private final Table<Float, Character, Integer> massSiteUnimodTable;
+  private final LibraryTsv libraryTsv;
 
   float[] theoModMasses;
 
@@ -132,7 +130,7 @@ public class PlexDiaHelper {
       PlexDiaHelper plexDiaHelper = new PlexDiaHelper(nThreads, lightAaMassMap, mediumAaMassMap, heavyAaMassMap);
 
       if (outputLibraryPath != null) {
-        plexDiaHelper.generateNewLibrary2(libraryPath, outputLibraryPath, true, true);
+        plexDiaHelper.generateNewLibrary(libraryPath, outputLibraryPath, true, true, 2);
       } else if (diannReportPath != null && outputDirectory != null) {
         plexDiaHelper.pairAndWriteReport(libraryPath, diannReportPath, outputDirectory);
       }
@@ -176,33 +174,14 @@ public class PlexDiaHelper {
     this.mediumAaMassMap = mediumAaMassMap;
     this.heavyAaMassMap = heavyAaMassMap;
 
-    Path unimodPath = getUnimodOboPath(UNIMOD_OBO);
-    UnimodOboReader unimodOboReader = new UnimodOboReader(unimodPath);
-    unimodMassMap = unimodOboReader.unimodMassMap;
-    massSiteUnimodTable = unimodOboReader.massSiteUnimodTable;
+    libraryTsv = new LibraryTsv(nThreads, getUnimodOboPath(UNIMOD_OBO).toString());
+    unimodMassMap = libraryTsv.unimodMassMap;
+    massSiteUnimodTable = libraryTsv.massSiteUnimodTable;
   }
 
-  void generateNewLibrary(Path libraryPath, Path outputPath, boolean replaceLabelMods) throws Exception {
-    BufferedReader reader = Files.newBufferedReader(libraryPath);
-
-    ForkJoinPool forkJoinPool = new ForkJoinPool(nThreads);
-    List<String[]> library = forkJoinPool.submit(() ->
-        reader.lines()
-            .parallel()
-            .filter(l -> !l.isEmpty())
-            .map(l -> tabPattern.split(l, -1)) // -1 to keep trailing empty strings
-            .collect(Collectors.toList())
-    ).get();
-    forkJoinPool.shutdown();
-
-    reader.close();
-
-    Map<String, Integer> columnNameToIndex = getColumnIndexMap(libraryPath, "PrecursorMz", library.get(0));
-
-    int columnIdx = columnNameToIndex.get("ModifiedPeptideSequence");
-    Set<String> modifiedPeptides = library.stream().skip(1).map(p -> p[columnIdx]).collect(Collectors.toSet());
-
-    Set<Float> modMasses = collectAllMods(modifiedPeptides);
+  void generateNewLibrary(Path libraryPath, Path outputPath, boolean removeUnlabeledTransitions, boolean replaceLabelMods, int mode) throws Exception {
+    Multimap<String, Transition> transitions = libraryTsv.read(libraryPath);
+    Set<Float> modMasses = new HashSet<>(Floats.asList(libraryTsv.theoModMasses));
 
     if (lightAaMassMap != null) {
       modMasses.addAll(lightAaMassMap.values());
@@ -240,94 +219,19 @@ public class PlexDiaHelper {
       heavyAaMassMap.putAll(t);
     }
 
-    Multimap<String, Transition> transitions = collectTransitions(library, columnNameToIndex);
-    appendComplementTransitions(transitions);
-
-    writeLibrary(transitions, outputPath, replaceLabelMods);
-  }
-
-  void generateNewLibrary2(Path libraryPath, Path outputPath, boolean removeUnlabeledTransitions, boolean replaceLabelMods) throws Exception {
-    BufferedReader reader = Files.newBufferedReader(libraryPath);
-
-    ForkJoinPool forkJoinPool = new ForkJoinPool(nThreads);
-    List<String[]> library = forkJoinPool.submit(() ->
-        reader.lines()
-            .parallel()
-            .filter(l -> !l.isEmpty())
-            .map(l -> tabPattern.split(l, -1)) // -1 to keep trailing empty strings
-            .collect(Collectors.toList())
-    ).get();
-    forkJoinPool.shutdown();
-
-    reader.close();
-
-    Map<String, Integer> columnNameToIndex = getColumnIndexMap(libraryPath, "PrecursorMz", library.get(0));
-
-    int columnIdx = columnNameToIndex.get("ModifiedPeptideSequence");
-    Set<String> modifiedPeptides = library.stream().skip(1).map(p -> p[columnIdx]).collect(Collectors.toSet());
-
-    Set<Float> modMasses = collectAllMods(modifiedPeptides);
-
-    if (lightAaMassMap != null) {
-      modMasses.addAll(lightAaMassMap.values());
+    if (mode == 1) {
+      appendComplementTransitions(transitions);
+    } else if (mode == 2) {
+      generateLightOnlyTransitions(transitions, removeUnlabeledTransitions);
     }
-    if (mediumAaMassMap != null) {
-      modMasses.addAll(mediumAaMassMap.values());
-    }
-    if (heavyAaMassMap != null) {
-      modMasses.addAll(heavyAaMassMap.values());
-    }
-
-    theoModMasses = removeClosedModifications(modMasses);
-
-    if (lightAaMassMap != null) {
-      Map<Character, Float> t = new HashMap<>();
-      for (Map.Entry<Character, Float> e : lightAaMassMap.entrySet()) {
-        t.put(e.getKey(), correctModMass(e.getValue(), theoModMasses));
-      }
-      lightAaMassMap.putAll(t);
-    }
-
-    if (mediumAaMassMap != null) {
-      Map<Character, Float> t = new HashMap<>();
-      for (Map.Entry<Character, Float> e : mediumAaMassMap.entrySet()) {
-        t.put(e.getKey(), correctModMass(e.getValue(), theoModMasses));
-      }
-      mediumAaMassMap.putAll(t);
-    }
-
-    if (heavyAaMassMap != null) {
-      Map<Character, Float> t = new HashMap<>();
-      for (Map.Entry<Character, Float> e : heavyAaMassMap.entrySet()) {
-        t.put(e.getKey(), correctModMass(e.getValue(), theoModMasses));
-      }
-      heavyAaMassMap.putAll(t);
-    }
-
-    Multimap<String, Transition> transitions = collectTransitions(library, columnNameToIndex);
-    generateLightOnlyTransitions(transitions, removeUnlabeledTransitions);
 
     writeLibrary(transitions, outputPath, replaceLabelMods);
   }
 
   void pairAndWriteReport(Path libraryPath, Path diannReportPath, Path outputDirectory) throws Exception {
-    BufferedReader reader = Files.newBufferedReader(libraryPath);
-    ForkJoinPool forkJoinPool = new ForkJoinPool(nThreads);
-    List<String[]> library = forkJoinPool.submit(() ->
-        reader.lines()
-            .parallel()
-            .filter(l -> !l.isEmpty())
-            .map(l -> tabPattern.split(l, -1)) // -1 to keep trailing empty strings
-            .collect(Collectors.toList())
-    ).get();
-    forkJoinPool.shutdown();
-    reader.close();
+    libraryTsv.read(libraryPath);
+    Set<Float> modMasses = new HashSet<>(Floats.asList(libraryTsv.theoModMasses));
 
-    Map<String, Integer> columnNameToIndex = getColumnIndexMap(libraryPath, "PrecursorMz", library.get(0));
-
-    int columnIdx = columnNameToIndex.get("ModifiedPeptideSequence");
-    Set<String> modifiedPeptides = library.stream().skip(1).map(p -> p[columnIdx]).collect(Collectors.toSet());
-    Set<Float> modMasses = collectAllMods(modifiedPeptides);
     if (lightAaMassMap != null) {
       modMasses.addAll(lightAaMassMap.values());
     }
@@ -337,6 +241,7 @@ public class PlexDiaHelper {
     if (heavyAaMassMap != null) {
       modMasses.addAll(heavyAaMassMap.values());
     }
+
     theoModMasses = removeClosedModifications(modMasses);
 
     Table<String, String, IonEntry> diannTable = HashBasedTable.create();
@@ -485,174 +390,12 @@ public class PlexDiaHelper {
     return columnNameToIndex;
   }
 
-  private Set<Float> collectAllMods(Set<String> modifiedPeptides) throws Exception {
-    ForkJoinPool forkJoinPool = new ForkJoinPool(nThreads);
-    Set<String> mods =  forkJoinPool.submit(() ->
-        modifiedPeptides.stream().parallel().flatMap(s -> {
-          Set<String> ttt = new HashSet<>();
-          if (!s.startsWith("n")) {
-            s = "n" + s;
-          }
-          Matcher aaMatcher = aaPattern.matcher(s);
-          while (aaMatcher.find()) {
-            if (aaMatcher.group(2) != null || aaMatcher.group(4) != null) {
-              ttt.add(aaMatcher.group());
-            }
-          }
-          return ttt.stream();
-        })
-        .collect(Collectors.toSet())
-    ).get();
-    forkJoinPool.shutdown();
-
-    Set<Float> modMasses = new HashSet<>();
-    for (String mod : mods) {
-      Matcher aaMatcher = aaPattern.matcher(mod);
-      if (aaMatcher.find()) {
-        if (aaMatcher.group(2) != null) {
-          float mass = unimodMassMap.get(aaMatcher.group(3).toLowerCase());
-          modMasses.add(mass);
-        } else if (aaMatcher.group(4) != null) {
-          char aa = aaMatcher.group(1).charAt(0);
-          float mass;
-          if (aa == 'n' || aa == 'c') {
-            mass = Float.parseFloat(aaMatcher.group(5));
-          } else {
-            mass = Float.parseFloat(aaMatcher.group(5)) - AAMasses[aa - 'A'];
-          }
-          modMasses.add(mass);
-        }
-      } else {
-        throw new RuntimeException("Could not parse modification " + mod);
-      }
-    }
-
-    return modMasses;
-  }
-
-  private String correctModifiedPeptide(String peptide) {
-    if (!peptide.startsWith("n")) {
-      peptide = "n" + peptide;
-    }
-
-    StringBuilder sb = new StringBuilder();
-    Matcher matcher = aaPattern.matcher(peptide);
-    while (matcher.find()) {
-      char aa = matcher.group(1).charAt(0);
-      sb.append(aa);
-      if (matcher.group(2) != null) {
-        sb.append("[").append(correctModMass(unimodMassMap.get(matcher.group(3).toLowerCase()), theoModMasses)).append("]");
-      } else if (matcher.group(4) != null) {
-        if (aa == 'n' || aa == 'c') {
-          sb.append("[").append(correctModMass(Float.parseFloat(matcher.group(5)), theoModMasses)).append("]");
-        } else {
-          sb.append("[").append(correctModMass(Float.parseFloat(matcher.group(5)) - AAMasses[aa - 'A'], theoModMasses)).append("]");
-        }
-      }
-    }
-    return sb.toString();
-  }
-
-  private Multimap<String, Transition> collectTransitions(List<String[]> library, Map<String, Integer> columnNameToIndex) throws Exception {
-    int precursorMzIdx = columnNameToIndex.get("PrecursorMz");
-    int modifiedPeptideSequenceIdx = columnNameToIndex.get("ModifiedPeptideSequence");
-    int precursorChargeIdx = columnNameToIndex.get("PrecursorCharge");
-    int normalizedRetentionTimeIdx = columnNameToIndex.get("NormalizedRetentionTime");
-    int precursorIonMobilityIdx = columnNameToIndex.get("PrecursorIonMobility");
-    int productMzIdx = columnNameToIndex.get("ProductMz");
-    int libraryIntensityIdx = columnNameToIndex.get("LibraryIntensity");
-    int fragmentTypeIdx = columnNameToIndex.get("FragmentType");
-    int fragmentChargeIdx = columnNameToIndex.get("FragmentCharge");
-    int fragmentSeriesNumberIdx = columnNameToIndex.get("FragmentSeriesNumber");
-    int fragmentLossTypeIdx = columnNameToIndex.get("FragmentLossType");
-    int proteinIdIdx = columnNameToIndex.get("ProteinId");
-    int geneNameIdx = columnNameToIndex.get("GeneName");
-    int averageExperimentalRetentionTimeIdx = columnNameToIndex.get("AverageExperimentalRetentionTime");
-
-    ForkJoinPool forkJoinPool = new ForkJoinPool(nThreads);
-    Map<String, List<String[]>> transitionFragmentMap = forkJoinPool.submit(() ->
-        library.stream()
-            .skip(1)
-            .parallel()
-            .collect(Collectors.groupingBy(p ->
-                p[precursorMzIdx] + "-" +
-                correctModifiedPeptide(p[modifiedPeptideSequenceIdx]) + "-" +
-                p[precursorChargeIdx] + "-" +
-                p[normalizedRetentionTimeIdx] + "-" +
-                p[precursorIonMobilityIdx]))
-    ).get();
-    forkJoinPool.shutdown();
-
-    List[] ttArray = transitionFragmentMap.values().toArray(new List[0]);
-    ExecutorService executorService = Executors.newFixedThreadPool(nThreads);
-    int multi = Math.min(nThreads * 8, ttArray.length);
-    List<Future<Multimap<String, Transition>>> futures = new ArrayList<>(multi);
-    for (int i = 0; i < multi; ++i) {
-      final int currentThread = i;
-      futures.add(executorService.submit(() -> {
-        Multimap<String, Transition> localMap = HashMultimap.create();
-        int start = (int) ((currentThread * ((long) ttArray.length)) / multi);
-        int end = (int) (((currentThread + 1) * ((long) ttArray.length)) / multi);
-        for (int j = start; j < end; ++j) {
-          @SuppressWarnings("unchecked") List<String[]> tt = ttArray[j];
-          if (tt.isEmpty()) {
-            continue;
-          }
-          Map<Float, Fragment> mzFragmentMap = new TreeMap<>();
-          for (String[] ss : tt) {
-            Fragment fragment = new Fragment(
-                Float.parseFloat(ss[productMzIdx]),
-                Float.parseFloat(ss[libraryIntensityIdx]),
-                ss[fragmentTypeIdx].charAt(0),
-                Byte.parseByte(ss[fragmentChargeIdx]),
-                Integer.parseInt(ss[fragmentSeriesNumberIdx]),
-                ss[fragmentLossTypeIdx]
-            );
-            Fragment oldFragment = mzFragmentMap.get(fragment.mz);
-            if (oldFragment == null || oldFragment.intensity < fragment.intensity) {
-              mzFragmentMap.put(fragment.mz, fragment);
-            }
-          }
-          String[] ss = tt.get(0);
-          Transition transition = new Transition(
-              Float.parseFloat(ss[precursorMzIdx]),
-              mzFragmentMap.values().toArray(new Fragment[0]),
-              ss[proteinIdIdx],
-              ss[geneNameIdx],
-              new Peptide(ss[modifiedPeptideSequenceIdx]),
-              Byte.parseByte(ss[precursorChargeIdx]),
-              myToFloat(ss[normalizedRetentionTimeIdx], 0),
-              myToFloat(ss[precursorIonMobilityIdx], 0),
-              myToFloat(ss[averageExperimentalRetentionTimeIdx], 0)
-          );
-          localMap.put(transition.peptide.modifiedPeptide + transition.peptideCharge, transition);
-        }
-        return localMap;
-      }));
-    }
-
-    Multimap<String, Transition> transitions = HashMultimap.create();
-    for (Future<Multimap<String, Transition>> future : futures) {
-      transitions.putAll(future.get());
-    }
-
-    executorService.shutdown();
-    if (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
-      executorService.shutdownNow();
-      if (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
-        throw new InterruptedException("Thread pool did not terminate normally.");
-      }
-    }
-
-    return transitions;
-  }
-
   private void appendComplementTransitions(Multimap<String, Transition> transitions) {
     Multimap<String, Transition> complementaryTransitions = HashMultimap.create();
     for (Map.Entry<String, Transition> e : transitions.entries()) {
       Transition transition1 = e.getValue();
       Peptide peptide1 = transition1.peptide;
-      int labelType = peptide1.detectLabelTypes();
+      int labelType = peptide1.detectLabelTypes(lightAaMassMap, mediumAaMassMap, heavyAaMassMap);
       if (labelType == 1) {
         if (mediumAaMassMap != null && lightAaMassMap != null) {
           sub(transitions, peptide1, transition1, complementaryTransitions, lightAaMassMap, mediumAaMassMap);
@@ -686,7 +429,7 @@ public class PlexDiaHelper {
     for (Map.Entry<String, Transition> e : transitions.entries()) {
       Transition transition1 = e.getValue();
       Peptide peptide1 = transition1.peptide;
-      int labelType = peptide1.detectLabelTypes();
+      int labelType = peptide1.detectLabelTypes(lightAaMassMap, mediumAaMassMap, heavyAaMassMap);
       if (labelType == 2) {
         transitionsToRemove.add(e.getKey());
         if (mediumAaMassMap != null && lightAaMassMap != null) {
@@ -761,7 +504,7 @@ public class PlexDiaHelper {
     return new Transition(precursorMz2, fragments2, transition1.proteinId, transition1.geneName, peptide2, transition1.peptideCharge, transition1.normalizedRetentionTime, transition1.precursorIonMobility, transition1.averageExperimentRetentionTime);
   }
 
-  private static void writeLibrary(Multimap<String, Transition> transitions, Path outputPath, boolean replaceLabelMods) throws Exception {
+  private void writeLibrary(Multimap<String, Transition> transitions, Path outputPath, boolean replaceLabelMods) throws Exception {
     BufferedWriter writer = Files.newBufferedWriter(outputPath);
     writer.write("PrecursorMz\t"
         + "ProductMz\t"
@@ -788,7 +531,7 @@ public class PlexDiaHelper {
 
     for (Transition transition : allTransitions) {
       String peptideSequence = transition.peptide.peptideSequence;
-      String unimodPeptide = transition.peptide.getUnimodPeptide(replaceLabelMods);
+      String unimodPeptide = transition.peptide.getUnimodPeptide(replaceLabelMods, massSiteUnimodTable, lightAaMassMap, mediumAaMassMap, heavyAaMassMap, '(', ')');
 
       for (Fragment fragment : transition.fragments) {
         // Reset the StringBuilder
@@ -852,10 +595,13 @@ public class PlexDiaHelper {
             .skip(1)
             .map(l -> new IonEntry(
                 l[runIdx],
-                new Peptide(l[modifiedSequenceIdx]),
+                new Peptide(l[modifiedSequenceIdx], unimodMassMap, theoModMasses),
                 Byte.parseByte(l[precursorChargeIdx]),
                 Float.parseFloat(l[rtIdx]),
-                Float.parseFloat(l[precursorNormalisedIdx])
+                Float.parseFloat(l[precursorNormalisedIdx]),
+                lightAaMassMap,
+                mediumAaMassMap,
+                heavyAaMassMap
             ))
             .collect(Collectors.toList())
     ).get();
@@ -885,293 +631,5 @@ public class PlexDiaHelper {
     forkJoinPool.shutdown();
 
     return sequenceProteinMap;
-  }
-
-  private static float myToFloat(String s, float defaultValue) {
-    try {
-      return Float.parseFloat(s);
-    } catch (NumberFormatException e) {
-      return defaultValue;
-    }
-  }
-
-
-  class Peptide implements Comparable<Peptide> {
-
-    final String modifiedPeptide;
-    final String peptideSequence;
-    final int peptideLength;
-    final float[] modMasses; // The first element is N-term modification
-
-    private String labelFreePeptide = null;
-    private Integer labelType = null;
-    private Integer labelCount = null;
-
-    Peptide(String inputString) {
-      if (!inputString.startsWith("n")) {
-        inputString = "n" + inputString;
-      }
-
-      List<Float> modMassList = new ArrayList<>(inputString.length());
-
-      StringBuilder sb1 = new StringBuilder();
-      StringBuilder sb2 = new StringBuilder();
-      Matcher matcher = aaPattern.matcher(inputString);
-      while (matcher.find()) {
-        char aa = matcher.group(1).charAt(0);
-        if (aa != 'n') {
-          sb2.append(aa);
-        }
-
-        if (matcher.group(2) != null) {
-          float modMass = correctModMass(unimodMassMap.get(matcher.group(3).toLowerCase()), theoModMasses);
-          modMassList.add(modMass);
-          sb1.append(aa).append("[").append(modMass).append("]");
-        } else if (matcher.group(4) != null) {
-          float modMass;
-          if (aa == 'n' || aa == 'c') {
-            modMass = correctModMass(Float.parseFloat(matcher.group(5)), theoModMasses);
-          } else {
-            modMass = correctModMass(Float.parseFloat(matcher.group(5)) - AAMasses[aa - 'A'], theoModMasses);
-          }
-          modMassList.add(modMass);
-          sb1.append(aa).append("[").append(modMass).append("]");
-        } else  {
-          modMassList.add(0f);
-          if (aa != 'n') {
-            sb1.append(aa);
-          }
-        }
-      }
-
-      this.modifiedPeptide = sb1.toString();
-      peptideSequence = sb2.toString();
-      peptideLength = peptideSequence.length();
-      modMasses = Floats.toArray(modMassList);
-    }
-
-    Peptide(String peptideSequence, float[] modMasses) {
-      if (peptideSequence.length() != modMasses.length) {
-        throw new RuntimeException("peptideSequence and modMasses must have the same length");
-      }
-
-      if (!peptideSequence.startsWith("n")) {
-        peptideSequence = "n" + peptideSequence;
-        float[] tt = new float[modMasses.length + 1];
-        System.arraycopy(modMasses, 0, tt, 1, modMasses.length);
-        modMasses = tt;
-      }
-
-      this.peptideSequence = peptideSequence.substring(1);
-      peptideLength = modMasses.length - 1;
-      this.modMasses = modMasses;
-
-      char[] aaArray = peptideSequence.toCharArray();
-      StringBuilder sb = new StringBuilder();
-      for (int i = 0; i < aaArray.length; ++i) {
-        if (Math.abs(modMasses[i]) > threshold) {
-          sb.append(aaArray[i]).append("[").append(modMasses[i]).append("]");
-        } else if (aaArray[i] != 'n') {
-          sb.append(aaArray[i]);
-        }
-      }
-      modifiedPeptide = sb.toString();
-    }
-
-    Peptide getComplementaryPeptide(Map<Character, Float> aaMassMap1, Map<Character, Float> aaMassMap2) {
-      char[] aaArray = ("n" + peptideSequence).toCharArray();
-      float[] modMasses2 = Arrays.copyOf(modMasses, modMasses.length);
-
-      for (int i = 0; i < aaArray.length; i++) {
-        Float mass1 = aaMassMap1.get(aaArray[i]);
-        if (mass1 != null && Math.abs(modMasses[i] - mass1) < threshold) {
-          modMasses2[i] = aaMassMap2.get(aaArray[i]);
-        }
-      }
-
-      return new Peptide("n" + peptideSequence, modMasses2);
-    }
-
-    String getUnimodPeptide(boolean replaceLabeledMods) {
-      StringBuilder sb = new StringBuilder();
-      char[] aaArray = ("n" + peptideSequence).toCharArray();
-      for (int i = 0; i < aaArray.length; ++i) {
-        char aa = aaArray[i];
-        float modMass = modMasses[i];
-        if (i > 0) {
-          sb.append(aa);
-        }
-
-        // Some labels, such as light SILAC, have 0 modification mass.
-        boolean done = false;
-        if (replaceLabeledMods) {
-          Float lightValue = lightAaMassMap != null ? lightAaMassMap.get(aa) : null;
-          Float mediumValue = mediumAaMassMap != null ? mediumAaMassMap.get(aa) : null;
-          Float heavyValue = heavyAaMassMap != null ? heavyAaMassMap.get(aa) : null;
-          if (lightValue != null && Math.abs(modMass - lightValue) < threshold) {
-            sb.append("[").append("label").append("]");
-            done = true;
-          } else if (mediumValue != null && Math.abs(modMass - mediumValue) < threshold) {
-            sb.append("[").append("label_M").append("]");
-            done = true;
-          } else if (heavyValue != null && Math.abs(modMass - heavyValue) < threshold) {
-            sb.append("[").append("label_H").append("]");
-            done = true;
-          }
-        }
-
-        if (Math.abs(modMass) > 0 && !done) {
-          Set<Float> massSet = massSiteUnimodTable.rowKeySet().stream()
-              .filter(mass -> Math.abs(modMass - mass) < threshold)
-              .filter(mass -> massSiteUnimodTable.contains(mass, aa))
-              .collect(Collectors.toSet());
-
-          if (massSet.isEmpty()) {
-            if (i == 0) {
-              sb.append("[").append(modMass).append("]");
-            } else {
-              sb.append("[").append(modMass + AAMasses[aa - 'A']).append("]");
-            }
-          } else {
-            float gap = Float.MAX_VALUE;
-            Float selectedKey = null;
-            for (Float v : massSet) {
-              if (Math.abs(modMass - v) < gap) {
-                gap = Math.abs(modMass - v);
-                selectedKey = v;
-              }
-            }
-            sb.append("(").append("UniMod:").append(massSiteUnimodTable.get(selectedKey, aa)).append(")");
-          }
-        }
-      }
-      return sb.toString();
-    }
-
-    Integer detectLabelTypes() { // 0: no labels or multiple labels, 1: light, 2: medium, 3: heavy
-      if (labelType == null) {
-        int labelFlags = 0;
-        char[] aaArray = ("n" + peptideSequence).toCharArray();
-        for (int i = 0; i < aaArray.length; ++i) {
-          char aa = aaArray[i];
-          Float lightValue = lightAaMassMap != null ? lightAaMassMap.get(aa) : null;
-          Float mediumValue = mediumAaMassMap != null ? mediumAaMassMap.get(aa) : null;
-          Float heavyValue = heavyAaMassMap != null ? heavyAaMassMap.get(aa) : null;
-
-          if (lightValue != null && Math.abs(modMasses[i] - lightValue) < threshold) {
-            labelFlags |= 1;
-          } else if (mediumValue != null && Math.abs(modMasses[i] - mediumValue) < threshold) {
-            labelFlags |= 2;
-          } else if (heavyValue != null && Math.abs(modMasses[i] - heavyValue) < threshold) {
-            labelFlags |= 4;
-          }
-
-          if (labelFlags == 7) { // If all bits are set, no need to continue the loop
-            break;
-          }
-        }
-
-        switch (labelFlags) {
-          case 1:
-            labelType =  1;
-            break;
-          case 2:
-            labelType = 2;
-            break;
-          case 4:
-            labelType = 3;
-            break;
-          default:
-            labelType =  0;
-        }
-      }
-
-      return labelType;
-    }
-
-    int getLabelCount() {
-      if (labelCount == null) {
-        labelCount = 0;
-        char[] aaArray = ("n" + peptideSequence).toCharArray();
-        int labelType = detectLabelTypes();
-        if (labelType == 1) {
-          for (int i = 0; i < modMasses.length; ++i) {
-            Float tt = lightAaMassMap.get(aaArray[i]);
-            if (tt != null && Math.abs(modMasses[i] - tt) < threshold) {
-              ++labelCount;
-            }
-          }
-        } else if (labelType == 2) {
-          for (int i = 0; i < modMasses.length; ++i) {
-            Float tt = mediumAaMassMap.get(aaArray[i]);
-            if (tt != null && Math.abs(modMasses[i] - tt) < threshold) {
-              ++labelCount;
-            }
-          }
-        } else if (labelType == 3) {
-          for (int i = 0; i < modMasses.length; ++i) {
-            Float tt = heavyAaMassMap.get(aaArray[i]);
-            if (tt != null && Math.abs(modMasses[i] - tt) < threshold) {
-              ++labelCount;
-            }
-          }
-        }
-      }
-      return labelCount;
-    }
-
-    String getLabelFreePeptide() {
-      if (labelFreePeptide == null) {
-        int labelType = detectLabelTypes();
-        if (labelType == 1) {
-          labelFreePeptide = stripLabels(lightAaMassMap);
-        } else if (labelType == 2) {
-          labelFreePeptide = stripLabels(mediumAaMassMap);
-        } else if (labelType == 3) {
-          labelFreePeptide = stripLabels(heavyAaMassMap);
-        } else {
-          labelFreePeptide = modifiedPeptide;
-        }
-      }
-      return labelFreePeptide;
-    }
-
-    private String stripLabels(Map<Character, Float> aaMassMap) {
-      char[] aaArray = ("n" + peptideSequence).toCharArray();
-      float[] modMasses2 = Arrays.copyOf(modMasses, modMasses.length);
-
-      for (int i = 0; i < aaArray.length; i++) {
-        Float mass1 = aaMassMap.get(aaArray[i]);
-        if (mass1 != null && Math.abs(modMasses[i] - mass1) < threshold) {
-          modMasses2[i] = 0;
-        }
-      }
-
-      return (new Peptide("n" + peptideSequence, modMasses2)).modifiedPeptide;
-    }
-
-    @Override
-    public int compareTo(Peptide o) {
-      return modifiedPeptide.compareTo(o.modifiedPeptide);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (o instanceof Peptide) {
-        return compareTo((Peptide) o) == 0;
-      } else {
-        return false;
-      }
-    }
-
-    @Override
-    public String toString() {
-      return modifiedPeptide;
-    }
-
-    @Override
-    public int hashCode() {
-      return toString().hashCode();
-    }
   }
 }

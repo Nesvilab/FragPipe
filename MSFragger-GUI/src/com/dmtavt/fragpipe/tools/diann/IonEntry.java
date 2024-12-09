@@ -17,8 +17,9 @@
 
 package com.dmtavt.fragpipe.tools.diann;
 
-import com.dmtavt.fragpipe.tools.diann.PlexDiaHelper.Peptide;
+import java.util.Map;
 import java.util.regex.Pattern;
+import umich.ms.fileio.filetypes.library.Peptide;
 
 class IonEntry {
 
@@ -32,15 +33,15 @@ class IonEntry {
   final float apexRt;
   final float intensity;
 
-  IonEntry(String run, Peptide peptide, byte charge, float apexRt, float intensity) {
+  IonEntry(String run, Peptide peptide, byte charge, float apexRt, float intensity, Map<Character, Float> lightAaMassMap, Map<Character, Float> mediumAaMassMap, Map<Character, Float> heavyAaMassMap) {
     this.run = run;
     this.peptide = peptide;
     this.apexRt = apexRt;
     this.intensity = intensity;
 
     ion = peptide.modifiedPeptide + charge;
-    labelType = peptide.detectLabelTypes();
-    labelFreeIonID = peptide.getLabelFreePeptide() + "@" + peptide.getLabelCount() + "@" + charge;
+    labelType = peptide.detectLabelTypes(lightAaMassMap, mediumAaMassMap, heavyAaMassMap);
+    labelFreeIonID = peptide.getLabelFreePeptide(lightAaMassMap, mediumAaMassMap, heavyAaMassMap) + "@" + peptide.getLabelCount(lightAaMassMap, mediumAaMassMap, heavyAaMassMap) + "@" + charge;
   }
 
   static String getFirstPart(String labelFreeIonID) {

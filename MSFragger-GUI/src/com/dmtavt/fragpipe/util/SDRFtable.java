@@ -17,18 +17,24 @@
 
 package com.dmtavt.fragpipe.util;
 
+import static com.dmtavt.fragpipe.cmd.ToolingUtils.UNIMOD_OBO;
+import static com.dmtavt.fragpipe.cmd.ToolingUtils.getUnimodOboPath;
+
 import com.dmtavt.fragpipe.tools.tmtintegrator.QuantLabel;
-import org.apache.commons.io.FileUtils;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static com.dmtavt.fragpipe.cmd.ToolingUtils.UNIMOD_OBO;
-import static com.dmtavt.fragpipe.cmd.ToolingUtils.getUnimodOboPath;
+import org.apache.commons.io.FileUtils;
+import umich.ms.fileio.filetypes.unimod.UnimodOboReader;
 
 public class SDRFtable {
 

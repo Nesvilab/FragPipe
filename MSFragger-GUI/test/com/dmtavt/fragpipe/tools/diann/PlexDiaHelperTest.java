@@ -18,22 +18,14 @@
 package com.dmtavt.fragpipe.tools.diann;
 
 import static com.dmtavt.fragpipe.tools.diann.PlexDiaHelper.tabPattern;
-import static com.dmtavt.fragpipe.util.Utils.AAMasses;
-import static com.dmtavt.fragpipe.util.Utils.removeClosedModifications;
 import static org.junit.Assert.assertEquals;
 
 import java.io.BufferedReader;
-import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 import org.junit.Test;
@@ -57,7 +49,7 @@ public class PlexDiaHelperTest {
     heavyLabels.put('R', 10.008269f);
 
     PlexDiaHelper plexDiaHelper = new PlexDiaHelper(11, lightLabels, mediumLabels, heavyLabels);
-    plexDiaHelper.generateNewLibrary(libraryPath, generatedLibraryPath, false);
+    plexDiaHelper.generateNewLibrary(libraryPath, generatedLibraryPath, false, false, 1);
 
     Path expectedLibraryPath = Paths.get(Objects.requireNonNull(PlexDiaHelperTest.class.getResource("/library_1_expected_plex.tsv")).toURI());
 
@@ -108,7 +100,7 @@ public class PlexDiaHelperTest {
     heavyLabels.put('C', 624.36722f);
 
     PlexDiaHelper plexDiaHelper = new PlexDiaHelper(11, lightLabels, mediumLabels, heavyLabels);
-    plexDiaHelper.generateNewLibrary(libraryPath, generatedLibraryPath, false);
+    plexDiaHelper.generateNewLibrary(libraryPath, generatedLibraryPath, false, false, 1);
 
     Path expectedLibraryPath = Paths.get(Objects.requireNonNull(PlexDiaHelperTest.class.getResource("/library_2_expected_plex.tsv")).toURI());
 
@@ -163,7 +155,7 @@ public class PlexDiaHelperTest {
     heavyLabels.put('R', 10.008269f);
 
     PlexDiaHelper plexDiaHelper = new PlexDiaHelper(11, lightLabels, mediumLabels, heavyLabels);
-    plexDiaHelper.generateNewLibrary2(libraryPath, generatedLibraryPath, false, false);
+    plexDiaHelper.generateNewLibrary(libraryPath, generatedLibraryPath, false, false, 2);
 
     Path expectedLibraryPath = Paths.get(Objects.requireNonNull(PlexDiaHelperTest.class.getResource("/library_1_expected_light_only.tsv")).toURI());
 
@@ -214,7 +206,7 @@ public class PlexDiaHelperTest {
     heavyLabels.put('C', 624.36722f);
 
     PlexDiaHelper plexDiaHelper = new PlexDiaHelper(11, lightLabels, mediumLabels, heavyLabels);
-    plexDiaHelper.generateNewLibrary2(libraryPath, generatedLibraryPath, false, false);
+    plexDiaHelper.generateNewLibrary(libraryPath, generatedLibraryPath, false, false, 2);
 
     Path expectedLibraryPath = Paths.get(Objects.requireNonNull(PlexDiaHelperTest.class.getResource("/library_2_expected_light_only.tsv")).toURI());
 
@@ -269,7 +261,7 @@ public class PlexDiaHelperTest {
     heavyLabels.put('R', 10.008269f);
 
     PlexDiaHelper plexDiaHelper = new PlexDiaHelper(11, lightLabels, mediumLabels, heavyLabels);
-    plexDiaHelper.generateNewLibrary2(libraryPath, generatedLibraryPath, true, false);
+    plexDiaHelper.generateNewLibrary(libraryPath, generatedLibraryPath, true, false, 2);
 
     Path expectedLibraryPath = Paths.get(Objects.requireNonNull(PlexDiaHelperTest.class.getResource("/library_1_expected_light_only_2.tsv")).toURI());
 
@@ -320,7 +312,7 @@ public class PlexDiaHelperTest {
     heavyLabels.put('C', 624.36722f);
 
     PlexDiaHelper plexDiaHelper = new PlexDiaHelper(11, lightLabels, mediumLabels, heavyLabels);
-    plexDiaHelper.generateNewLibrary2(libraryPath, generatedLibraryPath, true, false);
+    plexDiaHelper.generateNewLibrary(libraryPath, generatedLibraryPath, true, false, 2);
 
     Path expectedLibraryPath = Paths.get(Objects.requireNonNull(PlexDiaHelperTest.class.getResource("/library_2_expected_light_only_2.tsv")).toURI());
 
@@ -375,7 +367,7 @@ public class PlexDiaHelperTest {
     heavyLabels.put('R', 10.008269f);
 
     PlexDiaHelper plexDiaHelper = new PlexDiaHelper(11, lightLabels, mediumLabels, heavyLabels);
-    plexDiaHelper.generateNewLibrary2(libraryPath, generatedLibraryPath, true, false);
+    plexDiaHelper.generateNewLibrary(libraryPath, generatedLibraryPath, true, false, 2);
 
     Path expectedLibraryPath = Paths.get(Objects.requireNonNull(PlexDiaHelperTest.class.getResource("/library_3_expected_light_only_2.tsv")).toURI());
 
@@ -410,82 +402,6 @@ public class PlexDiaHelperTest {
           assertEquals(expected[j], generated[j]);
         }
       }
-    }
-  }
-
-  private PlexDiaHelper prepareForReflection() throws Exception {
-    Path libraryPath = Paths.get(Objects.requireNonNull(PlexDiaHelperTest.class.getResource("/library_1.tsv")).toURI());
-    if (!Files.exists(libraryPath) || !Files.isRegularFile(libraryPath) || !Files.isReadable(libraryPath)) {
-      throw new IllegalStateException("Test library file not found: " + libraryPath);
-    }
-
-    Map<Character, Float> lightLabels = new HashMap<>();
-    Map<Character, Float> mediumLabels = new HashMap<>();
-    Map<Character, Float> heavyLabels = new HashMap<>();
-
-    lightLabels.put('K', 0f);
-    mediumLabels.put('K', 4.025107f);
-    heavyLabels.put('K', 8.014199f);
-
-    return new PlexDiaHelper(11, lightLabels, mediumLabels, heavyLabels);
-  }
-
-  @Test
-  public void testCollectAllMods() throws Exception {
-    PlexDiaHelper plexDiaHelper = prepareForReflection();
-
-    Set<String> modifiedPeptides = new HashSet<>(Arrays.asList(
-        "DLEEDHAC(UniMod:4)IPIK(UniMod:259)K(UniMod:259)",
-        "nDLC(UniMod:4)IPIK[120.0023]K",
-        "(UniMod:1)DLEEDHAC(UniMod:4)IPKK(UniMod:259)",
-        "n[20.093]DLDHAC(UniMod:4)IIK[140.3424]"
-    ));
-
-    Set<Float> expectedModMasses = new HashSet<>(Arrays.asList(
-        8.014199f,
-        57.021464f,
-        20.093f,
-        42.010565f,
-        120.0023f - AAMasses['K' - 'A'],
-        140.3424f - AAMasses['K' - 'A']
-    ));
-
-    Method collectAllModsMethod = PlexDiaHelper.class.getDeclaredMethod("collectAllMods", Set.class);
-    collectAllModsMethod.setAccessible(true);
-    @SuppressWarnings("unchecked") Set<Float> actualModMasses = (Set<Float>) collectAllModsMethod.invoke(plexDiaHelper, modifiedPeptides);
-
-    assertEquals(expectedModMasses, actualModMasses);
-  }
-
-  @Test
-  public void testCorrectModifiedPeptide() throws Exception {
-    PlexDiaHelper plexDiaHelper = prepareForReflection();
-
-    String[] modifiedPeptides = new String[]{
-        "nDLEEDHAC(UniMod:4)IPIK(UniMod:259)K(UniMod:259)",
-        "DLC(UniMod:4)IPIK[120.0023]K",
-        "n(UniMod:1)DLEEDHAC(UniMod:4)IPKK(UniMod:259)",
-        "[20.093]DLDHAC(UniMod:4)IIK[140.3424]"
-    };
-
-    String[] expectedModifiedPeptides = new String[]{
-        "nDLEEDHAC[57.021465]IPIK[8.014199]K[8.014199]",
-        "nDLC[57.021465]IPIK[-8.092659]K",
-        "n[42.010567]DLEEDHAC[57.021465]IPKK[8.014199]",
-        "n[20.093]DLDHAC[57.021465]IIK[12.247452]"
-    };
-
-    Method collectAllModsMethod = PlexDiaHelper.class.getDeclaredMethod("collectAllMods", Set.class);
-    collectAllModsMethod.setAccessible(true);
-    @SuppressWarnings("unchecked") Set<Float> modMasses = (Set<Float>) collectAllModsMethod.invoke(plexDiaHelper, new HashSet<>(Arrays.asList(modifiedPeptides)));
-    plexDiaHelper.theoModMasses = removeClosedModifications(modMasses);
-
-    Method correctModifiedPeptideMethod = PlexDiaHelper.class.getDeclaredMethod("correctModifiedPeptide", String.class);
-    correctModifiedPeptideMethod.setAccessible(true);
-
-    for (int i = 0; i < modifiedPeptides.length; ++i) {
-      String correctedPeptide = (String) correctModifiedPeptideMethod.invoke(plexDiaHelper, modifiedPeptides[i]);
-      assertEquals(expectedModifiedPeptides[i], correctedPeptide);
     }
   }
 }
