@@ -117,15 +117,15 @@ where 'run_name_1.mzML', 'run_name_2.mzML', 'run_name_5.mzML', and 'run_name_6.m
 #### Affinity-purification data
 When analyzing AP-MS and related data (e.g. BioID) for compatibility with the Resource for Evaluation of Protein Interaction Networks ([REPRINT](https://reprint-apms.org/)), 'Experiment' names should be written as follows:
 
-Negative controls: Put `Control` (or `CONTROL`) in the Experiment column, and label each biological replicate with a different replicate number.
+Negative controls: Put `CONTROL` in the Experiment column, and label each biological replicate with a different replicate number.
 
 Bait IPs: Use `[GENE]_[condition]` format to describe the experiments, where `[GENE]` is the official gene symbol of the bait protein, e.g. `HDAC5`. If there are multiple conditions for the same bait protein (e.g. mutant and wt), add can add 'condition', e.g. `HDAC5_mut`.
 
 | Path            | Experiment | Bioreplicate |
 |-----------------|------------|--------------|
-| run_name_1.mzML | Control    | 1            |
-| run_name_2.mzML | Control    | 2            |
-| run_name_3.mzML | Control    | 3            |
+| run_name_1.mzML | CONTROL    | 1            |
+| run_name_2.mzML | CONTROL    | 2            |
+| run_name_3.mzML | CONTROL    | 3            |
 | run_name_4.mzML | HDAC5      | 1            |
 | run_name_5.mzML | HDAC5      | 2            |
 | run_name_6.mzML | HDAC5      | 3            |
@@ -133,7 +133,7 @@ Bait IPs: Use `[GENE]_[condition]` format to describe the experiments, where `[G
 | run_name_8.mzML | HDAC5_mut  | 2            |
 | run_name_9.mzML | HDAC5_mut  | 3            |
 
-**Note:** All negative controls should be labeled the same, as `Control`, even if you have negative controls generated under different conditions or in different cell lines.  
+**Note:** All negative controls should be labeled the same, as `CONTROL`, even if you have negative controls generated under different conditions or in different cell lines.  
 
 
 #### TMT/iTRAQ data
