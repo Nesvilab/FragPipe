@@ -80,6 +80,9 @@ public class MSBoosterPanel extends JPanelBase {
     modelMap.put("Prosit 2019 iRT", "Prosit_2019_irt");
     modelMap.put("Prosit 2020 iRT TMT", "Prosit_2020_irt_TMT");
     modelMap.put("MS2PIP 2021 HCD", "ms2pip_2021_hcd");
+    modelMap.put("MS2PIP timsTOF 2024", "ms2pip_timsTOF_2024");
+    modelMap.put("MS2PIP TTOF 5600", "ms2pip_ttof_5600");
+    modelMap.put("MS2PIP Immuno HCD", "ms2pip_immuno_hcd");
     modelMap.put("AlphaPept MS2 Generic", "AlphaPept_ms2_generic");
     modelMap.put("Prosit 2019 Intensity", "Prosit_2019_intensity");
     modelMap.put("Prosit 2023 Intensity timsTOF", "Prosit_2023_intensity_timsTOF");
@@ -152,6 +155,9 @@ public class MSBoosterPanel extends JPanelBase {
     uiComboSpectraModel = createUiCombo(new String[]{
         "DIA-NN",
         "MS2PIP 2021 HCD",
+        "MS2PIP timsTOF 2024",
+        "MS2PIP TTOF 5600",
+        "MS2PIP Immuno HCD",
         "AlphaPept MS2 Generic",
         "Prosit 2019 Intensity",
         "Prosit 2023 Intensity timsTOF",
@@ -256,6 +262,9 @@ public class MSBoosterPanel extends JPanelBase {
     List<Model> models = List.of(
         new Model("DIA-NN", true),
         new Model("MS2PIP 2021 HCD", true),
+        new Model("MS2PIP timsTOF 2024", true),
+        new Model("MS2PIP TTOF 5600", true),
+        new Model("MS2PIP Immuno HCD", true),
         new Model("AlphaPept MS2 Generic", true),
         new Model("Prosit 2019 Intensity", true),
         new Model("Prosit 2023 Intensity timsTOF", true),
