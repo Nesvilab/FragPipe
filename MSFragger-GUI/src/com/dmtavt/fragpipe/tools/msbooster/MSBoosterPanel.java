@@ -25,6 +25,8 @@ import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.api.ModelsTable;
 import com.dmtavt.fragpipe.api.ModelsTableModel;
 import com.github.chhh.utils.SwingUtils;
+import com.github.chhh.utils.swing.FileChooserUtils;
+import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
 import com.github.chhh.utils.swing.FormEntry;
 import com.github.chhh.utils.swing.JPanelBase;
 import com.github.chhh.utils.swing.MigUtils;
@@ -34,15 +36,20 @@ import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.renderers.TableCellDoubleRenderer;
 import java.awt.Component;
 import java.awt.ItemSelectable;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
+import javax.swing.JButton;
 import javax.swing.JEditorPane;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import net.miginfocom.layout.CC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +63,7 @@ public class MSBoosterPanel extends JPanelBase {
   private JPanel pTop;
   private JPanel pContent;
   private JPanel pp;
+  private JPanel pp2;
   private static final MigUtils mu = MigUtils.get();
   private UiCheck checkRun;
   private UiCheck uiCheckPredictRt;
@@ -68,6 +76,7 @@ public class MSBoosterPanel extends JPanelBase {
   private UiCombo uiComboSpectraModel;
   private UiCombo uiComboImModel;
   private UiText uiTextKoinaUrl;
+  private UiText uiTextLibrary;
   private JEditorPane uiLabelKoinaUrl;
   private ModelsTable tableRtModels;
   private ModelsTable tableSpectraModels;
@@ -134,11 +143,29 @@ public class MSBoosterPanel extends JPanelBase {
     uiTextKoinaUrl = new UiText("", "put your Koina server URL");
     uiTextKoinaUrl.setColumns(20);
     FormEntry feKoinaUrl = mu.feb("koina-url", uiTextKoinaUrl)
-        .label("Koina server URL: ")
+        .label("Koina server URL (optional): ")
         .tooltip("Fill in your Koina server URL if you want to use the models in Koina.\nThe public one is https://koina.wilhelmlab.org:443/v2/models/")
         .create();
 
     uiLabelKoinaUrl = createClickableHtml("Fill in your Koina server URL if you want to use the models in <a href=\"https://koina.wilhelmlab.org/\">Koina</a>. The public one is https://koina.wilhelmlab.org:443/v2/models/");
+
+    uiTextLibrary = new UiText("", "put your library path (optional, experimental)");
+    uiTextLibrary.setColumns(20);
+    FormEntry feLibrary = mu.feb("spectral-library-path", uiTextLibrary)
+        .label("Spectral library (optional, experimental): ")
+        .tooltip("Fill in the path to the spectral library if you want to use the library during the rescoring.")
+        .create();
+
+    JButton jButtonLibrary = feLibrary.browseButton("Browse", "Select library file", () -> {
+      final FileNameExtensionFilter fileNameExtensionFilter = new FileNameExtensionFilter("Library files", "tsv", "mgf");
+      JFileChooser fc = FileChooserUtils.create("Library file", "Select", false, FcMode.FILES_ONLY, true, fileNameExtensionFilter);
+      fc.setFileFilter(fileNameExtensionFilter);
+      FileChooserUtils.setPath(fc, Stream.of(uiTextLibrary.getNonGhostText()));
+      return fc;
+    }, paths -> {
+      Path path = paths.get(0); // we only allowed selection of a single file in the file chooser
+      uiTextLibrary.setText(path.toString());
+    });
 
     uiComboRtModel = createUiCombo(new String[]{
         "DIA-NN",
@@ -204,7 +231,13 @@ public class MSBoosterPanel extends JPanelBase {
     mu.add(pp, feKoinaUrl.comp).growX().wrap();
     mu.add(pp, uiLabelKoinaUrl).wrap();
 
+    pp2 = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
+    mu.add(pp2, feLibrary.label()).split(2);
+    mu.add(pp2, feLibrary.comp).growX();
+    mu.add(pp2, jButtonLibrary).wrap();
+
     mu.add(pContent, pp).split().growX().spanX().wrap();
+    mu.add(pContent, pp2).split().growX().spanX().wrap();
     mu.add(pTop, pContent).growX().wrap();
     mu.add(this, pTop).growX().wrap();
   }
@@ -337,6 +370,10 @@ public class MSBoosterPanel extends JPanelBase {
 
   public String koinaUrl() {
     return uiTextKoinaUrl.getNonGhostText().trim();
+  }
+
+  public String libraryPath() {
+    return uiTextLibrary.getNonGhostText().trim();
   }
 
   public String rtModel() {

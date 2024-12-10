@@ -94,6 +94,7 @@ public class CmdMSBooster extends CmdBase {
                            boolean findBestSpectraModel,
                            boolean findBestImModel,
                            String koinaURL,
+                           String libraryPath,
                            String testRtModels,
                            String testSpectraModels,
                            String testImModels) {
@@ -173,6 +174,10 @@ public class CmdMSBooster extends CmdBase {
         bufferedWriter.write("findBestSpectraModel = " + (findBestSpectraModel ? "true" : "false") + "\n");
         bufferedWriter.write("findBestImModel = " + ((hasTimsTof && findBestImModel) ? "true" : "false") + "\n");
         bufferedWriter.write("KoinaURL = " + koinaURL + "\n");
+        if (!libraryPath.isEmpty()) {
+          bufferedWriter.write("spectraPredFile = " + libraryPath + "\n");
+          bufferedWriter.write("RTPredFile = " + libraryPath + "\n");
+        }
         bufferedWriter.write("rtSearchModelsString = " + testRtModels + "\n");
         bufferedWriter.write("ms2SearchModelsString = " + testSpectraModels + "\n");
         bufferedWriter.write("imSearchModelsString = " + testImModels + "\n");

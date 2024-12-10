@@ -1511,6 +1511,7 @@ public class FragpipeRun {
             msBoosterPanel.findBestSpectraModel(),
             msBoosterPanel.findBestImModel(),
             msBoosterPanel.koinaUrl(),
+            msBoosterPanel.libraryPath(),
             msBoosterPanel.rtTestModels(),
             msBoosterPanel.spectraTestModels(),
             msBoosterPanel.imTestModels());
