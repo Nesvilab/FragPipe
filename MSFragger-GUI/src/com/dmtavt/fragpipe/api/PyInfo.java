@@ -279,7 +279,7 @@ public class PyInfo {
   }
 
   public String validateCalFile(final Path path) {
-    ProcessBuilder pb = new ProcessBuilder(command, "-c", "import pandas as pd; import sys\n" +
+    ProcessBuilder pb = new ProcessBuilder(command, "-Ic", "import pandas as pd; import sys\n" +
         "rt_referencefile = sys.argv[1]\n" +
         "rt_reference_run = pd.read_csv(rt_referencefile, index_col=False, sep='\\t')\n" +
         "if not {'modified_peptide', 'precursor_charge', 'irt'}.issubset(rt_reference_run.columns):\n" +
@@ -303,7 +303,7 @@ public class PyInfo {
   }
 
   public String validateIMCalFile(final Path path) {
-    ProcessBuilder pb = new ProcessBuilder(command, "-c", "import pandas as pd; import sys\n" +
+    ProcessBuilder pb = new ProcessBuilder(command, "-Ic", "import pandas as pd; import sys\n" +
         "rt_referencefile = sys.argv[1]\n" +
         "rt_reference_run = pd.read_csv(rt_referencefile, index_col=False, sep='\\t')\n" +
         "if not {'modified_peptide', 'precursor_charge', 'im'}.issubset(rt_reference_run.columns):\n" +
@@ -343,7 +343,7 @@ public class PyInfo {
 
     Installed installed = Installed.UNKNOWN;
     ProcessBuilder pb = new ProcessBuilder(command,
-        "-c", String.format(
+        "-Ic", String.format(
         "try:\n" +
             "    import %s\n" +
             "except ModuleNotFoundError:\n" +

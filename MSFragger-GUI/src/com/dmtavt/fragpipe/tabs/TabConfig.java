@@ -966,7 +966,7 @@ public class TabConfig extends JPanelWithEnablement {
 
     try {
       if (m.instance.isEasypqpOk()) {
-        final ProcessBuilder pb = new ProcessBuilder(m.instance.getPython().getCommand(), "-c",
+        final ProcessBuilder pb = new ProcessBuilder(m.instance.getPython().getCommand(), "-Ic",
                 "import importlib.metadata\n" +
                         "try:\n" +
                         "    print(importlib.metadata.version('easypqp'))\n" +
@@ -981,7 +981,7 @@ public class TabConfig extends JPanelWithEnablement {
 
     try {
       if (m.instance.isEasypqpOk()) {
-        final ProcessBuilder pb = new ProcessBuilder(m.instance.getPython().getCommand(), "-c",
+        final ProcessBuilder pb = new ProcessBuilder(m.instance.getPython().getCommand(), "-Ic",
             "import importlib.metadata\n" +
                 "try:\n" +
                 "    print(importlib.metadata.version('pandas'))\n" +
@@ -996,7 +996,7 @@ public class TabConfig extends JPanelWithEnablement {
 
     try {
       if (m.instance.isEasypqpOk()) {
-        final ProcessBuilder pb = new ProcessBuilder(m.instance.getPython().getCommand(), "-c",
+        final ProcessBuilder pb = new ProcessBuilder(m.instance.getPython().getCommand(), "-Ic",
             "import importlib.metadata\n" +
                 "try:\n" +
                 "    print(importlib.metadata.version('numpy'))\n" +
@@ -1165,18 +1165,18 @@ public class TabConfig extends JPanelWithEnablement {
 
     if (StringUtils.isNotBlank(binPython)) {
       try {
-        pythonPipOutputNew += ProcessUtils.captureOutput(new ProcessBuilder(binPython, "-m", "pip", "uninstall", "--yes", "easypqp"));
+        pythonPipOutputNew += ProcessUtils.captureOutput(new ProcessBuilder(binPython, "-Im", "pip", "uninstall", "--yes", "easypqp"));
       } catch (Exception ex) {
         pythonPipOutputNew += ex.toString();
         ok = false;
       }
       try {
-        pythonPipOutputNew += ProcessUtils.captureOutput(new ProcessBuilder(binPython, "-m", "pip", "uninstall", "--yes", "pyopenms"));
+        pythonPipOutputNew += ProcessUtils.captureOutput(new ProcessBuilder(binPython, "-Im", "pip", "uninstall", "--yes", "pyopenms"));
       } catch (Exception ex) {
         pythonPipOutputNew += ex.toString();
         ok = false;
       }
-      final ProcessBuilder pb2 = new ProcessBuilder(binPython, "-m", "pip", "install", "easypqp", "lxml");
+      final ProcessBuilder pb2 = new ProcessBuilder(binPython, "-Im", "pip", "install", "easypqp", "lxml");
       PyInfo.modifyEnvironmentVariablesForPythonSubprocesses(pb2); // without this, on Windows, will fail with an error related to TLS/SSL
       try {
         pythonPipOutputNew += ProcessUtils.captureOutput(pb2);
