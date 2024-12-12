@@ -18,6 +18,8 @@
 package com.dmtavt.fragpipe.cmd;
 
 import static com.dmtavt.fragpipe.cmd.ToolingUtils.BATMASS_IO_JAR;
+import static com.dmtavt.fragpipe.cmd.ToolingUtils.UNIMOD_OBO;
+import static com.dmtavt.fragpipe.cmd.ToolingUtils.getUnimodOboPath;
 
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
@@ -28,7 +30,6 @@ import com.dmtavt.fragpipe.tools.diann.Diann;
 import com.github.chhh.utils.SwingUtils;
 import java.awt.Component;
 import java.io.BufferedWriter;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -47,7 +48,7 @@ public class CmdMSBooster extends CmdBase {
 
   private static final Logger log = LoggerFactory.getLogger(CmdMSBooster.class);
   public static String NAME = "MSBooster";
-  public static final String JAR_MSBOOSTER_NAME = "MSBooster-1.2.58.jar";
+  public static final String JAR_MSBOOSTER_NAME = "MSBooster-1.2.62.jar";
   public static final String JAR_MSBOOSTER_MAIN_CLASS = "mainsteps.MainClass";
   private static final String[] JAR_DEPS = {BATMASS_IO_JAR};
   private static final Pattern pattern1 = Pattern.compile("\\.pepXML$");
@@ -181,6 +182,7 @@ public class CmdMSBooster extends CmdBase {
         bufferedWriter.write("rtSearchModelsString = " + testRtModels + "\n");
         bufferedWriter.write("ms2SearchModelsString = " + testSpectraModels + "\n");
         bufferedWriter.write("imSearchModelsString = " + testImModels + "\n");
+        bufferedWriter.write("unimodObo = " + getUnimodOboPath(UNIMOD_OBO).toAbsolutePath() + "\n");
 
         // compute unique lcms file directories
         bufferedWriter.write("mzmlDirectory = ");
@@ -206,7 +208,7 @@ public class CmdMSBooster extends CmdBase {
         bufferedWriter.write(String.join(" ", pinFiles) + "\n");
         bufferedWriter.write("useMultipleCorrelatedFeatures = false");
         bufferedWriter.close();
-      } catch (IOException ex) {
+      } catch (Exception ex) {
         ex.printStackTrace();
         return false;
       }
