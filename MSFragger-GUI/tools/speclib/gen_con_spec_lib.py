@@ -18,6 +18,9 @@ import numpy as np
 import pandas as pd
 import scipy.interpolate
 
+# Add the current directory to sys.path, needed for isolated mode
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 from common_funcs import (str_to_path, name_no_ext, os_fspath)
 
 lg = logging.getLogger(__name__)
