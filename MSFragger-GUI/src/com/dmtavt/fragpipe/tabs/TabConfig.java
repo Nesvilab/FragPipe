@@ -1185,7 +1185,7 @@ public class TabConfig extends JPanelWithEnablement {
         throw new RuntimeException("FragPipe only works in Windows and Linux. FragPipe not supported in this OS");
       }
       final Path pythonPackagesPath = FragpipeLocations.checkToolsMissing(Seq.of(pythonPackagesPath0.toString())).get(0);
-      final ProcessBuilder pb2 = new ProcessBuilder(binPython, "-Im", "pip", "install", "--no-cache-dir", "-r", pythonPackagesPath.resolve("requirements.txt").toString(),
+      final ProcessBuilder pb2 = new ProcessBuilder(binPython, "-Im", "pip", "install", "-r", pythonPackagesPath.resolve("requirements.txt").toString(),
               "--no-index", "--find-links", pythonPackagesPath.toString());
 //      final ProcessBuilder pb2 = new ProcessBuilder(binPython, "-Im", "pip", "install", "easypqp", "lxml");
       PyInfo.modifyEnvironmentVariablesForPythonSubprocesses(pb2); // without this, on Windows, will fail with an error related to TLS/SSL
