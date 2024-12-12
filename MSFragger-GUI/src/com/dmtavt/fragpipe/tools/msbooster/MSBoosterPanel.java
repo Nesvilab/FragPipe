@@ -90,7 +90,7 @@ public class MSBoosterPanel extends JPanelBase {
     modelMap.put("Prosit 2020 iRT TMT", "Prosit_2020_irt_TMT");
     modelMap.put("MS2PIP 2021 HCD", "ms2pip_2021_hcd");
     modelMap.put("MS2PIP timsTOF 2024", "ms2pip_timsTOF2024");
-    modelMap.put("MS2PIP TTOF 5600", "ms2pip_ttof_5600");
+    modelMap.put("MS2PIP TTOF 5600", "ms2pip_ttof5600");
     modelMap.put("MS2PIP Immuno HCD", "ms2pip_immuno_hcd");
     modelMap.put("AlphaPept MS2 Generic", "AlphaPept_ms2_generic");
     modelMap.put("Prosit 2019 Intensity", "Prosit_2019_intensity");
