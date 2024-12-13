@@ -1164,18 +1164,6 @@ public class TabConfig extends JPanelWithEnablement {
     }
 
     if (StringUtils.isNotBlank(binPython)) {
-//      try {
-//        pythonPipOutputNew += ProcessUtils.captureOutput(new ProcessBuilder(binPython, "-Im", "pip", "uninstall", "--yes", "easypqp"));
-//      } catch (Exception ex) {
-//        pythonPipOutputNew += ex.toString();
-//        ok = false;
-//      }
-//      try {
-//        pythonPipOutputNew += ProcessUtils.captureOutput(new ProcessBuilder(binPython, "-Im", "pip", "uninstall", "--yes", "pyopenms"));
-//      } catch (Exception ex) {
-//        pythonPipOutputNew += ex.toString();
-//        ok = false;
-//      }
       final Path pythonPackagesPath0;
       if (OsUtils.isWindows()) {
         pythonPackagesPath0 = Path.of(PyInfo.pythonWinPath).subpath(0, 1).resolve("python_packages");
@@ -1187,7 +1175,6 @@ public class TabConfig extends JPanelWithEnablement {
       final Path pythonPackagesPath = FragpipeLocations.checkToolsMissing(Seq.of(pythonPackagesPath0.toString())).get(0);
       final ProcessBuilder pb2 = new ProcessBuilder(binPython, "-Im", "pip", "install", "-r", pythonPackagesPath.resolve("requirements.txt").toString(),
               "--no-index", "--find-links", pythonPackagesPath.toString());
-//      final ProcessBuilder pb2 = new ProcessBuilder(binPython, "-Im", "pip", "install", "easypqp", "lxml");
       PyInfo.modifyEnvironmentVariablesForPythonSubprocesses(pb2); // without this, on Windows, will fail with an error related to TLS/SSL
       try {
         pythonPipOutputNew += ProcessUtils.captureOutput(pb2);
