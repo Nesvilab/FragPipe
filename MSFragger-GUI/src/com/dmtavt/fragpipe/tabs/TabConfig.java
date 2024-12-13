@@ -1229,7 +1229,7 @@ public class TabConfig extends JPanelWithEnablement {
     epEasyPQPText.setToolTipText(SwingUtils.makeHtml("EasyPQP: Requires <b>Python " + pythonMinVersion + "+</b> with package <b>EasyPQP</b> and <b>lxml</b>"));
     epEasyPQPText.setPreferredSize(dim);
 
-    final JButton btnInstallEasyPQP = UiUtils.createButton("Install/Upgrade EasyPQP", e -> Bus.post(new MessageInstallEasyPQP(console)));
+    final JButton btnInstallEasyPQP = UiUtils.createButton("Finish Python Install", e -> Bus.post(new MessageInstallEasyPQP(console)));
 
     mu.add(p, epEasyPQPText).growX().wrap();
     mu.add(p, btnInstallEasyPQP).split().wrap();
