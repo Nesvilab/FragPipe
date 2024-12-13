@@ -136,6 +136,7 @@ public class CmdSpecLibGen extends CmdBase {
       List<String> cmd = new ArrayList<>();
       cmd.add(slg.getPython().getCommand());
       cmd.add("-u"); // PYTHONUNBUFFERED: when mixing subprocess output with Python output, use this to keep the outputs in order
+      cmd.add("-I"); // isolated mode
       cmd.add(slg.getScriptSpecLibGenPath().toString());
 
       /**

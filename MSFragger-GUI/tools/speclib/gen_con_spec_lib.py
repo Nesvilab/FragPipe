@@ -18,6 +18,9 @@ import numpy as np
 import pandas as pd
 import scipy.interpolate
 
+# Add the current directory to sys.path, needed for isolated mode
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 from common_funcs import (str_to_path, name_no_ext, os_fspath)
 
 lg = logging.getLogger(__name__)
@@ -187,7 +190,7 @@ def get_bin_path_pip_CLI(dist: str, bin_stem: str) -> pathlib.Path:
 	:return: None if not found, binary path if found.
 	'''
 	import subprocess, sys, re, pathlib, io
-	stdout = subprocess.run([sys.executable, '-m', 'pip', 'show', '--files', dist], capture_output=True,
+	stdout = subprocess.run([sys.executable, '-Im', 'pip', 'show', '--files', dist], capture_output=True,
 							check=True).stdout
 	stdout = io.TextIOWrapper(io.BytesIO(stdout), newline=None).read()
 	location = pathlib.Path(re.compile('^Location: (.+)$', re.MULTILINE).search(stdout).group(1))

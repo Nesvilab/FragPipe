@@ -63,8 +63,10 @@ public class PyInfo {
         .toString();
   }
 
-  private PyInfo() {
+  public static final String pythonWinPath = "python_Windows/python/python.exe";
+  public static final String pythonLinuxPath = "python_Linux/python/bin/python";
 
+  private PyInfo() {
   }
 
   public static PyInfo fromCommand(String command) throws ValidationException, UnexpectedException {
@@ -76,7 +78,7 @@ public class PyInfo {
   /** @param command The command to start python interpreter. */
   private void trySetPythonCommand(String command) throws ValidationException, UnexpectedException {
     this.command = command;
-    this.version = tryGetVersion(command);
+    this.version = tryGetVersion(this.command);
 
     Matcher m = Pattern.compile("python\\s+([0-9.]+)", Pattern.CASE_INSENSITIVE).matcher(this.version);
     if (m.find()) {
@@ -277,7 +279,7 @@ public class PyInfo {
   }
 
   public String validateCalFile(final Path path) {
-    ProcessBuilder pb = new ProcessBuilder(command, "-c", "import pandas as pd; import sys\n" +
+    ProcessBuilder pb = new ProcessBuilder(command, "-Ic", "import pandas as pd; import sys\n" +
         "rt_referencefile = sys.argv[1]\n" +
         "rt_reference_run = pd.read_csv(rt_referencefile, index_col=False, sep='\\t')\n" +
         "if not {'modified_peptide', 'precursor_charge', 'irt'}.issubset(rt_reference_run.columns):\n" +
@@ -301,7 +303,7 @@ public class PyInfo {
   }
 
   public String validateIMCalFile(final Path path) {
-    ProcessBuilder pb = new ProcessBuilder(command, "-c", "import pandas as pd; import sys\n" +
+    ProcessBuilder pb = new ProcessBuilder(command, "-Ic", "import pandas as pd; import sys\n" +
         "rt_referencefile = sys.argv[1]\n" +
         "rt_reference_run = pd.read_csv(rt_referencefile, index_col=False, sep='\\t')\n" +
         "if not {'modified_peptide', 'precursor_charge', 'im'}.issubset(rt_reference_run.columns):\n" +
@@ -341,7 +343,7 @@ public class PyInfo {
 
     Installed installed = Installed.UNKNOWN;
     ProcessBuilder pb = new ProcessBuilder(command,
-        "-c", String.format(
+        "-Ic", String.format(
         "try:\n" +
             "    import %s\n" +
             "except ModuleNotFoundError:\n" +
