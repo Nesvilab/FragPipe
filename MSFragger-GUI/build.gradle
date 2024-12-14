@@ -82,9 +82,6 @@ distributions {
         distributionBaseName = "${project.name}-${project.version}"
         contents {
             from('/') {
-                include 'tools/**'
-            }
-            from('/') {
                 include 'workflows/**'
             }
         }
