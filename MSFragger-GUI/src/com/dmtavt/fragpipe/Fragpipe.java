@@ -19,7 +19,6 @@ package com.dmtavt.fragpipe;
 
 import static com.dmtavt.fragpipe.Version.PROP_LAST_RELEASE_VER;
 import static com.dmtavt.fragpipe.Version.version;
-import static com.dmtavt.fragpipe.tabs.TabWorkflow.TAB_PREFIX;
 import static com.dmtavt.fragpipe.tabs.TabWorkflow.maxProcessors;
 
 import com.dmtavt.fragpipe.api.Bus;
@@ -51,6 +50,7 @@ import com.dmtavt.fragpipe.params.ThisAppProps;
 import com.dmtavt.fragpipe.process.ProcessManager;
 import com.dmtavt.fragpipe.tabs.TabConfig;
 import com.dmtavt.fragpipe.tabs.TabDatabase;
+import com.dmtavt.fragpipe.tabs.TabDiaPseudoMs2;
 import com.dmtavt.fragpipe.tabs.TabDiann;
 import com.dmtavt.fragpipe.tabs.TabDownstream;
 import com.dmtavt.fragpipe.tabs.TabGlyco;
@@ -61,7 +61,6 @@ import com.dmtavt.fragpipe.tabs.TabQuantificationLfq;
 import com.dmtavt.fragpipe.tabs.TabRun;
 import com.dmtavt.fragpipe.tabs.TabSkyline;
 import com.dmtavt.fragpipe.tabs.TabSpecLib;
-import com.dmtavt.fragpipe.tabs.TabDiaPseudoMs2;
 import com.dmtavt.fragpipe.tabs.TabValidation;
 import com.dmtavt.fragpipe.tabs.TabWorkflow;
 import com.dmtavt.fragpipe.tools.dbsplit.DbSplit2;
@@ -861,7 +860,7 @@ public class Fragpipe extends JFrameHeadless {
     final Properties p = ThisAppProps.getRemotePropertiesWithLocalDefaults();
     String linkSite = p.getProperty(ThisAppProps.PROP_LAB_SITE_URL, "https://www.nesvilab.org/");
 
-    return "FragPipe (v" + Version.version() + ")<br>"
+    return "FragPipe GUI (v" + Version.version() + ")<br>"
         + "Fengchao Yu<br>"
         + "Dmitry Avtonomov<br>"
         + "Guo-Ci Teo<br>"
@@ -881,15 +880,15 @@ public class Fragpipe extends JFrameHeadless {
         + "<a href='https://ptmshepherd.nesvilab.org/'>PTM-Shepherd</a>: Daniel Geiszler, Daniel Polasky, Andy Kong<br>"
         + "<a href='https://github.com/lonelu/PTMLocalization'>O-Pair</a>: Lei Lu, Michael Shortreed, Daniel Polasky<br>"
         + "<a href='https://ionquant.nesvilab.org/'>IonQuant</a>: Fengchao Yu<br>"
-        + "<a href='https://tmt-integrator.nesvilab.org/'>TMT-Integrator</a>: Hui-Yin Chang<br>"
+        + "<a href='https://tmt-integrator.nesvilab.org/'>TMT-Integrator</a>: Hui-Yin Chang, Ruohong Li<br>"
         + "Spectral library generation: Guo-Ci Teo<br>"
         + "<a href='https://github.com/grosenberger/easypqp'>EasyPQP</a>: George Rosenberger, Guo-Ci Teo, Fengchao Yu<br>"
         + "<a href='https://github.com/vdemichev/DiaNN'>DIA-NN</a>: Vadim Demichev<br>"
         + "<a href='https://github.com/Nesvilab/FragPipe-PDV'>FragPipe-PDV</a>: Kai Li, Bo Wen<br>"
-        + "<a href='https://skyline.ms/project/home/software/Skyline/begin.view'>Skyline</a>: Brendan MacLean<br>"
+        + "<a href='https://skyline.ms/project/home/software/Skyline/begin.view'>Skyline</a>: Brendan MacLean, Matthew Chambers<br>"
         + "<a href='https://saint-apms.sourceforge.net/Main.html'>SAINT</a>: Hyungwon Choi<br>"
         + "Websites and tutorials: Sarah Haynes<br>"
-        + "Special thanks to Lukas Käll (Percolator), George Rosenberger (EasyPQP), Vadim Demichev (DIA-NN), and David Shteynberg (TPP, PTMProphet).<br><br>"
+        + "Special thanks to Lukas Käll (Percolator), David Shteynberg (TPP, PTMProphet), George Rosenberger (EasyPQP), Vadim Demichev (DIA-NN), Brendan MacLean (Skyline), and Matthew Chambers (Skyline).<br><br>"
         + "RawFileReader reading tool: Copyright (c) 2016 by Thermo Fisher Scientific, Inc. All rights reserved.<br>"
         + "Bruker SDK library: Included software components: Copyright (c) 2022 by Bruker Daltonics GmbH & Co. KG. All rights reserved.”<br>";
   }
