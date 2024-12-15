@@ -134,7 +134,7 @@ public class FpopScript {
                     byStatus.add(bad.get(status) + " - " + list.stream().map(pm -> pm.installName).collect(Collectors.joining(", ")));
                 }
             }
-            throw new ValidationException("Python modules: " + String.join(", ", byStatus));
+            throw new ValidationException("Click 'Finish Python Install' and wait.");
         }
 
         this.pi = pi;

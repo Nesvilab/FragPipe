@@ -138,7 +138,7 @@ public class SpecLibGen2 {
   private void checkPythonSpeclibgen(PyInfo pi) throws ValidationException {
     List<PythonModule> missingModulesSpeclibgen = checkForMissingModules(pi, REQUIRED_FOR_EASYPQP);
     if (!missingModulesSpeclibgen.isEmpty()) {
-      throw new ValidationException("Python modules missing: " + Seq.seq(missingModulesSpeclibgen).map(pm -> pm.installName).toString(", "));
+      throw new ValidationException("Click 'Finish Python Install' and wait.");
     }
   }
 

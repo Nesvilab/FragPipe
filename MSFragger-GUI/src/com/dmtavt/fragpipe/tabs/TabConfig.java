@@ -61,14 +61,12 @@ import com.dmtavt.fragpipe.tools.fragger.Msfragger.Version;
 import com.dmtavt.fragpipe.tools.fragger.MsfraggerVersionFetcherServer;
 import com.dmtavt.fragpipe.tools.ionquant.IonQuant;
 import com.dmtavt.fragpipe.tools.ionquant.IonQuantVersionFetcherServer;
-import com.dmtavt.fragpipe.util.GitHubJson;
 import com.github.chhh.utils.JarUtils;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.PathUtils;
 import com.github.chhh.utils.ProcessUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
-import com.github.chhh.utils.VersionComparator;
 import com.github.chhh.utils.swing.ContentChangedFocusAdapter;
 import com.github.chhh.utils.swing.FileChooserUtils;
 import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
@@ -79,21 +77,14 @@ import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.TextConsole;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
@@ -152,10 +143,7 @@ public class TabConfig extends JPanelWithEnablement {
   private UiText uiTextBinPython;
   private HtmlStyledJEditorPane epPythonVer;
   private HtmlStyledJEditorPane epDbsplitText;
-  private HtmlStyledJEditorPane epDbsplitErr;
-  private Container epDbsplitErrParent;
   private HtmlStyledJEditorPane epEasyPQPText;
-  private Container epSpeclibgenParent;
   private JButton btnAbout;
 
   public static final String TIP_MSFRAGGER_BIN = "tip.msfragger.bin";
@@ -219,8 +207,6 @@ public class TabConfig extends JPanelWithEnablement {
     add(createPanelTools(), new CC().growX().wrap());
     add(createPanelDiann(), new CC().growX().wrap());
     add(createPanelPython(), new CC().growX().wrap());
-    add(createPanelDbsplit(), new CC().growX().wrap());
-    add(createPanelSpeclibgen(), new CC().growX().wrap());
     add(createPanelBottomInfo(), new CC().growX().wrap());
     add(createPanelBottomLink(), new CC().growX().wrap());
   }
@@ -896,53 +882,26 @@ public class TabConfig extends JPanelWithEnablement {
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteConfigDbsplit m) {
     if (m.ex != null) {
-      log.debug("Got NoteDbsplitConfig with exception set");
-      if (epDbsplitErrParent != null && !epDbsplitErrParent.isAncestorOf(epDbsplitErr)) {
-        epDbsplitErrParent.add(epDbsplitErr, new CC().wrap());
-        epDbsplitErr.setVisible(true);
-      }
       epDbsplitText.setText(textDbsplitEnabled(false));
-      if (m.ex instanceof ValidationException) {
-        epDbsplitErr.setText(m.ex.getMessage());
-      } else {
-        showConfigError(m.ex, TIP_DBSPLIT, epDbsplitText, false);
-      }
       this.revalidate();
       return;
     }
     if (m.instance == null) {
       throw new IllegalStateException("If no exception is reported from DBSplit init, instance should not be null");
     }
-    log.debug("Got NoteDbsplitConfig without exceptions");
-
-    epDbsplitErrParent = epDbsplitErr.getParent();
-    if (epDbsplitErrParent != null) {
-      epDbsplitErrParent.remove(epDbsplitErr);
-    }
     epDbsplitText.setText(textDbsplitEnabled(true));
     this.revalidate();
   }
 
-  private String textEasyPQP(String easypqpLocalVersion, String easypqpLatestVersion, String pandasLocalVersion, String numpyLocalVersion, boolean enableEasypqp, String errMsg) {
+  private String textEasyPQP(String easypqpLocalVersion, boolean enableEasypqp, String errMsg) {
     StringBuilder sb = new StringBuilder();
     if (enableEasypqp && !easypqpLocalVersion.contentEquals("N/A")) {
-      if (!easypqpLatestVersion.contentEquals("N/A") && VersionComparator.cmp(easypqpLocalVersion, easypqpLatestVersion) < 0) {
-        sb.append("EasyPQP: <b>Available</b>. Version: " + easypqpLocalVersion + "<br>"
-            + "<p style=\"color:red\">There is a new version (" + easypqpLatestVersion + "). Please upgrade it by clicking the button below and waiting.<br>");
-        sb.append("Pandas: <b>Available</b>. Version: ").append(pandasLocalVersion).append("<br>");
-        sb.append("Numpy: <b>Available</b>. Version: ").append(numpyLocalVersion).append("<br>");
-      } else {
-        sb.append("EasyPQP: <b>Available</b>. Version: " + easypqpLocalVersion + "<br>");
-        sb.append("Pandas: <b>Available</b>. Version: ").append(pandasLocalVersion).append("<br>");
-        sb.append("Numpy: <b>Available</b>. Version: ").append(numpyLocalVersion).append("<br>");
-      }
+      sb.append("EasyPQP: <b>Available</b>. Version: " + easypqpLocalVersion + ". Used for spectral library building.<br><br>");
     } else {
       if (errMsg.isEmpty()) {
-        sb.append("EasyPQP: <b>Not available</b><br>"
-            + "Please make sure that Python is installed, and then click the button below and wait.<br>");
+        sb.append("EasyPQP: <b>Not available</b>. Used for spectral library building.<br><br>");
       } else {
-        sb.append("EasyPQP: <b>Not available</b><br>"
-            + "Please make sure that Python is installed, and then click the button below and wait.<br>").append(errMsg);
+        sb.append("EasyPQP: <b>Not available</b>. Used for spectral library building.<br><br>").append(errMsg);
       }
     }
     return sb.toString();
@@ -950,11 +909,10 @@ public class TabConfig extends JPanelWithEnablement {
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteConfigSpeclibgen m) {
-    epSpeclibgenParent = epEasyPQPText.getParent();
     epEasyPQPText.setVisible(true);
     if (m.ex != null) {
       log.debug("Got NoteConfigSpeclibgen with exception set");
-      epEasyPQPText.setText(textEasyPQP("N/A", "N/A", "N/A", "N/A", false, m.ex.getMessage()));
+      epEasyPQPText.setText(textEasyPQP("N/A", false, m.ex.getMessage()));
       showConfigError(m.ex, TIP_SPECLIBGEN, epEasyPQPText, false);
       this.revalidate();
       return;
@@ -1009,19 +967,7 @@ public class TabConfig extends JPanelWithEnablement {
       m.numpyLocalVersion = "N/A";
     }
 
-    // get EasyPQP latest version
-    String easypqpLatestVersion;
-    try {
-      String response = org.apache.commons.io.IOUtils.toString(new URL("https://api.github.com/repos/grosenberger/easypqp/tags"), StandardCharsets.UTF_8);
-      Gson gson = new GsonBuilder().create();
-      List<GitHubJson> gitHubJsons = gson.fromJson(response, new TypeToken<List<GitHubJson>>() {}.getType());
-      gitHubJsons.sort((e1, e2) -> VersionComparator.cmp(e2.getName(), e1.getName()));
-      easypqpLatestVersion = gitHubJsons.get(0).getName();
-    } catch (Exception ex) {
-      easypqpLatestVersion = "N/A";
-    }
-
-    epEasyPQPText.setText(textEasyPQP(m.easypqpLocalVersion, easypqpLatestVersion, m.pandasLocalVersion, m.numpyLocalVersion, true, ""));
+    epEasyPQPText.setText(textEasyPQP(m.easypqpLocalVersion, true, ""));
 
     this.revalidate();
   }
@@ -1118,29 +1064,17 @@ public class TabConfig extends JPanelWithEnablement {
           .createButton("Download", e -> SwingUtils.openBrowserOrThrow(url));
       p.add(btnDonwload, ccL().wrap());
     }
-    epPythonVer = new HtmlStyledJEditorPane("Python version: N/A");
-    p.add(epPythonVer, ccL().wrap());
 
-//    final Runnable pipList = () -> {
-//      final ProcessBuilder pb = new ProcessBuilder(uiTextBinPython.getNonGhostText(), "-m", "pip", "freeze");
-//      String pythonPipOutputNew;
-//      try {
-//        pythonPipOutputNew = ProcessUtils.captureOutput(pb);
-//      } catch (UnexpectedException ex) {
-//        pythonPipOutputNew = null;
-//      }
-//      if (pythonPipOutputNew != null && !pythonPipOutput.equals(pythonPipOutputNew)) {
-//        pythonPipOutput = pythonPipOutputNew;
-//        Bus.post(new MessageUiRevalidate());
-//      }
-//    };
-//    final javax.swing.Timer timer = new javax.swing.Timer(5000, e -> {
-//      final String binPython = uiTextBinPython.getNonGhostText();
-//      if (StringUtils.isNotBlank(binPython))
-//        javax.swing.SwingUtilities.invokeLater(pipList);
-//    });
-//    timer.setInitialDelay(0);
-//    timer.start();
+    epPythonVer = new HtmlStyledJEditorPane("Python version: N/A");
+    epDbsplitText = new HtmlStyledJEditorPane(textDbsplitEnabled(false));
+    epEasyPQPText = new HtmlStyledJEditorPane(textEasyPQP("N/A", false, ""));
+
+    final JButton btnFinishPythonInstall = UiUtils.createButton("Finish Python Install", e -> Bus.post(new MessageInstallEasyPQP(console)));
+
+    p.add(epPythonVer, ccL().wrap());
+    mu.add(p, epDbsplitText).growX().wrap();
+    mu.add(p, epEasyPQPText).growX().wrap();
+    mu.add(p, btnFinishPythonInstall).split().wrap();
 
     return p;
   }
@@ -1189,52 +1123,6 @@ public class TabConfig extends JPanelWithEnablement {
 
     toConsole(pythonPipOutputNew, m.console);
     Bus.post(new MessageUiRevalidate(false, true));
-  }
-
-  private JPanel createPanelDbsplit() {
-    JPanel p = mu.newPanel("Database Splitting", true);
-
-    StringBuilder tip = new StringBuilder()
-        .append("Used for searching very large databases by splitting into smaller chunks.<br/>")
-        .append("Requires <b>Python " + pythonMinVersion + "+</b> with packages <b>Numpy, Pandas</b>.\n")
-        .append("Ways to get everything set up:").append("<ul>")
-        .append("<li>Install Python " + pythonMinVersion + "+ if you don't yet have it.</li>")
-        .append(
-            "<li>Install required python modules using <i>pip</i>, the python package manager, with command:</li>")
-        .append("<ul>").append("<li>pip install numpy pandas</li>").append("</ul>")
-        .append("</ul>");
-    String tipHtml = SwingUtils.makeHtml(tip.toString());
-    p.setToolTipText(tipHtml);
-
-    Dimension dim = new Dimension(400, 25);
-    epDbsplitText = new HtmlStyledJEditorPane(textDbsplitEnabled(false));
-    epDbsplitText.setToolTipText(tipHtml);
-    epDbsplitText.setPreferredSize(dim);
-    epDbsplitErr = new HtmlStyledJEditorPane("Requires Python " + pythonMinVersion + "+ with modules Numpy and Pandas.");
-    epDbsplitErr.setPreferredSize(dim);
-
-    mu.add(p, epDbsplitText).growX().pushX().wrap();
-    mu.add(p, epDbsplitErr).growX().pushX().wrap();
-
-    return p;
-  }
-
-  private JPanel createPanelSpeclibgen() {
-    JPanel p = mu.newPanel("Spectral Library Generation", true);
-
-    p.setToolTipText(SwingUtils.makeHtml("EasyPQP: Requires <b>Python " + pythonMinVersion + "+</b> with package <b>EasyPQP</b> and <b>lxml</b>"));
-    Dimension dim = new Dimension(200, 25);
-
-    epEasyPQPText = new HtmlStyledJEditorPane("Configuring EasyPQP.");
-    epEasyPQPText.setToolTipText(SwingUtils.makeHtml("EasyPQP: Requires <b>Python " + pythonMinVersion + "+</b> with package <b>EasyPQP</b> and <b>lxml</b>"));
-    epEasyPQPText.setPreferredSize(dim);
-
-    final JButton btnInstallEasyPQP = UiUtils.createButton("Finish Python Install", e -> Bus.post(new MessageInstallEasyPQP(console)));
-
-    mu.add(p, epEasyPQPText).growX().wrap();
-    mu.add(p, btnInstallEasyPQP).split().wrap();
-
-    return p;
   }
 
   private JFileChooser createDiannFilechooser() {
