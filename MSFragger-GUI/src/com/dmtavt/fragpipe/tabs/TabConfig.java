@@ -144,6 +144,7 @@ public class TabConfig extends JPanelWithEnablement {
   private HtmlStyledJEditorPane epPythonVer;
   private HtmlStyledJEditorPane epDbsplitText;
   private HtmlStyledJEditorPane epEasyPQPText;
+  private JButton btnFinishPythonInstall;
   private JButton btnAbout;
 
   public static final String TIP_MSFRAGGER_BIN = "tip.msfragger.bin";
@@ -897,6 +898,7 @@ public class TabConfig extends JPanelWithEnablement {
     StringBuilder sb = new StringBuilder();
     if (enableEasypqp && !easypqpLocalVersion.contentEquals("N/A")) {
       sb.append("EasyPQP: <b>Available</b>. Version: " + easypqpLocalVersion + ". Used for spectral library building.<br><br>");
+      btnFinishPythonInstall.setEnabled(false);
     } else {
       if (errMsg.isEmpty()) {
         sb.append("EasyPQP: <b>Not available</b>. Used for spectral library building.<br><br>");
@@ -1069,8 +1071,7 @@ public class TabConfig extends JPanelWithEnablement {
     epDbsplitText = new HtmlStyledJEditorPane(textDbsplitEnabled(false));
     epEasyPQPText = new HtmlStyledJEditorPane(textEasyPQP("N/A", false, ""));
 
-    final JButton btnFinishPythonInstall = UiUtils.createButton("Finish Python Install", e -> Bus.post(new MessageInstallEasyPQP(console)));
-
+    btnFinishPythonInstall = UiUtils.createButton("Finish Python Install", e -> Bus.post(new MessageInstallEasyPQP(console)));
     p.add(epPythonVer, ccL().wrap());
     mu.add(p, epDbsplitText).growX().wrap();
     mu.add(p, epEasyPQPText).growX().wrap();
