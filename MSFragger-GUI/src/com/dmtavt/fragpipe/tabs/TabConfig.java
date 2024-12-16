@@ -145,6 +145,7 @@ public class TabConfig extends JPanelWithEnablement {
   private HtmlStyledJEditorPane epDbsplitText;
   private HtmlStyledJEditorPane epEasyPQPText;
   private JButton btnFinishPythonInstall;
+  private boolean dbsplitEnabled = false, easyPQPEnabled = false;
   private JButton btnAbout;
 
   public static final String TIP_MSFRAGGER_BIN = "tip.msfragger.bin";
@@ -891,6 +892,9 @@ public class TabConfig extends JPanelWithEnablement {
       throw new IllegalStateException("If no exception is reported from DBSplit init, instance should not be null");
     }
     epDbsplitText.setText(textDbsplitEnabled(true));
+    dbsplitEnabled = true;
+    if (easyPQPEnabled)
+      btnFinishPythonInstall.setEnabled(false);
     this.revalidate();
   }
 
@@ -898,7 +902,9 @@ public class TabConfig extends JPanelWithEnablement {
     StringBuilder sb = new StringBuilder();
     if (enableEasypqp && !easypqpLocalVersion.contentEquals("N/A")) {
       sb.append("EasyPQP: <b>Available</b>. Version: " + easypqpLocalVersion + ". Used for spectral library building.<br><br>");
-      btnFinishPythonInstall.setEnabled(false);
+      easyPQPEnabled = true;
+      if (dbsplitEnabled)
+        btnFinishPythonInstall.setEnabled(false);
     } else {
       if (errMsg.isEmpty()) {
         sb.append("EasyPQP: <b>Not available</b>. Used for spectral library building.<br><br>");
