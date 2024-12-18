@@ -81,9 +81,6 @@ distributions {
     main {
         distributionBaseName = "${project.name}-${project.version}"
         contents {
-            from('/') {
-                include 'workflows/**'
-            }
         }
     }
 }
@@ -252,8 +249,8 @@ void createTaskMakeReleaseZip(boolean withJre, String releaseDir, String startCl
         //tasks.findByName('makeExeAndCopyToScripts').mustRunAfter 'clean'
 
         archiveFileName = (withJre ? "FragPipe-jre-${project.version}.zip" : "FragPipe-${project.version}.zip")
-        destinationDirectory = file("$buildDir/$releaseDir")
-        from "$buildDir/install"
+        destinationDirectory = getLayout().buildDirectory.dir(releaseDir)
+        from getLayout().buildDirectory.dir("install")
     }
 }
 
