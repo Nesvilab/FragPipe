@@ -45,7 +45,9 @@ diaumpire.SE.MassDefectOffset=0.1
 diaumpire.SE.NoMissedScan=1
 diaumpire.SE.SN=1.1
 diaumpire.run-diaumpire=false
+fpop.coadaptr.fpop.run-fpop-coadaptr=false
 fpop.fpop-tmt=false
+fpop.coadaptr.fpop.fpop_masses=
 fpop.label_control=
 fpop.label_fpop=
 fpop.region_size=1
@@ -337,4 +339,4 @@ workflow.description=<p style\="margin-top\: 0">TMT 16-plex workflow for acetyla
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
 workflow.misc.save-sdrf=true
-workflow.saved-with-ver=21.2-build45
+workflow.saved-with-ver=23.0-build7
