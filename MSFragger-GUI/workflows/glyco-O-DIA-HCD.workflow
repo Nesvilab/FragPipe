@@ -293,7 +293,6 @@ speclibgen.easypqp.fragment.c=false
 speclibgen.easypqp.fragment.x=false
 speclibgen.easypqp.fragment.y=true
 speclibgen.easypqp.fragment.z=false
-speclibgen.easypqp.ignore_unannotated=true
 speclibgen.easypqp.im-cal=Automatic selection of a run as reference IM
 speclibgen.easypqp.labile_mode=O-glyco
 speclibgen.easypqp.neutral_loss=false
