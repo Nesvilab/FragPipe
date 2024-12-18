@@ -114,6 +114,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
+import org.apache.commons.text.WordUtils;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -145,6 +146,7 @@ public class TabConfig extends JPanelWithEnablement {
   private HtmlStyledJEditorPane epDbsplitText;
   private HtmlStyledJEditorPane epEasyPQPText;
   private JButton btnFinishPythonInstall;
+  private TextConsole pythonTextConsole;
   private boolean dbsplitEnabled = false, easyPQPEnabled = false;
   private JButton btnAbout;
 
@@ -1078,15 +1080,23 @@ public class TabConfig extends JPanelWithEnablement {
     epEasyPQPText = new HtmlStyledJEditorPane(textEasyPQP("N/A", false, ""));
 
     btnFinishPythonInstall = UiUtils.createButton("Finish Python Install", e -> Bus.post(new MessageInstallEasyPQP(console)));
+
+    pythonTextConsole = new TextConsole(!true);
+    final var currentFont = pythonTextConsole.getFont();
+    pythonTextConsole.setFont(new Font(Font.MONOSPACED, currentFont.getStyle(), currentFont.getSize()));
+    pythonTextConsole.setContentType("text/plain; charset=UTF-8");
+    final var pythonInstallPanel = new JPanel();
+    pythonInstallPanel.add(pythonTextConsole);
+
     p.add(epPythonVer, ccL().wrap());
     mu.add(p, epDbsplitText).growX().wrap();
     mu.add(p, epEasyPQPText).growX().wrap();
     mu.add(p, btnFinishPythonInstall).split().wrap();
-
+    mu.add(p, pythonInstallPanel).split().wrap();
     return p;
   }
 
-  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
+  @Subscribe(sticky = true, threadMode = ThreadMode.BACKGROUND)
   public void on(MessageInstallEasyPQP m) {
     String binPython = "";
     String pythonPipOutputNew = "";
@@ -1104,6 +1114,11 @@ public class TabConfig extends JPanelWithEnablement {
       ok = false;
     }
 
+    final TextConsole c = pythonTextConsole;
+    final Font currentFont = c.getFont();
+    c.setFont(new Font(Font.MONOSPACED, currentFont.getStyle(), currentFont.getSize()));
+    c.setContentType("text/plain; charset=UTF-8");
+
     if (StringUtils.isNotBlank(binPython)) {
       final Path pythonPackagesPath0;
       if (OsUtils.isWindows()) {
@@ -1118,17 +1133,20 @@ public class TabConfig extends JPanelWithEnablement {
               "--no-index", "--find-links", pythonPackagesPath.toString());
       PyInfo.modifyEnvironmentVariablesForPythonSubprocesses(pb2); // without this, on Windows, will fail with an error related to TLS/SSL
       try {
-        pythonPipOutputNew += ProcessUtils.captureOutput(pb2);
+        ProcessUtils.consumeLines(pb2, (s) -> {
+          c.appendANSI(WordUtils.wrap(s, 100, "\n↦", false));
+          c.appendANSI("\n");
+          return true;
+        });
       } catch (Exception ex) {
-        pythonPipOutputNew += ex.toString();
+        c.appendANSI(ex.toString());
         ok = false;
       }
-      SwingUtils.showInfoDialog(this, pythonPipOutputNew, "EasyPQP install " + (ok ? "success" : "fail"));
-    } else {
-      SwingUtils.showInfoDialog(this, pythonPipOutputNew, "EasyPQP install fail");
     }
-
-    toConsole(pythonPipOutputNew, m.console);
+    SwingUtils.showInfoDialog(this, pythonPipOutputNew+"\n"+"Python software install " + (ok ? "success" : "fail"), "Python software install ");
+    toConsole(c.getText(), m.console);
+    if(ok)
+      c.setText("Python software install success");
     Bus.post(new MessageUiRevalidate(false, true));
   }
 
