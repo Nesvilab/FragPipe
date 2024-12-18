@@ -188,7 +188,6 @@ public class CmdSpecLibGen extends CmdBase {
               max_delta_ppm,
               fragment_types.replace("'", "\\'"),
               speclibPanel.hasNeutralLoss() ? "--enable_unspecific_losses " : "",
-              speclibPanel.isConvertPSM() && speclibPanel.getEasyPQPignoreUnannotatedOption() ? "--ignore_unannotated " : "",
               speclibPanel.isConvertPSM() ? "--decoy_prefix " + decoyTag + " ": "",
               speclibPanel.isConvertPSM() && !speclibPanel.getEasypqpGlycoOption().isEmpty() ? "--labile_mods " + speclibPanel.getEasypqpGlycoOption() + " " : "",
               speclibPanel.isConvertPSM() ? String.format("--max_glycan_q %s ", speclibPanel.getEasypqpMaxGlycanQ()) : ""

@@ -92,7 +92,6 @@ public class SpeclibPanel extends JPanelBase {
   private ButtonGroup convertButtonGroup;
   private JRadioButton psmConvertButton;
   private JRadioButton pepxmlConvertButton;
-  private JCheckBox checkIgnoreUnannotated;
   private JPanel panelEasypqp;
   public static final String EASYPQP_TIMSTOF = "timsTOF";
   public static final String EASYPQP_EXTRAS_PREFIX = "easypqp.extras.";
@@ -286,9 +285,6 @@ public class SpeclibPanel extends JPanelBase {
     uiCheckNeutralLoss = new UiCheck("neutral loss", null, false);
     FormEntry feNeutralLoss = mu.feb(uiCheckNeutralLoss).name("easypqp.neutral_loss").label("neutral loss").tooltip("Add neutral loss fragments to the spectral library.").create();
 
-    checkIgnoreUnannotated = new UiCheck("Make library Skyline compatible", null, false);
-    FormEntry feIgnoreUnannotated = mu.feb(checkIgnoreUnannotated).name("easypqp.ignore_unannotated").label("Make library Skyline compatible").tooltip("Remove PSMs not matching Unimod modifications from input files prior to library building.\nMakes Skyline import easier if searches contain non-Unimod modifications (e.g., open or glyco search)").create();
-
     uiComboGlycoMode = UiUtils.createUiCombo(Arrays.asList("Regular (not glyco)", "O-glyco", "N-glyco", "N-glyco+HexNAc"));
     String glycoTooltip = "Labile glyco search modes:\n" +
             "Regular = standard, non-glyco search (all modifications included intact on fragment ions in the library)\n" +
@@ -302,14 +298,6 @@ public class SpeclibPanel extends JPanelBase {
     FormEntry fe_max_glycan_qval = mu.feb(uiSpinner_max_glycan_qval).name("easypqp.extras.max_glycan_qval")
             .label("Max glycan q-value")
             .tooltip("Maximum glycan q-value from glycan composition assignment to use a glycopeptide PSM when building the library. Set to 1 to ignore.").create();
-
-    pepxmlConvertButton.addItemListener(e -> {
-      updateEnabledStatus(checkIgnoreUnannotated, !pepxmlConvertButton.isSelected());
-    });
-
-    psmConvertButton.addItemListener(e -> {
-      updateEnabledStatus(checkIgnoreUnannotated, psmConvertButton.isSelected());
-    });
 
     uiComboGlycoMode.addItemListener(e -> {
       updateEnabledStatus(uiSpinner_max_glycan_qval, uiComboGlycoMode.getSelectedIndex() > 0);
@@ -344,8 +332,7 @@ public class SpeclibPanel extends JPanelBase {
     mu.add(p, feNeutralLoss.comp).wrap();
 
     mu.add(p, fe_max_delta_unimod.label(), mu.ccR());
-    mu.add(p, fe_max_delta_unimod.comp).split();
-    mu.add(p, feIgnoreUnannotated.comp).gapLeft("35").wrap();
+    mu.add(p, fe_max_delta_unimod.comp).split().wrap();
 
     mu.add(p, fe_max_delta_ppm.label(), mu.ccR());
     mu.add(p, fe_max_delta_ppm.comp).wrap();
@@ -526,9 +513,6 @@ public class SpeclibPanel extends JPanelBase {
 
   public boolean hasNeutralLoss() {
     return uiCheckNeutralLoss.isSelected();
-  }
-  public boolean getEasyPQPignoreUnannotatedOption() {
-    return checkIgnoreUnannotated.isSelected();
   }
   public boolean isConvertPSM() {
     return psmConvertButton.isSelected();
