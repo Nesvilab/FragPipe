@@ -262,8 +262,6 @@ public class Skyline {
         writer.write("--import-file=" + s + " ");
       }
 
-      // todo: waiting for a fix (or clarification) from Brendan. Skyline does not allow this unless fasta has been imported
-//      writer.write("--associate-proteins-shared-peptides=DuplicatedBetweenProteins ");
       writer.close();
 
       List<String> cmd = new ArrayList<>();
