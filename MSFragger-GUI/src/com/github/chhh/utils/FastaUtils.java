@@ -63,7 +63,7 @@ public class FastaUtils {
         }
         int pos = 1, next;
         int depth = 1;
-        while ((next = line.indexOf('|', pos)) >= 0 || pos < line.length() - 1) {
+        while ((next = line.indexOf('|', pos)) >= 0 || pos < line.length()) {
           if (next < 0) {
             next = line.length();
           }
