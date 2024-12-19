@@ -244,14 +244,11 @@ for a complete guide to the visualization tool, see the associated tutorial.
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/PDV-FragPipe_vis-example.png)
 
 
-**Skyline**: new in 22.0  
+**Skyline**: new in 22.0, improved in 23.0  
 
-**DIA results** can be automatically visualized in Skyline by checking the "Generate Skyline Document" box on the Skyline tab.  
-*Skyline running mode*: set to "Use speclib as input" to the DIA-NN report.tsv as the input  
+As of FragPipe 23.0, DDA and DIA glycoproteomics results can be automatically visualized in Skyline by checking the "Generate Skyline Document" box on the Skyline tab.  
+*Let Skyline override peak bounds*: Enable this checkbox to have Skyline override the peak bounds from IonQuant (DDA) or DIA-NN (DIA) and reintegrate all peaks. Disable to see the bounds used for quantification in FragPipe (this is the default setting).  
 *Special Modifications Mode*: set to N-glyco or O-glyco depending on the analysis  
-**DDA results** currently require a workaround method, but will be supported fully in future. To view DDA results in Skyline:
-1) On the MSFragger tab, under Open Search Options, set "Report mass shift as a variable mod" to "Yes, remove delta mass". **NOTE: this prevents using Glycan Composition Assignment or O-Pair search on the Glyco tab! Run a separate search to generate a Skyline document vs using those methods.** Note also that this means that the results viewed in Skyline will NOT have glycan FDR applied.   
-2) Set the *Skyline running mode* to "Use pep.xml as input" on the Skyline tab and the *Special Modifications Mode* according to your analysis type.  
 
 **The PSM Table:** Key columns for GlycoPSM information
 
