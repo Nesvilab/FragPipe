@@ -1,3 +1,9 @@
+## Contents
+* [Offset search for PTMs with FragPipe](https://fragpipe.nesvilab.org/docs/tutorial_offset.html#Offset-search-for-PTMs-with-FragPipe)
+* [Types of Mass Offset Searches](https://fragpipe.nesvilab.org/docs/tutorial_offset.html#Types-of-Mass-Offset-Searches)
+* [Options for Reporting Mass Offsets](https://fragpipe.nesvilab.org/docs/tutorial_offset.html#Options-for-Reporting-Mass-Offsets)
+* [Example Mass Offset Search Tutorial](https://fragpipe.nesvilab.org/docs/tutorial_offset.html#Example-Mass-Offset-Search-Tutorial)
+
 ### Offset search for PTMs with FragPipe
 Traditional closed search requires that precursor masses match the identified peptide within a small mass tolerance (e.g., +/-20 ppm), often with variable modifications allowed on only one or a few amino acid residues. In contrast, the open search strategy allows precursor masses to differ from the identified peptide by any mass within a large range (e.g., -100 to +150). Mass offset search is an intermediate strategy, allowing selected mass differences (within a tolerance, e.g. 20 ppm) on any peptide match (far right, below).
 
@@ -34,6 +40,18 @@ Example detailed offset template file screenshot and link. Use "save link as" to
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/offset_template_example.png)
 <br>
 [Example template file](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/offsets_example.tsv)
+
+### Options for Reporting Mass Offsets
+The **Report mass shift as a variable mod** option in the Open Search Options box can be used to determine where mass offsets are saved to the result files. This can enable, for example, quantification and site reporting of mass offsets as is done with variable modifications. However, there are implications for how the offsets are processed by the validation tools so choosing the correct setting is important. There are 3 settings available:
+* **No**
+* **Yes, remove delta mass**
+* **Yes, keep delta mass**
+
+**No**: The original method. Mass offsets are reported in the "Delta Mass" column of the psm.tsv table. PeptideProphet extended mass model CAN be used. PTM-Shepherd CAN process the results. Quantification of offsets is NOT possible.  
+**Yes, remove delta mass**: Mass offsets are subtracted from the Delta Mass column and added to the Assigned Modifications column of the psm.tsv (alongside any variable modifications found). PeptideProphet extended mass model CANNOT be used. PTM-Shepherd CANNOT process the results. Quantification of offsets IS possible.  
+**Yes, keep delta mass**: Mass offsets are added to the Assigned Modifications column of the psm.tsv, but are NOT subtracted from the Delta Mass column (and are thus reported twice). PeptideProphet extended mass model CAN be used, and PTM-Shepherd CAN process the results. Label-free quantification of the offsets is NOT possible unless there is additional downstream processing (e.g., as done in glyco searches) that removes the delta mass prior to IonQuant. Isobaric labeled quantification IS possible using TMT-Integrator.  
+
+For discovery searches (e.g., looking for many modifications as mass offsets, like the MassOffsets-CommonPTMs workflow), **No** is typically the preferred option as quantification is not required and extended mass modeling in PeptideProphet and processing by PTM-Shepherd can be important. For searches considering a small number of offsets or if quantification is desired, one of the **Yes** options is typically preferred: keep delta mass if extended mass modeling in PeptideProphet is required, or remove delta mass if not. Extended mass modeling is typically important if there is a wide range of abundances of offsets (e.g., in glyco searches where some glycans are extremely rare while others are quite common). 
 
 ### Example Mass Offset Search Tutorial
 An example walking through a traditional mass offset search is shown here. Parthenolide is a protein-reactive compound frequently used by cytoskeleton researchers to inhibit tubulin detyrosinases, but it is suspected to hit more than just those enzymes. Labeled peptides should have a +248.14125 Da mass shift, and we want to allow modification of any amino acid so we can learn more about parthenolide's specificity. This is a case for mass offset search.
