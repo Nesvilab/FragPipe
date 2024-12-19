@@ -77,9 +77,11 @@ import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.TextConsole;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -109,6 +111,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import net.miginfocom.layout.CC;
@@ -1085,14 +1088,23 @@ public class TabConfig extends JPanelWithEnablement {
     final var currentFont = pythonTextConsole.getFont();
     pythonTextConsole.setFont(new Font(Font.MONOSPACED, currentFont.getStyle(), currentFont.getSize()));
     pythonTextConsole.setContentType("text/plain; charset=UTF-8");
-    final var pythonInstallPanel = new JPanel();
-    pythonInstallPanel.add(pythonTextConsole);
+    JScrollPane scroll = SwingUtils.wrapInScroll(pythonTextConsole);
+    scroll.setMinimumSize(new Dimension(300, 50));
+//    scroll.setPreferredSize(new Dimension(900, 50));
+    scroll.setMaximumSize(new Dimension(900, 150));
+    scroll.getViewport().setBackground(pythonTextConsole.getBackground());
+
+//    final var pythonInstallPanel = new JPanel();
+//    pythonInstallPanel.add(pythonTextConsole);
+
+
 
     p.add(epPythonVer, ccL().wrap());
     mu.add(p, epDbsplitText).growX().wrap();
     mu.add(p, epEasyPQPText).growX().wrap();
     mu.add(p, btnFinishPythonInstall).split().wrap();
-    mu.add(p, pythonInstallPanel).split().wrap();
+    mu.add(p, scroll).grow().push().wrap();
+//    mu.add(p, pythonInstallPanel).split().wrap();
     return p;
   }
 
@@ -1129,8 +1141,15 @@ public class TabConfig extends JPanelWithEnablement {
         throw new RuntimeException("FragPipe only works in Windows and Linux. FragPipe not supported in this OS");
       }
       final Path pythonPackagesPath = FragpipeLocations.checkToolsMissing(Seq.of(pythonPackagesPath0.toString())).get(0);
-      final ProcessBuilder pb2 = new ProcessBuilder(binPython, "-Im", "pip", "install", "-r", pythonPackagesPath.resolve("requirements.txt").toString(),
+//      final ProcessBuilder pb2 = new ProcessBuilder(binPython, "-Im", "pip", "install", "-r", pythonPackagesPath.resolve("requirements.txt").toString(),
+//              "--no-index", "--find-links", pythonPackagesPath.toString());
+
+      final var pb2 = new ProcessBuilder(pythonPackagesPath.getParent().resolve("uv").toString(),
+              "pip", "install", "--system", "--no-cache", "-r", pythonPackagesPath.resolve("requirements.txt").toString(),
               "--no-index", "--find-links", pythonPackagesPath.toString());
+      final var path_env_key = OsUtils.isWindows() ? "Path" : "PATH";
+      pb2.environment().put(path_env_key, Path.of(binPython).getParent() + java.io.File.pathSeparator + pb2.environment().get(path_env_key));
+
       PyInfo.modifyEnvironmentVariablesForPythonSubprocesses(pb2); // without this, on Windows, will fail with an error related to TLS/SSL
       try {
         ProcessUtils.consumeLines(pb2, (s) -> {
@@ -1146,7 +1165,7 @@ public class TabConfig extends JPanelWithEnablement {
     SwingUtils.showInfoDialog(this, pythonPipOutputNew+"\n"+"Python software install " + (ok ? "success" : "fail"), "Python software install ");
     toConsole(c.getText(), m.console);
     if(ok)
-      c.setText("Python software install success");
+      c.setText("Python software install success!");
     Bus.post(new MessageUiRevalidate(false, true));
   }
 
