@@ -1090,21 +1090,14 @@ public class TabConfig extends JPanelWithEnablement {
     pythonTextConsole.setContentType("text/plain; charset=UTF-8");
     JScrollPane scroll = SwingUtils.wrapInScroll(pythonTextConsole);
     scroll.setMinimumSize(new Dimension(300, 50));
-//    scroll.setPreferredSize(new Dimension(900, 50));
     scroll.setMaximumSize(new Dimension(900, 150));
     scroll.getViewport().setBackground(pythonTextConsole.getBackground());
-
-//    final var pythonInstallPanel = new JPanel();
-//    pythonInstallPanel.add(pythonTextConsole);
-
-
 
     p.add(epPythonVer, ccL().wrap());
     mu.add(p, epDbsplitText).growX().wrap();
     mu.add(p, epEasyPQPText).growX().wrap();
     mu.add(p, btnFinishPythonInstall).split().wrap();
     mu.add(p, scroll).grow().push().wrap();
-//    mu.add(p, pythonInstallPanel).split().wrap();
     return p;
   }
 
@@ -1141,11 +1134,9 @@ public class TabConfig extends JPanelWithEnablement {
         throw new RuntimeException("FragPipe only works in Windows and Linux. FragPipe not supported in this OS");
       }
       final Path pythonPackagesPath = FragpipeLocations.checkToolsMissing(Seq.of(pythonPackagesPath0.toString())).get(0);
-//      final ProcessBuilder pb2 = new ProcessBuilder(binPython, "-Im", "pip", "install", "-r", pythonPackagesPath.resolve("requirements.txt").toString(),
-//              "--no-index", "--find-links", pythonPackagesPath.toString());
 
       final var pb2 = new ProcessBuilder(pythonPackagesPath.getParent().resolve("uv").toString(),
-              "pip", "install", "--system", "--no-cache", "-r", pythonPackagesPath.resolve("requirements.txt").toString(),
+              "pip", "install", "--system", "--no-cache", "--no-deps", "-r", pythonPackagesPath.resolve("requirements.txt").toString(),
               "--no-index", "--find-links", pythonPackagesPath.toString());
       final var path_env_key = OsUtils.isWindows() ? "Path" : "PATH";
       pb2.environment().put(path_env_key, Path.of(binPython).getParent() + java.io.File.pathSeparator + pb2.environment().get(path_env_key));
@@ -1164,8 +1155,10 @@ public class TabConfig extends JPanelWithEnablement {
     }
     SwingUtils.showInfoDialog(this, pythonPipOutputNew+"\n"+"Python software install " + (ok ? "success" : "fail"), "Python software install ");
     toConsole(c.getText(), m.console);
-    if(ok)
+    if(ok) {
       c.setText("Python software install success!");
+      Notifications.tryClose(TIP_SPECLIBGEN);
+    }
     Bus.post(new MessageUiRevalidate(false, true));
   }
 
