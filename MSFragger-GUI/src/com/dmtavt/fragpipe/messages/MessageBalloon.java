@@ -30,7 +30,6 @@ public class MessageBalloon {
   public final String html;
   public final boolean exitHeadless;
 
-  /** Closes balloons for a topic. */
   public MessageBalloon(String topic) {
     Objects.requireNonNull(topic);
     this.topic = topic;
