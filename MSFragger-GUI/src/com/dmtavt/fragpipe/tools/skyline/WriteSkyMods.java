@@ -44,7 +44,7 @@ public class WriteSkyMods {
   private static final Pattern p = Pattern.compile("([\\d.-]+),([^,]+),(true),[\\d-]+;");
   private static final Pattern p1 = Pattern.compile("[n\\[](.)");
   private static final Pattern p2 = Pattern.compile("[c\\]](.)");
-  private static final Pattern p3 = Pattern.compile("([\\d.-]+)\\((aa=([^=_();]+)?)?(_d=([\\d., -]+))?(_p=([\\d., -]+))?(_f=([\\d., -]+))?\\)");
+  private static final Pattern p3 = Pattern.compile("([\\d.-]+)\\((aa\\\\=([^=_();]+)?)?(_d\\\\=([\\d., -]+))?(_p\\\\=([\\d., -]+))?(_f\\\\=([\\d., -]+))?\\)");
   private static final ArrayList<String> allAAs = new ArrayList<>(Arrays.asList("A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y"));
   private static final float smallFloat = 0.001f;
   private static List<UnimodData> defaultUnimods;
