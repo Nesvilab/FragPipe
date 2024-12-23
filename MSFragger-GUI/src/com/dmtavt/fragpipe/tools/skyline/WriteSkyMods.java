@@ -79,6 +79,7 @@ public class WriteSkyMods {
     String massOffsetSites = pf.getProperty("msfragger.restrict_deltamass_to");
     String massOffsetRemainders = pf.getProperty("msfragger.remainder_fragment_masses");
     String detailedMassOffsetStr = pf.getProperty("msfragger.mass_offsets_detailed");
+    boolean useDetailedMassOffsets = pf.containsKey("msfragger.use_detailed_offsets") && Boolean.parseBoolean(pf.getProperty("msfragger.use_detailed_offsets"));
     String labileMode = pf.getProperty("msfragger.labile_search_mode");
     boolean isLabile = labileMode.equals("labile") || labileMode.equals("nglycan");
     boolean isOglyco = modsMode == 1;
@@ -126,7 +127,7 @@ public class WriteSkyMods {
       generateGlycoMods(massOffsetSites, nglycoList, (float) 203.07937, new ElementalComposition("C8H13N1O5"), false, unimodMods, nonUnimodMods);   // hardcoded N-glycan remainder
     } else {
       // non-glyco - use regular method for mass offsets conversion
-      if (massOffsetStr != null && !massOffsetStr.isEmpty()) {
+      if (!useDetailedMassOffsets && massOffsetStr != null && !massOffsetStr.isEmpty()) {
         String[] ss = massOffsetStr.split("[\\s/]");
         for (String s : ss) {
           mass = Float.parseFloat(s);
@@ -150,7 +151,7 @@ public class WriteSkyMods {
         }
       }
 
-      if (detailedMassOffsetStr != null && !detailedMassOffsetStr.isEmpty()) {
+      if (useDetailedMassOffsets && detailedMassOffsetStr != null && !detailedMassOffsetStr.isEmpty()) {
         m = p3.matcher(detailedMassOffsetStr);
         while(m.find()) {
           mass = Float.parseFloat(m.group(1));
