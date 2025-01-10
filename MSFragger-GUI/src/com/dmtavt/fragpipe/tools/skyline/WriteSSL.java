@@ -12,6 +12,7 @@ public class WriteSSL {
     public static final String COL_SCANID = "Spectrum";
     public static final String COL_CHARGE = "Charge";
     public static final String COL_SCORE = "Probability";
+    public static final String COL_SCORE_2 = "PeptideProphet Probability";
     public static final String COL_RT = "Retention";
     public static final String COL_IONMOBILITY = "Ion Mobility";
     public static final String COL_RT_START = "Retention Time Start";
@@ -59,7 +60,11 @@ public class WriteSSL {
                 sslLine.append(modpep).append("\t");
                 String scoreType = isPercolator ? "PERCOLATOR QVALUE" : "PEPTIDE PROPHET SOMETHING";
                 sslLine.append(scoreType).append("\t");
-                sslLine.append(splits[columns.get(COL_SCORE)]).append("\t");
+                if (columns.containsKey(COL_SCORE)) {
+                    sslLine.append(splits[columns.get(COL_SCORE)]).append("\t");
+                } else {
+                    sslLine.append(splits[columns.get(COL_SCORE_2)]).append("\t");
+                }
                 sslLine.append(Float.parseFloat(splits[columns.get(COL_RT)]) / 60).append("\t");      // RT in minutes
 
                 // add IM if present
