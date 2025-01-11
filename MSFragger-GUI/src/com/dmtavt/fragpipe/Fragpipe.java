@@ -860,20 +860,17 @@ public class Fragpipe extends JFrameHeadless {
     final Properties p = ThisAppProps.getRemotePropertiesWithLocalDefaults();
     String linkSite = p.getProperty(ThisAppProps.PROP_LAB_SITE_URL, "https://www.nesvilab.org/");
 
-    return "FragPipe GUI (v" + Version.version() + ")<br>"
-        + "Fengchao Yu<br>"
-        + "Dmitry Avtonomov<br>"
-        + "Guo-Ci Teo<br>"
-        + "University of Michigan, 2017-2022<br><br>"
-        + "<a href=\"" + linkSite + "\">Alexey Nesvizhskii lab</a><br/>&nbsp;<br/>"
-        + "Components (lead developers):<br>"
-        + "<a href='https://diaumpire.nesvilab.org/'>DIA-Umpire</a>: Chih-Chiang Tsou<br>"
+    return "FragPipe Proteomics Platform (v" + Version.version() + ")<br>"
+        + "<a href=\"" + linkSite + "\">Alexey Nesvizhskii lab</a><br/>"
+        + "University of Michigan<br><br>"
+        + "<a href='https://fragpipe.nesvilab.org/'>FragPipe GUI</a>: Fengchao Yu, Dmitry Avtonomov, Daniel Polasky, Guo Ci Teo<br><br>"
+        + "Components (software developers):<br>"
+        + "<a href='https://diaumpire.nesvilab.org/'>DIA-Umpire</a>: Chih-Chiang Tsou, Guo Ci Teo<br>"
         + "<a href='https://diatracer.nesvilab.org/'>diaTracer</a>: Kai Li, Fengchao Yu<br>"
-        + "<a href='https://msfragger.nesvilab.org/'>MSFragger</a>: Andy Kong, Fengchao Yu, Guo-Ci Teo, Dmitry Avtonomov<br>"
-        + "MSFragger Glyco mode: Daniel Polasky, Fengchao Yu, Guo-Ci Teo<br>"
+        + "<a href='https://msfragger.nesvilab.org/'>MSFragger</a>: Andy Kong, Fengchao Yu, Daniel Polasky, Guo Ci Teo, Dmitry Avtonomov<br>"
         + "<a href='https://www.nesvilab.org/Crystal-C/'>Crystal-C</a>: Hui-Yin Chang<br>"
         + "<a href='https://github.com/Nesvilab/MSBooster'>MSBooster</a>: Kevin Yang<br>"
-        + "<a href='https://philosopher.nesvilab.org/'>Philosopher</a>: Felipe Leprevost<br>"
+        + "<a href='https://philosopher.nesvilab.org/'>Philosopher</a>: Felipe Leprevost, Yamei Deng<br>"
         + "Philosopher (TPP components): <a href='http://tools.proteomecenter.org/wiki/index.php?title=Software:TPP'>TPP developers with link to the TPP site</a><br>"
         + "<a href='http://percolator.ms/'>Percolator</a>: Lukas Käll<br>"
         + "<a href='http://www.tppms.org/tools/ptm/'>PTMProphet</a>: David Shteynberg<br>"
@@ -881,13 +878,13 @@ public class Fragpipe extends JFrameHeadless {
         + "<a href='https://github.com/lonelu/PTMLocalization'>O-Pair</a>: Lei Lu, Michael Shortreed, Daniel Polasky<br>"
         + "<a href='https://ionquant.nesvilab.org/'>IonQuant</a>: Fengchao Yu<br>"
         + "<a href='https://tmt-integrator.nesvilab.org/'>TMT-Integrator</a>: Hui-Yin Chang, Ruohong Li<br>"
-        + "Spectral library generation: Guo-Ci Teo<br>"
-        + "<a href='https://github.com/grosenberger/easypqp'>EasyPQP</a>: George Rosenberger, Guo-Ci Teo, Fengchao Yu<br>"
+        + "Spectral library generation: Guo Ci Teo<br>"
+        + "<a href='https://github.com/grosenberger/easypqp'>EasyPQP</a>: George Rosenberger, Guo Ci Teo, Fengchao Yu<br>"
         + "<a href='https://github.com/vdemichev/DiaNN'>DIA-NN</a>: Vadim Demichev<br>"
         + "<a href='https://github.com/Nesvilab/FragPipe-PDV'>FragPipe-PDV</a>: Kai Li, Bo Wen<br>"
         + "<a href='https://skyline.ms/project/home/software/Skyline/begin.view'>Skyline</a>: Brendan MacLean, Matthew Chambers<br>"
-        + "<a href='https://saint-apms.sourceforge.net/Main.html'>SAINT</a>: Hyungwon Choi<br>"
-        + "Websites and tutorials: Sarah Haynes<br>"
+        + "<a href='https://saint-apms.sourceforge.net/Main.html'>SAINT</a>: Hyungwon Choi, Guo Ci Teo<br>"
+        + "Websites and tutorials: Sarah Haynes<br><br>"
         + "Special thanks to Lukas Käll (Percolator), David Shteynberg (TPP, PTMProphet), George Rosenberger (EasyPQP), Vadim Demichev (DIA-NN), Brendan MacLean (Skyline), and Matthew Chambers (Skyline).<br><br>"
         + "RawFileReader reading tool: Copyright (c) 2016 by Thermo Fisher Scientific, Inc. All rights reserved.<br>"
         + "Bruker SDK library: Included software components: Copyright (c) 2022 by Bruker Daltonics GmbH & Co. KG. All rights reserved.”<br>";
@@ -897,7 +894,7 @@ public class Fragpipe extends JFrameHeadless {
     log.debug("Showing about dialog");
 //    HtmlStyledJEditorPane ep = new HtmlStyledJEditorPane(true, createAboutBody());
     HtmlStyledJEditorPane ep = SwingUtils.createClickableHtml(createAboutBody());
-    ep.setPreferredSize(new Dimension(350, 600));
+    ep.setPreferredSize(new Dimension(500, 600));
     SwingUtils.showDialog(parent, ep, "About FragPipe", JOptionPane.INFORMATION_MESSAGE);
   }
 
