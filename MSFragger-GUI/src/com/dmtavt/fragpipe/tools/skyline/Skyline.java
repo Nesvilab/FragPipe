@@ -162,13 +162,11 @@ public class Skyline {
       WritePeptideList pepWriter = new WritePeptideList();
       Map<Float, Set<String>> addedMods = pepWriter.writePeptideList(psmTsvFiles, peptideListPath);
 
-      Path modXmlPath = wd.resolve("mod.xml");
-      WriteSkyMods writeSkyMods = new WriteSkyMods(modXmlPath, pf, modsMode, matchUnimod, !useSpeclib, addedMods);
-
+      WriteSSL sslWriter = null;
       Path sslPath = skylineFilesDir.resolve("psm.ssl").toAbsolutePath();
       if (!useSpeclib) {
         boolean isPercolator = Boolean.parseBoolean(pf.getProperty("percolator.run-percolator"));
-        WriteSSL sslWriter = new WriteSSL();
+        sslWriter = new WriteSSL();
         if (dataType.contentEquals("DIA")) {
           // psm.tsv refers to DDA files, need to provide as well
           sslWriter.writeSSL(psmTsvFiles, sslPath, isPercolator, ddaAndDIAfiles, !overridePeakBounds);
@@ -177,22 +175,30 @@ public class Skyline {
         }
       }
 
+      Path skylineTemplateXmlPath = wd.resolve("skyline_template.xml");
+      WriteSkylineTemplate writeSkylineTemplate = new WriteSkylineTemplate(skylineTemplateXmlPath, pf, modsMode, matchUnimod, !useSpeclib, addedMods, sslWriter != null && sslWriter.hasCv);
+
       Path pp = wd.resolve("filelist_skyline.txt");
 
       BufferedWriter writer = Files.newBufferedWriter(pp);
 
-      if (!writeSkyMods.unimodMods.isEmpty()) {
-        for (UnimodData unimodData : writeSkyMods.unimodMods) {
+      if (writeSkylineTemplate.needTemplate) {
+        writer.write("--overwrite ");
+        writer.write("--in=" + skylineTemplateXmlPath.toAbsolutePath() + " ");
+        writer.write("--out=" + skylineFilesDir.resolve("fragpipe.sky").toAbsolutePath() + "\n");
+        writer.write("--in=" + skylineFilesDir.resolve("fragpipe.sky").toAbsolutePath() + " ");
+        writer.write("--save" + " ");
+      } else {
+        writer.write("--overwrite ");
+        writer.write("--new=" + skylineFilesDir.resolve("fragpipe.sky").toAbsolutePath() + " ");
+      }
+
+      if (!writeSkylineTemplate.unimodMods.isEmpty()) {
+        for (UnimodData unimodData : writeSkylineTemplate.unimodMods) {
           writer.write("--pep-add-mod=\"" + unimodData.name + "\" ");
         }
       }
 
-      if (!writeSkyMods.nonUnimodMods.isEmpty()) {
-        writer.write("--in=" + modXmlPath.toAbsolutePath() + " ");
-      }
-
-      writer.write("--overwrite ");
-      writer.write((writeSkyMods.nonUnimodMods.isEmpty() ? "--new=" : "--out=") + skylineFilesDir.resolve("fragpipe.sky").toAbsolutePath() + " ");
       writer.write("--full-scan-acquisition-method=" + dataType + " ");
 
       // always import pep list (it replaces fasta import, not search result import)

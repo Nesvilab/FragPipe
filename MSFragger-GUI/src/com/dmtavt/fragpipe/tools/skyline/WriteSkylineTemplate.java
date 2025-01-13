@@ -39,7 +39,7 @@ import umich.ms.glyco.GlycanParser;
 import umich.ms.glyco.GlycanResidue;
 import umich.ms.util.ElementalComposition;
 
-public class WriteSkyMods {
+public class WriteSkylineTemplate {
 
   private static final Pattern p = Pattern.compile("([\\d.-]+),([^,]+),(true),[\\d-]+;");
   private static final Pattern p1 = Pattern.compile("[n\\[](.)");
@@ -53,6 +53,8 @@ public class WriteSkyMods {
 
   public final Set<UnimodData> unimodMods = new TreeSet<>();
   public final List<Mod> nonUnimodMods = new ArrayList<>(1);
+
+  public boolean needTemplate = false;
 
   static {
     final List<Path> tt = FragpipeLocations.checkToolsMissing(Seq.of("UniModData.tsv"));
@@ -72,7 +74,7 @@ public class WriteSkyMods {
     }
   }
 
-  public WriteSkyMods(Path path, PropsFile pf, int modsMode, boolean matchUnimod, boolean isSSL, Map<Float, Set<String>> addedMods) throws Exception {
+  public WriteSkylineTemplate(Path path, PropsFile pf, int modsMode, boolean matchUnimod, boolean isSSL, Map<Float, Set<String>> addedMods, boolean hasCv) throws Exception {
     String fixModStr = pf.getProperty("msfragger.table.fix-mods");
     String varModStr = pf.getProperty("msfragger.table.var-mods");
     String massOffsetStr = pf.getProperty("msfragger.mass_offsets");
@@ -176,42 +178,56 @@ public class WriteSkyMods {
       }
     }
 
-    BufferedWriter bw = new BufferedWriter(Files.newBufferedWriter(path));
-    bw.write("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-        + "<srm_settings format_version=\"23.1\" software_version=\"Skyline (64-bit) " + getSkylineVersion() + "\">\n"
-        + "  <settings_summary name=\"Extra Mods\">\n"
-        + "    <peptide_settings>\n"
-        + "      <peptide_modifications>\n"
-        + "        <static_modifications>\n");
+    needTemplate = !nonUnimodMods.isEmpty() || hasCv;
 
-    for (Mod mod : nonUnimodMods) {
-      bw.write("          <static_modification name=\"" + mod.name +
-          (mod.aas.isEmpty() ? "" : "\" aminoacid=\"" + mod.aas) +
-          (mod.terminus == '\0' ? "" : "\" terminus=\"" + mod.terminus) +
-          "\" variable=\"" + mod.isVariable +
-          // Skyline does not allow masses in a mod if the elemental composition is specified
-          (mod.elementalComposition.isEmpty() ? "\" massdiff_monoisotopic=\"" + mod.monoMass : "") +
-          (mod.elementalComposition.isEmpty() ? "\" massdiff_average=\"" + mod.avgMass : "") +
-          (mod.elementalComposition.isEmpty() ? "" : "\" formula=\"" + mod.elementalComposition) +
-          "\">\n");
-      String alwaysStr = isSSL ? "\" inclusion=\"Always" : "";  // Add NLs always for SSL list import, otherwise use library
-      for (int i = 0; i < mod.lossMonoMasses.size(); i++) {
-        bw.write("            <potential_loss massdiff_monoisotopic=\"" + mod.lossMonoMasses.get(i) +
-            "\" massdiff_average=\"" + mod.lossAvgMasses.get(i) +
-            (mod.lossElementalComposition.isEmpty() ? "" : "\" formula=\"" + mod.lossElementalComposition.get(i)) +
-            alwaysStr +
-            "\" />\n");
+    if (needTemplate) {
+      BufferedWriter bw = new BufferedWriter(Files.newBufferedWriter(path));
+      bw.write("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+          + "<srm_settings format_version=\"23.1\" software_version=\"Skyline (64-bit) " + getSkylineVersion() + "\">\n"
+          + "  <settings_summary name=\"FragPipe\">\n");
+
+      if (!nonUnimodMods.isEmpty()) {
+        bw.write("    <peptide_settings>\n"
+            + "      <peptide_modifications>\n"
+            + "        <static_modifications>\n");
+
+        for (Mod mod : nonUnimodMods) {
+          bw.write("          <static_modification name=\"" + mod.name +
+              (mod.aas.isEmpty() ? "" : "\" aminoacid=\"" + mod.aas) +
+              (mod.terminus == '\0' ? "" : "\" terminus=\"" + mod.terminus) +
+              "\" variable=\"" + mod.isVariable +
+              // Skyline does not allow masses in a mod if the elemental composition is specified
+              (mod.elementalComposition.isEmpty() ? "\" massdiff_monoisotopic=\"" + mod.monoMass : "") +
+              (mod.elementalComposition.isEmpty() ? "\" massdiff_average=\"" + mod.avgMass : "") +
+              (mod.elementalComposition.isEmpty() ? "" : "\" formula=\"" + mod.elementalComposition) +
+              "\">\n");
+          String alwaysStr = isSSL ? "\" inclusion=\"Always" : "";  // Add NLs always for SSL list import, otherwise use library
+          for (int i = 0; i < mod.lossMonoMasses.size(); i++) {
+            bw.write("            <potential_loss massdiff_monoisotopic=\"" + mod.lossMonoMasses.get(i) +
+                "\" massdiff_average=\"" + mod.lossAvgMasses.get(i) +
+                (mod.lossElementalComposition.isEmpty() ? "" : "\" formula=\"" + mod.lossElementalComposition.get(i)) +
+                alwaysStr +
+                "\" />\n");
+          }
+          bw.write("          </static_modification>\n");
+        }
+
+        bw.write("        </static_modifications>\n"
+            + "      </peptide_modifications>\n"
+            + "    </peptide_settings>\n");
       }
-      bw.write("          </static_modification>\n");
+
+      if (hasCv) {
+        bw.write("    <transition_settings>\n"
+            + "      <ion_mobility_filtering use_spectral_library_ion_mobility_values=\"true\" window_width_calc_type=\"fixed_width\" fixed_width=\"1\" />\n"
+            + "    </transition_settings>\n");
+      }
+
+      bw.write("  </settings_summary>\n"
+          + "</srm_settings>\n");
+
+      bw.close();
     }
-
-    bw.write("        </static_modifications>\n"
-        + "      </peptide_modifications>\n"
-        + "    </peptide_settings>\n"
-        + "  </settings_summary>\n"
-        + "</srm_settings>\n");
-
-    bw.close();
   }
 
   static void convertMods(String sites, boolean isVariable, float monoMass, float avgMass, List<Float> lossMonoMasses, List<Float> lossAvgMasses, boolean matchUnimod, Set<UnimodData> unimods, List<Mod> nonUnimods) {

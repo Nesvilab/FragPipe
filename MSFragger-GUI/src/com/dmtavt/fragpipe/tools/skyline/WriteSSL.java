@@ -17,6 +17,10 @@ public class WriteSSL {
     public static final String COL_IONMOBILITY = "Ion Mobility";
     public static final String COL_RT_START = "Retention Time Start";
     public static final String COL_RT_END = "Retention Time End";
+    public static final String COL_CV = "Compensation Voltage";
+
+    public boolean hasCv = false;
+    public boolean hasIm = false;
 
 
     /**
@@ -26,8 +30,6 @@ public class WriteSSL {
      */
     public void writeSSL(Set<Path> psmtsvFiles, Path outputPath, boolean isPercolator, Set<String> lcmsFiles, boolean useIonQuantPeaks) throws IOException {
         ArrayList<String> output = new ArrayList<>();
-        boolean isIM = false;
-        boolean checkIM = true;
 
         // map file paths to the file names that will be in the psm.tsv
         Map<String, String> lcmsFileNames = new HashMap<>();
@@ -40,10 +42,16 @@ public class WriteSSL {
 
         for (Path psmtsv: psmtsvFiles) {
             BufferedReader reader = new BufferedReader(new FileReader(psmtsv.toFile()));
-            initHeader(reader.readLine());
+            initHeader(reader.readLine(), reader.readLine());
+            reader.close();
 
+            reader = new BufferedReader(new FileReader(psmtsv.toFile()));
             String line;
             while ((line = reader.readLine()) != null) {
+                if (line.startsWith("Spectrum\tSpectrum File")) {
+                    continue;
+                }
+
                 String[] splits = line.split("\t");
                 StringBuilder sslLine = new StringBuilder();
 
@@ -67,14 +75,12 @@ public class WriteSSL {
                 }
                 sslLine.append(Float.parseFloat(splits[columns.get(COL_RT)]) / 60).append("\t");      // RT in minutes
 
-                // add IM if present
-                if (checkIM) {
-                    if (columns.containsKey(COL_IONMOBILITY)) {
-                        isIM = !splits[columns.get(COL_IONMOBILITY)].isEmpty();
-                    }
-                    checkIM = false;
-                }
-                if (isIM) {
+                // If there are LC-MS runs with and without ion mobility, the following block of the code might crash.
+                // It is an intentional design to let the user know that they should not mixture the runs with and without ion mobility.
+                if (hasCv) {
+                    sslLine.append(splits[columns.get(COL_CV)]).append("\t");
+                    sslLine.append("V").append("\t");
+                } else if (hasIm) {
                     sslLine.append(splits[columns.get(COL_IONMOBILITY)]).append("\t");
                     sslLine.append("1/K0").append("\t");
                 }
@@ -96,7 +102,7 @@ public class WriteSSL {
 
         // write output
         BufferedWriter writer = new BufferedWriter(new FileWriter(outputPath.toFile()));
-        String IMstr = isIM ? "\tion-mobility\tion-mobility-units" : "";
+        String IMstr = (hasCv || hasIm) ? "\tion-mobility\tion-mobility-units" : "";
         String peakBoundsStr = useIonQuantPeaks ? "\tstart-time\tend-time" : "";
         String sslHeader = String.format("file\tscan\tcharge\tsequence\tscore-type\tscore\tretention-time%s%s\n", IMstr, peakBoundsStr);
         writer.write(sslHeader);
@@ -106,13 +112,27 @@ public class WriteSSL {
         writer.close();
     }
 
-    private String initHeader(String header) {
+    private void initHeader(String header, String firstRow) {
         columns = new HashMap<>();
+        boolean hasCv = false;
+        boolean hasIm = false;
         String[] splits = header.split("\t");
+        String[] splits2 = firstRow.split("\t");
         for (int i = 0 ; i < splits.length ; i++) {
             columns.put(splits[i], i);
+            if (splits[i].equals(COL_CV) && !splits2[i].trim().isEmpty() && Float.parseFloat(splits2[i]) != 0) {
+                hasCv = true;
+            } else if (splits[i].equals(COL_IONMOBILITY) && !splits2[i].trim().isEmpty() && Float.parseFloat(splits2[i]) != 0) {
+                hasIm = true;
+            }
         }
-        return header;
+
+        if (hasCv && hasIm) {
+            throw new RuntimeException("There are both compensation voltages and ion mobilities in the input file:\n" + header + "\n" + firstRow);
+        }
+
+        this.hasCv = this.hasCv || hasCv;
+        this.hasIm = this.hasIm || hasIm;
     }
 
 }

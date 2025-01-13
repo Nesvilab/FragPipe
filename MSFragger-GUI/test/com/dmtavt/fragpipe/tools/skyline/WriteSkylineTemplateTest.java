@@ -17,12 +17,12 @@
 
 package com.dmtavt.fragpipe.tools.skyline;
 
-import static com.dmtavt.fragpipe.tools.skyline.WriteSkyMods.convertMods;
-import static com.dmtavt.fragpipe.tools.skyline.WriteSkyMods.parseMods;
+import static com.dmtavt.fragpipe.tools.skyline.WriteSkylineTemplate.convertMods;
+import static com.dmtavt.fragpipe.tools.skyline.WriteSkylineTemplate.parseMods;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import com.dmtavt.fragpipe.tools.skyline.WriteSkyMods.Mod;
+import com.dmtavt.fragpipe.tools.skyline.WriteSkylineTemplate.Mod;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -30,7 +30,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import org.junit.Test;
 
-public class WriteSkyModsTest {
+public class WriteSkylineTemplateTest {
 
   @Test
   public void testConvertMods() {
