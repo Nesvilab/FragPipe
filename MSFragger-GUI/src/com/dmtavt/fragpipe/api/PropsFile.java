@@ -35,16 +35,16 @@ import org.slf4j.LoggerFactory;
 public class PropsFile extends Properties {
   private static final Logger log = LoggerFactory.getLogger(PropsFile.class);
   private Path path;
-  private final String comments;
+  private final String[] comments;
 
-  public PropsFile(Path path, String comments) {
+  public PropsFile(Path path, String comment) {
     super();
     Objects.requireNonNull(path);
     this.path = path;
-    this.comments = comments;
+    this.comments = new String[]{comment};
   }
 
-  public String getComments() {
+  public String[] getComments() {
     return comments;
   }
 

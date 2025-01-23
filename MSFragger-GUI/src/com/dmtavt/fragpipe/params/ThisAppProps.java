@@ -17,6 +17,9 @@
 package com.dmtavt.fragpipe.params;
 
 import com.dmtavt.fragpipe.Fragpipe;
+import com.dmtavt.fragpipe.messages.NoteConfigDiaTracer;
+import com.dmtavt.fragpipe.messages.NoteConfigIonQuant;
+import com.dmtavt.fragpipe.messages.NoteConfigMsfragger;
 import com.github.chhh.utils.JarUtils;
 import com.github.chhh.utils.swing.FileChooserUtils;
 import java.io.File;
@@ -299,8 +302,15 @@ public class ThisAppProps extends Properties {
     save(propName, val);
   }
 
-  public static String cacheComments() {
-    return Version.PROGRAM_TITLE + " (" + Version.version() + ") runtime properties";
+  public static String[] cacheComments() {
+    NoteConfigMsfragger noteConfigMsfragger = Fragpipe.getStickyStrict(NoteConfigMsfragger.class);
+    String[] ss = {
+        Version.PROGRAM_TITLE + " (" + Version.version() + ") runtime properties",
+        "MSFragger version " + (noteConfigMsfragger == null ? "N/A" : noteConfigMsfragger.version),
+        "IonQuant version " + NoteConfigIonQuant.version,
+        "diaTracer version " + NoteConfigDiaTracer.version
+    };
+    return ss;
   }
 
   private static Path getCacheFilePath() {

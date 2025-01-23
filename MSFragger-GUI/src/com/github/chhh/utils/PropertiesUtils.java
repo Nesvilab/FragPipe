@@ -62,13 +62,15 @@ public final class PropertiesUtils {
      * Replacement for standard Properties writer, which does not maintain the order of entries
      * anymore.
      */
-    public static void storeSorted(Properties props, OutputStream os, String comment, boolean escUnicode) throws IOException {
+    public static void storeSorted(Properties props, OutputStream os, String[] comments, boolean escUnicode) throws IOException {
         try (BufferedWriter bw = new BufferedWriter(
             new OutputStreamWriter(os, StandardCharsets.UTF_8))) {
-            if (StringUtils.isNotBlank(comment)) {
-                bw.write("# ");
-                bw.write(comment);
-                bw.newLine();
+            if (comments != null) {
+                for (String comment : comments) {
+                    bw.write("# ");
+                    bw.write(comment);
+                    bw.newLine();
+                }
             }
             bw.newLine();
 
