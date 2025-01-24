@@ -274,7 +274,8 @@ public class MsfraggerParams extends AbstractParams {
     public static final String ANALYZER_TYPE_ALL = "all";
     public static final String ANALYZER_TYPE_FTMS = "FTMS";
     public static final String ANALYZER_TYPE_ITMS = "ITMS";
-    public static final List<String> ANALYZER_TYPES = Arrays.asList(ANALYZER_TYPE_ALL, ANALYZER_TYPE_FTMS, ANALYZER_TYPE_ITMS);
+    public static final String ANALYZER_TYPE_ASTMS = "ASTMS";
+    public static final List<String> ANALYZER_TYPES = Arrays.asList(ANALYZER_TYPE_ALL, ANALYZER_TYPE_FTMS, ANALYZER_TYPE_ITMS, ANALYZER_TYPE_ASTMS);
 
     public static final Map<String, String> ADDON_MAP_NAME2HUMAN = new HashMap<>(ADDON_NAMES.length);
     public static final Map<String, String> ADDON_MAP_HUMAN2NAME = new HashMap<>(ADDON_NAMES.length);
@@ -411,7 +412,7 @@ public class MsfraggerParams extends AbstractParams {
         c.put(PROP_min_sequence_matches, "[nglycan/labile search_mode only] Minimum number of sequence-specific (not Y) ions to record a match.");
         c.put(PROP_diagnostic_intensity_filter, "[nglycan/labile search_mode only]. Minimum relative intensity for SUM of all detected oxonium ions to achieve for spectrum to contain diagnostic fragment evidence. Calculated relative to spectrum base peak. 0 <= value.");
         c.put(PROP_activation_filter, "Filter to only search scans of provided activation type(s). Allowed: All, HCD, CID, ETD, ECD.");
-        c.put(PROP_analyzer_types, "Filter to only include scans matching the provided analyzer type(s) in search. Only support the mzML and raw format. Allowed types: all, FTMS, ITMS.");
+        c.put(PROP_analyzer_types, "Filter to only include scans matching the provided analyzer type(s) in search. Only support the mzML and raw format. Allowed types: all, FTMS, ITMS, ASTMS.");
         return c;
     }
 

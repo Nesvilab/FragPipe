@@ -25,6 +25,7 @@ import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.ACTIVATION_TYPE_
 import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.ACTIVATION_TYPE_HCD;
 import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.ANALYZER_TYPES;
 import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.ANALYZER_TYPE_ALL;
+import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.ANALYZER_TYPE_ASTMS;
 import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.ANALYZER_TYPE_FTMS;
 import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.ANALYZER_TYPE_ITMS;
 import static com.dmtavt.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTIONS;
@@ -189,7 +190,7 @@ public class TabMsfragger extends JPanelBase {
       .asList(GLYCO_OPTION_off, GLYCO_OPTION_nglycan, GLYCO_OPTION_labile);
   private static final List<String> ACTIVATION_TYPES_UI = Arrays
           .asList(ACTIVATION_TYPE_ALL, ACTIVATION_TYPE_HCD, ACTIVATION_TYPE_ETD, ACTIVATION_TYPE_CID, ACTIVATION_TYPE_ECD);
-  private static final List<String> ANALYZER_TYPES_UI = Arrays.asList(ANALYZER_TYPE_ALL, ANALYZER_TYPE_FTMS, ANALYZER_TYPE_ITMS);
+  private static final List<String> ANALYZER_TYPES_UI = Arrays.asList(ANALYZER_TYPE_ALL, ANALYZER_TYPE_FTMS, ANALYZER_TYPE_ITMS, ANALYZER_TYPE_ASTMS);
   private static final String LOAD_CUSTOM_CONFIG_OPTION = "Custom MSFragger parameter file from disk";
   private static final HashMap<String, String> ACTIVATION_MAP;  // to handle input of "" or "all" for activation param
   private static final Map<String, String> ANALYZER_MAP = new HashMap<>();
@@ -207,6 +208,7 @@ public class TabMsfragger extends JPanelBase {
     ANALYZER_MAP.put("ALL", ANALYZER_TYPE_ALL);
     ANALYZER_MAP.put("FTMS", ANALYZER_TYPE_FTMS);
     ANALYZER_MAP.put("ITMS", ANALYZER_TYPE_ITMS);
+    ANALYZER_MAP.put("ASTMS", ANALYZER_TYPE_ASTMS);
   }
 
   public static final List<MsfraggerEnzyme> ENZYMES = new EnzymeProvider().get();
