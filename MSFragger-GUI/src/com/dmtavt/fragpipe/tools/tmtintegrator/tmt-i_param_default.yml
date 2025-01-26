@@ -12,6 +12,8 @@ tmtintegrator:
   min_pep_prob: 0.9                               # minimum PSM probability threshold (in addition to FDR-based filtering by Philosopher)
   min_purity: 0.5                                 # ion purity score threshold
   min_percent: 0.05                               # remove low intensity PSMs (e.g. value of 0.05 indicates removal of PSMs with the summed TMT reporter ions intensity in the lowest 5% of all PSMs)
+  min_resolution: 45000                           # remove low resolution reporter ions (only for RAW file formats)
+  min_snr: 1.0                                    # remove low signal-to-noise ratio reporter ions (only for RAW file formats)
   unique_pep: false                               # allow PSMs with unique peptides only (if true) or unique plus razor peptides (if false), as classified by Philosopher and defined in PSM.tsv files
   unique_gene: 0                                  # additional, gene-level uniqueness filter (0: allow all PSMs; 1: remove PSMs mapping to more than one GENE with evidence of expression in the dataset; 2:remove all PSMs mapping to more than one GENE in the fasta file)
   best_psm: true                                  # keep the best PSM only (highest summed TMT intensity) among all redundant PSMs within the same LC-MS run

@@ -47,6 +47,8 @@ public class TmtiConfig {
     private double min_pep_prob;
     private double min_purity;
     private double min_percent;
+    private int min_resolution;
+    private double min_snr;
     private double min_site_prob;
     private int unique_gene;
     private String prot_exclude;
@@ -173,6 +175,22 @@ public class TmtiConfig {
 
     public void setMin_percent(double min_percent) {
       this.min_percent = min_percent;
+    }
+
+    public int getMin_resolution() {
+      return min_resolution;
+    }
+
+    public void setMin_resolution(int min_resolution) {
+      this.min_resolution = min_resolution;
+    }
+
+    public double getMin_snr() {
+      return min_snr;
+    }
+
+    public void setMin_snr(double min_snr) {
+      this.min_snr = min_snr;
     }
 
     public int getUnique_gene() {

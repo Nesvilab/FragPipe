@@ -115,6 +115,8 @@ public class TmtiPanel extends JPanelBase {
   private UiSpinnerDouble uiSpinnerMinPsmProb;
   private UiSpinnerDouble uiSpinnerMinPurity;
   private UiSpinnerDouble uiSpinnerMinPercent;
+  private UiSpinnerInt uiSpinnerMinResolution;
+  private UiSpinnerDouble uiSpinnerMinSnr;
   private UiText uiTextModTag;
   private UiSpinnerDouble uiSpinnerMinSiteProb;
   public static final String PREFIX = "tmtintegrator.";
@@ -443,6 +445,17 @@ public class TmtiPanel extends JPanelBase {
             + "of PSMs with the summed TMT reporter ions intensity in the lowest 5% of <br/>\n"
             + "all PSMs)");
 
+    uiSpinnerMinResolution = UiUtils.spinnerInt(45000, 0, Integer.MAX_VALUE, 1000).setCols(5).create();
+    FormEntry feMinResolution = fe(TmtiConfProps.PROP_min_resolution,
+        "Min Resolution", uiSpinnerMinResolution,
+        "<html>Remove low resolution reporter ions (only for RAW file formats)");
+
+    uiSpinnerMinSnr = UiSpinnerDouble
+        .builder(1.0, 0.0, Integer.MAX_VALUE, 0.1).setFormat(df2).setCols(5).create();
+    FormEntry feMinSnr = fe(TmtiConfProps.PROP_min_snr,
+        "Min SNR", uiSpinnerMinSnr,
+        "<html>Remove low signal-to-noise ratio reporter ions (only for RAW file formats)");
+
     UiSpinnerInt uiSpinnerMinNtt = UiUtils.spinnerInt(0, 0, 1000, 1).setCols(5).create();
     FormEntry feMinNtt = mu.feb(uiSpinnerMinNtt).name(TmtiConfProps.PROP_min_ntt).label("Min NTT")
         .tooltip("Minimum allowed number of enzymatic termini").create();
@@ -535,13 +548,17 @@ public class TmtiPanel extends JPanelBase {
     mu.add(p, feMinPurity.label(), mu.ccR());
     mu.add(p, feMinPurity.comp);
     mu.add(p, feMinPercent.label(), mu.ccR());
-    mu.add(p, feMinPercent.comp).wrap();
+    mu.add(p, feMinPercent.comp);
+    mu.add(p, feMinResolution.label(), mu.ccR());
+    mu.add(p, feMinResolution.comp).wrap();
     mu.add(p, feMaxPepProb.label(), mu.ccR());
     mu.add(p, feMaxPepProb.comp);
     mu.add(p, feMinNtt.label(), mu.ccR());
     mu.add(p, feMinNtt.comp);
     mu.add(p, feAggregationMethod.label(), mu.ccR());
-    mu.add(p, feAggregationMethod.comp).spanX().wrap();
+    mu.add(p, feAggregationMethod.comp);
+    mu.add(p, feMinSnr.label(), mu.ccR());
+    mu.add(p, feMinSnr.comp).wrap();
 
     JPanel pChecks = mu.newPanel(mu.lcNoInsetsTopBottom());
     mu.add(pChecks, feBestPsm.comp);
@@ -714,6 +731,14 @@ public class TmtiPanel extends JPanelBase {
 
   public double getMinIntensityPercent() {
     return uiSpinnerMinPercent.getActualValue();
+  }
+
+  public int getMinResolution() {
+    return uiSpinnerMinResolution.getActualValue();
+  }
+
+  public double getMinSnr() {
+    return uiSpinnerMinSnr.getActualValue();
   }
 
   public static class TmtAnnotationValidationException extends Exception {
