@@ -1,35 +1,31 @@
 tmtintegrator:
-  path: D:\test\TMTIntegrator.jar                 # path to TMT-Integrator jar
-  memory: 30                                      # memory allocation, in Gb
-  protein_database: D:\test\test.fasta            # protein fasta file
-  output: D:\test\reports                         # the location of output files
-  channel_num: 10                                 # number of channels in the multiplex (e.g. 10, 11)
-  ref_tag: pool                                   # unique tag for identifying the reference channel (Bridge sample added to each multiplex)
-  groupby: -1                                     # level of data summarization(0: PSM aggregation to the gene level; 1: protein; 2: peptide sequence; 3: multiple PTM sites; 4: single PTM site; 5: multi-mass (for glycosylation); -1: generate reports at all levels)
-  psm_norm: false                                 # perform additional retention time-based normalization at the PSM level
-  outlier_removal: true                           # perform outlier removal
-  prot_norm: -1                                   # normalization ( -1: generate reports with all normalization options; 0: None; 1: MC (median centering); 2: GN (median centering + variance scaling))
-  min_pep_prob: 0.9                               # minimum PSM probability threshold (in addition to FDR-based filtering by Philosopher)
-  min_purity: 0.5                                 # ion purity score threshold
-  min_percent: 0.05                               # remove low intensity PSMs (e.g. value of 0.05 indicates removal of PSMs with the summed TMT reporter ions intensity in the lowest 5% of all PSMs)
-  min_resolution: 45000                           # remove low resolution reporter ions (only for RAW file formats)
-  min_snr: 1.0                                    # remove low signal-to-noise ratio reporter ions (only for RAW file formats)
-  unique_pep: false                               # allow PSMs with unique peptides only (if true) or unique plus razor peptides (if false), as classified by Philosopher and defined in PSM.tsv files
-  unique_gene: 0                                  # additional, gene-level uniqueness filter (0: allow all PSMs; 1: remove PSMs mapping to more than one GENE with evidence of expression in the dataset; 2:remove all PSMs mapping to more than one GENE in the fasta file)
-  best_psm: true                                  # keep the best PSM only (highest summed TMT intensity) among all redundant PSMs within the same LC-MS run
-  prot_exclude: none                              # exclude proteins with specified tags at the beginning of the accession number (e.g. none: no exclusion; sp|,tr| : exclude protein with sp| or tr|)
-  allow_overlabel: true                           # allow PSMs with TMT on S (when overlabeling on S was allowed in the database search)
-  allow_unlabeled: false                          # allow PSMs without TMT tag or acetylation on the peptide n-terminus 
-  mod_tag: none                                   # PTM info for generation of PTM-specific reports (none: for Global data; S(79.9663),T(79.9663),Y(79.9663): for Phospho; K(42.0105): for K-Acetyl; M(15.9949): for M-Oxidation; N-glyco: for N-glycosylation; O-glyco: for O-glycosylation)
-  min_site_prob: -1                               # site localization confidence threshold (-1: for Global; 0: as determined by the search engine; above 0 (e.g. 0.75): PTMProphet probability, to be used with phosphorylation only)
-  ms1_int: true                                   # use MS1 precursor ion intensity (if true) or MS2 reference intensity (if false) as part of the reference sample abundance estimation 
-  top3_pep: true                                  # use top 3 most intense peptide ions as part of the reference sample abundance estimation
-  print_RefInt: false                             # print individual reference sample abundance estimates for each multiplex in the final reports (in addition to the combined reference sample abundance estimate)
   add_Ref: -1                                     # add an artificial reference channel if there is no reference channel or export raw abundance (-2: export raw abundance; -1: don't add the reference; 0: use summation as the reference; 1: use average as the reference; 2: use median as the reference)
+  aggregation_method: 0                           # the aggregation method from the PSM level to the specified level (0: median, 1: weighted-ratio)
+  allow_overlabel: true                           # allow PSMs with TMT on S (when overlabeling on S was allowed in the database search)
+  allow_unlabeled: false                          # allow PSMs without TMT tag or acetylation on the peptide n-terminus
+  best_psm: true                                  # keep the best PSM only (highest summed TMT intensity) among all redundant PSMs within the same LC-MS run
+  channel_num: 10                                 # number of channels in the multiplex (e.g. 10, 11)
+  glyco_qval: -1                                  # (optional) filter modified PSMs to those with glycan q-value less than provided value. 0 <= value <= 1. Value of -1 or not specified ignores
+  groupby: -1                                     # level of data summarization(0: PSM aggregation to the gene level; 1: protein; 2: peptide sequence; 3: multiple PTM sites; 4: single PTM site; 5: multi-mass (for glycosylation); -1: generate reports at all levels)
+  log2transformed: true                           # report ratio and abundance reports in the log2 scale
   max_pep_prob_thres: 0                           # the threshold for maximum peptide probability
   min_ntt: 0                                      # minimum allowed number of enzymatic termini
-  aggregation_method: 0                           # the aggregation method from the PSM level to the specified level (0: median, 1: weighted-ratio)
+  min_pep_prob: 0.9                               # minimum PSM probability threshold (in addition to FDR-based filtering by Philosopher)
+  min_percent: 0.05                               # remove low intensity PSMs (e.g. value of 0.05 indicates removal of PSMs with the summed TMT reporter ions intensity in the lowest 5% of all PSMs)
+  min_purity: 0.5                                 # ion purity score threshold
+  min_resolution: 45000
+  min_site_prob: -1                               # site localization confidence threshold (-1: for Global; 0: as determined by the search engine; above 0 (e.g. 0.75): PTMProphet probability, to be used with phosphorylation only)
+  min_snr: 1
+  mod_tag: none                                   # PTM info for generation of PTM-specific reports (none: for Global data; S(79.9663),T(79.9663),Y(79.9663): for Phospho; K(42.0105): for K-Acetyl; M(15.9949): for M-Oxidation; N-glyco: for N-glycosylation; O-glyco: for O-glycosylation)
+  ms1_int: true                                   # use MS1 precursor ion intensity (if true) or MS2 reference intensity (if false) as part of the reference sample abundance estimation
+  outlier_removal: true                           # perform outlier removal
+  output: D:\test\reports                         # the location of output files
+  print_RefInt: false                             # print individual reference sample abundance estimates for each multiplex in the final reports (in addition to the combined reference sample abundance estimate)
+  prot_exclude: none                              # exclude proteins with specified tags at the beginning of the accession number (e.g. none: no exclusion; sp|,tr| : exclude protein with sp| or tr|)
+  prot_norm: -1                                   # normalization ( -1: generate reports with all normalization options; 0: None; 1: MC (median centering); 2: GN (median centering + variance scaling); 3: SL+IRS (sample loading and internal reference scaling))
+  psm_norm: false                                 # perform additional retention time-based normalization at the PSM level
+  ref_tag: pool                                   # unique tag for identifying the reference channel (Bridge sample added to each multiplex)
+  top3_pep: true                                  # use top 3 most intense peptide ions as part of the reference sample abundance estimation
+  unique_gene: 0                                  # additional, gene-level uniqueness filter (0: allow all PSMs; 1: remove PSMs mapping to more than one GENE with evidence of expression in the dataset; 2:remove all PSMs mapping to more than one GENE in the fasta file)
+  unique_pep: false                               # allow PSMs with unique peptides only (if true) or unique plus razor peptides (if false), as classified by Philosopher and defined in PSM.tsv files
   use_glycan_composition: false                   # (optional) for multi-mass report, create index using glycan composition (from observed mod column) instead of mass
-  glyco_qval: -1                                  # (optional) filter modified PSMs to those with glycan q-value less than provided value. 0 <= value <= 1. Value of -1 or not specified ignores
-  prefix: rev_                                    # the prefix for decoy sequences
-  log2transformed: true                           # report ratio and abundance reports in the log2 scale
