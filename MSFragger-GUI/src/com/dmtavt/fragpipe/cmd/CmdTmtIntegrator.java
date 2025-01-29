@@ -56,7 +56,7 @@ public class CmdTmtIntegrator extends CmdBase {
 
   public static final String NAME = "TmtIntegrator";
   public static final String JAR_NAME = "TMT-Integrator-6.0.1.jar";
-  public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML", "raw");
+  public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML", "raw", "d");
   public static final String CONFIG_FN = "tmt-integrator-conf.yml";
   public static final String CONFIG_FN_2 = "tmt-integrator-conf-unmod.yml";
 
@@ -73,9 +73,9 @@ public class CmdTmtIntegrator extends CmdBase {
     List<String> notSupportedExts = getNotSupportedExts(mapGroupsToProtxml, SUPPORTED_FORMATS);
     if (!notSupportedExts.isEmpty()) {
       if (Fragpipe.headless) {
-        log.error(String.format("Philosopher as the TMT intensity extraction tool doesn't support '.%s' files. Please replace with mzML format or set IonQuant as the TMT intensity extraction tool.", String.join(", ", notSupportedExts)));
+        log.error(String.format("TMT-Integrator doesn't support '.%s' files.", String.join(", ", notSupportedExts)));
       } else {
-        JOptionPane.showMessageDialog(comp, String.format("<html>Philosopher as the TMT intensity extraction tool doesn't support '.%s' files.<br>Please replace with mzML format or set IonQuant as the TMT intensity extraction tool.", String.join(", ", notSupportedExts)), NAME + " error", JOptionPane.WARNING_MESSAGE);
+        JOptionPane.showMessageDialog(comp, String.format("<html>TMT-Integrator doesn't support '.%s' files.", String.join(", ", notSupportedExts)), NAME + " error", JOptionPane.WARNING_MESSAGE);
       }
       return false;
     }

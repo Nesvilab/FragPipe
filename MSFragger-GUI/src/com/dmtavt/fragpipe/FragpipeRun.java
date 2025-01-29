@@ -1797,8 +1797,11 @@ public class FragpipeRun {
     addConfig.accept(cmdTmt, () -> {
       cmdTmt.setRun(cmdTmt.isRun() && !sharedMapGroupsToProtxml.isEmpty());
       if (cmdTmt.isRun()) {
-        if (sharedLcmsFiles.stream().anyMatch(f -> !f.getPath().getFileName().toString().toLowerCase().endsWith(".mzml") && !f.getPath().getFileName().toString().toLowerCase().endsWith(".raw"))) {
-          SwingUtils.showWarningDialog(parent, CmdTmtIntegrator.NAME + " only supports mzML and raw files.\nPlease remove other files from the input list.", CmdTmtIntegrator.NAME + " error");
+        if (sharedLcmsFiles.stream().anyMatch(f ->
+            !f.getPath().getFileName().toString().toLowerCase().endsWith(".mzml") &&
+                !f.getPath().getFileName().toString().toLowerCase().endsWith(".raw") &&
+                !f.getPath().getFileName().toString().toLowerCase().endsWith(".d"))) {
+          SwingUtils.showWarningDialog(parent, CmdTmtIntegrator.NAME + " only supports mzML, raw, and .d files.\nPlease remove other files from the input list.", CmdTmtIntegrator.NAME + " error");
           return false;
         }
         Map<LcmsFileGroup, Path> annotations = tmtiPanel.getAnnotations(wd, isDryRun);
@@ -2063,8 +2066,11 @@ public class FragpipeRun {
       // run TMT-Integrator a second time to provide unmodified peptide data as well as modified (does NOT rerun freequant/labelquant)
       addConfig.accept(cmdTmtFpop, () -> {
         cmdTmtFpop.setRun(cmdTmtFpop.isRun() && !sharedMapGroupsToProtxml.isEmpty());
-        if (sharedLcmsFiles.stream().anyMatch(f -> !f.getPath().getFileName().toString().toLowerCase().endsWith(".mzml") && !f.getPath().getFileName().toString().toLowerCase().endsWith(".raw"))) {
-          SwingUtils.showWarningDialog(parent, CmdTmtIntegrator.NAME + " only supports mzML and raw files.\nPlease remove other files from the input list.", CmdTmtIntegrator.NAME + " error");
+        if (sharedLcmsFiles.stream().anyMatch(f ->
+            !f.getPath().getFileName().toString().toLowerCase().endsWith(".mzml") &&
+                !f.getPath().getFileName().toString().toLowerCase().endsWith(".raw") &&
+                !f.getPath().getFileName().toString().toLowerCase().endsWith(".d"))) {
+          SwingUtils.showWarningDialog(parent, CmdTmtIntegrator.NAME + " only supports mzML, raw, and .d files.\nPlease remove other files from the input list.", CmdTmtIntegrator.NAME + " error");
           return false;
         }
         Map<LcmsFileGroup, Path> annotations = tmtiPanel.getAnnotations(wd, isDryRun);
@@ -2203,8 +2209,7 @@ public class FragpipeRun {
         // timsTOF data compatibility check
         List<CmdBase> incompatible = Seq.seq(graphOrder.vertexSet())
             .filter(CmdBase::isRun)
-            .filter(cmd -> (cmd instanceof CmdCrystalc) || (cmd instanceof CmdFreequant) || (cmd instanceof CmdLabelquant)
-                || (cmd instanceof CmdTmtIntegrator)).toList();
+            .filter(cmd -> (cmd instanceof CmdCrystalc) || (cmd instanceof CmdFreequant) || (cmd instanceof CmdLabelquant)).toList();
         if (!incompatible.isEmpty()) {
           String s = Seq.seq(incompatible).map(CmdBase::getCmdName).distinct().toString(", ");
           if (Fragpipe.headless) {
