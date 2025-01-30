@@ -17,6 +17,7 @@
 
 package com.dmtavt.fragpipe.tools.tmtintegrator;
 
+import static com.dmtavt.fragpipe.tools.tmtintegrator.QuantLabel.labelModMap;
 import static com.dmtavt.fragpipe.tools.tmtintegrator.QuantLabelAnnotation.disallowedPattern;
 import static com.dmtavt.fragpipe.tools.tmtintegrator.QuantLabelAnnotation.unifyAnnotationSampleName;
 
@@ -42,6 +43,7 @@ import com.github.chhh.utils.swing.UiSpinnerInt;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
 import com.github.chhh.utils.swing.renderers.ButtonColumn;
+import com.google.common.base.Joiner;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -1192,6 +1194,7 @@ public class TmtiPanel extends JPanelBase {
         // TMT-I only needs the channel_num, but multiple tags may have the same number so we save the label_type to workflow file instead
         // of channel num. Get the channel num from the QuantLabel for the TMT-I config
         mapConv.put(TmtiConfProps.PROP_channel_num, String.format("%d", quantLabel.getReagentNames().size()));
+        mapConv.put(TmtiConfProps.PROP_label_masses, labelModMap.containsKey(quantLabel.getName()) ? Joiner.on(",").join(labelModMap.get(quantLabel.getName())) : "0");
       } else {
         mapConv.put(prop, CONVERT_TO_FILE.getOrDefault(prop, Function.identity()).apply(v));
       }

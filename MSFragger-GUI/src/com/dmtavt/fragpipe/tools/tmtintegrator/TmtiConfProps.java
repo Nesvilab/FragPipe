@@ -55,9 +55,10 @@ public class TmtiConfProps {
   public static final String PROP_max_pep_prob_thres = "max_pep_prob_thres";
   public static final String PROP_log2transformed = "log2transformed";
   public static final String PROP_abundance_type = "abn_type";
+  public static final String PROP_label_masses = "label_masses";
 
   public static final List<String> PROPS = Arrays
-      .asList(PROP_path, PROP_memory, PROP_output, PROP_channel_num,
+      .asList(PROP_path, PROP_memory, PROP_output, PROP_channel_num, PROP_label_masses,
           PROP_ref_tag, PROP_min_pep_prob, PROP_min_purity, PROP_min_percent, PROP_min_resolution, PROP_min_snr, PROP_min_ntt, PROP_min_site_prob,
           PROP_unique_gene, PROP_prot_exclude, PROP_mod_tag, PROP_groupby, PROP_prot_norm,
           PROP_add_Ref, PROP_psm_norm, PROP_unique_pep, PROP_outlier_removal, PROP_best_psm,
