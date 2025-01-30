@@ -210,6 +210,7 @@ public class Skyline {
         writer.write("--import-search-cutoff-score=0.01 ");
         writer.write("--import-search-file=" + speclibFiles.get(0).toAbsolutePath() + " ");
       }
+      writer.write("--import-search-include-ambiguous ");
 
       if (v.compareTo(new DefaultArtifactVersion("23.1.1.335")) >= 0) {
         writer.write("--pep-max-missed-cleavages=" + pf.getProperty("msfragger.allowed_missed_cleavage_1") + " ");
