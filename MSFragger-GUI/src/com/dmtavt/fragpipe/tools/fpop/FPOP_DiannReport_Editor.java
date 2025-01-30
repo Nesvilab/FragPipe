@@ -45,7 +45,7 @@ public class FPOP_DiannReport_Editor {
                     System.exit(1);
                 }
             } catch (Exception ex) {
-                System.err.print("Error: FPOP mods could not be written to report.tsv, unable load internal Unimod definitions.\n");
+                System.err.print("Error: FPOP mods could not be written to report.tsv\n");
                 ex.printStackTrace();
                 System.exit(1);
             }
@@ -124,7 +124,11 @@ public class FPOP_DiannReport_Editor {
                     // find the mass from Unimod ID lookup
                     match = m.group(3);
                     mass = unimodMassMap.get(match.toLowerCase());
-                    aa = modifiedSequence.charAt(m.start() - 1);
+                    if (m.start() == 0) {
+                        aa = 'n';   // N-terminal mod
+                    } else {
+                        aa = modifiedSequence.charAt(m.start() - 1);
+                    }
                     adjustedIndex = m.start() - modCharacterOffset;
                     matchLen = m.group().length();
                 } else {
