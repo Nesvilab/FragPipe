@@ -52,7 +52,7 @@ public class CmdSkyline extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, String skylinePath, String skylineVersion, Path jarFragpipe, int ramGb, boolean isRunDIANN, int modsMode, boolean useSsl) {
+  public boolean configure(Component comp, String skylinePath, String skylineVersion, Path jarFragpipe, int ramGb, int modsMode, boolean useSsl) {
     initPreConfig();
 
     if (skylinePath == null) {
@@ -106,7 +106,6 @@ public class CmdSkyline extends CmdBase {
     cmd.add(skylinePath);
     cmd.add(wd.toAbsolutePath().toString());
     cmd.add(skylineVersion);
-    cmd.add(String.valueOf(isRunDIANN));
     cmd.add(String.valueOf(modsMode));
     cmd.add(String.valueOf(useSsl));
 

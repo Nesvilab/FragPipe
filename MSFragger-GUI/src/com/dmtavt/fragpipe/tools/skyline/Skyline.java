@@ -58,7 +58,6 @@ public class Skyline {
   private static final String DOWNLOAD_URL = "https://skyline.ms/project/home/software/Skyline/begin.view";
   private static final Pattern versionWithSpacesPattern = Pattern.compile(" ([\\d.]+) ?");
   private static final Pattern versionNoSpacesPattern = Pattern.compile("([\\d.]+)");
-  private static final Pattern pattern = Pattern.compile("Converged to [\\d.]+ % FDR with \\d+ Ions\"?\\s+decoy=\\d+ threshold=([\\d.]+) total=\\d+");
 
   public static DefaultArtifactVersion skylineVersionT = new DefaultArtifactVersion("23.1.1.0");
   private static DefaultArtifactVersion skylineVersion = null;
@@ -92,14 +91,14 @@ public class Skyline {
 
   public static void main(String[] args) {
     try {
-      runSkyline(args[0], Paths.get(args[1]), args[2], Boolean.parseBoolean(args[3]), Integer.parseInt(args[4]), Boolean.parseBoolean(args[5]));
+      runSkyline(args[0], Paths.get(args[1]), args[2], Integer.parseInt(args[3]), Boolean.parseBoolean(args[4]));
     } catch (Exception e) {
       e.printStackTrace();
       System.exit(1);
     }
   }
 
-  private static void runSkyline(String skylinePath, Path wd, String skylineVersion, boolean isRunDIANN, int modsMode, boolean useSsl) throws Exception {
+  private static void runSkyline(String skylinePath, Path wd, String skylineVersion, int modsMode, boolean useSsl) throws Exception {
     if (skylinePath == null || skylinePath.isEmpty()) {
       throw new RuntimeException("Cannot find the Skyline executable file.");
     } else {
@@ -124,7 +123,7 @@ public class Skyline {
         }
       }
       reader.close();
-      boolean useSpeclib = isRunDIANN && !useSsl;
+      boolean useSpeclib = dataType.contentEquals("DIA") && !useSsl;
 
       reader = Files.newBufferedReader(wd.resolve("fragpipe-files.fp-manifest"));
       while ((line = reader.readLine()) != null) {
