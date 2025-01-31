@@ -19,14 +19,17 @@ package com.dmtavt.fragpipe.tools.skyline;
 
 import static com.github.chhh.utils.OsUtils.isWindows;
 
-import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.messages.MessageUiRevalidate;
-import com.dmtavt.fragpipe.tools.diann.DiannPanel;
-import com.dmtavt.fragpipe.tools.speclibgen.SpeclibPanel;
 import com.github.chhh.utils.SwingUtils;
-import com.github.chhh.utils.swing.*;
+import com.github.chhh.utils.swing.FileChooserUtils;
 import com.github.chhh.utils.swing.FileChooserUtils.FcMode;
-
+import com.github.chhh.utils.swing.FormEntry;
+import com.github.chhh.utils.swing.JPanelBase;
+import com.github.chhh.utils.swing.UiCheck;
+import com.github.chhh.utils.swing.UiCombo;
+import com.github.chhh.utils.swing.UiRadio;
+import com.github.chhh.utils.swing.UiText;
+import com.github.chhh.utils.swing.UiUtils;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.ItemSelectable;
@@ -64,7 +67,7 @@ public class SkylinePanel extends JPanelBase {
   private UiRadio uiRadioSkylineDaily;
   private UiRadio uiRadioSkylineCustom;
   private UiText uiTextSkylineCustom;
-  private UiCheck uiCheckOverridePeakBounds;
+  private UiCheck uiCheckUseSsl;
   private UiCombo uiComboModsMode;
 
   @Override
@@ -162,9 +165,9 @@ public class SkylinePanel extends JPanelBase {
         + "Check the box to override those bounds and have Skyline calculate its own peak boundaries<br>"
         + "(note: this does NOT affect the output tables from FragPipe).<br>"
         + "If IonQuant/DIANN are not run, Skyline bounds will be used regardless of this setting.";
-    uiCheckOverridePeakBounds = UiUtils.createUiCheck("Let Skyline override peak bounds", false);
-    uiCheckOverridePeakBounds.setName("override-peak-bounds");
-    uiCheckOverridePeakBounds.setToolTipText(SwingUtils.makeHtml(peakBoundsTooltip));
+    uiCheckUseSsl = UiUtils.createUiCheck("Let Skyline build the library and determine peak boundaries", false);
+    uiCheckUseSsl.setName("use-ssl");
+    uiCheckUseSsl.setToolTipText(SwingUtils.makeHtml(peakBoundsTooltip));
 
     uiComboModsMode = UiUtils.createUiCombo(Arrays.asList("Default", "O-glyco", "N-glyco"));
     uiComboModsMode.setSelectedIndex(0);
@@ -178,9 +181,9 @@ public class SkylinePanel extends JPanelBase {
     mu.add(panelBasic, feSkylineCustom.comp).growX().pushX();
     mu.add(panelBasic, jButtonSkylineCustom).wrap();
 
-    mu.add(panelBasic, uiCheckOverridePeakBounds).wrap();
+    mu.add(panelBasic, uiCheckUseSsl).wrap();
 
-    mu.add(panelBasic, feComboModsMode.label(), mu.ccL());
+    mu.add(panelBasic, feComboModsMode.label(), mu.ccL()).split(2);
     mu.add(panelBasic, feComboModsMode.comp).wrap();
 
     updateEnabledStatus(feSkylineCustom.comp, uiRadioSkylineCustom.isSelected());
@@ -271,8 +274,8 @@ public class SkylinePanel extends JPanelBase {
     }
   }
 
-  public boolean isOverridePeakBounds() {
-    return uiCheckOverridePeakBounds.isSelected();
+  public boolean isUseSsl() {
+    return uiCheckUseSsl.isSelected();
   }
 
   public int getModsMode() {

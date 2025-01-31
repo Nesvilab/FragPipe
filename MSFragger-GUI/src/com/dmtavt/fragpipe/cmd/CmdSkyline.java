@@ -22,11 +22,7 @@ import static com.dmtavt.fragpipe.cmd.ToolingUtils.BATMASS_IO_JAR;
 import com.dmtavt.fragpipe.Fragpipe;
 import com.dmtavt.fragpipe.FragpipeLocations;
 import com.dmtavt.fragpipe.Version;
-import com.dmtavt.fragpipe.tools.diann.DiannPanel;
-import com.dmtavt.fragpipe.tools.ionquant.QuantPanelLabelfree;
 import com.dmtavt.fragpipe.tools.skyline.Skyline;
-import com.dmtavt.fragpipe.tools.skyline.SkylineMode;
-import com.dmtavt.fragpipe.tools.speclibgen.SpeclibPanel;
 import com.github.chhh.utils.OsUtils;
 import java.awt.Component;
 import java.io.IOException;
@@ -56,7 +52,7 @@ public class CmdSkyline extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, String skylinePath, String skylineVersion, Path jarFragpipe, int ramGb, boolean isRunDIANN, int modsMode, boolean overridePeakBounds) {
+  public boolean configure(Component comp, String skylinePath, String skylineVersion, Path jarFragpipe, int ramGb, boolean isRunDIANN, int modsMode, boolean useSsl) {
     initPreConfig();
 
     if (skylinePath == null) {
@@ -112,7 +108,7 @@ public class CmdSkyline extends CmdBase {
     cmd.add(skylineVersion);
     cmd.add(String.valueOf(isRunDIANN));
     cmd.add(String.valueOf(modsMode));
-    cmd.add(String.valueOf(overridePeakBounds));
+    cmd.add(String.valueOf(useSsl));
 
     ProcessBuilder pb = new ProcessBuilder(cmd);
     pb.directory(wd.toFile());

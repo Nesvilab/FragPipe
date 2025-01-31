@@ -99,7 +99,7 @@ public class Skyline {
     }
   }
 
-  private static void runSkyline(String skylinePath, Path wd, String skylineVersion, boolean isRunDIANN, int modsMode, boolean overridePeakBounds) throws Exception {
+  private static void runSkyline(String skylinePath, Path wd, String skylineVersion, boolean isRunDIANN, int modsMode, boolean useSsl) throws Exception {
     if (skylinePath == null || skylinePath.isEmpty()) {
       throw new RuntimeException("Cannot find the Skyline executable file.");
     } else {
@@ -124,7 +124,7 @@ public class Skyline {
         }
       }
       reader.close();
-      boolean useSpeclib = isRunDIANN && !overridePeakBounds;
+      boolean useSpeclib = isRunDIANN && !useSsl;
 
       reader = Files.newBufferedReader(wd.resolve("fragpipe-files.fp-manifest"));
       while ((line = reader.readLine()) != null) {
@@ -169,9 +169,9 @@ public class Skyline {
         sslWriter = new WriteSSL();
         if (dataType.contentEquals("DIA")) {
           // psm.tsv refers to DDA files, need to provide as well
-          sslWriter.writeSSL(psmTsvFiles, sslPath, isPercolator, ddaAndDIAfiles, !overridePeakBounds);
+          sslWriter.writeSSL(psmTsvFiles, sslPath, isPercolator, ddaAndDIAfiles, !useSsl);
         } else {
-          sslWriter.writeSSL(psmTsvFiles, sslPath, isPercolator, lcmsFiles, !overridePeakBounds);
+          sslWriter.writeSSL(psmTsvFiles, sslPath, isPercolator, lcmsFiles, !useSsl);
         }
       }
 

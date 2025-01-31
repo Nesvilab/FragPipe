@@ -2174,7 +2174,7 @@ public class FragpipeRun {
     final CmdSkyline cmdSkyline = new CmdSkyline(skylinePanel.isRun(), wd);
     addConfig.accept(cmdSkyline, () -> {
       if (cmdSkyline.isRun()) {
-        return cmdSkyline.configure(parent, skylinePanel.getSkylinePath(), skylinePanel.getSkylineVersion(), jarPath, ramGb, diannPanel.isRun(), skylinePanel.getModsMode(), skylinePanel.isOverridePeakBounds());
+        return cmdSkyline.configure(parent, skylinePanel.getSkylinePath(), skylinePanel.getSkylineVersion(), jarPath, ramGb, diannPanel.isRun(), skylinePanel.getModsMode(), skylinePanel.isUseSsl());
       }
       return true;
     });
