@@ -69,9 +69,17 @@ public class WriteSSL {
                 String scoreType = isPercolator ? "PERCOLATOR QVALUE" : "PEPTIDE PROPHET SOMETHING";
                 sslLine.append(scoreType).append("\t");
                 if (columns.containsKey(COL_SCORE)) {
-                    sslLine.append(splits[columns.get(COL_SCORE)]).append("\t");
+                    if (isPercolator) {
+                        sslLine.append(1 - Float.parseFloat(splits[columns.get(COL_SCORE)])).append("\t");
+                    } else {
+                        sslLine.append(splits[columns.get(COL_SCORE)]).append("\t");
+                    }
                 } else {
-                    sslLine.append(splits[columns.get(COL_SCORE_2)]).append("\t");
+                    if (isPercolator) {
+                        sslLine.append(1 - Float.parseFloat(splits[columns.get(COL_SCORE_2)])).append("\t");
+                    } else {
+                        sslLine.append(splits[columns.get(COL_SCORE_2)]).append("\t");
+                    }
                 }
                 sslLine.append(Float.parseFloat(splits[columns.get(COL_RT)]) / 60).append("\t");      // RT in minutes
 
