@@ -124,7 +124,7 @@ public class DiannToMsstats {
     BufferedReader bufferedReader = new BufferedReader(new FileReader(diannPath));
     while ((line = bufferedReader.readLine()) != null) {
       line = line.trim();
-      if (line.startsWith("File.Name\t")) {
+      if (line.contains("Protein.Group") && line.contains("Protein.Ids")) {
         String[] header = line.split("\t");
         for (int i = 0; i < header.length; ++i) {
           if (header[i].trim().equalsIgnoreCase("run")) {

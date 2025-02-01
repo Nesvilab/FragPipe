@@ -378,9 +378,9 @@ public class PlexDiaHelper {
     return pickedPair;
   }
 
-  private Map<String, Integer> getColumnIndexMap(Path path, String firstColumnName, String[] header) {
-    if(!header[0].contentEquals(firstColumnName)) {
-      throw new RuntimeException("The library file " + path.toAbsolutePath() + " does not start with " + firstColumnName + " column");
+  private Map<String, Integer> getColumnIndexMap(Path path, String[] header) {
+    if(!header[0].contains("Protein.Group") || !header[0].contains("Protein.Ids")) {
+      throw new RuntimeException(path.toAbsolutePath() + " does not contains Protein.Group and Protein.Ids columns");
     }
 
     Map<String, Integer> columnNameToIndex = new HashMap<>();
@@ -576,7 +576,7 @@ public class PlexDiaHelper {
     forkJoinPool.shutdown();
     reader.close();
 
-    Map<String, Integer> columnNameToIndex = getColumnIndexMap(path, "File.Name", diann.get(0));
+    Map<String, Integer> columnNameToIndex = getColumnIndexMap(path, diann.get(0));
 
     int runIdx = columnNameToIndex.get("Run");
     int modifiedSequenceIdx = columnNameToIndex.get("Modified.Sequence");

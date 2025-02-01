@@ -123,6 +123,10 @@ dependencies {
     implementation group: 'org.netbeans.api', name: 'org-netbeans-swing-outline', version: 'RELEASE200'
     implementation 'commons-io:commons-io:2.15.1'
 
+    implementation 'org.apache.parquet:parquet-hadoop:1.15.0'
+    implementation 'org.apache.hadoop:hadoop-common:3.4.1'
+    implementation 'org.apache.hadoop:hadoop-mapreduce-client-core:3.4.1'
+
     // Use JUnit test framework
     testImplementation 'junit:junit:4.13.2'
 }

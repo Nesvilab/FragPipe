@@ -25,7 +25,6 @@ import static com.dmtavt.fragpipe.tabs.TabDatabase.databaseSizeLimit;
 import static com.dmtavt.fragpipe.tabs.TabRun.PDV_NAME;
 import static com.dmtavt.fragpipe.tabs.TabWorkflow.manifestExt;
 import static com.dmtavt.fragpipe.tabs.TabWorkflow.workflowExt;
-import static com.dmtavt.fragpipe.tools.diann.DiannPanel.NEW_VERSION;
 import static com.dmtavt.fragpipe.tools.skyline.Skyline.skylineVersionT;
 import static com.github.chhh.utils.FileDelete.deleteFileOrFolder;
 import static com.github.chhh.utils.SwingUtils.wrapInScrollForDialog;
@@ -2126,11 +2125,6 @@ public class FragpipeRun {
     // run DIA-NN
     boolean isNew;
     NoteConfigDiann noteConfigDiann = Fragpipe.getStickyStrict(NoteConfigDiann.class);
-    if (noteConfigDiann != null && noteConfigDiann.version != null && noteConfigDiann.compareVersion(NEW_VERSION) >= 0) {
-      isNew = true;
-    } else {
-      isNew = false;
-    }
 
     final SkylinePanel skylinePanel = Fragpipe.getStickyStrict(SkylinePanel.class);
     boolean moveSpeclibForSkyline;
@@ -2149,7 +2143,7 @@ public class FragpipeRun {
         return cmdDiann.configure(parent,
             sharedLcmsFileGroupsAll.values(),
             threads,
-            diannPanel.getDiannQuantificationStrategy(isNew),
+            diannPanel.getDiannQuantificationStrategy(noteConfigDiann),
             diannPanel.getDiannChannelNormalizationStrategy(),
             diannPanel.usePredict(),
             diannPanel.unrelatedRuns(),
@@ -2165,7 +2159,7 @@ public class FragpipeRun {
             diannPanel.getHeavy(),
             jarPath,
             moveSpeclibForSkyline,
-            isNew);
+            noteConfigDiann);
       }
       return true;
     });

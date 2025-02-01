@@ -138,7 +138,7 @@ public class Propagation {
             peptideColumnIdx = i;
           } else if (parts[i].trim().contentEquals("Assigned Modifications")) {
             assignedModificationsColumnIdx = i;
-          } else if (parts[i].trim().contentEquals("Charge")) {
+          } else if (parts[i].trim().contentEquals("Charge") || parts[i].trim().contentEquals("Precursor.Charge")) {
             chargeColumnIdx = i;
           } else if (parts[i].trim().contentEquals("Protein")) {
             proteinColumnIdx = i;
@@ -219,19 +219,23 @@ public class Propagation {
       modificationArray = precursorModificationLocalizationTable.columnKeySet().toArray(new String[0]);
     }
 
-    editReport(diann_directory.resolve("report.tsv"), precursorModificationLocalizationTable, modificationArray, precursorProteinGeneMap, 1);
-    editReport(diann_directory.resolve("report.pr_matrix.tsv"), precursorModificationLocalizationTable, modificationArray, precursorProteinGeneMap, 2);
+    Path p = diann_directory.resolve("report.tsv");
+    if (Files.exists(p) && Files.isReadable(p)) {
+      editReport(p, precursorModificationLocalizationTable, modificationArray, precursorProteinGeneMap, 1);
+    }
+
+    p = diann_directory.resolve("report.pr_matrix.tsv");
+    if (Files.exists(p) && Files.isReadable(p)) {
+      editReport(p, precursorModificationLocalizationTable, modificationArray, precursorProteinGeneMap, 2);
+    }
   }
 
   private void editReport(Path p, Table<Precursor, String, LocalizedPeptide> precursorModificationLocalizationTable, String[] modificationArray, Map<String, String[]> precursorProteinGeneMap, int type) throws Exception {
     String s = "";
-    String firstLineMarker = "";
     if (type == 1) {
       s = "report2.tsv";
-      firstLineMarker = "File.Name\tRun\t";
     } else if (type == 2) {
       s = "report.pr_matrix2.tsv";
-      firstLineMarker = "Protein.Group\tProtein.Ids\t";
     }
     Path p2 = p.toAbsolutePath().getParent().resolve(s);
 
@@ -250,7 +254,7 @@ public class Propagation {
       }
 
       String[] parts = line.split("\t");
-      if (line.startsWith(firstLineMarker)) {
+      if (line.contains("Protein.Group") && line.contains("Protein.Ids")) {
         for (int i = 0; i < parts.length; ++i) {
           if (parts[i].trim().contentEquals("Stripped.Sequence")) {
             strippedSequenceColumnIdx = i;

@@ -34,8 +34,9 @@ import com.dmtavt.fragpipe.api.LcmsFileGroup;
 import com.dmtavt.fragpipe.messages.NoteConfigDiann;
 import com.dmtavt.fragpipe.tools.diann.Diann;
 import com.dmtavt.fragpipe.tools.diann.DiannToMsstats;
-import com.dmtavt.fragpipe.tools.diann.Propagation;
+import com.dmtavt.fragpipe.tools.diann.ParquetToTsv;
 import com.dmtavt.fragpipe.tools.diann.PlexDiaHelper;
+import com.dmtavt.fragpipe.tools.diann.Propagation;
 import com.github.chhh.utils.OsUtils;
 import com.github.chhh.utils.StringUtils;
 import com.github.chhh.utils.SwingUtils;
@@ -47,7 +48,16 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -102,7 +112,7 @@ public class CmdDiann extends CmdBase {
       String heavyString,
       Path jarFragpipe,
       boolean isRunSkyline,
-      boolean isNew
+      NoteConfigDiann noteConfigDiann
   ) {
     initPreConfig();
 
@@ -300,12 +310,16 @@ public class CmdDiann extends CmdBase {
         cmd.add("--predictor");
         cmd.add("--dl-no-rt");
         cmd.add("--dl-no-im");
-        if (!isNew) {
+        if (noteConfigDiann.compareVersion("1.9") < 0) {
           cmd.add("--strip-unknown-mods");
         }
       }
       if (generateMsstats) {
-        cmd.add("--report-lib-info");
+        if (noteConfigDiann.compareVersion("2.0") < 0) {
+          cmd.add("--report-lib-info");
+        } else {
+          cmd.add("--export-quant");
+        }
       }
       if (isRunPlex) {
         try {
@@ -314,7 +328,7 @@ public class CmdDiann extends CmdBase {
           SwingUtils.showErrorDialog(comp, e.getMessage(), "Error parsing plex settings");
           return false;
         }
-        if (isNew) {
+        if (noteConfigDiann.compareVersion("1.9") >= 0) {
           cmd.add(channelNormalizationStrategy);
         }
       }
@@ -347,22 +361,47 @@ public class CmdDiann extends CmdBase {
       if (isWindows()) {
         // Plotting
         List<String> cmd2 = new ArrayList<>();
-        cmd2.add(diannPath.replaceAll("DiaNN\\.exe$", "dia-nn-plotter.exe"));
-        cmd2.add("diann-output" + File.separator + "report.stats.tsv");
-        cmd2.add("diann-output" + File.separator + "report.tsv");
-        cmd2.add("diann-output" + File.separator + "report.pdf");
+        if (noteConfigDiann.compareVersion("2.0") < 0) {
+          cmd2.add(diannPath.replaceAll("DiaNN\\.exe$", "dia-nn-plotter.exe"));
+          cmd2.add("diann-output" + File.separator + "report.stats.tsv");
+          cmd2.add("diann-output" + File.separator + "report.tsv");
+          cmd2.add("diann-output" + File.separator + "report.pdf");
+        } else {
+          cmd2.add(diannPath.replaceAll("DiaNN\\.exe$", "diann-stats.exe"));
+          cmd2.add("diann-output" + File.separator + "report.parquet");
+        }
         ProcessBuilder pb2 = new ProcessBuilder(cmd2);
         pb2.directory(groupWd.toFile());
         pbis.add(PbiBuilder.from(pb2));
       }
 
       // Add process to rename the speclib file for skyline once it has been generated (only needed for Skyline v23.1 and older)
-      if (isRunSkyline) {
+      if (isRunSkyline) { // todo: adjust based on DIA-NN 2.0
         Path speclibFromDIANN = wd.resolve("library.tsv.speclib");
         Path speclibForSkyline = wd.resolve("diann-output").resolve("report.tsv.speclib");
         List<ProcessBuilder> pbsMove = ToolingUtils.pbsRenameFiles(jarFragpipe, speclibForSkyline, true, Collections.singletonList(speclibFromDIANN));
         pbis.addAll(PbiBuilder.from(pbsMove, NAME + " move speclib for skyline"));
       }
+    }
+
+    if (noteConfigDiann.compareVersion("2.0") >= 0) {
+      Path root = FragpipeLocations.get().getDirFragpipeRoot();
+      Path libsDir = root.resolve("lib");
+      if (Files.isDirectory(jarFragpipe)) {
+        libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe-" + Version.version() + "/lib");
+        log.debug("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
+      }
+
+      List<String> cmd = new ArrayList<>();
+      cmd.add(Fragpipe.getBinJava());
+      cmd.add("-cp");
+      cmd.add(libsDir + File.separator + "*");
+      cmd.add(ParquetToTsv.class.getCanonicalName());
+      cmd.add(wd.resolve("diann-output").resolve("report.parquet").toAbsolutePath().toString());
+      cmd.add(wd.resolve("diann-output").resolve("report.tsv").toAbsolutePath().toString());
+      ProcessBuilder pb = new ProcessBuilder(cmd);
+      pb.directory(wd.resolve("diann-output").toFile());
+      pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + ": Convert Parquet to Tsv").create());
     }
 
     if (!isRunPlex) {
@@ -407,7 +446,7 @@ public class CmdDiann extends CmdBase {
       pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + ": Propagate information").create());
     }
 
-    if (!isRunPlex && generateMsstats) {
+    if (!isRunPlex && generateMsstats && noteConfigDiann.compareVersion("2.0") < 0) {
       Path root = FragpipeLocations.get().getDirFragpipeRoot();
       Path libsDir = root.resolve("lib");
       if (Files.isDirectory(jarFragpipe)) {

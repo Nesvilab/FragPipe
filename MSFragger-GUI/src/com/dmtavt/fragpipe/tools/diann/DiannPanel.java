@@ -61,7 +61,6 @@ import org.greenrobot.eventbus.ThreadMode;
 public class DiannPanel extends JPanelBase {
 
   private static final String PREFIX = "diann.";
-  public static final String NEW_VERSION = "1.8.2 beta 27";
 
   private JCheckBox checkRun;
   private JCheckBox checkRunPlex;
@@ -96,13 +95,14 @@ public class DiannPanel extends JPanelBase {
   public void on(NoteConfigDiann m) {
     if (m.isValid()) {
       updateEnabledStatus(this, true);
-      boolean isNewVersion = m.compareVersion(NEW_VERSION) >= 0;
+      boolean isNewVersion = m.compareVersion("1.9") >= 0;
       uiComboQuantificationStrategy.setVisible(!isNewVersion);
       uiComboQuantificationStrategy2.setVisible(isNewVersion);
       labelQuantificationStrategy.setVisible(!isNewVersion);
       labelQuantificationStrategy2.setVisible(isNewVersion);
       uiComboChannelNormalizationStrategy.setVisible(isNewVersion);
       labelChannelNormalizationStrategy.setVisible(isNewVersion);
+      uiCheckGenerateMsstats.setVisible(m.compareVersion("2.0") < 0);
     } else {
       updateEnabledStatus(this, false);
     }
@@ -352,8 +352,8 @@ public class DiannPanel extends JPanelBase {
     return uiTextCmdOpts.getNonGhostText().trim();
   }
 
-  public Set<String> getDiannQuantificationStrategy(boolean isNew) {
-    if (isNew) {
+  public Set<String> getDiannQuantificationStrategy(NoteConfigDiann noteConfigDiann) {
+    if (noteConfigDiann.compareVersion("1.9") >= 0) {
       switch (uiComboQuantificationStrategy2.getSelectedIndex()) {
         case 0:
           return Stream.of("--direct-quant").collect(Collectors.toSet());
