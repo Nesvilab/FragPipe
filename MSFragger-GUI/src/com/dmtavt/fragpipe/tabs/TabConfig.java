@@ -150,6 +150,7 @@ public class TabConfig extends JPanelWithEnablement {
   private HtmlStyledJEditorPane epEasyPQPText;
   private JButton btnFinishPythonInstall;
   private TextConsole pythonTextConsole;
+  private JScrollPane pythonTextScroll;
   private boolean dbsplitEnabled = false, easyPQPEnabled = false;
   private JButton btnAbout;
 
@@ -898,8 +899,8 @@ public class TabConfig extends JPanelWithEnablement {
     }
     epDbsplitText.setText(textDbsplitEnabled(true));
     dbsplitEnabled = true;
-    if (easyPQPEnabled)
-      btnFinishPythonInstall.setEnabled(false);
+    btnFinishPythonInstall.setVisible(!easyPQPEnabled);
+    pythonTextScroll.setVisible(!easyPQPEnabled);
     this.revalidate();
   }
 
@@ -908,8 +909,8 @@ public class TabConfig extends JPanelWithEnablement {
     if (enableEasypqp && !easypqpLocalVersion.contentEquals("N/A")) {
       sb.append("EasyPQP: <b>Available</b>. Version: " + easypqpLocalVersion + ". Used for spectral library building.<br><br>");
       easyPQPEnabled = true;
-      if (dbsplitEnabled)
-        btnFinishPythonInstall.setEnabled(false);
+      btnFinishPythonInstall.setVisible(!dbsplitEnabled);
+      pythonTextScroll.setVisible(!dbsplitEnabled);
     } else {
       if (errMsg.isEmpty()) {
         sb.append("EasyPQP: <b>Not available</b>. Used for spectral library building.<br><br>");
@@ -1088,16 +1089,16 @@ public class TabConfig extends JPanelWithEnablement {
     final var currentFont = pythonTextConsole.getFont();
     pythonTextConsole.setFont(new Font(Font.MONOSPACED, currentFont.getStyle(), currentFont.getSize()));
     pythonTextConsole.setContentType("text/plain; charset=UTF-8");
-    JScrollPane scroll = SwingUtils.wrapInScroll(pythonTextConsole);
-    scroll.setMinimumSize(new Dimension(300, 50));
-    scroll.setMaximumSize(new Dimension(900, 150));
-    scroll.getViewport().setBackground(pythonTextConsole.getBackground());
+    pythonTextScroll = SwingUtils.wrapInScroll(pythonTextConsole);
+    pythonTextScroll.setMinimumSize(new Dimension(300, 50));
+    pythonTextScroll.setMaximumSize(new Dimension(900, 150));
+    pythonTextScroll.getViewport().setBackground(pythonTextConsole.getBackground());
 
     p.add(epPythonVer, ccL().wrap());
     mu.add(p, epDbsplitText).growX().wrap();
     mu.add(p, epEasyPQPText).growX().wrap();
     mu.add(p, btnFinishPythonInstall).split().wrap();
-    mu.add(p, scroll).grow().push().wrap();
+    mu.add(p, pythonTextScroll).grow().push().wrap();
     return p;
   }
 
@@ -1155,10 +1156,14 @@ public class TabConfig extends JPanelWithEnablement {
     }
     SwingUtils.showInfoDialog(this, pythonPipOutputNew+"\n"+"Python software install " + (ok ? "success" : "fail"), "Python software install ");
     toConsole(c.getText(), m.console);
-    if(ok) {
+    if (ok) {
       c.setText("Python software install success!");
       Notifications.tryClose(TIP_SPECLIBGEN);
     }
+
+    btnFinishPythonInstall.setVisible(!ok);
+    pythonTextScroll.setVisible(!ok);
+
     Bus.post(new MessageUiRevalidate(false, true));
   }
 
