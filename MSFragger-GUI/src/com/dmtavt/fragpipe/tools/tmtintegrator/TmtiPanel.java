@@ -450,13 +450,15 @@ public class TmtiPanel extends JPanelBase {
     uiSpinnerMinResolution = UiUtils.spinnerInt(45000, 0, Integer.MAX_VALUE, 1000).setCols(5).create();
     FormEntry feMinResolution = fe(TmtiConfProps.PROP_min_resolution,
         "Min Resolution", uiSpinnerMinResolution,
-        "<html>Remove low resolution reporter ions (only for RAW file formats)");
+        "<html>Remove the PSM if there are any channels having resolution less than the min resolution and SNR greater than or equal to 1.<br/>\n"
+            + "(only for RAW file formats)");
 
     uiSpinnerMinSnr = UiSpinnerDouble
-        .builder(1.0, 0.0, Integer.MAX_VALUE, 0.1).setFormat(df2).setCols(5).create();
+        .builder(1000.0, 0.0, Integer.MAX_VALUE, 1).setFormat(df2).setCols(5).create();
     FormEntry feMinSnr = fe(TmtiConfProps.PROP_min_snr,
         "Min SNR", uiSpinnerMinSnr,
-        "<html>Remove low signal-to-noise ratio reporter ions (only for RAW file formats)");
+        "<html>Remove the PSM if all channels' summed SNR is less than the min SNR<br/>\n"
+            + "(only for RAW file formats)");
 
     UiSpinnerInt uiSpinnerMinNtt = UiUtils.spinnerInt(0, 0, 1000, 1).setCols(5).create();
     FormEntry feMinNtt = mu.feb(uiSpinnerMinNtt).name(TmtiConfProps.PROP_min_ntt).label("Min NTT")

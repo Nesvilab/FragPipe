@@ -15,7 +15,7 @@ tmtintegrator:
   min_purity: 0.5                                 # ion purity score threshold
   min_resolution: 45000
   min_site_prob: -1                               # site localization confidence threshold (-1: for Global; 0: as determined by the search engine; above 0 (e.g. 0.75): PTMProphet probability, to be used with phosphorylation only)
-  min_snr: 1
+  min_snr: 1000
   mod_tag: none                                   # PTM info for generation of PTM-specific reports (none: for Global data; S(79.9663),T(79.9663),Y(79.9663): for Phospho; K(42.0105): for K-Acetyl; M(15.9949): for M-Oxidation; N-glyco: for N-glycosylation; O-glyco: for O-glycosylation)
   ms1_int: true                                   # use MS1 precursor ion intensity (if true) or MS2 reference intensity (if false) as part of the reference sample abundance estimation
   outlier_removal: true                           # perform outlier removal
