@@ -1075,7 +1075,7 @@ public class TabMsfragger extends JPanelBase {
             "Syntax Examples:\n" +
             "<ul>\n" +
             "<li>15.9949 M 3(for oxidation on methionine)</li>\n" +
-            "<li>79.66331 STY 1(for phosphorylation)</li>\n" +
+            "<li>79.96633 STY 1(for phosphorylation)</li>\n" +
             "<li>-17.0265 nQnC 1(for pyro-Glu or loss of ammonia at peptide N-terminal)</li>\n" +
             "<li>42.0106 [^ 1 (acetylation at any protein N-terminal)</li>\n" +
             "<li>229.16293 n^ 1 (TMT10/11 at any peptide N-terminal)</li>\n" +
