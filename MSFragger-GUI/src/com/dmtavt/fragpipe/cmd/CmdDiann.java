@@ -33,6 +33,7 @@ import com.dmtavt.fragpipe.api.InputLcmsFile;
 import com.dmtavt.fragpipe.api.LcmsFileGroup;
 import com.dmtavt.fragpipe.messages.NoteConfigDiann;
 import com.dmtavt.fragpipe.tools.diann.Diann;
+import com.dmtavt.fragpipe.tools.diann.DiannPanel;
 import com.dmtavt.fragpipe.tools.diann.DiannToMsstats;
 import com.dmtavt.fragpipe.tools.diann.ParquetToTsv;
 import com.dmtavt.fragpipe.tools.diann.PlexDiaHelper;
@@ -61,6 +62,7 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.swing.JOptionPane;
 import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
@@ -72,6 +74,7 @@ public class CmdDiann extends CmdBase {
   private static final String NAME = "DIA-NN";
   private static final List<String> SUPPORTED_FORMATS_WIN = Arrays.asList("mzML", "d", "dia", "wiff", "raw");
   private static final List<String> SUPPORTED_FORMATS_LINUX = Arrays.asList("mzML", "d", "dia");
+  private static final String SITE_REPORTER = "LFQ-SiteReporter-1.0.0.jar";
   public static final Pattern labelPattern = Pattern.compile("([A-Znc*]+)([\\d.+-]+)");
 
   private final String diannPath;
@@ -492,6 +495,30 @@ public class CmdDiann extends CmdBase {
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(wd.resolve("diann-output").toFile());
       pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + ": Convert DIA-NN output to MSstats.csv").create());
+    }
+
+    List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Stream.of(SITE_REPORTER));
+    if (classpathJars == null) {
+      System.err.println("Could not find " + SITE_REPORTER);
+    } else {
+      DiannPanel diannPanel = Fragpipe.getStickyStrict(DiannPanel.class);
+      List<String> cmd = new ArrayList<>();
+      cmd.add(Fragpipe.getBinJava());
+      cmd.add("-jar");
+      cmd.add(constructClasspathString(classpathJars));
+      cmd.add("-pr");
+      cmd.add(wd.resolve("diann-output").resolve("report.tsv").toAbsolutePath().toString());
+      cmd.add("-psm");
+      cmd.add(wd.resolve("psm.tsv").toAbsolutePath().toString());
+      cmd.add("-out_dir");
+      cmd.add(wd.resolve("diann-output").toAbsolutePath().toString());
+      cmd.add("-mod_tag");
+      cmd.add(diannPanel.getModTag());
+      cmd.add("-min_site_prob");
+      cmd.add(String.valueOf(diannPanel.getSiteProb()));
+      ProcessBuilder pb = new ProcessBuilder(cmd);
+      pb.directory(wd.resolve("diann-output").toFile());
+      pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + ": Generate site reports").create());
     }
 
 //    if (isRunPlex) {

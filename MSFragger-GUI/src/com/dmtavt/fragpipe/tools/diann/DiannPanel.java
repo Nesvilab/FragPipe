@@ -44,6 +44,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.imageio.ImageIO;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -76,7 +78,11 @@ public class DiannPanel extends JPanelBase {
   private UiSpinnerDouble uiSpinnerQvalue;
   private UiText uiTextLibrary;
   private JPanel panelBasic;
+  private JPanel panelBasic2;
   private JPanel panelPlex;
+  private JPanel panelSiteReport;
+  private UiText uiTextModTag;
+  private UiSpinnerDouble uiSpinnerSiteProb;
   private UiCheck uiCheckUsePredictedSpectra;
   private UiCheck uiCheckUseRunSpecificProteinQvalue;
   private UiCheck uiCheckUnrelatedRuns;
@@ -154,11 +160,22 @@ public class DiannPanel extends JPanelBase {
     JPanel p = new JPanel(new MigLayout(new LC().fillX()));
     mu.borderEmpty(p);
 
-    panelBasic = createPanelBasic();
-    panelPlex = createPanelPlex();
+    JPanel p2 = mu.newPanel("", mu.lcFillXNoInsetsTopBottom());
+    p2.setLayout(new BoxLayout(p2, BoxLayout.X_AXIS));
+    p2.setBorder(null);
 
-    mu.add(p, panelBasic).growX().wrap();
-    mu.add(p, panelPlex).growX().wrap();
+    panelBasic = createPanelBasic();
+    panelBasic2 = createPanelBasic2();
+    panelPlex = createPanelPlex();
+    panelSiteReport = createPanelSiteReport();
+
+    mu.add(p2, panelBasic).spanX();
+    p2.add(Box.createHorizontalStrut(10));
+    mu.add(p2, panelPlex).spanX().wrap();
+
+    mu.add(p, p2).growX().wrap();
+    mu.add(p, panelBasic2).growX().wrap();
+    mu.add(p, panelSiteReport).growX().wrap();
 
     return p;
   }
@@ -192,6 +209,25 @@ public class DiannPanel extends JPanelBase {
     uiCheckUnrelatedRuns = UiUtils.createUiCheck("Unrelated runs", false);
     FormEntry feUnrelatedRuns = new FormEntry("unrelated-runs", "Unrelated runs", uiCheckUnrelatedRuns, "Different runs will be treated as unrelated, i.e. mass accuracy (when automatic) will be determined separately, as well as the retention time scan window.");
 
+    mu.add(panelBasic, feQvalue.label(), mu.ccL());
+    mu.add(panelBasic, feQvalue.comp).wrap();
+    mu.add(panelBasic, feUseRunSpecificProteinQvalue.comp).wrap();
+    mu.add(panelBasic, labelQuantificationStrategy, mu.ccL());
+    mu.add(panelBasic, feQuantificationStrategy.comp).wrap();
+    mu.add(panelBasic, labelQuantificationStrategy2, mu.ccL());
+    mu.add(panelBasic, feQuantificationStrategy2.comp).wrap();
+    mu.add(panelBasic, feUnrelatedRuns.comp).wrap();
+    mu.add(panelBasic, feUsePredictedSpectra.comp).wrap();
+    mu.add(panelBasic, feGenerateMsstats.comp).wrap();
+
+    updateEnabledStatus(panelBasic, true);
+    return panelBasic;
+  }
+
+  private JPanel createPanelBasic2() {
+    panelBasic2 = mu.newPanel(mu.lcFillX());
+    mu.border(panelBasic2, 1);
+
     uiTextLibrary = UiUtils.uiTextBuilder().create();
     FormEntry feLibrary = new FormEntry("library", "Spectral library (optional)", uiTextLibrary, "Alternative spectral library file.\nIf blank, using the library.tsv built from FragPipe.");
     JButton jButtonLibrary = feLibrary.browseButton("Browse", "Select library file", () -> {
@@ -211,24 +247,14 @@ public class DiannPanel extends JPanelBase {
         + "To set --threads, please adjust the Parallelism setting in the Workflow tab.\n"
         + "See output log (e.g. dry-run results) for the complete command.");
 
-    mu.add(panelBasic, feQvalue.label(), mu.ccL());
-    mu.add(panelBasic, feQvalue.comp).wrap();
-    mu.add(panelBasic, feUseRunSpecificProteinQvalue.comp).wrap();
-    mu.add(panelBasic, labelQuantificationStrategy, mu.ccL());
-    mu.add(panelBasic, feQuantificationStrategy.comp).wrap();
-    mu.add(panelBasic, labelQuantificationStrategy2, mu.ccL());
-    mu.add(panelBasic, feQuantificationStrategy2.comp).wrap();
-    mu.add(panelBasic, feUnrelatedRuns.comp).wrap();
-    mu.add(panelBasic, feUsePredictedSpectra.comp).wrap();
-    mu.add(panelBasic, feGenerateMsstats.comp).wrap();
-    mu.add(panelBasic, feLibrary.label(), mu.ccL());
-    mu.add(panelBasic, feLibrary.comp).pushX().growX();
-    mu.add(panelBasic, jButtonLibrary).wrap();
-    mu.add(panelBasic, feCmdOpts.label(), mu.ccL());
-    mu.add(panelBasic, feCmdOpts.comp).growX().pushX().wrap();
+    mu.add(panelBasic2, feLibrary.label(), mu.ccL());
+    mu.add(panelBasic2, feLibrary.comp).pushX().growX();
+    mu.add(panelBasic2, jButtonLibrary).wrap();
+    mu.add(panelBasic2, feCmdOpts.label(), mu.ccL());
+    mu.add(panelBasic2, feCmdOpts.comp).growX().pushX().wrap();
 
-    updateEnabledStatus(panelBasic, true);
-    return panelBasic;
+    updateEnabledStatus(panelBasic2, true);
+    return panelBasic2;
   }
 
   private JPanel createPanelPlex() {
@@ -297,6 +323,28 @@ public class DiannPanel extends JPanelBase {
 
     updateEnabledStatus(panelPlex, true);
     return panelPlex;
+  }
+
+  private JPanel createPanelSiteReport() {
+    panelSiteReport = mu.newPanel(mu.lcFillX());
+    mu.border(panelSiteReport, 1);
+    mu.border(panelSiteReport, "PTMs");
+
+    uiTextModTag = UiUtils.uiTextBuilder().cols(40).create();
+    FormEntry feModTag = new FormEntry("mod-tag", "Mod tag", uiTextModTag, "<html>Modification tag for generating modification-specific reports <br/>\n"
+        + "STY:79.9663 for phospho<br/>\n"
+        + "K:114.0429,K:343.2059 for ubiquitin");
+
+    uiSpinnerSiteProb = UiUtils.spinnerDouble(0.75, 0, 1, 0.01).setCols(5).setFormat("#.###").create();
+    FormEntry feSiteProb = mu.feb(uiSpinnerSiteProb).name("min-site-prob").label("Min site probability").tooltip("Site localization confidence threshold").create();
+
+    mu.add(panelSiteReport, feModTag.label(), mu.ccL()).split(2);
+    mu.add(panelSiteReport, feModTag.comp).growX();
+    mu.add(panelSiteReport, feSiteProb.label()).split(2);
+    mu.add(panelSiteReport, feSiteProb.comp, mu.ccL());
+
+    updateEnabledStatus(panelSiteReport, true);
+    return panelSiteReport;
   }
 
   @Override
@@ -393,5 +441,13 @@ public class DiannPanel extends JPanelBase {
 
   public boolean unrelatedRuns() {
     return isEnabledAndChecked(uiCheckUnrelatedRuns);
+  }
+
+  public String getModTag() {
+    return uiTextModTag.getNonGhostText().trim();
+  }
+
+  public float getSiteProb() {
+    return (float) uiSpinnerSiteProb.getActualValue();
   }
 }
