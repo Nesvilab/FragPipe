@@ -77,7 +77,6 @@ import com.github.chhh.utils.swing.MigUtils;
 import com.github.chhh.utils.swing.TextConsole;
 import com.github.chhh.utils.swing.UiText;
 import com.github.chhh.utils.swing.UiUtils;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -840,16 +839,19 @@ public class TabConfig extends JPanelWithEnablement {
   public void on(MessagePythonNewBin m) {
     PyInfo pi;
     try {
-      List<Path> pyPaths = List.of(Path.of("invalid"));
-      if (OsUtils.isWindows()) {
-        pyPaths = FragpipeLocations.checkToolsMissing(Seq.of(PyInfo.pythonWinPath));
-      } else if (OsUtils.isUnix()) {
-        pyPaths = FragpipeLocations.checkToolsMissing(Seq.of(PyInfo.pythonLinuxPath));
-      } else {
-        throw new RuntimeException("FragPipe only works in Windows and Linux. FragPipe not supported in this OS");
+      if (true) {
+        List<Path> pyPaths;
+        if (OsUtils.isWindows()) {
+          pyPaths = FragpipeLocations.checkToolsMissing(Seq.of(PyInfo.pythonWinPath));
+        } else if (OsUtils.isUnix()) {
+          pyPaths = FragpipeLocations.checkToolsMissing(Seq.of(PyInfo.pythonLinuxPath));
+        } else {
+          throw new RuntimeException("FragPipe only works in Windows and Linux. FragPipe not supported in this OS");
+        }
+        final var command = pyPaths.get(0).toString();
+        m = new MessagePythonNewBin(command);
       }
-      final var command = pyPaths.get(0).toString();
-      m = new MessagePythonNewBin(command);
+
       // first check if the path is absolute, then it must exist
       Path path = Paths.get(m.command);
       final boolean fileExists = Files.exists(path) || (OsUtils.isWindows() && Files.exists(Paths.get(path + ".exe")));
