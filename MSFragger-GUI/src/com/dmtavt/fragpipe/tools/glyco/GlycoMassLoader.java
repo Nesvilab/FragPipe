@@ -131,7 +131,7 @@ public class GlycoMassLoader {
                 TabGlyco.stopJTableEditing(optionsPanel.tableGlycoMods);
                 if (optionsPanel.isGlycanModsChanged()) {
                     // user has specified glycan mods: update glycan database
-                    addModsToGlycanDB();
+                    addModsToGlycanDB(optionsPanel.getMaxModCombos());
                 }
                 if (optionsPanel.useMassFilter()) {
                     glycanDB = filterMasses(glycanDB, optionsPanel.getMinMass(), optionsPanel.getMaxMass());
@@ -152,13 +152,13 @@ public class GlycoMassLoader {
      * Update the loaded glycan DB with the user-specified glycan mods.
      * Call before generating glycan combinations or mass filtering.
      */
-    private void addModsToGlycanDB() {
+    private void addModsToGlycanDB(int maxCombos) {
         List<GlycanMod> enabledMods = optionsPanel.tableGlycoMods.model.getModifications(this).stream().filter(GlycanMod::isEnabled).collect(Collectors.toList());
         HashSet<String> glycansInDB = new HashSet<>();
         for (Glycan glycan: glycanDB) {
             glycansInDB.add(glycan.name);
         }
-        glycanDB = addModsRecurse(glycanDB, enabledMods, glycansInDB);
+        glycanDB = addModsRecurse(glycanDB, enabledMods, glycansInDB, maxCombos);
     }
 
     /**
@@ -168,8 +168,8 @@ public class GlycoMassLoader {
      * @param mods
      * @return
      */
-    private List<Glycan> addModsRecurse(List<Glycan> glycans, List<GlycanMod> mods, HashSet<String> glycansInDB) {
-        if (mods.size() == 0) {
+    private List<Glycan> addModsRecurse(List<Glycan> glycans, List<GlycanMod> mods, HashSet<String> glycansInDB, int maxCombos) {
+        if (mods.isEmpty()) {
             // reached the end
             return glycans;
         } else {
@@ -180,8 +180,11 @@ public class GlycoMassLoader {
                 if (thisMod.isVariable) {
                     // varible mod - include both modified and unmodified glycans
                     glycansWithMod.add(glycan);
+                    if (glycan.numModTypes >= maxCombos) {
+                        continue;
+                    }
                     int maxAllowed = thisMod.maxAllowed;
-                    if (thisMod.requiredRes.size() > 0) {
+                    if (!thisMod.requiredRes.isEmpty()) {
                         int numAllowedSites = glycan.getNumAllowedSites(thisMod);
                         maxAllowed = Math.min(maxAllowed, numAllowedSites);
                     }
@@ -191,7 +194,7 @@ public class GlycoMassLoader {
                 } else {
                     // fixed mod - do NOT include unmodified glycan. Ignore max allowed.
                     int maxAllowed = glycan.getNumResidues();
-                    if (thisMod.requiredRes.size() > 0) {
+                    if (!thisMod.requiredRes.isEmpty()) {
                         maxAllowed = glycan.getNumAllowedSites(thisMod);
                     }
                     for (int i = 0; i < maxAllowed; i++) {
@@ -205,7 +208,7 @@ public class GlycoMassLoader {
                     glycansInDB.add(glycan.name);
                 }
             }
-            return addModsRecurse(glycans, mods, glycansInDB);
+            return addModsRecurse(glycans, mods, glycansInDB, maxCombos);
         }
     }
 

@@ -39,6 +39,7 @@ public class GlycanLoaderFollowupPanel extends JPanel {
     private UiSpinnerDouble maxOffsetMass;
     private UiSpinnerDouble minOffsetMass;
     private UiSpinnerInt maxOffsetCombos;
+    private UiSpinnerInt maxModsCombos;
     private UiCheck filterMass;
     private MigUtils mu;
     public GlycoModsTable tableGlycoMods;
@@ -65,6 +66,12 @@ public class GlycanLoaderFollowupPanel extends JPanel {
         FormEntry feMaxCombos = Fragpipe.feNoCache(maxOffsetCombos, "Max Combinations of Glycans", Fragpipe.PROP_NOCACHE)
                 .label("Max Combinations of Glycans").tooltip(maxOffsetsTooltip).create();
 
+        maxModsCombos = new UiSpinnerInt(1, 1, 100, 1, 2);
+        String maxModsTooltip = "Allow up to this many modifications to be combined (if mods are enabled)." +
+                "\nNote: modifications are applied after glycan combinations are calculated.";
+        FormEntry feMaxModsCombos = Fragpipe.feNoCache(maxModsCombos, "Max Combinations of Glycan Mods", Fragpipe.PROP_NOCACHE)
+                .label("Max Combinations of Glycan Mods").tooltip(maxModsTooltip).create();
+
         minOffsetMass = new UiSpinnerDouble(100, -10000, 10000, 1,0, new DecimalFormat("0") );
         maxOffsetMass = new UiSpinnerDouble(3000, -10000, 10000, 1,0, new DecimalFormat("0") );
         String maxMassTooltip = "Filter loaded glycans and combinations to the specified mass range (if enabled).";
@@ -80,6 +87,8 @@ public class GlycanLoaderFollowupPanel extends JPanel {
         JPanel entries = mu.newPanel("Glycan combinations and filtering:", true);
         mu.add(entries, feMaxCombos.label()).split();
         mu.add(entries, feMaxCombos.comp).wrap();
+        mu.add(entries, feMaxModsCombos.label()).split();
+        mu.add(entries, feMaxModsCombos.comp).wrap();
         mu.add(entries, filterMass).split();
         mu.add(entries, feMinMass.label()).split();
         mu.add(entries, feMinMass.comp).split();
@@ -168,6 +177,9 @@ public class GlycanLoaderFollowupPanel extends JPanel {
 
     public int getMaxCombos() {
         return maxOffsetCombos.getActualValue();
+    }
+    public int getMaxModCombos() {
+        return maxModsCombos.getActualValue();
     }
     public boolean useMassFilter() { return filterMass.isSelected(); }
     public double getMaxMass() {
