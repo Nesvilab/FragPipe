@@ -71,7 +71,7 @@ import org.slf4j.LoggerFactory;
 public class CmdDiann extends CmdBase {
 
   private static final Logger log = LoggerFactory.getLogger(CmdDiann.class);
-  private static final String NAME = "DIA-NN";
+  private static final String NAME = "DIA-Quant";
   private static final List<String> SUPPORTED_FORMATS_WIN = Arrays.asList("mzML", "d", "dia", "wiff", "raw");
   private static final List<String> SUPPORTED_FORMATS_LINUX = Arrays.asList("mzML", "d", "dia");
   private static final String SITE_REPORTER = "LFQ-SiteReporter-1.0.0.jar";
@@ -266,7 +266,7 @@ public class CmdDiann extends CmdBase {
       }
 
       try {
-        final Path diannOutputDirectory = groupWd.resolve("diann-output");
+        final Path diannOutputDirectory = groupWd.resolve("dia-quant-output");
         if (Files.exists(diannOutputDirectory.toAbsolutePath().getParent())) { // Dry run does not make directories, so does not write the file.
           Files.createDirectories(diannOutputDirectory);
         }
@@ -291,7 +291,7 @@ public class CmdDiann extends CmdBase {
       cmd.add("--verbose");
       cmd.add("1");
       cmd.add("--out");
-      cmd.add("diann-output" + File.separator + "report.tsv");
+      cmd.add("dia-quant-output" + File.separator + "report.tsv");
       cmd.add("--qvalue");
       cmd.add(String.valueOf(qvalue));
       if (useRunSpecificProteinQvalue) {
@@ -366,12 +366,12 @@ public class CmdDiann extends CmdBase {
         List<String> cmd2 = new ArrayList<>();
         if (noteConfigDiann.compareVersion("2.0") < 0) {
           cmd2.add(diannPath.replaceAll("DiaNN\\.exe$", "dia-nn-plotter.exe"));
-          cmd2.add("diann-output" + File.separator + "report.stats.tsv");
-          cmd2.add("diann-output" + File.separator + "report.tsv");
-          cmd2.add("diann-output" + File.separator + "report.pdf");
+          cmd2.add("dia-quant-output" + File.separator + "report.stats.tsv");
+          cmd2.add("dia-quant-output" + File.separator + "report.tsv");
+          cmd2.add("dia-quant-output" + File.separator + "report.pdf");
         } else {
           cmd2.add(diannPath.replaceAll("DiaNN\\.exe$", "diann-stats.exe"));
-          cmd2.add("diann-output" + File.separator + "report.parquet");
+          cmd2.add("dia-quant-output" + File.separator + "report.parquet");
         }
         ProcessBuilder pb2 = new ProcessBuilder(cmd2);
         pb2.directory(groupWd.toFile());
@@ -381,7 +381,7 @@ public class CmdDiann extends CmdBase {
       // Add process to rename the speclib file for skyline once it has been generated (only needed for Skyline v23.1 and older)
       if (isRunSkyline) { // todo: adjust based on DIA-NN 2.0
         Path speclibFromDIANN = wd.resolve("library.tsv.speclib");
-        Path speclibForSkyline = wd.resolve("diann-output").resolve("report.tsv.speclib");
+        Path speclibForSkyline = wd.resolve("dia-quant-output").resolve("report.tsv.speclib");
         List<ProcessBuilder> pbsMove = ToolingUtils.pbsRenameFiles(jarFragpipe, speclibForSkyline, true, Collections.singletonList(speclibFromDIANN));
         pbis.addAll(PbiBuilder.from(pbsMove, NAME + " move speclib for skyline"));
       }
@@ -400,10 +400,10 @@ public class CmdDiann extends CmdBase {
       cmd.add("-cp");
       cmd.add(libsDir + File.separator + "*");
       cmd.add(ParquetToTsv.class.getCanonicalName());
-      cmd.add(wd.resolve("diann-output").resolve("report.parquet").toAbsolutePath().toString());
-      cmd.add(wd.resolve("diann-output").resolve("report.tsv").toAbsolutePath().toString());
+      cmd.add(wd.resolve("dia-quant-output").resolve("report.parquet").toAbsolutePath().toString());
+      cmd.add(wd.resolve("dia-quant-output").resolve("report.tsv").toAbsolutePath().toString());
       ProcessBuilder pb = new ProcessBuilder(cmd);
-      pb.directory(wd.resolve("diann-output").toFile());
+      pb.directory(wd.resolve("dia-quant-output").toFile());
       pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + ": Convert Parquet to Tsv").create());
     }
 
@@ -445,7 +445,7 @@ public class CmdDiann extends CmdBase {
       cmd.add(mediumString == null || mediumString.isEmpty() ? "-" : mediumString);
       cmd.add(heavyString == null || heavyString.isEmpty() ? "-" : heavyString);
       ProcessBuilder pb = new ProcessBuilder(cmd);
-      pb.directory(wd.resolve("diann-output").toFile());
+      pb.directory(wd.resolve("dia-quant-output").toFile());
       pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + ": Propagate information").create());
     }
 
@@ -493,7 +493,7 @@ public class CmdDiann extends CmdBase {
       cmd.add(String.valueOf(qvalue));
       cmd.add(wd.resolve("fragpipe-files" + manifestExt).toAbsolutePath().toString());
       ProcessBuilder pb = new ProcessBuilder(cmd);
-      pb.directory(wd.resolve("diann-output").toFile());
+      pb.directory(wd.resolve("dia-quant-output").toFile());
       pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + ": Convert DIA-NN output to MSstats.csv").create());
     }
 
@@ -507,17 +507,17 @@ public class CmdDiann extends CmdBase {
       cmd.add("-jar");
       cmd.add(constructClasspathString(classpathJars));
       cmd.add("-pr");
-      cmd.add(wd.resolve("diann-output").resolve("report.tsv").toAbsolutePath().toString());
+      cmd.add(wd.resolve("dia-quant-output").resolve("report.tsv").toAbsolutePath().toString());
       cmd.add("-psm");
       cmd.add(wd.resolve("psm.tsv").toAbsolutePath().toString());
       cmd.add("-out_dir");
-      cmd.add(wd.resolve("diann-output").toAbsolutePath().toString());
+      cmd.add(wd.resolve("dia-quant-output").toAbsolutePath().toString());
       cmd.add("-mod_tag");
       cmd.add(diannPanel.getModTag());
       cmd.add("-min_site_prob");
       cmd.add(String.valueOf(diannPanel.getSiteProb()));
       ProcessBuilder pb = new ProcessBuilder(cmd);
-      pb.directory(wd.resolve("diann-output").toFile());
+      pb.directory(wd.resolve("dia-quant-output").toFile());
       pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + ": Generate site reports").create());
     }
 
@@ -573,7 +573,7 @@ public class CmdDiann extends CmdBase {
 //        cmd.add("--library");
 //        cmd.add("library_2.tsv");
 //        cmd.add("--diann-report");
-//        cmd.add("diann-output" + File.separator + "report.tsv");
+//        cmd.add("dia-quant-output" + File.separator + "report.tsv");
 //        cmd.add("--output-dir");
 //        cmd.add(groupWd.toAbsolutePath().toString());
 //        ProcessBuilder pb = new ProcessBuilder(cmd);

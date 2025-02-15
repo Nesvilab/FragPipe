@@ -83,7 +83,7 @@ public class Propagation {
       }
 
       Propagation propagation = new Propagation(lightString, mediumString, heavyString);
-      propagation.propagate(psmPath, wd.resolve("diann-output"));
+      propagation.propagate(psmPath, wd.resolve("dia-quant-output"));
     } catch (Exception ex) {
       ex.printStackTrace();
       System.exit(1);
