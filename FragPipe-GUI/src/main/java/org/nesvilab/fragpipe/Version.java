@@ -16,7 +16,7 @@
  */
 package org.nesvilab.fragpipe;
 
-import static org.nesvilab.fragpipe.params.ThisAppProps.PATH_BUNDLE;
+import static org.nesvilab.fragpipe.params.ThisAppProps.LOCAL_PATH_BUNDLE;
 
 import org.nesvilab.fragpipe.params.ThisAppProps;
 import org.nesvilab.utils.VersionComparator;
@@ -514,7 +514,7 @@ public class Version {
     Properties p = loadPropertiesWithIdeDebugHack();
     if (!p.containsKey(Version.PROP_VER)) {
       throw new IllegalStateException(String.format("Key '%s' not found in bundle '%s'",
-          Version.PROP_VER, PATH_BUNDLE));
+          Version.PROP_VER, LOCAL_PATH_BUNDLE));
     }
     String v = p.getProperty(Version.PROP_VER);
     return includeProgramTitle ? String.format("%s v%s", PROGRAM_TITLE, v) : v;
@@ -611,7 +611,7 @@ public class Version {
       try {
         Properties p = new Properties();
         Path path = Paths
-            .get(".").toAbsolutePath().resolve("src").resolve(PATH_BUNDLE + ".properties");
+            .get(".").toAbsolutePath().resolve("src").resolve(LOCAL_PATH_BUNDLE + ".properties");
         p.load(Files.newBufferedReader(path));
         p.stringPropertyNames().forEach(k -> props.setProperty(k, p.getProperty(k)));
       } catch (IOException ex) {

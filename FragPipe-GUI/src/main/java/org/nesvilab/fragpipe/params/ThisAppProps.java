@@ -68,15 +68,14 @@ public class ThisAppProps extends Properties {
   public static final String PROP_TEXT_CMD_PROTEIN_PROPHET = "proteinprophet.cmd.line.opts";
   public static final String PROP_MGF_WARNING = "warn.mgf";
   public static final String DEFAULT_LCMS_EXP_NAME = "";
-  public static final String PATH_BUNDLE = "org/nesvilab/fragpipe/Bundle";
+  public static final String LOCAL_PATH_BUNDLE = "org/nesvilab/fragpipe/Bundle";
   public static final List<String> PROPERTIES_URLS = Arrays.asList(
-      "https://raw.githubusercontent.com/Nesvilab/FragPipe/updates/FragPipe-GUI/src/" + PATH_BUNDLE
-          + ".properties"
+      "https://fragpipe.info/fragpipe_properties/Bundle.properties"
   );
 
   private static class HolderRemote {
 
-    private static final Properties propsRemote = PropertiesUtils.initProperties(PROPERTIES_URLS, 30);
+    private static final Properties propsRemote = PropertiesUtils.initProperties(PROPERTIES_URLS, 100);
 
     public static Properties getRemoteProperties() {
       return propsRemote;
@@ -122,7 +121,7 @@ public class ThisAppProps extends Properties {
   }
 
   public static ResourceBundle getLocalBundle() {
-    return BundleUtils.getBundle(PATH_BUNDLE);
+    return BundleUtils.getBundle(LOCAL_PATH_BUNDLE);
   }
 
   public ThisAppProps() {

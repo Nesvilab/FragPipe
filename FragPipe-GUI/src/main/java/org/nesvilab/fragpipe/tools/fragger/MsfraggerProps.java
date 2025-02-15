@@ -19,6 +19,7 @@ package org.nesvilab.fragpipe.tools.fragger;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+import org.nesvilab.fragpipe.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.nesvilab.utils.PropertiesUtils;
@@ -42,7 +43,7 @@ public class MsfraggerProps {
     // This way the user will get notifications about new versions of
     // MSFragger when we only update the online repository.
     public static final List<String> PROPERTIES_URLS = Arrays.asList(
-        "https://raw.githubusercontent.com/Nesvilab/FragPipe/master/FragPipe-GUI/src/main/java/org/nesvilab/fragpipe/tools/fragger/msfragger.properties"
+        "https://fragpipe.info/fragpipe_properties/Bundle.properties"
     );
     public static final String PROPERTIES_FILE_NAME = "Bundle.properties";
     public static final String PROP_LATEST_VERSION = "msfragger.version.latest-known";
@@ -56,14 +57,14 @@ public class MsfraggerProps {
 
 
     private static class HolderRemote {
-        private static final Properties propsRemote = PropertiesUtils.initProperties(PROPERTIES_URLS, 30);
+        private static final Properties propsRemote = PropertiesUtils.initProperties(PROPERTIES_URLS, 100);
         public static Properties getRemoteProperties() {
             return propsRemote;
         }
     }
 
     private static class HolderLocal {
-        private static final Properties propsLocal = PropertiesUtils.initProperties(PROPERTIES_FILE_NAME, MsfraggerProps.class);
+        private static final Properties propsLocal = PropertiesUtils.initProperties(PROPERTIES_FILE_NAME, Version.class);
 
         public static Properties getLocalProperties() {
             return propsLocal;
