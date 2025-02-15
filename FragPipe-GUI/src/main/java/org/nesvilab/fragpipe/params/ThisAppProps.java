@@ -50,60 +50,24 @@ import org.nesvilab.utils.PropertiesUtils;
 public class ThisAppProps extends Properties {
 
   public static final String PROP_LAB_SITE_URL = "lab.site.url";
-  public static final String PROP_MANUSCRIPT_URL = "manuscript.url";
-  public static final String PROP_MANUSCRIPT_DOI = "manuscript.doi";
-  public static final String PROP_FRAGPIPE_SITE_URL = "msfragger.gui.site.url";
   public static final String PROP_SETUP_TUTORIAL_URL = "fragpipe.setup-tutorial.url";
   public static final String PROP_PYTHON_DOWNLOAD_URL = "python.url.download";
   public static final String LAST_RECURSIVE_FOLDER_ADDED = "path.recursive-add-folder.last";
   public static final String CONFIG_SAVE_LOCATION = "path.store.configs";
-
   private static final Logger log = LoggerFactory.getLogger(ThisAppProps.class);
-  //private static final Logger log = LoggerFactory.getLogger(ThisAppProps.class);
   public static final String PROP_DB_FILE_IN = "path.db.file.in";
   public static final String PROP_FRAGGER_PARAMS_FILE_IN = "path.fragger.params.file.in";
   public static final String PROP_BINARIES_IN = "path.params.bins.in";
   public static final String PROP_LCMS_FILES_IN = "path.lcms.files.in";
   public static final String PROP_FILE_OUT = "path.file.out";
-
   public static final String APP_TEMP_DIR = "fragpipe";
   public static final String TEMP_FILE_EXT = ".cache";
   public static final String TEMP_FILE_NAME = "msfragger" + TEMP_FILE_EXT;
-  public static final String LOG_FILE_NAME = "log-fragpipe-run-at";
-  public static final String LOG_FILE_EXT = ".log";
-
-  public static final String PROP_BIN_PATH_MSFRAGGER = "path.textfield.msfragger";
-  public static final String PROP_BIN_PATH_PHILOSOPHER = "path.textfield.peptide-prophet";
-  public static final String PROP_BIN_PATH_PYTHON = "path.bin.python";
-  public static final String PROP_TEXTFIELD_PATH_PROTEIN_PROPHET = "path.textfield.protein-prophet";
-  public static final String PROP_TEXTFIELD_REPORT_ANNOTATE = "report.annotate";
-  public static final String PROP_TEXTFIELD_REPORT_FILTER = "report.filter";
-  public static final String PROP_TEXTFIELD_REPORT_ABACUS = "report.abacus";
-  public static final String PROP_TEXTFIELD_LABELFREE = "report.labelfree";
-  public static final String PROP_TEXTFIELD_SEQUENCE_DB = "sequence.db";
   public static final String PROP_TEXTFIELD_DECOY_TAG = "decoy.tag";
-  public static final String PROP_CHECKBOX_REPORT_PROTEIN_LEVEL_FDR = "report.proteinlevelfdr";
-  public static final String PROP_CHECKBOX_PROCESS_GROUPS_SEPARATELY = "process.groups.separately";
-  public static final String PROP_CHECKBOX_COMBINE_PEPXML = "peptideprophet.combine.pepxml";
-  public static final String PROP_CHECKBOX_REPORT_ABACUS = "report.run.abacus";
-  public static final String PROP_CHECKBOX_WRITE_MZID = "report.output.format";
-  public static final String PROP_CHECKBOX_REPORT_FILTER_NO_PROTXML = "report.filter.no-protxml";
-  public static final String PROP_CHECKBOX_REPORT_PRINT_DECOYS = "report.print-decoys";
   public static final String PROP_DB_SAVE_PATH = "db.save.path";
-
-  public static final String PROP_TEXT_CMD_PEPTIDE_PROPHET = "peptideprophet.cmd.line.opts";
   public static final String PROP_TEXT_CMD_PROTEIN_PROPHET = "proteinprophet.cmd.line.opts";
-
-  public static final String PROP_CRYSTALC_USE = "crystalc.use";
-  public static final String PROP_SPECLIBGEN_RUN = "speclibgen.run";
-
   public static final String PROP_MGF_WARNING = "warn.mgf";
-
-  @Deprecated
-  public static final String JAR_FILE_AS_RESOURCE_EXT = ".jazz";
-  public static final Path UNPACK_TEMP_SUBDIR = Paths.get("fragpipe");
   public static final String DEFAULT_LCMS_EXP_NAME = "";
-
   public static final String PATH_BUNDLE = "org/nesvilab/fragpipe/Bundle";
   public static final List<String> PROPERTIES_URLS = Arrays.asList(
       "https://raw.githubusercontent.com/Nesvilab/FragPipe/updates/FragPipe-GUI/src/" + PATH_BUNDLE

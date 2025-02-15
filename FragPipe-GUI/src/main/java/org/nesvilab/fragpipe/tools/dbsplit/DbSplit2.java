@@ -183,9 +183,5 @@ public class DbSplit2 {
     if (!m.isValid()) {
       throw new ValidationException("Require valid MSFragger");
     }
-    final String minFraggerVer = MsfraggerProps.getProperties()
-        .getProperty(MsfraggerProps.PROP_MIN_VERSION_SLICING, "20180924");
-    if (MsfraggerVerCmp.get().compare(m.version, minFraggerVer) < 0)
-      throw new ValidationException("Minimum MSfragger version required: " + minFraggerVer);
   }
 }
