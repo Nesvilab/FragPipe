@@ -1,0 +1,144 @@
+database_name =
+num_threads = 0
+
+precursor_mass_lower = -150.00
+precursor_mass_upper = 500.00
+precursor_mass_units = 0
+data_type = 0
+precursor_true_tolerance = 20.00
+precursor_true_units = 1
+fragment_mass_tolerance = 20.00
+fragment_mass_units = 1
+calibrate_mass = 2
+use_all_mods_in_first_search = 0
+decoy_prefix = rev_
+
+deisotope = 1
+deneutralloss = 1
+isotope_error = 0
+mass_offsets = 0
+mass_offsets_detailed =
+use_detailed_offsets = 0
+precursor_mass_mode = corrected
+
+remove_precursor_peak = 1
+remove_precursor_range = -1.5,1.5
+intensity_transform = 0
+activation_types =
+analyzer_types = all
+group_variable = 0
+require_precursor = 0
+reuse_dia_fragment_peaks = 0
+
+write_calibrated_mzml = 0
+write_uncalibrated_mzml = 1
+write_mzbin_all = 0
+mass_diff_to_variable_mod = 0
+
+localize_delta_mass = 1
+delta_mass_exclude_ranges = (-1.5,3.5)
+fragment_ion_series=b,y
+ion_series_definitions=
+
+labile_search_mode = off
+restrict_deltamass_to = all
+diagnostic_intensity_filter = 0.0
+Y_type_masses =
+diagnostic_fragments =
+remainder_fragment_masses =
+
+search_enzyme_name_1 = stricttrypsin
+search_enzyme_cut_1 = KR
+search_enzyme_nocut_1 =
+search_enzyme_sense_1 = C
+allowed_missed_cleavage_1 = 2
+
+search_enzyme_name_2 = null
+search_enzyme_cut_2 =
+search_enzyme_nocut_2 =
+search_enzyme_sense_2 = C
+allowed_missed_cleavage_2 = 2
+
+num_enzyme_termini = 2
+
+clip_nTerm_M = 1 
+
+# maximum of 16 mods - amino acid codes, * for any amino acid, [ and ] specifies protein termini, n and c specifies peptide termini
+variable_mod_01 = 15.99490 M 3
+variable_mod_02 = 42.01060 [^ 1
+# variable_mod_03 = 79.96633 STY 3
+# variable_mod_04 = -17.02650 nQnC 1
+# variable_mod_05 = -18.01060 nE 1
+# variable_mod_06 = 4.025107 K 2
+# variable_mod_07 = 6.020129 KR 2
+# variable_mod_08 = 8.014199 K 2
+# variable_mod_09 = 10.008269 R 2
+# variable_mod_10 = 0.00000 site_10 1
+# variable_mod_11 = 0.00000 site_11 1
+# variable_mod_12 = 0.00000 site_12 1
+# variable_mod_13 = 0.00000 site_13 1
+# variable_mod_14 = 0.00000 site_14 1
+# variable_mod_15 = 0.00000 site_15 1
+# variable_mod_16 = 0.00000 site_16 1
+
+allow_multiple_variable_mods_on_residue = 0
+max_variable_mods_per_peptide = 3
+max_variable_mods_combinations = 5000
+
+output_format = pepXML_pin
+output_report_topN = 1 
+output_max_expect = 50
+report_alternative_proteins=1
+
+precursor_charge = 1 4
+override_charge = 0
+
+digest_min_length = 7
+digest_max_length = 50 
+digest_mass_range = 500.0 5000.0
+max_fragment_charge = 2
+
+track_zero_topN = 0
+zero_bin_accept_expect = 0
+zero_bin_mult_expect = 1
+
+check_spectral_files = 1
+minimum_peaks = 15
+use_topN_peaks = 100
+min_fragments_modelling = 2
+min_matched_fragments = 4
+min_sequence_matches = 2
+minimum_ratio = 0.01
+clear_mz_range = 0.0 0.0
+
+add_Cterm_peptide = 0.0
+add_Nterm_peptide = 0.0
+add_Cterm_protein = 0.0
+add_Nterm_protein = 0.0
+
+add_G_glycine = 0.0000
+add_A_alanine = 0.0000
+add_S_serine = 0.0000
+add_P_proline = 0.0000
+add_V_valine = 0.0000
+add_T_threonine = 0.0000
+add_C_cysteine = 57.02146
+add_L_leucine = 0.0000
+add_I_isoleucine = 0.0000
+add_N_asparagine = 0.0000
+add_D_aspartic_acid = 0.0000
+add_Q_glutamine = 0.0000
+add_K_lysine = 0.0000
+add_E_glutamic_acid = 0.0000
+add_M_methionine = 0.0000
+add_H_histidine = 0.0000
+add_F_phenylalanine = 0.0000
+add_R_arginine = 0.0000
+add_Y_tyrosine = 0.0000
+add_W_tryptophan = 0.0000
+add_B_user_amino_acid = 0.0000
+add_J_user_amino_acid = 0.0000
+add_O_user_amino_acid = 0.0000
+add_U_user_amino_acid = 0.0000
+add_X_user_amino_acid = 0.0000
+add_Z_user_amino_acid = 0.0000

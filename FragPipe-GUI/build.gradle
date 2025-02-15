@@ -1,0 +1,279 @@
+/*
+ * This file is part of FragPipe.
+ *
+ * FragPipe is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * FragPipe is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with FragPipe. If not, see <https://www.gnu.org/licenses/>.
+ */
+
+plugins {
+    id 'java'
+    id 'application'
+    id 'idea'
+    id 'edu.sc.seis.launch4j' version '3.0.5'
+    id "com.github.johnrengelman.shadow" version "8.1.1"
+    id "com.github.ben-manes.versions" version "0.51.0"
+    id 'nebula.lint' version '19.0.1'
+}
+
+group = 'org.nesvilab'
+version = '23.0-build13'
+
+description = """FragPipe - run complete proteomics analyses from the GUI"""
+
+gradleLint.rules = ['unused-dependency']
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+tasks.withType(JavaCompile) {
+	options.encoding = 'UTF-8'
+}
+
+// Define the main class for the application
+def startClass = 'org.nesvilab.fragpipe.FragPipeMain'
+application {
+    mainClass = "${startClass}"
+}
+def releaseDir = 'github-release'
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+// This is really the important part
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java']
+        }
+        resources {
+            srcDirs = ['src/main/resources', 'src/main/java']
+            excludes = ['*.java']
+        }
+    }
+    // add tests sources here (this project didn't have them!)
+    test {
+        java.srcDirs = ['src/test/java']
+        resources.srcDirs = ["src/test/resources"]
+    }
+}
+
+shadowJar {
+    archiveBaseName.set("${project.name}-${project.version}")
+    archiveClassifier.set('')
+    minimize()
+}
+
+distributions {
+    main {
+        distributionBaseName = "${project.name}-${project.version}"
+        contents {
+        }
+    }
+}
+
+// replacing old transitive dependencies with newer ones
+//configurations.each {
+//    c -> c.resolutionStrategy.dependencySubstitution {
+//        all { DependencySubstitution dep ->
+//            if (dep.requested.group == 'io.reactivex' && dep.requested.module == 'rxjava') {
+//                dep.useTarget 'io.reactivex:rxjava:1.3.8'
+//            }
+//        }
+//    }
+//}
+
+dependencies {
+    implementation 'com.github.albfernandez:juniversalchardet:2.4.0'
+    implementation files("../tools/batmass-io-1.34.4.jar")
+    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'one.util:streamex:0.8.2'
+    implementation 'org.jooq:jool-java-8:0.9.15'
+    implementation 'org.apache.maven:maven-artifact:3.9.6'
+    implementation 'org.jgrapht:jgrapht-core:1.5.2'
+    implementation 'com.github.vlsi.mxgraph:jgraphx:4.2.2'
+
+    implementation group: 'org.apache.commons', name: 'commons-compress', version: '1.26.1'
+
+    implementation 'org.apache.commons:commons-lang3:3.14.0'
+    implementation 'com.miglayout:miglayout-swing:11.3'
+    implementation 'org.apache.commons:commons-text:1.11.0'
+
+    implementation 'io.reactivex.rxjava3:rxjava:3.1.9'
+
+    implementation 'org.greenrobot:eventbus-java:3.3.1'
+    implementation 'org.jsoup:jsoup:1.17.1'
+    implementation 'com.squareup.okio:okio:3.6.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+
+    implementation 'net.java.balloontip:balloontip:1.2.4.1'
+    implementation group: 'org.netbeans.api', name: 'org-netbeans-swing-outline', version: 'RELEASE200'
+    implementation 'commons-io:commons-io:2.15.1'
+
+    implementation 'org.apache.parquet:parquet-hadoop:1.15.0'
+    implementation 'org.apache.hadoop:hadoop-common:3.4.1'
+    implementation 'org.apache.hadoop:hadoop-mapreduce-client-core:3.4.1'
+
+    // Use JUnit test framework
+    testImplementation 'junit:junit:4.13.2'
+}
+
+test {
+    testLogging {
+        events "skipped", "failed" // "passed", "standardOut", "standardError"
+
+        showExceptions true
+        exceptionFormat "full"
+        showCauses true
+        showStackTraces true
+
+        showStandardStreams = false
+    }
+}
+
+task listJars(group: 'fragpipe-help') {
+    doLast {
+        configurations.runtimeClasspath.each { File file -> println file.name }
+    }
+}
+
+task showImplDeps(type: DependencyReportTask, group: 'fragpipe-help',
+        description: "Show only implementation dependencies") {
+    configurations = [project.configurations.implementation] as Set
+}
+
+task createStartScripts(type: CreateStartScripts, group: "fragpipe-release") {
+    outputDir = file('build/pre-zip-release')
+    mainClass = "${startClass}"
+    applicationName = 'FragPipe'
+    classpath = files("fragpipe-${project.version}.jar")
+}
+
+task makeExeAndCopyToScripts(type: Copy, group: 'fragpipe-release', description: 'The .exe file ' +
+        'created requires to be placed in ./bin/ sub-direcotry of the final distribution and ' +
+        'having fragpipe-x.x.x.jar in ./lib/ sub-directory') {
+    dependsOn 'createExe'
+    from getLayout().buildDirectory.dir('launch4j/bin').get()
+    into getLayout().buildDirectory.dir('scripts').get().asFile
+}
+
+task copyJre(type: Copy, group: 'fragpipe-release', description: "Copies JRE to build/install/${project.name}-${project.version}") {
+    from getLayout().buildDirectory.dir('../../jre/OpenJDK17U-jre_x64_windows_hotspot_17.0.10_7').get()
+    into getLayout().buildDirectory.dir("install/${project.name}-${project.version}").get().asFile
+}
+
+void createTaskCopyToInstallRelToBuild(String taskNameSuffix, String fromRelToBuild, String toRelToInstallProjname) {
+    String taskName = "copy" + taskNameSuffix
+    task (taskName, type: Copy, group: 'fragpipe-release', description: "Copies JRE") {
+        from getLayout().buildDirectory.dir("$fromRelToBuild").get()
+        into getLayout().buildDirectory.dir("install/${project.name}-${project.version}/$toRelToInstallProjname").get().asFile
+        exclude { details -> (details.file.name.endsWith('.tar.gz') and details.file.name.startsWith('cpython')) || (details.file.name == 'python.zip') || (details.file.name == 'python')
+        }
+    }
+}
+
+createTaskCopyToInstallRelToBuild('Tools', "../../tools", "tools")
+createTaskCopyToInstallRelToBuild('Workflows', "../../workflows/", "workflows")
+
+void createTaskUnpackToInstallRelToBuild(String taskNameSuffix, String fromRelToBuild, String toRelToInstallProjname) {
+    String taskName = "unpack" + taskNameSuffix
+    task (taskName, type: Copy, group: 'fragpipe-release', description: "Unzips $fromRelToBuild to $toRelToInstallProjname") {
+        dependsOn 'copyTools'
+        from zipTree(getLayout().buildDirectory.dir("$fromRelToBuild").get())
+        // tarTree has issues with symlinks, so use zipTree
+        // https://github.com/gradle/gradle/pull/182
+        into getLayout().buildDirectory.dir("install/${project.name}-${project.version}/$toRelToInstallProjname").get().asFile
+    }
+}
+
+createTaskUnpackToInstallRelToBuild('PythonLinux', "../../tools/python_Linux/python.zip", "tools/python_Linux")
+createTaskUnpackToInstallRelToBuild('PythonWindows', "../../tools/python_Windows/python.zip", "tools/python_Windows")
+
+void createTaskMakeReleaseZip(boolean withJre, String releaseDir, String startClass) {
+    String taskName = "makeReleaseZip" + (withJre ? "WithJre" : "NoJre")
+
+    task (taskName, type: Zip, group: 'fragpipe-release') {
+        // for build on Windows, zip with execute bit
+        // for a gradle Windows build, files requiring execute bit set (ELF and Unix shell scripts)
+        // are zipped without execute bit. The default file mode is 0644
+        // https://github.com/gradle/gradle/blob/54b385133a1edde78243105e9aaf0db5990b3507/subprojects/native/src/main/java/org/gradle/internal/nativeintegration/filesystem/services/FileSystemServices.java#L75
+        fileMode = 0755
+        dependsOn 'clean'
+        dependsOn 'test'
+        dependsOn 'makeExeAndCopyToScripts'
+        dependsOn 'installDist'
+        dependsOn 'copyTools'
+        dependsOn 'unpackPythonLinux'
+        dependsOn 'unpackPythonWindows'
+        dependsOn 'copyWorkflows'
+
+        tasks.findByName('test').mustRunAfter 'clean'
+        tasks.findByName('makeExeAndCopyToScripts').mustRunAfter 'test'
+        tasks.findByName('installDist').mustRunAfter 'makeExeAndCopyToScripts'
+        tasks.findByName('copyTools').mustRunAfter 'installDist'
+        tasks.findByName('copyWorkflows').mustRunAfter 'copyTools'
+
+        // Launch4j find the java path from registry or bundledJrePath, rather than Path environment variable.
+        if (!withJre) {
+            launch4j { // no bundled jre
+                mainClassName = "${startClass}"
+                icon = "${projectDir}/../logo/msfragger-icon-set_win_16-512.ico"
+                outputDir = "launch4j/bin"
+                libraryDir = '../lib'
+                dontWrapJar = true
+                downloadUrl = 'https://adoptium.net/temurin/releases/?package=jdk&version=17&arch=x64'
+                jreMinVersion = '1.9'
+            }
+        } else {
+            dependsOn 'copyJre'
+            tasks.findByName('copyJre').mustRunAfter 'installDist'
+            launch4j {
+                mainClassName = "${startClass}"
+                icon = "${projectDir}/../logo/msfragger-icon-set_win_16-512.ico"
+                outputDir = "launch4j/bin"
+                libraryDir = '../lib'
+                dontWrapJar = true
+                downloadUrl = 'https://adoptium.net/temurin/releases/?package=jdk&version=17&arch=x64'
+                bundledJrePath = "../jre"
+            }
+        }
+        //tasks.findByName('makeExeAndCopyToScripts').mustRunAfter 'clean'
+
+        archiveFileName = (withJre ? "FragPipe-jre-${project.version}.zip" : "FragPipe-${project.version}.zip")
+        destinationDirectory = getLayout().buildDirectory.dir(releaseDir)
+        from getLayout().buildDirectory.dir("install")
+    }
+}
+
+createTaskMakeReleaseZip(true, releaseDir, startClass)
+createTaskMakeReleaseZip(false, releaseDir, startClass)
+
+task makeReleaseZips(group: 'fragpipe-release') {
+    dependsOn('clean')
+    dependsOn('makeReleaseZipNoJre')
+    dependsOn('makeReleaseZipWithJre')
+
+    tasks.findByName('makeReleaseZipNoJre').mustRunAfter 'clean'
+    tasks.findByName('copyJre').mustRunAfter 'makeReleaseZipNoJre'
+    tasks.findByName('makeReleaseZipWithJre').mustRunAfter 'makeReleaseZipNoJre'
+}
+allprojects {
+    gradle.projectsEvaluated {
+        tasks.withType(JavaCompile) {
+            options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+        }
+    }
+}
