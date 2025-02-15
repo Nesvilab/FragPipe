@@ -117,8 +117,6 @@ import org.nesvilab.fragpipe.messages.MessageUpdateWorkflows;
 import org.nesvilab.fragpipe.messages.NoteConfigCrystalC;
 import org.nesvilab.fragpipe.messages.NoteConfigDiann;
 import org.nesvilab.fragpipe.messages.NoteConfigPeptideProphet;
-import org.nesvilab.fragpipe.messages.NoteConfigPtmProphet;
-import org.nesvilab.fragpipe.messages.NoteConfigPtmShepherd;
 import org.nesvilab.fragpipe.messages.NoteConfigTmtI;
 import org.nesvilab.fragpipe.messages.NoteConfigUmpire;
 import org.nesvilab.fragpipe.params.ThisAppProps;
@@ -127,7 +125,6 @@ import org.nesvilab.fragpipe.tools.tmtintegrator.QuantLabel;
 import org.nesvilab.fragpipe.tools.umpire.UmpirePanel;
 import org.nesvilab.fragpipe.util.SDRFtable;
 import org.nesvilab.utils.FileDrop;
-import org.nesvilab.utils.JarUtils;
 import org.nesvilab.utils.MapUtils;
 import org.nesvilab.utils.OsUtils;
 import org.nesvilab.utils.PathUtils;
@@ -1482,13 +1479,9 @@ public class TabWorkflow extends JPanelWithEnablement {
       if (umpirePanel.isRun() || diaTracerPanel.isRun()) {
         Bus.post(new NoteConfigCrystalC(true));
         Bus.post(new NoteConfigPeptideProphet(true));
-        Bus.post(new NoteConfigPtmProphet(true));
-        Bus.post(new NoteConfigPtmShepherd(true));
       } else {
         Bus.post(new NoteConfigCrystalC(false));
         Bus.post(new NoteConfigPeptideProphet(false));
-        Bus.post(new NoteConfigPtmProphet(false));
-        Bus.post(new NoteConfigPtmShepherd(false));
       }
       Bus.post(new NoteConfigTmtI(false));
       if (hasDataType("DIA")) {
@@ -1500,16 +1493,12 @@ public class TabWorkflow extends JPanelWithEnablement {
       Bus.post(new NoteConfigUmpire(false));
       Bus.post(new NoteConfigCrystalC(false));
       Bus.post(new NoteConfigPeptideProphet(false));
-      Bus.post(new NoteConfigPtmProphet(true));
-      Bus.post(new NoteConfigPtmShepherd(false));
       Bus.post(new NoteConfigTmtI(false));
       Bus.post(new NoteConfigDiann(noteConfigDiann, false));
     } else {
       Bus.post(new NoteConfigUmpire(false));
       Bus.post(new NoteConfigCrystalC(true));
       Bus.post(new NoteConfigPeptideProphet(true));
-      Bus.post(new NoteConfigPtmProphet(true));
-      Bus.post(new NoteConfigPtmShepherd(true));
       Bus.post(new NoteConfigTmtI(true));
       Bus.post(new NoteConfigDiann(noteConfigDiann, false));
     }
