@@ -9,7 +9,7 @@ Independent software tools that are distributed with FragPipe are placed in 'too
 - PeptideProphet (Philosopher version): open source (LGPL 2.0, GPL 2.0) https://github.com/nesvilab/philosopher, based on https://sourceforge.net/projects/sashimi/
 - ProteinProphet (Philosopher version): open source (LGPL 2.0, GPL 2.0) https://github.com/nesvilab/philosopher, based on https://sourceforge.net/projects/sashimi/
 - PTMProphet: open source (LGPL 2.0, GPL 2.0) https://sourceforge.net/projects/sashimi/
-- Philosopher (Philosopher version): open source (GPL 3.0) https://github.com/nesvilab/philosopher
+- Philosopher: open source (GPL 3.0) https://github.com/nesvilab/philosopher
 - PTM-Shepherd: open source (Apache 2.0) https://github.com/nesvilab/PTM-Shepherd
 - EasyPQP: open source (BSD 3-Clause) https://github.com/grosenberger/easypqp
 - Skyline: open source (Apache 2.0) https://skyline.ms/wiki/home/software/Skyline/page.view?name=source
