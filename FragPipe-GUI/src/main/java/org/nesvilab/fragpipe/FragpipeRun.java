@@ -1839,6 +1839,10 @@ public class FragpipeRun {
           SwingUtils.showWarningDialog(parent, CmdTmtIntegrator.NAME + " only supports mzML, raw, and .d files.\nPlease remove other files from the input list.", CmdTmtIntegrator.NAME + " error");
           return false;
         }
+        if (reportPanel.isRun() && tmtiPanel.getIntensityExtractionTool() == 2) {
+          SwingUtils.showErrorDialog(parent, "'Intensity Extraction Tool' in 'Quant (Isobaric)' tab was set to 'Skip extraction. Run TMT-Integrator only'. Please change it to 'IonQuant'.", "TMT-Integrator error");
+          return false;
+        }
         Map<LcmsFileGroup, Path> annotations = tmtiPanel.getAnnotations(wd, isDryRun);
         if (annotations.isEmpty()) {
           return false;
