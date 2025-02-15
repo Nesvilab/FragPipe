@@ -1,17 +1,25 @@
-- FragPipe GUI: open source (GPL 3.0)
-- DIA-Umpire: open source (GPL 3.0)
-- diaTracer: free academic [license](https://msfragger-upgrader.nesvilab.org/diatracer/diaTracer%20UM%20%23%202024-417%20Academic%20Research%20Use%20License%2005142024.pdf). Paid non-academic license (contact the University of Michigan Office of Technology Transfer (Drew Bennett, andbenne@umich.edu) to obtain a commercial license.)
-- MSFragger: free academic [license](https://msfragger-upgrader.nesvilab.org/upgrader/MSFragger-LICENSE.pdf). Paid non-academic license (contact the University of Michigan Office of Technology Transfer (Drew Bennett, andbenne@umich.edu) to obtain a commercial license.)
-- Crystal-C: open source (Apache 2.0)
-- MSBooster: open source (Apache 2.0)
-- PeptideProphet: open source (LGPL 2.0, GPL 2.0)
-- ProteinProphet: open source (LGPL 2.0, GPL 2.0)
-- PTMProphet: open source (LGPL 2.0, GPL 2.0)
-- Philosopher: open source (GPL 3.0)
-- PTM-Shepherd: open source (Apache 2.0)
-- IonQuant: free academic [license](https://msfragger-upgrader.nesvilab.org/ionquant/IonQuant%20Academic%20Use%20License%2005162022.pdf). Paid non-academic license (contact the University of Michigan Office of Technology Transfer (Drew Bennett, andbenne@umich.edu) to obtain a commercial license.)
-- TMT-Integrator: open source after the paper published
-- EasyPQP: open source (BSD 3-Clause)
-- DIA-NN: check https://github.com/vdemichev/DiaNN for the license information
-- Skyline: open source (Apache 2.0)
-- SAINTexpress: open source
+FragPipe is a comprehensive computational platform designed for the analysis of mass spectrometry-based proteomics data. It comprises a Graphical User Interface and pipeline wrapper code (FragPipe-GUI) distributed alongside various independent software tools and workflow files. Each component of FragPipe is available under its own license, as detailed below:
+
+- FragPipe-GUI: open source (GPL 3.0)
+
+Independent software tools that are distributed with FragPipe are placed in 'tools' folder and include:
+- DIA-Umpire: open source (GPL 3.0) https://github.com/nesvilab/DIA-Umpire
+- Crystal-C: open source (Apache 2.0) https://github.com/Nesvilab/Crystal-C
+- MSBooster: open source (Apache 2.0) https://github.com/Nesvilab/MSBooster
+- PeptideProphet (Philosopher version): open source (LGPL 2.0, GPL 2.0) https://github.com/nesvilab/philosopher, based on https://sourceforge.net/projects/sashimi/
+- ProteinProphet (Philosopher version): open source (LGPL 2.0, GPL 2.0) https://github.com/nesvilab/philosopher, based on https://sourceforge.net/projects/sashimi/
+- PTMProphet: open source (LGPL 2.0, GPL 2.0) https://sourceforge.net/projects/sashimi/
+- Philosopher (Philosopher version): open source (GPL 3.0) https://github.com/nesvilab/philosopher
+- PTM-Shepherd: open source (Apache 2.0) https://github.com/nesvilab/PTM-Shepherd
+- EasyPQP: open source (BSD 3-Clause) https://github.com/grosenberger/easypqp
+- Skyline: open source (Apache 2.0) https://skyline.ms/wiki/home/software/Skyline/page.view?name=source
+- FragPipe-PDV: open source (GPL 3.0) https://github.com/nesvilab/FragPipe-PDV
+- SAINTexpress: open source https://saint-apms.sourceforge.net/Main.html
+- Opair: open source (MIT license) https://github.com/smith-chem-wisc/MetaMorpheus
+- TMT-Integrator: currently closed source (open source release is planned)
+- DIA-NN 1.8.1: closed source. Available for both academic and commercial use within FragPipe, as outlined in the included DIA-NN license file located in the tools/diann folder. 
+
+Note that the following tools are not included and require separate download:  
+- MSFragger: free under academic [license](https://msfragger-upgrader.nesvilab.org/upgrader/MSFragger-LICENSE.pdf). Non-academic users are required to obtain paid commercial license (contact the University of Michigan Office of Technology Transfer (Drew Bennett, andbenne@umich.edu) to obtain a commercial license.)
+- diaTracer: free under academic [license](https://msfragger-upgrader.nesvilab.org/diatracer/diaTracer%20UM%20%23%202024-417%20Academic%20Research%20Use%20License%2005142024.pdf). Non-academic users are required to obtain paid commercial license (contact the University of Michigan Office of Technology Transfer (Drew Bennett, andbenne@umich.edu) to obtain a commercial license.)- IonQuant: free academic [license](https://msfragger-upgrader.nesvilab.org/ionquant/IonQuant%20Academic%20Use%20License%2005162022.pdf). Paid non-academic license (contact the University of Michigan Office of Technology Transfer (Drew Bennett, andbenne@umich.edu) to obtain a commercial license.)
+- IonQuant: free under academic [license](https://msfragger-upgrader.nesvilab.org/ionquant/IonQuant%20Academic%20Use%20License%2005162022.pdf). Non-academic users are required to obtain paid commercial license (contact the University of Michigan Office of Technology Transfer (Drew Bennett, andbenne@umich.edu) to obtain a commercial license.)
