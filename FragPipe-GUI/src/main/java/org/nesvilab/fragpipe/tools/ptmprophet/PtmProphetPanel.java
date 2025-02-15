@@ -101,7 +101,7 @@ public class PtmProphetPanel extends JPanelBase {
     final String prop = "ptmprophet.cmdline.default";
     String val = Fragpipe.getPropFix(prop);
     if (val == null) {
-      val = "NOSTACK KEEPOLD STATIC EM=1 NIONS=b STY:79.966331,M:15.9949 MINPROB=0.5";
+      val = "NOSTACK KEEPOLD STATIC FRAGPPMTOL=10 EM=1 NIONS=b STY:79.966331,M:15.9949 MINPROB=0.5";
       log.warn("Property [{}] not found in Bundle.properties, default to hardcoded value: {}", prop, val);
     }
     return val;
@@ -219,7 +219,7 @@ public class PtmProphetPanel extends JPanelBase {
       uiTextCmd.setVisible(SwingUtils.isEnabledAndChecked(checkOverrideDefaults));
     });
 
-    JLabel info = new JLabel("<html>Not for open searches. Default cmds: NOSTACK KEEPOLD STATIC EM=1 NIONS=b <mods> MINPROB=0.5. Mods format example: STY:79.966331,M:15.9949");
+    JLabel info = new JLabel("<html>Not for open searches. Default cmds: NOSTACK KEEPOLD STATIC FRAGPPMTOL=10 EM=1 NIONS=b <mods> MINPROB=0.5. Mods format example: STY:79.966331,M:15.9949");
 
     checkRun.addActionListener(e -> {
       if (isRun()) {
