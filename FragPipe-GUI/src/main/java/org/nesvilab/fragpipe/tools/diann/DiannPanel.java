@@ -333,7 +333,7 @@ public class DiannPanel extends JPanelBase {
     uiTextModTag = UiUtils.uiTextBuilder().cols(40).create();
     FormEntry feModTag = new FormEntry("mod-tag", "Mod tag", uiTextModTag, "<html>Modification tag for generating modification-specific reports <br/>\n"
         + "STY:79.9663 for phospho<br/>\n"
-        + "K:114.0429,K:343.2059 for ubiquitin");
+        + "K:114.0429 for ubiquitin");
 
     uiSpinnerSiteProb = UiUtils.spinnerDouble(0.75, 0, 1, 0.01).setCols(5).setFormat("#.###").create();
     FormEntry feSiteProb = mu.feb(uiSpinnerSiteProb).name("min-site-prob").label("Min site probability").tooltip("Site localization confidence threshold").create();
