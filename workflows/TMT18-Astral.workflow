@@ -1,6 +1,5 @@
 # Workflow: TMT18-Astral
 
-Table.editor=304.20715
 crystalc.run-crystalc=false
 database.decoy-tag=rev_
 diann.channel-normalization-strategy=0
@@ -11,7 +10,7 @@ diann.library=
 diann.light=
 diann.medium=
 diann.min-site-prob=0.75
-diann.mod-tag=K\:114.04293
+diann.mod-tag=
 diann.q-value=0.01
 diann.quantification-strategy=3
 diann.quantification-strategy-2=2
@@ -355,4 +354,4 @@ workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
 workflow.misc.save-sdrf=true
 workflow.misc.sdrf-type=Default
-workflow.saved-with-ver=23.0-build13
+workflow.saved-with-ver=23.0-build14
