@@ -379,12 +379,11 @@ public class CmdDiann extends CmdBase {
       }
 
       // Add process to rename the speclib file for skyline once it has been generated (only needed for Skyline v23.1 and older)
-      if (isRunSkyline) { // todo: adjust based on DIA-NN 2.0
-        Path speclibFromDIANN = wd.resolve("library.tsv.speclib");
-        Path speclibForSkyline = wd.resolve("dia-quant-output").resolve("report.tsv.speclib");
-        List<ProcessBuilder> pbsMove = ToolingUtils.pbsRenameFiles(jarFragpipe, speclibForSkyline, true, Collections.singletonList(speclibFromDIANN));
-        pbis.addAll(PbiBuilder.from(pbsMove, NAME + " move speclib for skyline"));
-      }
+      // todo: adjust based on DIA-NN 2.0
+      Path speclibFromDIANN = wd.resolve("library.tsv.speclib");
+      Path speclibForSkyline = wd.resolve("dia-quant-output").resolve("report-tsv.speclib");
+      List<ProcessBuilder> pbsMove = ToolingUtils.pbsRenameFiles(jarFragpipe, speclibForSkyline, true, Collections.singletonList(speclibFromDIANN));
+      pbis.addAll(PbiBuilder.from(pbsMove, NAME + " move and rename speclib for skyline"));
     }
 
     if (noteConfigDiann.compareVersion("2.0") >= 0) {

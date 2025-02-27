@@ -143,7 +143,7 @@ public class Skyline {
       }
       reader.close();
 
-      List<Path> speclibFiles = Files.walk(wd).filter(p -> p.getFileName().toString().endsWith(".speclib")).collect(Collectors.toList());
+      List<Path> speclibFiles = Files.walk(wd.resolve("dia-quant-output")).filter(p -> p.getFileName().toString().endsWith(".speclib")).collect(Collectors.toList());
       Set<Path> psmTsvFiles = Files.walk(wd).filter(p -> p.getFileName().toString().startsWith("psm.tsv") && p.getFileName().toString().endsWith("psm.tsv")).collect(Collectors.toCollection(TreeSet::new));
 
       if (useSpeclib && speclibFiles.isEmpty()) {
