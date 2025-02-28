@@ -40,15 +40,12 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.jooq.lambda.Seq;
@@ -143,7 +140,13 @@ public class Skyline {
       }
       reader.close();
 
-      List<Path> speclibFiles = Files.walk(wd.resolve("dia-quant-output")).filter(p -> p.getFileName().toString().endsWith(".speclib")).collect(Collectors.toList());
+      List<Path> speclibFiles;
+      try (Stream<Path> paths = Files.walk(wd.resolve("dia-quant-output"))) {
+        speclibFiles = paths.filter(p -> p.getFileName().toString().endsWith(".speclib")).collect(Collectors.toList());
+      } catch (IOException ex) {
+        // dia-quant-output directory does not always exist (e.g., for DDA data). Avoid crashing if it doesn't.
+        speclibFiles = Collections.emptyList();
+      }
       Set<Path> psmTsvFiles = Files.walk(wd).filter(p -> p.getFileName().toString().startsWith("psm.tsv") && p.getFileName().toString().endsWith("psm.tsv")).collect(Collectors.toCollection(TreeSet::new));
 
       if (useSpeclib && speclibFiles.isEmpty()) {
