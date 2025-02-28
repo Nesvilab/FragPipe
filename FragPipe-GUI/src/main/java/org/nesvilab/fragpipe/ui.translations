@@ -88,6 +88,7 @@ tmtintegrator.channel_num :: TMT-10 <=> 10
 tmtintegrator.channel_num :: TMT-11 <=> 11
 tmtintegrator.channel_num :: TMT-16 <=> 16
 tmtintegrator.channel_num :: TMT-18 <=> 18
+tmtintegrator.channel_num :: TMT-35 <=> 35
 tmtintegrator.channel_num :: iTRAQ-4 <=> 4
 tmtintegrator.channel_num :: iTRAQ-8 <=> 8
 tmtintegrator.channel_num :: sCLIP-6 <=> 6

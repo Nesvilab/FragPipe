@@ -53,6 +53,7 @@ public class QuantLabel {
     labels.add(new QuantLabel(TYPE_TMT, "TMT-11", Arrays.asList("126, 127N, 127C, 128N, 128C, 129N, 129C, 130N, 130C, 131N, 131C".split("[,\\s]+"))));
     labels.add(new QuantLabel(TYPE_TMT, "TMT-16", Arrays.asList("126, 127N, 127C, 128N, 128C, 129N, 129C, 130N, 130C, 131N, 131C, 132N, 132C, 133N, 133C, 134N".split("[,\\s]+"))));
     labels.add(new QuantLabel(TYPE_TMT, "TMT-18", Arrays.asList("126, 127N, 127C, 128N, 128C, 129N, 129C, 130N, 130C, 131N, 131C, 132N, 132C, 133N, 133C, 134N, 134C, 135N".split("[,\\s]+"))));
+    labels.add(new QuantLabel(TYPE_TMT, "TMT-35", Arrays.asList("126, 127N, 127C, 128N, 128C, 129N, 129C, 130N, 130C, 131N, 131C, 132N, 132C, 133N, 133C, 134N, 134C, 135N, 127D, 128ND, 128CD, 129ND, 129CD, 130ND, 130CD, 131ND, 131CD, 132ND, 132CD, 133ND, 133CD, 134ND, 134CD, 135ND, 135CD".split("[,\\s]+"))));
     labels.add(new QuantLabel(TYPE_ITRAQ, "iTRAQ-4", Arrays.asList("114, 115, 116, 117".split("[,\\s]+"))));
     labels.add(new QuantLabel(TYPE_ITRAQ, "iTRAQ-8", Arrays.asList("113, 114, 115, 116, 117, 118, 119, 121".split("[,\\s]+"))));
     labels.add(new QuantLabel(TYPE_SCLIP, "sCLIP-6", Arrays.asList("300, 301N, 301C, 302N, 302O, 302C".split("[,\\s]+"))));
@@ -72,6 +73,7 @@ public class QuantLabel {
     labelModMap.put("TMT-11", 229.162932f);
     labelModMap.put("TMT-16", 304.2071f);
     labelModMap.put("TMT-18", 304.2071f);
+    labelModMap.put("TMT-35", 304.2071f);
     labelModMap.put("iTRAQ-4", 144.102063f);
     labelModMap.put("iTRAQ-8", 304.205360f);
     labelModMap.put("sCLIP-6", 481.2f);
