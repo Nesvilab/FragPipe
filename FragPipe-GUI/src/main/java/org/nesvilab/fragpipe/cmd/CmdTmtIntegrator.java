@@ -82,7 +82,7 @@ public class CmdTmtIntegrator extends CmdBase {
     return true;
   }
 
-  public boolean configure(TmtiPanel panel, boolean isDryRun, int ramGb, Map<LcmsFileGroup, Path> mapGroupsToProtxml, boolean doMsstats, Map<LcmsFileGroup, Path> groupAnnotationMap, boolean isSecondUnmodRun) {
+  public boolean configure(TmtiPanel panel, boolean isDryRun, int ramGb, Map<LcmsFileGroup, Path> mapGroupsToProtxml, boolean doMsstats, Map<LcmsFileGroup, Path> groupAnnotationMap, boolean isSecondUnmodRun, int channelNum) {
     isConfigured = false;
 
     List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Stream.of(JAR_NAME));
@@ -180,6 +180,12 @@ public class CmdTmtIntegrator extends CmdBase {
       Set<String> ss = new HashSet<>();
       for (Path path : groupAnnotationMap.values()) {
         List<QuantLabelAnnotation> annotations = TmtiPanel.parseTmtAnnotationFile(path.toFile());
+
+        if (annotations.size() != channelNum) {
+          SwingUtils.showErrorDialog(panel, "Number of the samples in the annotation file does not match the number of channels in the 'label type' of the Quant (Isobaric) tab.", "ERROR: channel count mismatch");
+          return false;
+        }
+
         for (QuantLabelAnnotation a : annotations) {
           if (!a.getSample().equalsIgnoreCase("na") && !ss.add(a.getSample())) {
             SwingUtils.showErrorDialog(panel, "Duplicate samples found in annotation files. The sample names must be unique among all experiments.", "ERROR: duplicate label");
