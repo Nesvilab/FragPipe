@@ -103,13 +103,11 @@ public class GlycoResiduesTableModel extends DefaultTableModel {
 
     private GlycanResidue parseResidueDefinition(Vector<?> row, int printIndex) {
         if (row != null && row.size() > 2 && row.get(COL_NAME) != null && row.get(COL_MASS) != null) {
-            Float mass;
-            if (row.get(COL_MASS) instanceof Float) {
-                mass = (Float) row.get(COL_MASS);
-            } else if (row.get(COL_MASS) instanceof Double) {
-                mass = ((Double) row.get(COL_MASS)).floatValue();
+            Double mass;
+            if (row.get(COL_MASS) instanceof Double) {
+                mass = (Double) row.get(COL_MASS);
             } else {
-                throw new RuntimeException(row.get(COL_MASS) + " is not either Float or Double.");
+                throw new RuntimeException(row.get(COL_MASS) + " is not Double.");
             }
             String name = (String) row.get(COL_NAME);
 
