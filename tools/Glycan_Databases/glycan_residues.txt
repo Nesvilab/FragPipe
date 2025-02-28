@@ -1,10 +1,10 @@
 #Name	Mass	yProb+	yProb-	Alternate Names	Elemental Composition
-HexNAc	203.0793762	5	0.5	N,GlcNAc,GalNAc	C8H13N1O5
-Hex	162.0528259	5	0.5	H,hexose,glucose,galactose,glc,gal	C6H10O5
-Fuc	146.0579071	2	0.5	F,dhex,fucose	C6H10O4
-NeuAc	291.0954285			A,Neu5Ac,N-acetylneuraminic acid	C11H17N1O8
-NeuGc	307.090332			G,Neu5Gc,N-Glycolylneuraminic acid	C11H17N1O9
-Pent	132.0422974	5	0.5	pentose,X,xylose,xyl,rib,ribose,ara,arabinose,lyx	C5H8O4
-KDN	250.0688934	5	0.5	Ketodeoxynonulosonic acid	C9H14O8
-HexA	176.0320892	5	0.5	hexuronic acid,hexuronate	C6H8O6
-pseudaminic	232.10592	5	0.5	pseudaminic acid	C9H16N2O5
+HexNAc	203.07937	5.0	0.5	N,GlcNAc,GalNAc	C8H13N1O5
+Hex	162.05282	5.0	0.5	H,hexose,glucose,galactose,glc,gal	C6H10O5
+Fuc	146.05791	2.0	0.5	F,dhex,fucose	C6H10O4
+NeuAc	291.09542			A,Neu5Ac,N-acetylneuraminic acid	C11H17N1O8
+NeuGc	307.09033			G,Neu5Gc,N-Glycolylneuraminic acid	C11H17N1O9
+Pent	132.0423	5.0	0.5	pentose,X,xylose,xyl,rib,ribose,ara,arabinose,lyx	C5H8O4
+KDN	250.06889	5.0	0.5	Ketodeoxynonulosonic acid	C9H14O8
+HexA	176.03209	5.0	0.5	hexuronic acid,hexuronate	C6H8O6
+pseudaminic	232.10592	5.0	0.5	pseudaminic acid	C9H16N2O5
