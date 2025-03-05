@@ -87,6 +87,8 @@ public class PtmshepherdPanel extends JPanelBase {
   public static final String PROP_precursor_mass_units = "precursor_mass_units";
   public static final String PROP_precursor_tol = "precursor_tol";
   public static final String PROP_annotation_tol = "annotation_tol";
+  public static final String PROP_annotate_assigned_mods = "annotate_assigned_mods";
+  public static final String PROP_use_msfragger_localization = "use_msfragger_localization";
 
   public static final String PROP_spectra_ppmtol = "spectra_ppmtol";
   public static final String PROP_localization_background = "localization_background";
@@ -604,6 +606,11 @@ public class PtmshepherdPanel extends JPanelBase {
           }
         });
 
+    UiCheck uiCheckAnnotateAssignedMods = UiUtils.createUiCheck("Include Variable Mods in PTM Profile", false);
+    uiCheckAnnotateAssignedMods.setName(PROP_annotate_assigned_mods);
+    uiCheckAnnotateAssignedMods.setToolTipText("If selected, variable mods (Assigned Modifications in the psm.tsv) will be included" +
+            "in the PTM profile and modification summaries.");
+
     JPanel p1 = mu.newPanel(null, true);
     mu.border(p1, 1);
 
@@ -625,7 +632,8 @@ public class PtmshepherdPanel extends JPanelBase {
 
     mu.add(p1, new JLabel("Normalize data to: ")).spanX().split();
     mu.add(p1, btnNormPsm);
-    mu.add(p1, btnNormScan).wrap();
+    mu.add(p1, btnNormScan);
+    mu.add(p1, uiCheckAnnotateAssignedMods).wrap();
 
     mu.add(p, p1).spanX().growX().wrap();
 
@@ -690,8 +698,14 @@ public class PtmshepherdPanel extends JPanelBase {
             "<html>Restricts localization to specified residues.\n" +
                     "Includes glyco mode localization of remainder masses. Example: STYNP");
 
+    UiCheck uiCheckUseMSFraggerLoc = UiUtils.createUiCheck("Use MSFragger Localization", false);
+    uiCheckUseMSFraggerLoc.setName(PROP_use_msfragger_localization);
+    uiCheckUseMSFraggerLoc.setToolTipText("Do not perform PTM localization, read the MSFragger delta mass localization instead. " +
+            "Requires that localize_delta_mass was enabled in MSFragger");
+
     JPanel p3 = mu.newPanel("Amino acid propensity analysis", true);
 
+    mu.add(p3, uiCheckUseMSFraggerLoc).spanX().wrap();
     mu.add(p3, feIonA.comp).spanX().split();
     mu.add(p3, feIonX.comp);
     mu.add(p3, feIonB.comp);

@@ -2047,8 +2047,12 @@ public class FragpipeRun {
         if (!StringUtils.isNullOrWhitespace(massOffsets)) {
           additionalShepherdParams.put("mass_offsets", massOffsets);
         }
+        additionalShepherdParams.put("msfragger_massdiff_to_varmod", Integer.toString(tabMsf.getMassDiffToVariableMod()));
         if (ptmsGlycanPanel.isRun()) {
           additionalShepherdParams.putAll(ptmsGlycanPanel.getGlycanAssignParams());
+          if (!ptmsPanel.isRun()) {
+            additionalShepherdParams.put("glyco_only_mode", "true");
+          }
         }
         Optional.ofNullable(tabMsf.getUiTextIsoErr().getNonGhostText())
             .filter(StringUtils::isNotBlank)
