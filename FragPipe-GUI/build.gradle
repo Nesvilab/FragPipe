@@ -26,7 +26,7 @@ plugins {
 }
 
 group = 'org.nesvilab'
-version = '23.0-build17'
+version = '23.0-build18'
 
 description = """FragPipe - run complete proteomics analyses from the GUI"""
 
