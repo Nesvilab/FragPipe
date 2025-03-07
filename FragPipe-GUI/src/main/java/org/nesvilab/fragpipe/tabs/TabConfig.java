@@ -291,6 +291,7 @@ public class TabConfig extends JPanelWithEnablement {
 
     final String toolsFolderTip = "Select path to the folder containing the tools";
     uiTextToolsFolder = UiUtils.uiTextBuilder().create();
+    uiTextToolsFolder.setText(FragpipeLocations.get().getDirTools().toAbsolutePath().normalize().toString());
     uiTextToolsFolder.addActionListener(e -> {
       Bus.post(new MessageMsfraggerNewBin(getJarPath(uiTextToolsFolder.getNonGhostText(), msfraggerRegex)));
       Bus.post(new MessageIonQuantNewBin(getJarPath(uiTextToolsFolder.getNonGhostText(), ionquantRegex)));
