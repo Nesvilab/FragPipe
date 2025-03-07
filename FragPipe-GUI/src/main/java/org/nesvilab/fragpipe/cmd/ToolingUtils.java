@@ -17,9 +17,6 @@
 
 package org.nesvilab.fragpipe.cmd;
 
-import static org.apache.commons.lang3.StringUtils.getCommonPrefix;
-import static org.nesvilab.utils.PathUtils.testBinaryPath;
-
 import java.awt.Component;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -40,6 +37,7 @@ import java.util.Objects;
 import java.util.Set;
 import javax.swing.JOptionPane;
 import org.apache.commons.io.FilenameUtils;
+import static org.apache.commons.lang3.StringUtils.getCommonPrefix;
 import org.jooq.lambda.Seq;
 import org.nesvilab.fragpipe.Fragpipe;
 import org.nesvilab.fragpipe.FragpipeLocations;
@@ -50,7 +48,9 @@ import org.nesvilab.fragpipe.tabs.TabWorkflow;
 import org.nesvilab.utils.FileCopy;
 import org.nesvilab.utils.FileDelete;
 import org.nesvilab.utils.FileMove;
+import org.nesvilab.utils.FileMoveWithExtension;
 import org.nesvilab.utils.JarUtils;
+import static org.nesvilab.utils.PathUtils.testBinaryPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,13 +106,27 @@ public class ToolingUtils {
     return pbsCopyMoveDeleteRenameFiles(jarFragpipe, Op.DELETE, null, false, files);
   }
 
-  public static List<ProcessBuilder> pbsRenameFiles(Path jarFragpipe, Path dest, boolean ignoreMissingFiles, List<Path> files) {
-    return pbsCopyMoveDeleteRenameFiles(jarFragpipe, Op.RENAME, dest, ignoreMissingFiles, files);
+  public static List<ProcessBuilder> pbsMoveFilesWithExtension(Path jarFragpipe, Path dest, Path originDir, String ext) {
+    if (jarFragpipe == null) {
+      throw new IllegalArgumentException("jar can't be null");
+    }
+
+    List<ProcessBuilder> pbs = new LinkedList<>();
+
+    List<String> cmd = new ArrayList<>();
+    cmd.add(Fragpipe.getBinJava());
+    cmd.add("-cp");
+    cmd.add(jarFragpipe.toAbsolutePath().toString());
+    cmd.add(FileMoveWithExtension.class.getCanonicalName());
+    cmd.add(originDir.toAbsolutePath().normalize().toString());
+    cmd.add(ext);
+    cmd.add(dest.toAbsolutePath().normalize().toString());
+    ProcessBuilder pb = new ProcessBuilder(cmd);
+    pbs.add(pb);
+
+    return pbs;
   }
 
-  /**
-   * @param jarFragpipe Use {@link JarUtils#getCurrentJarUri()} to get that from the current Jar.
-   */
   private static List<ProcessBuilder> pbsCopyMoveDeleteRenameFiles(Path jarFragpipe, Op operation, Path dest,
                                                                    boolean ignoreMissingFiles, List<Path> files) {
     if (jarFragpipe == null) {

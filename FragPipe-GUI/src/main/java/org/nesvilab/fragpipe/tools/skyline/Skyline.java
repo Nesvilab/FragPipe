@@ -150,7 +150,7 @@ public class Skyline {
       Set<Path> psmTsvFiles = Files.walk(wd).filter(p -> p.getFileName().toString().startsWith("psm.tsv") && p.getFileName().toString().endsWith("psm.tsv")).collect(Collectors.toCollection(TreeSet::new));
 
       if (useSpeclib && speclibFiles.isEmpty()) {
-        System.out.println("No DIA-NN .speclib files found in " + wd + " but Skyline was set to use the spectral library as input and DIA-NN was enabled. Did the DIA-NN run fail? No Skyline document will be generated.");
+        System.out.println("No DIA-NN .speclib files found in " + wd.resolve("dia-quant-output") + " but Skyline was set to use the spectral library as input and DIA-NN was enabled. Did the DIA-NN run fail? No Skyline document will be generated.");
         System.exit(1);
       }
 

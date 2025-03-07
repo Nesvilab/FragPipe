@@ -17,14 +17,6 @@
 
 package org.nesvilab.fragpipe.cmd;
 
-import static org.nesvilab.fragpipe.cmd.ToolingUtils.BATMASS_IO_JAR;
-import static org.nesvilab.fragpipe.cmd.ToolingUtils.generateLFQExperimentAnnotation;
-import static org.nesvilab.fragpipe.tabs.TabWorkflow.manifestExt;
-import static org.nesvilab.utils.OsUtils.isUnix;
-import static org.nesvilab.utils.OsUtils.isWindows;
-import static org.nesvilab.utils.SwingUtils.createClickableHtml;
-import static org.nesvilab.utils.SwingUtils.showErrorDialogWithStacktrace;
-
 import java.awt.Component;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -36,7 +28,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +46,10 @@ import org.nesvilab.fragpipe.Version;
 import org.nesvilab.fragpipe.api.Bus;
 import org.nesvilab.fragpipe.api.InputLcmsFile;
 import org.nesvilab.fragpipe.api.LcmsFileGroup;
+import static org.nesvilab.fragpipe.cmd.ToolingUtils.BATMASS_IO_JAR;
+import static org.nesvilab.fragpipe.cmd.ToolingUtils.generateLFQExperimentAnnotation;
 import org.nesvilab.fragpipe.messages.NoteConfigDiann;
+import static org.nesvilab.fragpipe.tabs.TabWorkflow.manifestExt;
 import org.nesvilab.fragpipe.tools.diann.Diann;
 import org.nesvilab.fragpipe.tools.diann.DiannPanel;
 import org.nesvilab.fragpipe.tools.diann.DiannToMsstats;
@@ -63,8 +57,12 @@ import org.nesvilab.fragpipe.tools.diann.ParquetToTsv;
 import org.nesvilab.fragpipe.tools.diann.PlexDiaHelper;
 import org.nesvilab.fragpipe.tools.diann.Propagation;
 import org.nesvilab.utils.OsUtils;
+import static org.nesvilab.utils.OsUtils.isUnix;
+import static org.nesvilab.utils.OsUtils.isWindows;
 import org.nesvilab.utils.StringUtils;
 import org.nesvilab.utils.SwingUtils;
+import static org.nesvilab.utils.SwingUtils.createClickableHtml;
+import static org.nesvilab.utils.SwingUtils.showErrorDialogWithStacktrace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -378,11 +376,9 @@ public class CmdDiann extends CmdBase {
         pbis.add(PbiBuilder.from(pb2));
       }
 
-      // Add process to rename the speclib file for skyline once it has been generated (only needed for Skyline v23.1 and older)
       // todo: adjust based on DIA-NN 2.0
-      Path speclibFromDIANN = wd.resolve("library.tsv.speclib");
       Path speclibForSkyline = wd.resolve("dia-quant-output").resolve("report-tsv.speclib");
-      List<ProcessBuilder> pbsMove = ToolingUtils.pbsRenameFiles(jarFragpipe, speclibForSkyline, true, Collections.singletonList(speclibFromDIANN));
+      List<ProcessBuilder> pbsMove = ToolingUtils.pbsMoveFilesWithExtension(jarFragpipe, speclibForSkyline, wd, ".speclib");
       pbis.addAll(PbiBuilder.from(pbsMove, NAME + " move and rename speclib for skyline"));
     }
 
