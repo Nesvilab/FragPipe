@@ -17,15 +17,6 @@
 
 package org.nesvilab.fragpipe;
 
-import org.nesvilab.fragpipe.api.PropsFile;
-import org.nesvilab.fragpipe.messages.MissingAssetsException;
-import org.nesvilab.fragpipe.messages.NoteFragpipeCache;
-import org.nesvilab.utils.CacheUtils;
-import org.nesvilab.utils.JarUtils;
-import org.nesvilab.utils.PathUtils;
-import org.nesvilab.utils.StringUtils;
-import org.nesvilab.utils.SwingUtils;
-import org.nesvilab.utils.VersionComparator;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -37,12 +28,20 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.jooq.lambda.Seq;
+import org.nesvilab.fragpipe.api.PropsFile;
+import org.nesvilab.fragpipe.messages.MissingAssetsException;
+import org.nesvilab.fragpipe.messages.NoteFragpipeCache;
+import org.nesvilab.utils.CacheUtils;
+import org.nesvilab.utils.JarUtils;
+import org.nesvilab.utils.PathUtils;
+import org.nesvilab.utils.StringUtils;
+import org.nesvilab.utils.SwingUtils;
+import org.nesvilab.utils.VersionComparator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -157,11 +156,8 @@ public class FragpipeLocations {
 
   public List<Path> getCachePaths() {
     List<Path> paths = new ArrayList<>();
-    paths.add(getPathRuntimeCache(false));
     paths.add(getPathRuntimeCache(true));
-    paths.add(getPathUiCache(false));
     paths.add(getPathUiCache(true));
-    paths.add(getWorkflowsCache(false));
     paths.add(getWorkflowsCache(true));
     return paths;
   }
@@ -189,35 +185,22 @@ public class FragpipeLocations {
   }
 
   public NoteFragpipeCache loadCache() {
-    boolean[] order = {false, true};
-    Function<Boolean, String> f = (b) -> b ? "global" : "local";
+    PropsFile pfRuntime, pfUi;
 
-    PropsFile pfRuntime = null, pfUi = null;
-    for (boolean isSystemCache : order) {
-      Path p = getPathUiCache(isSystemCache);
-      log.debug("Trying to load {} ui state file: {}", f.apply(isSystemCache), p);
-      if (!Files.exists(p)) {
-        log.debug("{} ui state file does not exist, skipping: {}", f.apply(isSystemCache), p);
-        continue;
-      }
+    Path p = getPathUiCache(true);
+    if (Files.exists(p)) {
       pfUi = tryLoadSilently(p, createCacheComment("ui state"));
-    }
-    if (pfUi == null) {
-      pfUi = new PropsFile(getPathUiCache(false), createCacheComment("ui state"));
+    } else {
+      pfUi = new PropsFile(getPathUiCache(true), createCacheComment("ui state"));
     }
 
-    for (boolean isSystemCache : order) {
-      Path p = getPathRuntimeCache(isSystemCache);
-      log.debug("Trying to load {} runtime file: {}", f.apply(isSystemCache), p);
-      if (!Files.exists(p)) {
-        log.debug("{} runtime file does not exist, skipping: {}", f.apply(isSystemCache), p);
-        continue;
-      }
-      pfRuntime = tryLoadSilently(p, createCacheComment("ui state"));
+    p = getPathRuntimeCache(true);
+    if (Files.exists(p)) {
+      pfRuntime = tryLoadSilently(p, createCacheComment("runtime"));
+    } else {
+      pfRuntime = new PropsFile(getPathRuntimeCache(true), createCacheComment("runtime"));
     }
-    if (pfRuntime == null) {
-      pfRuntime = new PropsFile(getPathRuntimeCache(false), createCacheComment("runtime"));
-    }
+
     Objects.requireNonNull(pfRuntime, "Runtime props file");
     Objects.requireNonNull(pfUi, "Ui state props file");
     return new NoteFragpipeCache(pfRuntime, pfUi);
@@ -236,10 +219,6 @@ public class FragpipeLocations {
 
   public Path getJarPath() {
     return this.jarPath;
-  }
-
-  public Path getPathRuntimeCache() {
-    return getPathRuntimeCache(false);
   }
 
   public Path getPathRuntimeCache(boolean isSystemCache) {
