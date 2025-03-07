@@ -99,9 +99,9 @@ public class CmdDiaTracer extends CmdBase {
       cmd.add(constructClasspathString(classpathJars, binDiaTracer));
       cmd.add(CmdDiaTracer.JAR_DIATRACER_MAIN_CLASS);
       cmd.add("--dFilePath");
-      cmd.add(f.getPath().toAbsolutePath().toString());
+      cmd.add(f.getPath().toAbsolutePath().normalize().toString());
       cmd.add("--workDir");
-      cmd.add(wd.toAbsolutePath().toString());
+      cmd.add(wd.toAbsolutePath().normalize().toString());
       cmd.add("--threadNum");
       cmd.add(String.valueOf(threads));
       cmd.add("--writeInter");
@@ -138,7 +138,7 @@ public class CmdDiaTracer extends CmdBase {
       if (!(f.getDataType().contentEquals("DIA") || f.getDataType().contentEquals("GPF-DIA") || f.getDataType().contentEquals("DIA-Lib")) || !f.getPath().getFileName().toString().endsWith(".d")) {
         out.add(f);
       } else {
-        String s = f.getPath().toAbsolutePath().toString().replace(".d", "_diatracer.mzML");
+        String s = f.getPath().toAbsolutePath().normalize().toString().replace(".d", "_diatracer.mzML");
         out.add(new InputLcmsFile(Paths.get(s), f.getGroup(), f.getReplicate(), "DDA"));
       }
     }

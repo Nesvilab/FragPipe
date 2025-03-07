@@ -86,7 +86,7 @@ public final class PropertiesUtils {
                 String val = props.getProperty(name, "");
 
                 if (name.contains("db-path")) {
-                    val = saveConvert(Paths.get(val).toAbsolutePath().toString(), false, escUnicode); // save absolute path of the fasta file
+                    val = saveConvert(Paths.get(val).toAbsolutePath().normalize().toString(), false, escUnicode); // save absolute path of the fasta file
                     bw.newLine();
                     bw.write("# Please edit the following path to point to the correct location.");
                     bw.newLine();

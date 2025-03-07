@@ -116,7 +116,7 @@ public class ToolingUtils {
     List<String> cmd = new ArrayList<>();
     cmd.add(Fragpipe.getBinJava());
     cmd.add("-cp");
-    cmd.add(jarFragpipe.toAbsolutePath().toString());
+    cmd.add(jarFragpipe.toAbsolutePath().normalize().toString());
     cmd.add(FileMoveWithExtension.class.getCanonicalName());
     cmd.add(originDir.toAbsolutePath().normalize().toString());
     cmd.add(ext);

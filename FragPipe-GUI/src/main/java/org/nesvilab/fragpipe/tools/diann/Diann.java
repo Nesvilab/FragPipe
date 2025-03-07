@@ -85,7 +85,7 @@ public class Diann {
         fallbackDiannPath = null;
       } else if (diannPath.size() == 1) {
         LD_PRELOAD_str = getLDPRELOAD(diannPath);
-        fallbackDiannPath = diannPath.get(0).toAbsolutePath().toString();
+        fallbackDiannPath = diannPath.get(0).toAbsolutePath().normalize().toString();
       }
     }
   }
@@ -161,7 +161,7 @@ public class Diann {
     String LD_PRELOAD_str = null;
     if (isUnix()) {
       try {
-        final ProcessBuilder pb = new ProcessBuilder(diannPath.get(0).toAbsolutePath().toString());
+        final ProcessBuilder pb = new ProcessBuilder(diannPath.get(0).toAbsolutePath().normalize().toString());
         if (checkExitCode(pb) != 0) {
           final List<Path> diann_so_path = FragpipeLocations.checkToolsMissing(Seq.of(DIANN_SO_DEPS));
           if (diann_so_path == null || diann_so_path.size() != DIANN_SO_DEPS.length) {
@@ -169,7 +169,7 @@ public class Diann {
             return null;
           }
           LD_PRELOAD_str = diann_so_path.get(0).toString() + ":" + diann_so_path.get(1).toString();
-          final ProcessBuilder pb2 = new ProcessBuilder(diannPath.get(0).toAbsolutePath().toString());
+          final ProcessBuilder pb2 = new ProcessBuilder(diannPath.get(0).toAbsolutePath().normalize().toString());
           pb2.environment().put("LD_PRELOAD", LD_PRELOAD_str);
           if (checkExitCode(pb2) != 0) {
             final List<Path> diann_so_path2 = FragpipeLocations.checkToolsMissing(Seq.of(DIANN_SO_DEPS_libgomp));

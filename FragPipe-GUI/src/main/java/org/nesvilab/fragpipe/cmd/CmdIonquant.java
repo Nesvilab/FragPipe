@@ -212,7 +212,7 @@ public class CmdIonquant extends CmdBase {
     if (annotationMap != null && !annotationMap.isEmpty()) {
       for (Map.Entry<LcmsFileGroup, Path> annotation : annotationMap.entrySet()) {
         String a = wd.resolve(annotation.getKey().name).resolve("psm.tsv").toString();
-        String b = annotation.getValue().toAbsolutePath().toString();
+        String b = annotation.getValue().toAbsolutePath().normalize().toString();
         if (a.contains("=") || b.contains("=")) {
           SwingUtils.showErrorDialog(comp, "There are '=' sign in " + a + " or " + b + ". Please rename the file or directory.", "Error");
           return false;
@@ -356,7 +356,7 @@ public class CmdIonquant extends CmdBase {
       }
 
       cmd.add("--filelist");
-      cmd.add(filelist.toAbsolutePath().toString());
+      cmd.add(filelist.toAbsolutePath().normalize().toString());
 
       if (modMassSet != null) {
         Path modMassListPath = wd.resolve("modmasses_ionquant.txt");
@@ -369,7 +369,7 @@ public class CmdIonquant extends CmdBase {
         }
 
         cmd.add("--modlist");
-        cmd.add(modMassListPath.toAbsolutePath().toString());
+        cmd.add(modMassListPath.toAbsolutePath().normalize().toString());
       }
     } catch (IOException ex) {
       throw new UncheckedIOException(ex);

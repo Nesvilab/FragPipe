@@ -110,7 +110,7 @@ public class FragPipeMain {
 
     if (isWindows()) {
       if (pWin != null) {
-        Fragpipe.philosopherBinPath = pWin.normalize().toAbsolutePath().toString();
+        Fragpipe.philosopherBinPath = pWin.normalize().toAbsolutePath().normalize().toString();
         PHILOSOPHER_VERSION = latestVersionWin.toString();
       } else {
         SwingUtils.showErrorDialog(null, "Philosopher binary not found at " + p, "Philosopher not found");
@@ -119,7 +119,7 @@ public class FragPipeMain {
       }
     } else if (isUnix()) {
       if (pUnix != null) {
-        Fragpipe.philosopherBinPath = pUnix.normalize().toAbsolutePath().toString();
+        Fragpipe.philosopherBinPath = pUnix.normalize().toAbsolutePath().normalize().toString();
         PHILOSOPHER_VERSION = latestVersionUnix.toString();
       } else {
         Fragpipe.philosopherBinPath = null;

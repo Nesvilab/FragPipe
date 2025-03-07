@@ -422,14 +422,14 @@ public class Skyline {
   private static void sub(String s) throws Exception {
     List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(s));
     if (classpathJars != null && !classpathJars.isEmpty()) {
-      Version version = validate(classpathJars.get(0).toAbsolutePath().toString());
+      Version version = validate(classpathJars.get(0).toAbsolutePath().normalize().toString());
       if (version != null) {
         if (s.contentEquals("SkylineRunner.exe")) {
           skylineVersion = new DefaultArtifactVersion(version.strippedVersion);
-          skylineRunnerPath = classpathJars.get(0).toAbsolutePath().toString();
+          skylineRunnerPath = classpathJars.get(0).toAbsolutePath().normalize().toString();
         } else if (s.contentEquals("SkylineDailyRunner.exe")) {
           skylineDailyVersion = new DefaultArtifactVersion(version.strippedVersion);
-          skylineDailyRunnerPath = classpathJars.get(0).toAbsolutePath().toString();
+          skylineDailyRunnerPath = classpathJars.get(0).toAbsolutePath().normalize().toString();
         } else {
           throw new RuntimeException("Unknown Skyline runner: " + s);
         }
@@ -440,7 +440,7 @@ public class Skyline {
   public static String sub2(String s) throws Exception {
     List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(s));
     if (classpathJars != null && !classpathJars.isEmpty()) {
-      Version version = validate(classpathJars.get(0).toAbsolutePath().toString());
+      Version version = validate(classpathJars.get(0).toAbsolutePath().normalize().toString());
       if (version != null) {
         return version.strippedVersion;
       }

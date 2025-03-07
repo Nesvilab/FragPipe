@@ -190,10 +190,10 @@ public class CmdPercolator extends CmdBase {
             }).collect(Collectors.toList());
 
             if (pList.size() > 1) {
-              throw new IllegalStateException("Found more than one weights file: " + pList.stream().map(p -> p.toAbsolutePath().toString()).collect(Collectors.joining(", ")));
+              throw new IllegalStateException("Found more than one weights file: " + pList.stream().map(p -> p.toAbsolutePath().normalize().toString()).collect(Collectors.joining(", ")));
             } else if (pList.size() == 1) {
               cmdPp.add("--init-weights");
-              cmdPp.add(pList.get(0).toAbsolutePath().toString());
+              cmdPp.add(pList.get(0).toAbsolutePath().normalize().toString());
               cmdPp.add("--static");
               cmdPp.add("--override");
             }
@@ -215,7 +215,7 @@ public class CmdPercolator extends CmdBase {
             .setPb(pbPp)
             .setParallelGroup(basename).create());
 
-        String lcmsPath = e.getKey().getPath().toAbsolutePath().toString();
+        String lcmsPath = e.getKey().getPath().toAbsolutePath().normalize().toString();
         if (hasCalibratedMzml) {
           lcmsPath = StringUtils.upToLastDot(lcmsPath) + "_calibrated.mzML";
         } else if (lcmsPath.toLowerCase().endsWith(".raw") || lcmsPath.toLowerCase().endsWith(".d")) {

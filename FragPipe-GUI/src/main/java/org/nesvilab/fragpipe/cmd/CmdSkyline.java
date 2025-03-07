@@ -104,7 +104,7 @@ public class CmdSkyline extends CmdBase {
     cmd.add(classpath);
     cmd.add(Skyline.class.getCanonicalName());
     cmd.add(skylinePath);
-    cmd.add(wd.toAbsolutePath().toString());
+    cmd.add(wd.toAbsolutePath().normalize().toString());
     cmd.add(skylineVersion);
     cmd.add(String.valueOf(modsMode));
     cmd.add(String.valueOf(useSsl));

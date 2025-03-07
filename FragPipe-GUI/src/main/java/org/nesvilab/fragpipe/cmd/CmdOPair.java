@@ -105,8 +105,8 @@ public class CmdOPair  extends CmdBase {
                     Files.createDirectories(experimentPath);
                     BufferedWriter bufferedWriter = Files.newBufferedWriter(fileListPath);
                     for (Path p : lcmsPathList) {
-                        String baseName = StringUtils.upToLastDot(p.toAbsolutePath().toString());
-                        String extension = StringUtils.afterLastDot(p.toAbsolutePath().toString());
+                        String baseName = StringUtils.upToLastDot(p.toAbsolutePath().normalize().toString());
+                        String extension = StringUtils.afterLastDot(p.toAbsolutePath().normalize().toString());
                         if (hasCalibratedMzml) {
                             bufferedWriter.write(baseName + "_calibrated.mzML\n");
                         } else if (extension.equalsIgnoreCase("raw") || extension.equalsIgnoreCase("d")) {

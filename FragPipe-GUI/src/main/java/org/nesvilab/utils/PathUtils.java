@@ -174,7 +174,7 @@ public class PathUtils {
         try {
             Path fileNameWasAbsolute = Paths.get(fileName);
             if (Files.exists(fileNameWasAbsolute)) {
-                return fileNameWasAbsolute.toAbsolutePath().toString();
+                return fileNameWasAbsolute.toAbsolutePath().normalize().toString();
             }
         } catch (Exception e) {
             // something wrong with the path
@@ -182,7 +182,7 @@ public class PathUtils {
         try {
             Path fileNameWasRelative = Paths.get(dir, fileName);
             if (Files.exists(fileNameWasRelative)) {
-                return fileNameWasRelative.toAbsolutePath().toString();
+                return fileNameWasRelative.toAbsolutePath().normalize().toString();
             }
         } catch (Exception e) {
             // something wrong with the path
@@ -340,7 +340,7 @@ public class PathUtils {
                 continue;
             try {
                 List<String> commands = new LinkedList<>();
-                String absPath = Paths.get(path, program).toAbsolutePath().toString();
+                String absPath = Paths.get(path, program).toAbsolutePath().normalize().toString();
                 commands.add(absPath);
                 ProcessBuilder pb = new ProcessBuilder(commands);
                 Process proc = pb.start();

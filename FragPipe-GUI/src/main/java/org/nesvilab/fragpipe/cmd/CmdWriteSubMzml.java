@@ -121,7 +121,7 @@ public class CmdWriteSubMzml extends CmdBase {
             return false;
           }
         } else {
-          cmd.add(createJavaDParamString("libs.bruker.dir", extLibsBruker.toAbsolutePath().toString()));
+          cmd.add(createJavaDParamString("libs.bruker.dir", extLibsBruker.toAbsolutePath().normalize().toString()));
         }
         if (extLibsThermo == null) {
           if (inputLcmsFile.getPath().toString().toLowerCase().endsWith(".raw")) {
@@ -129,14 +129,14 @@ public class CmdWriteSubMzml extends CmdBase {
             return false;
           }
         } else {
-          cmd.add(createJavaDParamString("libs.thermo.dir", extLibsThermo.toAbsolutePath().toString()));
+          cmd.add(createJavaDParamString("libs.thermo.dir", extLibsThermo.toAbsolutePath().normalize().toString()));
         }
         cmd.add("-cp");
         cmd.add(classpath);
         cmd.add(WriteSubMzml.class.getCanonicalName());
-        cmd.add(inputLcmsFile.getPath().toAbsolutePath().toString());
-        cmd.add(wd.resolve(e.getKey()).resolve("psm.tsv").toAbsolutePath().toString());
-        cmd.add(wd.resolve(StringUtils.upToLastDot(inputLcmsFile.getPath().getFileName().toString()) + "_sub.mzML").toAbsolutePath().toString());
+        cmd.add(inputLcmsFile.getPath().toAbsolutePath().normalize().toString());
+        cmd.add(wd.resolve(e.getKey()).resolve("psm.tsv").toAbsolutePath().normalize().toString());
+        cmd.add(wd.resolve(StringUtils.upToLastDot(inputLcmsFile.getPath().getFileName().toString()) + "_sub.mzML").toAbsolutePath().normalize().toString());
         cmd.add(probabilityThreshold + "");
         cmd.add("1");
         ProcessBuilder pb = new ProcessBuilder(cmd);

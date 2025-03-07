@@ -348,7 +348,7 @@ public class UmpirePanel extends JPanelBase {
       if (JFileChooser.APPROVE_OPTION == saveResult) {
         File f = fc.getSelectedFile();
         Path p = f.toPath();
-        customParamsPath = p.toAbsolutePath().toString();
+        customParamsPath = p.toAbsolutePath().normalize().toString();
         ThisAppProps.save(ThisAppProps.PROP_FRAGGER_PARAMS_FILE_IN, p.toString());
         if (Files.exists(p)) {
           UmpireParams params = new UmpireParams();

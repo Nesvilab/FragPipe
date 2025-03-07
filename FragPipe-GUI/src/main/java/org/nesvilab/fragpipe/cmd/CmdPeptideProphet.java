@@ -440,7 +440,7 @@ public class CmdPeptideProphet extends CmdBase {
     cmd.add(RewritePepxml.class.getCanonicalName());
     cmd.add(pepxml.toAbsolutePath().normalize().toString());
     for (Path lcms : lcmsPaths) {
-      String lcmsPath = lcms.toAbsolutePath().toString();
+      String lcmsPath = lcms.toAbsolutePath().normalize().toString();
       if (hasCalibratedMzml) {
         lcmsPath = StringUtils.upToLastDot(lcmsPath) + "_calibrated.mzML";
       } else if (lcmsPath.toLowerCase().endsWith(".raw") || lcmsPath.toLowerCase().endsWith(".d")) {

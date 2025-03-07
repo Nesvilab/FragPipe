@@ -56,7 +56,7 @@ public class CmdPairScans extends CmdBase {
         OPairParams params) {
         initPreConfig();
 
-        final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(jarFragpipe.toAbsolutePath().toString()).concat(JAR_DEPS));
+        final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(jarFragpipe.toAbsolutePath().normalize().toString()).concat(JAR_DEPS));
         if (classpathJars == null || classpathJars.isEmpty()) {
             SwingUtils.showErrorDialog(component, "Could not find " + String.join(", ", JAR_DEPS) + " for scan pairing.", "Error");
             return false;
@@ -107,7 +107,7 @@ public class CmdPairScans extends CmdBase {
             cmd.add("-cp");
             cmd.add(constructClasspathString(classpathJars));
             cmd.add(PairScans.class.getCanonicalName());
-            cmd.add(lcms.getPath().toAbsolutePath().toString());
+            cmd.add(lcms.getPath().toAbsolutePath().normalize().toString());
             cmd.add(nThreads + "");
             cmd.add(params.getActivation1());
             cmd.add(params.getActivation2());

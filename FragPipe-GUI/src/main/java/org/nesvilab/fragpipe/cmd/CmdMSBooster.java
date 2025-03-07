@@ -131,16 +131,16 @@ public class CmdMSBooster extends CmdBase {
     String fraggerParams;
     if (hasDda || isRunDiaU || isRunDiaTracer) {
       if (hasDia || hasDiaLib || hasGpfDia) {
-        fraggerParams = wd.resolve("fragger_dda.params").toAbsolutePath().toString();
+        fraggerParams = wd.resolve("fragger_dda.params").toAbsolutePath().normalize().toString();
       } else {
-        fraggerParams = wd.resolve("fragger.params").toAbsolutePath().toString();
+        fraggerParams = wd.resolve("fragger.params").toAbsolutePath().normalize().toString();
       }
     } else if (hasDia || hasDiaLib) {
-      fraggerParams = wd.resolve("fragger_dia.params").toAbsolutePath().toString();
+      fraggerParams = wd.resolve("fragger_dia.params").toAbsolutePath().normalize().toString();
     } else if (hasGpfDia) {
-      fraggerParams = wd.resolve("fragger_gpfdia.params").toAbsolutePath().toString();
+      fraggerParams = wd.resolve("fragger_gpfdia.params").toAbsolutePath().normalize().toString();
     } else if (hasDdaPlus) {
-      fraggerParams = wd.resolve("fragger_dda_plus.params").toAbsolutePath().toString();
+      fraggerParams = wd.resolve("fragger_dda_plus.params").toAbsolutePath().normalize().toString();
     } else {
       System.err.println("There are no DDA, DIA, GPF-DIA, GPF-Lib, or DDA+ data.");
       return false;
@@ -223,7 +223,7 @@ public class CmdMSBooster extends CmdBase {
     cmd.add(constructClasspathString(classpathJars));
     cmd.add(JAR_MSBOOSTER_MAIN_CLASS);
     cmd.add("--paramsList");
-    cmd.add(paramPath.toAbsolutePath().toString());
+    cmd.add(paramPath.toAbsolutePath().normalize().toString());
 
     ProcessBuilder pb = new ProcessBuilder(cmd);
     pb.directory(wd.toFile());

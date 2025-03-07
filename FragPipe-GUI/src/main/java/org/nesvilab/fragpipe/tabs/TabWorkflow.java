@@ -1346,7 +1346,7 @@ public class TabWorkflow extends JPanelWithEnablement {
       log.error("Some loaded files don't exist. Please double check.");
       for (List<Path> paths : data) {
         for (Path p : paths) {
-          log.error(p.toAbsolutePath().toString());
+          log.error(p.toAbsolutePath().normalize().toString());
         }
       }
       System.exit(1);

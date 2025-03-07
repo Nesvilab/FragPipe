@@ -45,7 +45,7 @@ public class CmdCheckCentroid extends CmdBase {
   public boolean configure(Path jarFragpipe, int ramGb, int nThreads, List<InputLcmsFile> lcmsFiles) {
     initPreConfig();
 
-    final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(jarFragpipe.toAbsolutePath().toString()).concat(JAR_DEPS));
+    final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(jarFragpipe.toAbsolutePath().normalize().toString()).concat(JAR_DEPS));
     if (classpathJars == null) {
       return false;
     }
@@ -57,7 +57,7 @@ public class CmdCheckCentroid extends CmdBase {
       cmd.add("-cp");
       cmd.add(constructClasspathString(classpathJars));
       cmd.add(CheckCentroid.class.getCanonicalName());
-      cmd.add(lcms.getPath().toAbsolutePath().toString());
+      cmd.add(lcms.getPath().toAbsolutePath().normalize().toString());
       cmd.add(nThreads + "");
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pbis.add(PbiBuilder.from(pb));

@@ -81,7 +81,7 @@ public class CmdSaintExpress extends CmdBase {
     reprintTsvToSaintInput(inputPath, outputPath);
 
     List<String> cmd = new ArrayList<>();
-    cmd.add(saintExpressBin.toAbsolutePath().toString());
+    cmd.add(saintExpressBin.toAbsolutePath().normalize().toString());
     cmd.add("-R" + maxReplicates);
     cmd.add("-L" + virtualControls);
     if (!cmdOpts.isEmpty()) {

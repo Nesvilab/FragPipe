@@ -93,7 +93,7 @@ public class WriteSubMzml {
 
     List<IScan> iScans =  removeScans(lcmsPathStr, mzBINPath.toFile(), scanNumsToExclude);
 
-    writeMzML(lcmsPathStr, runName, outputPath.toAbsolutePath().toString(), iScans);
+    writeMzML(lcmsPathStr, runName, outputPath.toAbsolutePath().normalize().toString(), iScans);
   }
 
   private static List<IScan> removeScans(String lcmsPathStr, File mzBINFile, Set<Integer> scanNumsToExclude) throws Exception {

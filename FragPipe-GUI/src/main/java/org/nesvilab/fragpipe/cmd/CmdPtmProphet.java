@@ -111,7 +111,7 @@ public class CmdPtmProphet extends CmdBase {
 
       // PTMProphet itself
       List<String> cmd = new ArrayList<>();
-      cmd.add(ptmprophetPath.get(0).toAbsolutePath().toString());
+      cmd.add(ptmprophetPath.get(0).toAbsolutePath().normalize().toString());
       if (cmdLineOpts.contains("--")) { // This is the Philosopher command style. Translate it to the native style.
         cmdLineOpts = translateCmds(cmdLineOpts);
       }

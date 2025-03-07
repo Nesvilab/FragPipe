@@ -420,18 +420,18 @@ public class Fragpipe extends JFrameHeadless {
         System.err.println("Python path " + pythonBinPath + " does not seem right.");
         System.exit(1);
       } else {
-        workdir = Paths.get(workdir).toAbsolutePath().toString();
+        workdir = Paths.get(workdir).toAbsolutePath().normalize().toString();
         if (toolsFolderPath != null) {
-          toolsFolderPath = Paths.get(toolsFolderPath).toAbsolutePath().toString();
+          toolsFolderPath = Paths.get(toolsFolderPath).toAbsolutePath().normalize().toString();
         }
         if (philosopherBinPath != null) {
-          philosopherBinPath = Paths.get(philosopherBinPath).toAbsolutePath().toString();
+          philosopherBinPath = Paths.get(philosopherBinPath).toAbsolutePath().normalize().toString();
         }
         if (diannBinPath != null) {
-          diannBinPath = Paths.get(diannBinPath).toAbsolutePath().toString();
+          diannBinPath = Paths.get(diannBinPath).toAbsolutePath().normalize().toString();
         }
         if (pythonBinPath != null) {
-          pythonBinPath = Paths.get(pythonBinPath).toAbsolutePath().toString();
+          pythonBinPath = Paths.get(pythonBinPath).toAbsolutePath().normalize().toString();
         }
         if (nThreadsHeadlessOnly != null && nThreadsHeadlessOnly == 0) {
           nThreadsHeadlessOnly = Math.max(1, Math.min(Runtime.getRuntime().availableProcessors(), maxProcessors));

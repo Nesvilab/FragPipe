@@ -195,7 +195,7 @@ public class TabConfig extends JPanelWithEnablement {
           });
           if (!map.isEmpty()) {
             uiTextToolsFolder.setText(s);
-            return map.lastEntry().getValue().toAbsolutePath().toString();
+            return map.lastEntry().getValue().toAbsolutePath().normalize().toString();
           }
         } catch (Exception ex) {
           SwingUtils.showErrorDialogWithStacktrace(ex, null);
@@ -492,7 +492,7 @@ public class TabConfig extends JPanelWithEnablement {
             try {
               Path msfraggerPath = msfraggerVersionFetcherServer.autoUpdate(toolsPath);
               if (msfraggerPath != null) {
-                Bus.post(new MessageMsfraggerNewBin(msfraggerPath.toAbsolutePath().toString()));
+                Bus.post(new MessageMsfraggerNewBin(msfraggerPath.toAbsolutePath().normalize().toString()));
               } else {
                 Bus.postSticky(new NoteConfigMsfragger("N/A", "N/A", null));
               }
@@ -501,7 +501,7 @@ public class TabConfig extends JPanelWithEnablement {
             }
           }).start();
         } else {
-          Bus.post(new MessageMsfraggerNewBin(getJarPath(toolsPath.toAbsolutePath().toString(), msfraggerRegex)));
+          Bus.post(new MessageMsfraggerNewBin(getJarPath(toolsPath.toAbsolutePath().normalize().toString(), msfraggerRegex)));
         }
 
         if (p.downloadIonQuant()) {
@@ -510,7 +510,7 @@ public class TabConfig extends JPanelWithEnablement {
             try {
               Path ionquantPath = ionQuantVersionFetcherServer.autoUpdate(toolsPath);
               if (ionquantPath != null) {
-                Bus.post(new MessageIonQuantNewBin(ionquantPath.toAbsolutePath().toString()));
+                Bus.post(new MessageIonQuantNewBin(ionquantPath.toAbsolutePath().normalize().toString()));
               } else {
                 Bus.postSticky(new NoteConfigIonQuant("N/A", "N/A", false, false, new ValidationException("IonQuant path is null.")));
               }
@@ -519,7 +519,7 @@ public class TabConfig extends JPanelWithEnablement {
             }
           }).start();
         } else {
-          Bus.post(new MessageIonQuantNewBin(getJarPath(toolsPath.toAbsolutePath().toString(), ionquantRegex)));
+          Bus.post(new MessageIonQuantNewBin(getJarPath(toolsPath.toAbsolutePath().normalize().toString(), ionquantRegex)));
         }
 
         if (p.downloadDiaTracer()) {
@@ -528,7 +528,7 @@ public class TabConfig extends JPanelWithEnablement {
             try {
               Path diatracerPath = diaTracerVersionFetcherServer.autoUpdate(toolsPath);
               if (diatracerPath != null) {
-                Bus.post(new MessageDiaTracerNewBin(diatracerPath.toAbsolutePath().toString()));
+                Bus.post(new MessageDiaTracerNewBin(diatracerPath.toAbsolutePath().normalize().toString()));
               } else {
                 Bus.postSticky(new NoteConfigDiaTracer("N/A", "N/A", false, false, new ValidationException("diaTracer path is null.")));
               }
@@ -537,10 +537,10 @@ public class TabConfig extends JPanelWithEnablement {
             }
           }).start();
         } else {
-          Bus.post(new MessageDiaTracerNewBin(getJarPath(toolsPath.toAbsolutePath().toString(), diatracerRegex)));
+          Bus.post(new MessageDiaTracerNewBin(getJarPath(toolsPath.toAbsolutePath().normalize().toString(), diatracerRegex)));
         }
 
-        uiTextToolsFolder.setText(toolsPath.toAbsolutePath().toString());
+        uiTextToolsFolder.setText(toolsPath.toAbsolutePath().normalize().toString());
       }
     } catch (Exception ex) {
       Bus.postSticky(new NoteConfigMsfragger("N/A", "N/A", ex));

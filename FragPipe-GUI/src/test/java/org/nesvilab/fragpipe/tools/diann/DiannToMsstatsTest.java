@@ -42,7 +42,7 @@ public class DiannToMsstatsTest {
     t.put("run1", new String[]{"a", "1"});
     t.put("run2", new String[]{"b", "2"});
 
-    new DiannToMsstats(diannPath.toAbsolutePath().toString(), diannPath.getParent().toString(), diannPath.getParent().resolve("psm.tsv").toString(), 0.01f, 0.01f, 0.01f, 0.01f, t);
+    new DiannToMsstats(diannPath.toAbsolutePath().normalize().toString(), diannPath.getParent().toString(), diannPath.getParent().resolve("psm.tsv").toString(), 0.01f, 0.01f, 0.01f, 0.01f, t);
 
     BufferedReader brExpected = new BufferedReader(Files.newBufferedReader(diannPath.getParent().resolve("msstats_expected.csv")));
     BufferedReader brActual = new BufferedReader(Files.newBufferedReader(diannPath.getParent().resolve("msstats.csv")));

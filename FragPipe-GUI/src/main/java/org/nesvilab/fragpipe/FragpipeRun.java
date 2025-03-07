@@ -539,7 +539,7 @@ public class FragpipeRun {
               if (Files.exists(path)) {
                 try {
                   toConsole(Fragpipe.COLOR_TOOL, "Delete ", false, tabRun.console);
-                  toConsole(Fragpipe.COLOR_BLACK, path.toAbsolutePath().toString(), true, tabRun.console);
+                  toConsole(Fragpipe.COLOR_BLACK, path.toAbsolutePath().normalize().toString(), true, tabRun.console);
                   deleteFileOrFolder(path);
                 } catch (Exception ex) {
                   toConsole(Fragpipe.COLOR_RED, "Could not delete " + path.toAbsolutePath() + ". It won't affect the result.", true, tabRun.console);
@@ -573,7 +573,7 @@ public class FragpipeRun {
             }).forEach(path -> {
               try {
                 toConsole(Fragpipe.COLOR_TOOL, "Delete ", false, tabRun.console);
-                toConsole(Fragpipe.COLOR_BLACK, path.toAbsolutePath().toString(), true, tabRun.console);
+                toConsole(Fragpipe.COLOR_BLACK, path.toAbsolutePath().normalize().toString(), true, tabRun.console);
                 deleteFileOrFolder(path);
               } catch (Exception ex) {
                 toConsole(Fragpipe.COLOR_RED, "Could not delete " + path.toAbsolutePath() + ". It won't affect the result.", true, tabRun.console);
@@ -696,7 +696,7 @@ public class FragpipeRun {
               while ((line = reader.readLine()) != null) {
                 line = line.trim();
                 String[] parts = line.split("\t");
-                parts[0] = wd.resolve(StringUtils.upToLastDot(Paths.get(parts[0]).getFileName().toString()) + "_sub.mzML").toAbsolutePath().toString();
+                parts[0] = wd.resolve(StringUtils.upToLastDot(Paths.get(parts[0]).getFileName().toString()) + "_sub.mzML").toAbsolutePath().normalize().toString();
                 writer.write(String.join("\t", parts) + "\n");
               }
               writer.close();

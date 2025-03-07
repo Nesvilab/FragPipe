@@ -121,14 +121,14 @@ public class JarUtils {
               try {
                   URI uri1 = url.toURI();
                   Path path = Paths.get(uri1);
-                  return path.toAbsolutePath().toString();
+                  return path.toAbsolutePath().normalize().toString();
               } catch (Exception e) {
                   return null;
               }
 
 
           case "file":
-              return Paths.get(uri).toAbsolutePath().toString();
+              return Paths.get(uri).toAbsolutePath().normalize().toString();
 
           default:
               return null;

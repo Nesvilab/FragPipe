@@ -47,7 +47,7 @@ public class CmdFPOPcoadaptr extends CmdBase {
             cmd.add(FPOP_PSMwriter.class.getCanonicalName());
         }
 
-        cmd.add(wd.toAbsolutePath().toString());
+        cmd.add(wd.toAbsolutePath().normalize().toString());
         cmd.add(tabDownstream.pFpopCoadaptr.getFpopMods());
 
         ProcessBuilder pb = new ProcessBuilder(cmd);

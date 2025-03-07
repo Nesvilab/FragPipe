@@ -77,7 +77,7 @@ public class InputLcmsFile implements Comparable<InputLcmsFile> {
     }
 
     private String guessDataType(Path filePath) {
-        String fileName = filePath.toAbsolutePath().toString();
+        String fileName = filePath.toAbsolutePath().normalize().toString();
         if (fileName.toLowerCase().contains("dda")
             || fileName.contains("_Q1.")
             || fileName.contains("_Q2.")
@@ -107,7 +107,7 @@ public class InputLcmsFile implements Comparable<InputLcmsFile> {
     }
 
     public int compareTo(@NotNull InputLcmsFile other) { // the sorting here must be consistent with the one in LcmsFileGroup
-        Comparator<InputLcmsFile> comparator = Comparator.comparing(InputLcmsFile::getGroup2).thenComparing(InputLcmsFile::getDataType).thenComparing(p -> p.path.toAbsolutePath().toString());
+        Comparator<InputLcmsFile> comparator = Comparator.comparing(InputLcmsFile::getGroup2).thenComparing(InputLcmsFile::getDataType).thenComparing(p -> p.path.toAbsolutePath().normalize().toString());
         return comparator.compare(this, other);
     }
 

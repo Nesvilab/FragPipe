@@ -95,14 +95,14 @@ public class CmdPhilosopherFilter extends CmdBase {
       cmd.add(groupWd.toString());
       if (!group.name.contentEquals(firstInputLcmsFile.getGroup())) {
         cmd.add("--dbbin");
-        cmd.add(wd.resolve(firstInputLcmsFile.getGroup()).toAbsolutePath().toString());
+        cmd.add(wd.resolve(firstInputLcmsFile.getGroup()).toAbsolutePath().normalize().toString());
       }
       if (!dontUseFilterProtxml) {
         cmd.add("--protxml");
-        cmd.add(protxml.toAbsolutePath().toString());
+        cmd.add(protxml.toAbsolutePath().normalize().toString());
         if (!group.name.contentEquals(firstInputLcmsFile.getGroup())) {
           cmd.add("--probin");
-          cmd.add(wd.resolve(firstInputLcmsFile.getGroup()).toAbsolutePath().toString());
+          cmd.add(wd.resolve(firstInputLcmsFile.getGroup()).toAbsolutePath().normalize().toString());
         }
         cmd.add("--razor");
       }

@@ -692,7 +692,7 @@ public class TmtiPanel extends JPanelBase {
         }
       }
 
-      row.setPath(p.toAbsolutePath().toString());
+      row.setPath(p.toAbsolutePath().normalize().toString());
       map.put(new LcmsFileGroup(row.expName, new ArrayList<>(row.lcmsFiles)), p);
     }
 

@@ -125,7 +125,7 @@ public class FragpipeLoader {
       frameLoading.dispose();
     }
 
-    if (locations.getJarPath().toAbsolutePath().toString().contains(" ") || locations.getJarPath().toAbsolutePath().toString().contains("\t")) {
+    if (locations.getJarPath().toAbsolutePath().normalize().toString().contains(" ") || locations.getJarPath().toAbsolutePath().normalize().toString().contains("\t")) {
       SwingUtils.showErrorDialog(null, "FragPipe cannot be run from a path that contains spaces or tabs. Please move the FragPipe folder to a path without spaces or tabs.", "Spaces in path");
       System.exit(1);
     }

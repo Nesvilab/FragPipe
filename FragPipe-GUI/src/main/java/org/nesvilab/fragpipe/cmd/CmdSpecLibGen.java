@@ -172,7 +172,7 @@ public class CmdSpecLibGen extends CmdBase {
         return false;
       }
 
-      if (unimodPath.toAbsolutePath().toString().contains(" ")) {
+      if (unimodPath.toAbsolutePath().normalize().toString().contains(" ")) {
         SwingUtils.showErrorDialog(comp, "There are spaces in " + unimodPath.toAbsolutePath() + ". Please put FragPipe to a place where there are no spaces in the path.", "Spaces are not allowed");
         return false;
       }
@@ -183,7 +183,7 @@ public class CmdSpecLibGen extends CmdBase {
       final double rt_lowess_fraction = speclibPanel.getEasypqpRTLowessFraction(); // EasyPQP library
 
       cmd.add(OsUtils.asSingleArgument(String.format("--unimod %s --max_delta_unimod %s --max_delta_ppm %s --fragment_types %s %s%s%s%s",
-              unimodPath.toAbsolutePath().toString().replace("\\", "/"),
+              unimodPath.toAbsolutePath().normalize().toString().replace("\\", "/"),
               max_delta_unimod,
               max_delta_ppm,
               fragment_types.replace("'", "\\'"),

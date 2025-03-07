@@ -347,7 +347,7 @@ public class CmdDiann extends CmdBase {
           bufferedWriter.close();
         }
         cmd.add("--cfg");
-        cmd.add(isUnix() ? (filelist.toAbsolutePath() + "--") : filelist.toAbsolutePath().toString()); // https://github.com/vdemichev/DiaNN/issues/641#issuecomment-1479416716
+        cmd.add(isUnix() ? (filelist.toAbsolutePath() + "--") : filelist.toAbsolutePath().normalize().toString()); // https://github.com/vdemichev/DiaNN/issues/641#issuecomment-1479416716
       } catch (IOException ex) {
         throw new UncheckedIOException(ex);
       }
@@ -395,8 +395,8 @@ public class CmdDiann extends CmdBase {
       cmd.add("-cp");
       cmd.add(libsDir + File.separator + "*");
       cmd.add(ParquetToTsv.class.getCanonicalName());
-      cmd.add(wd.resolve("dia-quant-output").resolve("report.parquet").toAbsolutePath().toString());
-      cmd.add(wd.resolve("dia-quant-output").resolve("report.tsv").toAbsolutePath().toString());
+      cmd.add(wd.resolve("dia-quant-output").resolve("report.parquet").toAbsolutePath().normalize().toString());
+      cmd.add(wd.resolve("dia-quant-output").resolve("report.tsv").toAbsolutePath().normalize().toString());
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(wd.resolve("dia-quant-output").toFile());
       pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + ": Convert Parquet to Tsv").create());
@@ -435,7 +435,7 @@ public class CmdDiann extends CmdBase {
       cmd.add("-cp");
       cmd.add(classpath);
       cmd.add(Propagation.class.getCanonicalName());
-      cmd.add(wd.toAbsolutePath().toString());
+      cmd.add(wd.toAbsolutePath().normalize().toString());
       cmd.add((lightString == null || lightString.isEmpty()) ? "-" : lightString);
       cmd.add(mediumString == null || mediumString.isEmpty() ? "-" : mediumString);
       cmd.add(heavyString == null || heavyString.isEmpty() ? "-" : heavyString);
@@ -477,7 +477,7 @@ public class CmdDiann extends CmdBase {
       cmd.add(DiannToMsstats.class.getCanonicalName());
       cmd.add("report.tsv");
       cmd.add("./");
-      cmd.add(wd.resolve("psm.tsv").toAbsolutePath().toString());
+      cmd.add(wd.resolve("psm.tsv").toAbsolutePath().normalize().toString());
       cmd.add(String.valueOf(qvalue));
       if (useRunSpecificProteinQvalue) {
         cmd.add(String.valueOf(qvalue));
@@ -486,7 +486,7 @@ public class CmdDiann extends CmdBase {
       }
       cmd.add(String.valueOf(qvalue));
       cmd.add(String.valueOf(qvalue));
-      cmd.add(wd.resolve("fragpipe-files" + manifestExt).toAbsolutePath().toString());
+      cmd.add(wd.resolve("fragpipe-files" + manifestExt).toAbsolutePath().normalize().toString());
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(wd.resolve("dia-quant-output").toFile());
       pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + ": Convert DIA-NN output to MSstats.csv").create());
@@ -502,11 +502,11 @@ public class CmdDiann extends CmdBase {
       cmd.add("-jar");
       cmd.add(constructClasspathString(classpathJars));
       cmd.add("-pr");
-      cmd.add(wd.resolve("dia-quant-output").resolve("report.tsv").toAbsolutePath().toString());
+      cmd.add(wd.resolve("dia-quant-output").resolve("report.tsv").toAbsolutePath().normalize().toString());
       cmd.add("-psm");
-      cmd.add(wd.resolve("psm.tsv").toAbsolutePath().toString());
+      cmd.add(wd.resolve("psm.tsv").toAbsolutePath().normalize().toString());
       cmd.add("-out_dir");
-      cmd.add(wd.resolve("dia-quant-output").toAbsolutePath().toString());
+      cmd.add(wd.resolve("dia-quant-output").toAbsolutePath().normalize().toString());
       cmd.add("-mod_tag");
       cmd.add(diannPanel.getModTag());
       cmd.add("-min_site_prob");
@@ -570,7 +570,7 @@ public class CmdDiann extends CmdBase {
 //        cmd.add("--diann-report");
 //        cmd.add("dia-quant-output" + File.separator + "report.tsv");
 //        cmd.add("--output-dir");
-//        cmd.add(groupWd.toAbsolutePath().toString());
+//        cmd.add(groupWd.toAbsolutePath().normalize().toString());
 //        ProcessBuilder pb = new ProcessBuilder(cmd);
 //        pb.directory(groupWd.toFile());
 //        pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + ": Process DIA-NN output").create());
