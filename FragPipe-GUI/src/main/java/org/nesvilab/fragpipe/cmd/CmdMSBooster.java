@@ -206,7 +206,6 @@ public class CmdMSBooster extends CmdBase {
           }
         }
         bufferedWriter.write(String.join(" ", pinFiles) + "\n");
-        bufferedWriter.write("useMultipleCorrelatedFeatures = false");
         bufferedWriter.close();
       } catch (Exception ex) {
         ex.printStackTrace();
