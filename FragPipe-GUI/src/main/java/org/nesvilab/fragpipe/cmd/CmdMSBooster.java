@@ -148,7 +148,7 @@ public class CmdMSBooster extends CmdBase {
 
     boolean hasTimsTof = false;
     for (InputLcmsFile t : lcmsToFraggerPepxml.keySet()) {
-      if (t.getPath().getFileName().toString().endsWith(".d")) {
+      if (t.getPath().getFileName().toString().toLowerCase().endsWith(".d") || t.getPath().getFileName().toString().toLowerCase().endsWith("_diatracer.mzml")) {
         hasTimsTof = true;
         break;
       }
