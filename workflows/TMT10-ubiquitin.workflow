@@ -342,6 +342,7 @@ tmtintegrator.prot_exclude=none
 tmtintegrator.prot_norm=1
 tmtintegrator.psm_norm=false
 tmtintegrator.quant_level=2
+tmtintegrator.ref_d_tag=Pool
 tmtintegrator.ref_tag=Bridge
 tmtintegrator.run-tmtintegrator=true
 tmtintegrator.tolerance=20

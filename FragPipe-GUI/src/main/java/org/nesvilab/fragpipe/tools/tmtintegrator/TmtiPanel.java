@@ -328,7 +328,12 @@ public class TmtiPanel extends JPanelBase {
     UiText uiTextRefTag = UiUtils.uiTextBuilder().cols(10).filter(disallowedPattern.toString()).text("Bridge").create();
     FormEntry feRefTag = fe(TmtiConfProps.PROP_ref_tag,
         "Ref sample tag", uiTextRefTag,
-        "<html>Unique tag to identify reference (bridge) channels");
+        "<html>Unique tag to identify reference (bridge) channels.");
+
+    UiText uiTextRefDTag = UiUtils.uiTextBuilder().cols(10).filter(disallowedPattern.toString()).text("Pool").create();
+    FormEntry feRefDTag = fe(TmtiConfProps.PROP_ref_d_tag,
+        "Ref D sample tag (TMT-35)", uiTextRefDTag,
+        "<html>Unique tag to identify reference (pool) Deuterium channels.<br>Only used for TMT 35-plex.");
 
     UiCombo uiComboGroupBy = UiUtils.createUiCombo(TmtiConfProps.COMBO_GROUP_BY.stream()
         .map(ComboValue::getValInUi).collect(Collectors.toList()));
@@ -365,6 +370,7 @@ public class TmtiPanel extends JPanelBase {
       final String selected = (String) uiComboAddRef.getSelectedItem();
       boolean enabled = TmtiConfProps.COMBO_ADD_REF_CHANNEL.equalsIgnoreCase(selected);
       updateEnabledStatus(uiTextRefTag, enabled);
+      updateEnabledStatus(uiTextRefDTag,enabled);
     });
     uiComboAddRef.setSelectedItem(null);
     uiComboAddRef.setSelectedItem(TmtiConfProps.COMBO_ADD_REF_CHANNEL);
@@ -382,6 +388,7 @@ public class TmtiPanel extends JPanelBase {
     addRowLabelComp(p, feTolerance);
     addRowLabelComp(p, feAddRef);
     addRowLabelComp(p, feRefTag);
+    addRowLabelComp(p, feRefDTag);
     addRowLabelComp(p, feGroupBy);
     addRowLabelComp(p, feProtNorm);
     addRowLabelComp(p, feCheckMSstats);
@@ -1203,6 +1210,12 @@ public class TmtiPanel extends JPanelBase {
     });
 
     mapConv.put("output", pathOutput);
+
+    if (getSelectedLabel().getName().contentEquals("TMT-35")) {
+      mapConv.put("is_tmt_35", "true");
+    } else {
+      mapConv.put("is_tmt_35", "false");
+    }
 
     return mapConv;
   }

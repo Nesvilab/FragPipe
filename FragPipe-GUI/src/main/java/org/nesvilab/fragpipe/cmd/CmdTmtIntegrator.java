@@ -19,16 +19,6 @@ package org.nesvilab.fragpipe.cmd;
 
 import static org.nesvilab.utils.SwingUtils.showErrorDialogWithStacktrace;
 
-import org.nesvilab.fragpipe.Fragpipe;
-import org.nesvilab.fragpipe.FragpipeLocations;
-import org.nesvilab.fragpipe.api.InputLcmsFile;
-import org.nesvilab.fragpipe.api.LcmsFileGroup;
-import org.nesvilab.fragpipe.tools.tmtintegrator.QuantLabelAnnotation;
-import org.nesvilab.fragpipe.tools.tmtintegrator.TmtiConfProps;
-import org.nesvilab.fragpipe.tools.tmtintegrator.TmtiPanel;
-import org.nesvilab.utils.FileDelete;
-import org.nesvilab.utils.StringUtils;
-import org.nesvilab.utils.SwingUtils;
 import java.awt.Component;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -48,6 +38,16 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.swing.JOptionPane;
 import org.apache.commons.io.FilenameUtils;
+import org.nesvilab.fragpipe.Fragpipe;
+import org.nesvilab.fragpipe.FragpipeLocations;
+import org.nesvilab.fragpipe.api.InputLcmsFile;
+import org.nesvilab.fragpipe.api.LcmsFileGroup;
+import org.nesvilab.fragpipe.tools.tmtintegrator.QuantLabelAnnotation;
+import org.nesvilab.fragpipe.tools.tmtintegrator.TmtiConfProps;
+import org.nesvilab.fragpipe.tools.tmtintegrator.TmtiPanel;
+import org.nesvilab.utils.FileDelete;
+import org.nesvilab.utils.StringUtils;
+import org.nesvilab.utils.SwingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +55,7 @@ public class CmdTmtIntegrator extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdTmtIntegrator.class);
 
   public static final String NAME = "TmtIntegrator";
-  public static final String JAR_NAME = "TMT-Integrator-6.0.6.jar";
+  public static final String JAR_NAME = "TMT-Integrator-6.1.0.jar";
   public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML", "raw", "d");
   public static final String CONFIG_FN = "tmt-integrator-conf.yml";
   public static final String CONFIG_FN_2 = "tmt-integrator-conf-unmod.yml";
@@ -170,11 +170,25 @@ public class CmdTmtIntegrator extends CmdBase {
       }
       Map<String, String> conf = panel.formToConfig(outDir.toString(), panel.getSelectedLabel(), isSecondUnmodRun);
 
-      // check that there is a reference channel set in each annotation file
+      // sanity checks
       String refTag = conf.get("ref_tag");
-      if (StringUtils.isNullOrWhitespace(refTag)) {
-        SwingUtils.showWarningDialog(panel, "Reference channel tag can't be left empty\n"
-            + "in " + NAME + " config, unless selecting Virtual reference option.", NAME + " Config");
+      String refDTag = conf.get("ref_d_tag");
+      boolean isTmt35 = Boolean.parseBoolean(conf.get("is_tmt_35"));
+      boolean isRealReference = Integer.parseInt(conf.get("add_Ref")) == -1;
+
+      if (isTmt35 && !refTag.contentEquals(refDTag) && (refTag.contains(refDTag) || refDTag.contains(refTag))) {
+        SwingUtils.showErrorDialog(panel, "For TMT 35-plex, the 'Ref sample tag' and 'Ref D sample tag' can't be substrings of each other.", "ERROR: ref tags overlap");
+        return false;
+      }
+
+      if (isRealReference && StringUtils.isNullOrWhitespace(refTag)) {
+        SwingUtils.showErrorDialog(panel, "'Ref sample tag' can't be empty in 'Quant (Isobaric)' tab.", "ERROR: empty ref tag");
+        return false;
+      }
+
+      if (isRealReference && isTmt35 && StringUtils.isNullOrWhitespace(refDTag)) {
+        SwingUtils.showErrorDialog(panel, "'Ref D sample tag' can't be empty in 'Quant (Isobaric)' tab.", "ERROR: empty ref D tag");
+        return false;
       }
 
       Set<String> ss = new HashSet<>();
@@ -194,7 +208,7 @@ public class CmdTmtIntegrator extends CmdBase {
         }
       }
 
-      List<Path> filesWithoutRefChannel = new ArrayList<>();
+      Set<Path> filesWithoutRefChannel = new HashSet<>();
       // only check for presence of reference channels if "Define Reference is set to "Reference Sample"
       if (TmtiConfProps.COMBO_ADD_REF_CHANNEL.equalsIgnoreCase(panel.getDefineReference())) {
         for (Path path : groupAnnotationMap.values()) {
@@ -203,17 +217,18 @@ public class CmdTmtIntegrator extends CmdBase {
           if (annotations.stream().noneMatch(a -> a.getSample().contains(refTag))) {
             filesWithoutRefChannel.add(path);
           }
+          if (isTmt35 && annotations.stream().noneMatch(a -> a.getSample().contains(refDTag))) {
+            filesWithoutRefChannel.add(path);
+          }
         }
       }
       if (!filesWithoutRefChannel.isEmpty()) {
         String files = filesWithoutRefChannel.stream().map(Path::toString)
             .collect(Collectors.joining("\n"));
-        SwingUtils.showWarningDialog(panel, "Found annotation files without reference channel\n"
+        SwingUtils.showErrorDialog(panel, "Found annotation files without reference channel\n"
             + "specified:\n" + files
             + "\n\nOne sample name in each annotation file must start with\n"
-            + "the reference tag you set. Currently it is set to: '" + refTag + "'.\n"
-                + "You can change that in Quant tab, [Ref Sample Tag] text field.",
-
+            + "the reference tag you set. You can change that in Quant tab, [Ref Sample Tag] text field.",
             NAME + " Config");
         return false;
       }

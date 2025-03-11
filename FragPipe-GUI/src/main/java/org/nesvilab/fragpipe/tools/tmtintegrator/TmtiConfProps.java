@@ -27,6 +27,7 @@ public class TmtiConfProps {
   public static final String PROP_output = "output";
   public static final String PROP_channel_num = "channel_num";
   public static final String PROP_ref_tag = "ref_tag";
+  public static final String PROP_ref_d_tag = "ref_d_tag";
   public static final String PROP_min_pep_prob = "min_pep_prob";
   public static final String PROP_min_purity = "min_purity";
   public static final String PROP_min_percent = "min_percent";
@@ -59,7 +60,7 @@ public class TmtiConfProps {
 
   public static final List<String> PROPS = Arrays
       .asList(PROP_path, PROP_memory, PROP_output, PROP_channel_num, PROP_label_masses,
-          PROP_ref_tag, PROP_min_pep_prob, PROP_min_purity, PROP_min_percent, PROP_min_resolution, PROP_min_snr, PROP_min_ntt, PROP_min_site_prob,
+          PROP_ref_tag, PROP_ref_d_tag, PROP_min_pep_prob, PROP_min_purity, PROP_min_percent, PROP_min_resolution, PROP_min_snr, PROP_min_ntt, PROP_min_site_prob,
           PROP_unique_gene, PROP_prot_exclude, PROP_mod_tag, PROP_groupby, PROP_prot_norm,
           PROP_add_Ref, PROP_psm_norm, PROP_unique_pep, PROP_outlier_removal, PROP_best_psm,
           PROP_allow_overlabel, PROP_allow_unlabeled, PROP_ms1_int, PROP_top3_pep,
