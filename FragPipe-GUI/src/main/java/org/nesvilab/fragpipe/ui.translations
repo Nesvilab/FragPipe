@@ -95,6 +95,7 @@ tmtintegrator.channel_num :: sCLIP-6 <=> 6
 tmtintegrator.channel_num :: IBT-16 <=> 16
 tmtintegrator.channel_num :: DiLeu-12 <=> 12
 tmtintegrator.channel_num :: DiLeu-1 <=> 1
+tmtintegrator.channel_num :: DeAla-13 <=> 13
 tmtintegrator.channel_num :: develop <=> 32
 tmtintegrator.channel_num :: develop2 <=> 29
 tmtintegrator.groupby :: Gene level <=> 0
