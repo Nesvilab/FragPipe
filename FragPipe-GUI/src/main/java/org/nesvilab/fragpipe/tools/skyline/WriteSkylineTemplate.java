@@ -491,19 +491,6 @@ public class WriteSkylineTemplate {
     public final String elementalComposition;
     public final List<String> lossElementalComposition;
 
-    Mod(String aas, char terminus, boolean isVariable, float monoMass, float avgMass, List<Float> lossMonoMasses, List<Float> lossAvgMasses, String elementalComposition, List<String> lossElementalComposition) {
-      this.name = aas + "_" + (terminus == '\0' ? "" : terminus) + "_" + isVariable + "_" + monoMass;
-      this.aas = aas;
-      this.terminus = terminus;
-      this.isVariable = isVariable;
-      this.monoMass = monoMass;
-      this.avgMass = avgMass;
-      this.lossMonoMasses = lossMonoMasses;
-      this.lossAvgMasses = lossAvgMasses;
-      this.elementalComposition = elementalComposition;
-      this.lossElementalComposition = lossElementalComposition;
-    }
-
     Mod(String name, String aas, char terminus, boolean isVariable, float monoMass, float avgMass, List<Float> lossMonoMasses, List<Float> lossAvgMasses, String elementalComposition, List<String> lossElementalComposition) {
       if (name == null) {
         name = aas + "_" + (terminus == '\0' ? "" : terminus) + "_" + isVariable + "_" + monoMass;
