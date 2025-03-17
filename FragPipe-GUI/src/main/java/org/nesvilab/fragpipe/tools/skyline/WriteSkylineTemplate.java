@@ -247,7 +247,7 @@ public class WriteSkylineTemplate {
     ArrayList<String> nSites = new ArrayList<>();
     while (m.find()) {
       if (m.group(1).contentEquals("^")) {
-        parseMods("", 'N', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses, "", new ArrayList<>(), matchUnimod, unimods, nonUnimods);
+        parseMods(null, "", 'N', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses, "", new ArrayList<>(), matchUnimod, unimods, nonUnimods);
       } else if (m.group(1).contentEquals("*")) {
         nSites = allAAs;
       } else {
@@ -255,7 +255,7 @@ public class WriteSkylineTemplate {
       }
     }
     if (!nSites.isEmpty()) {
-      parseMods(String.join(", ", nSites), 'N', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses, "", new ArrayList<>(), matchUnimod, unimods, nonUnimods);
+      parseMods(null, String.join(", ", nSites), 'N', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses, "", new ArrayList<>(), matchUnimod, unimods, nonUnimods);
     }
     sites = p1.matcher(sites).replaceAll("");
 
@@ -264,7 +264,7 @@ public class WriteSkylineTemplate {
     ArrayList<String> cSites = new ArrayList<>();
     while (m.find()) {
       if (m.group(1).contentEquals("^")) {
-        parseMods("", 'C', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses, "", new ArrayList<>(), matchUnimod, unimods, nonUnimods);
+        parseMods(null, "", 'C', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses, "", new ArrayList<>(), matchUnimod, unimods, nonUnimods);
       } else if (m.group(1).contentEquals("*")) {
         cSites = allAAs;
       } else {
@@ -272,7 +272,7 @@ public class WriteSkylineTemplate {
       }
     }
     if (!cSites.isEmpty()) {
-      parseMods(String.join(", ", cSites), 'C', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses, "", new ArrayList<>(), matchUnimod, unimods, nonUnimods);
+      parseMods(null, String.join(", ", cSites), 'C', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses, "", new ArrayList<>(), matchUnimod, unimods, nonUnimods);
     }
     sites = p2.matcher(sites).replaceAll("");
 
@@ -284,7 +284,7 @@ public class WriteSkylineTemplate {
       resSites = sites.chars().mapToObj(c -> String.valueOf((char) c)).collect(Collectors.toList());
     }
     if (!resSites.isEmpty()) {
-      parseMods(String.join(", ", resSites), '\0', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses, "", new ArrayList<>(), matchUnimod, unimods, nonUnimods);
+      parseMods(null, String.join(", ", resSites), '\0', isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses, "", new ArrayList<>(), matchUnimod, unimods, nonUnimods);
     }
   }
 
@@ -345,7 +345,7 @@ public class WriteSkylineTemplate {
             lossElementalComps.add(lossElementalComp.toString());
           }
 
-          parseMods(String.join(", ", resSites), '\0', true, (float) glycan.mass, (float) glycan.mass, losses, losses, glycan.getElementalCompositionOfIon().toString(), lossElementalComps, matchUnimod, unimods, nonUnimods);
+          parseMods(glycan.name, String.join(", ", resSites), '\0', true, (float) glycan.mass, (float) glycan.mass, losses, losses, glycan.getElementalCompositionOfIon().toString(), lossElementalComps, matchUnimod, unimods, nonUnimods);
         }
       }
     }
@@ -380,7 +380,7 @@ public class WriteSkylineTemplate {
     return sites;
   }
 
-  static void parseMods(String aas, char terminus, boolean isVariable, float monoMass, float avgMass, List<Float> lossMonoMasses, List<Float> lossAvgMasses, String elementalComposition, List<String> lossElementalComposition, boolean matchUnimod, Set<UnimodData> unimods, List<Mod> nonUnimods) {
+  static void parseMods(String optionalName, String aas, char terminus, boolean isVariable, float monoMass, float avgMass, List<Float> lossMonoMasses, List<Float> lossAvgMasses, String elementalComposition, List<String> lossElementalComposition, boolean matchUnimod, Set<UnimodData> unimods, List<Mod> nonUnimods) {
     Set<String> nonUnimodAas = new TreeSet<>();
     if (matchUnimod) {
       if (aas.isEmpty()) {
@@ -459,10 +459,10 @@ public class WriteSkylineTemplate {
         // The terminal modification doesn't have amino acids.
         nonUnimodAas.remove("N-term");
         nonUnimodAas.remove("C-term");
-        nonUnimods.add(new Mod(String.join(",", nonUnimodAas), terminus, isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses, elementalComposition, lossElementalComposition));
+        nonUnimods.add(new Mod(optionalName, String.join(",", nonUnimodAas), terminus, isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses, elementalComposition, lossElementalComposition));
       }
     } else {
-      nonUnimods.add(new Mod(aas, terminus, isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses, elementalComposition, lossElementalComposition));
+      nonUnimods.add(new Mod(optionalName, aas, terminus, isVariable, monoMass, avgMass, lossMonoMasses, lossAvgMasses, elementalComposition, lossElementalComposition));
     }
   }
 
@@ -493,6 +493,22 @@ public class WriteSkylineTemplate {
 
     Mod(String aas, char terminus, boolean isVariable, float monoMass, float avgMass, List<Float> lossMonoMasses, List<Float> lossAvgMasses, String elementalComposition, List<String> lossElementalComposition) {
       this.name = aas + "_" + (terminus == '\0' ? "" : terminus) + "_" + isVariable + "_" + monoMass;
+      this.aas = aas;
+      this.terminus = terminus;
+      this.isVariable = isVariable;
+      this.monoMass = monoMass;
+      this.avgMass = avgMass;
+      this.lossMonoMasses = lossMonoMasses;
+      this.lossAvgMasses = lossAvgMasses;
+      this.elementalComposition = elementalComposition;
+      this.lossElementalComposition = lossElementalComposition;
+    }
+
+    Mod(String name, String aas, char terminus, boolean isVariable, float monoMass, float avgMass, List<Float> lossMonoMasses, List<Float> lossAvgMasses, String elementalComposition, List<String> lossElementalComposition) {
+      if (name == null) {
+        name = aas + "_" + (terminus == '\0' ? "" : terminus) + "_" + isVariable + "_" + monoMass;
+      }
+      this.name = name;
       this.aas = aas;
       this.terminus = terminus;
       this.isVariable = isVariable;

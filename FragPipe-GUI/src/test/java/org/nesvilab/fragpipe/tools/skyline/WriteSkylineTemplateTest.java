@@ -132,7 +132,7 @@ public class WriteSkylineTemplateTest {
 
     unimods.clear();
     nonUnimods.clear();
-    parseMods("C", '\0', true, 57.02146f, 57.02146f, new ArrayList<>(1), new ArrayList<>(1), "", new ArrayList<>(1), true, unimods, nonUnimods);
+    parseMods(null, "C", '\0', true, 57.02146f, 57.02146f, new ArrayList<>(1), new ArrayList<>(1), "", new ArrayList<>(1), true, unimods, nonUnimods);
     assertTrue(unimods.isEmpty());
     assertEquals(1, nonUnimods.size());
     assertEquals("C__true_57.02146", nonUnimods.iterator().next().name);
@@ -145,70 +145,70 @@ public class WriteSkylineTemplateTest {
     Set<UnimodData> unimods = new TreeSet<>();
     List<Mod> nonUnimods = new ArrayList<>(1);
 
-    parseMods("M", 'C', true, 15.994915f, 15.9949f, new ArrayList<>(1), new ArrayList<>(1), "", new ArrayList<>(1), true, unimods, nonUnimods);
+    parseMods(null, "M", 'C', true, 15.994915f, 15.9949f, new ArrayList<>(1), new ArrayList<>(1), "", new ArrayList<>(1), true, unimods, nonUnimods);
     assertEquals(1, unimods.size());
     assertEquals(35, unimods.iterator().next().id);
 
     unimods.clear();
     nonUnimods.clear();
-    parseMods("M", '\0', true, 15.994915f, 15.994915f, new ArrayList<>(1), new ArrayList<>(1), "", new ArrayList<>(1), true, unimods, nonUnimods);
+    parseMods(null, "M", '\0', true, 15.994915f, 15.994915f, new ArrayList<>(1), new ArrayList<>(1), "", new ArrayList<>(1), true, unimods, nonUnimods);
     assertEquals(1, unimods.size());
     assertEquals("Oxidation (M)", unimods.iterator().next().name);
 
     unimods.clear();
     nonUnimods.clear();
-    parseMods("S, T, Y", 'C', true, 79.966331f, 79.966331f, Arrays.asList(97.976896f, 11f), Arrays.asList(97.976896f, 11f), "", new ArrayList<>(1), true, unimods, nonUnimods);
+    parseMods(null, "S, T, Y", 'C', true, 79.966331f, 79.966331f, Arrays.asList(97.976896f, 11f), Arrays.asList(97.976896f, 11f), "", new ArrayList<>(1), true, unimods, nonUnimods);
     assertEquals(2, unimods.size());
     assertEquals("Phospho (ST)", unimods.toArray(new UnimodData[0])[0].name);
     assertEquals("Phospho (Y)", unimods.toArray(new UnimodData[0])[1].name);
 
     unimods.clear();
     nonUnimods.clear();
-    parseMods("S", 'C', true, 79.966331f, 79.966331f, java.util.List.of(97.976896f), java.util.List.of(97.976896f), "", new ArrayList<>(1), true, unimods, nonUnimods);
+    parseMods(null, "S", 'C', true, 79.966331f, 79.966331f, java.util.List.of(97.976896f), java.util.List.of(97.976896f), "", new ArrayList<>(1), true, unimods, nonUnimods);
     assertEquals(1, unimods.size());
     assertEquals(21, unimods.iterator().next().id);
     assertEquals("Phospho (ST)", unimods.iterator().next().name);
 
     unimods.clear();
     nonUnimods.clear();
-    parseMods("S, T", 'C', true, 79.966331f, 79.966331f, Arrays.asList(97.976896f, 11f), Arrays.asList(97.976896f, 11f), "", new ArrayList<>(1), true, unimods, nonUnimods);
+    parseMods(null, "S, T", 'C', true, 79.966331f, 79.966331f, Arrays.asList(97.976896f, 11f), Arrays.asList(97.976896f, 11f), "", new ArrayList<>(1), true, unimods, nonUnimods);
     assertEquals(1, unimods.size());
     assertEquals(21, unimods.iterator().next().id);
     assertEquals("Phospho (ST)", unimods.iterator().next().name);
 
     unimods.clear();
     nonUnimods.clear();
-    parseMods("W, H", '\0', true, 15.994915f, 15.994915f, new ArrayList<>(1), new ArrayList<>(1), "", new ArrayList<>(1), true, unimods, nonUnimods);
+    parseMods(null, "W, H", '\0', true, 15.994915f, 15.994915f, new ArrayList<>(1), new ArrayList<>(1), "", new ArrayList<>(1), true, unimods, nonUnimods);
     assertEquals(1, unimods.size());
     assertEquals("Oxidation (HW)", unimods.iterator().next().name);
 
     unimods.clear();
     nonUnimods.clear();
-    parseMods("E", '\0', true, -18.010565f, -18.010565f, new ArrayList<>(1), new ArrayList<>(1), "", new ArrayList<>(1), true, unimods, nonUnimods);
+    parseMods(null, "E", '\0', true, -18.010565f, -18.010565f, new ArrayList<>(1), new ArrayList<>(1), "", new ArrayList<>(1), true, unimods, nonUnimods);
     assertEquals(1, unimods.size());
     assertEquals("Glu->pyro-Glu (N-term E)", unimods.iterator().next().name);
 
     unimods.clear();
     nonUnimods.clear();
-    parseMods("", 'N', true, 42.010565f, 42.010565f, new ArrayList<>(1), new ArrayList<>(1), "", new ArrayList<>(1), true, unimods, nonUnimods);
+    parseMods(null, "", 'N', true, 42.010565f, 42.010565f, new ArrayList<>(1), new ArrayList<>(1), "", new ArrayList<>(1), true, unimods, nonUnimods);
     assertEquals(1, unimods.size());
     assertEquals("Acetyl (N-term)", unimods.iterator().next().name);
 
     unimods.clear();
     nonUnimods.clear();
-    parseMods("Q", 'N', true, -17.026549f, -17.026549f, new ArrayList<>(1), new ArrayList<>(1), "", new ArrayList<>(1), true, unimods, nonUnimods);
+    parseMods(null, "Q", 'N', true, -17.026549f, -17.026549f, new ArrayList<>(1), new ArrayList<>(1), "", new ArrayList<>(1), true, unimods, nonUnimods);
     assertEquals(1, unimods.size());
     assertEquals("Gln->pyro-Glu (N-term Q)", unimods.iterator().next().name);
 
     unimods.clear();
     nonUnimods.clear();
-    parseMods("E", 'N', true, -18.010565f, -18.010565f, new ArrayList<>(1), new ArrayList<>(1), "", new ArrayList<>(1), true, unimods, nonUnimods);
+    parseMods(null, "E", 'N', true, -18.010565f, -18.010565f, new ArrayList<>(1), new ArrayList<>(1), "", new ArrayList<>(1), true, unimods, nonUnimods);
     assertEquals(1, unimods.size());
     assertEquals("Glu->pyro-Glu (N-term E)", unimods.iterator().next().name);
 
     unimods.clear();
     nonUnimods.clear();
-    parseMods("C", '\0', false, 57.02146f, 57.02146f, new ArrayList<>(1), new ArrayList<>(1), "", new ArrayList<>(1), true, unimods, nonUnimods);
+    parseMods(null, "C", '\0', false, 57.02146f, 57.02146f, new ArrayList<>(1), new ArrayList<>(1), "", new ArrayList<>(1), true, unimods, nonUnimods);
     assertTrue(nonUnimods.isEmpty());
     assertEquals(1, unimods.size());
     assertEquals("Carbamidomethyl (C)", unimods.iterator().next().name);
@@ -219,7 +219,7 @@ public class WriteSkylineTemplateTest {
     Set<UnimodData> unimods = new TreeSet<>();
     List<Mod> nonUnimods = new ArrayList<>(1);
 
-    parseMods("M, C, J, O", '\0', true, 15.994915f, 15.994915f, new ArrayList<>(1), new ArrayList<>(1), "", new ArrayList<>(1), true, unimods, nonUnimods);
+    parseMods(null, "M, C, J, O", '\0', true, 15.994915f, 15.994915f, new ArrayList<>(1), new ArrayList<>(1), "", new ArrayList<>(1), true, unimods, nonUnimods);
     assertEquals(2, unimods.size());
     assertEquals("Oxidation (M)",  unimods.toArray(new UnimodData[0])[0].name);
     assertEquals("Oxidation (C)",  unimods.toArray(new UnimodData[0])[1].name);
@@ -230,7 +230,7 @@ public class WriteSkylineTemplateTest {
 
     unimods.clear();
     nonUnimods.clear();
-    parseMods("S, T, Y, M", 'C', true, 79.966331f, 79.966331f, Arrays.asList(97.976896f, 11f), Arrays.asList(97.976896f, 11f), "", new ArrayList<>(1), true, unimods, nonUnimods);
+    parseMods(null, "S, T, Y, M", 'C', true, 79.966331f, 79.966331f, Arrays.asList(97.976896f, 11f), Arrays.asList(97.976896f, 11f), "", new ArrayList<>(1), true, unimods, nonUnimods);
     assertEquals(2, unimods.size());
     assertEquals("Phospho (ST)", unimods.toArray(new UnimodData[0])[0].name);
     assertEquals("Phospho (Y)", unimods.toArray(new UnimodData[0])[1].name);
