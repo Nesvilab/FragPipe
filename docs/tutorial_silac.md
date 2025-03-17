@@ -28,9 +28,9 @@ On the 'Quant (MS1)' tab, IonQuant has been set to run with SILAC light, medium,
 
 ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/silac_4.png)
 
-If you are using light and heavy dimethyl labeling, change these fields to:
+If you are using light and heavy dimethyl labeling, adjust the variable modifications in the MSFragger tab and change the labeling settings to:
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/silac_4_2.jpg)
+![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/silac_4_2.png)
 
 #### 5) Specify output location and run
 On the 'Run' tab, choose an output file location, then click 'RUN'.
