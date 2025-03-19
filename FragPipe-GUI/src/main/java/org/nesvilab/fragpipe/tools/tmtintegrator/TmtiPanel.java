@@ -527,12 +527,6 @@ public class TmtiPanel extends JPanelBase {
             + "reporter ion intensity (if false) as part of the reference <br/>\n"
             + "sample abundance estimation");
 
-    UiCheck uiCheckTop3 = UiCheck.of("Top 3 ions", true);
-    FormEntry feTop3 = fe(TmtiConfProps.PROP_top3_pep,
-        "not-shown", uiCheckTop3,
-        "<html>Use top 3 most intense peptide ions as part of the reference <br/>\n"
-            + "sample abundance estimation");
-
     UiCheck uiCheckPrintRef = UiCheck.of("Print reference intensity", false);
     FormEntry fePrintRefInt = fe(TmtiConfProps.PROP_print_RefInt,
         "not-shown", uiCheckPrintRef,
@@ -586,7 +580,6 @@ public class TmtiPanel extends JPanelBase {
     JPanel p2 = mu.newPanel(mu.lcNoInsetsTopBottom());
     mu.border(p2, "Ratio to Abundance conversion");
     mu.add(p2, feMs1Int.comp);
-    mu.add(p2, feTop3.comp);
     mu.add(p2, fePrintRefInt.comp);
     mu.add(p2, feLog2Transformed.comp).spanX().wrap();
 
