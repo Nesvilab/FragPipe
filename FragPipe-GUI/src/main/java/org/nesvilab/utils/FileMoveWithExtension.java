@@ -38,7 +38,7 @@ public class FileMoveWithExtension {
         Path dest = Paths.get(args[2]);
 
         List<Path> pp = new ArrayList<>(1);
-        Files.walk(originDir).forEach(p -> {
+        Files.list(originDir).forEach(p -> {
             if (Files.isRegularFile(p) && p.toString().endsWith(ext)) {
                 pp.add(p);
             }
