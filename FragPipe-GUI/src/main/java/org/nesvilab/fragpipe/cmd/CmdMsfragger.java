@@ -500,7 +500,14 @@ public class CmdMsfragger extends CmdBase {
     Map<InputLcmsFile, List<Path>> mapLcmsToPin = outputs(lcmsFiles, "pin", wd);
 
     final List<String> javaCmd = Arrays.asList(
-        Fragpipe.getBinJava(), "-jar", "-Dfile.encoding=UTF-8", "-Xmx" + ramGb + "G");
+            Fragpipe.getBinJava(), "-jar", "-Dfile.encoding=UTF-8", "-Xmx" + ramGb + "G",
+            // for JNI
+            "--add-opens", "java.base/java.lang=ALL-UNNAMED",
+            "-XX:+UseShenandoahGC", // Shenandoah GC supports regional pinning in JDK 11
+            // G1GC (default GC) supports regional pinning in JDK 22
+            // https://openjdk.org/jeps/423
+            // https://shipilev.net/jvm/anatomy-quarks/9-jni-critical-gclocker/#_shenandoah
+            "-Djava.library.path=" + Path.of(Path.of(binFragger.useBin()).getParent().toString(), "ext", "accelerated_msfragger"));
     final List<String> slicingCmd;
 
     if (!isSlicing) {
