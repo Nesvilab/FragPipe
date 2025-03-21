@@ -17,3 +17,4 @@ dataSources.local.xml
 rest-client.private.env.json
 http-client.private.env.json
 .DS_Store
+bin/
