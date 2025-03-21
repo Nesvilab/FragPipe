@@ -60,6 +60,7 @@ freequant.mz-tol=10
 freequant.rt-tol=0.4
 freequant.run-freequant=false
 ionquant.excludemods=
+ionquant.formula=
 ionquant.heavy=
 ionquant.imtol=0.05
 ionquant.ionfdr=1

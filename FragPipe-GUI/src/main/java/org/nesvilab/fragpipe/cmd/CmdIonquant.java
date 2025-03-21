@@ -287,7 +287,8 @@ public class CmdIonquant extends CmdBase {
           "minions",
           "excludemods",
           "locprob",
-          "uniqueness"
+          "uniqueness",
+          "formula"
       );
 
       for (String dynamicParam : dynamicParams) {

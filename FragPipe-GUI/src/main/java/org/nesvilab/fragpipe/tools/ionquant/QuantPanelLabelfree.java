@@ -291,6 +291,7 @@ public class QuantPanelLabelfree extends JPanelBase {
         .setFormat("0.0").setCols(5).create();
     UiSpinnerDouble uiSpinnerImTol = UiUtils.spinnerDouble(0.05, 0.001, 0.5, 0.01)
         .setFormat("0.00").setCols(5).create();
+    UiText uiTextFormula = UiUtils.uiTextBuilder().cols(90).create();
 
     UiSpinnerDouble uiSpinnerMbrMinCorr = UiUtils.spinnerDouble(0.0, 0, 1, 0.1)
         .setCols(5).setFormat("#.##").create();
@@ -325,6 +326,7 @@ public class QuantPanelLabelfree extends JPanelBase {
     FormEntry feMzTol = mu.feb(uiSpinnerMzTol).name("ionquant.mztol").label("m/z tolerance (ppm)").create();
     FormEntry feRtTol = mu.feb(uiSpinnerRtTol).name("ionquant.rttol").label("RT tolerance (minutes)").create();
     FormEntry feImTol = mu.feb(uiSpinnerImTol).name("ionquant.imtol").label("IM tolerance (1/k0)").create();
+    FormEntry feFormula = mu.feb(uiTextFormula).name("ionquant.formula").label("Formula (optional)").tooltip("Formula of the modifications. Used to calculate the precise isotope distributions.\nFormat: chemical composition;chemical composition...  <chemical composition> example: C(2)H(2)O;HO(3)P;2H(4)C(2)").create();
 
     FormEntry feMaxLfqMinIons = mu.feb(uiSpinnerMaxLfqMinIons).name("ionquant.minions").label("MaxLFQ min ions").tooltip("Minimum ions required to quantify a protein. Only used in MaxLFQ intensity.").create();
     FormEntry feTopIons = mu.feb(uiSpinnerTopIons).name("ionquant.tp").label("Top N ions").tooltip("Number of ions to use in quantifying proteins").create();
@@ -460,18 +462,28 @@ public class QuantPanelLabelfree extends JPanelBase {
     // feature detection panel
     JPanel pDetection = mu.newPanel("Feature detection and peak tracing", mu.lcFillXNoInsetsTopBottom());
 
-    mu.add(pDetection, feMinScans.label(), mu.ccR()).split(2);
-    mu.add(pDetection, feMinScans.comp);
-    mu.add(pDetection, feMinIsotopes.label(), mu.ccR()).split(2);
-    mu.add(pDetection, feMinIsotopes.comp).spanX().wrap();
+    // Create a separate panel for the first two rows
+    JPanel pTopRows = mu.newPanel(mu.lcFillXNoInsetsTopBottom());
 
+    // First row
+    mu.add(pTopRows, feMinScans.label(), mu.ccR()).split(2);
+    mu.add(pTopRows, feMinScans.comp);
+    mu.add(pTopRows, feMinIsotopes.label(), mu.ccR()).split(2);
+    mu.add(pTopRows, feMinIsotopes.comp).wrap();
 
-    mu.add(pDetection, feMzTol.label(), mu.ccR()).split(2);
-    mu.add(pDetection, feMzTol.comp);
-    mu.add(pDetection, feRtTol.label(), mu.ccR()).split(2);
-    mu.add(pDetection, feRtTol.comp);
-    mu.add(pDetection, feImTol.label(), mu.ccR()).split(2);
-    mu.add(pDetection, feImTol.comp, mu.ccR().gapRight("200")).spanX().wrap();
+    // Second row
+    mu.add(pTopRows, feMzTol.label(), mu.ccR()).split(2);
+    mu.add(pTopRows, feMzTol.comp);
+    mu.add(pTopRows, feRtTol.label(), mu.ccR()).split(2);
+    mu.add(pTopRows, feRtTol.comp);
+    mu.add(pTopRows, feImTol.label(), mu.ccR()).split(2);
+    mu.add(pTopRows, feImTol.comp).wrap();
+
+    mu.add(pDetection, pTopRows).growX().wrap();
+
+    // Formula row (separate from the top rows)
+    mu.add(pDetection, feFormula.label(), mu.ccR()).split(2);
+    mu.add(pDetection, feFormula.comp).spanX().growX().wrap();
 
     mu.add(pAdvancedOptions, pDetection).spanX().growX().wrap();
 
