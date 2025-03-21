@@ -63,7 +63,6 @@ public class TmtiConfig {
     private boolean allow_overlabel;
     private boolean allow_unlabeled;
     private boolean ms1_int;
-    private boolean top3_pep;
     private boolean print_RefInt;
     private double max_pep_prob_thres;
     private int min_ntt;
@@ -303,14 +302,6 @@ public class TmtiConfig {
 
     public void setMs1_int(boolean ms1_int) {
       this.ms1_int = ms1_int;
-    }
-
-    public boolean isTop3_pep() {
-      return top3_pep;
-    }
-
-    public void setTop3_pep(boolean top3_pep) {
-      this.top3_pep = top3_pep;
     }
 
     public boolean isPrint_RefInt() {
