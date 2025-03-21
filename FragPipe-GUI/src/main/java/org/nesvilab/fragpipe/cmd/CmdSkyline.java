@@ -52,7 +52,7 @@ public class CmdSkyline extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, String skylinePath, String skylineVersion, Path jarFragpipe, int ramGb, int modsMode, boolean useSsl) {
+  public boolean configure(Component comp, String skylinePath, String skylineVersion, Path jarFragpipe, int ramGb, int modsMode, boolean useSsl, int precursorTolerance, int fragmentTolerance) {
     initPreConfig();
 
     if (skylinePath == null) {
@@ -108,7 +108,8 @@ public class CmdSkyline extends CmdBase {
     cmd.add(skylineVersion);
     cmd.add(String.valueOf(modsMode));
     cmd.add(String.valueOf(useSsl));
-
+    cmd.add(String.valueOf(precursorTolerance));
+    cmd.add(String.valueOf(fragmentTolerance));
     ProcessBuilder pb = new ProcessBuilder(cmd);
     pb.directory(wd.toFile());
     pbis.add(PbiBuilder.from(pb));

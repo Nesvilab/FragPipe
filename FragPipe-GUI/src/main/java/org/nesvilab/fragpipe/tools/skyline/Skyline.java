@@ -22,12 +22,14 @@ import static org.nesvilab.fragpipe.tabs.TabWorkflow.workflowExt;
 import static org.nesvilab.utils.OsUtils.isWindows;
 
 import org.nesvilab.fragpipe.FragpipeLocations;
+import org.nesvilab.fragpipe.api.Bus;
 import org.nesvilab.fragpipe.api.PropsFile;
 import org.nesvilab.fragpipe.cmd.PbiBuilder;
 import org.nesvilab.fragpipe.cmd.ProcessBuilderInfo;
 import org.nesvilab.fragpipe.exceptions.UnexpectedException;
 import org.nesvilab.fragpipe.exceptions.ValidationException;
 import org.nesvilab.fragpipe.process.ProcessResult;
+import org.nesvilab.fragpipe.tabs.TabSkyline;
 import org.nesvilab.fragpipe.tools.fragger.MsfraggerEnzyme;
 import org.nesvilab.utils.PathUtils;
 import org.nesvilab.utils.ProcessUtils;
@@ -88,14 +90,14 @@ public class Skyline {
 
   public static void main(String[] args) {
     try {
-      runSkyline(args[0], Paths.get(args[1]), args[2], Integer.parseInt(args[3]), Boolean.parseBoolean(args[4]));
+      runSkyline(args[0], Paths.get(args[1]), args[2], Integer.parseInt(args[3]), Boolean.parseBoolean(args[4]), Integer.parseInt(args[5]), Integer.parseInt(args[6]));
     } catch (Exception e) {
       e.printStackTrace();
       System.exit(1);
     }
   }
 
-  private static void runSkyline(String skylinePath, Path wd, String skylineVersion, int modsMode, boolean useSsl) throws Exception {
+  private static void runSkyline(String skylinePath, Path wd, String skylineVersion, int modsMode, boolean useSsl, int precursorTolerance, int fragmentTolerance) throws Exception {
     if (skylinePath == null || skylinePath.isEmpty()) {
       throw new RuntimeException("Cannot find the Skyline executable file.");
     } else {
@@ -231,11 +233,7 @@ public class Skyline {
       writer.write("--tran-product-start-ion=\"ion 3\" ");
       writer.write("--tran-product-end-ion=\"last ion\" ");
       writer.write("--tran-product-clear-special-ions ");
-      if (pf.getProperty("msfragger.fragment_mass_units").contentEquals("1")) {
-        writer.write("--library-match-tolerance=" + Math.min(10, Float.parseFloat(pf.getProperty("msfragger.fragment_mass_tolerance"))) + "ppm ");
-      } else {
-        writer.write("--library-match-tolerance=" + pf.getProperty("msfragger.fragment_mass_tolerance") + "mz ");
-      }
+      writer.write("--library-match-tolerance=" + fragmentTolerance + "ppm ");
       writer.write("--library-product-ions=12 ");
       writer.write("--library-min-product-ions=1 ");
       writer.write("--library-pick-product-ions=filter ");
@@ -243,19 +241,8 @@ public class Skyline {
       writer.write("--full-scan-precursor-isotopes=Count ");
       writer.write("--full-scan-precursor-threshold=3 ");
       writer.write("--full-scan-product-analyzer=centroided ");
-
-      if (pf.getProperty("msfragger.precursor_true_units").contentEquals("1")) {
-        writer.write("--full-scan-precursor-res=" + Math.min(10, Float.parseFloat(pf.getProperty("msfragger.precursor_true_tolerance"))) + " ");
-      } else {
-        writer.write("--full-scan-precursor-res=" + Math.min(10, Float.parseFloat(pf.getProperty("msfragger.precursor_true_tolerance")) * 1000) + " ");
-      }
-
-      if (pf.getProperty("msfragger.fragment_mass_units").contentEquals("1")) {
-        writer.write("--full-scan-product-res=" + Math.min(10, Float.parseFloat(pf.getProperty("msfragger.fragment_mass_tolerance"))) + " ");
-      } else {
-        writer.write("--full-scan-product-res=" + Math.min(10, Float.parseFloat(pf.getProperty("msfragger.fragment_mass_tolerance")) * 1000) + " ");
-      }
-
+      writer.write("--full-scan-precursor-res=" + precursorTolerance + " ");
+      writer.write("--full-scan-product-res=" + fragmentTolerance + " ");
       writer.write("--full-scan-rt-filter=ms2_ids ");
       writer.write("--full-scan-rt-filter-tolerance=2 ");
       writer.write("--instrument-min-mz=50 ");

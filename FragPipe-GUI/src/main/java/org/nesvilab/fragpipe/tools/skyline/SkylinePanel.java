@@ -28,6 +28,7 @@ import org.nesvilab.utils.swing.JPanelBase;
 import org.nesvilab.utils.swing.UiCheck;
 import org.nesvilab.utils.swing.UiCombo;
 import org.nesvilab.utils.swing.UiRadio;
+import org.nesvilab.utils.swing.UiSpinnerInt;
 import org.nesvilab.utils.swing.UiText;
 import org.nesvilab.utils.swing.UiUtils;
 import java.awt.BorderLayout;
@@ -69,6 +70,8 @@ public class SkylinePanel extends JPanelBase {
   private UiText uiTextSkylineCustom;
   private UiCheck uiCheckUseSsl;
   private UiCombo uiComboModsMode;
+  private UiSpinnerInt uiSpinnerPrecursorTolerance;
+  private UiSpinnerInt uiSpinnerFragmentTolerance;
 
   @Override
   protected void initMore() {
@@ -175,6 +178,12 @@ public class SkylinePanel extends JPanelBase {
         + "If O-glyco, uses O-Pair glycan database instead of mass offsets list.<br>"
         + "If N-glyco, uses Glycan Composition Assignment glycan database instead of mass offsets list.");
 
+    uiSpinnerPrecursorTolerance = new UiSpinnerInt(10, 1, 1000, 1);
+    FormEntry fePrecursorTolerance = new FormEntry("skyline-precursor-tolerance", "Precursor Tolerance (ppm)", uiSpinnerPrecursorTolerance, "Precursor tolerance in ppm");
+
+    uiSpinnerFragmentTolerance = new UiSpinnerInt(10, 1, 1000, 1);
+    FormEntry feFragmentTolerance = new FormEntry("skyline-fragment-tolerance", "Fragment Tolerance (ppm)", uiSpinnerFragmentTolerance, "Fragment tolerance in ppm");
+
     mu.add(panelBasic, feRadioSkyline.comp);
     mu.add(panelBasic, feRadioSkylineDaily.comp);
     mu.add(panelBasic, feRadioSkylineCustom.comp);
@@ -185,6 +194,12 @@ public class SkylinePanel extends JPanelBase {
 
     mu.add(panelBasic, feComboModsMode.label(), mu.ccL()).split(2);
     mu.add(panelBasic, feComboModsMode.comp).wrap();
+
+    mu.add(panelBasic, fePrecursorTolerance.label(), mu.ccL()).split(2);
+    mu.add(panelBasic, fePrecursorTolerance.comp);
+
+    mu.add(panelBasic, feFragmentTolerance.label(), mu.ccL()).split(2);
+    mu.add(panelBasic, feFragmentTolerance.comp).wrap();
 
     updateEnabledStatus(feSkylineCustom.comp, uiRadioSkylineCustom.isSelected());
     updateEnabledStatus(jButtonSkylineCustom, uiRadioSkylineCustom.isSelected());
@@ -280,5 +295,13 @@ public class SkylinePanel extends JPanelBase {
 
   public int getModsMode() {
     return uiComboModsMode.getSelectedIndex();
+  }
+
+  public int getPrecursorTolerance() {
+    return uiSpinnerPrecursorTolerance.getActualValue();
+  }
+
+  public int getFragmentTolerance() {
+    return uiSpinnerFragmentTolerance.getActualValue();
   }
 }
