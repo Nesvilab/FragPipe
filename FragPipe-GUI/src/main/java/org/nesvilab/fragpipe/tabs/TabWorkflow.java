@@ -282,6 +282,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     builtInWorkflows.add("Stellar-GPFDIA");
     builtInWorkflows.add("DIA_SpecLib_Quant_Ubiq");
     builtInWorkflows.add("TMT18-Astral");
+    builtInWorkflows.add("TMT35");
   }
 
   // Ok, if we could keep some workflows pinned toward the top,  I would say Default, SpecLib, Open, Common-mass-offset, LFQ-MBR,  then the rest
