@@ -38,6 +38,7 @@ import org.nesvilab.utils.swing.JPanelBase;
 import org.nesvilab.utils.swing.MigUtils;
 import org.nesvilab.utils.swing.UiCheck;
 import org.nesvilab.utils.swing.UiCombo;
+import org.nesvilab.utils.swing.UiRadio;
 import org.nesvilab.utils.swing.UiSpinnerDouble;
 import org.nesvilab.utils.swing.UiSpinnerInt;
 import org.nesvilab.utils.swing.UiText;
@@ -78,6 +79,7 @@ import java.util.stream.Stream;
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
@@ -520,13 +522,16 @@ public class TmtiPanel extends JPanelBase {
         "not-shown", uiCheckAllowUnlabeled,
         "<html>Allow peptides with unlabeled n-term (i.e. no TMT/iTRAQ label and no Acetyl at n-terminus)");
 
-    UiCheck uiCheckMs1Int = UiCheck.of("Use MS1 intensity", true);
-    FormEntry feMs1Int = fe(TmtiConfProps.PROP_ms1_int,
-        "not-shown", uiCheckMs1Int,
-        "<html>Use MS1 precursor ion intensity (if true) or MS2 summed TMT <br/>\n"
-            + "reporter ion intensity (if false) as part of the reference <br/>\n"
-            + "sample abundance estimation");
-
+    JLabel labelUse = new JLabel("Use ");
+    UiRadio uiRadioMs1 = new UiRadio("MS1", null, true);
+    UiRadio uiRadioMs2 = new UiRadio("MS2", null, false);
+    uiRadioMs1.setToolTipText("Use MS1 precursor ion intensity in ratios to abundances conversion");
+    uiRadioMs2.setToolTipText("Use MS2 summed TMT reporter ion intensity in ratios to abundances conversion");
+    ButtonGroup bgMs = new ButtonGroup();
+    bgMs.add(uiRadioMs1);
+    bgMs.add(uiRadioMs2);
+    uiRadioMs1.setName(TmtiConfProps.PROP_ms1_int);
+    
     UiCheck uiCheckPrintRef = UiCheck.of("Print reference intensity", false);
     FormEntry fePrintRefInt = fe(TmtiConfProps.PROP_print_RefInt,
         "not-shown", uiCheckPrintRef,
@@ -579,7 +584,9 @@ public class TmtiPanel extends JPanelBase {
 
     JPanel p2 = mu.newPanel(mu.lcNoInsetsTopBottom());
     mu.border(p2, "Ratio to Abundance conversion");
-    mu.add(p2, feMs1Int.comp);
+    mu.add(p2, labelUse).split(3);
+    mu.add(p2, uiRadioMs1);
+    mu.add(p2, uiRadioMs2).wrap();
     mu.add(p2, fePrintRefInt.comp);
     mu.add(p2, feLog2Transformed.comp).spanX().wrap();
 
