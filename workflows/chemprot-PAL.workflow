@@ -1,4 +1,4 @@
-# Workflow: PAL
+# Workflow: chemprot-PAL
 
 crystalc.run-crystalc=false
 database.decoy-tag=rev_
@@ -219,6 +219,7 @@ ptmprophet.cmdline=
 ptmprophet.override-defaults=false
 ptmprophet.run-ptmprophet=false
 ptmshepherd.adv_params=false
+ptmshepherd.annotate_assigned_mods=false
 ptmshepherd.annotation-common=true
 ptmshepherd.annotation-custom=false
 ptmshepherd.annotation-glyco=false
@@ -276,6 +277,7 @@ ptmshepherd.spectra_condRatio=0.0001
 ptmshepherd.spectra_maxPrecursorCharge=4
 ptmshepherd.spectra_maxfragcharge=2
 ptmshepherd.spectra_ppmtol=20
+ptmshepherd.use_msfragger_localization=false
 ptmshepherd.varmod_masses=
 quantitation.run-label-free-quant=true
 run-psm-validation=true
@@ -349,13 +351,12 @@ tmtintegrator.ref_d_tag=Pool
 tmtintegrator.ref_tag=Bridge
 tmtintegrator.run-tmtintegrator=false
 tmtintegrator.tolerance=20
-tmtintegrator.top3_pep=true
 tmtintegrator.unique_gene=0
 tmtintegrator.unique_pep=false
 tmtintegrator.use_glycan_composition=false
-workflow.description=Workflow for photoaffinity labeling (PAL) data, mass offset search. Light probe mass\: 436.22565, heavy probe mass\: 442.2633. L\:H quantification with IonQuant. For other probes, changes modification masses in MSFragger and IonQuant tabs accordingly. For PTM-Shepherd analysis of peptides with the mass shift, make the following changes\: in MSFragger tab change 'Report mass shift as a variable mod' to No; In Quant (MS1 tab) tab switch from IonQuant to Philosopher freequant.
+workflow.description=Workflow for photoaffinity labeling (PAL) data described in S. Takechi et al. "Silyl Ether Enables High Coverage Chemoproteomic Interaction Site Mapping", 10.26434/chemrxiv-2024-21r7b. Mass offset search. Light probe mass\: 436.22565, heavy probe mass\: 442.2633. L\:H quantification with IonQuant. For other probes, change modification masses in MSFragger and IonQuant tabs accordingly.
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
 workflow.misc.save-sdrf=true
 workflow.misc.sdrf-type=Default
-workflow.saved-with-ver=23.0-build14
+workflow.saved-with-ver=23.0-build23

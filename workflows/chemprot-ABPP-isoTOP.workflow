@@ -1,4 +1,4 @@
-# Workflow: isoTOP-ABPP
+# Workflow: chemprot-ABPP-isoTOP
 
 crystalc.run-crystalc=false
 database.decoy-tag=rev_
@@ -219,6 +219,7 @@ ptmprophet.cmdline=
 ptmprophet.override-defaults=false
 ptmprophet.run-ptmprophet=false
 ptmshepherd.adv_params=false
+ptmshepherd.annotate_assigned_mods=false
 ptmshepherd.annotation-common=false
 ptmshepherd.annotation-custom=false
 ptmshepherd.annotation-glyco=false
@@ -276,6 +277,7 @@ ptmshepherd.spectra_condRatio=0.0001
 ptmshepherd.spectra_maxPrecursorCharge=4
 ptmshepherd.spectra_maxfragcharge=2
 ptmshepherd.spectra_ppmtol=20
+ptmshepherd.use_msfragger_localization=false
 ptmshepherd.varmod_masses=Failed_Carbamidomethylation\:-57.02146
 quantitation.run-label-free-quant=true
 run-psm-validation=true
@@ -349,13 +351,12 @@ tmtintegrator.ref_d_tag=Pool
 tmtintegrator.ref_tag=Bridge
 tmtintegrator.run-tmtintegrator=false
 tmtintegrator.tolerance=20
-tmtintegrator.top3_pep=true
 tmtintegrator.unique_gene=0
 tmtintegrator.unique_pep=false
 tmtintegrator.use_glycan_composition=false
-workflow.description=Workflow for cysteine activity-based protein profiling method isoTOP-ABPP\: Weerapana, E., Wang, C., Simon, G.&nbsp;et al.&nbsp;Quantitative reactivity profiling predicts functional cysteines in proteomes.&nbsp;Nature&nbsp;468,&nbsp;790\u2013795 (2010). static modification of +57.02146 on cysteine (iodoacetamide alkylation) is specified as fixed modification, and +464.28596 (light probe) and +470.29977 (heavy probe) were specified on cysteine to account for probe modifications with the either light or heavy variants of the IA-probe-TEV adduct. In addition, Met oxidation and N-terminal Acetyl are specified as variable modifications. 20 ppm precursor tolerance, parameter optimization enabled. Fully tryptic search, up to 2 missed cleavages. Rescoring with MSBooster. Validation with Percolator and ProteinProphet. Relative quantification of peptides with light/heavy probe using IonQuant. \n<p class\="MsoNormal" style\="margin-bottom\: 0in; line-height\: normal"></p>\n<p class\="MsoNormal" style\="margin-bottom\: 0in; line-height\: normal">Note\: If the dataset has multiple MS files (e.g. replicates or LC fractions) they should be annotated as different experiments (e.g. F1, F2, etc. in the Experiment column).</p>
+workflow.description=Workflow for cysteine activity-based protein profiling method isoTOP-ABPP\: Weerapana, E., Wang, C., Simon, G.&nbsp;et al.&nbsp;Quantitative reactivity profiling predicts functional cysteines in proteomes.&nbsp;Nature&nbsp;468,&nbsp;790\u2013795 (2010). static modification of +57.02146 on cysteine (iodoacetamide alkylation) is specified as fixed modification, and +464.28596 (light probe) and +470.29977 (heavy probe) were specified on cysteine to account for probe modifications with the either light or heavy variants of the IA-probe-TEV adduct. In addition, Met oxidation and N-terminal Acetyl are specified as variable modifications. 20 ppm precursor tolerance, parameter optimization enabled. Fully tryptic search, up to 2 missed cleavages. Rescoring with MSBooster. Validation with Percolator and ProteinProphet. Relative quantification of peptides with light/heavy probe using IonQuant. \n<p class\="MsoNormal" style\="margin-bottom\: 0in; line-height\: normal">Note\: If the dataset has multiple MS files (e.g. replicates or LC fractions) they should be annotated as different experiments (e.g. F1, F2, etc. in the Experiment column).</p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
 workflow.misc.save-sdrf=true
 workflow.misc.sdrf-type=Default
-workflow.saved-with-ver=23.0-build14
+workflow.saved-with-ver=23.0-build23
