@@ -217,7 +217,7 @@ protein-prophet.cmd-opts=--maxppmdiff 2000000 --minprob 0.5
 protein-prophet.run-protein-prophet=true
 ptmprophet.cmdline=NOSTACK KEEPOLD STATIC FRAGPPMTOL\=10 EM\=1 NIONS\=b M\:15.9949,K\:114.04293 MINPROB\=0.5
 ptmprophet.override-defaults=false
-ptmprophet.run-ptmprophet=true
+ptmprophet.run-ptmprophet=false
 ptmshepherd.adv_params=false
 ptmshepherd.annotation-common=true
 ptmshepherd.annotation-custom=false

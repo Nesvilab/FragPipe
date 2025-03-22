@@ -175,8 +175,8 @@ msfragger.search_enzyme_nocut_1=
 msfragger.search_enzyme_nocut_2=
 msfragger.search_enzyme_sense_1=C
 msfragger.search_enzyme_sense_2=C
-msfragger.table.fix-mods=0.0,C-Term Peptide,true,-1; 304.20715,N-Term Peptide,true,-1; 0.0,C-Term Protein,true,-1; 0.0,N-Term Protein,true,-1; 0.0,G (glycine),true,-1; 0.0,A (alanine),true,-1; 0.0,S (serine),true,-1; 0.0,P (proline),true,-1; 0.0,V (valine),true,-1; 0.0,T (threonine),true,-1; 57.02146,C (cysteine),true,-1; 0.0,L (leucine),true,-1; 0.0,I (isoleucine),true,-1; 0.0,N (asparagine),true,-1; 0.0,D (aspartic acid),true,-1; 0.0,Q (glutamine),true,-1; 304.20715,K (lysine),false,-1; 0.0,E (glutamic acid),true,-1; 0.0,M (methionine),true,-1; 0.0,H (histidine),true,-1; 0.0,F (phenylalanine),true,-1; 0.0,R (arginine),true,-1; 0.0,Y (tyrosine),true,-1; 0.0,W (tryptophan),true,-1; 0.0,B ,true,-1; 0.0,J,true,-1; 0.0,O,true,-1; 0.0,U,true,-1; 0.0,X,true,-1; 0.0,Z,true,-1
-msfragger.table.var-mods=15.9949,M,true,2; 42.0106,[^,false,1; 79.96633,STY,false,3; -17.0265,nQnC,false,1; -18.0106,nE,false,1; 229.16293,n^,false,1; 114.04293,K,true,2; -115.12,K,false,2; 304.20715,K,true,2; 0.0,site_10,false,1; 0.0,site_11,false,1; 0.0,site_12,false,1; 0.0,site_13,false,1; 0.0,site_14,false,1; 0.0,site_15,false,1; 0.0,site_16,false,1
+msfragger.table.fix-mods=0.0,C-Term Peptide,true,-1; 304.20715,N-Term Peptide,true,-1; 0.0,C-Term Protein,true,-1; 0.0,N-Term Protein,true,-1; 0.0,G (glycine),true,-1; 0.0,A (alanine),true,-1; 0.0,S (serine),true,-1; 0.0,P (proline),true,-1; 0.0,V (valine),true,-1; 0.0,T (threonine),true,-1; 57.02146,C (cysteine),true,-1; 0.0,L (leucine),true,-1; 0.0,I (isoleucine),true,-1; 0.0,N (asparagine),true,-1; 0.0,D (aspartic acid),true,-1; 0.0,Q (glutamine),true,-1; 304.20715,K (lysine),true,-1; 0.0,E (glutamic acid),true,-1; 0.0,M (methionine),true,-1; 0.0,H (histidine),true,-1; 0.0,F (phenylalanine),true,-1; 0.0,R (arginine),true,-1; 0.0,Y (tyrosine),true,-1; 0.0,W (tryptophan),true,-1; 0.0,B ,true,-1; 0.0,J,true,-1; 0.0,O,true,-1; 0.0,U,true,-1; 0.0,X,true,-1; 0.0,Z,true,-1
+msfragger.table.var-mods=15.9949,M,true,2; 42.0106,[^,false,1; 79.96633,STY,false,3; -17.0265,nQnC,false,1; -18.0106,nE,false,1; 229.16293,n^,false,1; 114.04293,K,true,2; -115.12,K,false,2; 304.20715,K,false,2; 0.0,site_10,false,1; 0.0,site_11,false,1; 0.0,site_12,false,1; 0.0,site_13,false,1; 0.0,site_14,false,1; 0.0,site_15,false,1; 0.0,site_16,false,1
 msfragger.track_zero_topN=0
 msfragger.use_all_mods_in_first_search=true
 msfragger.use_detailed_offsets=false
@@ -217,7 +217,7 @@ protein-prophet.cmd-opts=--maxppmdiff 2000000 --minprob 0.5
 protein-prophet.run-protein-prophet=true
 ptmprophet.cmdline=NOSTACK KEEPOLD STATIC FRAGPPMTOL\=10 EM\=1 NIONS\=b M\:15.9949,K\:114.04293,K\:304.20715 MINPROB\=0.5 NOSTACK
 ptmprophet.override-defaults=false
-ptmprophet.run-ptmprophet=true
+ptmprophet.run-ptmprophet=false
 ptmshepherd.adv_params=false
 ptmshepherd.annotation-common=true
 ptmshepherd.annotation-custom=false
@@ -353,7 +353,7 @@ tmtintegrator.top3_pep=true
 tmtintegrator.unique_gene=0
 tmtintegrator.unique_pep=false
 tmtintegrator.use_glycan_composition=false
-workflow.description=<p style\="margin-top\: 0">TMT 16-plex workflow for ubiquitination enriched data, with quantification from MS2. This workflow assumes that the ubiquitinated lysine is also labeled with TMT (for a combined modification mass of +418). TMT is specified as fixed mod on K and n-term. Oxidation and Ubiq (+114 on K) are specified as variable modifications. Up to 3 missed cleavages and 4 variable modifications in total. PSM validation with Percolator, and protein inference with ProteinProphet. Site localization with PTMProphet. Data is filtered at 1% FDR at the PSM, ion, peptide, and protein levels. TMT-Integrator with virtual reference approach, median-centering normalization, data summarization at the gene/protein/peptide/site levels. If a reference/bridge sample is available, specify the corresponding channel/sample name tag in the annotation file(s) and in TMT-Integrator tab.</p>
+workflow.description=<p style\="margin-top\: 0">TMT 16-plex workflow for ubiquitination enriched data, with quantification from MS2. This workflow assumes that the ubiquitinated lysine is also labeled with TMT-16 (for a combined modification mass of +418). TMT-16 is specified as fixed mod on K and n-term. Oxidation and Ubiq (+114 on K) are specified as variable modifications. Up to 3 missed cleavages and 4 variable modifications in total. PSM validation with Percolator, and protein inference with ProteinProphet. Site localization with PTMProphet. Data is filtered at 1% FDR at the PSM, ion, peptide, and protein levels. TMT-Integrator with virtual reference approach, median-centering normalization, data summarization at the gene/protein/peptide/site levels. If a reference/bridge sample is available, specify the corresponding channel/sample name tag in the annotation file(s) and in TMT-Integrator tab.</p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
 workflow.misc.save-sdrf=true
