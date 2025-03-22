@@ -95,6 +95,7 @@ public class DiannPanel extends JPanelBase {
   protected void initMore() {
     super.initMore();
     SwingUtils.setEnablementUpdater(this, pContent, checkRun);
+    SwingUtils.setEnablementUpdater(this, panelSiteReport, checkRun);
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
@@ -175,7 +176,6 @@ public class DiannPanel extends JPanelBase {
 
     mu.add(p, p2).growX().wrap();
     mu.add(p, panelBasic2).growX().wrap();
-    mu.add(p, panelSiteReport).growX().wrap();
 
     return p;
   }
@@ -328,7 +328,7 @@ public class DiannPanel extends JPanelBase {
   private JPanel createPanelSiteReport() {
     panelSiteReport = mu.newPanel(mu.lcFillX());
     mu.border(panelSiteReport, 1);
-    mu.border(panelSiteReport, "PTMs");
+    mu.border(panelSiteReport, "PTM Site Report (optional)");
 
     uiTextModTag = UiUtils.uiTextBuilder().cols(40).create();
     FormEntry feModTag = new FormEntry("mod-tag", "Mod tag", uiTextModTag, "<html>Modification tag for generating modification-specific reports <br/>\n"
@@ -357,6 +357,7 @@ public class DiannPanel extends JPanelBase {
 
     this.add(pTop, BorderLayout.NORTH);
     this.add(pContent, BorderLayout.CENTER);
+    this.add(panelSiteReport, BorderLayout.SOUTH);
   }
 
   @Override
