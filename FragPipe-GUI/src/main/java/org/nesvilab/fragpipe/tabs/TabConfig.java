@@ -21,6 +21,8 @@ import static org.nesvilab.fragpipe.Fragpipe.fe;
 import static org.nesvilab.fragpipe.Fragpipe.headless;
 import static org.nesvilab.fragpipe.Version.version;
 import static org.nesvilab.fragpipe.messages.MessagePrintToConsole.toConsole;
+import static org.nesvilab.utils.OsUtils.isUnix;
+import static org.nesvilab.utils.OsUtils.isWindows;
 
 import org.nesvilab.fragpipe.Fragpipe;
 import org.nesvilab.fragpipe.FragpipeLocations;
@@ -841,15 +843,8 @@ public class TabConfig extends JPanelWithEnablement {
   public void on(MessagePythonNewBin m) {
     PyInfo pi;
     try {
-      if (true) {
-        List<Path> pyPaths;
-        if (OsUtils.isWindows()) {
-          pyPaths = FragpipeLocations.checkToolsMissing(Seq.of(PyInfo.pythonWinPath));
-        } else if (OsUtils.isUnix()) {
-          pyPaths = FragpipeLocations.checkToolsMissing(Seq.of(PyInfo.pythonLinuxPath));
-        } else {
-          throw new RuntimeException("FragPipe only works in Windows and Linux. FragPipe not supported in this OS");
-        }
+      if (OsUtils.isWindows()) {
+        List<Path> pyPaths = FragpipeLocations.checkToolsMissing(Seq.of(PyInfo.pythonWinPath));
         final var command = pyPaths.get(0).toString();
         m = new MessagePythonNewBin(command);
       }
@@ -942,7 +937,7 @@ public class TabConfig extends JPanelWithEnablement {
 
     try {
       if (m.instance.isEasypqpOk()) {
-        final ProcessBuilder pb = new ProcessBuilder(m.instance.getPython().getCommand(), "-Ic",
+        final ProcessBuilder pb = new ProcessBuilder(m.instance.getPython().getCommand(), (isWindows() ? "-Ic" : "-c"),
                 "import importlib.metadata\n" +
                         "try:\n" +
                         "    print(importlib.metadata.version('easypqp'))\n" +
@@ -957,7 +952,7 @@ public class TabConfig extends JPanelWithEnablement {
 
     try {
       if (m.instance.isEasypqpOk()) {
-        final ProcessBuilder pb = new ProcessBuilder(m.instance.getPython().getCommand(), "-Ic",
+        final ProcessBuilder pb = new ProcessBuilder(m.instance.getPython().getCommand(), (isWindows() ? "-Ic" : "-c"),
             "import importlib.metadata\n" +
                 "try:\n" +
                 "    print(importlib.metadata.version('pandas'))\n" +
@@ -972,7 +967,7 @@ public class TabConfig extends JPanelWithEnablement {
 
     try {
       if (m.instance.isEasypqpOk()) {
-        final ProcessBuilder pb = new ProcessBuilder(m.instance.getPython().getCommand(), "-Ic",
+        final ProcessBuilder pb = new ProcessBuilder(m.instance.getPython().getCommand(), (isWindows() ? "-Ic" : "-c"),
             "import importlib.metadata\n" +
                 "try:\n" +
                 "    print(importlib.metadata.version('numpy'))\n" +
@@ -1130,21 +1125,32 @@ public class TabConfig extends JPanelWithEnablement {
     c.setContentType("text/plain; charset=UTF-8");
 
     if (StringUtils.isNotBlank(binPython)) {
-      final Path pythonPackagesPath0;
-      if (OsUtils.isWindows()) {
-        pythonPackagesPath0 = Path.of(PyInfo.pythonWinPath).subpath(0, 1).resolve("python_packages");
-      } else if (OsUtils.isUnix()) {
-        pythonPackagesPath0 = Path.of(PyInfo.pythonLinuxPath).subpath(0, 1).resolve("python_packages");
+      final ProcessBuilder pb2;
+      if (isWindows()) {
+        final Path pythonPackagesPath0 = Path.of(PyInfo.pythonWinPath).subpath(0, 1).resolve("python_packages");
+        final Path pythonPackagesPath = FragpipeLocations.checkToolsMissing(Seq.of(pythonPackagesPath0.toString())).get(0);
+        pb2 = new ProcessBuilder(pythonPackagesPath.resolve("uv").toString(),
+                "pip", "install", "--system", "--no-cache", "--no-deps", "-r", pythonPackagesPath.resolve("requirements.txt").toString(),
+                "--no-index", "--find-links", pythonPackagesPath.toString());
+        final var path_env_key = OsUtils.isWindows() ? "Path" : "PATH";
+        pb2.environment().put(path_env_key, Path.of(binPython).getParent() + java.io.File.pathSeparator + pb2.environment().get(path_env_key));
+      } else if (isUnix()) {
+        try {
+          new ProcessBuilder(binPython, "-m", "pip", "uninstall", "--yes", "easypqp");
+        } catch (Exception ex) {
+          pythonPipOutputNew += ex.toString();
+          ok = false;
+        }
+        try {
+          new ProcessBuilder(binPython, "-m", "pip", "uninstall", "--yes", "pyopenms");
+        } catch (Exception ex) {
+          pythonPipOutputNew += ex.toString();
+          ok = false;
+        }
+        pb2 = new ProcessBuilder(binPython, "-m", "pip", "install", "easypqp", "lxml");
       } else {
         throw new RuntimeException("FragPipe only works in Windows and Linux. FragPipe not supported in this OS");
       }
-      final Path pythonPackagesPath = FragpipeLocations.checkToolsMissing(Seq.of(pythonPackagesPath0.toString())).get(0);
-
-      final var pb2 = new ProcessBuilder(pythonPackagesPath.getParent().resolve("uv").toString(),
-              "pip", "install", "--system", "--no-cache", "--no-deps", "-r", pythonPackagesPath.resolve("requirements.txt").toString(),
-              "--no-index", "--find-links", pythonPackagesPath.toString());
-      final var path_env_key = OsUtils.isWindows() ? "Path" : "PATH";
-      pb2.environment().put(path_env_key, Path.of(binPython).getParent() + java.io.File.pathSeparator + pb2.environment().get(path_env_key));
 
       PyInfo.modifyEnvironmentVariablesForPythonSubprocesses(pb2); // without this, on Windows, will fail with an error related to TLS/SSL
       try {

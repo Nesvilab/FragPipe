@@ -190,7 +190,7 @@ def get_bin_path_pip_CLI(dist: str, bin_stem: str) -> pathlib.Path:
 	:return: None if not found, binary path if found.
 	'''
 	import subprocess, sys, re, pathlib, io
-	stdout = subprocess.run([sys.executable, '-Im', 'pip', 'show', '--files', dist], capture_output=True,
+	stdout = subprocess.run([sys.executable, '-Im' if sys.platform == 'win32' else '-m', 'pip', 'show', '--files', dist], capture_output=True,
 							check=True).stdout
 	stdout = io.TextIOWrapper(io.BytesIO(stdout), newline=None).read()
 	location = pathlib.Path(re.compile('^Location: (.+)$', re.MULTILINE).search(stdout).group(1))

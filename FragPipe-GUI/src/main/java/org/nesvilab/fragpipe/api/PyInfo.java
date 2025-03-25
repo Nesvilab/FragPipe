@@ -25,6 +25,9 @@ import org.nesvilab.utils.ProcessUtils;
 import org.nesvilab.utils.PythonModule;
 import org.nesvilab.utils.RegQuery;
 import org.nesvilab.utils.StringUtils;
+
+import static org.nesvilab.utils.OsUtils.isWindows;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -63,8 +66,7 @@ public class PyInfo {
         .toString();
   }
 
-  public static final String pythonWinPath = "python_Windows/python/python.exe";
-  public static final String pythonLinuxPath = "python_Linux/python/bin/python";
+  public static final String pythonWinPath = "../python/python.exe";
 
   private PyInfo() {
   }
@@ -279,7 +281,7 @@ public class PyInfo {
   }
 
   public String validateCalFile(final Path path) {
-    ProcessBuilder pb = new ProcessBuilder(command, "-Ic", "import pandas as pd; import sys\n" +
+    ProcessBuilder pb = new ProcessBuilder(command, (isWindows() ? "-Ic" : "-c"), "import pandas as pd; import sys\n" +
         "rt_referencefile = sys.argv[1]\n" +
         "rt_reference_run = pd.read_csv(rt_referencefile, index_col=False, sep='\\t')\n" +
         "if not {'modified_peptide', 'precursor_charge', 'irt'}.issubset(rt_reference_run.columns):\n" +
@@ -303,7 +305,7 @@ public class PyInfo {
   }
 
   public String validateIMCalFile(final Path path) {
-    ProcessBuilder pb = new ProcessBuilder(command, "-Ic", "import pandas as pd; import sys\n" +
+    ProcessBuilder pb = new ProcessBuilder(command, (isWindows() ? "-Ic" : "-c"), "import pandas as pd; import sys\n" +
         "rt_referencefile = sys.argv[1]\n" +
         "rt_reference_run = pd.read_csv(rt_referencefile, index_col=False, sep='\\t')\n" +
         "if not {'modified_peptide', 'precursor_charge', 'im'}.issubset(rt_reference_run.columns):\n" +
@@ -343,7 +345,7 @@ public class PyInfo {
 
     Installed installed = Installed.UNKNOWN;
     ProcessBuilder pb = new ProcessBuilder(command,
-        "-Ic", String.format(
+        (isWindows() ? "-Ic" : "-c"), String.format(
         "try:\n" +
             "    import %s\n" +
             "except ModuleNotFoundError:\n" +

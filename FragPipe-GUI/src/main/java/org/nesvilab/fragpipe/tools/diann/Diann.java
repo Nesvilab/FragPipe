@@ -53,7 +53,7 @@ public class Diann {
 
   private static final String[] DIANN_SO_DEPS = {"diann_so/libm.so.6", "diann_so/libstdc++.so.6"};
   private static final String[] DIANN_SO_DEPS_libgomp = {"diann_so/libgomp.so.1.0.0"};
-  public static final String DIANN_WIN = "diann/1.8.2_beta_8/win/DiaNN.exe";
+  public static final String DIANN_WIN = "diann/1.8.2_beta_8/windows/DiaNN.exe";
   public static final String DIANN_LINUX = "diann/1.8.2_beta_8/linux/diann-1.8.1.8";
   public static final String fallBackDiannVersion = "1.8.2 Beta 8";
   public static String LD_PRELOAD_str;
