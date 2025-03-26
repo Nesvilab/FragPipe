@@ -1419,11 +1419,11 @@ public class TabMsfragger extends JPanelBase {
 
     UiCombo uiComboDeisotope = UiUtils.createUiCombo(DEISOTOPE);
     FormEntry feDeisotope = mu.feb(MsfraggerParams.PROP_deisotope, uiComboDeisotope)
-        .label("Deisotope").create();
+        .label("Deisotope").tooltip("Deisotope the MS/MS spectrum before matching. Won't affect the MS spectrum.").create();
 
     UiCombo uiComboDeneutralloss = UiUtils.createUiCombo(new String[]{"Yes", "No"});
     FormEntry feComboDeneutralloss = mu.feb(MsfraggerParams.PROP_deneutralloss, uiComboDeneutralloss)
-        .label("Deneutralloss").create();
+        .label("Deneutralloss").tooltip("Deneutralloss the MS/MS spectrum before matching. Won't affect the MS spectrum.").create();
 
     UiSpinnerInt uiSpinnerMaxFragCharge = new UiSpinnerInt(2, 1, 20, 1, 2);
     FormEntry feMaxFragCharge = mu.feb(MsfraggerParams.PROP_max_fragment_charge, uiSpinnerMaxFragCharge)
