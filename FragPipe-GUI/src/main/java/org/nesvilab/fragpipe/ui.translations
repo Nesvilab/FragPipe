@@ -98,6 +98,7 @@ tmtintegrator.channel_num :: DiLeu-1 <=> 1
 tmtintegrator.channel_num :: DeAla-13 <=> 13
 tmtintegrator.channel_num :: develop <=> 32
 tmtintegrator.channel_num :: develop2 <=> 29
+tmtintegrator.channel_num :: trp-2 <=> 2
 tmtintegrator.groupby :: Gene level <=> 0
 tmtintegrator.groupby :: Protein <=> 1
 tmtintegrator.groupby :: Peptide sequence <=> 2
