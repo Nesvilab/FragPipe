@@ -97,33 +97,33 @@ distributions {
 //}
 
 dependencies {
-    implementation 'com.github.albfernandez:juniversalchardet:2.4.0'
-    implementation 'com.google.code.gson:gson:2.10.1'
-    implementation 'one.util:streamex:0.8.2'
+    implementation 'com.github.albfernandez:juniversalchardet:2.5.0'
     implementation files("../tools/batmass-io-1.34.6.jar")
+    implementation 'com.google.code.gson:gson:2.12.1'
+    implementation 'one.util:streamex:0.8.3'
     implementation 'org.jooq:jool-java-8:0.9.15'
-    implementation 'org.apache.maven:maven-artifact:3.9.6'
+    implementation 'org.apache.maven:maven-artifact:3.9.9'
     implementation 'org.jgrapht:jgrapht-core:1.5.2'
     implementation 'com.github.vlsi.mxgraph:jgraphx:4.2.2'
 
-    implementation group: 'org.apache.commons', name: 'commons-compress', version: '1.26.1'
+    implementation group: 'org.apache.commons', name: 'commons-compress', version: '1.27.1'
 
-    implementation 'org.apache.commons:commons-lang3:3.14.0'
-    implementation 'com.miglayout:miglayout-swing:11.3'
-    implementation 'org.apache.commons:commons-text:1.11.0'
+    implementation 'org.apache.commons:commons-lang3:3.17.0'
+    implementation 'com.miglayout:miglayout-swing:11.4.2'
+    implementation 'org.apache.commons:commons-text:1.13.0'
 
-    implementation 'io.reactivex.rxjava3:rxjava:3.1.9'
+    implementation 'io.reactivex.rxjava3:rxjava:3.1.10'
 
     implementation 'org.greenrobot:eventbus-java:3.3.1'
-    implementation 'org.jsoup:jsoup:1.17.1'
-    implementation 'com.squareup.okio:okio:3.6.0'
-    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    implementation 'org.jsoup:jsoup:1.19.1'
+    implementation 'com.squareup.okio:okio:3.10.2'
+        implementation 'com.squareup.okhttp3:okhttp:4.12.0'
 
     implementation 'net.java.balloontip:balloontip:1.2.4.1'
-    implementation group: 'org.netbeans.api', name: 'org-netbeans-swing-outline', version: 'RELEASE200'
-    implementation 'commons-io:commons-io:2.15.1'
+    implementation group: 'org.netbeans.api', name: 'org-netbeans-swing-outline', version: 'RELEASE250'
+    implementation 'commons-io:commons-io:2.18.0'
 
-    implementation 'org.apache.parquet:parquet-hadoop:1.15.0'
+    implementation 'org.apache.parquet:parquet-hadoop:1.15.1'
     implementation 'org.apache.hadoop:hadoop-common:3.4.1'
     implementation 'org.apache.hadoop:hadoop-mapreduce-client-core:3.4.1'
 
