@@ -17,6 +17,9 @@
 
 package org.nesvilab.fragpipe.cmd;
 
+import static org.apache.commons.lang3.StringUtils.getCommonPrefix;
+import static org.nesvilab.utils.PathUtils.testBinaryPath;
+
 import java.awt.Component;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -37,7 +40,6 @@ import java.util.Objects;
 import java.util.Set;
 import javax.swing.JOptionPane;
 import org.apache.commons.io.FilenameUtils;
-import static org.apache.commons.lang3.StringUtils.getCommonPrefix;
 import org.jooq.lambda.Seq;
 import org.nesvilab.fragpipe.Fragpipe;
 import org.nesvilab.fragpipe.FragpipeLocations;
@@ -50,7 +52,6 @@ import org.nesvilab.utils.FileDelete;
 import org.nesvilab.utils.FileMove;
 import org.nesvilab.utils.FileMoveWithExtension;
 import org.nesvilab.utils.JarUtils;
-import static org.nesvilab.utils.PathUtils.testBinaryPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +59,7 @@ public class ToolingUtils {
   private static final Logger log = LoggerFactory.getLogger(ToolingUtils.class);
   private ToolingUtils() {}
 
-  public static final String BATMASS_IO_JAR = "batmass-io-1.34.4.jar";
+  public static final String BATMASS_IO_JAR = "batmass-io-1.34.6.jar";
   public static final String JFREECHART_JAR = "jfreechart-1.5.3.jar";
   public static final String UNIMOD_OBO = "unimod.obo";
 

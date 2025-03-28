@@ -98,9 +98,9 @@ distributions {
 
 dependencies {
     implementation 'com.github.albfernandez:juniversalchardet:2.4.0'
-    implementation files("../tools/batmass-io-1.34.4.jar")
     implementation 'com.google.code.gson:gson:2.10.1'
     implementation 'one.util:streamex:0.8.2'
+    implementation files("../tools/batmass-io-1.34.6.jar")
     implementation 'org.jooq:jool-java-8:0.9.15'
     implementation 'org.apache.maven:maven-artifact:3.9.6'
     implementation 'org.jgrapht:jgrapht-core:1.5.2'
