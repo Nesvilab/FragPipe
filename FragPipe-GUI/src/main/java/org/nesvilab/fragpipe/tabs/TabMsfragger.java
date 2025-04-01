@@ -618,11 +618,11 @@ public class TabMsfragger extends JPanelBase {
     uiComboPrecursorTolUnits = UiUtils.createUiCombo(units);
     FormEntry fePrecTolUnits = mu.feb(MsfraggerParams.PROP_precursor_mass_units, uiComboPrecursorTolUnits).label("Precursor mass tolerance").create();
     uiSpinnerPrecTolLo = new UiSpinnerDouble(-20, -10000, 10000, 1,
-        new DecimalFormat("0.#"));
+        new DecimalFormat("0.###"));
     uiSpinnerPrecTolLo.setColumns(4);
     FormEntry fePrecTolLo = mu.feb(MsfraggerParams.PROP_precursor_mass_lower, uiSpinnerPrecTolLo).create();
     uiSpinnerPrecTolHi = new UiSpinnerDouble(+20, -10000, 10000, 1,
-        new DecimalFormat("0.#"));
+        new DecimalFormat("0.###"));
     uiSpinnerPrecTolHi.setColumns(4);
     FormEntry fePrecTolHi = mu.feb(MsfraggerParams.PROP_precursor_mass_upper, uiSpinnerPrecTolHi).create();
 
@@ -1397,7 +1397,7 @@ public class TabMsfragger extends JPanelBase {
     FormEntry feTrueTolUnits = mu.feb(MsfraggerParams.PROP_precursor_true_units, UiUtils.createUiCombo(
         MassTolUnits.values())).label("Precursor true tolerance").create();
     UiSpinnerDouble uiSpinnerTrueTol = new UiSpinnerDouble(10, 0, 100000, 5,
-        new DecimalFormat("0.#"));
+        new DecimalFormat("0.###"));
     uiSpinnerTrueTol.setColumns(4);
     FormEntry feTrueTol = mu.feb(MsfraggerParams.PROP_precursor_true_tolerance, uiSpinnerTrueTol)
         .tooltip("True precursor mass tolerance should be set to your instrument's\n"
