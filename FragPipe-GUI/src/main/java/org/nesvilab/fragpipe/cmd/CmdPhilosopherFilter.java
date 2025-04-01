@@ -52,7 +52,8 @@ public class CmdPhilosopherFilter extends CmdBase {
 
   public boolean configure(Component comp, int ramGb, int threads, UsageTrigger usePhilosopher,
                            String decoyTag, String textReportFilter, boolean dontUseFilterProtxml,
-                           Map<LcmsFileGroup, Path> mapGroupsToProtxml, InputLcmsFile firstInputLcmsFile) {
+                           Map<LcmsFileGroup, Path> mapGroupsToProtxml, InputLcmsFile firstInputLcmsFile,
+                           boolean isRunIonQuant) {
 
     initPreConfig();
 
@@ -82,10 +83,16 @@ public class CmdPhilosopherFilter extends CmdBase {
       if (!StringUtils.isNullOrWhitespace(textReportFilter)) {
         // Always use --razor, so it is always appended later. Remove it here to avoid duplicated flags.
         textReportFilter = textReportFilter.replaceAll("--razor", "");
+        if (isRunIonQuant) {
+          textReportFilter = textReportFilter.replaceAll("--prot\\s+[^\\s]+", "--prot 0.01");
+          if (!textReportFilter.contains("--prot")) {
+            textReportFilter = textReportFilter + " --prot 0.01";
+          }
+        }
         if (dontUseFilterProtxml) {
           // add everything except --sequential --razor --prot 0.01`
           textReportFilter = textReportFilter.replaceAll("--sequential", "");
-          textReportFilter = textReportFilter.replaceAll("--prot\\s+\\d+(?:\\.\\d+)?", "");
+          textReportFilter = textReportFilter.replaceAll("--prot\\s+[^\\s]+", "");
         }
         cmd.addAll(StringUtils.splitCommandLine(textReportFilter));
       }

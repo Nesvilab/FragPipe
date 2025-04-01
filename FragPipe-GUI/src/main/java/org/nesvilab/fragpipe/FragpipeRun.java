@@ -1694,7 +1694,8 @@ public class FragpipeRun {
 
         return cmdPhilosopherFilter.configure(parent, ramGb, threads, usePhi,
             decoyTag, reportPanel.getFilterCmdText(), dontUseProtxmlInFilter,
-            sharedMapGroupsToProtxml, sharedPepxmlFiles.firstKey());
+            sharedMapGroupsToProtxml, sharedPepxmlFiles.firstKey(),
+            quantPanelLabelfree.isRunIonQuant());
       }
       return true;
     });
