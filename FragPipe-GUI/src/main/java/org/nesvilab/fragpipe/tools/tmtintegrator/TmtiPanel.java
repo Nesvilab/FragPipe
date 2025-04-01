@@ -21,30 +21,6 @@ import static org.nesvilab.fragpipe.tools.tmtintegrator.QuantLabel.labelModMap;
 import static org.nesvilab.fragpipe.tools.tmtintegrator.QuantLabelAnnotation.disallowedPattern;
 import static org.nesvilab.fragpipe.tools.tmtintegrator.QuantLabelAnnotation.unifyAnnotationSampleName;
 
-import org.nesvilab.fragpipe.api.Bus;
-import org.nesvilab.fragpipe.api.InputLcmsFile;
-import org.nesvilab.fragpipe.api.LcmsFileGroup;
-import org.nesvilab.fragpipe.dialogs.QuantLabelAnnotationDialog;
-import org.nesvilab.fragpipe.messages.MessageLcmsFilesList;
-import org.nesvilab.fragpipe.messages.MessageType;
-import org.nesvilab.fragpipe.messages.NoteConfigTmtI;
-import org.nesvilab.fragpipe.params.ThisAppProps;
-import org.nesvilab.fragpipe.tools.tmtintegrator.TmtAnnotationTable.ExpNameToAnnotationFile;
-import org.nesvilab.utils.StringUtils;
-import org.nesvilab.utils.SwingUtils;
-import org.nesvilab.utils.swing.FileChooserUtils;
-import org.nesvilab.utils.swing.FormEntry;
-import org.nesvilab.utils.swing.JPanelBase;
-import org.nesvilab.utils.swing.MigUtils;
-import org.nesvilab.utils.swing.UiCheck;
-import org.nesvilab.utils.swing.UiCombo;
-import org.nesvilab.utils.swing.UiRadio;
-import org.nesvilab.utils.swing.UiSpinnerDouble;
-import org.nesvilab.utils.swing.UiSpinnerInt;
-import org.nesvilab.utils.swing.UiText;
-import org.nesvilab.utils.swing.UiUtils;
-import org.nesvilab.utils.swing.renderers.ButtonColumn;
-import com.google.common.base.Joiner;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -76,6 +52,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -88,14 +65,41 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import net.miginfocom.layout.LC;
-import net.miginfocom.swing.MigLayout;
+
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.jooq.lambda.Seq;
 import org.mozilla.universalchardet.UniversalDetector;
+import org.nesvilab.fragpipe.api.Bus;
+import org.nesvilab.fragpipe.api.InputLcmsFile;
+import org.nesvilab.fragpipe.api.LcmsFileGroup;
+import org.nesvilab.fragpipe.dialogs.QuantLabelAnnotationDialog;
+import org.nesvilab.fragpipe.messages.MessageLcmsFilesList;
+import org.nesvilab.fragpipe.messages.MessageType;
+import org.nesvilab.fragpipe.messages.NoteConfigTmtI;
+import org.nesvilab.fragpipe.params.ThisAppProps;
+import org.nesvilab.fragpipe.tools.tmtintegrator.TmtAnnotationTable.ExpNameToAnnotationFile;
+import org.nesvilab.utils.StringUtils;
+import org.nesvilab.utils.SwingUtils;
+import org.nesvilab.utils.swing.FileChooserUtils;
+import org.nesvilab.utils.swing.FormEntry;
+import org.nesvilab.utils.swing.JPanelBase;
+import org.nesvilab.utils.swing.MigUtils;
+import org.nesvilab.utils.swing.UiCheck;
+import org.nesvilab.utils.swing.UiCombo;
+import org.nesvilab.utils.swing.UiRadio;
+import org.nesvilab.utils.swing.UiSpinnerDouble;
+import org.nesvilab.utils.swing.UiSpinnerInt;
+import org.nesvilab.utils.swing.UiText;
+import org.nesvilab.utils.swing.UiUtils;
+import org.nesvilab.utils.swing.renderers.ButtonColumn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Joiner;
+
+import net.miginfocom.layout.LC;
+import net.miginfocom.swing.MigLayout;
 
 public class TmtiPanel extends JPanelBase {
   private static final Logger log = LoggerFactory.getLogger(TmtiPanel.class);
@@ -359,6 +363,9 @@ public class TmtiPanel extends JPanelBase {
             + "2: GN (median centering variance scaling) <br/>\n"
             + "-1: generate reports with all normalization options)");
 
+    UiCheck uiCheckLog2Transformed = UiCheck.of("Log2 transform the intensity", true);
+    FormEntry feLog2Transformed = fe(TmtiConfProps.PROP_log2transformed, "", uiCheckLog2Transformed, "<html>Transform the intensity using log2");
+
     uiCheckMsstats = new UiCheck("Generate MSstats files (using Philosopher)", null, false);
     FormEntry feCheckMSstats = new FormEntry("philosopher-msstats", "", uiCheckMsstats, "<html>Option to generate an MSstats-compatible report with Philosopher.<br>Require selecting <b>Philosopher</b> as the \"intensity extraction tool\".");
 
@@ -393,8 +400,8 @@ public class TmtiPanel extends JPanelBase {
     addRowLabelComp(p, feRefDTag);
     addRowLabelComp(p, feGroupBy);
     addRowLabelComp(p, feProtNorm);
+    addRowLabelComp(p, feLog2Transformed);
     addRowLabelComp(p, feCheckMSstats);
-//    addRowLabelComp(p, feAbnType);
 
     return p;
   }
@@ -537,9 +544,6 @@ public class TmtiPanel extends JPanelBase {
         "not-shown", uiCheckPrintRef,
         "<html>Print individual reference sample intensities");
 
-    UiCheck uiCheckLog2Transformed = UiCheck.of("Log2 transform the intensity", true);
-    FormEntry feLog2Transformed = fe(TmtiConfProps.PROP_log2transformed, "not-shown", uiCheckLog2Transformed, "<html>Transform the intensity using log2");
-
     UiSpinnerDouble uiSpinnerMinBestPepProb = UiSpinnerDouble
         .builder(0, 0, 1.0, 0.1).setFormat(df2).setCols(5).create();
     FormEntry feMaxPepProb = mu
@@ -587,8 +591,7 @@ public class TmtiPanel extends JPanelBase {
     mu.add(p2, labelUse).split(3);
     mu.add(p2, uiRadioMs1);
     mu.add(p2, uiRadioMs2).wrap();
-    mu.add(p2, fePrintRefInt.comp);
-    mu.add(p2, feLog2Transformed.comp).spanX().wrap();
+    mu.add(p2, fePrintRefInt.comp).spanX().wrap();
 
     return new JPanel[]{p, p2};
   }
