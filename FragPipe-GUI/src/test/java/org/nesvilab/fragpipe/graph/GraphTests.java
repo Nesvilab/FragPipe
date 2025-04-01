@@ -15,9 +15,8 @@
  * along with FragPipe. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package test.org.nesvilab.fragpipe.graph;
+package org.nesvilab.fragpipe.graph;
 
-import org.nesvilab.utils.IOUtils;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedAcyclicGraph;
@@ -34,6 +34,7 @@ import org.jgrapht.traverse.TopologicalOrderIterator;
 import org.jooq.lambda.Seq;
 import org.jooq.lambda.tuple.Tuple2;
 import org.junit.Test;
+import org.nesvilab.utils.IOUtils;
 
 public class GraphTests {
 

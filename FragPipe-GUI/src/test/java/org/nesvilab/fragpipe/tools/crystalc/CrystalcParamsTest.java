@@ -15,9 +15,8 @@
  * along with FragPipe. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package test.org.nesvilab.fragpipe.tools.crystalc;
+package org.nesvilab.fragpipe.tools.crystalc;
 
-import org.nesvilab.fragpipe.tools.crystalc.CrystalcParams;
 import org.junit.Test;
 
 public class CrystalcParamsTest {

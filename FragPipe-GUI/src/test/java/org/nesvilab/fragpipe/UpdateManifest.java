@@ -15,7 +15,7 @@
  * along with FragPipe. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package test.org.nesvilab.fragpipe;
+package org.nesvilab.fragpipe;
 
 import org.nesvilab.utils.FileListing;
 import org.nesvilab.utils.PathUtils;

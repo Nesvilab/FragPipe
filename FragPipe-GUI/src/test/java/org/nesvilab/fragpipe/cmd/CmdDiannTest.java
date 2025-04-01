@@ -15,7 +15,7 @@
  * along with FragPipe. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package test.org.nesvilab.fragpipe.cmd;
+package org.nesvilab.fragpipe.cmd;
 
 import static org.junit.Assert.assertEquals;
 
@@ -23,7 +23,6 @@ import java.lang.reflect.Method;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
-import org.nesvilab.fragpipe.cmd.CmdDiann;
 import org.junit.Test;
 
 public class CmdDiannTest {

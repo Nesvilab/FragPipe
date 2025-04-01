@@ -15,13 +15,11 @@
  * along with FragPipe. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package test.org.nesvilab.fragpipe.tools.fragger;
+package org.nesvilab.fragpipe.tools.fragger;
 
 import static org.junit.Assert.assertFalse;
 
 import java.util.List;
-import org.nesvilab.fragpipe.tools.fragger.EnzymeProvider;
-import org.nesvilab.fragpipe.tools.fragger.MsfraggerEnzyme;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
