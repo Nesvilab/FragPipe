@@ -23,7 +23,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 public class FileMoveWithExtension {
@@ -44,14 +43,9 @@ public class FileMoveWithExtension {
             }
         });
 
-        if (pp.size() == 1) {
-            Files.move(pp.get(0), dest, StandardCopyOption.REPLACE_EXISTING);
-        } else if (pp.size() > 1) {
-            System.err.println("Multiple files found in " + originDir + " with extension " + ext + ": " + pp.stream().map(Path::toAbsolutePath).map(Path::toString).collect(Collectors.joining(", ")));
-            System.exit(1);
-        } else {
-            System.err.println("No files found in " + originDir + " with extension " + ext);
-            System.exit(1);
+        for (Path p : pp) {
+            System.out.println("Moving " + p.toAbsolutePath().toString() + " to " + dest.toAbsolutePath().toString());
+            Files.move(p, dest, StandardCopyOption.REPLACE_EXISTING);
         }
     }
 }

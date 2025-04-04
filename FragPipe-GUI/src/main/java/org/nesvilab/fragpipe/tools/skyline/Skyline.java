@@ -21,19 +21,6 @@ import static org.nesvilab.fragpipe.tabs.TabMsfragger.ENZYMES;
 import static org.nesvilab.fragpipe.tabs.TabWorkflow.workflowExt;
 import static org.nesvilab.utils.OsUtils.isWindows;
 
-import org.nesvilab.fragpipe.FragpipeLocations;
-import org.nesvilab.fragpipe.api.Bus;
-import org.nesvilab.fragpipe.api.PropsFile;
-import org.nesvilab.fragpipe.cmd.PbiBuilder;
-import org.nesvilab.fragpipe.cmd.ProcessBuilderInfo;
-import org.nesvilab.fragpipe.exceptions.UnexpectedException;
-import org.nesvilab.fragpipe.exceptions.ValidationException;
-import org.nesvilab.fragpipe.process.ProcessResult;
-import org.nesvilab.fragpipe.tabs.TabSkyline;
-import org.nesvilab.fragpipe.tools.fragger.MsfraggerEnzyme;
-import org.nesvilab.utils.PathUtils;
-import org.nesvilab.utils.ProcessUtils;
-import org.nesvilab.utils.StringUtils;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -42,7 +29,13 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -51,6 +44,17 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.jooq.lambda.Seq;
+import org.nesvilab.fragpipe.FragpipeLocations;
+import org.nesvilab.fragpipe.api.PropsFile;
+import org.nesvilab.fragpipe.cmd.PbiBuilder;
+import org.nesvilab.fragpipe.cmd.ProcessBuilderInfo;
+import org.nesvilab.fragpipe.exceptions.UnexpectedException;
+import org.nesvilab.fragpipe.exceptions.ValidationException;
+import org.nesvilab.fragpipe.process.ProcessResult;
+import org.nesvilab.fragpipe.tools.fragger.MsfraggerEnzyme;
+import org.nesvilab.utils.PathUtils;
+import org.nesvilab.utils.ProcessUtils;
+import org.nesvilab.utils.StringUtils;
 
 public class Skyline {
 
@@ -144,11 +148,19 @@ public class Skyline {
 
       List<Path> speclibFiles;
       try (Stream<Path> paths = Files.walk(wd.resolve("dia-quant-output"))) {
+        speclibFiles = paths.filter(p -> p.getFileName().toString().endsWith(".skyline.speclib")).collect(Collectors.toList());
+      } catch (IOException ex) {
+        // dia-quant-output directory does not always exist (e.g., for DDA data). Avoid crashing if it doesn't.
+        speclibFiles = Collections.emptyList();
+      }
+
+      try (Stream<Path> paths = Files.walk(wd.resolve("dia-quant-output"))) {
         speclibFiles = paths.filter(p -> p.getFileName().toString().endsWith(".speclib")).collect(Collectors.toList());
       } catch (IOException ex) {
         // dia-quant-output directory does not always exist (e.g., for DDA data). Avoid crashing if it doesn't.
         speclibFiles = Collections.emptyList();
       }
+
       Set<Path> psmTsvFiles = Files.walk(wd).filter(p -> p.getFileName().toString().startsWith("psm.tsv") && p.getFileName().toString().endsWith("psm.tsv")).collect(Collectors.toCollection(TreeSet::new));
 
       if (useSpeclib && speclibFiles.isEmpty()) {
