@@ -17,6 +17,14 @@
 
 package org.nesvilab.fragpipe.cmd;
 
+import static org.nesvilab.fragpipe.cmd.ToolingUtils.BATMASS_IO_JAR;
+import static org.nesvilab.fragpipe.cmd.ToolingUtils.generateLFQExperimentAnnotation;
+import static org.nesvilab.fragpipe.tabs.TabWorkflow.manifestExt;
+import static org.nesvilab.utils.OsUtils.isUnix;
+import static org.nesvilab.utils.OsUtils.isWindows;
+import static org.nesvilab.utils.SwingUtils.createClickableHtml;
+import static org.nesvilab.utils.SwingUtils.showErrorDialogWithStacktrace;
+
 import java.awt.Component;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -38,7 +46,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import javax.swing.JOptionPane;
+
 import org.jooq.lambda.Seq;
 import org.nesvilab.fragpipe.Fragpipe;
 import org.nesvilab.fragpipe.FragpipeLocations;
@@ -46,10 +56,7 @@ import org.nesvilab.fragpipe.Version;
 import org.nesvilab.fragpipe.api.Bus;
 import org.nesvilab.fragpipe.api.InputLcmsFile;
 import org.nesvilab.fragpipe.api.LcmsFileGroup;
-import static org.nesvilab.fragpipe.cmd.ToolingUtils.BATMASS_IO_JAR;
-import static org.nesvilab.fragpipe.cmd.ToolingUtils.generateLFQExperimentAnnotation;
 import org.nesvilab.fragpipe.messages.NoteConfigDiann;
-import static org.nesvilab.fragpipe.tabs.TabWorkflow.manifestExt;
 import org.nesvilab.fragpipe.tools.diann.Diann;
 import org.nesvilab.fragpipe.tools.diann.DiannPanel;
 import org.nesvilab.fragpipe.tools.diann.DiannToMsstats;
@@ -57,12 +64,8 @@ import org.nesvilab.fragpipe.tools.diann.ParquetToTsv;
 import org.nesvilab.fragpipe.tools.diann.PlexDiaHelper;
 import org.nesvilab.fragpipe.tools.diann.Propagation;
 import org.nesvilab.utils.OsUtils;
-import static org.nesvilab.utils.OsUtils.isUnix;
-import static org.nesvilab.utils.OsUtils.isWindows;
 import org.nesvilab.utils.StringUtils;
 import org.nesvilab.utils.SwingUtils;
-import static org.nesvilab.utils.SwingUtils.createClickableHtml;
-import static org.nesvilab.utils.SwingUtils.showErrorDialogWithStacktrace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -368,7 +371,7 @@ public class CmdDiann extends CmdBase {
           cmd2.add("dia-quant-output" + File.separator + "report.tsv");
           cmd2.add("dia-quant-output" + File.separator + "report.pdf");
         } else {
-          cmd2.add(diannPath.replaceAll("DiaNN\\.exe$", "diann-stats.exe"));
+          cmd2.add(diannPath.replaceAll("(?i)diann\\.exe$", "diann-stats.exe"));
           cmd2.add("dia-quant-output" + File.separator + "report.parquet");
         }
         ProcessBuilder pb2 = new ProcessBuilder(cmd2);
