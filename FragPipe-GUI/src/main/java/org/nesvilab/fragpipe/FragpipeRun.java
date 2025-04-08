@@ -2025,6 +2025,20 @@ public class FragpipeRun {
     final boolean isRunShepherd = ptmsPanel.isRun() || ptmsGlycanPanel.isRun();
     final CmdPtmshepherd cmdPtmshepherd = new CmdPtmshepherd(isRunShepherd, wd);
 
+    // do not allow O-Pair and PTM-S to run in the same workflow
+    addCheck.accept(() -> {
+      if (oPairPanel.isRun() && isRunShepherd) {
+        if (Fragpipe.headless) {
+          log.error("O-Pair and PTM-Shepherd (including glycan composition assignment) cannot be run in the same workflow. Please disable one or the other to continue.");
+        } else {
+          JOptionPane.showMessageDialog(parent, "O-Pair and PTM-Shepherd (including glycan composition assignment) cannot be run in the same workflow. Please disable one or the other to continue.", "Workflow Configuration Error", JOptionPane.ERROR_MESSAGE);
+        }
+        return false;
+      } else {
+        return true;
+      }
+    });
+
     addCheck.accept(() -> {
       if (!ptmsPanel.validateForm()) {
         if (Fragpipe.headless) {
