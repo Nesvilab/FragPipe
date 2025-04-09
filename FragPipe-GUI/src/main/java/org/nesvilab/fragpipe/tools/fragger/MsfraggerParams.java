@@ -16,6 +16,7 @@
  */
 package org.nesvilab.fragpipe.tools.fragger;
 
+import org.nesvilab.fragpipe.util.MassOffsetUtils;
 import org.nesvilab.utils.StringUtils;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -673,6 +674,27 @@ public class MsfraggerParams extends AbstractParams {
     
     public void setMassOffsets(String v) {
         props.setProp(PROP_mass_offsets, v);
+    }
+
+    public List<MassOffsetUtils.MassOffset> getDetailedMassOffsets() {
+        String offsetStr = props.getProp(PROP_mass_offsets_detailed, "").value;
+        String[] offsets = offsetStr.split(MassOffsetUtils.DELIMITER);
+        List<MassOffsetUtils.MassOffset> massOffsets = new ArrayList<>();
+        for (String offset : offsets) {
+            massOffsets.add(new MassOffsetUtils.MassOffset(offset));
+        }
+        return massOffsets;
+    }
+
+    public void setDetailedMassOffsets(List<MassOffsetUtils.MassOffset> massOffsets) {
+        StringBuilder sb = new StringBuilder();
+        for (MassOffsetUtils.MassOffset offset : massOffsets) {
+            if (sb.length() > 0) {
+                sb.append(MassOffsetUtils.DELIMITER);
+            }
+            sb.append(offset.toString());
+        }
+        props.setProp(PROP_mass_offsets_detailed, sb.toString());
     }
 
     public void setPrecursorMassMode(FraggerPrecursorMassMode v) {

@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import umich.ms.glyco.GlycanMod;
 
 public class GlycoModsTable extends JTable {
-    private static final Logger log = LoggerFactory.getLogger(ModsTable.class);
+    private static final Logger log = LoggerFactory.getLogger(GlycoModsTable.class);
     public final GlycoModsTableModel model;
     public final Object[] colNames;
     public final Function<List<GlycanMod>, Object[][]> modsToData;

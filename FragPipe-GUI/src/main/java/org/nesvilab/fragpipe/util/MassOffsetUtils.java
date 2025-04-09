@@ -38,6 +38,7 @@ public class MassOffsetUtils {
     private static final Pattern pepRemPattern = Pattern.compile("p=([\\d.\\-,\\s]+)");
     private static final Pattern resPattern = Pattern.compile("aa=([A-Z]+)");
     private static final Logger log = LoggerFactory.getLogger(TabMsfragger.class);
+    public static final String DELIMITER = ";";
 
 
     /**
@@ -89,11 +90,7 @@ public class MassOffsetUtils {
             if (mass == 0.0) {
                 foundZero = true;
             }
-            ArrayList<String> sites = new ArrayList<>();
-            Matcher matcher = sitesPattern.matcher(splits[1]);
-            while (matcher.find()) {
-                sites.add(matcher.group());
-            }
+            ArrayList<String> sites = getSites(splits[1]);
 
             // keep track of all unique fragment and peptide remainder ions for later indexing. Rounded to 6 decimal places
             float[] peptideRems = parseFloats(splits[3], parent);
@@ -112,7 +109,17 @@ public class MassOffsetUtils {
             log.warn("Warning: 0 was not included in the mass offsets file. Adding it to the offsets list.");
         }
 
-        return String.join(";", offsetStrs);
+        return String.join(DELIMITER, offsetStrs);
+    }
+
+
+    public static ArrayList<String> getSites(String splits) {
+        ArrayList<String> sites = new ArrayList<>();
+        Matcher matcher = sitesPattern.matcher(splits);
+        while (matcher.find()) {
+            sites.add(matcher.group());
+        }
+        return sites;
     }
 
     private static float[] parseFloats(String floatList, Component parent) throws NumberFormatException {
@@ -166,11 +173,7 @@ public class MassOffsetUtils {
 
             Matcher sitesMatch = resPattern.matcher(offsetString);
             if (sitesMatch.find()) {
-                ArrayList<String> sites = new ArrayList<>();
-                Matcher matcher = sitesPattern.matcher(sitesMatch.group(1));
-                while (matcher.find()) {
-                    sites.add(matcher.group());
-                }
+                ArrayList<String> sites = getSites(sitesMatch.group(1));
                 this.allowedResidues = sites.toArray(new String[0]);
             } else {
                 this.allowedResidues = new String[0];
@@ -211,6 +214,10 @@ public class MassOffsetUtils {
             } else {
                 this.peptideRemainderIons = new float[0];
             }
+        }
+
+        public String getSiteStr() {
+            return String.join("", allowedResidues);
         }
 
         @Override

@@ -34,13 +34,11 @@ import static org.nesvilab.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTION_n
 import static org.nesvilab.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTION_off;
 import static org.nesvilab.fragpipe.tools.fragger.MsfraggerParams.PROP_group_variable;
 import static org.nesvilab.fragpipe.tools.fragger.MsfraggerParams.PROP_mass_offsets_detailed;
+import static org.nesvilab.fragpipe.util.MassOffsetUtils.floatArrToString;
 
 import org.nesvilab.fragpipe.Fragpipe;
-import org.nesvilab.fragpipe.api.Bus;
-import org.nesvilab.fragpipe.api.FragpipeCacheUtils;
-import org.nesvilab.fragpipe.api.ModsTable;
-import org.nesvilab.fragpipe.api.ModsTableModel;
-import org.nesvilab.fragpipe.api.SearchTypeProp;
+import org.nesvilab.fragpipe.api.*;
+import org.nesvilab.fragpipe.dialogs.DetailedOffsetEditDialog;
 import org.nesvilab.fragpipe.messages.MessageMsfraggerParamsUpdate;
 import org.nesvilab.fragpipe.messages.MessagePrecursorSelectionMode;
 import org.nesvilab.fragpipe.messages.MessageSearchType;
@@ -164,6 +162,7 @@ public class TabMsfragger extends JPanelBase {
       "Mass Delta (editable)", "Max occurrences (editable)"};
   private static final String[] TABLE_FIX_MODS_COL_NAMES = {"Enabled", "Site",
       "Mass Delta (editable)"};
+  public static final String[] TABLE_OFFSET_COL_NAMES = {"Mass", "Sites", "Diagnostic Ions", "Peptide Remainders", "Fragment Remainders"};
   private static final String PROP_misc_adjust_precurosr_mass = "misc.adjust-precursor-mass";
   private static final String PROP_misc_slice_db = "misc.slice-db";
   private static final String PROP_misc_ram = "misc.ram";
@@ -387,6 +386,7 @@ public class TabMsfragger extends JPanelBase {
   private JPanel pContent;
   private ModsTable tableVarMods;
   private ModsTable tableFixMods;
+  private OffsetsTable tableOffsets;
   public UiCombo uiComboMassCalibrate;
   public UiCombo uiComboOutputType;
   private UiCombo uiComboMassMode;
@@ -1026,6 +1026,19 @@ public class TabMsfragger extends JPanelBase {
     return p;
   }
 
+  public static Object[][] convertOffsetsToTableData(List<MassOffsetUtils.MassOffset> offsets) {
+    Object[][] data = new Object[offsets.size()][TABLE_OFFSET_COL_NAMES.length];
+    for (int i = 0; i < offsets.size(); i++) {
+      MassOffsetUtils.MassOffset m = offsets.get(i);
+      data[i][0] = m.mass;
+      data[i][1] = m.getSiteStr();
+      data[i][2] = floatArrToString(m.diagnosticIons);
+      data[i][3] = floatArrToString(m.peptideRemainderIons);
+      data[i][4] = floatArrToString(m.fragmentRemainderIons);
+    }
+    return data;
+  }
+
   private static Object[][] convertModsToVarModsData(List<Mod> mods) {
     Object[][] data = new Object[MsfraggerParams.VAR_MOD_COUNT_MAX][TABLE_VAR_MODS_COL_NAMES.length];
     for (int i = 0; i < data.length; i++) {
@@ -1259,14 +1272,17 @@ public class TabMsfragger extends JPanelBase {
     btnLoadOffsetsFile.addActionListener(this::actionBtnLoadDetailedOffsets);
     JButton btnSaveOffsetsFile = new JButton("Save Offsets");
     btnSaveOffsetsFile.addActionListener(this::actionBtnSaveDetailedOffsets);
+    JButton btnEditOffsetsTable = new JButton("Edit Detailed Mass Offsets");
+    btnEditOffsetsTable.addActionListener(this::actionBtnEditDetailedOffsets);
 
     mu.add(pOffsetRegular, feMassOffsets.comp).spanX().growX().pushX().wrap();
     mu.add(pOffsetRegular, feRestrictDeltamassTo.label(), mu.ccR()).spanX().split(2);
     mu.add(pOffsetRegular, feRestrictDeltamassTo.comp).growX().pushX().wrap();
 
-    mu.add(pOffsetDetailed, btnLoadOffsetsFile).split();
-    mu.add(pOffsetDetailed, btnSaveOffsetsFile).split();
+    mu.add(pOffsetDetailed, btnEditOffsetsTable).split();
     mu.add(pOffsetDetailed, feMassOffsetsDetailed.comp).growX().pushX().wrap();
+    mu.add(pOffsetDetailed, btnLoadOffsetsFile).split();
+    mu.add(pOffsetDetailed, btnSaveOffsetsFile).split().wrap();
 
     mu.add(p, pOffsetRegular).growX().wrap();
     mu.add(p, feCheckMassOffsetFile.comp).split();
@@ -2113,6 +2129,27 @@ public class TabMsfragger extends JPanelBase {
       log.error(String.format("Could not save mass offsets to file %s", savePath));
       SwingUtils.showErrorDialogWithStacktrace(ex, this);
     }
+  }
+
+  /**
+   * Open a table dialog to edit detailed mass offsets.
+   */
+  private void actionBtnEditDetailedOffsets(ActionEvent actionEvent) {
+    DetailedOffsetEditDialog tableDialog = new DetailedOffsetEditDialog(SwingUtils.findParentFrame(this), getDetailedOffsets());
+
+    tableDialog.setVisible(true);
+    if (tableDialog.getDialogResult() != JOptionPane.OK_OPTION) {
+      return;
+    }
+
+    // get new data
+    stopJTableEditing(tableDialog.table);
+    List<MassOffsetUtils.MassOffset> updatedOffsets = tableDialog.getModel().getOffsets();
+
+    // save new offsets to parameters and GUI text field
+    String offsetStr = updatedOffsets.stream().map(MassOffsetUtils.MassOffset::toString).collect(Collectors.joining(MassOffsetUtils.DELIMITER));
+    Fragpipe.propsVarSet(PROP_mass_offsets_detailed, offsetStr);
+    epDetailedMassOffsets.setText(offsetStr);
   }
 
     private void loadDefaults(SearchTypeProp type) {
