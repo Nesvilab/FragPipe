@@ -24,7 +24,7 @@ DisableProgramGroupPage=yes
 DisableDirPage=no
 ; Remove the following line to run in administrative install mode (install for all users).
 PrivilegesRequired=lowest
-OutputBaseFilename=FragPipe-installer
+OutputBaseFilename=FragPipe-{#AppVersion}-installer
 OutputDir=build/installer
 SolidCompression=yes
 WizardStyle=modern
