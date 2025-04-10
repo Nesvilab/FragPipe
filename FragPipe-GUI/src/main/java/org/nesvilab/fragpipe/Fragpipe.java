@@ -48,21 +48,7 @@ import org.nesvilab.fragpipe.messages.NoteFragpipeProperties;
 import org.nesvilab.fragpipe.messages.NoteFragpipeUpdate;
 import org.nesvilab.fragpipe.params.ThisAppProps;
 import org.nesvilab.fragpipe.process.ProcessManager;
-import org.nesvilab.fragpipe.tabs.TabConfig;
-import org.nesvilab.fragpipe.tabs.TabDatabase;
-import org.nesvilab.fragpipe.tabs.TabDiaPseudoMs2;
-import org.nesvilab.fragpipe.tabs.TabDiann;
-import org.nesvilab.fragpipe.tabs.TabDownstream;
-import org.nesvilab.fragpipe.tabs.TabGlyco;
-import org.nesvilab.fragpipe.tabs.TabMsfragger;
-import org.nesvilab.fragpipe.tabs.TabPtms;
-import org.nesvilab.fragpipe.tabs.TabQuantificationLabeling;
-import org.nesvilab.fragpipe.tabs.TabQuantificationLfq;
-import org.nesvilab.fragpipe.tabs.TabRun;
-import org.nesvilab.fragpipe.tabs.TabSkyline;
-import org.nesvilab.fragpipe.tabs.TabSpecLib;
-import org.nesvilab.fragpipe.tabs.TabValidation;
-import org.nesvilab.fragpipe.tabs.TabWorkflow;
+import org.nesvilab.fragpipe.tabs.*;
 import org.nesvilab.fragpipe.tools.dbsplit.DbSplit2;
 import org.nesvilab.fragpipe.tools.fpop.FpopScript;
 import org.nesvilab.fragpipe.tools.speclibgen.SpecLibGen2;
@@ -210,6 +196,7 @@ public class Fragpipe extends JFrameHeadless {
   private UiTab uiTabDiann;
   private UiTab uiTabSkyline;
   private UiTab uiTabRun;
+  private UiTab uiTabBatch;
   private UiTab uiTabDownstream;
 
   public Fragpipe() throws HeadlessException {
@@ -631,6 +618,7 @@ public class Fragpipe extends JFrameHeadless {
     TabDiann tabDiann = new TabDiann();
     TabSkyline tabSkyline = new TabSkyline();
     TabDownstream tabDownstream = new TabDownstream();
+    TabBatch tabBatch = new TabBatch();
     TabRun tabRun = new TabRun(console, tabDownstream);
 
     uiTabConfig = new UiTab(TabConfig.TAB_NAME, tabConfig, "/org/nesvilab/fragpipe/icons/150-cogs.png", null, true);
@@ -656,6 +644,7 @@ public class Fragpipe extends JFrameHeadless {
       "/org/nesvilab/fragpipe/icons/icon-diann-16.png", null, true);
     uiTabSkyline = new UiTab("Skyline", tabSkyline, "/org/nesvilab/fragpipe/icons/icon-skyline-16.png", null, true);
     uiTabRun = new UiTab("Run", tabRun, "/org/nesvilab/fragpipe/icons/video-play-16.png", null, false);
+    uiTabBatch = new UiTab("Batch", tabBatch, "/org/nesvilab/fragpipe/icons/video-play-16.png", null, false);
     uiTabDownstream = new UiTab("Downstream", tabDownstream, "/org/nesvilab/fragpipe/icons/icon-saint-20.png", null, false);
 
     addTab(tp, uiTabConfig);
@@ -672,6 +661,7 @@ public class Fragpipe extends JFrameHeadless {
     addTab(tp, uiTabDiann);
     addTab(tp, uiTabSkyline);
     addTab(tp, uiTabRun);
+    addTab(tp, uiTabBatch);
     addTab(tp, uiTabDownstream);
 
     log.debug("Done createTabs()");

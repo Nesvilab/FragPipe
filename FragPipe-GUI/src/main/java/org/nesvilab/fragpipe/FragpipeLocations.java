@@ -36,12 +36,7 @@ import org.jooq.lambda.Seq;
 import org.nesvilab.fragpipe.api.PropsFile;
 import org.nesvilab.fragpipe.messages.MissingAssetsException;
 import org.nesvilab.fragpipe.messages.NoteFragpipeCache;
-import org.nesvilab.utils.CacheUtils;
-import org.nesvilab.utils.JarUtils;
-import org.nesvilab.utils.PathUtils;
-import org.nesvilab.utils.StringUtils;
-import org.nesvilab.utils.SwingUtils;
-import org.nesvilab.utils.VersionComparator;
+import org.nesvilab.utils.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -215,6 +210,24 @@ public class FragpipeLocations {
       log.error("Error while trying to load", e);
     }
     return pf;
+  }
+
+  public Path getFragpipeBin() {
+    Path binDir = getDirFragpipeRoot().resolve("bin");
+    Path p;
+    if (OsUtils.isWindows()) {
+      p = binDir.resolve("fragpipe.bat");
+    } else {
+      p = binDir.resolve("fragpipe");
+    }
+    log.debug("Getting FragPipe binary, bin dir [{}], resolved path: {}", binDir, p);
+    Path exists = PathUtils.existing(p.toString());
+    if (exists != null) {
+      log.debug("FragPipe binary found: {}", p);
+      return exists;
+    }
+    log.error("FragPipe binary NOT found at {}.", p);
+    return p;
   }
 
   public Path getJarPath() {
