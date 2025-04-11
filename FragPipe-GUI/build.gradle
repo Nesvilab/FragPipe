@@ -45,6 +45,9 @@ tasks.withType(JavaCompile) {
 def startClass = 'org.nesvilab.fragpipe.FragPipeMain'
 application {
     mainClass = "${startClass}"
+    startScripts {
+        classpath = files('lib/*')
+    }
 }
 def releaseDir = 'github-release'
 
