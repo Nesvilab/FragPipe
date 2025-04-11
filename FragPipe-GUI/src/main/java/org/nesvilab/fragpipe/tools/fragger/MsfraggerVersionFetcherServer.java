@@ -93,7 +93,7 @@ public class MsfraggerVersionFetcherServer implements VersionFetcher {
 
     @Override
     public String getDownloadUrl() {
-        return MsfraggerProps.getProperties().getProperty(MsfraggerProps.PROP_UPDATESERVER_WEBSITE_URL, "");
+        return "https://msfragger-upgrader.nesvilab.org/upgrader/";
     }
 
     @Override
@@ -108,11 +108,7 @@ public class MsfraggerVersionFetcherServer implements VersionFetcher {
 
     private String fetchVersionResponse() throws IOException {
         synchronized (lock) {
-            String serviceUrl = MsfraggerProps.getProperties().getProperty(MsfraggerProps.PROP_UPDATESERVER_VERSION_URL);
-            if (serviceUrl == null) {
-                throw new IllegalStateException("Property " + MsfraggerProps.PROP_UPDATESERVER_VERSION_URL + " not found");
-            }
-            String response = org.apache.commons.io.IOUtils.toString(new URL(serviceUrl), StandardCharsets.UTF_8);
+            String response = org.apache.commons.io.IOUtils.toString(new URL("https://msfragger-upgrader.nesvilab.org/upgrader/latest_version.php"), StandardCharsets.UTF_8);
             if (StringUtils.isNullOrWhitespace(response)) {
                 throw new IllegalStateException("Update server returned empty string for the latest available version.");
             }
@@ -128,11 +124,6 @@ public class MsfraggerVersionFetcherServer implements VersionFetcher {
 
         if (StringUtils.isNullOrWhitespace(lastVersionStr)) {
             lastVersionStr = fetchVersion();
-        }
-        
-        String updateSvcUrl = MsfraggerProps.getProperties().getProperty(MsfraggerProps.PROP_UPDATESERVER_UPDATE_URL);
-        if (updateSvcUrl == null) {
-            throw new IllegalStateException("Obtained properties file didn't contain a URL for the updater service.");
         }
 
         Path zipPath = toolsPath.resolve("MSFragger-" + lastVersionStr + ".zip");
@@ -164,7 +155,7 @@ public class MsfraggerVersionFetcherServer implements VersionFetcher {
         }
 
         OkHttpClient client2 = new OkHttpClient();
-        Request request = new Request.Builder().url(updateSvcUrl).post(requestBody).build();
+        Request request = new Request.Builder().url("https://msfragger-upgrader.nesvilab.org/upgrader/upgrade_download.php").post(requestBody).build();
 
         Response response = client2.newCall(request).execute();
         if (!response.isSuccessful()) {

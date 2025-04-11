@@ -19,10 +19,11 @@ package org.nesvilab.fragpipe.tools.fragger;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+
 import org.nesvilab.fragpipe.Version;
+import org.nesvilab.utils.PropertiesUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.nesvilab.utils.PropertiesUtils;
 
 /**
  *
@@ -47,9 +48,6 @@ public class MsfraggerProps {
     );
     public static final String PROPERTIES_FILE_NAME = "Bundle.properties";
     public static final String PROP_LATEST_VERSION = "msfragger.version.latest-known";
-    public static final String PROP_UPDATESERVER_WEBSITE_URL = "msfragger.update-server.website.url";
-    public static final String PROP_UPDATESERVER_VERSION_URL = "msfragger.update-server.version-service.url";
-    public static final String PROP_UPDATESERVER_UPDATE_URL = "msfragger.update-server.update-service.url";
 
     public static Properties getProperties() {
         return getRemotePropertiesWithLocalDefaults();
