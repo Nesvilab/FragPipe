@@ -95,7 +95,7 @@ public class DiaTracerVersionFetcherServer implements VersionFetcher {
 
     @Override
     public String getToolName() {
-        return "IonQuant";
+        return "diaTracer";
     }
 
     @Override

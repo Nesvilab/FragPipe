@@ -97,7 +97,7 @@ public class DownloadToolsPanel extends JPanel {
     JEditorPane t1 = SwingUtils.createClickableHtml("I have read the academic licenses. I understand that the licenses provide<br>"
         + "with a non-exclusive, non-transferable right to use the tools solely for<br>"
         + "academic research, non-commercial or educational purposes within the<br>"
-        + "licensee’s department. If I am a non-academic user, I will contact the<br>"
+        + "licensee's department. If I am a non-academic user, I will contact the<br>"
         + "University of Michigan Office of Technology Transfer (Drew Bennett,<br>"
         + "andbenne@umich.edu) to obtain a commercial license to use the tools.");
     license1 = new JCheckBox();
