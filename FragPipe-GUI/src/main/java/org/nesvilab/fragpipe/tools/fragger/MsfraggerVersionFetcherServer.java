@@ -56,7 +56,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public class MsfraggerVersionFetcherServer implements VersionFetcher {
 
-    private final Pattern re = Pattern.compile("([\\d.]+)");
+    private final Pattern re = Pattern.compile("([\\d.]+(-rc\\d+)?)", Pattern.CASE_INSENSITIVE);
     private String latestVerResponse = null;
     private String lastVersionStr = null;
     private static final Object lock = new Object();
