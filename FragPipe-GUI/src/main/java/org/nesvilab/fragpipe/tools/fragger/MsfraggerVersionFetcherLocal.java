@@ -19,6 +19,8 @@ package org.nesvilab.fragpipe.tools.fragger;
 import java.nio.file.Path;
 import java.util.Properties;
 
+import static org.nesvilab.fragpipe.Fragpipe.WEB_DOMAIN;
+
 import org.nesvilab.fragpipe.api.VersionFetcher;
 import org.nesvilab.utils.PropertiesUtils;
 
@@ -45,7 +47,7 @@ public class MsfraggerVersionFetcherLocal implements VersionFetcher {
 
     @Override
     public String getDownloadUrl() {
-        return "https://msfragger-upgrader.nesvilab.org/upgrader/";
+        return WEB_DOMAIN + "upgrader/";
     }
     
     @Override

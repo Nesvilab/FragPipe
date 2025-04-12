@@ -487,10 +487,17 @@ public class TabConfig extends JPanelWithEnablement {
           return;
         }
 
+        String verificationCode = p.getVerificationCode();
+        if (verificationCode == null || verificationCode.isEmpty()) {
+          JOptionPane.showMessageDialog(this, "Please enter the verification code sent to your email.\nClick `Send Download Request` to get the code.", "Error", JOptionPane.ERROR_MESSAGE);
+          return;
+        }
+
         Path toolsPath = PathUtils.createDirs(FragpipeLocations.get().getDirTools()).normalize();
 
         if (p.downloadMSFragger()) {
           MsfraggerVersionFetcherServer msfraggerVersionFetcherServer = new MsfraggerVersionFetcherServer(p.getName(), p.getEmail(), p.getInstitution(), p.wantReceiveEmail());
+          msfraggerVersionFetcherServer.token = verificationCode;
           new Thread(() -> {
             try {
               Path msfraggerPath = msfraggerVersionFetcherServer.autoUpdate(toolsPath);
@@ -508,7 +515,8 @@ public class TabConfig extends JPanelWithEnablement {
         }
 
         if (p.downloadIonQuant()) {
-          IonQuantVersionFetcherServer ionQuantVersionFetcherServer = new IonQuantVersionFetcherServer(p.getName(), p.getEmail(), p.getInstitution(), p.wantReceiveEmail());
+          IonQuantVersionFetcherServer ionQuantVersionFetcherServer = new IonQuantVersionFetcherServer();
+          ionQuantVersionFetcherServer.token = verificationCode;
           new Thread(() -> {
             try {
               Path ionquantPath = ionQuantVersionFetcherServer.autoUpdate(toolsPath);
@@ -526,7 +534,8 @@ public class TabConfig extends JPanelWithEnablement {
         }
 
         if (p.downloadDiaTracer()) {
-          DiaTracerVersionFetcherServer diaTracerVersionFetcherServer = new DiaTracerVersionFetcherServer(p.getName(), p.getEmail(), p.getInstitution(), p.wantReceiveEmail());
+          DiaTracerVersionFetcherServer diaTracerVersionFetcherServer = new DiaTracerVersionFetcherServer();
+          diaTracerVersionFetcherServer.token = verificationCode;
           new Thread(() -> {
             try {
               Path diatracerPath = diaTracerVersionFetcherServer.autoUpdate(toolsPath);

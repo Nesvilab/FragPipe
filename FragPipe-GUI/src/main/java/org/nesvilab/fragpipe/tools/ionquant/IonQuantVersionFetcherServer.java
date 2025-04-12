@@ -23,8 +23,12 @@ import org.nesvilab.fragpipe.tools.DownloadProgress;
 import org.nesvilab.utils.Holder;
 import org.nesvilab.utils.PathUtils;
 import org.nesvilab.utils.StringUtils;
+
+import static org.nesvilab.fragpipe.Fragpipe.WEB_DOMAIN;
+
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,10 +39,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.swing.SwingUtilities;
-import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import okio.Buffer;
@@ -52,26 +54,12 @@ import org.jetbrains.annotations.NotNull;
 public class IonQuantVersionFetcherServer implements VersionFetcher {
 
     private final Pattern re = Pattern.compile("([\\d.]+)");
-    private static final String serverUrl = "https://msfragger-upgrader.nesvilab.org/ionquant/";
-    private String latestVerResponse = null;
+    private static final String serverUrl = WEB_DOMAIN + "ionquant/";
     private String lastVersionStr = null;
     private static final Object lock = new Object();
-
-    private final String name;
-    private final String email;
-    private final String institution;
-    private final boolean receiveEmail;
-
+    public String token = null;
 
     public IonQuantVersionFetcherServer() {
-        this(null, null, null, false);
-    }
-
-    public IonQuantVersionFetcherServer(String name, String email, String institution, boolean receiveEmail) {
-        this.name = name;
-        this.email = email;
-        this.institution = institution;
-        this.receiveEmail = receiveEmail;
     }
 
     @Override
@@ -80,7 +68,6 @@ public class IonQuantVersionFetcherServer implements VersionFetcher {
             String verSvcResponse = fetchVersionResponse();
             Matcher m = re.matcher(verSvcResponse);
             if (m.find()) {
-                latestVerResponse = verSvcResponse;
                 return m.group(1);
             }
 
@@ -123,34 +110,16 @@ public class IonQuantVersionFetcherServer implements VersionFetcher {
             lastVersionStr = fetchVersion();
         }
 
-        Path jarPath = toolsPath.resolve("IonQuant-" + lastVersionStr + ".jar");
-
-        RequestBody requestBody;
-        if (receiveEmail) {
-            requestBody = new MultipartBody.Builder()
-                .setType(MultipartBody.FORM)
-                .addFormDataPart("transfer", "academic")
-                .addFormDataPart("agreement1", "true")
-                .addFormDataPart("name", name)
-                .addFormDataPart("email", email)
-                .addFormDataPart("organization", institution)
-                .addFormDataPart("receive_email", "1")
-                .addFormDataPart("download", latestVerResponse + "$jar")
-                .build();
-        } else {
-            requestBody = new MultipartBody.Builder()
-                .setType(MultipartBody.FORM)
-                .addFormDataPart("transfer", "academic")
-                .addFormDataPart("agreement1", "true")
-                .addFormDataPart("name", name)
-                .addFormDataPart("email", email)
-                .addFormDataPart("organization", institution)
-                .addFormDataPart("download", latestVerResponse + "$jar")
-                .build();
+        if (token == null) {
+            throw new IllegalStateException("Token is not set. Please send a request to the server first.");
         }
 
+        String updateSvcUrl = WEB_DOMAIN + "ionquant/download.php?token=" + token + "&download=" + URLEncoder.encode(lastVersionStr + "$jar", StandardCharsets.UTF_8).replace("+", "%20").replace("*", "%2A").replace("%7E", "~");
+
+        Path jarPath = toolsPath.resolve("IonQuant-" + lastVersionStr + ".jar");
+
         OkHttpClient client2 = new OkHttpClient();
-        Request request = new Request.Builder().url(serverUrl + "/upgrade_download.php").post(requestBody).build();
+        Request request = new Request.Builder().url(updateSvcUrl).build();
 
         Response response = client2.newCall(request).execute();
         if (!response.isSuccessful()) {
@@ -164,8 +133,13 @@ public class IonQuantVersionFetcherServer implements VersionFetcher {
 
         long contentLength = body.contentLength();
 
+        String responseBody = body.string();
+        if (responseBody.contains("expired")) {
+            throw new IllegalStateException("The validation code has expired or is invalid. Please send a new request to the server.");
+        }
+
         if (contentLength <= 0) {
-            throw new Exception("Could not download IonQuant from the server.");
+            throw new Exception("Could not download IonQuant from the server. Please check if you have put the validation code sent to your email. If you did not receive the code, click `Send Download Request` to get it.");
         }
 
         final Holder<DownloadProgress> dlProgress = new Holder<>();

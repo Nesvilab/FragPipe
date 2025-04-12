@@ -157,6 +157,7 @@ public class Fragpipe extends JFrameHeadless {
   public static final String TAB_NAME_UMPIRE = "DIA-Umpire";
   public static final String PREFIX_FRAGPIPE = "fragpipe.";
   public static final String PROP_NOCACHE = "do-not-cache";
+  public static String WEB_DOMAIN;
 
   public static final Function<String, String> PREPEND_FRAGPIPE = (name) -> {
     if (name == null)
@@ -180,6 +181,7 @@ public class Fragpipe extends JFrameHeadless {
   static {
     updater = new FragpipeUpdater();
     Bus.registerQuietly(updater);
+    WEB_DOMAIN = Version.isDevBuild() ? "" : "https://msfragger-upgrader.nesvilab.org/";
   }
 
   private UiTab uiTabConfig;

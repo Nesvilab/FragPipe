@@ -17,10 +17,12 @@
 
 package org.nesvilab.fragpipe.dialogs;
 
+import static org.nesvilab.fragpipe.Fragpipe.WEB_DOMAIN;
 import static org.nesvilab.fragpipe.tabs.TabConfig.userEmail;
 import static org.nesvilab.fragpipe.tabs.TabConfig.userInstitution;
 import static org.nesvilab.fragpipe.tabs.TabConfig.userName;
 
+import org.nesvilab.fragpipe.tools.fragger.MsfraggerVersionFetcherServer;
 import org.nesvilab.utils.SwingUtils;
 import org.nesvilab.utils.swing.FormEntry;
 import org.nesvilab.utils.swing.MigUtils;
@@ -29,8 +31,11 @@ import org.nesvilab.utils.swing.UiText;
 import org.nesvilab.utils.swing.UiUtils;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JEditorPane;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import net.miginfocom.swing.MigLayout;
@@ -49,6 +54,9 @@ public class DownloadToolsPanel extends JPanel {
   private UiCheck uiCheckDownloadMSFragger;
   private UiCheck uiCheckDownloadIonQuant;
   private UiCheck uiCheckDownloadDiaTracer;
+  private UiText uiTextVerificationCode;
+  private FormEntry feVerificationCode;
+  private JButton btnSendRequest;
 
   public DownloadToolsPanel() {
     initMore();
@@ -68,9 +76,9 @@ public class DownloadToolsPanel extends JPanel {
         "<br>MSFragger, IonQuant, and diaTracer software are available freely for academic research,<br>"
             + "non-commercial or educational purposes under academic license.<br><br>"
             + "Read the academic license for "
-            + "<a href=\"https://msfragger-upgrader.nesvilab.org/upgrader/MSFragger-LICENSE.pdf\" target=\"blank_\">MSFragger</a>, "
-            + "<a href=\"https://msfragger-upgrader.nesvilab.org/ionquant/IonQuant%20Academic%20Use%20License%2005162022.pdf\" target=\"blank_\">IonQuant</a>, and "
-            + "<a href=\"https://msfragger-upgrader.nesvilab.org/diatracer/diaTracer%20UM%20%23%202024-417%20Academic%20Research%20Use%20License%2005142024.pdf\" target=\"blank_\">diaTracer</a>.<br><br>");
+            + "<a href=\"" + WEB_DOMAIN + "upgrader/MSFragger-LICENSE.pdf\" target=\"blank_\">MSFragger</a>, "
+            + "<a href=\"" + WEB_DOMAIN + "ionquant/IonQuant%20Academic%20Use%20License%2005162022.pdf\" target=\"blank_\">IonQuant</a>, and "
+            + "<a href=\"" + WEB_DOMAIN + "diatracer/diaTracer%20UM%20%23%202024-417%20Academic%20Research%20Use%20License%2005142024.pdf\" target=\"blank_\">diaTracer</a>.<br><br>");
 
     feName = mu.feb(UiUtils.uiTextBuilder().cols(40).create()).label("Name:").create();
     feEmail = mu.feb(UiUtils.uiTextBuilder().cols(40).create()).label("Email:").create();
@@ -102,14 +110,34 @@ public class DownloadToolsPanel extends JPanel {
         + "andbenne@umich.edu) to obtain a commercial license to use the tools.");
     license1 = new JCheckBox();
 
-    JEditorPane t2 = SwingUtils.createClickableHtml("I agree to the terms of <a href=\"https://msfragger-upgrader.nesvilab.org/upgrader/RawFileRdr_License_Agreement_RevA.pdf\" target=\"blank_\">Thermo (c) Raw File Reader License Agreement</a>.");
+    JEditorPane t2 = SwingUtils.createClickableHtml("I agree to the terms of <a href=\"" + WEB_DOMAIN + "upgrader/RawFileRdr_License_Agreement_RevA.pdf\" target=\"blank_\">Thermo (c) Raw File Reader License Agreement</a>.");
     license2 = new JCheckBox();
 
-    JEditorPane t3 = SwingUtils.createClickableHtml("I agree to the terms of <a href=\"https://msfragger-upgrader.nesvilab.org/upgrader/EULA%20TDF-SDK.pdf\" target=\"blank_\">Bruker SDK library distribution conditions</a>.");
+    JEditorPane t3 = SwingUtils.createClickableHtml("I agree to the terms of <a href=\"" + WEB_DOMAIN + "upgrader/EULA%20TDF-SDK.pdf\" target=\"blank_\">Bruker SDK library distribution conditions</a>.");
     license3 = new JCheckBox();
 
     JEditorPane t4 = SwingUtils.createClickableHtml("I would like to receive emails with updates in the future.");
     receiveEmail = new JCheckBox();
+
+    uiTextVerificationCode = UiUtils.uiTextBuilder().cols(40).create();
+    feVerificationCode = mu.feb(uiTextVerificationCode).label("Verification Code:").create();
+    feVerificationCode.comp.setVisible(true);
+    feVerificationCode.label().setVisible(true);
+    feVerificationCode.comp.setEnabled(false);
+    feVerificationCode.label().setEnabled(false);
+
+    btnSendRequest = new JButton("<html><b>Send Download Request</b></html>");
+    btnSendRequest.addActionListener(e -> {
+      try {
+        MsfraggerVersionFetcherServer fetcher = new MsfraggerVersionFetcherServer(getName(), getEmail(), getInstitution(), wantReceiveEmail());
+        if (fetcher.sendRequest()) {
+          feVerificationCode.comp.setEnabled(true);
+          feVerificationCode.label().setEnabled(true);
+        }
+      } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, "Failed to send request: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+      }
+    });
 
     mu.add(panelTextboxes, t0).split().spanX().wrap();
 
@@ -142,6 +170,11 @@ public class DownloadToolsPanel extends JPanel {
 
     mu.add(panelTextboxes, receiveEmail, mu.ccR());
     mu.add(panelTextboxes, t4).spanX().wrap();
+
+    mu.add(panelTextboxes, btnSendRequest).spanX().alignX("center").wrap();
+
+    mu.add(panelTextboxes, feVerificationCode.label(), mu.ccR());
+    mu.add(panelTextboxes, feVerificationCode.comp).spanX().wrap();
 
     JScrollPane scroll = new JScrollPane(panelTextboxes, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
@@ -199,5 +232,13 @@ public class DownloadToolsPanel extends JPanel {
 
   public boolean downloadDiaTracer() {
     return uiCheckDownloadDiaTracer.isSelected();
+  }
+
+  public String getVerificationCode() {
+    if (uiTextVerificationCode == null || uiTextVerificationCode.getText() == null) {
+      return null;
+    } else {
+      return uiTextVerificationCode.getText().trim();
+    }
   }
 }

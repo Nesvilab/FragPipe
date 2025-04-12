@@ -16,6 +16,7 @@
  */
 package org.nesvilab.fragpipe.tools.fragger;
 
+import static org.nesvilab.fragpipe.Fragpipe.WEB_DOMAIN;
 import static org.nesvilab.utils.ZipUtils.unzipWithSubfolders;
 
 import org.nesvilab.fragpipe.api.Bus;
@@ -27,6 +28,7 @@ import org.nesvilab.utils.PathUtils;
 import org.nesvilab.utils.StringUtils;
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -65,6 +67,7 @@ public class MsfraggerVersionFetcherServer implements VersionFetcher {
     private final String email;
     private final String institution;
     private final boolean receiveEmail;
+    public String token = null;
 
     public MsfraggerVersionFetcherServer() {
         this(null, null, null, false);
@@ -93,7 +96,7 @@ public class MsfraggerVersionFetcherServer implements VersionFetcher {
 
     @Override
     public String getDownloadUrl() {
-        return "https://msfragger-upgrader.nesvilab.org/upgrader/";
+        return WEB_DOMAIN + "upgrader/";
     }
 
     @Override
@@ -108,7 +111,7 @@ public class MsfraggerVersionFetcherServer implements VersionFetcher {
 
     private String fetchVersionResponse() throws IOException {
         synchronized (lock) {
-            String response = org.apache.commons.io.IOUtils.toString(new URL("https://msfragger-upgrader.nesvilab.org/upgrader/latest_version.php"), StandardCharsets.UTF_8);
+            String response = org.apache.commons.io.IOUtils.toString(new URL(WEB_DOMAIN + "upgrader/latest_version.php"), StandardCharsets.UTF_8);
             if (StringUtils.isNullOrWhitespace(response)) {
                 throw new IllegalStateException("Update server returned empty string for the latest available version.");
             }
@@ -116,17 +119,10 @@ public class MsfraggerVersionFetcherServer implements VersionFetcher {
         }
     }
 
-    @Override
-    public Path autoUpdate(Path toolsPath) throws Exception {
-        if (toolsPath == null || !Files.exists(toolsPath)) {
-            throw new IllegalArgumentException("The path to file to be updated must be non-null, must exist and not point to a directory.");
-        }
-
+    public boolean sendRequest() throws Exception {
         if (StringUtils.isNullOrWhitespace(lastVersionStr)) {
             lastVersionStr = fetchVersion();
         }
-
-        Path zipPath = toolsPath.resolve("MSFragger-" + lastVersionStr + ".zip");
 
         RequestBody requestBody;
         if (receiveEmail) {
@@ -140,6 +136,7 @@ public class MsfraggerVersionFetcherServer implements VersionFetcher {
                 .addFormDataPart("organization", institution)
                 .addFormDataPart("receive_email", "1")
                 .addFormDataPart("download", latestVerResponse + "$zip")
+                .addFormDataPart("is_fragpipe", "true")
                 .build();
         } else {
             requestBody = new MultipartBody.Builder()
@@ -151,11 +148,12 @@ public class MsfraggerVersionFetcherServer implements VersionFetcher {
                 .addFormDataPart("email", email)
                 .addFormDataPart("organization", institution)
                 .addFormDataPart("download", latestVerResponse + "$zip")
+                .addFormDataPart("is_fragpipe", "true")
                 .build();
         }
 
         OkHttpClient client2 = new OkHttpClient();
-        Request request = new Request.Builder().url("https://msfragger-upgrader.nesvilab.org/upgrader/upgrade_download.php").post(requestBody).build();
+        Request request = new Request.Builder().url(WEB_DOMAIN + "upgrader/upgrade_download.php").post(requestBody).build();
 
         Response response = client2.newCall(request).execute();
         if (!response.isSuccessful()) {
@@ -167,10 +165,54 @@ public class MsfraggerVersionFetcherServer implements VersionFetcher {
             throw new IllegalStateException("Null response body during download");
         }
 
+        String responseBody = body.string();
+        if (responseBody.contains("Please use your institutional email address.")) {
+            throw new IllegalStateException("Please use your institutional email address.");
+        }
+
+        return true;
+    }
+
+    @Override
+    public Path autoUpdate(Path toolsPath) throws Exception {
+        if (toolsPath == null || !Files.exists(toolsPath)) {
+            throw new IllegalArgumentException("The path to file to be updated must be non-null, must exist and not point to a directory.");
+        }
+
+        if (StringUtils.isNullOrWhitespace(lastVersionStr)) {
+            lastVersionStr = fetchVersion();
+        }
+
+        if (token == null) {
+            throw new IllegalStateException("Token is not set. Please send a request to the server first.");
+        }
+
+        String updateSvcUrl = WEB_DOMAIN + "upgrader/download.php?token=" + token + "&download=" + URLEncoder.encode("Release " + lastVersionStr + "$zip", StandardCharsets.UTF_8).replace("+", "%20").replace("*", "%2A").replace("%7E", "~");
+
+        Path zipPath = toolsPath.resolve("MSFragger-" + lastVersionStr + ".zip");
+
+        OkHttpClient client2 = new OkHttpClient();
+        Request request = new Request.Builder().url(updateSvcUrl).build();
+
+        Response response = client2.newCall(request).execute();
+        if (!response.isSuccessful()) {
+            throw new IllegalStateException("Request unsuccessful");
+        }
+
+        ResponseBody body = response.body();
+        if (body == null) {
+            throw new IllegalStateException("Null response body during download");
+        }
+
+        String responseBody = body.string();
+        if (responseBody.contains("expired")) {
+            throw new IllegalStateException("The validation code has expired or is invalid. Please send a new request to the server.");
+        }
+
         long contentLength = body.contentLength();
 
         if (contentLength <= 0) {
-            throw new Exception("Could not download MSFragger from the server.");
+            throw new Exception("Could not download MSFragger from the server. Please check if you have put the validation code sent to your email. If you did not receive the code, click `Send Download Request` to get it.");
         }
 
         final Holder<DownloadProgress> dlProgress = new Holder<>();
