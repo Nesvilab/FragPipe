@@ -464,8 +464,10 @@ public class TabConfig extends JPanelWithEnablement {
   private void actionToolsDownload(ActionEvent evt) {
     try {
       DownloadToolsPanel p = new DownloadToolsPanel();
-      int confirmation = SwingUtils.showConfirmDialog2(this, p, "Please agree to the terms of the licenses.", JOptionPane.YES_NO_CANCEL_OPTION);
-      if (JOptionPane.OK_OPTION == confirmation) {
+      String[] options = {"Download", "Cancel"};
+      int confirmation = JOptionPane.showOptionDialog(this, p, "Please agree to the terms of the licenses.",
+          JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+      if (confirmation == 0) {
         if (p.getFirstName() == null || p.getFirstName().isEmpty()) {
           JOptionPane.showMessageDialog(this, "Please fill in your first name.", "Error", JOptionPane.ERROR_MESSAGE);
           return;
