@@ -167,7 +167,8 @@ public class TabConfig extends JPanelWithEnablement {
   public static final String TAB_PREFIX = "fragpipe-config.";
 
   // cache user info to save some typing for the users
-  public static String userName = null;
+  public static String userFirstName = null;
+  public static String userLastName = null;
   public static String userEmail = null;
   public static String userInstitution = null;
 
@@ -465,8 +466,12 @@ public class TabConfig extends JPanelWithEnablement {
       DownloadToolsPanel p = new DownloadToolsPanel();
       int confirmation = SwingUtils.showConfirmDialog2(this, p, "Please agree to the terms of the licenses.", JOptionPane.YES_NO_CANCEL_OPTION);
       if (JOptionPane.OK_OPTION == confirmation) {
-        if (p.getName() == null || p.getName().isEmpty()) {
-          JOptionPane.showMessageDialog(this, "Please fill in your name.", "Error", JOptionPane.ERROR_MESSAGE);
+        if (p.getFirstName() == null || p.getFirstName().isEmpty()) {
+          JOptionPane.showMessageDialog(this, "Please fill in your first name.", "Error", JOptionPane.ERROR_MESSAGE);
+          return;
+        }
+        if (p.getLastName() == null || p.getLastName().isEmpty()) {
+          JOptionPane.showMessageDialog(this, "Please fill in your last name.", "Error", JOptionPane.ERROR_MESSAGE);
           return;
         }
         if (p.getEmail() == null || p.getEmail().isEmpty() || !emailPattern.matcher(p.getEmail()).matches()) {
@@ -478,7 +483,8 @@ public class TabConfig extends JPanelWithEnablement {
           return;
         }
 
-        userName = p.getName();
+        userFirstName = p.getFirstName();
+        userLastName = p.getLastName();
         userEmail = p.getEmail();
         userInstitution = p.getInstitution();
 
@@ -496,7 +502,7 @@ public class TabConfig extends JPanelWithEnablement {
         Path toolsPath = PathUtils.createDirs(FragpipeLocations.get().getDirTools()).normalize();
 
         if (p.downloadMSFragger()) {
-          MsfraggerVersionFetcherServer msfraggerVersionFetcherServer = new MsfraggerVersionFetcherServer(p.getName(), p.getEmail(), p.getInstitution(), p.wantReceiveEmail());
+          MsfraggerVersionFetcherServer msfraggerVersionFetcherServer = new MsfraggerVersionFetcherServer(p.getFirstName(), p.getLastName(), p.getEmail(), p.getInstitution(), p.wantReceiveEmail());
           msfraggerVersionFetcherServer.token = verificationCode;
           new Thread(() -> {
             try {

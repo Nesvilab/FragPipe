@@ -63,18 +63,20 @@ public class MsfraggerVersionFetcherServer implements VersionFetcher {
     private String lastVersionStr = null;
     private static final Object lock = new Object();
 
-    private final String name;
+    private final String firstName;
+    private final String lastName;
     private final String email;
     private final String institution;
     private final boolean receiveEmail;
     public String token = null;
 
     public MsfraggerVersionFetcherServer() {
-        this(null, null, null, false);
+        this(null, null, null, null, false);
     }
 
-    public MsfraggerVersionFetcherServer(String name, String email, String institution, boolean receiveEmail) {
-        this.name = name;
+    public MsfraggerVersionFetcherServer(String firstName, String lastName, String email, String institution, boolean receiveEmail) {
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.email = email;
         this.institution = institution;
         this.receiveEmail = receiveEmail;
@@ -131,7 +133,8 @@ public class MsfraggerVersionFetcherServer implements VersionFetcher {
                 .addFormDataPart("transfer", "academic")
                 .addFormDataPart("agreement2", "true")
                 .addFormDataPart("agreement3", "true")
-                .addFormDataPart("name", name)
+                .addFormDataPart("first_name", firstName)
+                .addFormDataPart("last_name", lastName)
                 .addFormDataPart("email", email)
                 .addFormDataPart("organization", institution)
                 .addFormDataPart("receive_email", "1")
@@ -144,7 +147,8 @@ public class MsfraggerVersionFetcherServer implements VersionFetcher {
                 .addFormDataPart("transfer", "academic")
                 .addFormDataPart("agreement2", "true")
                 .addFormDataPart("agreement3", "true")
-                .addFormDataPart("name", name)
+                .addFormDataPart("first_name", firstName)
+                .addFormDataPart("last_name", lastName)
                 .addFormDataPart("email", email)
                 .addFormDataPart("organization", institution)
                 .addFormDataPart("download", latestVerResponse + "$zip")

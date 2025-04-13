@@ -19,8 +19,9 @@ package org.nesvilab.fragpipe.dialogs;
 
 import static org.nesvilab.fragpipe.Fragpipe.WEB_DOMAIN;
 import static org.nesvilab.fragpipe.tabs.TabConfig.userEmail;
+import static org.nesvilab.fragpipe.tabs.TabConfig.userFirstName;
+import static org.nesvilab.fragpipe.tabs.TabConfig.userLastName;
 import static org.nesvilab.fragpipe.tabs.TabConfig.userInstitution;
-import static org.nesvilab.fragpipe.tabs.TabConfig.userName;
 
 import org.nesvilab.fragpipe.tools.fragger.MsfraggerVersionFetcherServer;
 import org.nesvilab.utils.SwingUtils;
@@ -44,7 +45,8 @@ public class DownloadToolsPanel extends JPanel {
 
   private final MigUtils mu = MigUtils.get();
 
-  private FormEntry feName;
+  private FormEntry feFirstName;
+  private FormEntry feLastName;
   private FormEntry feEmail;
   private FormEntry feInstitution;
   private JCheckBox license2;
@@ -80,17 +82,21 @@ public class DownloadToolsPanel extends JPanel {
             + "<a href=\"" + WEB_DOMAIN + "ionquant/IonQuant%20Academic%20Use%20License%2005162022.pdf\" target=\"blank_\">IonQuant</a>, and "
             + "<a href=\"" + WEB_DOMAIN + "diatracer/diaTracer%20UM%20%23%202024-417%20Academic%20Research%20Use%20License%2005142024.pdf\" target=\"blank_\">diaTracer</a>.<br><br>");
 
-    feName = mu.feb(UiUtils.uiTextBuilder().cols(40).create()).label("Name:").create();
+    feFirstName = mu.feb(UiUtils.uiTextBuilder().cols(40).create()).label("First Name:").create();
+    feLastName = mu.feb(UiUtils.uiTextBuilder().cols(40).create()).label("Last Name:").create();
     feEmail = mu.feb(UiUtils.uiTextBuilder().cols(40).create()).label("Email:").create();
     feInstitution = mu.feb(UiUtils.uiTextBuilder().cols(40).create()).label("Institution").create();
 
-    if (userName != null) {
-      ((UiText) feName.comp).setText(userName);
+    if (userFirstName != null) {
+      ((UiText) feFirstName.comp).setText(userFirstName);
+    }
+    if (userLastName != null) {
+      ((UiText) feLastName.comp).setText(userLastName);
     }
     if (userEmail != null) {
       ((UiText) feEmail.comp).setText(userEmail);
     }
-    if(userInstitution != null) {
+    if (userInstitution != null) {
       ((UiText) feInstitution.comp).setText(userInstitution);
     }
 
@@ -129,7 +135,7 @@ public class DownloadToolsPanel extends JPanel {
     btnSendRequest = new JButton("<html><b>Send Download Request</b></html>");
     btnSendRequest.addActionListener(e -> {
       try {
-        MsfraggerVersionFetcherServer fetcher = new MsfraggerVersionFetcherServer(getName(), getEmail(), getInstitution(), wantReceiveEmail());
+        MsfraggerVersionFetcherServer fetcher = new MsfraggerVersionFetcherServer(getFirstName(), getLastName(), getEmail(), getInstitution(), wantReceiveEmail());
         if (fetcher.sendRequest()) {
           feVerificationCode.comp.setEnabled(true);
           feVerificationCode.label().setEnabled(true);
@@ -141,8 +147,10 @@ public class DownloadToolsPanel extends JPanel {
 
     mu.add(panelTextboxes, t0).split().spanX().wrap();
 
-    mu.add(panelTextboxes, feName.label(), mu.ccR());
-    mu.add(panelTextboxes, feName.comp).spanX().wrap();
+    mu.add(panelTextboxes, feFirstName.label(), mu.ccR());
+    mu.add(panelTextboxes, feFirstName.comp).wrap();
+    mu.add(panelTextboxes, feLastName.label(), mu.ccR());
+    mu.add(panelTextboxes, feLastName.comp).wrap();
 
     mu.add(panelTextboxes, feEmail.label(), mu.ccR());
     mu.add(panelTextboxes, feEmail.comp).spanX().wrap();
@@ -180,14 +188,6 @@ public class DownloadToolsPanel extends JPanel {
 
     this.setLayout(new BorderLayout());
     this.add(scroll, BorderLayout.CENTER);
-  }
-
-  public String getName() {
-    if (feName == null || feName.comp == null || ((UiText) feName.comp).getText() == null) {
-      return null;
-    } else {
-      return ((UiText) feName.comp).getText().trim();
-    }
   }
 
   public String getEmail() {
@@ -239,6 +239,22 @@ public class DownloadToolsPanel extends JPanel {
       return null;
     } else {
       return uiTextVerificationCode.getText().trim();
+    }
+  }
+
+  public String getFirstName() {
+    if (feFirstName == null || feFirstName.comp == null || ((UiText) feFirstName.comp).getText() == null) {
+      return null;
+    } else {
+      return ((UiText) feFirstName.comp).getText().trim();
+    }
+  }
+
+  public String getLastName() {
+    if (feLastName == null || feLastName.comp == null || ((UiText) feLastName.comp).getText() == null) {
+      return null;
+    } else {
+      return ((UiText) feLastName.comp).getText().trim();
     }
   }
 }
