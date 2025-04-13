@@ -20,6 +20,7 @@ package org.nesvilab.fragpipe.tabs;
 import static org.nesvilab.fragpipe.Fragpipe.philosopherBinPath;
 
 import org.nesvilab.fragpipe.Fragpipe;
+import org.nesvilab.fragpipe.FragpipeLocations;
 import org.nesvilab.fragpipe.api.Bus;
 import org.nesvilab.fragpipe.api.DownloadDbHelper;
 import org.nesvilab.fragpipe.api.Notifications;
@@ -109,6 +110,11 @@ public class TabDatabase extends JPanelWithEnablement {
   private JPanel createPanelDbSelection() {
 
     uiTextDbPath = UiUtils.uiTextBuilder().cols(5).create();
+    Path defaultDbPath = FragpipeLocations.get().getOrMakeDirInRoot("database");
+    if (defaultDbPath != null) {
+      uiTextDbPath.setText(defaultDbPath.toString());
+      Bus.post(new MessageDbNewPath(defaultDbPath.toString()));
+    }
     uiTextDbPath.addFocusListener(new ContentChangedFocusAdapter(uiTextDbPath, (s, s2) -> {
       Bus.post(new MessageDbNewPath(s2));
     }));
