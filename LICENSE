@@ -5,7 +5,7 @@ FragPipe is a comprehensive computational platform designed for the analysis of 
 Independent software tools that are distributed with FragPipe are placed in 'tools' folder and include:
 - DIA-Umpire: open source (GPL 3.0) https://github.com/nesvilab/DIA-Umpire
 - Crystal-C: open source (Apache 2.0) https://github.com/Nesvilab/Crystal-C
-- MSBooster: open source (Apache 2.0) https://github.com/Nesvilab/MSBooster
+- MSBooster: open source (LGPL 3.0) https://github.com/Nesvilab/MSBooster
 - PeptideProphet (Philosopher version): open source (LGPL 2.0, GPL 2.0) https://github.com/nesvilab/philosopher, based on https://sourceforge.net/projects/sashimi/
 - ProteinProphet (Philosopher version): open source (LGPL 2.0, GPL 2.0) https://github.com/nesvilab/philosopher, based on https://sourceforge.net/projects/sashimi/
 - PTMProphet: open source (LGPL 2.0, GPL 2.0) https://sourceforge.net/projects/sashimi/
