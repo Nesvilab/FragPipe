@@ -19,6 +19,7 @@ AppPublisherURL={#AppURL}
 AppSupportURL={#AppURL}
 AppUpdatesURL={#AppURL}
 DefaultDirName={#DefaultInstallPath}-{#AppVersion}
+UsePreviousAppDir=no
 UninstallDisplayIcon={app}\bin\{#AppExeName}
 DisableProgramGroupPage=yes
 DisableDirPage=no
