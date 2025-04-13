@@ -130,7 +130,7 @@ public class PtmshepherdPanel extends JPanelBase {
   private JCheckBox checkRun;
   private JPanel pContent;
   private JPanel pTop;
-  private JPanel pIterativeLocalization;
+  // private JPanel pIterativeLocalization;
   private JPanel pDiagnosticMining;
   private JPanel pDiagnosticExtraction;
   private UiText uiTextVarMods;
@@ -772,13 +772,13 @@ public class PtmshepherdPanel extends JPanelBase {
     pContent = createPanelContent();
     pDiagnosticMining = createPanelDiagnosticMining();
     pDiagnosticExtraction = createPanelDiagnosticExtraction();
-    pIterativeLocalization = createPanelIterativeLocalization();
+    // pIterativeLocalization = createPanelIterativeLocalization();
 
     mu.add(this, pTop).spanX().growX().wrap();
     mu.add(this, pContent).spanX().growX().wrap();
     mu.add(this, pDiagnosticMining).spanX().growX().wrap();
     mu.add(this, pDiagnosticExtraction).spanX().growX().wrap();
-    mu.add(this, pIterativeLocalization).spanX().growX().wrap();
+    // mu.add(this, pIterativeLocalization).spanX().growX().wrap();
   }
 
   @Override
@@ -786,12 +786,12 @@ public class PtmshepherdPanel extends JPanelBase {
     super.initMore();
     loadDefaults(1, SearchTypeProp.open); // pre-populate, but only after renaming has happened in super.initMore()
 
-    SwingUtils.setEnablementUpdater(this, pIterativeLocalization, checkRun);
+    // SwingUtils.setEnablementUpdater(this, pIterativeLocalization, checkRun);
     SwingUtils.setEnablementUpdater(this, pDiagnosticMining, checkRun);
     SwingUtils.setEnablementUpdater(this, pDiagnosticExtraction, checkRun);
 
     // enable/disable second-level parameter areas when boxes are checked
-    SwingUtils.setEnablementUpdater(this, pIterativeLocalizationContent, uiCheckIterativeLocalization);
+    // SwingUtils.setEnablementUpdater(this, pIterativeLocalizationContent, uiCheckIterativeLocalization);
     SwingUtils.setEnablementUpdater(this, pDiagnosticMiningContent, uiCheckDiagnosticMining);
     SwingUtils.setEnablementUpdater(this, pDiagnosticKnownContent, uiCheckDiagnostic);
   }
