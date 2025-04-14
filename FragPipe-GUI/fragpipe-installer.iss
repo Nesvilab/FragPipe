@@ -4,7 +4,7 @@
 #define AppURL "https://fragpipe.nesvilab.org/"
 #define AppExeName "FragPipe-" + AppVersion + ".exe"
 #define SourcePath "build/github-release/FragPipe-" + AppVersion + "-windows/fragpipe-" + AppVersion
-#define DefaultInstallPath "C:\FragPipe"
+#define DefaultInstallPath "C:\FragPipe\FragPipe"
 #define LicenseFile "../LICENSE"
 
 [Setup]
