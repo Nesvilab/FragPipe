@@ -139,7 +139,7 @@ public class DiaTracerVersionFetcherServer implements VersionFetcher {
             if (responseBody != null && responseBody.contains("expired")) {
                 throw new IllegalStateException("The validation code has expired or is invalid. Please send a new request to the server.");
             } else {
-                throw new Exception("Could not download diaTracer from the server. Please check if you have put the validation code sent to your email. If you did not receive the code, click `Send Download Request` to get it.");
+                throw new Exception("Could not download diaTracer from the server. Please check if you have put the validation code sent to your email. If you did not receive the code, click `Send Verification Email` to get it.");
             }
         }
 

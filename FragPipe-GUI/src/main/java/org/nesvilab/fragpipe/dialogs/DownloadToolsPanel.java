@@ -132,7 +132,7 @@ public class DownloadToolsPanel extends JPanel {
     feVerificationCode.comp.setEnabled(false);
     feVerificationCode.label().setEnabled(false);
 
-    btnSendRequest = new JButton("<html><b>Send Download Request</b></html>");
+    btnSendRequest = new JButton("<html><b>Send Verification Email</b></html>");
     btnSendRequest.addActionListener(e -> {
       try {
         MsfraggerVersionFetcherServer fetcher = new MsfraggerVersionFetcherServer(getFirstName(), getLastName(), getEmail(), getInstitution(), wantReceiveEmail());

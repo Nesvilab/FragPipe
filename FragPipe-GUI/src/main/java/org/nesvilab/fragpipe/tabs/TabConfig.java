@@ -497,7 +497,7 @@ public class TabConfig extends JPanelWithEnablement {
 
         String verificationCode = p.getVerificationCode();
         if (verificationCode == null || verificationCode.isEmpty()) {
-          JOptionPane.showMessageDialog(this, "Please enter the verification code sent to your email.\nClick `Send Download Request` to get the code.", "Error", JOptionPane.ERROR_MESSAGE);
+          JOptionPane.showMessageDialog(this, "Please enter the verification code sent to your email.\nClick `Send Verification Email` to get the code.", "Error", JOptionPane.ERROR_MESSAGE);
           return;
         }
 
