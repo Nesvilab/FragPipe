@@ -330,10 +330,10 @@ public class TabBatch extends JPanelWithEnablement {
                     continue; // skip comment lines
                 }
                 String[] splits = line.split("\t");
-                String workflowPath = splits[0];
-                String manifestPath = splits[1];
-                String outputDir = splits[2];
-                String toolsFolderPath = splits.length > 3 ? splits[3]: "";
+                String workflowPath = splits[0].replace("\"", "");
+                String manifestPath = splits[1].replace("\"", "");
+                String outputDir = splits[2].replace("\"", "");
+                String toolsFolderPath = splits.length > 3 ? splits[3].replace("\"", ""): "";
                 int ram = 0, threads = 0;
                 try {
                     ram = splits.length > 4 ? Integer.parseInt(splits[4]) : 0;
