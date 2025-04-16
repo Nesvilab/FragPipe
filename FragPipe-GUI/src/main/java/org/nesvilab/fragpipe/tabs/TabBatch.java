@@ -107,7 +107,7 @@ public class TabBatch extends JPanelWithEnablement {
             // prepare the processes
             List<ProcessBuildersDescriptor> pbDescsBuilderDescs = new ArrayList<>(1);
 
-            for (BatchRun run : m.runs) {
+            for (BatchRun run : batchTable.model.getRuns()) {
                 CmdBatch cmdBatch = new CmdBatch(true, run.outputPath);
                 if (cmdBatch.configure(this, run)) {
                     ProcessBuildersDescriptor processBuildersDescriptor = cmdBatch.getBuilderDescriptor();
@@ -190,7 +190,7 @@ public class TabBatch extends JPanelWithEnablement {
 
     private JPanel createPanelBottom(TextConsole console) {
         uiCheckDryRun = UiUtils.createUiCheck("Dry Run", false);
-        btnRun = UiUtils.createButton("Run", e -> Bus.post(new MessageRunBatch(isDryRun(), batchTable.model.getRuns(), null)));
+        btnRun = UiUtils.createButton("Run", e -> Bus.post(new MessageRunBatch(isDryRun(), null)));
 
         JButton btnClearConsole = UiUtils.createButton("Clear Console", e -> clearConsole());
         uiCheckWordWrap = UiUtils.createUiCheck("Word wrap", true, e -> {

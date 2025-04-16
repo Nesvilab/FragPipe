@@ -25,12 +25,10 @@ import java.util.List;
 public class MessageRunBatch {
 
     public final boolean isDryRun;
-    public final List<BatchRun> runs;
     public final Path workdir;
 
-    public MessageRunBatch(boolean isDryRun, List<BatchRun> runs, Path workdir) {
+    public MessageRunBatch(boolean isDryRun, Path workdir) {
         this.isDryRun = isDryRun;
-        this.runs = runs;
         this.workdir = workdir;
     }
 }
