@@ -31,7 +31,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.apache.commons.lang3.JavaVersion;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
@@ -97,19 +96,14 @@ public class Msfragger {
   private static Version testJar(String jarPath) throws Exception {
     String verStr = null;
     boolean isVersionParsed = false;
-    List<Pattern> regexs = Arrays.asList(MsfraggerVerCmp.regexNewScheme1, MsfraggerVerCmp.regexOldScheme1); // New scheme first because most people are using the new version.
 
-    for (Pattern re : regexs) {
-      Matcher m = re.matcher(jarPath);
-      if (m.find()) {
-        isVersionParsed = true;
-        verStr = m.group(2);
-        break;
-      }
+    Matcher m = MsfraggerVerCmp.regex.matcher(jarPath);
+    if (m.find()) {
+      isVersionParsed = true;
+      verStr = m.group(2);
     }
 
     if (!isVersionParsed) {
-      regexs = Arrays.asList(MsfraggerVerCmp.regexNewScheme2, MsfraggerVerCmp.regexOldScheme2); // New scheme first because most people are using the new version.
       ProcessBuilder pb = new ProcessBuilder(Fragpipe.getBinJava(), "-jar", jarPath);
       pb.redirectErrorStream(true);
       Process pr = pb.start();
@@ -117,13 +111,10 @@ public class Msfragger {
       try (BufferedReader in = new BufferedReader(new InputStreamReader(pr.getInputStream()))) {
         String line;
         while ((line = in.readLine()) != null) {
-          for (Pattern re : regexs) {
-            Matcher m = re.matcher(line);
-            if (m.find()) {
-              isVersionParsed = true;
-              verStr = m.group(1);
-              break;
-            }
+          m = MsfraggerVerCmp.regex2.matcher(line);
+          if (m.find()) {
+            isVersionParsed = true;
+            verStr = m.group(1);
           }
           if (isVersionParsed) {
             break;
