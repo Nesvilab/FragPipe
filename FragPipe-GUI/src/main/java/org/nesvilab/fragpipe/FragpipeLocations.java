@@ -52,15 +52,17 @@ public class FragpipeLocations {
   private final Path workflows;
   private final Path databases;
   private final Path longTermStorage;
+  private final Path jobs;
 
   private FragpipeLocations(Path jarPath, Path cache, Path tools, Path workflows,
-      Path databases, Path longTermStorage) {
+      Path databases, Path jobs, Path longTermStorage) {
     this.jarPath = jarPath;
     this.cache = cache;
     this.tools = tools;
     this.workflows = workflows;
     this.databases = databases;
     this.longTermStorage = longTermStorage;
+    this.jobs = jobs;
   }
 
   public static class Holder {
@@ -105,9 +107,9 @@ public class FragpipeLocations {
       Path workflows = dir.resolve("../workflows");
       Path databases = dir.resolve("../databases");
       Path longTermStorage = CacheUtils.getTempDir();
-
+      Path jobs = dir.resolve("../jobs");
       // create locations if they don't yet exist
-      List<Path> paths = Arrays.asList(dir, cache, tools, workflows, databases, longTermStorage);
+      List<Path> paths = Arrays.asList(dir, cache, tools, workflows, databases, jobs, longTermStorage);
       log.debug("Fragpipe locations:\n\t{}",
           paths.stream().map(Path::toString).collect(Collectors.joining("\n\t")));
       for (Path path : paths) {
@@ -122,7 +124,7 @@ public class FragpipeLocations {
         }
       }
 
-      locations = new FragpipeLocations(jarPath, cache, tools, workflows, databases, longTermStorage);
+      locations = new FragpipeLocations(jarPath, cache, tools, workflows, databases, jobs, longTermStorage);
     }
   }
 
@@ -134,6 +136,10 @@ public class FragpipeLocations {
     return tools;
   }
 
+  public Path getDirJobs() {
+      return jobs;
+  }
+  
   public Path getDirDatabases() {
     return databases;
   }

@@ -140,7 +140,7 @@ public class TabConfig extends JPanelWithEnablement {
 
   public static final String TAB_NAME = "Config";
 
-  private UiText uiTextToolsFolder;
+  UiText uiTextToolsFolder;
   private HtmlStyledJEditorPane epFraggerVer;
   private HtmlStyledJEditorPane epIonQuantVer;
   private HtmlStyledJEditorPane epDiaTracerVer;
@@ -210,6 +210,7 @@ public class TabConfig extends JPanelWithEnablement {
 
   private void initMore() {
     Bus.register(this);
+    Bus.postSticky(this);
   }
 
   private void init() {

@@ -26,6 +26,7 @@ import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.nesvilab.fragpipe.Fragpipe;
+import org.nesvilab.fragpipe.FragpipeLocations;
 import org.nesvilab.fragpipe.FragpipeRun;
 import org.nesvilab.fragpipe.api.*;
 import org.nesvilab.fragpipe.cmd.*;
@@ -42,10 +43,7 @@ import org.nesvilab.utils.swing.*;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -80,7 +78,7 @@ public class TabBatch extends JPanelWithEnablement {
 
     private BatchTable batchTable;
     private static final String[] TABLE_BATCH_COL_NAMES = {"Workflow File Path", "Manifest File Path", "Output Directory",
-            "Tools Folder Path", "RAM", "Threads"};
+             "Tools Folder Path", "Fasta Path (optional)", "RAM", "Threads"};
     public static final String PROP_FILECHOOSER_LAST_PATH = "batch.filechooser.path";
 
 
@@ -241,11 +239,14 @@ public class TabBatch extends JPanelWithEnablement {
             setJTableColSize(batchTable, 4, 10, 150, 100);
         });
 
-        JButton btnLoadBatchTemplate = new JButton("Load Batch Template");
-        btnLoadBatchTemplate.addActionListener(this::actionBtnLoadBatchTemplate);
-        JButton btnSaveBatchTemplate = new JButton("Save Batch Template");
+        JButton btnLoadJobs = new JButton("Load Job(s)");     // loads jobs from built-in jobs folder
+        btnLoadJobs.addActionListener(e -> this.actionBtnLoadBatchTemplate(e, FragpipeLocations.get().getDirJobs().toString()));
+        JButton btnLoadBatchTemplate = new JButton("Load Job Manifest");    // loads jobs from user's saved manifest file(s)
+        btnLoadBatchTemplate.addActionListener(e -> this.actionBtnLoadBatchTemplate(e, Fragpipe.propsVarGet(PROP_FILECHOOSER_LAST_PATH)));
+        JButton btnSaveBatchTemplate = new JButton("Save Job Manifest");
         btnSaveBatchTemplate.addActionListener(this::actionBtnSaveBatchTemplate);
 
+        mu.add(pBatch, btnLoadJobs).split();
         mu.add(pBatch, btnLoadBatchTemplate).split();
         mu.add(pBatch, btnSaveBatchTemplate).split().wrap();
         mu.add(pBatch, tableScrollBatch, new CC().minHeight("100px").maxHeight("200px").growX().spanX().wrap());
@@ -313,8 +314,9 @@ public class TabBatch extends JPanelWithEnablement {
             data[i][1] = run.manifest;
             data[i][2] = run.outputPath;
             data[i][3] = run.toolsPath;
-            data[i][4] = run.ram;
-            data[i][5] = run.threads;
+            data[i][4] = run.fastaPath == null ? run.fastaStr : run.fastaPath;
+            data[i][5] = run.ram;
+            data[i][6] = run.threads;
         }
         return data;
     }
@@ -334,15 +336,16 @@ public class TabBatch extends JPanelWithEnablement {
                 String manifestPath = splits[1].replace("\"", "");
                 String outputDir = splits[2].replace("\"", "");
                 String toolsFolderPath = splits.length > 3 ? splits[3].replace("\"", ""): "";
+                String fastaPath = splits.length > 4 ? splits[4].replace("\"", ""): "";
                 int ram = 0, threads = 0;
                 try {
-                    ram = splits.length > 4 ? Integer.parseInt(splits[4]) : 0;
-                    threads = splits.length > 5 ? Integer.parseInt(splits[5]) : 0;
+                    ram = splits.length > 5 ? Integer.parseInt(splits[5]) : 0;
+                    threads = splits.length > 6 ? Integer.parseInt(splits[6]) : 0;
                 } catch (NumberFormatException e) {
                     log.error("Invalid number format for RAM or threads in batch template line {}: {}", lineIndex, e.getMessage());
                     SwingUtils.showErrorDialog(this, "Invalid number format for RAM or threads in batch template line " + lineIndex + ": " + e.getMessage(), "Number Format Error");
                 }
-                BatchRun run = new BatchRun(workflowPath, manifestPath, outputDir, toolsFolderPath, ram, threads);
+                BatchRun run = new BatchRun(workflowPath, manifestPath, outputDir, toolsFolderPath, fastaPath, ram, threads);
                 if (checkPaths(this, run, false)) {
                     runs.add(run);
                 }
@@ -376,59 +379,72 @@ public class TabBatch extends JPanelWithEnablement {
                 }
             }
         }
+        // only check fasta path if provided
+        if (run.fastaPath != null) {
+            if (!(Files.exists(run.fastaPath))) {
+                SwingUtils.showErrorDialog(parent, String.format("Fasta file path not found: %s\n This batch run will be skipped.", run.fastaPath), "File Not Found");
+                return false;
+            }
+        }
+        // todo: write fasta path to workflow if needed?
         return true;
     }
 
+    // Load job(s) or job manifest file(s)
+    private void actionBtnLoadBatchTemplate(ActionEvent event, String startPath) {
+        List<FileFilter> fileFilters = new ArrayList<>();
+        FileFilter filter = new FileNameExtensionFilter("Job Manifest file (.job)", "job");
+        fileFilters.add(filter);
 
-    private void actionBtnLoadBatchTemplate(ActionEvent event) {
-        List<FileFilter> tsvFilters = new ArrayList<>();
-        FileFilter filter = new FileNameExtensionFilter("Batch template file (.tsv or .txt)", "tsv", "txt");
-        tsvFilters.add(filter);
-
-        String loc = Fragpipe.propsVarGet(PROP_FILECHOOSER_LAST_PATH);
-        JFileChooser fc = FileChooserUtils.builder("Select the Batch template file to load")
+        JFileChooser fc = FileChooserUtils.builder("Select the Job Manifest file to load")
                 .approveButton("Select").mode(FileChooserUtils.FcMode.FILES_ONLY)
-                .acceptAll(false).multi(false).filters(tsvFilters)
-                .paths(Stream.of(loc)).create();
+                .acceptAll(false).multi(true).filters(fileFilters)
+                .paths(Stream.of(startPath)).create();
 
 
-        String selectedPath;
         int userSelection = fc.showOpenDialog(SwingUtils.findParentFrameForDialog(this));
         if (JFileChooser.APPROVE_OPTION == userSelection) {
-            selectedPath = fc.getSelectedFile().toString();
-            Fragpipe.propsVarSet(PROP_FILECHOOSER_LAST_PATH, selectedPath);
-            List<BatchRun> runs = parseBatchTemplate(selectedPath);
+            ArrayList<File> files = new ArrayList<>(Arrays.asList(fc.getSelectedFiles()));
+            List<BatchRun> runs = new ArrayList<>();
+            for (File file : files) {
+                Fragpipe.propsVarSet(PROP_FILECHOOSER_LAST_PATH, file.toString());
+                runs.addAll(parseBatchTemplate(file.toString()));
+            }
             batchTable.setData(runs);
         }
     }
 
     private void actionBtnSaveBatchTemplate(ActionEvent event) {
         // get file path to save
-        FileNameEndingFilter filter = new FileNameEndingFilter("Batch Template (.tsv)", "tsv");
-        Path savePath = TabWorkflow.getSaveFilePath(null, PROP_FILECHOOSER_LAST_PATH, filter, ".tsv", false, this);
+        FileNameEndingFilter filter = new FileNameEndingFilter("Job Manifest (.job)", "job");
+        Path savePath = TabWorkflow.getSaveFilePath(null, PROP_FILECHOOSER_LAST_PATH, filter, ".job", false, this);
 
         if (savePath == null) {
             // user cancelled action
             return;
         }
 
-        Vector<Vector> runs = batchTable.model.getDataVector();
+        List<BatchRun> runs = batchTable.model.getRuns();
         if (runs.isEmpty()) {
             return;
         }
         // save to file
         try {
-            PrintWriter out = new PrintWriter(savePath.toFile());
-            out.print("# " + String.join("\t", TABLE_BATCH_COL_NAMES) + "\n");
-            for (Vector<?> row : runs) {
-                out.print(row.stream().map(Object::toString).collect(Collectors.joining("\t")));
-                out.print("\n");
-            }
-            out.flush();
-            out.close();
+            saveJobsToFile(runs, savePath);
         } catch (IOException ex) {
-            log.error("Could not save batch template to file {} due to error: {}", savePath, ex.getMessage());
+            log.error("Could not save job manifest to file {} due to error: {}", savePath, ex.getMessage());
             SwingUtils.showErrorDialogWithStacktrace(ex, this);
         }
+    }
+
+    public static void saveJobsToFile(List<BatchRun> runs, Path savePath) throws IOException{
+        PrintWriter out = new PrintWriter(Files.newBufferedWriter(savePath));
+        out.print("# " + String.join("\t", TABLE_BATCH_COL_NAMES) + "\n");
+        for (BatchRun run : runs) {
+            out.print(run.toString());
+            out.print("\n");
+        }
+        out.flush();
+        out.close();
     }
 }

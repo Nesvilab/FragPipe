@@ -26,25 +26,39 @@ public class BatchRun {
     public String manifest;
     public String outputStr;
     public String toolsStr;
+    public String fastaStr;
     public int ram;
     public int threads;
     public Path workflowPath;
     public Path manifestPath;
     public Path outputPath;
     public Path toolsPath;
+    public Path fastaPath;
 
-    public BatchRun(String workflow, String manifest, String outputStr, String toolsStr, int ram, int threads) {
+    public BatchRun(String workflow, String manifest, String outputStr, String toolsStr, String fastaStr, int ram, int threads) {
         // record the input strings for error logging later (if needed)
         this.workflow = workflow;
         this.manifest = manifest;
         this.outputStr = outputStr;
         this.toolsStr = toolsStr;
+        this.fastaStr = fastaStr;
         this.ram = ram;
         this.threads = threads;
         workflowPath = PathUtils.existing(workflow);
         manifestPath = PathUtils.existing(manifest);
         outputPath = Path.of(outputStr);
         toolsPath = PathUtils.existing(toolsStr);
+        fastaPath = fastaStr.isEmpty() ? null : PathUtils.existing(fastaStr);
     }
 
+    // return tab delimited string
+    public String toString() {
+        return workflow + "\t" +
+                manifest + "\t" +
+                outputStr + "\t" +
+                toolsStr + "\t" +
+                fastaStr + "\t" +
+                ram + "\t" +
+                threads;
+    }
 }

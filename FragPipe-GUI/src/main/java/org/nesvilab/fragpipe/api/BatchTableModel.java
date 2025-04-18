@@ -27,14 +27,15 @@ public class BatchTableModel extends DefaultTableModel {
     private static final int COL_MANIFEST = 1;
     private static final int COL_OUTPUT = 2;
     private static final int COL_TOOLS = 3;
-    private static final int COL_RAM = 4;
-    private static final int COL_THREADS = 5;
+    private static final int COL_FASTA = 4;
+    private static final int COL_RAM = 5;
+    private static final int COL_THREADS = 6;
 
     public BatchTableModel(String[] colNames) {
         super(colNames, 0);
     }
 
-    // convert table data to BatchRuns and check paths
+    // convert table data to BatchRuns
     public List<BatchRun> getRuns() {
         List<BatchRun> runs = new ArrayList<>();
         for (int i = 0; i < getRowCount(); i++) {
@@ -43,6 +44,7 @@ public class BatchTableModel extends DefaultTableModel {
                     getValueAt(i, COL_MANIFEST).toString(),
                     getValueAt(i, COL_OUTPUT).toString(),
                     getValueAt(i, COL_TOOLS).toString(),
+                    getValueAt(i, COL_FASTA).toString(),
                     (int) getValueAt(i, COL_RAM),
                     (int) getValueAt(i, COL_THREADS));
             runs.add(run);

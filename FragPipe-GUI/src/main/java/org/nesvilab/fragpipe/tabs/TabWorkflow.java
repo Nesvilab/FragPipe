@@ -903,16 +903,9 @@ public class TabWorkflow extends JPanelWithEnablement {
       }
     }
 
-    Map<String, String> vetted = Seq.seq(PropertiesUtils.toMap(uiProps)).filter(kv -> filterPropsForWorkflow(kv.v1())).toMap(kv -> kv.v1, kv -> kv.v2);
-
+    // save workflow
     String desc = SwingUtils.tryExtractHtmlBody(ep.getText());
-    if (StringUtils.isNotBlank(desc)) {
-      vetted.put(PROP_WORKFLOW_DESC, desc);
-    }
-    vetted.put(PROP_WORKFLOW_SAVED_WITH_VER, Version.version());
-
-    // save
-    FragpipeCacheUtils.saveToFileSorted(PropertiesUtils.from(vetted), savePath, "Workflow: " + StringUtils.upToLastDot(savePath.getFileName().toString()));
+    saveWorkflow(savePath, desc, uiProps);
     SwingUtils.showInfoDialog(fp, "Saved to: " + savePath, "Workflow saved");
 
     epWorkflowsDesc.setText(desc);
@@ -920,6 +913,15 @@ public class TabWorkflow extends JPanelWithEnablement {
     if (FragpipeLocations.get().getDirWorkflows().equals(saveDir)) {
       Bus.post(new MessageUpdateWorkflows());
     }
+  }
+
+  public static void saveWorkflow(Path savePath, String desc, Properties props) {
+    Map<String, String> vetted = Seq.seq(PropertiesUtils.toMap(props)).filter(kv -> filterPropsForWorkflow(kv.v1())).toMap(kv -> kv.v1, kv -> kv.v2);
+    if (StringUtils.isNotBlank(desc)) {
+      vetted.put(PROP_WORKFLOW_DESC, desc);
+    }
+    vetted.put(PROP_WORKFLOW_SAVED_WITH_VER, Version.version());
+    FragpipeCacheUtils.saveToFileSorted(PropertiesUtils.from(vetted), savePath, "Workflow: " + StringUtils.upToLastDot(savePath.getFileName().toString()));
   }
 
   public static boolean filterPropsForWorkflow(final String k0) {
@@ -1251,7 +1253,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     table.printTable(path);
   }
 
-  private void manifestSave(Path path) throws IOException {
+  public void manifestSave(Path path) throws IOException {
     ArrayList<InputLcmsFile> files = tableModelRawFiles.dataCopy();
     String manifest = files.stream().map(f -> String.format("%s\t%s\t%s\t%s",
         f.getPath().toAbsolutePath().normalize(),

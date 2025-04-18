@@ -17,6 +17,7 @@
 
 package org.nesvilab.fragpipe.tabs;
 
+import static org.nesvilab.fragpipe.Fragpipe.getStickyStrict;
 import static org.nesvilab.fragpipe.cmd.CmdBase.constructClasspathString;
 
 import org.nesvilab.fragpipe.Fragpipe;
@@ -24,6 +25,7 @@ import org.nesvilab.fragpipe.FragpipeLocations;
 import org.nesvilab.fragpipe.FragpipeRun;
 import org.nesvilab.fragpipe.Version;
 import org.nesvilab.fragpipe.api.Bus;
+import org.nesvilab.fragpipe.api.FragpipeCacheUtils;
 import org.nesvilab.fragpipe.cmd.PbiBuilder;
 import org.nesvilab.fragpipe.cmd.ProcessBuilderInfo;
 import org.nesvilab.fragpipe.cmd.ToolingUtils;
@@ -38,6 +40,7 @@ import org.nesvilab.fragpipe.messages.MessageSaveLog;
 import org.nesvilab.fragpipe.messages.MessageShowAboutDialog;
 import org.nesvilab.fragpipe.process.ProcessResult;
 import org.nesvilab.fragpipe.tools.philosopher.ReportPanel;
+import org.nesvilab.fragpipe.util.BatchRun;
 import org.nesvilab.fragpipe.util.SDRFtable;
 import org.nesvilab.utils.PathUtils;
 import org.nesvilab.utils.StringUtils;
@@ -50,6 +53,7 @@ import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -264,6 +268,11 @@ public class TabRun extends JPanelWithEnablement {
       }
     });
 
+    JButton btnSaveJob = UiUtils.createButton("Save as Job", this::actionBtnSaveJob);
+    btnSaveJob.setToolTipText("Save the current configuration as a Job for future batch processing.\n" +
+        "The job can then be loaded on the Batch tab for batch processing.\n" +
+        "The job is saved in the jobs directory.");
+
     btnOpenPdv = UiUtils.createButton("Open FragPipe-PDV viewer", e -> {
       String[] t = {ToolingUtils.BATMASS_IO_JAR};
       List<Path> pdvPath = FragpipeLocations.checkToolsMissing(Seq.of(PDV_NAME).concat(t));
@@ -439,8 +448,9 @@ public class TabRun extends JPanelWithEnablement {
     mu.add(p, btnBrowse);
     mu.add(p, btnOpenInFileManager).wrap();
 
-    mu.add(p, btnRun).split(3);
+    mu.add(p, btnRun).split(4);
     mu.add(p, btnStop);
+    mu.add(p, btnSaveJob);
     mu.add(p, uiCheckDryRun);
     mu.add(p, uiCheckSaveSDRF).split(3);
     mu.add(p, feComboSDRFtype.label(), mu.ccR());
@@ -565,6 +575,50 @@ public class TabRun extends JPanelWithEnablement {
   public void on(MessageExportLog m) {
     log.debug("Got MessageExportLog, trying to save log");
     exportLogToFile(console, uiTextWorkdir.getNonGhostText());
+  }
+
+  private void actionBtnSaveJob(ActionEvent e) {
+    try {
+      saveJob();
+    } catch (IOException ex) {
+      log.error("IO Error while saving job", ex);
+      JOptionPane.showMessageDialog(this, "IO Error while saving job: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    }
+  }
+
+  public void saveJob() throws IOException {
+    final TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
+    final TabConfig tabConfig = Fragpipe.getStickyStrict(TabConfig.class);
+    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+    Date now = new Date();
+
+    // save current workflow and manifest to file
+    Path workflowPath = FragpipeLocations.get().getDirJobs().resolve(String.format("job_%s.workflow", df.format(now)));
+    Fragpipe fp0 = getStickyStrict(Fragpipe.class);
+    Properties uiProps = FragpipeCacheUtils.tabsSave0(fp0.tabs, false);
+    TabWorkflow.saveWorkflow(workflowPath, String.format("Saved automatically during creation of job_%s", df.format(now)), uiProps);
+
+    Path manifestPath = FragpipeLocations.get().getDirJobs().resolve(String.format("job_%s.fp-manifest", df.format(now)));
+    tabWorkflow.manifestSave(manifestPath);
+
+    // confirm output directory and tools path are not empty
+    if (getWorkdirText().isEmpty()) {
+      JOptionPane.showMessageDialog(this, "Output directory " + getWorkdirText() + " is empty. Cannot save job.", TAB_PREFIX + " error", JOptionPane.ERROR_MESSAGE);
+      return;
+    }
+    if (tabConfig.uiTextToolsFolder.getNonGhostText().isEmpty()) {
+      JOptionPane.showMessageDialog(this, "Tools folder on the config tab is not configured! Cannot save job.", TAB_PREFIX + " error", JOptionPane.ERROR_MESSAGE);
+      return;
+    }
+    // create the job
+    BatchRun job = new BatchRun(workflowPath.toString(), manifestPath.toString(), getWorkdirText(), tabConfig.uiTextToolsFolder.getNonGhostText(), "", tabWorkflow.getRamGb(), tabWorkflow.getThreads());
+
+    // save job to file
+    Path savePath = FragpipeLocations.get().getDirJobs().resolve((String.format("job_%s.job", df.format(now))));
+    ArrayList<BatchRun> jobs = new ArrayList<>();
+    jobs.add(job);
+    TabBatch.saveJobsToFile(jobs, savePath);
+    SwingUtils.showInfoDialog(this, String.format("Saved job to %s", savePath), "Job saved");
   }
 
   private void exportLogToFile(TextConsole console, String savePathHint) {
