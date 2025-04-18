@@ -245,10 +245,20 @@ public class TabBatch extends JPanelWithEnablement {
         btnLoadBatchTemplate.addActionListener(e -> this.actionBtnLoadBatchTemplate(e, Fragpipe.propsVarGet(PROP_FILECHOOSER_LAST_PATH)));
         JButton btnSaveBatchTemplate = new JButton("Save Job Manifest");
         btnSaveBatchTemplate.addActionListener(this::actionBtnSaveBatchTemplate);
+        JButton btnOpenJobsFolder = new JButton("Open Jobs Folder in File Manager");
+        btnOpenJobsFolder.addActionListener(e -> openJobsFolder());
+
+        JButton btnRemoveSelected = new JButton("Remove Selected");
+        btnRemoveSelected.addActionListener(e -> btnRemoveSelected());
+        JButton btnClearTable = new JButton("Clear Table");
+        btnClearTable.addActionListener(e -> clearTable());
 
         mu.add(pBatch, btnLoadJobs).split();
         mu.add(pBatch, btnLoadBatchTemplate).split();
-        mu.add(pBatch, btnSaveBatchTemplate).split().wrap();
+        mu.add(pBatch, btnSaveBatchTemplate).split();
+        mu.add(pBatch, btnOpenJobsFolder).split().wrap();
+        mu.add(pBatch, btnRemoveSelected).split();
+        mu.add(pBatch, btnClearTable).wrap();
         mu.add(pBatch, tableScrollBatch, new CC().minHeight("100px").maxHeight("200px").growX().spanX().wrap());
 
         pBottom = createPanelBottom(console);
@@ -410,7 +420,7 @@ public class TabBatch extends JPanelWithEnablement {
                 Fragpipe.propsVarSet(PROP_FILECHOOSER_LAST_PATH, file.toString());
                 runs.addAll(parseBatchTemplate(file.toString()));
             }
-            batchTable.setData(runs);
+            batchTable.addData(runs);
         }
     }
 
@@ -446,5 +456,30 @@ public class TabBatch extends JPanelWithEnablement {
         }
         out.flush();
         out.close();
+    }
+
+    private void btnRemoveSelected() {
+        int[] removeRows = batchTable.getSelectedRows();
+        for (int row : removeRows) {
+            batchTable.model.removeRow(row);
+        }
+    }
+
+    private void clearTable() {
+        batchTable.setData(new ArrayList<>());
+    }
+
+    private void openJobsFolder() {
+        Path jobsDir = FragpipeLocations.get().getDirJobs();
+        if (Files.exists(jobsDir) && Files.isDirectory(jobsDir)) {
+            try {
+                Desktop.getDesktop().open(jobsDir.toFile());
+            } catch (IOException e) {
+                log.error("Could not open jobs folder: {}", e.getMessage());
+                SwingUtils.showErrorDialog(this, "Could not open jobs folder: " + e.getMessage(), "Error");
+            }
+        } else {
+            SwingUtils.showErrorDialog(this, "Jobs folder does not exist or is not a directory.", "Error");
+        }
     }
 }

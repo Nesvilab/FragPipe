@@ -34,9 +34,18 @@ public class BatchTable extends JTable {
         this.runsToData = runsToData;
     }
 
+    // add data to the table, removing any previous data
     public void setData(List<BatchRun> runs) {
         Object[][] data = runsToData.apply(runs);
         model.setDataVector(data, colNames);
+    }
+
+    // append new data to the table
+    public void addData(List<BatchRun> runs) {
+        Object[][] data = runsToData.apply(runs);
+        for (Object[] row : data) {
+            model.addRow(row);
+        }
     }
 
 }
