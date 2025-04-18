@@ -18,6 +18,9 @@
 package org.nesvilab.fragpipe.tools.ionquant;
 
 import static org.nesvilab.fragpipe.cmd.CmdBase.constructClasspathString;
+import static org.nesvilab.fragpipe.tools.fragger.Msfragger.patternCustomer;
+import static org.nesvilab.fragpipe.tools.fragger.Msfragger.patternExpiryDate;
+import static org.nesvilab.fragpipe.tools.fragger.Msfragger.patternMode;
 import static org.nesvilab.fragpipe.cmd.CmdIonquant.JAR_IONQUANT_MAIN_CLASS;
 
 import org.nesvilab.fragpipe.Fragpipe;
@@ -49,8 +52,8 @@ import org.slf4j.LoggerFactory;
 public class IonQuant {
 
   private static final Logger log = LoggerFactory.getLogger(IonQuant.class);
-  private static final Pattern re = Pattern.compile("ionquant-(\\d+\\.\\d+\\.\\d+[\\w-]*).jar", Pattern.CASE_INSENSITIVE);
-  private static final Pattern re2 = Pattern.compile("ionquant-(\\d+\\.\\d+\\.\\d+[\\w-]*)", Pattern.CASE_INSENSITIVE);
+  private static final Pattern re = Pattern.compile("ionquant-(Commercial-)?(\\d+\\.\\d+\\.\\d+[\\w-]*).jar", Pattern.CASE_INSENSITIVE);
+  private static final Pattern re2 = Pattern.compile("ionquant-(Commercial-)?(\\d+\\.\\d+\\.\\d+[\\w-]*)", Pattern.CASE_INSENSITIVE);
 
   public static Version getVersion(Path jar) throws Exception {
     // only validate IonQuant version if the current Java version is 1.9 or higher
@@ -101,17 +104,29 @@ public class IonQuant {
   }
 
   private static Version testJar(String jarPath) throws Exception {
+
     String verStr = null;
     boolean isVersionParsed = false;
+    String license = "Academic";
+    String customer = "N/A";
+    String mode = "N/A";
+    String expiryDate = "N/A";
+    boolean isValid = true;
 
-    Matcher m = re.matcher(jarPath);
-    if (m.find()) {
-      isVersionParsed = true;
-      verStr = m.group(1);
-    } else {
+    
+    if (!jarPath.contains("-Commercial-")) {
+      Matcher m = re.matcher(jarPath);
+      if (m.find()) {
+        isVersionParsed = true;
+        verStr = m.group(2);
+      }
+    }
+
+    if (!isVersionParsed) {
       final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(CmdIonquant.JAR_DEPS));
       if (classpathJars == null) {
-        return new Version(isVersionParsed, verStr);
+        isValid = false;
+        return new Version(isVersionParsed, verStr, license, customer, mode, expiryDate, isValid);
       }
 
       List<String> cmd = new ArrayList<>();
@@ -122,6 +137,12 @@ public class IonQuant {
       cmd.add("-cp");
       cmd.add(constructClasspathString(classpathJars, Paths.get(jarPath)));
       cmd.add(JAR_IONQUANT_MAIN_CLASS);
+      Path licensePath = FragpipeLocations.locateLicense();
+      if (licensePath != null) {
+        cmd.add("--license");
+        cmd.add(licensePath.toAbsolutePath().normalize().toString());
+      }
+
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.redirectErrorStream(true);
       Process pr = pb.start();
@@ -129,19 +150,36 @@ public class IonQuant {
       try (BufferedReader in = new BufferedReader(new InputStreamReader(pr.getInputStream()))) {
         String line;
         while ((line = in.readLine()) != null) {
-          m = re2.matcher(line);
-          if (m.find()) {
-            isVersionParsed = true;
-            verStr = m.group(1);
+          if (line.startsWith("The license ")) {
+            license = "Commercial";
+            if (line.endsWith(" is corrupted.") || line.endsWith(" is not valid for this product.") || line.contains(" has expired.")) {
+              isValid = false;
+            } else {
+              isValid = true;
+              Matcher m1 = patternExpiryDate.matcher(line);
+              Matcher m2 = patternCustomer.matcher(line);
+              Matcher m3 = patternMode.matcher(line);
+              if (m1.find()) {
+                expiryDate = m1.group(1);
+              }
+              if (m2.find()) {
+                customer = m2.group(1);
+              }
+              if (m3.find()) {
+                mode = m3.group(1);
+              }
+            }
           }
 
-          if (isVersionParsed) {
-            break;
+          Matcher m = re2.matcher(line);
+          if (m.find()) {
+            isVersionParsed = true;
+            verStr = m.group(2);
           }
         }
       }
     }
 
-    return new Version(isVersionParsed, verStr);
+    return new Version(isVersionParsed, verStr, license, customer, mode, expiryDate, isValid);
   }
 }

@@ -512,10 +512,10 @@ public class TabConfig extends JPanelWithEnablement {
               if (msfraggerPath != null) {
                 Bus.post(new MessageMsfraggerNewBin(msfraggerPath.toAbsolutePath().normalize().toString()));
               } else {
-                Bus.postSticky(new NoteConfigMsfragger("N/A", "N/A", null));
+                Bus.postSticky(new NoteConfigMsfragger("N/A", "N/A", "N/A", "N/A", "N/A", "N/A", false, false, new ValidationException("MSFragger path is null.")));
               }
             } catch (Exception ex) {
-              Bus.postSticky(new NoteConfigMsfragger("N/A", "N/A", ex));
+              Bus.postSticky(new NoteConfigMsfragger("N/A", "N/A", "N/A", "N/A", "N/A", "N/A", false, false, ex));
             }
           }).start();
         } else {
@@ -531,10 +531,10 @@ public class TabConfig extends JPanelWithEnablement {
               if (ionquantPath != null) {
                 Bus.post(new MessageIonQuantNewBin(ionquantPath.toAbsolutePath().normalize().toString()));
               } else {
-                Bus.postSticky(new NoteConfigIonQuant("N/A", "N/A", false, false, new ValidationException("IonQuant path is null.")));
+                Bus.postSticky(new NoteConfigIonQuant("N/A", "N/A", "N/A", "N/A", "N/A", "N/A", false, false, new ValidationException("IonQuant path is null.")));
               }
             } catch (Exception ex) {
-              Bus.postSticky(new NoteConfigIonQuant("N/A", "N/A", false, false, ex));
+              Bus.postSticky(new NoteConfigIonQuant("N/A", "N/A", "N/A", "N/A", "N/A", "N/A", false, false, ex));
             }
           }).start();
         } else {
@@ -550,10 +550,10 @@ public class TabConfig extends JPanelWithEnablement {
               if (diatracerPath != null) {
                 Bus.post(new MessageDiaTracerNewBin(diatracerPath.toAbsolutePath().normalize().toString()));
               } else {
-                Bus.postSticky(new NoteConfigDiaTracer("N/A", "N/A", false, false, new ValidationException("diaTracer path is null.")));
+                Bus.postSticky(new NoteConfigDiaTracer("N/A", "N/A", "N/A", "N/A", "N/A", "N/A", false, false, new ValidationException("diaTracer path is null.")));
               }
             } catch (Exception ex) {
-              Bus.postSticky(new NoteConfigDiaTracer("N/A", "N/A", false, false, ex));
+              Bus.postSticky(new NoteConfigDiaTracer("N/A", "N/A", "N/A", "N/A", "N/A", "N/A", false, false, ex));
             }
           }).start();
         } else {
@@ -563,7 +563,7 @@ public class TabConfig extends JPanelWithEnablement {
         uiTextToolsFolder.setText(toolsPath.toAbsolutePath().normalize().toString());
       }
     } catch (Exception ex) {
-      Bus.postSticky(new NoteConfigMsfragger("N/A", "N/A", ex));
+      Bus.postSticky(new NoteConfigMsfragger("N/A", "N/A", "N/A", "N/A", "N/A", "N/A", false, false, ex));
     }
   }
 
@@ -615,51 +615,43 @@ public class TabConfig extends JPanelWithEnablement {
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageMsfraggerNewBin m) {
     if (StringUtils.isBlank(m.binPath) || !Files.exists(Paths.get(m.binPath))) {
-      Bus.postSticky(new NoteConfigMsfragger(m.binPath, "N/A", false, new ValidationException("MSFragger path " + m.binPath + " does not exist.")));
+      Bus.postSticky(new NoteConfigMsfragger(m.binPath, "N/A", "N/A", "N/A", "N/A", "N/A", false, false, new ValidationException("MSFragger path " + m.binPath + " does not exist.")));
       return;
     }
 
     if (!validateJarContents(Paths.get(m.binPath), "MSFragger.class", msfraggerRegex)) {
-      Bus.postSticky(new NoteConfigMsfragger(m.binPath, "N/A", false, new ValidationException("Not a MSFragger jar.")));
+      Bus.postSticky(new NoteConfigMsfragger(m.binPath, "N/A", "N/A", "N/A", "N/A", "N/A", false, false, new ValidationException("Not a MSFragger jar.")));
       return;
     }
 
     if (m.binPath.contains(" ")) {
-      Bus.postSticky(new NoteConfigMsfragger(m.binPath, "N/A", false, new ValidationException("There are spaces in the path: \"" + m.binPath + "\"")));
+      Bus.postSticky(new NoteConfigMsfragger(m.binPath, "N/A", "N/A", "N/A", "N/A", "N/A", false, false, new ValidationException("There are spaces in the path: \"" + m.binPath + "\"")));
       return;
     }
 
     Version v;
     try {
       v = Msfragger.getVersion(Paths.get(m.binPath));
-      if (v.isVersionParsed) {
-        if (v.version.compareTo(msfraggerMinVersion) >= 0) {
-          Bus.postSticky(new NoteConfigMsfragger(m.binPath, v.version.toString()));
-        } else {
-          Bus.postSticky(new NoteConfigMsfragger(m.binPath, v.version.toString(), true, null));
-        }
-      } else {
-        Bus.postSticky(new NoteConfigMsfragger(m.binPath, "N/A", null));
-      }
+      Bus.postSticky(new NoteConfigMsfragger(m.binPath, v.version.toString(), v.license, v.customer, v.mode, v.expiryDate, v.isValid, v.version.compareTo(msfraggerMinVersion) < 0, v.isVersionParsed ? null : new ValidationException("Could not parse the version.")));
     } catch (Exception e) {
-      Bus.postSticky(new NoteConfigMsfragger(m.binPath, "N/A", e));
+      Bus.postSticky(new NoteConfigMsfragger(m.binPath, "N/A", "N/A", "N/A", "N/A", "N/A", false, false, e));
     }
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageIonQuantNewBin m) {
     if (StringUtils.isBlank(m.binPath) || !Files.exists(Paths.get(m.binPath))) {
-      Bus.postSticky(new NoteConfigIonQuant(m.binPath, "N/A", false, false, new ValidationException("IonQuant path " + m.binPath + " does not exist.")));
+      Bus.postSticky(new NoteConfigIonQuant(m.binPath, "N/A", "N/A", "N/A", "N/A", "N/A", false, false, new ValidationException("IonQuant path " + m.binPath + " does not exist.")));
       return;
     }
 
     if (!validateJarContents(Paths.get(m.binPath), "IonQuant.class", ionquantRegex)) {
-      Bus.postSticky(new NoteConfigIonQuant(m.binPath, "N/A", false, false, new ValidationException("Not an IonQuant jar.")));
+      Bus.postSticky(new NoteConfigIonQuant(m.binPath, "N/A", "N/A", "N/A", "N/A", "N/A", false, false, new ValidationException("Not an IonQuant jar.")));
       return;
     }
 
     if (m.binPath.contains(" ")) {
-      Bus.postSticky(new NoteConfigIonQuant(m.binPath, "N/A", false, false, new ValidationException("There are spaces in the path: \"" + m.binPath + "\"")));
+      Bus.postSticky(new NoteConfigIonQuant(m.binPath, "N/A", "N/A", "N/A", "N/A", "N/A", false, false, new ValidationException("There are spaces in the path: \"" + m.binPath + "\"")));
       return;
     }
 
@@ -667,33 +659,29 @@ public class TabConfig extends JPanelWithEnablement {
     try {
       v = IonQuant.getVersion(Paths.get(m.binPath));
       if (v.isVersionParsed) {
-        if (v.version.compareTo(ionquantMinVersion) >= 0) {
-          Bus.postSticky(new NoteConfigIonQuant(m.binPath, v.version.toString(), false, true, null));
-        } else {
-          Bus.postSticky(new NoteConfigIonQuant(m.binPath, v.version.toString(), true, false, null));
-        }
+        Bus.postSticky(new NoteConfigIonQuant(m.binPath, v.version.toString(), v.license, v.customer, v.mode, v.expiryDate, v.isValid, v.version.compareTo(ionquantMinVersion) < 0, null));
       } else {
-        Bus.postSticky(new NoteConfigIonQuant(m.binPath, "N/A", false, false, new ValidationException("Could not parse the version.")));
+        Bus.postSticky(new NoteConfigIonQuant(m.binPath, "N/A", "N/A", "N/A", "N/A", "N/A", false, false, new ValidationException("Could not parse the version.")));
       }
     } catch (Exception e) {
-      Bus.postSticky(new NoteConfigIonQuant(m.binPath, "N/A", false, false, e));
+      Bus.postSticky(new NoteConfigIonQuant(m.binPath, "N/A", "N/A", "N/A", "N/A", "N/A", false, false, e));
     }
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageDiaTracerNewBin m) {
     if (StringUtils.isBlank(m.binPath) || !Files.exists(Paths.get(m.binPath))) {
-      Bus.postSticky(new NoteConfigDiaTracer(m.binPath, "N/A", false, false, new ValidationException("diaTracer path " + m.binPath + " does not exist.")));
+      Bus.postSticky(new NoteConfigDiaTracer(m.binPath, "N/A", "N/A", "N/A", "N/A", "N/A", false, false, new ValidationException("diaTracer path " + m.binPath + " does not exist.")));
       return;
     }
 
     if (!validateJarContents(Paths.get(m.binPath), "diaTracerMainClass.class", diatracerRegex)) {
-      Bus.postSticky(new NoteConfigDiaTracer(m.binPath, "N/A", false, false, new ValidationException("Not an diaTracer jar.")));
+      Bus.postSticky(new NoteConfigDiaTracer(m.binPath, "N/A", "N/A", "N/A", "N/A", "N/A", false, false, new ValidationException("Not an diaTracer jar.")));
       return;
     }
 
     if (m.binPath.contains(" ")) {
-      Bus.postSticky(new NoteConfigDiaTracer(m.binPath, "N/A", false, false, new ValidationException("There are spaces in the path: \"" + m.binPath + "\"")));
+      Bus.postSticky(new NoteConfigDiaTracer(m.binPath, "N/A", "N/A", "N/A", "N/A", "N/A", false, false, new ValidationException("There are spaces in the path: \"" + m.binPath + "\"")));
       return;
     }
 
@@ -701,16 +689,12 @@ public class TabConfig extends JPanelWithEnablement {
     try {
       v = DiaTracer.getVersion(Paths.get(m.binPath));
       if (v.isVersionParsed) {
-        if (v.version.compareTo(diatracerMinVersion) >= 0) {
-          Bus.postSticky(new NoteConfigDiaTracer(m.binPath, v.version.toString(), false, true, null));
-        } else {
-          Bus.postSticky(new NoteConfigDiaTracer(m.binPath, v.version.toString(), true, false, null));
-        }
+        Bus.postSticky(new NoteConfigDiaTracer(m.binPath, v.version.toString(), v.license, v.customer, v.mode, v.expiryDate, v.isValid, v.version.compareTo(diatracerMinVersion) < 0, null));
       } else {
-        Bus.postSticky(new NoteConfigDiaTracer(m.binPath, "N/A", false, false, new ValidationException("Could not parse the version.")));
+        Bus.postSticky(new NoteConfigDiaTracer(m.binPath, "N/A", "N/A", "N/A", "N/A", "N/A", false, false, new ValidationException("Could not parse the version.")));
       }
     } catch (Exception e) {
-      Bus.postSticky(new NoteConfigDiaTracer(m.binPath, "N/A", false, false, e));
+      Bus.postSticky(new NoteConfigDiaTracer(m.binPath, "N/A", "N/A", "N/A", "N/A", "N/A", false, false, e));
     }
   }
 
@@ -741,8 +725,6 @@ public class TabConfig extends JPanelWithEnablement {
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteConfigMsfragger m) {
-    log.debug("Got {}", m);
-
     Path existing = PathUtils.existing(m.path);
     if (existing != null) {
       Fragpipe.propsVarSet(ThisAppProps.PROP_BINARIES_IN, existing.toString());
@@ -758,7 +740,11 @@ public class TabConfig extends JPanelWithEnablement {
       epFraggerVer.setText("MSFragger version: too old, not supported anymore");
       Bus.post(new MessageBalloon(TIP_MSFRAGGER_BIN, uiTextToolsFolder, "MSFragger " + msfraggerMinVersion + " is required.", true));
     } else {
-      epFraggerVer.setText("MSFragger version: " + m.version);
+      if (m.license.equals("Academic")) {
+        epFraggerVer.setText("MSFragger version: " + m.version + " (Academic license)");
+      } else {
+        epFraggerVer.setText("MSFragger version: " + m.version + (m.isValid ? "" : " <span style='color:red'>(License is invalid)</span>") + " (License to " + m.customer + ". Mode: " + m.mode + ". Expires on " + m.expiryDate + ")");
+      }
       Notifications.tryClose(TIP_MSFRAGGER_BIN);
     }
     if (m.isValid() && !m.isTooOld) {
@@ -783,7 +769,11 @@ public class TabConfig extends JPanelWithEnablement {
       epIonQuantVer.setText("IonQuant version: too old, not supported anymore");
       Bus.post(new MessageBalloon(TIP_IONQUANT_BIN, uiTextToolsFolder, "IonQuant " + ionquantMinVersion + " is required.", true));
     } else {
-      epIonQuantVer.setText("IonQuant version: " + m.version);
+      if (m.license.equals("Academic")) {
+        epIonQuantVer.setText("IonQuant version: " + m.version + " (Academic license)");
+      } else {
+        epIonQuantVer.setText("IonQuant version: " + m.version + (m.isValid ? "" : " <span style='color:red'>(License is invalid)</span>") + " (License to " + m.customer + ". Mode: " + m.mode + ". Expires on " + m.expiryDate + ")");
+      }
       Notifications.tryClose(TIP_IONQUANT_BIN);
     }
     if (m.isValid() && !m.isTooOld) {
@@ -808,7 +798,11 @@ public class TabConfig extends JPanelWithEnablement {
       epDiaTracerVer.setText("diaTracer version: too old, not supported anymore");
       Bus.post(new MessageBalloon(TIP_DIATRACER_BIN, uiTextToolsFolder, "diaTracer " + diatracerMinVersion + " is required.", true));
     } else {
-      epDiaTracerVer.setText("diaTracer version: " + m.version);
+      if (m.license.equals("Academic")) {
+        epDiaTracerVer.setText("diaTracer version: " + m.version + " (Academic license)");
+      } else {
+        epDiaTracerVer.setText("diaTracer version: " + m.version + (m.isValid ? "" : " <span style='color:red'>(License is invalid)</span>") + " (License to " + m.customer + ". Mode: " + m.mode + ". Expires on " + m.expiryDate + ")");
+      }
       Notifications.tryClose(TIP_DIATRACER_BIN);
     }
     if (m.isValid() && !m.isTooOld) {

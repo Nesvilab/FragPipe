@@ -22,29 +22,31 @@ import java.util.StringJoiner;
 
 public class NoteConfigMsfragger implements INoteConfig {
 
-  public final String path;
-  public final String version;
-  public final boolean isTooOld;
-  public final Throwable ex;
+  public static String path;
+  public static String version;
+  public static String license;
+  public static String customer;
+  public static String mode;
+  public static String expiryDate;
+  public static boolean isValid;
+  public static boolean isTooOld;
+  public static Throwable ex;
 
-  public NoteConfigMsfragger(String path, String version) {
-    this(path, version, (path == null || path.trim().isEmpty() || version.trim().equalsIgnoreCase("n/a")) ? new ValidationException("MSFragger path or version does not exist.") : null);
-  }
-
-  public NoteConfigMsfragger(String path, String version, Throwable ex) {
-    this(path, version, false, ex);
-  }
-
-  public NoteConfigMsfragger(String path, String version, boolean isTooOld, Throwable ex) {
-    this.path = path;
-    this.version = version;
-    this.isTooOld = isTooOld;
-    this.ex = ex;
+  public NoteConfigMsfragger(String path, String version, String license, String customer, String mode, String expiryDate, boolean isValid, boolean isTooOld, Throwable ex) {
+    NoteConfigMsfragger.path = path;
+    NoteConfigMsfragger.version = version;
+    NoteConfigMsfragger.license = license;
+    NoteConfigMsfragger.customer = customer;
+    NoteConfigMsfragger.mode = mode;
+    NoteConfigMsfragger.expiryDate = expiryDate;
+    NoteConfigMsfragger.isValid = isValid;
+    NoteConfigMsfragger.isTooOld = isTooOld;
+    NoteConfigMsfragger.ex = (path == null || path.trim().isEmpty() || version.trim().equalsIgnoreCase("n/a")) ? new ValidationException("MSFragger path or version does not exist.") : null;
   }
 
   @Override
   public boolean isValid() {
-    return ex == null && path != null && version != null && !isTooOld && !path.isEmpty() && !version.isEmpty() && !path.trim().equalsIgnoreCase("n/a") && !version.trim().equalsIgnoreCase("n/a");
+    return ex == null && !isTooOld && isValid && !path.contentEquals("N/A") && !version.contentEquals("N/A");
   }
 
   @Override
@@ -52,6 +54,10 @@ public class NoteConfigMsfragger implements INoteConfig {
     return new StringJoiner(", ", NoteConfigMsfragger.class.getSimpleName() + "[", "]")
         .add("path='" + path + "'")
         .add("version='" + version + "'")
+        .add("license='" + license + "'")
+        .add("customer='" + customer + "'")
+        .add("mode='" + mode + "'")
+        .add("expiryDate='" + expiryDate + "'")
         .add("isTooOld=" + isTooOld)
         .add("validation=" + (ex == null ? "null" : ex.getMessage()))
         .toString();

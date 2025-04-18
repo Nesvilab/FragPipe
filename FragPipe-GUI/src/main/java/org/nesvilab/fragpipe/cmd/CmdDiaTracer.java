@@ -98,6 +98,11 @@ public class CmdDiaTracer extends CmdBase {
       cmd.add("-cp");
       cmd.add(constructClasspathString(classpathJars, binDiaTracer));
       cmd.add(CmdDiaTracer.JAR_DIATRACER_MAIN_CLASS);
+      Path licensePath = FragpipeLocations.locateLicense();
+      if (licensePath != null) {
+        cmd.add("--license");
+        cmd.add(licensePath.toAbsolutePath().normalize().toString());
+      }
       cmd.add("--dFilePath");
       cmd.add(f.getPath().toAbsolutePath().normalize().toString());
       cmd.add("--workDir");

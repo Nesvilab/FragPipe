@@ -20,6 +20,7 @@ package org.nesvilab.fragpipe.cmd;
 import static org.nesvilab.utils.PathUtils.testFilePath;
 
 import org.nesvilab.fragpipe.Fragpipe;
+import org.nesvilab.fragpipe.FragpipeLocations;
 import org.nesvilab.fragpipe.api.InputLcmsFile;
 import org.nesvilab.fragpipe.api.PyInfo;
 import org.nesvilab.fragpipe.exceptions.NoStickyException;
@@ -560,6 +561,12 @@ public class CmdMsfragger extends CmdBase {
           cmd.add(savedGpfDiaParamsPath.toString());
         } else if (e.getKey().contentEquals("DDA+")) {
           cmd.add(savedDdaPlusParamsPath.toString());
+        }
+
+        Path licensePath = FragpipeLocations.locateLicense();
+        if (licensePath != null) {
+          cmd.add("--license");
+          cmd.add(licensePath.toAbsolutePath().normalize().toString());
         }
 
         // check if the command length is ok so far

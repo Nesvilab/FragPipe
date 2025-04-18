@@ -18,6 +18,7 @@
 package org.nesvilab.fragpipe.tools.fragger;
 
 import org.nesvilab.fragpipe.Fragpipe;
+import org.nesvilab.fragpipe.FragpipeLocations;
 import org.nesvilab.fragpipe.api.Bus;
 import org.nesvilab.fragpipe.api.VersionFetcher;
 import org.nesvilab.fragpipe.exceptions.ValidationException;
@@ -31,6 +32,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.lang3.JavaVersion;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
@@ -40,21 +42,19 @@ import org.slf4j.LoggerFactory;
 public class Msfragger {
 
   private static final Logger log = LoggerFactory.getLogger(Msfragger.class);
+  public static final Pattern patternExpiryDate = Pattern.compile("Expiry date: (\\d{4}-\\d{2}-\\d{2}).");
+  public static final Pattern patternCustomer = Pattern.compile("Customer: ([^.]+).");
+  public static final Pattern patternMode = Pattern.compile("Mode: ([^.]+).");
 
   public static Version getVersion(Path jar) throws Exception {
     // only validate Fragger version if the current Java version is 1.9 or higher
-    Version test;
     if (!SystemUtils.isJavaVersionAtLeast(JavaVersion.JAVA_9)) {
       // we can't test fragger binary version when java version is less than 1.9
       throw new ValidationException("MSFragger requires Java 9+, can't check version without it.");
     }
 
     // get the version reported by the current executable
-    test = testJar(jar.toString());
-    if (!test.isVersionParsed) {
-      throw new ValidationException("Could not get version info with given jar: " + jar);
-    }
-    return test;
+    return testJar(jar.toString());
   }
 
 
@@ -94,50 +94,94 @@ public class Msfragger {
   }
 
   private static Version testJar(String jarPath) throws Exception {
+
     String verStr = null;
     boolean isVersionParsed = false;
+    String license = "Academic";
+    String customer = "N/A";
+    String mode = "N/A";
+    String expiryDate = "N/A";
+    boolean isValid = true;
 
-    Matcher m = MsfraggerVerCmp.regex.matcher(jarPath);
-    if (m.find()) {
-      isVersionParsed = true;
-      verStr = m.group(2);
+    if (!jarPath.contains("-Commercial-")) {
+      Matcher m = MsfraggerVerCmp.regex.matcher(jarPath);
+      if (m.find()) {
+        isVersionParsed = true;
+        verStr = m.group(2);
+      }
     }
 
     if (!isVersionParsed) {
-      ProcessBuilder pb = new ProcessBuilder(Fragpipe.getBinJava(), "-jar", jarPath);
+      Path licensePath = FragpipeLocations.locateLicense();
+      ProcessBuilder pb;
+      if (licensePath == null) {
+        pb = new ProcessBuilder(Fragpipe.getBinJava(), "-jar", jarPath);
+      } else {
+        pb = new ProcessBuilder(Fragpipe.getBinJava(), "-jar", jarPath, "--license", licensePath.toAbsolutePath().normalize().toString());
+      }
       pb.redirectErrorStream(true);
       Process pr = pb.start();
       pr.waitFor(5, TimeUnit.SECONDS);
       try (BufferedReader in = new BufferedReader(new InputStreamReader(pr.getInputStream()))) {
         String line;
         while ((line = in.readLine()) != null) {
-          m = MsfraggerVerCmp.regex2.matcher(line);
+          if (line.startsWith("The license ")) {
+            license = "Commercial";
+            if (line.endsWith(" is corrupted.") || line.endsWith(" is not valid for this product.") || line.contains(" has expired.")) {
+              isValid = false;
+            } else {
+              isValid = true;
+            }
+            Matcher m1 = patternExpiryDate.matcher(line);
+            Matcher m2 = patternCustomer.matcher(line);
+            Matcher m3 = patternMode.matcher(line);
+            if (m1.find()) {
+              expiryDate = m1.group(1);
+            }
+            if (m2.find()) {
+              customer = m2.group(1);
+            }
+            if (m3.find()) {
+              mode = m3.group(1);
+            }
+          } else if (line.startsWith("No license file found.")) {
+            isValid = false;
+          }
+         
+          Matcher m = MsfraggerVerCmp.regex2.matcher(line);
           if (m.find()) {
             isVersionParsed = true;
-            verStr = m.group(1);
-          }
-          if (isVersionParsed) {
-            break;
+            verStr = m.group(2);
           }
         }
       }
     }
 
-    return new Version(isVersionParsed, verStr);
+    return new Version(isVersionParsed, verStr, license, customer, mode, expiryDate, isValid);
   }
 
   public static class Version {
 
-    final public boolean isVersionParsed;
-    final public DefaultArtifactVersion version;
+    public final boolean isVersionParsed;
+    public final DefaultArtifactVersion version;
+    public final String license;
+    public final String customer;
+    public final String mode;
+    public final String expiryDate;
+    public final boolean isValid;
 
-    public Version(boolean isVersionParsed, String version) {
+    public Version(boolean isVersionParsed, String version, String license, String customer, String mode, String expiryDate, boolean isValid) {
       this.isVersionParsed = isVersionParsed;
-      if (isVersionParsed && version != null) {
+      if (version != null) {
         this.version = new DefaultArtifactVersion(version);
       } else {
         this.version = new DefaultArtifactVersion("N/A");
       }
+      this.license = license;
+      this.customer = customer;
+      this.mode = mode;
+      this.expiryDate = expiryDate;
+      this.isValid = isValid;
     }
   }
 }

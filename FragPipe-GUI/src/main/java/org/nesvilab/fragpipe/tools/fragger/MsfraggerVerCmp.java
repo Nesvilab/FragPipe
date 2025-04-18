@@ -23,8 +23,8 @@ import org.nesvilab.utils.VersionComparator;
 
 public class MsfraggerVerCmp implements Comparator<String> {
 
-  public static Pattern regex = Pattern.compile("(MSFragger-(\\d+\\.\\d+[a-z0-9.-]*)).jar", Pattern.CASE_INSENSITIVE);
-  public static Pattern regex2 = Pattern.compile("(\\d+\\.\\d+[a-z0-9.-]*)");
+  public static Pattern regex = Pattern.compile("MSFragger-(Commercial-)?(\\d+\\.\\d+[a-z0-9.-]*).jar", Pattern.CASE_INSENSITIVE);
+  public static Pattern regex2 = Pattern.compile("MSFragger-(Commercial-)?(\\d+\\.\\d+[a-z0-9.-]*)", Pattern.CASE_INSENSITIVE);
 
   static final VersionComparator VER_CMP = new VersionComparator();
   private static final MsfraggerVerCmp INSTANCE = new MsfraggerVerCmp();

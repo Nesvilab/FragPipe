@@ -23,30 +23,30 @@ import java.util.StringJoiner;
 public class NoteConfigDiaTracer implements INoteConfig {
 
   public static String path;
-  public static String version = "N/A";
+  public static String version;
+  public static String license;
+  public static String customer;
+  public static String mode;
+  public static String expiryDate;
+  public static boolean isValid;
   public static boolean isTooOld;
-  public static boolean enabled;
   public static Throwable ex;
 
-  public NoteConfigDiaTracer(String path, String version, boolean isTooOld, boolean enabled, Throwable ex) {
+  public NoteConfigDiaTracer(String path, String version, String license, String customer, String mode, String expiryDate, boolean isValid, boolean isTooOld, Throwable ex) {
     NoteConfigDiaTracer.path = path;
     NoteConfigDiaTracer.version = version;
+    NoteConfigDiaTracer.license = license;
+    NoteConfigDiaTracer.customer = customer;
+    NoteConfigDiaTracer.mode = mode;
+    NoteConfigDiaTracer.expiryDate = expiryDate;
+    NoteConfigDiaTracer.isValid = isValid;
     NoteConfigDiaTracer.isTooOld = isTooOld;
-    NoteConfigDiaTracer.enabled = enabled;
-   if (ex == null) {
-     if (path == null || path.trim().isEmpty() || version.trim().equalsIgnoreCase("n/a")) {
-       NoteConfigDiaTracer.ex = new ValidationException("IonQuant path or version does not exist.");
-     } else {
-       NoteConfigDiaTracer.ex = null;
-     }
-   } else {
-     NoteConfigDiaTracer.ex = ex;
-   }
+    NoteConfigDiaTracer.ex = (path == null || path.trim().isEmpty() || version.trim().equalsIgnoreCase("n/a")) ? new ValidationException("DiaTracer path or version does not exist.") : null;
   }
 
   @Override
   public boolean isValid() {
-    return !isTooOld && enabled && ex == null && path != null && !path.equalsIgnoreCase("N/A") && version != null && !version.equalsIgnoreCase("N/A") && !path.isEmpty() && !version.isEmpty();
+    return ex == null && !isTooOld && isValid && !path.contentEquals("N/A") && !version.contentEquals("N/A");
   }
 
   @Override
@@ -54,8 +54,11 @@ public class NoteConfigDiaTracer implements INoteConfig {
     return new StringJoiner(", ", NoteConfigDiaTracer.class.getSimpleName() + "[", "]")
         .add("path='" + path + "'")
         .add("version='" + version + "'")
+        .add("license='" + license + "'")
+        .add("customer='" + customer + "'")
+        .add("mode='" + mode + "'")
+        .add("expiryDate='" + expiryDate + "'")
         .add("isTooOld=" + isTooOld)
-        .add("enabled=" + enabled)
         .add("validation=" + (ex == null ? "null" : ex.getMessage()))
         .toString();
   }

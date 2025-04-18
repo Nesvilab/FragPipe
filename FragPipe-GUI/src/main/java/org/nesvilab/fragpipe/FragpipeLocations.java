@@ -325,4 +325,24 @@ public class FragpipeLocations {
     }
     return null;
   }
+
+  public static Path locateLicense() {
+    Path license = null;
+    try {
+      Path[] dirs = {FragpipeLocations.get().tools.resolve("../"), FragpipeLocations.get().tools.resolve("../../")};
+      for (Path dir : dirs) {
+        license = Files.walk(dir)
+          .filter(Files::isRegularFile)
+          .filter(p -> p.getFileName().toString().toLowerCase().startsWith("license") && p.getFileName().toString().toLowerCase().endsWith(".dat"))
+          .findFirst()
+          .orElse(null);
+        if (license != null) {
+          break;
+        }
+      }
+    } catch (IOException e) {
+      throw new RuntimeException("Error locating license", e);
+    }
+    return license;
+  }
 }

@@ -190,6 +190,11 @@ public class CmdIonquant extends CmdBase {
     cmd.add("-cp");
     cmd.add(constructClasspathString(classpathJars, binIonQuant));
     cmd.add(JAR_IONQUANT_MAIN_CLASS);
+    Path licensePath = FragpipeLocations.locateLicense();
+    if (licensePath != null) {
+      cmd.add("--license");
+      cmd.add(licensePath.toAbsolutePath().normalize().toString());
+    }
     cmd.add("--threads");
     cmd.add(String.valueOf(nThreads));
     cmd.add("--perform-ms1quant");
