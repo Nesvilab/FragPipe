@@ -465,6 +465,8 @@ public class FragpipeRun {
       // run everything
       long startTime = System.nanoTime();
       final List<RunnableDescription> toRun = new ArrayList<>();
+      final Map<String, Float> taskRuntimes = new LinkedHashMap<>();
+      
       for (final ProcessBuilderInfo pbi : pbis) {
         Runnable runnable = ProcessBuilderInfo.toRunnable(pbi, wd, FragpipeRun::printProcessDescription, tabRun.console, false);
         ProcessDescription.Builder b = new ProcessDescription.Builder().setName(pbi.name);
@@ -474,12 +476,26 @@ public class FragpipeRun {
         if (pbi.pb.command() != null && !pbi.pb.command().isEmpty()) {
           b.setCommand(String.join(" ", pbi.pb.command()));
         }
-        toRun.add(new RunnableDescription(b.create(), runnable, pbi.parallelGroup, pbi));
+        
+        Runnable timedRunnable = () -> {
+          long taskStartTime = System.nanoTime();
+          try {
+            runnable.run();
+          } finally {
+            long taskEndTime = System.nanoTime();
+            float durationSeconds = (taskEndTime - taskStartTime) / 60_000_000_000.0f;
+            taskRuntimes.put(pbi.name, durationSeconds);
+          }
+        };
+        
+        toRun.add(new RunnableDescription(b.create(), timedRunnable, pbi.parallelGroup, pbi));
       }
 
       // add finalizer process
       List<String> finalProteinHeaders = proteinHeaders;
       final Runnable finalizerRun = () -> {
+        long finalizerStartTime = System.nanoTime();
+        
         if (tabRun.isExportMatchedFragments()) {
           toConsole(Fragpipe.COLOR_TOOL, "\nExport matched fragments", true, tabRun.console);
           String[] t = {ToolingUtils.BATMASS_IO_JAR};
@@ -708,6 +724,17 @@ public class FragpipeRun {
         }
 
         printReference(tabRun.console);
+
+        long finalizerEndTime = System.nanoTime();
+        float finalizerDuration = (finalizerEndTime - finalizerStartTime) / 60_000_000_000.0f;
+        taskRuntimes.put("Finalizer Task", finalizerDuration);
+        
+        // Print task runtimes and total runtime
+        toConsole("\nTask Runtimes:", tabRun.console);
+        for (Map.Entry<String, Float> entry : taskRuntimes.entrySet()) {
+          toConsole(String.format("  %s: %.2f minutes", entry.getKey(), entry.getValue()), tabRun.console);
+        }
+            
         String totalTime = String.format("%.1f", (System.nanoTime() - startTime) * 1e-9 / 60);
         toConsole(Fragpipe.COLOR_RED_DARKEST, "\n=============================================================ALL JOBS DONE IN " + totalTime + " MINUTES=============================================================", true, tabRun.console);
         Bus.post(MessageSaveLog.saveInDir(wd));
