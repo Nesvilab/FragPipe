@@ -670,7 +670,7 @@ public class Fragpipe extends JFrameHeadless {
       "/org/nesvilab/fragpipe/icons/icon-diann-16.png", null, true);
     uiTabSkyline = new UiTab("Skyline", tabSkyline, "/org/nesvilab/fragpipe/icons/icon-skyline-16.png", null, true);
     uiTabRun = new UiTab("Run", tabRun, "/org/nesvilab/fragpipe/icons/video-play-16.png", null, false);
-    uiTabBatch = new UiTab("Batch", tabBatch, "/org/nesvilab/fragpipe/icons/video-play-16.png", null, false);
+    uiTabBatch = new UiTab("Batch", tabBatch, "/org/nesvilab/fragpipe/icons/batch-play-16.png", null, false);
     uiTabDownstream = new UiTab("Downstream", tabDownstream, "/org/nesvilab/fragpipe/icons/icon-saint-20.png", null, false);
 
     addTab(tp, uiTabConfig);
