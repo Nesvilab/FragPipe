@@ -217,6 +217,11 @@ task copyToolsLinux(type: Copy, group: 'fragpipe-release', description: "Copies 
     }
 }
 
+task copyDatabases(type: Copy, group: 'fragpipe-release', description: "Copies databases") {
+    from getLayout().buildDirectory.dir("../../databases").get()
+    into getLayout().buildDirectory.dir("install/${project.name}-${project.version}/databases").get().asFile
+}
+
 task unpackPythonWindows(type: Copy, group: 'fragpipe-release', description: "Unzips ../../python/python.zip to python") {
     dependsOn 'copyToolsWindows'
     from zipTree(getLayout().buildDirectory.dir("../../python/python.zip").get())
@@ -242,12 +247,14 @@ task makeReleaseZipLinux(type: Zip, group: 'fragpipe-release') {
     dependsOn 'installDist'
     dependsOn 'copyToolsLinux'
     dependsOn 'copyWorkflows'
+    dependsOn 'copyDatabases'
 
     tasks.findByName('test').mustRunAfter 'clean'
     tasks.findByName('makeExeAndCopyToScripts').mustRunAfter 'test'
     tasks.findByName('installDist').mustRunAfter 'makeExeAndCopyToScripts'
     tasks.findByName('copyToolsLinux').mustRunAfter 'installDist'
     tasks.findByName('copyWorkflows').mustRunAfter 'copyToolsLinux'
+    tasks.findByName('copyDatabases').mustRunAfter 'copyToolsLinux'
 
     archiveFileName = "FragPipe-${project.version}-linux.zip"
     destinationDirectory = getLayout().buildDirectory.dir(releaseDir)
@@ -264,6 +271,7 @@ task makeReleaseWindows(type: Copy, group: 'fragpipe-release') {
     dependsOn 'copyPythonPackages'
     dependsOn 'copyJre'
     dependsOn 'copyWorkflows'
+    dependsOn 'copyDatabases'
 
     tasks.findByName('test').mustRunAfter 'clean'
     tasks.findByName('makeExeAndCopyToScripts').mustRunAfter 'test'
@@ -273,6 +281,7 @@ task makeReleaseWindows(type: Copy, group: 'fragpipe-release') {
     tasks.findByName('unpackPythonWindows').mustRunAfter 'copyToolsWindows'
     tasks.findByName('copyPythonPackages').mustRunAfter 'unpackPythonWindows'
     tasks.findByName('copyWorkflows').mustRunAfter 'copyToolsWindows'
+    tasks.findByName('copyDatabases').mustRunAfter 'copyToolsWindows'
 
     launch4j {
         mainClassName = "${startClass}"

@@ -126,7 +126,7 @@ public class DownloadDbHelper {
         // unpack iRT fasta
         Path pathIrt = null;
         if (isAddIrt) {
-          pathIrt = FragpipeLocations.get().getDirTools().resolve("fasta/irtfusion.fasta");
+          pathIrt = FragpipeLocations.get().getDirDatabases().resolve("irtfusion.fasta");
           if (!Files.exists(pathIrt)) {
             SwingUtils.showDialog(p, new JLabel("<html>Could not find iRT fasta file:<br/>" + pathIrt), "Error preparing for DB download", JOptionPane.ERROR_MESSAGE);
             return;

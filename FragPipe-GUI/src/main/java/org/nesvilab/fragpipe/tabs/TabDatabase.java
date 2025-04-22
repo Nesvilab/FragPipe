@@ -110,7 +110,7 @@ public class TabDatabase extends JPanelWithEnablement {
   private JPanel createPanelDbSelection() {
 
     uiTextDbPath = UiUtils.uiTextBuilder().cols(5).create();
-    Path defaultDbPath = FragpipeLocations.get().getOrMakeDirInRoot("database");
+    Path defaultDbPath = FragpipeLocations.get().getOrMakeDirInRoot("databases");
     if (defaultDbPath != null) {
       uiTextDbPath.setText(defaultDbPath.toString());
       Bus.post(new MessageDbNewPath(defaultDbPath.toString()));
