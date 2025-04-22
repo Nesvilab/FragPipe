@@ -75,6 +75,7 @@ public class MSBoosterPanel extends JPanelBase {
   private UiCombo uiComboRtModel;
   private UiCombo uiComboSpectraModel;
   private UiCombo uiComboImModel;
+  private UiCombo uiComboFragmentationType;
   private UiText uiTextKoinaUrl;
   private UiText uiTextLibrary;
   private JEditorPane uiLabelKoinaUrl;
@@ -206,6 +207,21 @@ public class MSBoosterPanel extends JPanelBase {
         .tooltip("If using the model other than 'DIA-NN', MSBooster will query the Koina server to get the prediction.")
         .create();
 
+    uiComboFragmentationType = createUiCombo(new String[]{
+      "auto",
+      "HCD",
+      "CID",
+      "ETD",
+      "UVPD",
+      "ECD",
+      "EID",
+      "ETCID"
+    });
+    FormEntry feFragmentationType = mu.feb("fragmentation-type", uiComboFragmentationType)
+        .label("Fragmentation type: ")
+        .tooltip("Select the fragmentation type for the MS2 spectra.")
+        .create();
+
     JPanel uiRtTable = createRtModelsPanel();
     JPanel uiSpectraTable = createSpectraModelsPanel();
     JPanel uiImTable = createImModelsPanel();
@@ -225,6 +241,9 @@ public class MSBoosterPanel extends JPanelBase {
     mu.add(pContent, feImModel.label()).split(2);
     mu.add(pContent, feImModel.comp);
     mu.add(pContent, uiCheckFindBestImModel).wrap();
+
+    mu.add(pContent, feFragmentationType.label()).split(2);
+    mu.add(pContent, feFragmentationType.comp).wrap();
 
     pp = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
     mu.add(pp, feKoinaUrl.label()).split(2);
@@ -428,6 +447,10 @@ public class MSBoosterPanel extends JPanelBase {
       }
     }
     return String.join(",", t);
+  }
+
+  public String fragmentationType() {
+    return (String) uiComboFragmentationType.getSelectedItem();
   }
 
   @Override

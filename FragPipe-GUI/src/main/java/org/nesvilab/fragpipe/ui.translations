@@ -155,6 +155,14 @@ msbooster.spectra-model::Prosit 2020 Intensity TMT <=> Prosit_2020_intensity_TMT
 msbooster.spectra-model::Prosit 2020 Intensity HCD <=> Prosit_2020_intensity_HCD
 msbooster.im-model::DIA-NN <=> DIA-NN
 msbooster.im-model::AlphaPept CCS Generic <=> AlphaPept_ccs_generic
+msbooster.fragmentation-type::auto <=> 0
+msbooster.fragmentation-type::HCD <=> 1
+msbooster.fragmentation-type::CID <=> 2
+msbooster.fragmentation-type::ETD <=> 3
+msbooster.fragmentation-type::UVPD <=> 4
+msbooster.fragmentation-type::ECD <=> 5
+msbooster.fragmentation-type::EID <=> 6
+msbooster.fragmentation-type::ETCID <=> 7
 
 skyline.skyline-mode::Import DIA-NN result <=> 0
 skyline.skyline-mode::Import PSM result <=> 1

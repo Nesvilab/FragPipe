@@ -98,7 +98,8 @@ public class CmdMSBooster extends CmdBase {
                            String libraryPath,
                            String testRtModels,
                            String testSpectraModels,
-                           String testImModels) {
+                           String testImModels,
+                           String fragmentationType) {
 
     initPreConfig();
 
@@ -182,6 +183,7 @@ public class CmdMSBooster extends CmdBase {
         bufferedWriter.write("rtSearchModelsString = " + testRtModels + "\n");
         bufferedWriter.write("ms2SearchModelsString = " + testSpectraModels + "\n");
         bufferedWriter.write("imSearchModelsString = " + testImModels + "\n");
+        bufferedWriter.write("FragmentationType = " + fragmentationType + "\n");
         bufferedWriter.write("unimodObo = " + getUnimodOboPath(UNIMOD_OBO).toAbsolutePath() + "\n");
 
         // compute unique lcms file directories

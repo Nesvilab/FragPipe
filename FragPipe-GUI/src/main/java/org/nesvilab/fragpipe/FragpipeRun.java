@@ -1541,7 +1541,8 @@ public class FragpipeRun {
             msBoosterPanel.libraryPath(),
             msBoosterPanel.rtTestModels(),
             msBoosterPanel.spectraTestModels(),
-            msBoosterPanel.imTestModels());
+            msBoosterPanel.imTestModels(),
+            msBoosterPanel.fragmentationType());
       }
       return true;
     });

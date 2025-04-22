@@ -93,6 +93,7 @@ ionquant.writeindex=0
 msbooster.find-best-im-model=false
 msbooster.find-best-rt-model=false
 msbooster.find-best-spectra-model=false
+msbooster.fragmentation-type=0
 msbooster.im-model=DIA-NN
 msbooster.koina-url=
 msbooster.predict-im=true
