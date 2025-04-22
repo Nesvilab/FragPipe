@@ -239,7 +239,7 @@ public class CmdPercolator extends CmdBase {
                   .map(pb -> new PbiBuilder()
                           .setPb(pb)
                           .setParallelGroup(ProcessBuilderInfo.GROUP_SEQUENTIAL)
-                          .setName(getCmdName() + ": Delete temp").create())
+                          .setName(getCmdName() + " delete temp").create())
                   .collect(Collectors.toList()));
         }
       }

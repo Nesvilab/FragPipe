@@ -185,7 +185,7 @@ public class CmdDiann extends CmdBase {
         cmd.add("library_2.tsv");
         ProcessBuilder pb = new ProcessBuilder(cmd);
         pb.directory(groupWd.toFile());
-        pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + ": Prepare plex library").create());
+        pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + " prepare plex library").create());
       }
     }
 
@@ -360,7 +360,7 @@ public class CmdDiann extends CmdBase {
       if (LD_PRELOAD_str != null) {
         pb.environment().put("LD_PRELOAD", LD_PRELOAD_str);
       }
-      pbis.add(PbiBuilder.from(pb));
+      pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + " run DIA-NN").create());
 
       if (isWindows()) {
         // Plotting
@@ -376,13 +376,13 @@ public class CmdDiann extends CmdBase {
         }
         ProcessBuilder pb2 = new ProcessBuilder(cmd2);
         pb2.directory(groupWd.toFile());
-        pbis.add(PbiBuilder.from(pb2));
+        pbis.add(new PbiBuilder().setPb(pb2).setName(getCmdName() + " plot DIA-NN output").create());
       }
 
       // todo: adjust based on DIA-NN 2.0
       Path speclibForSkyline = wd.resolve("dia-quant-output").resolve("report-tsv.speclib");
       List<ProcessBuilder> pbsMove = ToolingUtils.pbsMoveFilesWithExtension(jarFragpipe, speclibForSkyline, wd, ".speclib");
-      pbis.addAll(PbiBuilder.from(pbsMove, NAME + " move and rename speclib for skyline"));
+      pbis.addAll(PbiBuilder.from(pbsMove, getCmdName() + " move and rename speclib for skyline"));
     }
 
     if (noteConfigDiann.compareVersion("2.0") >= 0) {
@@ -402,7 +402,7 @@ public class CmdDiann extends CmdBase {
       cmd.add(wd.resolve("dia-quant-output").resolve("report.tsv").toAbsolutePath().normalize().toString());
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(wd.resolve("dia-quant-output").toFile());
-      pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + ": Convert Parquet to Tsv").create());
+      pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + " convert Parquet to Tsv").create());
     }
 
     if (!isRunPlex) {
@@ -444,7 +444,7 @@ public class CmdDiann extends CmdBase {
       cmd.add(heavyString == null || heavyString.isEmpty() ? "-" : heavyString);
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(wd.resolve("dia-quant-output").toFile());
-      pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + ": Propagate information").create());
+      pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + " propagate information").create());
     }
 
     if (!isRunPlex && generateMsstats && noteConfigDiann.compareVersion("2.0") < 0) {
@@ -492,7 +492,7 @@ public class CmdDiann extends CmdBase {
       cmd.add(wd.resolve("fragpipe-files" + manifestExt).toAbsolutePath().normalize().toString());
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(wd.resolve("dia-quant-output").toFile());
-      pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + ": Convert DIA-NN output to MSstats.csv").create());
+      pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + " convert DIA-NN output to MSstats.csv").create());
     }
 
     List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Stream.of(SITE_REPORTER));
@@ -516,7 +516,7 @@ public class CmdDiann extends CmdBase {
       cmd.add(String.valueOf(diannPanel.getSiteProb()));
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(wd.resolve("dia-quant-output").toFile());
-      pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + ": Generate site reports").create());
+      pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + " generate site reports").create());
     }
 
 //    if (isRunPlex) {
@@ -576,7 +576,7 @@ public class CmdDiann extends CmdBase {
 //        cmd.add(groupWd.toAbsolutePath().normalize().toString());
 //        ProcessBuilder pb = new ProcessBuilder(cmd);
 //        pb.directory(groupWd.toFile());
-//        pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + ": Process DIA-NN output").create());
+//        pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + " process DIA-NN output").create());
 //      }
 //    }
 
@@ -703,10 +703,10 @@ public class CmdDiann extends CmdBase {
     List<String> notSupportedExts = getNotSupportedExts(inputLcmsFiles, supportedFormats);
     if (!notSupportedExts.isEmpty()) {
       if (Fragpipe.headless) {
-        log.error(String.format("%s can't work with '.%s' files. You can convert files using msconvert from ProteoWizard.", NAME, String.join(", ", notSupportedExts)));
+        log.error(String.format("%s can't work with '.%s' files. You can convert files using msconvert from ProteoWizard.", getCmdName(), String.join(", ", notSupportedExts)));
       } else {
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("<html>%s can't work with '.%s' files.<br/>", NAME, String.join(", ", notSupportedExts)));
+        sb.append(String.format("<html>%s can't work with '.%s' files.<br/>", getCmdName(), String.join(", ", notSupportedExts)));
         if (notSupportedExts.contains(".raw") || notSupportedExts.contains("raw")) {
           sb.append("Support for raw files requires Windows and <a href=\"https://thermo.flexnetoperations.com/control/thmo/login?nextURL=%2Fcontrol%2Fthmo%2Fdownload%3Felement%3D6306677\">Thermo MS File Reader</a> to be installed.<br/>It is essential to use specifically the version by the link above (3.0 SP3).<br/>");
         }
@@ -714,10 +714,10 @@ public class CmdDiann extends CmdBase {
           sb.append("Support for wiff files requires Windows.<br>");
         }
         sb.append(String.format("Compatible formats are: %s<br/>", String.join(", ", supportedFormats)));
-        sb.append(String.format("Either remove files from input or disable %s<br/>", NAME));
+        sb.append(String.format("Either remove files from input or disable %s<br/>", getCmdName()));
         sb.append("You can also convert files using <i>msconvert</i> from ProteoWizard.");
 
-        JOptionPane.showMessageDialog(comp, sb.toString(), NAME + " error", JOptionPane.WARNING_MESSAGE);
+        JOptionPane.showMessageDialog(comp, sb.toString(), getCmdName() + " error", JOptionPane.WARNING_MESSAGE);
       }
       return false;
     }

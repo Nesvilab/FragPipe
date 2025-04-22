@@ -261,7 +261,7 @@ public class CmdPeptideProphet extends CmdBase {
           pbPhiInit.directory(temp.toFile());
           pbisPreParallel.add(new PbiBuilder()
               .setPb(pbPhiInit)
-              .setName(getCmdName() + ": Workspace init")
+              .setName(getCmdName() + " workspace init")
               .setParallelGroup(ProcessBuilderInfo.GROUP_SEQUENTIAL).create());
 
           // PeptideProphet itself
@@ -289,7 +289,7 @@ public class CmdPeptideProphet extends CmdBase {
               .map(pb -> new PbiBuilder()
                   .setPb(pb)
                   .setParallelGroup(ProcessBuilderInfo.GROUP_SEQUENTIAL)
-                  .setName(getCmdName() + ": Delete temp").create())
+                  .setName(getCmdName() + " delete temp").create())
               .collect(Collectors.toList()));
         }
         ++idx;

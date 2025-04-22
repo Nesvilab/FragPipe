@@ -225,7 +225,7 @@ public class CmdCrystalc extends CmdBase {
 
     // delete temp files
     List<ProcessBuilder> pbsDeleteTemp = ToolingUtils.pbsDeleteFiles(jarFragpipe, filesToDelete);
-    LinkedList<ProcessBuilderInfo> pbisPostParallel = pbsDeleteTemp.stream().map(pb -> new PbiBuilder().setPb(pb).setParallelGroup(ProcessBuilderInfo.GROUP_SEQUENTIAL).setName(getCmdName() + ": Delete temp").create()).collect(Collectors.toCollection(LinkedList::new));
+    LinkedList<ProcessBuilderInfo> pbisPostParallel = pbsDeleteTemp.stream().map(pb -> new PbiBuilder().setPb(pb).setParallelGroup(ProcessBuilderInfo.GROUP_SEQUENTIAL).setName(getCmdName() + " delete temp").create()).collect(Collectors.toCollection(LinkedList::new));
     pbis.addAll(pbisPostParallel);
 
     isConfigured = true;
