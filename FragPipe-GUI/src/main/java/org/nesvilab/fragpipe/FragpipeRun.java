@@ -484,7 +484,7 @@ public class FragpipeRun {
           } finally {
             long taskEndTime = System.nanoTime();
             float durationSeconds = (taskEndTime - taskStartTime) / 60_000_000_000.0f;
-            taskRuntimes.put(pbi.name, durationSeconds);
+            taskRuntimes.merge(pbi.name, durationMinutes, Float::sum);
           }
         };
         
