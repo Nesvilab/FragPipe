@@ -108,9 +108,9 @@ public final class PropertiesUtils {
         }
     }
 
-    private static String saveConvert(String theString,
-        boolean escapeSpace,
-        boolean escapeUnicode) {
+    public static String saveConvert(String theString,
+                                     boolean escapeSpace,
+                                     boolean escapeUnicode) {
         int len = theString.length();
         int bufLen = len * 2;
         if (bufLen < 0) {

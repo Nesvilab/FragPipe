@@ -324,14 +324,14 @@ public class TabBatch extends JPanelWithEnablement {
             data[i][1] = run.manifest;
             data[i][2] = run.outputPath;
             data[i][3] = run.toolsPath;
-            data[i][4] = run.fastaPath == null ? run.fastaStr : run.fastaPath;
+            data[i][4] = run.fastaPath == null ? "" : run.fastaPath;
             data[i][5] = run.ram;
             data[i][6] = run.threads;
         }
         return data;
     }
 
-    private List<BatchRun> parseBatchTemplate(String templatePath) {
+    public static List<BatchRun> parseBatchTemplate(Component parent, String templatePath) {
         ArrayList<BatchRun> runs = new ArrayList<>();
         try {
             BufferedReader in = new BufferedReader(new FileReader(templatePath));
@@ -353,17 +353,17 @@ public class TabBatch extends JPanelWithEnablement {
                     threads = splits.length > 6 ? Integer.parseInt(splits[6]) : 0;
                 } catch (NumberFormatException e) {
                     log.error("Invalid number format for RAM or threads in batch template line {}: {}", lineIndex, e.getMessage());
-                    SwingUtils.showErrorDialog(this, "Invalid number format for RAM or threads in batch template line " + lineIndex + ": " + e.getMessage(), "Number Format Error");
+                    SwingUtils.showErrorDialog(parent, "Invalid number format for RAM or threads in batch template line " + lineIndex + ": " + e.getMessage(), "Number Format Error");
                 }
                 BatchRun run = new BatchRun(workflowPath, manifestPath, outputDir, toolsFolderPath, fastaPath, ram, threads);
-                if (checkPaths(this, run, false)) {
+                if (checkPaths(parent, run, false)) {
                     runs.add(run);
                 }
                 lineIndex++;
             }
         } catch (IOException e) {
             log.error("Error reading batch template file: {}", e.getMessage());
-            SwingUtils.showErrorDialogWithStacktrace(e, this);
+            SwingUtils.showErrorDialogWithStacktrace(e, parent);
         }
         return runs;
     }
@@ -395,15 +395,47 @@ public class TabBatch extends JPanelWithEnablement {
                 SwingUtils.showErrorDialog(parent, String.format("Fasta file path not found: %s\n This batch run will be skipped.", run.fastaPath), "File Not Found");
                 return false;
             }
+            // overwrite fasta path in workflow file if the fasta path was provided
+            TabDatabase tabDatabase = Fragpipe.getStickyStrict(TabDatabase.class);
+            try {
+                tabDatabase.validateFastaForBatch(run.fastaPath.toAbsolutePath().normalize().toString());
+            } catch (Exception e) {
+                SwingUtils.showErrorDialog(parent, String.format("Fasta file %s could not be validated due to the following error:\n %s\n This batch run will be skipped.", run.fastaPath, e.getMessage()), "Fasta file validation failed");
+                return false;
+            }
+            // if fasta validates, update the workflow file with the new path
+            try {
+                editWorkflowFasta(run.workflowPath, run.fastaPath);
+            } catch (IOException e) {
+                SwingUtils.showErrorDialog(parent, String.format("Could not edit workflow file %s with the new fasta path %s.\n This batch run will be skipped.", run.workflowPath, run.fastaPath), "Workflow file editing failed");
+                return false;
+            }
         }
-        // todo: write fasta path to workflow if needed?
         return true;
+    }
+
+    private static void editWorkflowFasta(Path workflowPath, Path fastaPath) throws IOException {
+        BufferedReader in = new BufferedReader(new FileReader(workflowPath.toFile()));
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = in.readLine()) != null) {
+            if (line.startsWith("database.db-path=")) {
+                String val = saveConvert(fastaPath.toAbsolutePath().normalize().toString(), false, true); // save absolute path of the fasta file
+                line = "database.db-path=" + val;
+            }
+            sb.append(line).append("\n");
+        }
+        in.close();
+        BufferedWriter out = new BufferedWriter(new FileWriter(workflowPath.toFile()));
+        out.write(sb.toString());
+        out.flush();
+        out.close();
     }
 
     // Load job(s) or job manifest file(s)
     private void actionBtnLoadBatchTemplate(ActionEvent event, String startPath) {
         List<FileFilter> fileFilters = new ArrayList<>();
-        FileFilter filter = new FileNameExtensionFilter("Job Manifest file (.job)", "job");
+        FileFilter filter = new FileNameExtensionFilter("Job Manifest file (.job) or .tsv", "job", "tsv");
         fileFilters.add(filter);
 
         JFileChooser fc = FileChooserUtils.builder("Select the Job Manifest file to load")
@@ -417,8 +449,8 @@ public class TabBatch extends JPanelWithEnablement {
             ArrayList<File> files = new ArrayList<>(Arrays.asList(fc.getSelectedFiles()));
             List<BatchRun> runs = new ArrayList<>();
             for (File file : files) {
-                Fragpipe.propsVarSet(PROP_FILECHOOSER_LAST_PATH, file.toString());
-                runs.addAll(parseBatchTemplate(file.toString()));
+                Fragpipe.propsVarSet(PROP_FILECHOOSER_LAST_PATH, file.getParent());
+                runs.addAll(parseBatchTemplate(this, file.toString()));
             }
             batchTable.addData(runs);
         }

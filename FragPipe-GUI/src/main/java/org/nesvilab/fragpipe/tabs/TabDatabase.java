@@ -271,6 +271,35 @@ public class TabDatabase extends JPanelWithEnablement {
     }
   }
 
+  public void validateFastaForBatch(String path) throws Exception {
+      if (path == null) {
+        throw new Exception("Null path provided for fasta file");
+      }
+      Path p = Paths.get(path);
+
+      if (!Files.exists(p) || !Files.isRegularFile(p) || !Files.isReadable(p)) {
+        throw new Exception("Invalid fasta file (does not exist or is not a readable file): " + path);
+      }
+
+      if (Files.size(p) < databaseSizeLimit) {
+        FastaContent fasta = FastaUtils.readFasta(p);
+        final String tag = getDecoyTag();
+        try {
+          int decoysCnt = (int) FastaUtils.getDecoysCnt(fasta.ordered.get(0), tag);
+          int protsTotal = FastaUtils.getProtsTotal(fasta.ordered.get(0));
+          if (protsTotal == 0) {
+            throw new Exception("No proteins found in the FASTA file: " + path);
+          }
+          if (decoysCnt == 0) {
+            throw new Exception("No decoys found in the FASTA file: " + path);
+          }
+        } catch (IndexOutOfBoundsException e) {
+          throw new Exception("FASTA file not formatted correctly, could not count proteins or decoys: " + path);
+        }
+      }
+  }
+
+
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteConfigDatabase m) {
     if (m.isValid) {

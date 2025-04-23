@@ -589,6 +589,7 @@ public class TabRun extends JPanelWithEnablement {
   public void saveJob() throws IOException {
     final TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
     final TabConfig tabConfig = Fragpipe.getStickyStrict(TabConfig.class);
+    final TabDatabase tabDatabase = Fragpipe.getStickyStrict(TabDatabase.class);
     SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
     Date now = new Date();
 
@@ -601,6 +602,8 @@ public class TabRun extends JPanelWithEnablement {
     Path manifestPath = FragpipeLocations.get().getDirJobs().resolve(String.format("job_%s.fp-manifest", df.format(now)));
     tabWorkflow.manifestSave(manifestPath);
 
+    String fastaStr = tabDatabase.getFastaPath();
+
     // confirm output directory and tools path are not empty
     if (getWorkdirText().isEmpty()) {
       JOptionPane.showMessageDialog(this, "Output directory " + getWorkdirText() + " is empty. Cannot save job.", TAB_PREFIX + " error", JOptionPane.ERROR_MESSAGE);
@@ -611,7 +614,7 @@ public class TabRun extends JPanelWithEnablement {
       return;
     }
     // create the job
-    BatchRun job = new BatchRun(workflowPath.toString(), manifestPath.toString(), getWorkdirText(), tabConfig.uiTextToolsFolder.getNonGhostText(), "", tabWorkflow.getRamGb(), tabWorkflow.getThreads());
+    BatchRun job = new BatchRun(workflowPath.toString(), manifestPath.toString(), getWorkdirText(), tabConfig.uiTextToolsFolder.getNonGhostText(), fastaStr, tabWorkflow.getRamGb(), tabWorkflow.getThreads());
 
     // save job to file
     Path savePath = FragpipeLocations.get().getDirJobs().resolve((String.format("job_%s.job", df.format(now))));
