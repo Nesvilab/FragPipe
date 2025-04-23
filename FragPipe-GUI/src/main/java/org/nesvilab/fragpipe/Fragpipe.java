@@ -25,10 +25,12 @@ import org.nesvilab.fragpipe.api.Bus;
 import org.nesvilab.fragpipe.api.FragpipeCacheUtils;
 import org.nesvilab.fragpipe.api.Notifications;
 import org.nesvilab.fragpipe.api.PropsFile;
+import org.nesvilab.fragpipe.api.PyInfo;
 import org.nesvilab.fragpipe.api.UiTab;
 import org.nesvilab.fragpipe.api.UpdatePackage;
 import org.nesvilab.fragpipe.cmd.ToolingUtils;
 import org.nesvilab.fragpipe.exceptions.NoStickyException;
+import org.nesvilab.fragpipe.exceptions.UnexpectedException;
 import org.nesvilab.fragpipe.exceptions.ValidationException;
 import org.nesvilab.fragpipe.messages.MessageClearCache;
 import org.nesvilab.fragpipe.messages.MessageExportLog;
@@ -41,6 +43,7 @@ import org.nesvilab.fragpipe.messages.MessageSaveUiState;
 import org.nesvilab.fragpipe.messages.MessageShowAboutDialog;
 import org.nesvilab.fragpipe.messages.MessageUiRevalidate;
 import org.nesvilab.fragpipe.messages.NoteConfigMsfragger;
+import org.nesvilab.fragpipe.messages.NoteConfigPython;
 import org.nesvilab.fragpipe.messages.NoteConfigSpeclibgen;
 import org.nesvilab.fragpipe.messages.NoteConfigTips;
 import org.nesvilab.fragpipe.messages.NoteFragpipeCache;
@@ -264,6 +267,27 @@ public class Fragpipe extends JFrameHeadless {
       log.debug("Embedded java binary NOT found");
     }
     return "java";
+  }
+
+  public static String getBinPython() {
+    NoteConfigPython pythonConfig = Bus.getStickyEvent(NoteConfigPython.class);
+    if (pythonConfig != null && pythonConfig.isValid()) {
+      return pythonConfig.command;
+    }
+    
+    String pythonPath = Fragpipe.propsVar().getProperty("bin-python");
+    if (StringUtils.isNotBlank(pythonPath)) {
+      try {
+        PyInfo pi = PyInfo.fromCommand(pythonPath);
+        if (pi.getFullVersion().compareTo(TabConfig.pythonMinVersion) >= 0) {
+          return pythonPath;
+        }
+      } catch (ValidationException | UnexpectedException e) {
+        log.warn("Error validating Python path from bin-python property: {}", e.getMessage());
+      }
+    }
+    
+    return null;
   }
 
   private void saveCache() {

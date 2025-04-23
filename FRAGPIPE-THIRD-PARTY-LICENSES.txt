@@ -19,6 +19,7 @@ Major external tools included in the distribution:
 - FP-PDV: open source (GPL 3.0) https://github.com/Nesvilab/FragPipe-PDV
 - OPair: open source (MIT license) https://github.com/Nesvilab/OPair_FragPipe
 - Skyline runner: open source (Apache 2.0) https://skyline.ms/project/home/software/Skyline/begin.view
+- generate_reports_pdf.py: open source (Apache 2.0)
 - LFQ-SiteReporter: closed source, both academic and commercial use is permitted.
 - Batmass-IO: closed source tool, both academic and commercial use is permitted.
 
@@ -65,6 +66,11 @@ Python packages:
 - tqdm: open source (MIT License) https://github.com/tqdm/tqdm
 - tzdata: open source (Apache 2.0) https://github.com/python/tzdata
 - uv: open source (MIT License, Apache 2.0) https://github.com/astral-sh/uv
+- narwhals: open source (MIT License) https://github.com/narwhals-dev/narwhals
+- plotly: open source (MIT License) https://github.com/plotly/plotly.py
+- PyPDF2: open source (BSD 3-Clause) https://github.com/py-pdf/pypdf
+- kaleido: open source (MIT License) https://github.com/plotly/Kaleido
+- pyarrow: open source (Apache 2.0) https://arrow.apache.org/
 
 
 Java libraries used by FragPipe-GUI

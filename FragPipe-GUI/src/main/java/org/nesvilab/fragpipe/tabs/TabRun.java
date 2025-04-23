@@ -101,6 +101,7 @@ public class TabRun extends JPanelWithEnablement {
   private static final String LAST_WORK_DIR = "workdir.last-path";
   private static final String PROP_FILECHOOSER_LAST_PATH = TAB_PREFIX + "filechooser.last-path";
   public static final String PDV_NAME = "/FP-PDV/FP-PDV-1.4.1.jar";
+  public static final String GENERATE_REPORTS_NAME = "generate_reports_pdf.py";
   private static final String FRAGPIPE_ANALYST_URL = Fragpipe.propsFix().getProperty("fragpipe-analyst-url", "http://fragpipe-analyst.nesvilab.org/");
 
   public final TextConsole console;
@@ -115,12 +116,15 @@ public class TabRun extends JPanelWithEnablement {
   private JButton btnStop;
   private JButton btnOpenPdv;
   private JButton btnOpenFragPipeAnalyst;
+  private JButton btnGenerateSummaryReport;
   private UiCheck uiCheckExportMatchedFragments;
   private Thread pdvThread = null;
+  private Thread generateReportThread = null;
   private JPanel pTop;
   private JPanel pConsole;
   private UiCheck uiCheckWordWrap;
   private Process pdvProcess = null;
+  private Process generateReportProcess = null;
   private TabDownstream tabDownstream;
   private UiCheck uiCheckSaveSDRF;
   private UiCombo uiComboSDRFtype;
@@ -319,6 +323,69 @@ public class TabRun extends JPanelWithEnablement {
       SwingUtils.openBrowserOrThrow(FRAGPIPE_ANALYST_URL);
     });
 
+    btnGenerateSummaryReport = UiUtils.createButton("Generate Summary Report", e -> {
+      String binPython = Fragpipe.getBinPython();
+      if (binPython == null || binPython.isEmpty()) {
+        SwingUtils.showErrorDialog(this, "Cannot find the python executable file.", "No python executable");
+        return;
+      }
+
+      List<Path> generateReportPath = FragpipeLocations.checkToolsMissing(Seq.of(GENERATE_REPORTS_NAME));
+      if (generateReportPath == null || generateReportPath.isEmpty()) {
+        SwingUtils.showErrorDialog(this, "Cannot find the " + GENERATE_REPORTS_NAME + " file.", "No " + GENERATE_REPORTS_NAME + " file");
+      } else {
+        List<String> cmd = new ArrayList<>();
+        cmd.add(binPython);
+        cmd.add(constructClasspathString(generateReportPath));
+        cmd.add("-r");
+        cmd.add(uiTextWorkdir.getNonGhostText());
+        MessagePrintToConsole.toConsole(Fragpipe.COLOR_TOOL, "Generating summary report", true, console);
+        MessagePrintToConsole.toConsole(Fragpipe.COLOR_CMDLINE, "Executing: " + String.join(" ", cmd), true, console);
+        MessagePrintToConsole.toConsole("Please wait...", console);
+        generateReportThread = new Thread(() -> {
+          try {
+            btnGenerateSummaryReport.setEnabled(false);
+            ProcessBuilder pb = new ProcessBuilder(cmd);
+            ProcessBuilderInfo pbi = new PbiBuilder().setPb(pb).setName(pb.toString()).setFnStdOut(null).setFnStdErr(null).setParallelGroup(null).create();
+            ProcessResult pr = new ProcessResult(pbi);
+            generateReportProcess = pr.start();
+
+            while (generateReportProcess.isAlive()) {
+              byte[] pollOut = pr.pollStdOut();
+              if (pollOut != null && pollOut.length > 0) {
+                String outStr = pr.appendOut(pollOut);
+                MessagePrintToConsole.toConsole(outStr, console);
+              }
+              Thread.sleep(100);
+            }
+            
+            int exitCode = generateReportProcess.exitValue();
+            if (exitCode == 0) {
+              final int exitValue = pr.getProcess().exitValue();
+              if (exitValue != 0) {
+                String errStr = pr.appendErr(pr.pollStdErr());
+                SwingUtils.showErrorDialog(this, "Process " + pb + " returned non zero value. Message:\n" + (errStr == null ? "" : errStr), "Error");
+              }
+            } else {
+              String errStr = pr.appendErr(pr.pollStdErr());
+              SwingUtils.showErrorDialog(this, "Process " + pb + " returned non zero value. Message:\n " + (errStr == null ? "" : errStr), "Error");
+            }
+                        
+            pr.close();
+          } catch (Exception ex) {
+            SwingUtils.showErrorDialogWithStacktrace(ex, this);
+            if (generateReportProcess != null) {
+              generateReportProcess.destroyForcibly();
+              btnGenerateSummaryReport.setEnabled(true);
+            }
+          } finally {
+            btnGenerateSummaryReport.setEnabled(true);
+          }
+        });
+        generateReportThread.start();
+      }
+    });
+
     JButton btnExport = UiUtils.createButton("Export Log", e -> Bus.post(new MessageExportLog()));
     JButton btnReportErrors = UiUtils.createButton("Report Errors", e -> {
       final String prop = Version.isDevBuild() ? Version.PROP_ISSUE_TRACKER_URL_DEV : Version.PROP_ISSUE_TRACKER_URL;
@@ -396,6 +463,8 @@ public class TabRun extends JPanelWithEnablement {
     mu.add(p, feWriteSubMzml.comp).split(3);
     mu.add(p, feProbThreshold.label());
     mu.add(p, feProbThreshold.comp).wrap();
+
+    mu.add(p, btnGenerateSummaryReport);
 
     return p;
   }
