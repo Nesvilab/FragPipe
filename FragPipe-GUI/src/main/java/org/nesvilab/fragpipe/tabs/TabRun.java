@@ -299,6 +299,7 @@ public class TabRun extends JPanelWithEnablement {
 
             String outStr = pr.appendOut(pr.pollStdOut());
             log.debug("Process output: {}", (outStr == null ? "" : outStr));
+            pr.close();
           } catch (Exception ex) {
             ex.printStackTrace();
             log.error(ExceptionUtils.getStackTrace(ex));
