@@ -98,31 +98,13 @@ import org.nesvilab.fragpipe.api.UniqueLcmsFilesTableModel;
 import org.nesvilab.fragpipe.cmd.CmdMsfragger;
 import org.nesvilab.fragpipe.dialogs.SetExpDialog;
 import org.nesvilab.fragpipe.dialogs.SetRepDialog;
-import org.nesvilab.fragpipe.messages.MessageLcmsAddFiles;
-import org.nesvilab.fragpipe.messages.MessageLcmsAddFolder;
-import org.nesvilab.fragpipe.messages.MessageLcmsClearFiles;
-import org.nesvilab.fragpipe.messages.MessageLcmsFilesAdded;
-import org.nesvilab.fragpipe.messages.MessageLcmsFilesList;
-import org.nesvilab.fragpipe.messages.MessageLcmsGroupAction;
+import org.nesvilab.fragpipe.messages.*;
 import org.nesvilab.fragpipe.messages.MessageLcmsGroupAction.Type;
-import org.nesvilab.fragpipe.messages.MessageLcmsRemoveSelected;
-import org.nesvilab.fragpipe.messages.MessageLoadUi;
-import org.nesvilab.fragpipe.messages.MessageManifestLoad;
-import org.nesvilab.fragpipe.messages.MessageManifestSave;
-import org.nesvilab.fragpipe.messages.MessageOpenInExplorer;
-import org.nesvilab.fragpipe.messages.MessageSDRFsave;
-import org.nesvilab.fragpipe.messages.MessageSaveAsWorkflow;
-import org.nesvilab.fragpipe.messages.MessageType;
-import org.nesvilab.fragpipe.messages.MessageUpdateWorkflows;
-import org.nesvilab.fragpipe.messages.NoteConfigCrystalC;
-import org.nesvilab.fragpipe.messages.NoteConfigDiann;
-import org.nesvilab.fragpipe.messages.NoteConfigPeptideProphet;
-import org.nesvilab.fragpipe.messages.NoteConfigTmtI;
-import org.nesvilab.fragpipe.messages.NoteConfigUmpire;
 import org.nesvilab.fragpipe.params.ThisAppProps;
 import org.nesvilab.fragpipe.tools.diatracer.DiaTracerPanel;
 import org.nesvilab.fragpipe.tools.tmtintegrator.QuantLabel;
 import org.nesvilab.fragpipe.tools.umpire.UmpirePanel;
+import org.nesvilab.fragpipe.util.BatchRun;
 import org.nesvilab.fragpipe.util.SDRFtable;
 import org.nesvilab.utils.FileDrop;
 import org.nesvilab.utils.MapUtils;
@@ -653,6 +635,7 @@ public class TabWorkflow extends JPanelWithEnablement {
 
     FormEntry feComboWorkflow = Fragpipe.feNoCache(uiComboWorkflows, "workflow-option").label("Select a workflow:").tooltip("Conveniently loads appropriate defaults for various standard workflows\n").create();
     JButton btnOpenInExplorer = SwingUtils.createButtonOpenInFileManager(this, "Open built-in folder", () -> FragpipeLocations.get().getDirWorkflows());
+    JButton btnLoadJob = UiUtils.createButton("Load Previous Job", this::actionLoadJob);
 
     mu.add(p, epWorkflowsInfo).growX().spanX().wrap();
     mu.add(p, feComboWorkflow.label()).split();
@@ -663,7 +646,8 @@ public class TabWorkflow extends JPanelWithEnablement {
     if (false && Version.isDevBuild()) {
       mu.add(p, UiUtils.createButton("Save Dev", e -> Bus.post(new MessageSaveAsWorkflow(false, true))));
     }
-    mu.add(p, btnOpenInExplorer).wrap();
+    mu.add(p, btnOpenInExplorer);
+    mu.add(p, btnLoadJob).wrap();
 
     mu.add(p, epWorkflowsDesc).growX().spanX().wrap();
 
@@ -1744,25 +1728,7 @@ public class TabWorkflow extends JPanelWithEnablement {
       }
 
       log.debug("Loading workflow/ui state: {}", workflow);
-      PropsFile propsFile = FragpipeLocations.get().tryLoadSilently(fc.getSelectedFile().toPath(), "user");
-      if (propsFile == null) {
-        SwingUtils.showErrorDialog(this, "Couldn't load workflow file: " + workflow, "Workflow loading error");
-        return;
-      }
-
-      if (propsFile.containsKey("workflow.workflow-option")) {
-        propsFile.setProperty("workflow.workflow-option", workflow);
-      }
-
-      // Do not load the config paths from the workflow, which likely to be the paths in another user's computer.
-      propsFile.remove(TabConfig.TAB_PREFIX + "tools-folder");
-      propsFile.remove(TabConfig.TAB_PREFIX + "bin-diann");
-      propsFile.remove(TabConfig.TAB_PREFIX + "bin-python");
-
-      epWorkflowsDesc.setText(propsFile.getProperty(PROP_WORKFLOW_DESC, "Description not present"));
-      propsVarSet(PROP_WORKFLOW_SAVEDIR, propsFile.getPath().toAbsolutePath().getParent().toString());
-
-      Bus.post(new MessageLoadUi(propsFile, true, false));
+      loadCustomWorkflow(fc.getSelectedFile().toPath(), workflow);
     } else {
       log.debug("Loading workflow/ui state: {}", workflow);
       PropsFile propsFile = workflows.get(workflow);
@@ -1784,6 +1750,75 @@ public class TabWorkflow extends JPanelWithEnablement {
       }
       Bus.post(new MessageLoadUi(propsFile, true, false));
     }
+  }
+
+  private void loadCustomWorkflow(Path workflowPath, String workflowName) {
+    PropsFile propsFile = FragpipeLocations.get().tryLoadSilently(workflowPath, "user");
+    if (propsFile == null) {
+      SwingUtils.showErrorDialog(this, "Couldn't load workflow file: " + workflowName, "Workflow loading error");
+      return;
+    }
+
+    if (propsFile.containsKey("workflow.workflow-option")) {
+      propsFile.setProperty("workflow.workflow-option", workflowName);
+    }
+
+    // Do not load the config paths from the workflow, which likely to be the paths in another user's computer.
+    propsFile.remove(TabConfig.TAB_PREFIX + "tools-folder");
+    propsFile.remove(TabConfig.TAB_PREFIX + "bin-diann");
+    propsFile.remove(TabConfig.TAB_PREFIX + "bin-python");
+
+    epWorkflowsDesc.setText(propsFile.getProperty(PROP_WORKFLOW_DESC, "Description not present"));
+    propsVarSet(PROP_WORKFLOW_SAVEDIR, propsFile.getPath().toAbsolutePath().getParent().toString());
+
+    Bus.post(new MessageLoadUi(propsFile, true, false));
+  }
+
+  // load all settings from a previous saved job
+  private void actionLoadJob(ActionEvent e) {
+    // choose and load job file
+    FileNameEndingFilter filter = new FileNameEndingFilter("Job file (.job)", "job");
+    JFileChooser fc = FileChooserUtils.builder("Select the Job file to load").multi(false).mode(FcMode.FILES_ONLY).approveButton("Select Job").paths(Stream.of(FragpipeLocations.get().getDirJobs().toString())).create();
+    fc.setFileFilter(filter);
+    if (fc.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
+      log.debug("User cancelled job loading");
+      return;
+    }
+    Path jobPath = fc.getSelectedFile().toPath();
+    List<BatchRun> jobs = TabBatch.parseBatchTemplate(this, jobPath.toAbsolutePath().normalize().toString());
+    BatchRun job;
+    if (jobs.isEmpty()) {
+      SwingUtils.showErrorDialog(this, "No job found in file: " + jobPath, "Job loading error");
+      return;
+    } else if (jobs.size() > 1) {
+      SwingUtils.showWarningDialog(this, "Warning: Multiple jobs found in file: " + jobPath + ". The first job will be loaded.", "Multiple jobs in file");
+    }
+    job = jobs.get(0);
+
+    // load workflow
+    loadCustomWorkflow(job.workflowPath, "Custom");
+
+    // load manifest
+    try {
+      manifestLoad(job.manifestPath);
+    } catch (IOException ex) {
+        SwingUtils.showErrorDialog(this, "IO Error when trying to load manifest file " + job.manifestPath + ": " + ex.getMessage(), "Error Loading Manifest");
+        log.error("Error loading manifest file", ex);
+        return;
+    }
+
+    // load output dir
+    TabRun tabRun = getStickyStrict(TabRun.class);
+    tabRun.uiTextWorkdir.setText(job.outputPath.toAbsolutePath().normalize().toString());
+
+    // load fasta if provided
+    if (job.fastaPath != null) {
+      Bus.post(new MessageDbNewPath(job.fastaPath.toString()));
+    }
+
+    // load ram and threads
+    uiSpinnerRam.setValue(job.ram);
+    uiSpinnerThreads.setValue(job.threads);
   }
 
   public static class LcmsFileAddition {
