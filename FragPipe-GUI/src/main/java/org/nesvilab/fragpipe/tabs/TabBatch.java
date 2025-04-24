@@ -267,11 +267,6 @@ public class TabBatch extends JPanelWithEnablement {
 
         JScrollPane tableScrollBatch = new JScrollPane(batchTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         tableScrollBatch.setPreferredSize(new Dimension(1200, 200));
-        SwingUtilities.invokeLater(() -> {
-            setJTableColSize(batchTable, 0, 20, 1000, 600);
-            setJTableColSize(batchTable, 3, 10, 150, 100);
-            setJTableColSize(batchTable, 4, 10, 150, 100);
-        });
 
         JButton btnLoadJobs = new JButton("Load Job(s)");     // loads jobs from built-in jobs folder
         btnLoadJobs.addActionListener(e -> this.actionBtnLoadBatchTemplate(e, FragpipeLocations.get().getDirJobs().toString()));
