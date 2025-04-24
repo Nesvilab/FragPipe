@@ -621,7 +621,12 @@ public class TabRun extends JPanelWithEnablement {
     ArrayList<BatchRun> jobs = new ArrayList<>();
     jobs.add(job);
     TabBatch.saveJobsToFile(jobs, savePath);
-    SwingUtils.showInfoDialog(this, String.format("Saved job to %s", savePath), "Job saved");
+
+    // add saved job to batch table automatically
+    final TabBatch tabBatch = Fragpipe.getStickyStrict(TabBatch.class);
+    tabBatch.addBatchRuns(jobs);
+
+    SwingUtils.showInfoDialog(this, String.format("Saved job to %s and loaded it to the Batch table", savePath), "Job saved");
   }
 
   private void exportLogToFile(TextConsole console, String savePathHint) {

@@ -486,8 +486,12 @@ public class TabBatch extends JPanelWithEnablement {
                 Fragpipe.propsVarSet(PROP_FILECHOOSER_LAST_PATH, file.getParent());
                 runs.addAll(parseBatchTemplate(this, file.toString()));
             }
-            batchTable.addData(runs);
+            addBatchRuns(runs);
         }
+    }
+
+    public void addBatchRuns(List<BatchRun> runs) {
+        batchTable.addData(runs);
     }
 
     private void actionBtnSaveBatchTemplate(ActionEvent event) {
