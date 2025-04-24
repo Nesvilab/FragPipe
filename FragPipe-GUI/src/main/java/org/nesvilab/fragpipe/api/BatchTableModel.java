@@ -45,8 +45,8 @@ public class BatchTableModel extends DefaultTableModel {
                     getValueAt(i, COL_OUTPUT).toString(),
                     getValueAt(i, COL_TOOLS).toString(),
                     getValueAt(i, COL_FASTA).toString(),
-                    (int) getValueAt(i, COL_RAM),
-                    (int) getValueAt(i, COL_THREADS));
+                    Integer.parseInt(getValueAt(i, COL_RAM).toString()),
+                    Integer.parseInt(getValueAt(i, COL_THREADS).toString()));
             runs.add(run);
         }
         return runs;
