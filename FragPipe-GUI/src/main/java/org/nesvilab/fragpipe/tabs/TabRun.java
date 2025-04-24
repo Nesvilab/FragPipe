@@ -263,7 +263,7 @@ public class TabRun extends JPanelWithEnablement {
       Bus.post(new MessageKillAll(REASON.USER_ACTION, console));
       Path existing = PathUtils.existing(getWorkdirText());
       if (existing != null) {
-        Bus.post(MessageSaveLog.saveInDir(existing));
+        Bus.post(MessageSaveLog.saveInDir(existing, console));
         FragpipeRun.saveRuntimeConfig(existing);
       }
     });
@@ -565,7 +565,7 @@ public class TabRun extends JPanelWithEnablement {
     });
   }
 
-  @Subscribe(threadMode = ThreadMode.BACKGROUND)
+  @Subscribe(threadMode = ThreadMode.ASYNC)
   public void on(MessageSaveLog m) {
     log.debug("Got MessageSaveLog, trying to save log");
     saveLogToFile(m.console, m.workDir);
