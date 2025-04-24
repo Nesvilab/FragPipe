@@ -21,6 +21,8 @@ import static org.nesvilab.fragpipe.FragpipeRun.createVersionsString;
 import static org.nesvilab.fragpipe.FragpipeRun.printProcessDescription;
 import static org.nesvilab.fragpipe.messages.MessagePrintToConsole.toConsole;
 import static org.nesvilab.fragpipe.tabs.TabMsfragger.setJTableColSize;
+import static org.nesvilab.fragpipe.tabs.TabRun.saveLogToFile;
+import static org.nesvilab.utils.PropertiesUtils.saveConvert;
 
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
@@ -30,14 +32,13 @@ import org.nesvilab.fragpipe.FragpipeLocations;
 import org.nesvilab.fragpipe.FragpipeRun;
 import org.nesvilab.fragpipe.api.*;
 import org.nesvilab.fragpipe.cmd.*;
-import org.nesvilab.fragpipe.messages.MessageRunBatch;
-import org.nesvilab.fragpipe.messages.MessageRunButtonEnabled;
-import org.nesvilab.fragpipe.messages.MessageStartProcesses;
+import org.nesvilab.fragpipe.messages.*;
 import org.nesvilab.fragpipe.process.ProcessDescription;
 import org.nesvilab.fragpipe.process.ProcessDescription.Builder;
 import org.nesvilab.fragpipe.process.RunnableDescription;
 import org.nesvilab.fragpipe.util.BatchRun;
 import org.nesvilab.utils.OsUtils;
+import org.nesvilab.utils.PathUtils;
 import org.nesvilab.utils.SwingUtils;
 import org.nesvilab.utils.swing.*;
 
@@ -46,6 +47,7 @@ import java.awt.event.ActionEvent;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -71,6 +73,9 @@ public class TabBatch extends JPanelWithEnablement {
     Color defTextColor;
     private UiCheck uiCheckDryRun;
     public JButton btnRun;
+    public JButton btnStop;
+    private JProgressBar batchProgressBar;
+    private List<BatchRun> batchRuns;
 
     private JPanel pBottom;
     private JPanel pConsole;
@@ -98,14 +103,22 @@ public class TabBatch extends JPanelWithEnablement {
     }
 
     private int runBatch(MessageRunBatch m) {
+        clearConsole();
         boolean runConfigurationDone = false;
+        List<BatchRun> runs = batchTable.model.getRuns();
+        batchRuns = runs;
+        batchProgressBar.setMaximum(runs.size());
+        batchProgressBar.setValue(0);
+        batchProgressBar.setString(String.format("Completed %d of %d batch runs", batchProgressBar.getValue(), batchProgressBar.getMaximum()));
+        batchProgressBar.setStringPainted(true);
+
         try {
             Bus.post(new MessageRunButtonEnabled(false));
 
             // prepare the processes
             List<ProcessBuildersDescriptor> pbDescsBuilderDescs = new ArrayList<>(1);
 
-            for (BatchRun run : batchTable.model.getRuns()) {
+            for (BatchRun run : runs) {
                 CmdBatch cmdBatch = new CmdBatch(true, run.outputPath);
                 if (cmdBatch.configure(this, run)) {
                     ProcessBuildersDescriptor processBuildersDescriptor = cmdBatch.getBuilderDescriptor();
@@ -137,7 +150,6 @@ public class TabBatch extends JPanelWithEnablement {
 
             if (m.isDryRun) {
                 toConsole(Fragpipe.COLOR_RED_DARKEST, "\nIt's a dry-run, not running the commands.\n", true, console);
-                printReference();
                 return 0;
             }
 
@@ -145,7 +157,8 @@ public class TabBatch extends JPanelWithEnablement {
             long startTime = System.nanoTime();
             final List<RunnableDescription> toRun = new ArrayList<>();
             for (final ProcessBuilderInfo pbi : pbis) {
-                Runnable runnable = ProcessBuilderInfo.toRunnable(pbi, m.workdir, FragpipeRun::printProcessDescription, console, false);
+                // runnable for the batch run
+                Runnable runnable = ProcessBuilderInfo.toRunnable(pbi, pbi.pb.directory().toPath(), FragpipeRun::printProcessDescription, console, false);
                 ProcessDescription.Builder b = new ProcessDescription.Builder().setName(pbi.name);
                 if (pbi.pb.directory() != null) {
                     b.setWorkDir(pbi.pb.directory().toString());
@@ -154,14 +167,19 @@ public class TabBatch extends JPanelWithEnablement {
                     b.setCommand(String.join(" ", pbi.pb.command()));
                 }
                 toRun.add(new RunnableDescription(b.create(), runnable, pbi.parallelGroup, pbi));
+
+                // add finalizer process for each run to update the batch progress
+                final Runnable finalizerRun = () -> {
+                    Bus.post(new MessageUpdateBatchProgress());
+                };
+                toRun.add(new RunnableDescription(new Builder().setName("Finalizer Task").create(), finalizerRun));
             }
 
-            // add finalizer process
+            // add finalizer process for the end of all batches
             final Runnable finalizerRun = () -> {
                 String totalTime = String.format("%.1f", (System.nanoTime() - startTime) * 1e-9 / 60);
-                toConsole(Fragpipe.COLOR_RED_DARKEST, "\n=============================================================ALL JOBS DONE IN " + totalTime + " MINUTES=============================================================", true, console);
-
-                Bus.post(new MessageRunButtonEnabled(true));
+                toConsole(Fragpipe.COLOR_RED_DARKEST, "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++ALL BATCH JOBS DONE IN " + totalTime + " MINUTES++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++", true, console);
+                Bus.post(MessageSaveLog.saveInDir(FragpipeLocations.get().getDirJobs(), console));   // save final log to jobs dir as a backup for the individual run logs
             };
             toRun.add(new RunnableDescription(new Builder().setName("Finalizer Task").create(), finalizerRun));
 
@@ -180,15 +198,9 @@ public class TabBatch extends JPanelWithEnablement {
         return 0;
     }
 
-    // todo: print all? check from workflows?
-    private void printReference() {
-        toConsole(Fragpipe.COLOR_RED_DARKEST, "\nPlease cite:", true, console);
-        toConsole(Fragpipe.COLOR_BLACK, "Teo, G., et al. SAINTexpress: improvements and additional features in Significance Analysis of INTeractome software. J Proteomics, 100:37 (2014)", true, console);
-    }
-
     private JPanel createPanelBottom(TextConsole console) {
         uiCheckDryRun = UiUtils.createUiCheck("Dry Run", false);
-        btnRun = UiUtils.createButton("Run", e -> Bus.post(new MessageRunBatch(isDryRun(), null)));
+        btnRun = UiUtils.createButton("Run All", e -> Bus.post(new MessageRunBatch(isDryRun(), null)));
 
         JButton btnClearConsole = UiUtils.createButton("Clear Console", e -> clearConsole());
         uiCheckWordWrap = UiUtils.createUiCheck("Word wrap", true, e -> {
@@ -198,22 +210,43 @@ public class TabBatch extends JPanelWithEnablement {
         });
 
         console.setScrollableTracksViewportWidth(true);
+        batchProgressBar = new JProgressBar(0, 100);
+
+        btnStop = UiUtils.createButton("Stop All", e -> {
+            Bus.post(new MessageKillAll(MessageKillAll.REASON.USER_ACTION, console));
+            Path currentWorkDir = batchRuns.get(batchProgressBar.getValue()).outputPath;
+            if (currentWorkDir != null) {
+                Bus.post(MessageSaveLog.saveInDir(currentWorkDir, console));
+                FragpipeRun.saveRuntimeConfig(currentWorkDir);
+            }
+            batchProgressBar.setValue(0);
+            batchProgressBar.setStringPainted(false);
+        });
 
         JPanel p = mu.newPanel(null, true);
-        mu.add(p, btnRun).split(5);
+        mu.add(p, btnRun).split(6);
+        mu.add(p, btnStop);
         mu.add(p, uiCheckDryRun);
         mu.add(p, btnClearConsole);
         mu.add(p, uiCheckWordWrap).wrap();
+        mu.add(p, batchProgressBar).growX().spanX().wrap();
 
         return p;
     }
 
     @Subscribe(threadMode = ThreadMode.ASYNC)
     public void on(MessageRunBatch m) {
-        int returnCode = runBatch(m);
+            int returnCode = runBatch(m);
         if (Fragpipe.headless && returnCode != 0) {
             System.exit(returnCode);
         }
+    }
+
+    @Subscribe(threadMode = ThreadMode.ASYNC)
+    public void on(MessageUpdateBatchProgress m) {
+        batchProgressBar.setValue(batchProgressBar.getValue() + 1);
+        batchProgressBar.setString(String.format("Completed %d of %d batch runs", batchProgressBar.getValue(), batchProgressBar.getMaximum()));
+        batchProgressBar.setStringPainted(true);
     }
 
     public boolean isDryRun() {
@@ -226,6 +259,7 @@ public class TabBatch extends JPanelWithEnablement {
         if (defTextColor == null) {
             defTextColor = Color.BLACK;
         }
+        batchRuns = new ArrayList<>();
 
         JPanel pBatch = new JPanel(new MigLayout(new LC()));
         pBatch.setBorder(new TitledBorder("Batch FragPipe Runs"));

@@ -737,7 +737,7 @@ public class FragpipeRun {
             
         String totalTime = String.format("%.1f", (System.nanoTime() - startTime) * 1e-9 / 60);
         toConsole(Fragpipe.COLOR_RED_DARKEST, "\n=============================================================ALL JOBS DONE IN " + totalTime + " MINUTES=============================================================", true, tabRun.console);
-        Bus.post(MessageSaveLog.saveInDir(wd));
+        Bus.post(MessageSaveLog.saveInDir(wd, tabRun.console));
 
         Bus.post(new MessageRunButtonEnabled(true));
       };

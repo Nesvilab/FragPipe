@@ -19,17 +19,21 @@ package org.nesvilab.fragpipe.messages;
 
 import org.nesvilab.utils.PathUtils;
 import org.nesvilab.utils.TimeUtils;
+import org.nesvilab.utils.swing.TextConsole;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class MessageSaveLog {
   public final Path workDir;
+  public final TextConsole console;
 
-  public MessageSaveLog(Path filePath) {
+  public MessageSaveLog(Path filePath, TextConsole console) {
     this.workDir = filePath;
+    this.console = console;
   }
 
-  public static MessageSaveLog saveInDir(Path dir) {
+  public static MessageSaveLog saveInDir(Path dir, TextConsole console) {
     Path existing = PathUtils.existing(dir.toString());
     if (existing == null) {
       throw new IllegalArgumentException("Given dir must exist");
@@ -37,6 +41,6 @@ public class MessageSaveLog {
     if (!Files.isDirectory(existing)) {
       throw new IllegalArgumentException("Given mpath must be a dir");
     }
-    return new MessageSaveLog(existing.resolve(String.format("log_%s.txt", TimeUtils.dateTimeNoSpaces())));
+    return new MessageSaveLog(existing.resolve(String.format("log_%s.txt", TimeUtils.dateTimeNoSpaces())), console);
   }
 }

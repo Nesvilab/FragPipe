@@ -131,7 +131,7 @@ public class ProcessBuilderInfo {
               log.debug("Exit value not zero, killing all processes");
               toConsole(Fragpipe.COLOR_RED, "Process returned non-zero exit code, stopping", true, console);
               Bus.post(new MessageKillAll(REASON.NON_ZERO_RETURN_FROM_PROCESS, console));
-              Bus.post(MessageSaveLog.saveInDir(wdPath));
+              Bus.post(MessageSaveLog.saveInDir(wdPath, console));
               break;
             }
           } catch (IllegalThreadStateException ex) {
