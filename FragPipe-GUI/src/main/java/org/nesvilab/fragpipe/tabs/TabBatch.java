@@ -249,6 +249,18 @@ public class TabBatch extends JPanelWithEnablement {
         batchProgressBar.setStringPainted(true);
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+    public void on(MessageBatchCrashed m) {
+        // make sure this was actually a batch run that crashed, not a regular run
+        if (!(m.console == this.console)) {
+            return;
+        }
+        // reset progress bar and print a message to console saying which batch run crashed
+        toConsole(String.format("\n++++++++++Non-zero exit code in batch run %d of %d. Stopping batch run.++++++++++", batchProgressBar.getValue() + 1, batchProgressBar.getMaximum()), console);
+        batchProgressBar.setValue(0);
+        batchProgressBar.setStringPainted(false);
+    }
+
     public boolean isDryRun() {
         return SwingUtils.isEnabledAndChecked(uiCheckDryRun);
     }

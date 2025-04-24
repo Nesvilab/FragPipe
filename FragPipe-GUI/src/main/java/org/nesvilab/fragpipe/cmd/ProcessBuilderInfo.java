@@ -27,6 +27,7 @@ import java.util.Locale;
 import java.util.function.BiConsumer;
 import org.nesvilab.fragpipe.Fragpipe;
 import org.nesvilab.fragpipe.api.Bus;
+import org.nesvilab.fragpipe.messages.MessageBatchCrashed;
 import org.nesvilab.fragpipe.messages.MessageKillAll;
 import org.nesvilab.fragpipe.messages.MessageKillAll.REASON;
 import org.nesvilab.fragpipe.messages.MessageSaveLog;
@@ -132,6 +133,7 @@ public class ProcessBuilderInfo {
               toConsole(Fragpipe.COLOR_RED, "Process returned non-zero exit code, stopping", true, console);
               Bus.post(new MessageKillAll(REASON.NON_ZERO_RETURN_FROM_PROCESS, console));
               Bus.post(MessageSaveLog.saveInDir(wdPath, console));
+              Bus.post(new MessageBatchCrashed(console));  // to notify the batch tab, if applicable
               break;
             }
           } catch (IllegalThreadStateException ex) {
