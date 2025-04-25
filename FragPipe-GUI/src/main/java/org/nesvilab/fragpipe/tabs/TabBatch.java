@@ -81,7 +81,7 @@ public class TabBatch extends JPanelWithEnablement {
     private UiCheck uiCheckWordWrap;
 
     private BatchTable batchTable;
-    private static final String[] TABLE_BATCH_COL_NAMES = {"Workflow File Path", "Manifest File Path", "Output Directory",
+    private static final String[] TABLE_BATCH_COL_NAMES = {"Job Name (optional)", "Workflow File Path", "Manifest File Path", "Output Directory",
              "Tools Folder Path (optional)", "Fasta Path (optional)", "RAM (optional)", "Threads (optional)"};
     public static final String PROP_FILECHOOSER_LAST_PATH = "batch.filechooser.path";
 
@@ -363,13 +363,14 @@ public class TabBatch extends JPanelWithEnablement {
         Object[][] data = new Object[runs.size()][TABLE_BATCH_COL_NAMES.length];
         for (int i = 0; i < runs.size(); i++) {
             BatchRun run = runs.get(i);
-            data[i][0] = run.workflow;
-            data[i][1] = run.manifest;
-            data[i][2] = run.outputPath;
-            data[i][3] = run.toolsPath;
-            data[i][4] = run.fastaPath == null ? "" : run.fastaPath;
-            data[i][5] = run.ram;
-            data[i][6] = run.threads;
+            data[i][0] = run.name;
+            data[i][1] = run.workflow;
+            data[i][2] = run.manifest;
+            data[i][3] = run.outputPath;
+            data[i][4] = run.toolsPath;
+            data[i][5] = run.fastaPath == null ? "" : run.fastaPath;
+            data[i][6] = run.ram;
+            data[i][7] = run.threads;
         }
         return data;
     }
@@ -385,19 +386,20 @@ public class TabBatch extends JPanelWithEnablement {
                     continue; // skip comment lines
                 }
                 String[] splits = line.split("\t");
-                String workflowPath = splits[0].replace("\"", "");
-                String manifestPath = splits[1].replace("\"", "");
-                String outputDir = splits[2].replace("\"", "");
-                String toolsFolderPath = splits.length > 3 ? splits[3].replace("\"", ""): "";
-                String fastaPath = splits.length > 4 ? splits[4].replace("\"", ""): "";
+                String name = splits[0];
+                String workflowPath = splits[1].replace("\"", "");
+                String manifestPath = splits[2].replace("\"", "");
+                String outputDir = splits[3].replace("\"", "");
+                String toolsFolderPath = splits.length > 4 ? splits[4].replace("\"", ""): "";
+                String fastaPath = splits.length > 5 ? splits[5].replace("\"", ""): "";
                 int ram = 0, threads = 0;
                 try {
-                    ram = splits.length > 5 ? Integer.parseInt(splits[5]) : 0;
-                    threads = splits.length > 6 ? Integer.parseInt(splits[6]) : 0;
+                    ram = splits.length > 6 ? Integer.parseInt(splits[6]) : 0;
+                    threads = splits.length > 7 ? Integer.parseInt(splits[7]) : 0;
                 } catch (NumberFormatException e) {
                     SwingUtils.showErrorDialog(parent, "Invalid number format for RAM or threads in batch template line " + lineIndex + ": " + e.getMessage() + "\nThe input value will be set to the default (0)", "Number Format Error");
                 }
-                BatchRun run = new BatchRun(workflowPath, manifestPath, outputDir, toolsFolderPath, fastaPath, ram, threads);
+                BatchRun run = new BatchRun(name, workflowPath, manifestPath, outputDir, toolsFolderPath, fastaPath, ram, threads);
                 if (checkPaths(parent, run, false)) {
                     runs.add(run);
                 }

@@ -23,13 +23,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BatchTableModel extends DefaultTableModel {
-    private static final int COL_WORKFLOW = 0;
-    private static final int COL_MANIFEST = 1;
-    private static final int COL_OUTPUT = 2;
-    private static final int COL_TOOLS = 3;
-    private static final int COL_FASTA = 4;
-    private static final int COL_RAM = 5;
-    private static final int COL_THREADS = 6;
+    private static final int COL_NAME = 0;
+    private static final int COL_WORKFLOW = 1;
+    private static final int COL_MANIFEST = 2;
+    private static final int COL_OUTPUT = 3;
+    private static final int COL_TOOLS = 4;
+    private static final int COL_FASTA = 5;
+    private static final int COL_RAM = 6;
+    private static final int COL_THREADS = 7;
 
     public BatchTableModel(String[] colNames) {
         super(colNames, 0);
@@ -40,6 +41,7 @@ public class BatchTableModel extends DefaultTableModel {
         List<BatchRun> runs = new ArrayList<>();
         for (int i = 0; i < getRowCount(); i++) {
             BatchRun run = new BatchRun(
+                    getValueAt(i, COL_NAME).toString(),
                     getValueAt(i, COL_WORKFLOW).toString(),
                     getValueAt(i, COL_MANIFEST).toString(),
                     getValueAt(i, COL_OUTPUT).toString(),

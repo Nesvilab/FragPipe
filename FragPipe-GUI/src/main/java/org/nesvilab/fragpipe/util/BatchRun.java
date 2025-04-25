@@ -22,6 +22,7 @@ import org.nesvilab.utils.PathUtils;
 import java.nio.file.Path;
 
 public class BatchRun {
+    public String name;
     public String workflow;
     public String manifest;
     public String outputStr;
@@ -35,8 +36,9 @@ public class BatchRun {
     public Path toolsPath;
     public Path fastaPath;
 
-    public BatchRun(String workflow, String manifest, String outputStr, String toolsStr, String fastaStr, int ram, int threads) {
+    public BatchRun(String name, String workflow, String manifest, String outputStr, String toolsStr, String fastaStr, int ram, int threads) {
         // record the input strings for error logging later (if needed)
+        this.name = name;
         this.workflow = workflow;
         this.manifest = manifest;
         this.outputStr = outputStr;
@@ -53,7 +55,8 @@ public class BatchRun {
 
     // return tab delimited string
     public String toString() {
-        return workflow + "\t" +
+        return name + "\t" +
+                workflow + "\t" +
                 manifest + "\t" +
                 outputStr + "\t" +
                 toolsStr + "\t" +

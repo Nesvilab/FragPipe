@@ -586,6 +586,7 @@ public class TabRun extends JPanelWithEnablement {
   private void actionBtnSaveJob(ActionEvent e) {
     try {
       saveJob(uiTextJobName.getNonGhostText());
+      uiTextJobName.setText("");
     } catch (IOException ex) {
       log.error("IO Error while saving job", ex);
       JOptionPane.showMessageDialog(this, "IO Error while saving job: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -601,9 +602,8 @@ public class TabRun extends JPanelWithEnablement {
 
     if (jobName == null || jobName.isEmpty()) {
       jobName = "job_" + df.format(now);
-    } else {
-      jobName = jobName + "_" + df.format(now);
     }
+
     // save current workflow and manifest to file
     Path workflowPath = FragpipeLocations.get().getDirJobs().resolve(String.format("%s.workflow", jobName));
     Fragpipe fp0 = getStickyStrict(Fragpipe.class);
@@ -625,7 +625,7 @@ public class TabRun extends JPanelWithEnablement {
       return;
     }
     // create the job
-    BatchRun job = new BatchRun(workflowPath.toString(), manifestPath.toString(), getWorkdirText(), tabConfig.uiTextToolsFolder.getNonGhostText(), fastaStr, tabWorkflow.getRamGb(), tabWorkflow.getThreads());
+    BatchRun job = new BatchRun(jobName, workflowPath.toString(), manifestPath.toString(), getWorkdirText(), tabConfig.uiTextToolsFolder.getNonGhostText(), fastaStr, tabWorkflow.getRamGb(), tabWorkflow.getThreads());
 
     // save job to file
     Path savePath = FragpipeLocations.get().getDirJobs().resolve((String.format("%s.job", jobName)));
