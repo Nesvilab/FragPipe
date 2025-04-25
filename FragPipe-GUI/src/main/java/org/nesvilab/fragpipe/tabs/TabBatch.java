@@ -108,7 +108,7 @@ public class TabBatch extends JPanelWithEnablement {
         batchRuns = runs;
         batchProgressBar.setMaximum(runs.size());
         batchProgressBar.setValue(0);
-        batchProgressBar.setString(String.format("Completed %d of %d batch runs", batchProgressBar.getValue(), batchProgressBar.getMaximum()));
+        batchProgressBar.setString(String.format("Completed %d of %d jobs", batchProgressBar.getValue(), batchProgressBar.getMaximum()));
         batchProgressBar.setStringPainted(true);
 
         try {
@@ -156,7 +156,7 @@ public class TabBatch extends JPanelWithEnablement {
             long startTime = System.nanoTime();
             final List<RunnableDescription> toRun = new ArrayList<>();
             for (final ProcessBuilderInfo pbi : pbis) {
-                // runnable for the batch run
+                // runnable for the job
                 Runnable runnable = ProcessBuilderInfo.toRunnable(pbi, pbi.pb.directory().toPath(), FragpipeRun::printProcessDescription, console, false);
                 ProcessDescription.Builder b = new ProcessDescription.Builder().setName(pbi.name);
                 if (pbi.pb.directory() != null) {
@@ -244,18 +244,18 @@ public class TabBatch extends JPanelWithEnablement {
     @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
     public void on(MessageUpdateBatchProgress m) {
         batchProgressBar.setValue(batchProgressBar.getValue() + 1);
-        batchProgressBar.setString(String.format("Completed %d of %d batch runs", batchProgressBar.getValue(), batchProgressBar.getMaximum()));
+        batchProgressBar.setString(String.format("Completed %d of %d jobs", batchProgressBar.getValue(), batchProgressBar.getMaximum()));
         batchProgressBar.setStringPainted(true);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
     public void on(MessageBatchCrashed m) {
-        // make sure this was actually a batch run that crashed, not a regular run
+        // make sure this was actually a job that crashed, not a regular run
         if (!(m.console == this.console)) {
             return;
         }
-        // reset progress bar and print a message to console saying which batch run crashed
-        toConsole(String.format("\n++++++++++Non-zero exit code in batch run %d of %d. Stopping batch run.++++++++++", batchProgressBar.getValue() + 1, batchProgressBar.getMaximum()), console);
+        // reset progress bar and print a message to console saying which job crashed
+        toConsole(String.format("\n++++++++++Non-zero exit code in job %d of %d. Stopping job.++++++++++", batchProgressBar.getValue() + 1, batchProgressBar.getMaximum()), console);
         batchProgressBar.setValue(0);
         batchProgressBar.setStringPainted(false);
     }
@@ -350,7 +350,7 @@ public class TabBatch extends JPanelWithEnablement {
         BatchTable t = new BatchTable(model, TABLE_BATCH_COL_NAMES, TabBatch::convertBatchToTableData);
 
         Fragpipe.rename(t, "table.batch", TabBatch.TAB_PREFIX);
-        t.setToolTipText("<html>Batch runs table. <br/>" +
+        t.setToolTipText("<html>jobs table. <br/>" +
                 "Enter paths to workflow and manifest files and output directories for FragPipe runs.<br/>" +
                 "Each row represents a complete FragPipe run.<br/>");
         t.setDefaultRenderer(Double.class, new TableCellDoubleRenderer());
@@ -412,11 +412,11 @@ public class TabBatch extends JPanelWithEnablement {
 
     public static boolean checkPaths(Component parent, BatchRun run, boolean makeDirs) {
         if (run.workflowPath == null) {
-            SwingUtils.showErrorDialog(parent, String.format("Workflow file path not found: %s\n This batch run will be skipped.", run.workflow), "File Not Found");
+            SwingUtils.showErrorDialog(parent, String.format("Workflow file path not found: %s\n This job will be skipped.", run.workflow), "File Not Found");
             return false;
         }
         if (run.manifestPath == null) {
-            SwingUtils.showErrorDialog(parent, String.format("Manifest file path not found: %s\n This batch run will be skipped.", run.manifest), "File Not Found");
+            SwingUtils.showErrorDialog(parent, String.format("Manifest file path not found: %s\n This job will be skipped.", run.manifest), "File Not Found");
             return false;
         }
         if (run.toolsPath == null || !(Files.exists(run.toolsPath) && Files.isDirectory(run.toolsPath))) {
@@ -442,7 +442,7 @@ public class TabBatch extends JPanelWithEnablement {
         // only check fasta path if provided
         if (run.fastaPath != null) {
             if (!(Files.exists(run.fastaPath))) {
-                SwingUtils.showErrorDialog(parent, String.format("Fasta file path not found: %s\n This batch run will be skipped.", run.fastaPath), "File Not Found");
+                SwingUtils.showErrorDialog(parent, String.format("Fasta file path not found: %s\n This job will be skipped.", run.fastaPath), "File Not Found");
                 return false;
             }
             // overwrite fasta path in workflow file if the fasta path was provided
@@ -450,14 +450,14 @@ public class TabBatch extends JPanelWithEnablement {
             try {
                 tabDatabase.validateFastaForBatch(run.fastaPath.toAbsolutePath().normalize().toString());
             } catch (Exception e) {
-                SwingUtils.showErrorDialog(parent, String.format("Fasta file %s could not be validated due to the following error:\n %s\n This batch run will be skipped.", run.fastaPath, e.getMessage()), "Fasta file validation failed");
+                SwingUtils.showErrorDialog(parent, String.format("Fasta file %s could not be validated due to the following error:\n %s\n This job will be skipped.", run.fastaPath, e.getMessage()), "Fasta file validation failed");
                 return false;
             }
             // if fasta validates, update the workflow file with the new path
             try {
                 editWorkflowFasta(run.workflowPath, run.fastaPath);
             } catch (IOException e) {
-                SwingUtils.showErrorDialog(parent, String.format("Could not edit workflow file %s with the new fasta path %s.\n This batch run will be skipped.", run.workflowPath, run.fastaPath), "Workflow file editing failed");
+                SwingUtils.showErrorDialog(parent, String.format("Could not edit workflow file %s with the new fasta path %s.\n This job will be skipped.", run.workflowPath, run.fastaPath), "Workflow file editing failed");
                 return false;
             }
         }
