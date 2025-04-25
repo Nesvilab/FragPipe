@@ -47,7 +47,6 @@ import java.awt.event.ActionEvent;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -293,13 +292,16 @@ public class TabBatch extends JPanelWithEnablement {
         btnRemoveSelected.addActionListener(e -> btnRemoveSelected());
         JButton btnClearTable = new JButton("Clear Table");
         btnClearTable.addActionListener(e -> clearTable());
+        JButton btnCreateBatchScript = new JButton("Write Jobs to Batch Script");
+        btnCreateBatchScript.addActionListener(e -> createBatchScript());
 
         mu.add(pBatch, btnLoadJobs).split();
         mu.add(pBatch, btnLoadBatchTemplate).split();
         mu.add(pBatch, btnSaveBatchTemplate).split();
         mu.add(pBatch, btnOpenJobsFolder).split().wrap();
         mu.add(pBatch, btnRemoveSelected).split();
-        mu.add(pBatch, btnClearTable).wrap();
+        mu.add(pBatch, btnClearTable).split();
+        mu.add(pBatch, btnCreateBatchScript).split().wrap();
         mu.add(pBatch, tableScrollBatch, new CC().minHeight("100px").maxHeight("200px").growX().spanX().wrap());
 
         pBottom = createPanelBottom(console);
@@ -568,6 +570,55 @@ public class TabBatch extends JPanelWithEnablement {
             }
         } else {
             SwingUtils.showErrorDialog(this, "Jobs folder does not exist or is not a directory.", "Error");
+        }
+    }
+
+    private void createBatchScript() {
+        String fileExtension;
+        FileNameEndingFilter filter;
+        if (OsUtils.isWindows()) {
+            fileExtension = ".bat";
+            filter = new FileNameEndingFilter("Bat File (.bat)", "bat");
+        } else {
+            fileExtension = ".sh";
+            filter = new FileNameEndingFilter("Batch Shell Script (.sh)", "sh");
+        }
+        // get file path to save
+        Path savePath = TabWorkflow.getSaveFilePath(null, PROP_FILECHOOSER_LAST_PATH, filter, fileExtension, false, this);
+        if (savePath == null) {
+            // user cancelled action
+            return;
+        }
+
+        List<BatchRun> runs = batchTable.model.getRuns();
+        if (runs.isEmpty()) {
+            return;
+        }
+
+        // create commands
+        List<String> commands = new ArrayList<>();
+        CmdBatch dummyCmdBatch = new CmdBatch(false, null);
+        for (BatchRun run : runs) {
+            dummyCmdBatch.configure(this, run);
+            List<String> cmd = dummyCmdBatch.getBuilderDescriptor().pbis.get(0).pb.command();
+            commands.add(String.join(" ", cmd));
+        }
+
+        // save to file
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(savePath.toFile()))) {
+            if (!OsUtils.isWindows()) {
+                writer.write("#!/bin/bash\n");
+                writer.write("set -x\n\n");
+            }
+
+            for (String command : commands) {
+                writer.write(command);
+                writer.newLine();
+            }
+            writer.flush();
+        } catch (IOException ex) {
+            log.error("Could not save batch script to file {} due to error: {}", savePath, ex.getMessage());
+            SwingUtils.showErrorDialog(this, String.format("Could not save batch script to file %s due to error: %s", savePath, ex.getMessage()), "IO Error");
         }
     }
 }
