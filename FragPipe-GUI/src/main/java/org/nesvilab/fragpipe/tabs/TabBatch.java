@@ -83,7 +83,7 @@ public class TabBatch extends JPanelWithEnablement {
 
     private BatchTable batchTable;
     private static final String[] TABLE_BATCH_COL_NAMES = {"Workflow File Path", "Manifest File Path", "Output Directory",
-             "Tools Folder Path", "Fasta Path (optional)", "RAM", "Threads"};
+             "Tools Folder Path (optional)", "Fasta Path (optional)", "RAM (optional)", "Threads (optional)"};
     public static final String PROP_FILECHOOSER_LAST_PATH = "batch.filechooser.path";
 
 
@@ -419,8 +419,16 @@ public class TabBatch extends JPanelWithEnablement {
             return false;
         }
         if (run.toolsPath == null || !(Files.exists(run.toolsPath) && Files.isDirectory(run.toolsPath))) {
-            SwingUtils.showErrorDialog(parent, String.format("Tools directory not found: %s\n. This batch run will be skipped.", run.toolsStr), "Directory Not Found");
-            return false;
+            TabConfig tabConfig = Fragpipe.getStickyStrict(TabConfig.class);
+            String defaultToolsStr = tabConfig.uiTextToolsFolder.getNonGhostText();
+            Path defaultToolsPath = PathUtils.existing(defaultToolsStr);
+            if (defaultToolsPath == null) {
+                SwingUtils.showErrorDialog(parent, "Tools folder path not found: " + run.toolsPath +
+                        "\n and the default tools folder path was not configured on the Config tab. This job could not be added and will be skipped.", "Tools folder Not Found");
+                return false;
+            } else {
+                run.toolsPath = defaultToolsPath;
+            }
         }
         if (!(Files.exists(run.outputPath) && Files.isDirectory(run.outputPath))) {
             if (makeDirs) {
