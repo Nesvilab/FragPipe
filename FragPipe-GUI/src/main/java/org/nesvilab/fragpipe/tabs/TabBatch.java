@@ -242,7 +242,7 @@ public class TabBatch extends JPanelWithEnablement {
         }
     }
 
-    @Subscribe(threadMode = ThreadMode.ASYNC)
+    @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
     public void on(MessageUpdateBatchProgress m) {
         batchProgressBar.setValue(batchProgressBar.getValue() + 1);
         batchProgressBar.setString(String.format("Completed %d of %d batch runs", batchProgressBar.getValue(), batchProgressBar.getMaximum()));
