@@ -393,8 +393,7 @@ public class TabBatch extends JPanelWithEnablement {
                     ram = splits.length > 5 ? Integer.parseInt(splits[5]) : 0;
                     threads = splits.length > 6 ? Integer.parseInt(splits[6]) : 0;
                 } catch (NumberFormatException e) {
-                    log.error("Invalid number format for RAM or threads in batch template line {}: {}", lineIndex, e.getMessage());
-                    SwingUtils.showErrorDialog(parent, "Invalid number format for RAM or threads in batch template line " + lineIndex + ": " + e.getMessage(), "Number Format Error");
+                    SwingUtils.showErrorDialog(parent, "Invalid number format for RAM or threads in batch template line " + lineIndex + ": " + e.getMessage() + "\nThe input value will be set to the default (0)", "Number Format Error");
                 }
                 BatchRun run = new BatchRun(workflowPath, manifestPath, outputDir, toolsFolderPath, fastaPath, ram, threads);
                 if (checkPaths(parent, run, false)) {
@@ -545,8 +544,12 @@ public class TabBatch extends JPanelWithEnablement {
 
     private void btnRemoveSelected() {
         int[] removeRows = batchTable.getSelectedRows();
-        for (int row : removeRows) {
-            batchTable.model.removeRow(row);
+        HashSet<Integer> rowsToRemove = Arrays.stream(removeRows).boxed().collect(Collectors.toCollection(HashSet::new));
+        // remove in reverse order to avoid index shifting errors
+        for (int i = batchTable.model.getRowCount(); i >= 0; i--) {
+            if (rowsToRemove.contains(i)) {
+                batchTable.model.removeRow(i);
+            }
         }
     }
 
