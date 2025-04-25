@@ -132,6 +132,7 @@ public class TabRun extends JPanelWithEnablement {
   private TabDownstream tabDownstream;
   private UiCheck uiCheckSaveSDRF;
   private UiCombo uiComboSDRFtype;
+  private UiText uiTextJobName;
 
   public TabRun(TextConsole console, TabDownstream tabDownstream) {
     this.console = console;
@@ -441,6 +442,8 @@ public class TabRun extends JPanelWithEnablement {
     uiComboSDRFtype = UiUtils.createUiCombo(sdrfTypes);
     FormEntry feComboSDRFtype = new FormEntry("workflow.misc.sdrf-type", "SDRF Type", uiComboSDRFtype, "SDRF template type to use");
 
+    uiTextJobName = UiUtils.uiTextBuilder().ghost("Enter a name for saving the job (optional).").cols(250).create();
+
     JPanel p = mu.newPanel(null, true);
     mu.add(p, btnAbout).wrap();
     mu.add(p, feWorkdir.label(), false).split().spanX();
@@ -448,33 +451,36 @@ public class TabRun extends JPanelWithEnablement {
     mu.add(p, btnBrowse);
     mu.add(p, btnOpenInFileManager).wrap();
 
-    mu.add(p, btnRun).split(4);
+    // line 1
+    mu.add(p, btnRun).split(5);
     mu.add(p, btnStop);
-    mu.add(p, btnSaveJob);
     mu.add(p, uiCheckDryRun);
-    mu.add(p, uiCheckSaveSDRF).split(3);
-    mu.add(p, feComboSDRFtype.label(), mu.ccR());
-    mu.add(p, feComboSDRFtype.comp);
+    mu.add(p, btnSaveJob);
+    mu.add(p, uiTextJobName).wrap();
 
-    mu.add(p, btnExport).split(3);
+    // line 2
+    mu.add(p, btnExport).split(6);
     mu.add(p, btnReportErrors);
     mu.add(p, btnClearConsole);
-    mu.add(p, uiCheckWordWrap).wrap();
+    mu.add(p, uiCheckSaveSDRF);
+    mu.add(p, feComboSDRFtype.label(), mu.ccR());
+    mu.add(p, feComboSDRFtype.comp).wrap();
 
-    mu.add(p, imageLabel).split(2);
-    mu.add(p, btnOpenPdv);
-
-    mu.add(p, imageLabel2).split(2);
-    mu.add(p, btnOpenFragPipeAnalyst);
-
-    mu.add(p, feExportMatchedFragments.comp).split(3);
+    // line 3
+    mu.add(p, uiCheckWordWrap).split(4);
+    mu.add(p, feExportMatchedFragments.comp);
     mu.add(p, uiCheckDeleteCalibratedFiles);
     mu.add(p, uiCheckDeleteTempFiles);
-    mu.add(p, feWriteSubMzml.comp).split(3);
+    mu.add(p, feWriteSubMzml.comp);
     mu.add(p, feProbThreshold.label());
     mu.add(p, feProbThreshold.comp).wrap();
 
-    mu.add(p, btnGenerateSummaryReport);
+    // line 4
+    mu.add(p, imageLabel).split(6);
+    mu.add(p, btnOpenPdv);
+    mu.add(p, imageLabel2);
+    mu.add(p, btnOpenFragPipeAnalyst);
+    mu.add(p, btnGenerateSummaryReport).wrap();
 
     return p;
   }
@@ -565,7 +571,7 @@ public class TabRun extends JPanelWithEnablement {
     });
   }
 
-  @Subscribe(threadMode = ThreadMode.ASYNC)
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageSaveLog m) {
     log.debug("Got MessageSaveLog, trying to save log");
     saveLogToFile(m.console, m.workDir);
@@ -579,27 +585,32 @@ public class TabRun extends JPanelWithEnablement {
 
   private void actionBtnSaveJob(ActionEvent e) {
     try {
-      saveJob();
+      saveJob(uiTextJobName.getNonGhostText());
     } catch (IOException ex) {
       log.error("IO Error while saving job", ex);
       JOptionPane.showMessageDialog(this, "IO Error while saving job: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     }
   }
 
-  public void saveJob() throws IOException {
+  public void saveJob(String jobName) throws IOException {
     final TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
     final TabConfig tabConfig = Fragpipe.getStickyStrict(TabConfig.class);
     final TabDatabase tabDatabase = Fragpipe.getStickyStrict(TabDatabase.class);
     SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
     Date now = new Date();
 
+    if (jobName == null || jobName.isEmpty()) {
+      jobName = "job_" + df.format(now);
+    } else {
+      jobName = jobName + "_" + df.format(now);
+    }
     // save current workflow and manifest to file
-    Path workflowPath = FragpipeLocations.get().getDirJobs().resolve(String.format("job_%s.workflow", df.format(now)));
+    Path workflowPath = FragpipeLocations.get().getDirJobs().resolve(String.format("%s.workflow", jobName));
     Fragpipe fp0 = getStickyStrict(Fragpipe.class);
     Properties uiProps = FragpipeCacheUtils.tabsSave0(fp0.tabs, false);
-    TabWorkflow.saveWorkflow(workflowPath, String.format("Saved automatically during creation of job_%s", df.format(now)), uiProps);
+    TabWorkflow.saveWorkflow(workflowPath, String.format("Saved automatically during creation of %s", jobName), uiProps);
 
-    Path manifestPath = FragpipeLocations.get().getDirJobs().resolve(String.format("job_%s.fp-manifest", df.format(now)));
+    Path manifestPath = FragpipeLocations.get().getDirJobs().resolve(String.format("%s.fp-manifest", jobName));
     tabWorkflow.manifestSave(manifestPath);
 
     String fastaStr = tabDatabase.getFastaPath();
@@ -617,7 +628,7 @@ public class TabRun extends JPanelWithEnablement {
     BatchRun job = new BatchRun(workflowPath.toString(), manifestPath.toString(), getWorkdirText(), tabConfig.uiTextToolsFolder.getNonGhostText(), fastaStr, tabWorkflow.getRamGb(), tabWorkflow.getThreads());
 
     // save job to file
-    Path savePath = FragpipeLocations.get().getDirJobs().resolve((String.format("job_%s.job", df.format(now))));
+    Path savePath = FragpipeLocations.get().getDirJobs().resolve((String.format("%s.job", jobName)));
     ArrayList<BatchRun> jobs = new ArrayList<>();
     jobs.add(job);
     TabBatch.saveJobsToFile(jobs, savePath);
