@@ -33,7 +33,6 @@ import org.nesvilab.fragpipe.exceptions.NoStickyException;
 import org.nesvilab.fragpipe.exceptions.UnexpectedException;
 import org.nesvilab.fragpipe.exceptions.ValidationException;
 import org.nesvilab.fragpipe.messages.MessageClearCache;
-import org.nesvilab.fragpipe.messages.MessageExportLog;
 import org.nesvilab.fragpipe.messages.MessageLoadUi;
 import org.nesvilab.fragpipe.messages.MessageManifestLoad;
 import org.nesvilab.fragpipe.messages.MessageOpenInExplorer;
@@ -555,9 +554,6 @@ public class Fragpipe extends JFrameHeadless {
 
       private void doPop(MouseEvent e) {
         JPopupMenu menu = new JPopupMenu();
-        JMenuItem menuItem = new JMenuItem("Export to text file");
-        menuItem.addActionListener(e1 -> Bus.post(new MessageExportLog()));
-        menu.add(menuItem);
         menu.show(e.getComponent(), e.getX(), e.getY());
       }
     });
