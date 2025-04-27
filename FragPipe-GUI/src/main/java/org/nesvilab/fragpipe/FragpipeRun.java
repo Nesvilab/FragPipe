@@ -166,6 +166,7 @@ import org.nesvilab.fragpipe.tools.speclibgen.SpeclibPanel;
 import org.nesvilab.fragpipe.tools.tmtintegrator.QuantLabel;
 import org.nesvilab.fragpipe.tools.tmtintegrator.TmtiPanel;
 import org.nesvilab.fragpipe.tools.umpire.UmpirePanel;
+import org.nesvilab.fragpipe.tools.umpire.UmpireParams;
 import org.nesvilab.utils.MapUtils;
 import org.nesvilab.utils.OsUtils;
 import org.nesvilab.utils.PathUtils;
@@ -1078,34 +1079,11 @@ public class FragpipeRun {
   }
 
   public static String createVersionsString() {
-    String msfraggerVersion;
-    String ionQuantVersion = NoteConfigIonQuant.version;
-    String diaTracerVersion = NoteConfigDiaTracer.version;
+
     String easypqpVersion;
+    String diannVersion;
     String pandasVersion;
     String numpyVersion;
-
-    try {
-      NoteConfigMsfragger noteConfigMsfragger = Fragpipe.getStickyStrict(NoteConfigMsfragger.class);
-      if (noteConfigMsfragger == null) {
-        msfraggerVersion = "N/A";
-      } else {
-        msfraggerVersion = noteConfigMsfragger.version;
-        if (msfraggerVersion == null || msfraggerVersion.trim().isEmpty()) {
-          msfraggerVersion = "N/A";
-        }
-      }
-    } catch (Exception e) {
-      msfraggerVersion = "N/A";
-    }
-
-    if (ionQuantVersion == null || ionQuantVersion.trim().isEmpty()) {
-      ionQuantVersion = "N/A";
-    }
-
-    if (diaTracerVersion == null || diaTracerVersion.trim().isEmpty()) {
-      diaTracerVersion = "N/A";
-    }
 
     try {
       NoteConfigSpeclibgen noteConfigSpeclibgen = Fragpipe.getStickyStrict(NoteConfigSpeclibgen.class);
@@ -1119,6 +1097,20 @@ public class FragpipeRun {
       }
     } catch (Exception e) {
       easypqpVersion = "N/A";
+    }
+
+    try {
+      NoteConfigDiann noteConfigDiann = Fragpipe.getStickyStrict(NoteConfigDiann.class);
+      if (noteConfigDiann == null) {
+        diannVersion = "N/A";
+      } else {
+        diannVersion = noteConfigDiann.version;
+        if (diannVersion == null || diannVersion.trim().isEmpty()) {
+          diannVersion = "N/A";
+        }
+      }
+    } catch (Exception e) {
+      diannVersion = "N/A";
     }
 
     try {
@@ -1149,15 +1141,28 @@ public class FragpipeRun {
       numpyVersion = "N/A";
     }
 
+    DefaultArtifactVersion skylineVersion  = Skyline.getSkylineVersion();
+    if (skylineVersion == null) {
+      skylineVersion = Skyline.getSkylineDailyVersion();
+    }
+
     StringBuilder sb = new StringBuilder();
     sb.append(Version.PROGRAM_TITLE).append(" version ").append(Version.version()).append("\n");
-    sb.append("MSFragger version ").append(msfraggerVersion).append("\n");
-    sb.append("IonQuant version ").append(ionQuantVersion).append("\n");
-    sb.append("diaTracer version ").append(diaTracerVersion).append("\n");
-    sb.append("Philosopher version ").append(PHILOSOPHER_VERSION).append("\n");
-    sb.append("EasyPQP version ").append(easypqpVersion).append("\n");
-    sb.append("Pandas version ").append(pandasVersion).append("\n");
-    sb.append("Numpy version ").append(numpyVersion).append("\n");
+    sb.append("DIA-Umpire version ").append(UmpireParams.UMPIRESE_VERSION == null ? "N/A" : UmpireParams.UMPIRESE_VERSION).append("\n");
+    sb.append("diaTracer version ").append(NoteConfigDiaTracer.version == null ? "N/A" : NoteConfigDiaTracer.version).append("\n");
+    sb.append("MSFragger version ").append(NoteConfigMsfragger.version == null ? "N/A" : NoteConfigMsfragger.version).append("\n");
+    sb.append("Crystal-C version ").append(CmdCrystalc.CRYSTALC_VERSION == null ? "N/A" : CmdCrystalc.CRYSTALC_VERSION).append("\n");
+    sb.append("MSBooster version ").append(CmdMSBooster.MSBOOSTER_VERSION == null ? "N/A" : CmdMSBooster.MSBOOSTER_VERSION).append("\n");
+    sb.append("Percolator version ").append(CmdPercolator.PERCOLATOR_VERSION == null ? "N/A" : CmdPercolator.PERCOLATOR_VERSION).append("\n");
+    sb.append("Philosopher version ").append(PHILOSOPHER_VERSION == null ? "N/A" : PHILOSOPHER_VERSION).append("\n");
+    sb.append("PTM-Shepherd version ").append(CmdPtmshepherd.SHEPHERD_VERSION == null ? "N/A" : CmdPtmshepherd.SHEPHERD_VERSION).append("\n");
+    sb.append("IonQuant version ").append(NoteConfigIonQuant.version == null ? "N/A" : NoteConfigIonQuant.version).append("\n");
+    sb.append("TMT-Integrator version ").append(CmdTmtIntegrator.TMT_INTEGRATOR_VERSION == null ? "N/A" : CmdTmtIntegrator.TMT_INTEGRATOR_VERSION).append("\n");
+    sb.append("EasyPQP version ").append(easypqpVersion == null ? "N/A" : easypqpVersion).append("\n");
+    sb.append("DIA-NN version ").append(diannVersion == null ? "N/A" : diannVersion).append("\n");
+    sb.append("Skyline version ").append(skylineVersion == null ? "N/A" : skylineVersion.toString()).append("\n");
+    sb.append("Pandas version ").append(pandasVersion == null ? "N/A" : pandasVersion).append("\n");
+    sb.append("Numpy version ").append(numpyVersion == null ? "N/A" : numpyVersion).append("\n");
 
     return sb.toString();
   }

@@ -55,6 +55,7 @@ public class CmdPercolator extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdPercolator.class);
 
   public static final String NAME = "Percolator";
+  public static final String PERCOLATOR_VERSION = "3.7.1";
 
   public CmdPercolator(boolean isRun, Path workDir) {
     super(isRun, workDir);
@@ -137,8 +138,8 @@ public class CmdPercolator extends CmdBase {
           continue;
         // Percolator
         List<String> cmdPp = new ArrayList<>();
-        final String percolator_bin = OsUtils.isUnix() ? "percolator_3_7_1/linux/percolator" :
-                OsUtils.isWindows() ? "percolator_3_7_1/windows/percolator.exe" : null;
+        final String percolator_bin = OsUtils.isUnix() ? "percolator_" + PERCOLATOR_VERSION.replace(".", "_") + "/linux/percolator" :
+                OsUtils.isWindows() ? "percolator_" + PERCOLATOR_VERSION.replace(".", "_") + "/windows/percolator.exe" : null;
         cmdPp.add(FragpipeLocations.checkToolsMissing(Seq.of(percolator_bin)).get(0).toString());
 
         String strippedBaseName;

@@ -17,6 +17,7 @@
 package org.nesvilab.fragpipe.params;
 
 import org.nesvilab.fragpipe.Fragpipe;
+import org.nesvilab.fragpipe.FragpipeRun;
 import org.nesvilab.fragpipe.messages.NoteConfigDiaTracer;
 import org.nesvilab.fragpipe.messages.NoteConfigIonQuant;
 import org.nesvilab.fragpipe.messages.NoteConfigMsfragger;
@@ -31,6 +32,7 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -266,14 +268,10 @@ public class ThisAppProps extends Properties {
   }
 
   public static String[] cacheComments() {
-    NoteConfigMsfragger noteConfigMsfragger = Fragpipe.getStickyStrict(NoteConfigMsfragger.class);
-    String[] ss = {
-        Version.PROGRAM_TITLE + " (" + Version.version() + ") runtime properties",
-        "MSFragger version " + (noteConfigMsfragger == null ? "N/A" : noteConfigMsfragger.version),
-        "IonQuant version " + NoteConfigIonQuant.version,
-        "diaTracer version " + NoteConfigDiaTracer.version
-    };
-    return ss;
+    List<String> comments = new ArrayList<>();
+    comments.add("Version info:");
+    comments.addAll(Arrays.asList(FragpipeRun.createVersionsString().split("\n")));
+    return comments.toArray(new String[0]);
   }
 
   private static Path getCacheFilePath() {
