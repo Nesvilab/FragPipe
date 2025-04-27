@@ -374,6 +374,8 @@ def easypqp_lib_export(lib_type: str, params: easyPQPparams):
 	avg_experimental_rt = pd.Series(avg_experimental_rt0, name='AverageExperimentalRetentionTime')
 	if lib_type == 'Spectronaut':
 		easypqp_lib['ModifiedPeptideSequence'] = easypqp_lib['ModifiedPeptideSequence'].str.replace('.(UniMod:', '(UniMod:', regex=False)
+	
+	easypqp_lib['ModifiedPeptideSequence'] = easypqp_lib['ModifiedPeptideSequence'].str.replace('+', '', regex=False)
 
 	df_lib = pd.concat([easypqp_lib, frag_df, avg_experimental_rt], axis=1)
 
