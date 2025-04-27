@@ -20,7 +20,7 @@ patsy==1.0.1
 pillow==11.0.0
 plotly==6.0.1
 pyarrow==19.0.1
-pyopenms==3.2.0
+pyopenms==3.3.0
 pyparsing==3.2.0
 PyPDF2==3.0.1
 python-dateutil==2.9.0.post0
