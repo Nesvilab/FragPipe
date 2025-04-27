@@ -344,7 +344,7 @@ public class FragpipeLocations {
     try {
       Path[] dirs = {FragpipeLocations.get().tools.resolve("../"), FragpipeLocations.get().tools.resolve("../../")};
       for (Path dir : dirs) {
-        license = Files.walk(dir)
+        license = Files.list(dir)
           .filter(Files::isRegularFile)
           .filter(p -> p.getFileName().toString().toLowerCase().startsWith("license") && p.getFileName().toString().toLowerCase().endsWith(".dat"))
           .findFirst()
