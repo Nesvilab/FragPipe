@@ -76,6 +76,13 @@ public class InputLcmsFile implements Comparable<InputLcmsFile> {
         }
     }
 
+    public InputLcmsFile(InputLcmsFile other) {
+        this.path = other.path;
+        this.experiment = other.experiment;
+        this.replicate = other.replicate;
+        this.dataType = other.dataType;
+    }
+
     private String guessDataType(Path filePath) {
         String fileName = filePath.toAbsolutePath().normalize().toString();
         if (fileName.toLowerCase().contains("dda")

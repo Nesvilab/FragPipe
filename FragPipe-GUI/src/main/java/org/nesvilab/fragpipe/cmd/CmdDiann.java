@@ -199,7 +199,18 @@ public class CmdDiann extends CmdBase {
       return false;
     }
 
+    List<LcmsFileGroup> lcmsFileGroups2 = new ArrayList<>(lcmsFileGroups.size());
     for (LcmsFileGroup group : lcmsFileGroups) {
+      List<InputLcmsFile> lcmsFiles2 = new ArrayList<>(group.lcmsFiles.size());
+      for (InputLcmsFile lcmsFile : group.lcmsFiles) {
+        Path path2 = Paths.get(lcmsFile.getPath().toString().replaceAll("(?i)\\.raw", "_uncalibrated.mzML"));
+        InputLcmsFile lcmsFile2 = new InputLcmsFile(path2, lcmsFile.getExperiment(), lcmsFile.getReplicate(), lcmsFile.getDataType());
+        lcmsFiles2.add(lcmsFile2);
+      }
+      lcmsFileGroups2.add(new LcmsFileGroup(group.name, lcmsFiles2));
+    }
+
+    for (LcmsFileGroup group : lcmsFileGroups2) {
       final Path groupWd = group.outputDir(wd);
 
       Set<Path> inputLcmsPaths = group.lcmsFiles.stream().filter(f -> !f.getDataType().contentEquals("DDA") && !f.getDataType().contentEquals("GPF-DIA") && !f.getDataType().contentEquals("DIA-Lib") && !f.getDataType().contentEquals("DDA+")).map(InputLcmsFile::getPath).collect(Collectors.toSet());
