@@ -504,62 +504,50 @@ public class TabConfig extends JPanelWithEnablement {
 
         Path toolsPath = PathUtils.createDirs(FragpipeLocations.get().getDirTools()).normalize();
 
-        if (p.downloadMSFragger()) {
-          MsfraggerVersionFetcherServer msfraggerVersionFetcherServer = new MsfraggerVersionFetcherServer(p.getFirstName(), p.getLastName(), p.getEmail(), p.getInstitution(), p.wantReceiveEmail());
-          msfraggerVersionFetcherServer.token = verificationCode;
-          new Thread(() -> {
-            try {
-              Path msfraggerPath = msfraggerVersionFetcherServer.autoUpdate(toolsPath);
-              if (msfraggerPath != null) {
-                Bus.post(new MessageMsfraggerNewBin(msfraggerPath.toAbsolutePath().normalize().toString()));
-              } else {
-                Bus.postSticky(new NoteConfigMsfragger("N/A", "N/A", "N/A", "N/A", "N/A", "N/A", false, false, new ValidationException("MSFragger path is null.")));
-              }
-            } catch (Exception ex) {
-              Bus.postSticky(new NoteConfigMsfragger("N/A", "N/A", "N/A", "N/A", "N/A", "N/A", false, false, ex));
+        MsfraggerVersionFetcherServer msfraggerVersionFetcherServer = new MsfraggerVersionFetcherServer(p.getFirstName(), p.getLastName(), p.getEmail(), p.getInstitution());
+        msfraggerVersionFetcherServer.token = verificationCode;
+        new Thread(() -> {
+          try {
+            Path msfraggerPath = msfraggerVersionFetcherServer.autoUpdate(toolsPath);
+            if (msfraggerPath != null) {
+              Bus.post(new MessageMsfraggerNewBin(msfraggerPath.toAbsolutePath().normalize().toString()));
+            } else {
+              Bus.postSticky(new NoteConfigMsfragger("N/A", "N/A", "N/A", "N/A", "N/A", "N/A", false, false, new ValidationException("MSFragger path is null.")));
             }
-          }).start();
-        } else {
-          Bus.post(new MessageMsfraggerNewBin(getJarPath(toolsPath.toAbsolutePath().normalize().toString(), msfraggerRegex)));
-        }
+          } catch (Exception ex) {
+            Bus.postSticky(new NoteConfigMsfragger("N/A", "N/A", "N/A", "N/A", "N/A", "N/A", false, false, ex));
+          }
+        }).start();
 
-        if (p.downloadIonQuant()) {
-          IonQuantVersionFetcherServer ionQuantVersionFetcherServer = new IonQuantVersionFetcherServer();
-          ionQuantVersionFetcherServer.token = verificationCode;
-          new Thread(() -> {
-            try {
-              Path ionquantPath = ionQuantVersionFetcherServer.autoUpdate(toolsPath);
-              if (ionquantPath != null) {
-                Bus.post(new MessageIonQuantNewBin(ionquantPath.toAbsolutePath().normalize().toString()));
-              } else {
-                Bus.postSticky(new NoteConfigIonQuant("N/A", "N/A", "N/A", "N/A", "N/A", "N/A", false, false, new ValidationException("IonQuant path is null.")));
-              }
-            } catch (Exception ex) {
-              Bus.postSticky(new NoteConfigIonQuant("N/A", "N/A", "N/A", "N/A", "N/A", "N/A", false, false, ex));
+        IonQuantVersionFetcherServer ionQuantVersionFetcherServer = new IonQuantVersionFetcherServer();
+        ionQuantVersionFetcherServer.token = verificationCode;
+        new Thread(() -> {
+          try {
+            Path ionquantPath = ionQuantVersionFetcherServer.autoUpdate(toolsPath);
+            if (ionquantPath != null) {
+              Bus.post(new MessageIonQuantNewBin(ionquantPath.toAbsolutePath().normalize().toString()));
+            } else {
+              Bus.postSticky(new NoteConfigIonQuant("N/A", "N/A", "N/A", "N/A", "N/A", "N/A", false, false, new ValidationException("IonQuant path is null.")));
             }
-          }).start();
-        } else {
-          Bus.post(new MessageIonQuantNewBin(getJarPath(toolsPath.toAbsolutePath().normalize().toString(), ionquantRegex)));
-        }
+          } catch (Exception ex) {
+            Bus.postSticky(new NoteConfigIonQuant("N/A", "N/A", "N/A", "N/A", "N/A", "N/A", false, false, ex));
+          }
+        }).start();
 
-        if (p.downloadDiaTracer()) {
-          DiaTracerVersionFetcherServer diaTracerVersionFetcherServer = new DiaTracerVersionFetcherServer();
-          diaTracerVersionFetcherServer.token = verificationCode;
-          new Thread(() -> {
-            try {
-              Path diatracerPath = diaTracerVersionFetcherServer.autoUpdate(toolsPath);
-              if (diatracerPath != null) {
-                Bus.post(new MessageDiaTracerNewBin(diatracerPath.toAbsolutePath().normalize().toString()));
-              } else {
-                Bus.postSticky(new NoteConfigDiaTracer("N/A", "N/A", "N/A", "N/A", "N/A", "N/A", false, false, new ValidationException("diaTracer path is null.")));
-              }
-            } catch (Exception ex) {
-              Bus.postSticky(new NoteConfigDiaTracer("N/A", "N/A", "N/A", "N/A", "N/A", "N/A", false, false, ex));
+        DiaTracerVersionFetcherServer diaTracerVersionFetcherServer = new DiaTracerVersionFetcherServer();
+        diaTracerVersionFetcherServer.token = verificationCode;
+        new Thread(() -> {
+          try {
+            Path diatracerPath = diaTracerVersionFetcherServer.autoUpdate(toolsPath);
+            if (diatracerPath != null) {
+              Bus.post(new MessageDiaTracerNewBin(diatracerPath.toAbsolutePath().normalize().toString()));
+            } else {
+              Bus.postSticky(new NoteConfigDiaTracer("N/A", "N/A", "N/A", "N/A", "N/A", "N/A", false, false, new ValidationException("diaTracer path is null.")));
             }
-          }).start();
-        } else {
-          Bus.post(new MessageDiaTracerNewBin(getJarPath(toolsPath.toAbsolutePath().normalize().toString(), diatracerRegex)));
-        }
+          } catch (Exception ex) {
+            Bus.postSticky(new NoteConfigDiaTracer("N/A", "N/A", "N/A", "N/A", "N/A", "N/A", false, false, ex));
+          }
+        }).start();
 
         uiTextToolsFolder.setText(toolsPath.toAbsolutePath().normalize().toString());
       }

@@ -36,6 +36,7 @@ import java.awt.Dimension;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JEditorPane;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -52,10 +53,6 @@ public class DownloadToolsPanel extends JPanel {
   private JCheckBox license2;
   private JCheckBox license3;
   private JCheckBox license1;
-  private JCheckBox receiveEmail;
-  private UiCheck uiCheckDownloadMSFragger;
-  private UiCheck uiCheckDownloadIonQuant;
-  private UiCheck uiCheckDownloadDiaTracer;
   private UiText uiTextVerificationCode;
   private FormEntry feVerificationCode;
   private JButton btnSendRequest;
@@ -66,7 +63,7 @@ public class DownloadToolsPanel extends JPanel {
 
   @Override
   public Dimension getPreferredSize() {
-    return new Dimension(500, 550);
+    return new Dimension(500, 500);
   }
 
   private void initMore() {
@@ -84,7 +81,7 @@ public class DownloadToolsPanel extends JPanel {
 
     feFirstName = mu.feb(UiUtils.uiTextBuilder().cols(40).create()).label("First Name:").create();
     feLastName = mu.feb(UiUtils.uiTextBuilder().cols(40).create()).label("Last Name:").create();
-    feEmail = mu.feb(UiUtils.uiTextBuilder().cols(40).create()).label("Email:").create();
+    feEmail = mu.feb(UiUtils.uiTextBuilder().cols(40).create()).label("<html><div align='right'>Email:<br>(academic email)</div></html>").create();
     feInstitution = mu.feb(UiUtils.uiTextBuilder().cols(40).create()).label("Institution").create();
 
     if (userFirstName != null) {
@@ -100,20 +97,9 @@ public class DownloadToolsPanel extends JPanel {
       ((UiText) feInstitution.comp).setText(userInstitution);
     }
 
-    uiCheckDownloadMSFragger = new UiCheck("", null, true);
-    uiCheckDownloadIonQuant = new UiCheck("", null, true);
-    uiCheckDownloadDiaTracer = new UiCheck("", null, true);
-
-    FormEntry feDownloadMSFragger = mu.feb(uiCheckDownloadMSFragger).label("Download MSFragger").create();
-    FormEntry feDownloadIonQuant = mu.feb(uiCheckDownloadIonQuant).label("Download IonQuant").create();
-    FormEntry feDownloadDiaTracer = mu.feb(uiCheckDownloadDiaTracer).label("Download diaTracer").create();
-
     JEditorPane t1 = SwingUtils.createClickableHtml("I have read the academic licenses. I understand that the licenses provide<br>"
         + "with a non-exclusive, non-transferable right to use the tools solely for<br>"
-        + "academic research, non-commercial or educational purposes within the<br>"
-        + "licensee's department. If I am a non-academic user, I will contact the<br>"
-        + "University of Michigan Office of Technology Transfer (Drew Bennett,<br>"
-        + "andbenne@umich.edu) to obtain a commercial license to use the tools.");
+        + "academic research, non-commercial or educational purposes.");
     license1 = new JCheckBox();
 
     JEditorPane t2 = SwingUtils.createClickableHtml("I agree to the terms of <a href=\"" + WEB_DOMAIN + "upgrader/RawFileRdr_License_Agreement_RevA.pdf\" target=\"blank_\">Thermo (c) Raw File Reader License Agreement</a>.");
@@ -121,9 +107,6 @@ public class DownloadToolsPanel extends JPanel {
 
     JEditorPane t3 = SwingUtils.createClickableHtml("I agree to the terms of <a href=\"" + WEB_DOMAIN + "upgrader/EULA%20TDF-SDK.pdf\" target=\"blank_\">Bruker SDK library distribution conditions</a>.");
     license3 = new JCheckBox();
-
-    JEditorPane t4 = SwingUtils.createClickableHtml("I would like to receive emails with updates in the future.");
-    receiveEmail = new JCheckBox();
 
     uiTextVerificationCode = UiUtils.uiTextBuilder().cols(40).create();
     feVerificationCode = mu.feb(uiTextVerificationCode).label("Verification Code:").create();
@@ -135,7 +118,7 @@ public class DownloadToolsPanel extends JPanel {
     btnSendRequest = new JButton("<html><b>Send Verification Email</b></html>");
     btnSendRequest.addActionListener(e -> {
       try {
-        MsfraggerVersionFetcherServer fetcher = new MsfraggerVersionFetcherServer(getFirstName(), getLastName(), getEmail(), getInstitution(), wantReceiveEmail());
+        MsfraggerVersionFetcherServer fetcher = new MsfraggerVersionFetcherServer(getFirstName(), getLastName(), getEmail(), getInstitution());
         if (fetcher.sendRequest()) {
           feVerificationCode.comp.setEnabled(true);
           feVerificationCode.label().setEnabled(true);
@@ -144,6 +127,10 @@ public class DownloadToolsPanel extends JPanel {
         JOptionPane.showMessageDialog(this, "Failed to send request: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
       }
     });
+
+    // crate a jLabel with the text "Download for academic users only. Commercial users should contact info@fragmatics.com or visit fragmatics.com to obtain the commercial version of the tools."
+    JLabel lblAcademic = new JLabel("<html>Download for academic users only. Commercial users should contact info@fragmatics.com<br>" 
+    + "or visit fragmatics.com to obtain the commercial version of the tools.</html>");
 
     mu.add(panelTextboxes, t0).split().spanX().wrap();
 
@@ -158,15 +145,6 @@ public class DownloadToolsPanel extends JPanel {
     mu.add(panelTextboxes, feInstitution.label(), mu.ccR());
     mu.add(panelTextboxes, feInstitution.comp).spanX().wrap();
 
-    mu.add(panelTextboxes, feDownloadMSFragger.comp, mu.ccR());
-    mu.add(panelTextboxes, feDownloadMSFragger.label()).wrap();
-
-    mu.add(panelTextboxes, feDownloadIonQuant.comp, mu.ccR());
-    mu.add(panelTextboxes, feDownloadIonQuant.label()).wrap();
-
-    mu.add(panelTextboxes, feDownloadDiaTracer.comp, mu.ccR());
-    mu.add(panelTextboxes, feDownloadDiaTracer.label()).wrap();
-
     mu.add(panelTextboxes, license1, mu.ccR());
     mu.add(panelTextboxes, t1).spanX().wrap();
 
@@ -176,10 +154,8 @@ public class DownloadToolsPanel extends JPanel {
     mu.add(panelTextboxes, license3, mu.ccR());
     mu.add(panelTextboxes, t3).spanX().wrap();
 
-    mu.add(panelTextboxes, receiveEmail, mu.ccR());
-    mu.add(panelTextboxes, t4).spanX().wrap();
-
     mu.add(panelTextboxes, btnSendRequest).spanX().alignX("center").wrap();
+    mu.add(panelTextboxes, lblAcademic).spanX().alignX("center").wrap();
 
     mu.add(panelTextboxes, feVerificationCode.label(), mu.ccR());
     mu.add(panelTextboxes, feVerificationCode.comp).spanX().wrap();
@@ -212,26 +188,6 @@ public class DownloadToolsPanel extends JPanel {
     } else {
       return license1.isSelected() && license2.isSelected() && license3.isSelected();
     }
-  }
-
-  public boolean wantReceiveEmail() {
-    if (receiveEmail == null) {
-      return false;
-    } else {
-      return receiveEmail.isSelected();
-    }
-  }
-
-  public boolean downloadMSFragger() {
-    return uiCheckDownloadMSFragger.isSelected();
-  }
-
-  public boolean downloadIonQuant() {
-    return uiCheckDownloadIonQuant.isSelected();
-  }
-
-  public boolean downloadDiaTracer() {
-    return uiCheckDownloadDiaTracer.isSelected();
   }
 
   public String getVerificationCode() {

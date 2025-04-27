@@ -67,19 +67,17 @@ public class MsfraggerVersionFetcherServer implements VersionFetcher {
     private final String lastName;
     private final String email;
     private final String institution;
-    private final boolean receiveEmail;
     public String token = null;
 
     public MsfraggerVersionFetcherServer() {
-        this(null, null, null, null, false);
+        this(null, null, null, null);
     }
 
-    public MsfraggerVersionFetcherServer(String firstName, String lastName, String email, String institution, boolean receiveEmail) {
+    public MsfraggerVersionFetcherServer(String firstName, String lastName, String email, String institution) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.institution = institution;
-        this.receiveEmail = receiveEmail;
     }
 
     @Override
@@ -126,35 +124,18 @@ public class MsfraggerVersionFetcherServer implements VersionFetcher {
             lastVersionStr = fetchVersion();
         }
 
-        RequestBody requestBody;
-        if (receiveEmail) {
-            requestBody = new MultipartBody.Builder()
-                .setType(MultipartBody.FORM)
-                .addFormDataPart("transfer", "academic")
-                .addFormDataPart("agreement2", "true")
-                .addFormDataPart("agreement3", "true")
-                .addFormDataPart("first_name", firstName)
-                .addFormDataPart("last_name", lastName)
-                .addFormDataPart("email", email)
-                .addFormDataPart("organization", institution)
-                .addFormDataPart("receive_email", "1")
-                .addFormDataPart("download", latestVerResponse + "$zip")
-                .addFormDataPart("is_fragpipe", "true")
-                .build();
-        } else {
-            requestBody = new MultipartBody.Builder()
-                .setType(MultipartBody.FORM)
-                .addFormDataPart("transfer", "academic")
-                .addFormDataPart("agreement2", "true")
-                .addFormDataPart("agreement3", "true")
-                .addFormDataPart("first_name", firstName)
-                .addFormDataPart("last_name", lastName)
-                .addFormDataPart("email", email)
-                .addFormDataPart("organization", institution)
-                .addFormDataPart("download", latestVerResponse + "$zip")
-                .addFormDataPart("is_fragpipe", "true")
-                .build();
-        }
+        RequestBody requestBody = new MultipartBody.Builder()
+            .setType(MultipartBody.FORM)
+            .addFormDataPart("transfer", "academic")
+            .addFormDataPart("agreement2", "true")
+            .addFormDataPart("agreement3", "true")
+            .addFormDataPart("first_name", firstName)
+            .addFormDataPart("last_name", lastName)
+            .addFormDataPart("email", email)
+            .addFormDataPart("organization", institution)
+            .addFormDataPart("download", latestVerResponse + "$zip")
+            .addFormDataPart("is_fragpipe", "true")
+            .build();
 
         OkHttpClient client2 = new OkHttpClient();
         Request request = new Request.Builder().url(WEB_DOMAIN + "upgrader/upgrade_download.php").post(requestBody).build();
