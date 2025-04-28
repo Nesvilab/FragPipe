@@ -185,7 +185,20 @@ public class DiannToMsstats {
             Float.parseFloat(row[pgQValueColumn]) < runProteinFdrT &&
             Float.parseFloat(row[globalPgQValueColumn]) < globalProteinFdrT) {
           String run = row[runColumn].trim();
+
           String[] conditionBioreplicate = runConditionBioreplicateMap.get(run);
+          if (conditionBioreplicate == null) {
+            if (run.endsWith("_uncalibrated")) {
+              run = run.substring(0, run.indexOf("_uncalibrated"));
+              conditionBioreplicate = runConditionBioreplicateMap.get(run);
+              if (conditionBioreplicate == null) {
+                throw new RuntimeException("Could not find the run in the PSM file (tried with and without _uncalibrated): " + run);
+              }
+            } else {
+              throw new RuntimeException("Could not find the run in the PSM file: " + run);
+            }
+          }
+
           String fragmentInfo = row[fragmentInfoColumn].trim();
           String[] fragmentInfoSplit = fragmentInfo.split(";");
           String fragmentIntensity = row[fragmentQuantRawColumn].trim();

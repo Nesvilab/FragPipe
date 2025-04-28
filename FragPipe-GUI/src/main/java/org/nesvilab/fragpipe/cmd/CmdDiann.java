@@ -390,7 +390,6 @@ public class CmdDiann extends CmdBase {
         pbis.add(new PbiBuilder().setPb(pb2).setName(getCmdName() + " plot DIA-NN output").create());
       }
 
-      // todo: adjust based on DIA-NN 2.0
       Path speclibForSkyline = wd.resolve("dia-quant-output").resolve("report-tsv.speclib");
       List<ProcessBuilder> pbsMove = ToolingUtils.pbsMoveFilesWithExtension(jarFragpipe, speclibForSkyline, wd, ".speclib");
       pbis.addAll(PbiBuilder.from(pbsMove, getCmdName() + " move and rename speclib for skyline"));
