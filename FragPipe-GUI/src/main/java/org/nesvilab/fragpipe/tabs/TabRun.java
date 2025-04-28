@@ -554,7 +554,7 @@ public class TabRun extends JPanelWithEnablement {
     });
   }
 
-  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  @Subscribe(threadMode = ThreadMode.BACKGROUND)
   public void on(MessageSaveLog m) {
     log.debug("Got MessageSaveLog, trying to save log");
     saveLogToFile(m.console, m.workDir);
