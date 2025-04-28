@@ -17,6 +17,7 @@
 
 import os
 import re
+import math
 import argparse
 
 import datetime as dt
@@ -49,6 +50,8 @@ def create_distribution_plot(data=None, item=""):
     bins_num = 50
     if item != "Peptide Length":
         bins_num = 10
+    if item == "Charge" or item == "Number of Missed Cleavages":
+        data[item] = data[item].astype(str)
 
     fig = go.Histogram(
         x=data[item],
@@ -61,7 +64,7 @@ def create_distribution_plot(data=None, item=""):
 
 
 def create_bar_chart(data=None, x="", y=""):
-    fig = go.Bar(x=data[x],
+    fig = go.Bar(x=data[x].astype(str),
                  y=data[y],
                  text=data[y],
                  textposition='auto',
@@ -140,10 +143,10 @@ def create_exp_page_running(all_figs, run_name):
     whole_fig.update_yaxes(title_text="# PSM", row=2, col=3)
 
     # Row 3:
-    whole_fig.update_xaxes(title_text="Delta Mass", row=3, col=1)
+    whole_fig.update_xaxes(title_text="Delta Mass (Da)", row=3, col=1)
     whole_fig.update_yaxes(title_text="# PSM", row=3, col=1)
     whole_fig.update_xaxes(title_text="M/Z", row=3, col=2)
-    whole_fig.update_yaxes(title_text="Delta Mass", row=3, col=2)
+    whole_fig.update_yaxes(title_text="Delta Mass (Da)", row=3, col=2)
     whole_fig.update_xaxes(title_text="Retention Time", row=3, col=3)
     whole_fig.update_yaxes(title_text="M/Z", row=3, col=3)
 
@@ -153,7 +156,8 @@ def create_exp_page_running(all_figs, run_name):
         height=1800,  # final PDF height in pixels
         showlegend=False,
         template=DEFAULT_TEMPLATE,
-        colorway=NATURE_PALETTE
+        colorway=NATURE_PALETTE,
+        bargap=0.1,
     )
 
     return whole_fig
@@ -195,9 +199,9 @@ class FragPipeReport:
         self.msbooster_plots = {}
         self.distribution_data = pd.DataFrame(columns=['Peptide Length', 'Charge', 'Number of Missed Cleavages', "Exp"])
         self.read_data()
+        self.get_running_time()
         self.get_mass_error()
         self.get_percolator_features()
-        self.get_running_time()
         self.process_psm()
 
     def read_data(self):
@@ -214,7 +218,19 @@ class FragPipeReport:
 
         log_files.sort()
         self.latest_log_file = log_files[-1]
+
+        with open(self.results_path + self.latest_log_file, 'r') as f:
+            log_lines = f.readlines()
+        for line in log_lines:
+            if line.startswith("speclibgen.run-speclibgen"):
+                if line.split("run-speclibgen=")[1].strip() == "false":
+                    self.run_spec_lib = False
+                else:
+                    self.run_spec_lib = True
+                break
+
         self.manifest_data.columns = ["Spectrum File", "Experiment", "Bioreplicate", "Data Type"]
+        self.manifest_data.insert(0, 'Run', range(1, len(self.manifest_data) + 1))
 
         self.id_nums = pd.DataFrame(columns=["Experiment", "PSM", "Peptides", "Proteins"])
         # Combine psm, peptide, protein ids dataframe to one
@@ -257,6 +273,7 @@ class FragPipeReport:
             df = df.drop(columns=["Split1"])
             df = df.drop(columns=["Split2"])
             df = df.drop(columns=["Split3"])
+            df = df[~df['FeatureName'].str.contains("m0")]
 
             self.features_weight[self.percolator_raw_file[i - 1]] = df
 
@@ -277,15 +294,27 @@ class FragPipeReport:
         self.runtime_dict = {}
         fragger_time = {}
         running_time_region = False
+        main_search_region = False
         with open(self.results_path + self.latest_log_file, 'r') as f:
             log_lines = f.readlines()
         for line in log_lines:
+
+            if not main_search_region:
+                if line.startswith("precursor_true_tolerance = "):
+                    self.ms1_tolerance = float(line.split(" = ")[1].strip())
+                if line.startswith("fragment_mass_tolerance = "):
+                    self.ms2_tolerance = float(line.split(" = ")[1].strip())
+                if line.startswith("precursor_true_units = "):
+                    self.ms1_units = line.split(" = ")[1].strip()
+                if line.startswith("fragment_mass_units = "):
+                    self.ms2_units = line.split(" = ")[1].strip()
 
             if line.startswith("***************************FIRST SEARCH DONE IN"):
                 fragger_time["First Search"] = float(line.split("DONE IN ")[1].split(" MIN")[0].strip())
 
             if line.startswith("************MASS CALIBRATION AND PARAMETER OPTIMIZATION DONE IN"):
                 fragger_time["Mass Calibration and<br>Parameter Optimization"] = float(line.split("DONE IN ")[1].split(" MIN")[0].strip())
+                main_search_region = True
             if line.startswith("**************************MASS CALIBRATION DONE "):
                 fragger_time["Mass Calibration"] = float(
                     line.split("DONE IN ")[1].split(" MIN")[0].strip())
@@ -313,6 +342,10 @@ class FragPipeReport:
 
                 if task == "Finalizer Task":
                     break
+        if self.ms1_units == "2":
+            self.ms1_tolerance = self.ms1_tolerance * 1000
+        if self.ms2_units == "2":
+            self.ms2_tolerance = self.ms2_tolerance * 1000
 
     def get_mass_error(self):
         mass_error_region = False
@@ -321,10 +354,6 @@ class FragPipeReport:
         with open(self.results_path + self.latest_log_file, 'r') as f:
             log_lines = f.readlines()
         for line in log_lines:
-
-            if line.startswith("msfragger.mass_offsets="):
-                # count " " in the line
-                self.mass_offsets_num = len(line.split("=")[1].split(" "))
 
             if line.startswith("*********************MASS CALIBRATION AND PARAMETER OPTIMIZATION*******************") or \
                     line.startswith("*********************************MASS CALIBRATION**"):
@@ -351,7 +380,7 @@ class FragPipeReport:
                 continue
 
             # The first column is the Run number.
-            run = parts[0].strip()
+            run = int(parts[0].strip())
 
             ms1_old = parts[1].strip().split()
             ms1_new = parts[2].strip().split()
@@ -400,9 +429,10 @@ class FragPipeReport:
 
         if exp != "":
             distinct_rows = data_table.drop_duplicates(
-                subset=['Peptide', 'Peptide Length', 'Charge', 'Number of Missed Cleavages'])
-            distinct_rows = distinct_rows[['Peptide', 'Peptide Length', 'Charge', 'Number of Missed Cleavages']]
-            del distinct_rows['Peptide']
+                subset=['Spectrum', 'Modified Peptide', 'Peptide Length', 'Charge', 'Number of Missed Cleavages'])
+            distinct_rows = distinct_rows[['Spectrum', 'Modified Peptide', 'Peptide Length', 'Charge', 'Number of Missed Cleavages']]
+            del distinct_rows['Modified Peptide']
+            del distinct_rows['Spectrum']
             distinct_rows = distinct_rows.assign(Exp=exp)
             self.distribution_data = pd.concat([self.distribution_data, distinct_rows], ignore_index=True)
 
@@ -432,17 +462,24 @@ class FragPipeReport:
                                     self.results_path + "\\MSBooster\\MSBooster_plots\\" + one_folder + "\\" + file))
 
         psm_ids = pd.DataFrame(columns=["Experiment", "PSM"])
-        if self.manifest_data["Experiment"].isnull().any():
+        if (self.manifest_data["Experiment"].isnull().any() and self.manifest_data["Bioreplicate"].isnull().any()) or self.run_spec_lib:
             psm_file = self.results_path + "\\psm.tsv"
             psm_lines = self.count_lines(psm_file, exp="One")
             psm_ids.loc[0] = {"Experiment": "One", "PSM": psm_lines}
 
-        elif self.manifest_data["Bioreplicate"].isnull().any():
+        elif self.manifest_data["Bioreplicate"].isnull().any() and not self.manifest_data["Experiment"].isnull().any():
             count = 0
             for exp in self.manifest_data["Experiment"].unique():
                 psm_file = self.results_path + "\\" + str(exp) + "\\psm.tsv"
                 psm_lines = self.count_lines(psm_file, exp=str(exp))
                 psm_ids.loc[count] = {"Experiment": str(exp), "PSM": psm_lines}
+                count += 1
+        elif self.manifest_data["Experiment"].isnull().any() and not self.manifest_data["Bioreplicate"].isnull().any():
+            count = 0
+            for bio_rep in self.manifest_data["Bioreplicate"].unique():
+                psm_file = self.results_path + "\\exp_" + str(bio_rep) + "\\psm.tsv"
+                psm_lines = self.count_lines(psm_file, exp=str(bio_rep))
+                psm_ids.loc[count] = {"Experiment": str(bio_rep), "PSM": psm_lines}
                 count += 1
 
         else:
@@ -456,7 +493,7 @@ class FragPipeReport:
         return psm_ids
 
     def process_psm(self):
-        if self.manifest_data["Experiment"].isnull().any():
+        if (self.manifest_data["Experiment"].isnull().any() and self.manifest_data["Bioreplicate"].isnull().any()) or self.run_spec_lib:
             psm_file = self.results_path + "\\psm.tsv"
             psm_df = pd.read_csv(psm_file, sep="\t", on_bad_lines="skip", engine='pyarrow')
             psm_df["Retention"] = psm_df["Retention"] / 60
@@ -468,6 +505,15 @@ class FragPipeReport:
         elif self.manifest_data["Bioreplicate"].isnull().any():
             for exp in self.manifest_data["Experiment"].unique():
                 psm_file = self.results_path + "\\" + str(exp) + "\\psm.tsv"
+                psm_df = pd.read_csv(psm_file, sep="\t", on_bad_lines="skip", engine='pyarrow')
+                psm_df["Retention"] = psm_df["Retention"] / 60
+                psm_df["raw_file"] = psm_df["Spectrum"].apply(
+                    lambda x: os.path.basename(x).split(".")[0])
+                for group, data in psm_df.groupby("raw_file"):
+                    self.single_run_data[group] = data
+        elif self.manifest_data["Experiment"].isnull().any():
+            for bio_rep in self.manifest_data["Bioreplicate"].unique():
+                psm_file = self.results_path + "\\exp_" + str(bio_rep) + "\\psm.tsv"
                 psm_df = pd.read_csv(psm_file, sep="\t", on_bad_lines="skip", engine='pyarrow')
                 psm_df["Retention"] = psm_df["Retention"] / 60
                 psm_df["raw_file"] = psm_df["Spectrum"].apply(
@@ -488,7 +534,7 @@ class FragPipeReport:
     def read_peptides(self):
         # Read the Peptides data
         peptides_ids = pd.DataFrame(columns=["Experiment", "Peptides"])
-        if self.manifest_data["Experiment"].isnull().any():
+        if (self.manifest_data["Experiment"].isnull().any() and self.manifest_data["Bioreplicate"].isnull().any()) or self.run_spec_lib:
             peptides_file = self.results_path + "\\peptide.tsv"
             peptides_lines = self.count_lines(peptides_file)
             peptides_ids.loc[0] = {"Experiment": "One", "Peptides": peptides_lines}
@@ -498,6 +544,13 @@ class FragPipeReport:
                 peptides_file = self.results_path + "\\" + str(exp) + "\\peptide.tsv"
                 peptides_lines = self.count_lines(peptides_file)
                 peptides_ids.loc[count] = {"Experiment": str(exp), "Peptides": peptides_lines}
+                count += 1
+        elif self.manifest_data["Experiment"].isnull().any():
+            count = 0
+            for bio_rep in self.manifest_data["Bioreplicate"].unique():
+                peptides_file = self.results_path + "\\exp_" + str(bio_rep) + "\\peptide.tsv"
+                peptides_lines = self.count_lines(peptides_file)
+                peptides_ids.loc[count] = {"Experiment": str(bio_rep), "Peptides": peptides_lines}
                 count += 1
         else:
             count = 0
@@ -511,7 +564,7 @@ class FragPipeReport:
     def read_proteins(self):
         # Read the Proteins data
         proteins_ids = pd.DataFrame(columns=["Experiment", "Proteins"])
-        if self.manifest_data["Experiment"].isnull().any():
+        if (self.manifest_data["Experiment"].isnull().any() and self.manifest_data["Bioreplicate"].isnull().any()) or self.run_spec_lib:
             proteins_file = self.results_path + "\\protein.tsv"
             proteins_lines = self.count_lines(proteins_file)
             proteins_ids.loc[0] = {"Experiment": "One", "Proteins": proteins_lines}
@@ -521,6 +574,13 @@ class FragPipeReport:
                 proteins_file = self.results_path + "\\" + str(exp) + "\\protein.tsv"
                 proteins_lines = self.count_lines(proteins_file)
                 proteins_ids.loc[count] = {"Experiment": str(exp), "Proteins": proteins_lines}
+                count += 1
+        elif self.manifest_data["Experiment"].isnull().any():
+            count = 0
+            for bio_rep in self.manifest_data["Bioreplicate"].unique():
+                proteins_file = self.results_path + "\\exp_" + str(bio_rep) + "\\protein.tsv"
+                proteins_lines = self.count_lines(proteins_file)
+                proteins_ids.loc[count] = {"Experiment": str(bio_rep), "Proteins": proteins_lines}
                 count += 1
         else:
             count = 0
@@ -544,15 +604,37 @@ class FragPipeReport:
                                      item=""):
         nbins = 50
         if item == "Delta Mass":
-            nbins = max(self.mass_offsets_num * 3, 20)
-        if item == "Charge" or item == "Number of Missed Cleavages":
-            nbins = 10
+            vals = data[item].dropna()
+            vmin, vmax = vals.min(), vals.max()
+            vrange = vmax - vmin
 
-        fig = go.Histogram(
-            x=data[item],
-            histnorm=None,
-            nbinsx=nbins,
-        )
+            if vrange < 6:
+                data["IntDelta"] = data[item].round(0) # round to integer
+                delta_ids =data.groupby('IntDelta').size().reset_index(name='Count')
+                # integer bins
+                fig = go.Bar(x=delta_ids["IntDelta"].astype(str),
+                             y=delta_ids['Count'],
+                             )
+            else:
+                # finer bins: fixed number
+                nbins = math.ceil(vrange/2)
+                # filter data[item] between -1.5 and 3
+                filtered_data = data[~data[item].between(-1.5, 3)]
+
+                filtered_data_vals = filtered_data[item].dropna()
+                hist_kwargs = dict(x=filtered_data_vals, nbinsx=nbins)
+                fig = go.Histogram(
+                    # x=data[item],
+                    **hist_kwargs,
+                    histnorm=None,
+                )
+        else:
+            hist_kwargs = dict(x=data[item], nbinsx=nbins)
+            fig = go.Histogram(
+                # x=data[item],
+                **hist_kwargs,
+                histnorm=None,
+            )
 
         return fig
 
@@ -580,7 +662,7 @@ class FragPipeReport:
                               b=50  # bottom margin
                           ),
                           width=1600,  # final PDF width in pixels
-                          height=300 + len(self.manifest_data) * 25,  # final PDF height in pixels
+                          height=300 + len(self.manifest_data) * 23,  # final PDF height in pixels
                           template=DEFAULT_TEMPLATE, colorway=NATURE_PALETTE)
         return fig
 
@@ -661,6 +743,10 @@ class FragPipeReport:
         whole_fig.add_trace(miss_cle_dis, row=3, col=1)
 
         ms1_mass_error_traces = []
+        ms1_min, ms1_max = self.ms1_mass_df['Value'].min(), self.ms1_mass_df['Value'].max()
+        ms2_min, ms2_max = self.ms2_mass_df['Value'].min(), self.ms2_mass_df['Value'].max()
+        all_min = min(ms1_min, ms2_min)*1.2
+        all_max = max(ms1_max, ms2_max)*1.2
         if "Calib" in self.ms1_mass_df.columns:
             for exp_name, grp in self.ms1_mass_df.groupby("Calib"):
                 ms1_mass_error_traces.append(go.Bar(
@@ -672,7 +758,7 @@ class FragPipeReport:
             whole_fig.add_trace(ms1_mass_error_traces[1], row=3, col=2)
             whole_fig.add_trace(ms1_mass_error_traces[0], row=3, col=2)
             whole_fig.update_xaxes(title_text="Run", row=3, col=2)
-            whole_fig.update_yaxes(title_text="MS1 Mass Error Median", row=3, col=2)
+            whole_fig.update_yaxes(title_text="MS1 Mass Error Median (PPM)", row=3, col=2, range=[all_min, all_max])
 
         ms2_mass_error_traces = []
         if "Calib" in self.ms2_mass_df.columns:
@@ -686,7 +772,7 @@ class FragPipeReport:
             whole_fig.add_trace(ms2_mass_error_traces[1], row=3, col=3)
             whole_fig.add_trace(ms2_mass_error_traces[0], row=3, col=3)
             whole_fig.update_xaxes(title_text="Run", row=3, col=3)
-            whole_fig.update_yaxes(title_text="MS2 Mass Error Median", row=3, col=3)
+            whole_fig.update_yaxes(title_text="MS2 Mass Error Median (PPM)", row=3, col=3, range=[all_min, all_max])
 
         whole_fig.update_xaxes(domain=[0, 0.3], row=1, col=1)
         whole_fig.update_xaxes(domain=[0.33, 1], row=1, col=3)
@@ -809,6 +895,9 @@ def main():
     pdf_pages = []
     fragPipeReport = FragPipeReport(results_path=results_path)
 
+    charge_ids = fragPipeReport.distribution_data.groupby('Charge').size().reset_index(name='Count')
+    miss_cle_ids = fragPipeReport.distribution_data.groupby('Number of Missed Cleavages').size().reset_index(name='Count')
+
     running_table_fig = fragPipeReport.create_overview_table()
     running_time_fig = fragPipeReport.create_gantt_chart()
 
@@ -828,8 +917,8 @@ def main():
                                   x="Experiment",
                                   y="Proteins")
     pep_len_dis = create_distribution_plot(fragPipeReport.distribution_data, item="Peptide Length")
-    miss_cle_dis = create_distribution_plot(fragPipeReport.distribution_data, item="Number of Missed Cleavages")
-    charge_diss = create_distribution_plot(fragPipeReport.distribution_data, item="Charge")
+    miss_cle_dis = create_bar_chart(miss_cle_ids, x="Number of Missed Cleavages", y="Count")
+    charge_diss = create_bar_chart(charge_ids, x="Charge", y="Count",)
 
     page3_pdf = fragPipeReport.create_exp_page3(psm_id_bar, pep_id_bar, pro_id_bar, pep_len_dis, miss_cle_dis,
                                                 charge_diss)
@@ -842,8 +931,16 @@ def main():
         one_run_figs = []
         # For a distribution chart, we simulate by using the "Score" as numbers and "Comment" as a dummy category.
         print("Run: ", run)
+        charge_ids = data_dict.groupby('Charge').size().reset_index(name='Count')
+        miss_cle_ids = data_dict.groupby('Number of Missed Cleavages').size().reset_index(
+            name='Count')
         for item in hist_items:
-            one_fig = fragPipeReport.create_run_distribution_plot(data=data_dict, title=item + "/PepID Chart",
+            if item == "Number of Missed Cleavages":
+                one_fig = create_bar_chart(miss_cle_ids, x="Number of Missed Cleavages", y="Count")
+            elif item == "Charge":
+                one_fig = create_bar_chart(charge_ids, x="Charge", y="Count")
+            else:
+                one_fig = fragPipeReport.create_run_distribution_plot(data=data_dict, title=item + "/PepID Chart",
                                                                   item=item)
             one_run_figs.append(one_fig)
         for one_pair in scat_pairs:
@@ -857,8 +954,9 @@ def main():
     # Convert the MSBooster plots to PDF bytes
     for run_name, images in fragPipeReport.msbooster_plots.items():
         # Convert the images to PDF bytes
-        msbooster_pdf = fragPipeReport.make_composite(run_name, images)
-        pdf_pages.append(msbooster_pdf)
+        if run_name in fragPipeReport.single_run_data.keys():
+            msbooster_pdf = fragPipeReport.make_composite(run_name, images)
+            pdf_pages.append(msbooster_pdf)
 
     final_pdf_buffer = merge_pdf_buffers(pdf_pages)
     # Save the final PDF file.
