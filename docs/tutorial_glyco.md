@@ -16,6 +16,10 @@ or O-Pair search have been performed, there will be glyco-specific columns in th
 Total Glycan Composition assigned. If only MSFragger search has been done, glycans will only appear as masses
 in the Delta Mass column. Make sure you are looking in the right place for the glycans depending on the type of search performed! 
 
+## Example Glycoproteomics Analysis
+**For new users, we recommend working through this [example](https://fragpipe.nesvilab.org/docs/tutorial_glyco_example.html), which walks through the complete glyco pipeline for an example dataset.** The of this tutorial page describes the parameters and options for glyco workflows in general, and can be referenced while working through the example. 
+https://fragpipe.nesvilab.org/docs/tutorial_glyco_example.html
+
 ## Tutorial contents
 * [Load the data](https://fragpipe.nesvilab.org/docs/tutorial_glyco.html#load-the-data)
 * [Load a glyco workflow template](https://fragpipe.nesvilab.org/docs/tutorial_glyco.html#load-a-glyco-workflow)
