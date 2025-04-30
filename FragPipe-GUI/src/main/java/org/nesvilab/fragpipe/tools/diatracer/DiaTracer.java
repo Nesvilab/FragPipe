@@ -21,7 +21,6 @@ import static org.nesvilab.fragpipe.cmd.CmdBase.constructClasspathString;
 import static org.nesvilab.fragpipe.tools.fragger.Msfragger.patternCustomer;
 import static org.nesvilab.fragpipe.tools.fragger.Msfragger.patternExpiryDate;
 import static org.nesvilab.fragpipe.tools.fragger.Msfragger.patternMode;
-import static org.nesvilab.fragpipe.cmd.CmdDiaTracer.JAR_DIATRACER_MAIN_CLASS;
 
 import org.nesvilab.fragpipe.Fragpipe;
 import org.nesvilab.fragpipe.FragpipeLocations;
@@ -116,20 +115,13 @@ public class DiaTracer {
     }
 
     if (!isVersionParsed) {
-      final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(CmdDiaTracer.JAR_DEPS));
-      if (classpathJars == null) {
-        isValid = false;
-        return new Version(isVersionParsed, verStr, license, customer, mode, expiryDate, isValid);
-      }
-
       List<String> cmd = new ArrayList<>();
       cmd.add(Fragpipe.getBinJava());
       if (Fragpipe.headless) {
         cmd.add("-Djava.awt.headless=true"); // In some rare case, the server does not have X11 but DISPLAY env var is set, which crashes the headless mode. Setting the headless env to true to prevent the crash.
       }
-      cmd.add("-cp");
-      cmd.add(constructClasspathString(classpathJars, Paths.get(jarPath)));
-      cmd.add(JAR_DIATRACER_MAIN_CLASS);
+      cmd.add("-jar");
+      cmd.add(jarPath);
       Path licensePath = FragpipeLocations.locateLicense();
       if (licensePath != null) {
         cmd.add("--license");

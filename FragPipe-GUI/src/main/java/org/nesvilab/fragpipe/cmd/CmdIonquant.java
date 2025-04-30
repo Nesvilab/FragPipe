@@ -52,7 +52,7 @@ public class CmdIonquant extends CmdBase {
 
   public static final String NAME = "IonQuant";
   public static final String JAR_IONQUANT_MAIN_CLASS = "ionquant.IonQuant";
-  public static final String[] JAR_DEPS = {JFREECHART_JAR, BATMASS_IO_JAR};
+  public static final String[] JAR_DEPS = {JFREECHART_JAR};
   private static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML", "mzXML");
 
   public CmdIonquant(boolean isRun, Path workDir) {

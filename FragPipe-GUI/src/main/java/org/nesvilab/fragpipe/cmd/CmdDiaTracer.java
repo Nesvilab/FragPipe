@@ -36,8 +36,6 @@ public class CmdDiaTracer extends CmdBase {
 
   private static final Logger log = LoggerFactory.getLogger(CmdDiaTracer.class);
   public static String NAME = "diaTracer";
-  public static final String JAR_DIATRACER_MAIN_CLASS = "diatracer.diaTracerMainClass";
-  public static final String[] JAR_DEPS = {BATMASS_IO_JAR};
 
 
   public CmdDiaTracer(boolean isRun, Path workDir) {
@@ -63,11 +61,6 @@ public class CmdDiaTracer extends CmdBase {
       int rfMax,
       List<InputLcmsFile> inputs) {
     initPreConfig();
-
-    final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(JAR_DEPS));
-    if (classpathJars == null) {
-      return false;
-    }
 
     if (extLibsBruker == null) {
       if (Fragpipe.headless) {
@@ -95,9 +88,8 @@ public class CmdDiaTracer extends CmdBase {
       }
       cmd.add("-Xmx" + ramGb + "G");
       cmd.add(createJavaDParamString("libs.bruker.dir", extLibsBruker.toString()));
-      cmd.add("-cp");
-      cmd.add(constructClasspathString(classpathJars, binDiaTracer));
-      cmd.add(CmdDiaTracer.JAR_DIATRACER_MAIN_CLASS);
+      cmd.add("-jar");
+      cmd.add(binDiaTracer.toAbsolutePath().toString());
       Path licensePath = FragpipeLocations.locateLicense();
       if (licensePath != null) {
         cmd.add("--license");
