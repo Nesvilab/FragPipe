@@ -42,10 +42,10 @@ public class BatchTableModel extends DefaultTableModel {
         for (int i = 0; i < getRowCount(); i++) {
             BatchRun run = new BatchRun(
                     getValueAt(i, COL_NAME).toString(),
-                    getValueAt(i, COL_WORKFLOW).toString(),
-                    getValueAt(i, COL_MANIFEST).toString(),
-                    getValueAt(i, COL_OUTPUT).toString(),
-                    getValueAt(i, COL_TOOLS).toString(),
+                    getValueAt(i, COL_WORKFLOW).toString().replace("\"", ""),
+                    getValueAt(i, COL_MANIFEST).toString().replace("\"", ""),
+                    getValueAt(i, COL_OUTPUT).toString().replace("\"", ""),
+                    getValueAt(i, COL_TOOLS).toString().replace("\"", ""),
                     getValueAt(i, COL_FASTA).toString(),
                     Integer.parseInt(getValueAt(i, COL_RAM).toString()),
                     Integer.parseInt(getValueAt(i, COL_THREADS).toString()));
