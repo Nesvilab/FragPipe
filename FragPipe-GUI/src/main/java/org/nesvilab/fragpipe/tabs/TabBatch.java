@@ -499,6 +499,7 @@ public class TabBatch extends JPanelWithEnablement {
 
         int userSelection = fc.showOpenDialog(SwingUtils.findParentFrameForDialog(this));
         if (JFileChooser.APPROVE_OPTION == userSelection) {
+            clearTable();   // remove previous jobs
             ArrayList<File> files = new ArrayList<>(Arrays.asList(fc.getSelectedFiles()));
             List<BatchRun> runs = new ArrayList<>();
             for (File file : files) {
