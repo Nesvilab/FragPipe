@@ -48,7 +48,7 @@ public class OffsetsTableModel extends DefaultTableModel {
         if (str == null || str.isEmpty()) {
             return new float[0];
         }
-        String[] parts = str.split("[,\\s;]+");
+        String[] parts = str.split("[,\\s;/]+");
         float[] values = new float[parts.length];
         for (int i = 0; i < parts.length; i++) {
             values[i] = Float.parseFloat(parts[i].trim());
