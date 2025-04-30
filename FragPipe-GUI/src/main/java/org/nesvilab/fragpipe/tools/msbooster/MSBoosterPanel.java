@@ -100,6 +100,9 @@ public class MSBoosterPanel extends JPanelBase {
     modelMap.put("Prosit 2020 Intensity TMT", "Prosit_2020_intensity_TMT");
     modelMap.put("Prosit 2020 Intensity HCD", "Prosit_2020_intensity_HCD");
     modelMap.put("AlphaPept CCS Generic", "AlphaPept_ccs_generic");
+    modelMap.put("UniSpec", "UniSpec");
+    modelMap.put("Prosit 2024 Intensity CIT", "Prosit_2024_intensity_cit");
+    modelMap.put("Prosit 2025 Intensity MultiFrag", "Prosit_2025_intensity_MultiFrag");
   }
 
   public MSBoosterPanel() {
@@ -191,7 +194,10 @@ public class MSBoosterPanel extends JPanelBase {
         "Prosit 2023 Intensity timsTOF",
         "Prosit 2020 Intensity CID",
         "Prosit 2020 Intensity TMT",
-        "Prosit 2020 Intensity HCD"
+        "Prosit 2020 Intensity HCD",
+        "UniSpec",
+        "Prosit 2024 Intensity CIT",
+        "Prosit 2025 Intensity MultiFrag"
     });
     FormEntry feSpectraModel = mu.feb("spectra-model", uiComboSpectraModel)
         .label("Model: ")
