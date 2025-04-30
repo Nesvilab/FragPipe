@@ -214,7 +214,7 @@ public class CmdPercolator extends CmdBase {
         setupEnv(pepxmlDir, pbPp);
         pbisParallel.add(new PbiBuilder()
             .setPb(pbPp)
-            .setParallelGroup(basename).create());
+            .setParallelGroup(ProcessBuilderInfo.GROUP_SEQUENTIAL).create());
 
         String lcmsPath = e.getKey().getPath().toAbsolutePath().normalize().toString();
         if (hasCalibratedMzml) {

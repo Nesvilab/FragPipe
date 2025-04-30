@@ -177,6 +177,9 @@ import org.nesvilab.utils.swing.TextConsole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Table;
+import com.google.common.collect.TreeBasedTable;
+
 public class FragpipeRun {
 
   private static final Logger log = LoggerFactory.getLogger(FragpipeRun.class);
@@ -466,7 +469,7 @@ public class FragpipeRun {
       // run everything
       long startTime = System.nanoTime();
       final List<RunnableDescription> toRun = new ArrayList<>();
-      final Map<String, Float> taskRuntimes = new LinkedHashMap<>();
+      final Table<String, String, Float> taskRuntimes = TreeBasedTable.create();
       
       for (final ProcessBuilderInfo pbi : pbis) {
         Runnable runnable = ProcessBuilderInfo.toRunnable(pbi, wd, FragpipeRun::printProcessDescription, tabRun.console, false);
@@ -485,7 +488,21 @@ public class FragpipeRun {
           } finally {
             long taskEndTime = System.nanoTime();
             float durationMinutes = (taskEndTime - taskStartTime) / 60_000_000_000.0f;
-            taskRuntimes.merge(pbi.name, durationMinutes, Float::sum);
+            if (pbi.parallelGroup == null || pbi.parallelGroup.equals(ProcessBuilderInfo.GROUP_SEQUENTIAL)) {
+              Float t = taskRuntimes.get(pbi.name, ProcessBuilderInfo.GROUP_SEQUENTIAL);
+              if (t == null) {
+                t = 0f;
+              }
+              t += durationMinutes;
+              taskRuntimes.put(pbi.name, ProcessBuilderInfo.GROUP_SEQUENTIAL, t);
+            } else {
+              Float t = taskRuntimes.get(pbi.name, pbi.parallelGroup);
+              if (t == null) {
+                t = 0f;
+              }
+              t = Math.max(t, durationMinutes);
+              taskRuntimes.put(pbi.name, pbi.parallelGroup, t);
+            }
           }
         };
         
@@ -728,12 +745,19 @@ public class FragpipeRun {
 
         long finalizerEndTime = System.nanoTime();
         float finalizerDuration = (finalizerEndTime - finalizerStartTime) / 60_000_000_000.0f;
-        taskRuntimes.put("Finalizer Task", finalizerDuration);
+        taskRuntimes.put("Finalizer Task", ProcessBuilderInfo.GROUP_SEQUENTIAL, finalizerDuration);
         
         // Print task runtimes and total runtime
         toConsole("\nTask Runtimes:", tabRun.console);
-        for (Map.Entry<String, Float> entry : taskRuntimes.entrySet()) {
-          toConsole(String.format("  %s: %.2f minutes", entry.getKey(), entry.getValue()), tabRun.console);
+        for (String key : taskRuntimes.rowKeySet()) {
+          float total = 0f;
+          for (String parallelGroup : taskRuntimes.columnKeySet()) {
+            Float t = taskRuntimes.get(key, parallelGroup);
+            if (t != null) {
+              total += t;
+            }
+          }
+          toConsole(String.format("  %s: %.2f minutes", key, total), tabRun.console);
         }
             
         String totalTime = String.format("%.1f", (System.nanoTime() - startTime) * 1e-9 / 60);
