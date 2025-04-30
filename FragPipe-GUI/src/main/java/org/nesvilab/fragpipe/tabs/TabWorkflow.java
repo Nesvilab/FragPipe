@@ -1800,6 +1800,7 @@ public class TabWorkflow extends JPanelWithEnablement {
 
     // load manifest
     try {
+      Bus.post(new MessageLcmsClearFiles());
       manifestLoad(job.manifestPath);
     } catch (IOException ex) {
         SwingUtils.showErrorDialog(this, "IO Error when trying to load manifest file " + job.manifestPath + ": " + ex.getMessage(), "Error Loading Manifest");
