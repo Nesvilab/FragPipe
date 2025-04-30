@@ -179,6 +179,7 @@ public class TabBatch extends JPanelWithEnablement {
                 String totalTime = String.format("%.1f", (System.nanoTime() - startTime) * 1e-9 / 60);
                 toConsole(Fragpipe.COLOR_RED_DARKEST, "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++ALL BATCH JOBS DONE IN " + totalTime + " MINUTES++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++", true, console);
                 Bus.post(MessageSaveLog.saveInDir(FragpipeLocations.get().getDirJobs(), console));   // save final log to jobs dir as a backup for the individual run logs
+                Bus.post(new MessageRunButtonEnabled(true));
             };
             toRun.add(new RunnableDescription(new Builder().setName("Finalizer Task").create(), finalizerRun));
 
