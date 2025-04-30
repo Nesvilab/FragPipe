@@ -24,10 +24,7 @@ import static org.apache.commons.text.StringEscapeUtils.escapeJava;
 import org.nesvilab.fragpipe.Fragpipe;
 import org.nesvilab.fragpipe.api.Bus;
 import org.nesvilab.fragpipe.cmd.ProcessBuilderInfo;
-import org.nesvilab.fragpipe.messages.MessageDeletePaths;
-import org.nesvilab.fragpipe.messages.MessageKillAll;
-import org.nesvilab.fragpipe.messages.MessageRunButtonEnabled;
-import org.nesvilab.fragpipe.messages.MessageStartProcesses;
+import org.nesvilab.fragpipe.messages.*;
 import org.nesvilab.utils.FileDelete;
 import java.io.IOException;
 import java.nio.file.FileSystemException;
@@ -330,6 +327,7 @@ public class ProcessManager {
     } finally {
       // after attempting to stop all previous tasks, re-enable run button
       Bus.post(new MessageRunButtonEnabled(true));
+      Bus.post(new MessageBatchRunButtonEnabled(true));
     }
   }
 

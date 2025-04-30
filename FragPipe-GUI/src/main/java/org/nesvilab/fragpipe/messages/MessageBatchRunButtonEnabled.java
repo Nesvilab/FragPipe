@@ -17,9 +17,10 @@
 
 package org.nesvilab.fragpipe.messages;
 
-public class MessageUpdateBatchProgress {
+public class MessageBatchRunButtonEnabled {
+    public final boolean isEnabled;
 
-    public MessageUpdateBatchProgress() {
-
+    public MessageBatchRunButtonEnabled(boolean isEnabled) {
+        this.isEnabled = isEnabled;
     }
 }

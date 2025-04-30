@@ -112,7 +112,8 @@ public class TabBatch extends JPanelWithEnablement {
         batchProgressBar.setStringPainted(true);
 
         try {
-            Bus.post(new MessageRunButtonEnabled(false));
+            Bus.post(new MessageRunButtonEnabled(false));       // disable the Run tab's run button as well to avoid running both GUI and headless simultaneously
+            Bus.post(new MessageBatchRunButtonEnabled(false));
 
             // prepare the processes
             List<ProcessBuildersDescriptor> pbDescsBuilderDescs = new ArrayList<>(1);
@@ -184,6 +185,7 @@ public class TabBatch extends JPanelWithEnablement {
                 toConsole(Fragpipe.COLOR_RED_DARKEST, "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++ALL BATCH JOBS DONE IN " + totalTime + " MINUTES++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++", true, console);
                 Bus.post(MessageSaveLog.saveInDir(FragpipeLocations.get().getDirJobs(), console));   // save final log to jobs dir as a backup for the individual run logs
                 Bus.post(new MessageRunButtonEnabled(true));
+                Bus.post(new MessageBatchRunButtonEnabled(true));
             };
             toRun.add(new RunnableDescription(new Builder().setName("Finalizer Task").create(), finalizerRun));
 
@@ -196,6 +198,7 @@ public class TabBatch extends JPanelWithEnablement {
         } finally {
             if (!runConfigurationDone) {
                 Bus.post(new MessageRunButtonEnabled(true));
+                Bus.post(new MessageBatchRunButtonEnabled(true));
             }
         }
 
@@ -254,6 +257,12 @@ public class TabBatch extends JPanelWithEnablement {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+    public void on(MessageRefreshBatchProgress m) {
+        batchProgressBar.setString(String.format("Completed %d of %d jobs", batchProgressBar.getValue(), batchProgressBar.getMaximum()));
+        batchProgressBar.setStringPainted(true);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
     public void on(MessageBatchCrashed m) {
         // make sure this was actually a job that crashed, not a regular run
         if (!(m.console == this.console)) {
@@ -263,6 +272,12 @@ public class TabBatch extends JPanelWithEnablement {
         toConsole(String.format("\n++++++++++Non-zero exit code in job %d of %d. Stopping job.++++++++++", batchProgressBar.getValue() + 1, batchProgressBar.getMaximum()), console);
         batchProgressBar.setValue(0);
         batchProgressBar.setStringPainted(false);
+    }
+
+    @Subscribe(threadMode = ThreadMode.BACKGROUND)
+    public void on(MessageBatchRunButtonEnabled m) {
+        btnRun.setEnabled(m.isEnabled);
+        btnStop.setEnabled(!btnRun.isEnabled());
     }
 
     public boolean isDryRun() {
