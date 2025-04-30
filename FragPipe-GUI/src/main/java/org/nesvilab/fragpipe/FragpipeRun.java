@@ -470,6 +470,7 @@ public class FragpipeRun {
       long startTime = System.nanoTime();
       final List<RunnableDescription> toRun = new ArrayList<>();
       final Table<String, String, Float> taskRuntimes = TreeBasedTable.create();
+      final List<String> taskNames = new ArrayList<>();
       
       for (final ProcessBuilderInfo pbi : pbis) {
         Runnable runnable = ProcessBuilderInfo.toRunnable(pbi, wd, FragpipeRun::printProcessDescription, tabRun.console, false);
@@ -495,6 +496,7 @@ public class FragpipeRun {
               }
               t += durationMinutes;
               taskRuntimes.put(pbi.name, ProcessBuilderInfo.GROUP_SEQUENTIAL, t);
+              taskNames.add(pbi.name);
             } else {
               Float t = taskRuntimes.get(pbi.name, pbi.parallelGroup);
               if (t == null) {
@@ -502,6 +504,7 @@ public class FragpipeRun {
               }
               t = Math.max(t, durationMinutes);
               taskRuntimes.put(pbi.name, pbi.parallelGroup, t);
+              taskNames.add(pbi.name);
             }
           }
         };
@@ -746,10 +749,11 @@ public class FragpipeRun {
         long finalizerEndTime = System.nanoTime();
         float finalizerDuration = (finalizerEndTime - finalizerStartTime) / 60_000_000_000.0f;
         taskRuntimes.put("Finalizer Task", ProcessBuilderInfo.GROUP_SEQUENTIAL, finalizerDuration);
+        taskNames.add("Finalizer Task");
         
         // Print task runtimes and total runtime
         toConsole("\nTask Runtimes:", tabRun.console);
-        for (String key : taskRuntimes.rowKeySet()) {
+        for (String key : taskNames) {
           float total = 0f;
           for (String parallelGroup : taskRuntimes.columnKeySet()) {
             Float t = taskRuntimes.get(key, parallelGroup);
