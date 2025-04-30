@@ -229,6 +229,7 @@ public class TabBatch extends JPanelWithEnablement {
             batchProgressBar.setValue(0);
             batchProgressBar.setStringPainted(false);
         });
+        btnStop.setEnabled(false);
 
         JPanel p = mu.newPanel(null, true);
         mu.add(p, btnRun).split(6);

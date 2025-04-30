@@ -260,6 +260,7 @@ public class TabRun extends JPanelWithEnablement {
         FragpipeRun.saveRuntimeConfig(existing);
       }
     });
+    btnStop.setEnabled(false);
 
     JButton btnSaveJob = UiUtils.createButton("Save as Job", this::actionBtnSaveJob);
     btnSaveJob.setToolTipText("Save the current configuration as a Job for future batch processing.\n" +
