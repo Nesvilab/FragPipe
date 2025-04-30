@@ -36,7 +36,6 @@ public class MassOffsetUtils {
     private static final Pattern diagPattern = Pattern.compile("d=([\\d.\\-,\\s]+)");
     private static final Pattern fragRemPattern = Pattern.compile("f=([\\d.\\-,\\s]+)");
     private static final Pattern pepRemPattern = Pattern.compile("p=([\\d.\\-,\\s]+)");
-    private static final Pattern resPattern = Pattern.compile("aa=([A-Z]+)");
     private static final Logger log = LoggerFactory.getLogger(TabMsfragger.class);
     public static final String DELIMITER = ";";
 
@@ -171,10 +170,10 @@ public class MassOffsetUtils {
                 this.mass = Float.parseFloat(massMatch.group(1));
             }
 
-            Matcher sitesMatch = resPattern.matcher(offsetString);
+            Pattern sitesStringPattern = Pattern.compile("aa=([A-Z-nc\\[\\]^*]+)");
+            Matcher sitesMatch = sitesStringPattern.matcher(offsetString);
             if (sitesMatch.find()) {
-                ArrayList<String> sites = getSites(sitesMatch.group(1));
-                this.allowedResidues = sites.toArray(new String[0]);
+                this.allowedResidues = getSites(sitesMatch.group(1)).toArray(new String[0]);
             } else {
                 this.allowedResidues = new String[0];
             }
