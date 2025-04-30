@@ -122,6 +122,10 @@ public class TabBatch extends JPanelWithEnablement {
                 if (cmdBatch.configure(this, run)) {
                     ProcessBuildersDescriptor processBuildersDescriptor = cmdBatch.getBuilderDescriptor();
                     pbDescsBuilderDescs.add(processBuildersDescriptor);
+                } else {
+                    // reduce the total runs count if skipping an unconfigureable run
+                    batchProgressBar.setMaximum(batchProgressBar.getMaximum() - 1);
+                    Bus.post(new MessageRefreshBatchProgress());
                 }
             }
 
