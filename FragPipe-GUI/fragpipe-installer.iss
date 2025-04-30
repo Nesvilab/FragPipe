@@ -1,5 +1,5 @@
 #define AppName "FragPipe"
-#define AppVersion "23.0-build40"
+#define AppVersion "23.0-build41"
 #define AppPublisher "Nesvizhskii Lab"
 #define AppURL "https://fragpipe.nesvilab.org/"
 #define AppExeName "FragPipe-" + AppVersion + ".exe"
