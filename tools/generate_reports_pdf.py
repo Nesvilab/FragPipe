@@ -444,6 +444,9 @@ class FragPipeReport:
         if os.path.exists(self.results_path + "\\MSBooster\\MSBooster_plots"):
             msbooster_files = os.listdir(self.results_path + "\\MSBooster\\MSBooster_plots")
             for one_folder in msbooster_files:
+                # check if the folder is a directory
+                if not os.path.isdir(self.results_path + "\\MSBooster\\MSBooster_plots\\" + one_folder):
+                    continue
                 for file in os.listdir(self.results_path + "\\MSBooster\\MSBooster_plots\\" + one_folder):
                     if file.endswith(".png"):
                         if "edited" in file:
@@ -662,7 +665,7 @@ class FragPipeReport:
                               b=50  # bottom margin
                           ),
                           width=1600,  # final PDF width in pixels
-                          height=300 + len(self.manifest_data) * 23,  # final PDF height in pixels
+                          height=300 + len(self.manifest_data) * 25,  # final PDF height in pixels
                           template=DEFAULT_TEMPLATE, colorway=NATURE_PALETTE)
         return fig
 
