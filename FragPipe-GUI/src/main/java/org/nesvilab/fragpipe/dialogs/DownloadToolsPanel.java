@@ -74,10 +74,7 @@ public class DownloadToolsPanel extends JPanel {
     JEditorPane t0 = SwingUtils.createClickableHtml(
         "<br>MSFragger, IonQuant, and diaTracer software are available freely for academic research,<br>"
             + "non-commercial or educational purposes under academic license.<br><br>"
-            + "Read the academic license for "
-            + "<a href=\"" + WEB_DOMAIN + "upgrader/MSFragger-LICENSE.pdf\" target=\"blank_\">MSFragger</a>, "
-            + "<a href=\"" + WEB_DOMAIN + "ionquant/IonQuant%20Academic%20Use%20License%2005162022.pdf\" target=\"blank_\">IonQuant</a>, and "
-            + "<a href=\"" + WEB_DOMAIN + "diatracer/diaTracer%20UM%20%23%202024-417%20Academic%20Research%20Use%20License%2005142024.pdf\" target=\"blank_\">diaTracer</a>.<br><br>");
+            + "Read the <a href=\"" + WEB_DOMAIN + "upgrader/MSFragger-LICENSE.pdf\" target=\"blank_\">academic license</a> for MSFragger, IonQuant, and diaTracer.<br><br>");
 
     feFirstName = mu.feb(UiUtils.uiTextBuilder().cols(40).create()).label("First Name:").create();
     feLastName = mu.feb(UiUtils.uiTextBuilder().cols(40).create()).label("Last Name:").create();
@@ -97,9 +94,11 @@ public class DownloadToolsPanel extends JPanel {
       ((UiText) feInstitution.comp).setText(userInstitution);
     }
 
-    JEditorPane t1 = SwingUtils.createClickableHtml("I have read the academic licenses. I understand that the licenses provide<br>"
-        + "with a non-exclusive, non-transferable right to use the tools solely for<br>"
-        + "academic research, non-commercial or educational purposes.");
+    JEditorPane t1 = SwingUtils.createClickableHtml(
+        "I have read the academic license for MSFragger, IonQuant, and diaTracer.<br>"
+        + "I understand that the license provide with a non-exclusive, non-transferable<br>"
+        + "right to use the tools solely for academic research, non-commercial or<br>"
+        + "educational purposes.");
     license1 = new JCheckBox();
 
     JEditorPane t2 = SwingUtils.createClickableHtml("I agree to the terms of <a href=\"" + WEB_DOMAIN + "upgrader/RawFileRdr_License_Agreement_RevA.pdf\" target=\"blank_\">Thermo (c) Raw File Reader License Agreement</a>.");
