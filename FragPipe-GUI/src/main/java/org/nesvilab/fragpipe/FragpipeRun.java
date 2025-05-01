@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -470,7 +471,7 @@ public class FragpipeRun {
       long startTime = System.nanoTime();
       final List<RunnableDescription> toRun = new ArrayList<>();
       final Table<String, String, Float> taskRuntimes = TreeBasedTable.create();
-      final List<String> taskNames = new ArrayList<>();
+      final Set<String> taskNames = new LinkedHashSet<>();
       
       for (final ProcessBuilderInfo pbi : pbis) {
         Runnable runnable = ProcessBuilderInfo.toRunnable(pbi, wd, FragpipeRun::printProcessDescription, tabRun.console, false);
