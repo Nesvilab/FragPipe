@@ -265,8 +265,7 @@ public class Props {
                 continue;
             }
             Prop prop = map.get(name);
-            if (prop.value == null) {
-                log.warn("Property with null value encountered: {}", prop.name);
+            if (prop == null || prop.value == null) {
                 continue;
             }
             if (!prop.isEnabled)

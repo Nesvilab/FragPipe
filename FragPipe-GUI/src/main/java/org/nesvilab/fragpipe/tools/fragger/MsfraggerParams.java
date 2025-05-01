@@ -16,6 +16,7 @@
  */
 package org.nesvilab.fragpipe.tools.fragger;
 
+import java.util.stream.Collectors;
 import org.nesvilab.fragpipe.util.MassOffsetUtils;
 import org.nesvilab.utils.StringUtils;
 import java.io.IOException;
@@ -1087,6 +1088,7 @@ public class MsfraggerParams extends AbstractParams {
     }
     
     public void setVariableMods(List<Mod> mods) {
+        Set<String> setNames = new HashSet<>(mods.size());
         for (int i = 0; i < mods.size(); i++) {
             Mod vm = mods.get(i);
             String name = String.format(Locale.ROOT, "%s_%02d", PROP_variable_mod, i+1);
@@ -1099,6 +1101,11 @@ public class MsfraggerParams extends AbstractParams {
             // Must concatenate the strings. Using the String.format() will write additional decimals for float, which causes issues.
             String value = vm.massDelta + " " + vm.sites + " " + vm.maxOccurrences;
             props.setProp(name, value, vm.isEnabled);
+            setNames.add(name);
+        }
+        List<String> unusedKeys = props.getMap().keySet().stream().filter(k -> k.startsWith("variable_mod") && !setNames.contains(k)).collect(Collectors.toList());
+        for (String k : unusedKeys) {
+            props.removeProp(k);
         }
     }
     
@@ -1121,6 +1128,7 @@ public class MsfraggerParams extends AbstractParams {
     }
     
     public void setFixedMods(List<Mod> mods) {
+        Set<String> setNames = new HashSet<>(mods.size());
         for (int i = 0; i < mods.size(); i++) {
             Mod vm = mods.get(i);
             String siteName = ADDON_MAP_HUMAN2NAME.get(vm.sites);
@@ -1132,6 +1140,11 @@ public class MsfraggerParams extends AbstractParams {
             // Must concatenate the strings. Using the String.format() will write additional decimals for float, which causes issues.
             String value = String.valueOf(vm.massDelta);
             props.setProp(name, value, vm.isEnabled);
+            setNames.add(name);
+        }
+        List<String> unusedKeys = props.getMap().keySet().stream().filter(k -> k.startsWith("add_") && !setNames.contains(k)).collect(Collectors.toList());
+        for (String k : unusedKeys) {
+            props.removeProp(k);
         }
     }
 }
