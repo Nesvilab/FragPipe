@@ -7,7 +7,7 @@ cycler==0.12.1
 easypqp==0.1.52
 fonttools==4.55.2
 joblib==1.4.2
-kaleido==0.2.1
+kaleido==0.1.0.post1
 kiwisolver==1.4.7
 llvmlite==0.43.0
 matplotlib==3.9.3
