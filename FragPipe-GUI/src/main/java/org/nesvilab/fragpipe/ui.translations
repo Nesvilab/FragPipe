@@ -142,6 +142,7 @@ msbooster.rt-model::DeepLC HeLa HF <=> Deeplc_hela_hf
 msbooster.rt-model::AlphaPept RT Generic <=> AlphaPept_rt_generic
 msbooster.rt-model::Prosit 2019 iRT <=> Prosit_2019_irt
 msbooster.rt-model::Prosit 2020 iRT TMT <=> Prosit_2020_irt_TMT
+msbooster.rt-model::Prosit 2024 iRT CIT <=> Prosit_2024_irt_cit
 msbooster.spectra-model::DIA-NN <=> DIA-NN
 msbooster.spectra-model::MS2PIP 2021 HCD <=> ms2pip_2021_hcd
 msbooster.spectra-model::MS2PIP timsTOF 2024 <=> ms2pip_timsTOF2024

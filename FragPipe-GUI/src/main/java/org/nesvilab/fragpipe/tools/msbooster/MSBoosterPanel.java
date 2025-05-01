@@ -21,19 +21,6 @@ import static org.nesvilab.fragpipe.tabs.TabMsfragger.setJTableColSize;
 import static org.nesvilab.utils.SwingUtils.createClickableHtml;
 import static org.nesvilab.utils.swing.UiUtils.createUiCombo;
 
-import org.nesvilab.fragpipe.Fragpipe;
-import org.nesvilab.fragpipe.api.ModelsTable;
-import org.nesvilab.fragpipe.api.ModelsTableModel;
-import org.nesvilab.utils.SwingUtils;
-import org.nesvilab.utils.swing.FileChooserUtils;
-import org.nesvilab.utils.swing.FileChooserUtils.FcMode;
-import org.nesvilab.utils.swing.FormEntry;
-import org.nesvilab.utils.swing.JPanelBase;
-import org.nesvilab.utils.swing.MigUtils;
-import org.nesvilab.utils.swing.UiCheck;
-import org.nesvilab.utils.swing.UiCombo;
-import org.nesvilab.utils.swing.UiText;
-import org.nesvilab.utils.swing.renderers.TableCellDoubleRenderer;
 import java.awt.Component;
 import java.awt.ItemSelectable;
 import java.nio.file.Path;
@@ -51,6 +38,19 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import net.miginfocom.layout.CC;
+import org.nesvilab.fragpipe.Fragpipe;
+import org.nesvilab.fragpipe.api.ModelsTable;
+import org.nesvilab.fragpipe.api.ModelsTableModel;
+import org.nesvilab.utils.SwingUtils;
+import org.nesvilab.utils.swing.FileChooserUtils;
+import org.nesvilab.utils.swing.FileChooserUtils.FcMode;
+import org.nesvilab.utils.swing.FormEntry;
+import org.nesvilab.utils.swing.JPanelBase;
+import org.nesvilab.utils.swing.MigUtils;
+import org.nesvilab.utils.swing.UiCheck;
+import org.nesvilab.utils.swing.UiCombo;
+import org.nesvilab.utils.swing.UiText;
+import org.nesvilab.utils.swing.renderers.TableCellDoubleRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,6 +103,7 @@ public class MSBoosterPanel extends JPanelBase {
     modelMap.put("UniSpec", "UniSpec");
     modelMap.put("Prosit 2024 Intensity CIT", "Prosit_2024_intensity_cit");
     modelMap.put("Prosit 2025 Intensity MultiFrag", "Prosit_2025_intensity_MultiFrag");
+    modelMap.put("Prosit 2024 iRT CIT", "Prosit_2024_irt_cit");
   }
 
   public MSBoosterPanel() {
@@ -176,7 +177,8 @@ public class MSBoosterPanel extends JPanelBase {
         "DeepLC HeLa HF",
         "AlphaPept RT Generic",
         "Prosit 2019 iRT",
-        "Prosit 2020 iRT TMT"
+        "Prosit 2020 iRT TMT",
+        "Prosit 2024 iRT CIT"
     });
     FormEntry feRtModel = mu.feb("rt-model", uiComboRtModel)
         .label("Model: ")
@@ -295,7 +297,8 @@ public class MSBoosterPanel extends JPanelBase {
         new Model("DeepLC HeLa HF", true),
         new Model("AlphaPept RT Generic", true),
         new Model("Prosit 2019 iRT", true),
-        new Model("Prosit 2020 iRT TMT", true)
+        new Model("Prosit 2020 iRT TMT", true),
+        new Model("Prosit 2024 iRT CIT", true)
     );
 
     tableRtModels = createTableModels(models, "table.rt-models");
@@ -328,7 +331,10 @@ public class MSBoosterPanel extends JPanelBase {
         new Model("Prosit 2023 Intensity timsTOF", true),
         new Model("Prosit 2020 Intensity CID", true),
         new Model("Prosit 2020 Intensity TMT", true),
-        new Model("Prosit 2020 Intensity HCD", true)
+        new Model("Prosit 2020 Intensity HCD", true),
+        new Model("UniSpec", true),
+        new Model("Prosit 2024 Intensity CIT", true),
+        new Model("Prosit 2025 Intensity MultiFrag", true)
     );
 
     tableSpectraModels = createTableModels(models, "table.spectra-models");
