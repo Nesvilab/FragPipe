@@ -20,27 +20,24 @@ package org.nesvilab.fragpipe.dialogs;
 import static org.nesvilab.fragpipe.Fragpipe.WEB_DOMAIN;
 import static org.nesvilab.fragpipe.tabs.TabConfig.userEmail;
 import static org.nesvilab.fragpipe.tabs.TabConfig.userFirstName;
-import static org.nesvilab.fragpipe.tabs.TabConfig.userLastName;
 import static org.nesvilab.fragpipe.tabs.TabConfig.userInstitution;
+import static org.nesvilab.fragpipe.tabs.TabConfig.userLastName;
 
-import org.nesvilab.fragpipe.tools.fragger.MsfraggerVersionFetcherServer;
-import org.nesvilab.utils.SwingUtils;
-import org.nesvilab.utils.swing.FormEntry;
-import org.nesvilab.utils.swing.MigUtils;
-import org.nesvilab.utils.swing.UiCheck;
-import org.nesvilab.utils.swing.UiText;
-import org.nesvilab.utils.swing.UiUtils;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JEditorPane;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import net.miginfocom.swing.MigLayout;
+import org.nesvilab.fragpipe.tools.fragger.MsfraggerVersionFetcherServer;
+import org.nesvilab.utils.SwingUtils;
+import org.nesvilab.utils.swing.FormEntry;
+import org.nesvilab.utils.swing.MigUtils;
+import org.nesvilab.utils.swing.UiText;
+import org.nesvilab.utils.swing.UiUtils;
 
 public class DownloadToolsPanel extends JPanel {
 
@@ -127,9 +124,9 @@ public class DownloadToolsPanel extends JPanel {
       }
     });
 
-    // crate a jLabel with the text "Download for academic users only. Commercial users should contact info@fragmatics.com or visit fragmatics.com to obtain the commercial version of the tools."
-    JLabel lblAcademic = new JLabel("<html>Download for academic users only. Commercial users should contact info@fragmatics.com<br>" 
-    + "or visit fragmatics.com to obtain the commercial version of the tools.</html>");
+    JEditorPane lblAcademic = SwingUtils.createClickableHtml(
+        "<html>Download for academic users only. Commercial users must contact <a href=\"mailto:info@fragmatics.com\">info@fragmatics.com</a><br>"
+            + "or visit <a href='https://fragmatics.com' target=\"blank_\">Fragmatics</a> to obtain the commercial version of the tools.</html>");
 
     mu.add(panelTextboxes, t0).split().spanX().wrap();
 
