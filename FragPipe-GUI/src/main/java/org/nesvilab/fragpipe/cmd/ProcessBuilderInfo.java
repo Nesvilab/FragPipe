@@ -84,8 +84,10 @@ public class ProcessBuilderInfo {
         }
 
         StringBuilder sbBuffer = new StringBuilder();
+        // sleepTime difference is a kludge to avoid batch runs (i.e., headless but run via GUI) from exiting during param printing (without doing the actual run) when the param printing takes a long time (e.g., with a very large glycan database)
+        long sleepTime = pbi.name.equalsIgnoreCase("batched run") ? 40L : 200L;
         while (true) {
-          Thread.sleep(200L);
+          Thread.sleep(sleepTime);
           final byte[] pollErr = pr.pollStdErr();
           if (pollErr != null && pollErr.length > 0) {
             if (pbi.name.equalsIgnoreCase("peptideprophet")) {
