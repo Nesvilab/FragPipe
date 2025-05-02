@@ -187,6 +187,20 @@ def merge_pdf_buffers(pdf_buffers):
 class FragPipeReport:
 
     def __init__(self, results_path=""):
+        self.ms2_mass_df = None
+        self.ms1_mass_df = None
+        self.percolator_raw_file = None
+        self.ms1_tolerance = None
+        self.ms2_tolerance = None
+        self.ms2_units = None
+        self.ms1_units = None
+        self.runtime_dict = None
+        self.finish_time = None
+        self.features_weight = None
+        self.run_spec_lib = None
+        self.manifest_data = None
+        self.workflow_file = None
+        self.latest_log_file = None
         self.runs_data = {}
         self.id_nums = None
         self.title = "FragPipe Report"
@@ -343,9 +357,11 @@ class FragPipeReport:
                 if task == "Finalizer Task":
                     break
         if self.ms1_units == "2":
-            self.ms1_tolerance = self.ms1_tolerance * 1000
+            if self.ms1_tolerance is not None:      # avoid crash if MSFragger has not been run
+                self.ms1_tolerance = self.ms1_tolerance * 1000
         if self.ms2_units == "2":
-            self.ms2_tolerance = self.ms2_tolerance * 1000
+            if self.ms2_tolerance is not None:
+                self.ms2_tolerance = self.ms2_tolerance * 1000
 
     def get_mass_error(self):
         mass_error_region = False
@@ -746,11 +762,11 @@ class FragPipeReport:
         whole_fig.add_trace(miss_cle_dis, row=3, col=1)
 
         ms1_mass_error_traces = []
-        ms1_min, ms1_max = self.ms1_mass_df['Value'].min(), self.ms1_mass_df['Value'].max()
-        ms2_min, ms2_max = self.ms2_mass_df['Value'].min(), self.ms2_mass_df['Value'].max()
-        all_min = min(ms1_min, ms2_min)*1.2
-        all_max = max(ms1_max, ms2_max)*1.2
         if "Calib" in self.ms1_mass_df.columns:
+            ms1_min, ms1_max = self.ms1_mass_df['Value'].min(), self.ms1_mass_df['Value'].max()
+            ms2_min, ms2_max = self.ms2_mass_df['Value'].min(), self.ms2_mass_df['Value'].max()
+            all_min = min(ms1_min, ms2_min) * 1.2
+            all_max = max(ms1_max, ms2_max) * 1.2
             for exp_name, grp in self.ms1_mass_df.groupby("Calib"):
                 ms1_mass_error_traces.append(go.Bar(
                     x=grp["Run"],
