@@ -368,10 +368,13 @@ public class TabRun extends JPanelWithEnablement {
               if (exitValue != 0) {
                 String errStr = pr.appendErr(pr.pollStdErr());
                 SwingUtils.showErrorDialog(this, "Process " + pb + " returned non zero value. Message:\n" + (errStr == null ? "" : errStr), "Error");
+                MessagePrintToConsole.toConsole("Process " + pb + " returned non zero value. Message:\n" + (errStr == null ? "" : errStr), console);
               }
+              MessagePrintToConsole.toConsole("Summary report exited with code " + exitCode, console);
             } else {
               String errStr = pr.appendErr(pr.pollStdErr());
               SwingUtils.showErrorDialog(this, "Process " + pb + " returned non zero value. Message:\n " + (errStr == null ? "" : errStr), "Error");
+              MessagePrintToConsole.toConsole("Summary report exited with code " + exitCode, console);
             }
                         
             pr.close();
