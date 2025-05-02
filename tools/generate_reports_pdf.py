@@ -231,6 +231,9 @@ class FragPipeReport:
                 log_files.append(file)
 
         log_files.sort()
+        if len(log_files) == 0:
+            print("Error: No log file found in the results path: {}. Could not generate summary report".format(self.results_path))
+            raise FileNotFoundError("Log file not found in the results path {}".format(self.results_path))
         self.latest_log_file = log_files[-1]
 
         with open(self.results_path + self.latest_log_file, 'r') as f:
