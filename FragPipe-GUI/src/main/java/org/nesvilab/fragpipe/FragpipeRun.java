@@ -569,25 +569,6 @@ public class FragpipeRun {
           }
         }
 
-        if (tabRun.isDeleteCalibratedFiles()) {
-          toConsole(Fragpipe.COLOR_TOOL, "\nDelete calibrated mzML files", true, tabRun.console);
-          for (LcmsFileGroup lcmsFileGroup : lcmsFileGroups.values()) {
-            for (InputLcmsFile inputLcmsFile : lcmsFileGroup.lcmsFiles) {
-              String baseName = FilenameUtils.getBaseName(inputLcmsFile.getPath().getFileName().toString());
-              Path path = inputLcmsFile.getPath().toAbsolutePath().getParent().resolve(baseName + "_calibrated.mzML");
-              if (Files.exists(path)) {
-                try {
-                  toConsole(Fragpipe.COLOR_TOOL, "Delete ", false, tabRun.console);
-                  toConsole(Fragpipe.COLOR_BLACK, path.toAbsolutePath().normalize().toString(), true, tabRun.console);
-                  deleteFileOrFolder(path);
-                } catch (Exception ex) {
-                  toConsole(Fragpipe.COLOR_RED, "Could not delete " + path.toAbsolutePath() + ". It won't affect the result.", true, tabRun.console);
-                }
-              }
-            }
-          }
-        }
-
         if (tabRun.isDeleteTempFiles()) {
           toConsole(Fragpipe.COLOR_TOOL, "\nDelete temp files", true, tabRun.console);
           try {

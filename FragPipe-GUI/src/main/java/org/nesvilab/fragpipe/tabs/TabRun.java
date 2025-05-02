@@ -105,7 +105,6 @@ public class TabRun extends JPanelWithEnablement {
   Color defTextColor;
   public UiText uiTextWorkdir;
   private UiCheck uiCheckDryRun;
-  private UiCheck uiCheckDeleteCalibratedFiles;
   private UiCheck uiCheckDeleteTempFiles;
   public UiCheck uiCheckWriteSubMzml;
   public UiSpinnerDouble uiSpinnerProbThreshold;
@@ -218,9 +217,6 @@ public class TabRun extends JPanelWithEnablement {
     }
 
     uiCheckDryRun = UiUtils.createUiCheck("Dry Run", false);
-
-    uiCheckDeleteCalibratedFiles = UiUtils.createUiCheck("Delete calibrated mzML", false);
-    uiCheckDeleteCalibratedFiles.setName(TAB_PREFIX + "delete_calibrated_mzml");
 
     uiCheckDeleteTempFiles = UiUtils.createUiCheck("Delete temp files", false);
     uiCheckDeleteTempFiles.setName(TAB_PREFIX + "delete_temp_files");
@@ -468,7 +464,6 @@ public class TabRun extends JPanelWithEnablement {
     // line 3
     mu.add(p, uiCheckWordWrap, mu.ccR()).split().spanX();
     mu.add(p, feExportMatchedFragments.comp, mu.ccR());
-    mu.add(p, uiCheckDeleteCalibratedFiles, mu.ccR());
     mu.add(p, uiCheckDeleteTempFiles, mu.ccR());
     mu.add(p, feWriteSubMzml.comp, mu.ccR());
     mu.add(p, feProbThreshold.label(), mu.ccR());
@@ -479,10 +474,6 @@ public class TabRun extends JPanelWithEnablement {
 
   public boolean isDryRun() {
     return SwingUtils.isEnabledAndChecked(uiCheckDryRun);
-  }
-
-  public boolean isDeleteCalibratedFiles() {
-    return SwingUtils.isEnabledAndChecked(uiCheckDeleteCalibratedFiles);
   }
 
   public boolean isDeleteTempFiles() {
