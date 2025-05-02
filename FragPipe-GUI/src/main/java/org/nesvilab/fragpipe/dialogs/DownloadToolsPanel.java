@@ -71,12 +71,12 @@ public class DownloadToolsPanel extends JPanel {
     JEditorPane t0 = SwingUtils.createClickableHtml(
         "<br>MSFragger, IonQuant, and diaTracer software are available freely for academic research,<br>"
             + "non-commercial or educational purposes under academic license.<br><br>"
-            + "Read the <a href=\"" + WEB_DOMAIN + "upgrader/MSFragger-LICENSE.pdf\" target=\"blank_\">academic license</a> for MSFragger, IonQuant, and diaTracer.<br><br>");
+            + "Read the <a href=\"" + WEB_DOMAIN + "upgrader/LICENSE-ACADEMIC.pdf\" target=\"blank_\">academic license</a> for MSFragger, IonQuant, and diaTracer.<br><br>");
 
     feFirstName = mu.feb(UiUtils.uiTextBuilder().cols(40).create()).label("First Name:").create();
     feLastName = mu.feb(UiUtils.uiTextBuilder().cols(40).create()).label("Last Name:").create();
     feEmail = mu.feb(UiUtils.uiTextBuilder().cols(40).create()).label("<html><div align='right'>Email:<br>(academic email)</div></html>").create();
-    feInstitution = mu.feb(UiUtils.uiTextBuilder().cols(40).create()).label("Institution").create();
+    feInstitution = mu.feb(UiUtils.uiTextBuilder().cols(40).create()).label("<html><div align='right'>Institution:<br>(academic only)</div></html>").create();
 
     if (userFirstName != null) {
       ((UiText) feFirstName.comp).setText(userFirstName);
@@ -92,10 +92,10 @@ public class DownloadToolsPanel extends JPanel {
     }
 
     JEditorPane t1 = SwingUtils.createClickableHtml(
-        "I have read the academic license for MSFragger, IonQuant, and diaTracer.<br>"
-        + "I understand that the license provide with a non-exclusive, non-transferable<br>"
-        + "right to use the tools solely for academic research, non-commercial or<br>"
-        + "educational purposes.");
+        "I have read the <a href=\"" + WEB_DOMAIN + "upgrader/LICENSE-ACADEMIC.pdf\" target=\"blank_\">academic license</a> and fully agree to abide by its terms.<br>"
+            + "I acknowledge that it grants a non-transferable right to use MSFragger,<br>"
+            + "IonQuant, and diaTracer exclusively for academic research,<br>"
+            + "non-commercial, or educational purposes.<br>");
     license1 = new JCheckBox();
 
     JEditorPane t2 = SwingUtils.createClickableHtml("I agree to the terms of <a href=\"" + WEB_DOMAIN + "upgrader/RawFileRdr_License_Agreement_RevA.pdf\" target=\"blank_\">Thermo (c) Raw File Reader License Agreement</a>.");
@@ -125,8 +125,9 @@ public class DownloadToolsPanel extends JPanel {
     });
 
     JEditorPane lblAcademic = SwingUtils.createClickableHtml(
-        "<html>Download for academic users only. Commercial users must contact <a href=\"mailto:info@fragmatics.com\">info@fragmatics.com</a><br>"
-            + "or visit <a href='https://fragmatics.com' target=\"blank_\">Fragmatics</a> to obtain the commercial version of the tools.</html>");
+        "<html>Download available for academic users only. Non-academic users must visit<br>"
+            + "Fragmatics at <a href='https://fragmatics.com' target=\"blank_\">www.fragmatics.com</a> or email <a href=\"mailto:info@fragmatics.com\">info@fragmatics.com</a> to purchase<br>"
+            + "a license and access the tools.</html>");
 
     mu.add(panelTextboxes, t0).split().spanX().wrap();
 
@@ -141,6 +142,8 @@ public class DownloadToolsPanel extends JPanel {
     mu.add(panelTextboxes, feInstitution.label(), mu.ccR());
     mu.add(panelTextboxes, feInstitution.comp).spanX().wrap();
 
+    mu.add(panelTextboxes, lblAcademic).spanX().alignX("center").wrap();
+
     mu.add(panelTextboxes, license1, mu.ccR());
     mu.add(panelTextboxes, t1).spanX().wrap();
 
@@ -151,7 +154,6 @@ public class DownloadToolsPanel extends JPanel {
     mu.add(panelTextboxes, t3).spanX().wrap();
 
     mu.add(panelTextboxes, btnSendRequest).spanX().alignX("center").wrap();
-    mu.add(panelTextboxes, lblAcademic).spanX().alignX("center").wrap();
 
     mu.add(panelTextboxes, feVerificationCode.label(), mu.ccR());
     mu.add(panelTextboxes, feVerificationCode.comp).spanX().wrap();
