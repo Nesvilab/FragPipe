@@ -280,7 +280,7 @@ public class TabWorkflow extends JPanelWithEnablement {
   // Ok, if we could keep some workflows pinned toward the top,  I would say Default, SpecLib, Open, Common-mass-offset, LFQ-MBR,  then the rest
   private static final List<String> builtInWorkflowsPinned = ((Supplier<List<String>>) () -> {
     final List<String> a = new ArrayList<>();
-    a.add("Default");
+    a.add("Basic-Search");
     a.add("Custom");
     a.add("Open");
     a.add("Open-quickscan");
