@@ -55,6 +55,112 @@ public class Version {
       new VersionComparator());
 
   static {
+    CHANGELOG.put("23.0", Arrays.asList(
+        "FragPipe GUI:",
+        "Create an installer for the Windows version",
+        "Bundle Python and Python packages. In Windows, they will be installed automatically during the installation process",
+        "Add Batch tab with ability to run a series of FragPipe runs ('jobs') in a batch and save/load job files",
+        "Add GUI table editor for MSFragger detailed mass offsets",
+        "Add workflow for TMT-based quantification using Bruker timsTOF (ddaPASEF) platform",
+        "Add workflow for TMT data on Thermo Fisher Scientific Astral platform",
+        "Add workflow for TMT35-plex quantification",
+        "New tool for generating summary reports ('Generate Summary Report' option in the 'Run' tab). It will generate a summary report for the result in the 'output dir'",
+        "Add 'export matched fragments' option to the 'Run' tab",
+        "Automatically load the workflow when it is selected in the dropdown menu on the 'Workflow' tab. There is no 'Load' button anymore.",
+        "Adjust the 'Download' window according to the changes of the tools downloading",
+        "Use '@' to replace '-' for nonspecific and nocleavage enzymes",
+        "Ignore the _uncalibrated and _calibrated files when loading the LC-MS files",
+        "Print tools' versions to the log and workflow files",
+        "Print each task's runtime to the end of the log",
+        "Allow terminal characters in mass offset sites",
+
+        "MSFragger version 4.2 full changelog can be found in https://msfragger.nesvilab.org/CHANGELOG.html. Major changes:",
+        "Write MS1 to the calibrated and uncalibrated mzML files",
+        "Write MS2 after calibration, deisotoping, and neutral loss removal to calibrated.mzML file",
+        "Optimize the order of search and post-processing to significantly reduce the memory usage, especially in Astral DIA data",
+        "Support for low resolution MS1/MS2 DIA and GPF-DIA data (Stellar)",
+
+        "IonQuant version 1.11.9 full changelog can be found in https://ionquant.nesvilab.org/CHANGELOG.html. Major changes:",
+        "Support the timsTOF ddaPASEF isobaric-labeling quant",
+        "Add the chemical formula support to the isotopic label quant with the '--formula' parameter",
+        "Significantly improve the quantification accuracy and precision",
+        "Significantly optimize the memory footprint and speed",
+
+        "diaTracer version 1.2.5 changelog can be found in https://diatracer.nesvilab.org/CHANGELOG.html. Major changes:",
+        "Improved isotope grouping and filtering during diaPASEF data processing, resulting in smaller extracted psedo-MS/MS (diatracer.mzML) files and cleaner data, noticably benefiting open/mass-offset PTM searches",
+
+        "MSBooster:",
+        "Add IM model to the MSBooster panel",
+        "Add a panel to take spectral library file in the MSBooster panel",
+        "More robust HTTP requests for Koina model requests",
+        "Reimplemented ion mobility features and ion mobility best model search",
+        "AlphaPeptDeep recognizes more UniMod PTM entries",
+        "New Koina models: AlphaPeptDeep CCS, UniSpec, MS2PIP timsTOF, MS2PIP TTOF5600, MS2PIP Immuno HCD, Prosit citrullination models",
+        "Updated figures for mass offset RT/IM calibration",
+        "Reduced memory requirements for mzML initialization",
+        "Better support for C-terminal PTMs",
+        "Added new spectral similarity features weighted spectral entropy, hypergeometric probability, and intersection",
+
+        "Philosopher:",
+        "Add group FDR filtering support for peptide- and ion-level",
+        "Add 'Intensity', 'Resolution', and 'SNR' columns to psm.tsv for isobaric labeling data",
+        "Propagate various columns to psm/ion/peptide/protein reports, including 'IMScore', 'Class', 'Is Decoy', 'Is Contaminant' and 'Qvalue'",
+        "Fix the issue with peptide I/L substitution after razor assignment, thanks to David Hollenstein @hollenstein",
+        "Fix bugs in peptide-to-protein mapping when locating peptides within proteins",
+        "Fix a bug with PTM localization",
+        "Fix bugs with PTM group-FDR filtering",
+
+        "PTM-Shepherd:",
+        "Support results with delta mass reported as a variable mod from MSFragger",
+        "Add option to read MSFragger localization instead of re-localizing",
+        "Overhaul internal PSM handling",
+        "Improve internal spectrum handling",
+        "Add glyco-only run mode option",
+
+        "Isobaric quantification:",
+        "Support the timsTOF isobaric-labeling quant",
+        "Support TMT 35-plex",
+        "Add 'min resolution' and 'min SNR' options",
+        "Remove the 'top 3 ions' option",
+        "Automatically generate TMT annotation files if they are not provided",
+        "Reimplemented core functionality for improved efficiency and maintainability",
+        "Redesigned report generation pipeline: eliminates temporary files and improves speed by over 50%",
+        "Extended 'allow_overlabel' to support for user-defined labels",
+        "Added new columns to output reports to provide more comprehensive information such as mapped proteins and genes",
+
+        "Spectral library generation:",
+        "Stop using the old UniMod for EasyPQP. Upgrade pyOpenMS to 3.3.0",
+        "Not include amino acid masses in the modification mass string of the spectral library",
+
+        "DIA Quantification:",
+        "Bring the GPF-DIA data type code back",
+        "Support DIA-NN 1.9 to 2.1.0. Convert the report.parquet to report.tsv.",
+        "Rename the 'diann-output' folder to 'dia-quant-output'",
+        "Generate site reports for the DIA data analysis",
+
+        "Skyline:",
+        "Overhaul the input and logic for Skyline document generation to make it more robust and user-friendly",
+        "Rename the Skyline dir name, and move mod.xml to the Skyline dir",
+        "Add precursor and fragment tolerance options to Skyline tab",
+
+        "Various bug fixes and improvements",
+
+        "Miscellaneous:",
+        "Require Java 11+",
+        "Require MSFragger 4.2+",
+        "Require IonQuant 1.11.9+",
+        "Require diaTracer 1.2.5+",
+        "Require Python 3.9, 3.10, or 3.11",
+        "Require EasyPQP 0.1.52+",
+        "Upgrade Crystal-C to 1.5.8",
+        "Upgrade MSBooster to 1.3.9",
+        "Upgrade Percolator to 3.7.1",
+        "Upgrade Philosopher to 5.1.1",
+        "Upgrade PTM-Shepherd to 3.0.1",
+        "Upgrade TMT-Integrator to 6.1.1",
+        "Upgrade FragPipe-PDV to 1.4.4"
+    ));
+
     CHANGELOG.put("22.0", Arrays.asList(
         "diaTracer tool for generating pseudo-MS/MS spectra from diaPASEF data, enabling spectrum-centric, direct DIA analysis (including nonspecific and PTM searches).",
         "Integration of Skyline in FragPipe (supporting DIA, DDA, and DDA glycoproteomics workflows).",
@@ -568,16 +674,16 @@ public class Version {
     if (printGihubPreamble) {
       final String zipFn = String.format("%s-%s.zip", PROGRAM_TITLE, version);
       final String zipUrl = String.format("%s/download/%s/%s", url, version, zipFn);
-      final String zipFnWithJre = String.format("%s-jre-%s.zip", PROGRAM_TITLE, version);
-      final String zipUrlWithJre = String.format("%s/download/%s/%s", url, version, zipFnWithJre);
+      final String installerFn = String.format("%s-%s-installer.exe", PROGRAM_TITLE, version);
+      final String installerUrl = String.format("%s/download/%s/%s", url, version, installerFn);
       String githubReleaseMessage =
           "## Downloading\n"
-          + "- The zip (<a href='" + zipUrl + "' target='_blank'>" + zipFn + "</a>) doesn't contain Java, you will need Java 9+ to run.\n"
-          + "- The other zip with `-jre-` in its name (<a href='" + zipUrlWithJre + "' target='_blank'>" + zipFnWithJre + "</a>) contains a Java runtime **for Windows only**.\n"
+          + "- The (<a href='" + zipUrl + "' target='_blank'>" + zipFn + "</a>) is for Linux. You will need Java 11+ to run.\n"
+          + "- The (<a href='" + installerUrl + "' target='_blank'>" + installerFn + "</a>) is for Windows. You will need to install it. Java runtime is bundled and Python will be installed automatically.\n"
           + "- The docker image is available at <a href='https://hub.docker.com/r/fcyucn/fragpipe' target='_blank'>https://hub.docker.com/r/fcyucn/fragpipe</a>\n"
           + "## Running\n"
-          + "- Unzip the file\n"
-          + "- In `/bin` subdirectory you will find a `shell script for Linux`, `bat file for Windows`, and an `exe file for Windows`\n";
+          + "- In Windows, install FragPipe using the installer. Then double-click the `FragPipe-" + version + ".exe` file.\n"
+          + "- In Linux, unzip the file. In `bin` subdirectory you will find a `shell script for Linux`\n";
 
       System.out.println(githubReleaseMessage);
       System.out.println();
