@@ -208,7 +208,7 @@ percolator.keep-tsv-files=false
 percolator.min-prob=0.5
 percolator.run-percolator=true
 phi-report.dont-use-prot-proph-file=false
-phi-report.filter=--sequential --mods M\:15.9949,n\:42.0106
+phi-report.filter=--sequential --mods M\:15.9949,n\:42.0106,N\:0.984016,Q\:0.984016
 phi-report.pep-level-summary=false
 phi-report.print-decoys=false
 phi-report.prot-level-summary=false
@@ -353,7 +353,7 @@ tmtintegrator.tolerance=20
 tmtintegrator.unique_gene=0
 tmtintegrator.unique_pep=false
 tmtintegrator.use_glycan_composition=false
-workflow.description=<p style\="margin-top\: 0">For searching citrullination data. Hybrid search with up to 2 citrullination variable modifications allowed on N/Q, 2 deamidation variable modifications allowed on R, and 1 mass offset restricted to R. A diagnostic ion at 130.0975 and remainder fragment mass of -42.026 (neutral loss of isocyanic acid) are specified. The top 3 hits in DDA are reported and rescored by Prosit citrullination spectra and retention time models. Group FDR considers PSMs with 0.9840 mass shift(s) separately from other variable modifications and unmodified PSMs.</p>
+workflow.description=<p style\="margin-top\: 0">For searching citrullination data. Hybrid search with up to 2 citrullination variable modifications allowed on N/Q, 2 deamidation variable modifications allowed on R, and 1 mass offset restricted to R. A diagnostic ion at 130.0975 and remainder fragment mass of -42.026 (neutral loss of isocyanic acid) are specified. The top 3 hits in DDA are reported and rescored by Prosit citrullination spectra and retention time models. Group FDR considers PSMs with 0.984016 mass shift(s) separately from other variable modifications and unmodified PSMs.</p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
 workflow.misc.save-sdrf=true
