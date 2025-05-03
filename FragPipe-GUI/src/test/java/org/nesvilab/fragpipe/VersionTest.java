@@ -47,7 +47,7 @@ public class VersionTest {
     Path build = PathUtils.existing(dir.resolve("build.gradle").toString());
     Assert.assertNotNull("Could not find [build.gradle]", build);
     List<String> lines = Files.readAllLines(build);
-    Pattern re = Pattern.compile("^\\s*version\\s*=\\s*(.+)");
+    Pattern re = Pattern.compile("^\\s*version\\s*=\\s*'([0-9.]+(-build.+)?)'");
     List<String> l = lines.stream().map(re::matcher).filter(Matcher::find)
         .map(m -> m.group(1)).collect(Collectors.toList());
     Assert.assertNotEquals("No version found in build.gradle", 0, l.size());
