@@ -272,8 +272,9 @@ public class TabWorkflow extends JPanelWithEnablement {
     builtInWorkflows.add("chemprot-ABPP-isoDTB");
     builtInWorkflows.add("chemprot-ABPP-isoTOP");
     builtInWorkflows.add("chemprot-PAL");
-    builtInWorkflows.add("nonspecific-HLA-customDB-groupFDR");
-    builtInWorkflows.add("Citrullination");
+    builtInWorkflows.add("Nonspecific-HLA-customDB-groupFDR");
+    builtInWorkflows.add("citrullination");
+    builtInWorkflows.add("Basic-Search");
   }
 
   // Ok, if we could keep some workflows pinned toward the top,  I would say Default, SpecLib, Open, Common-mass-offset, LFQ-MBR,  then the rest

@@ -1,4 +1,4 @@
-# Workflow: nonspecific-HLA-customDB-groupFDR
+# Workflow: Nonspecific-HLA-customDB-groupFDR
 
 crystalc.run-crystalc=false
 database.decoy-tag=rev_
