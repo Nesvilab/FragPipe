@@ -672,7 +672,7 @@ public class Version {
 
     final String version = version();
     if (printGihubPreamble) {
-      final String zipFn = String.format("%s-%s.zip", PROGRAM_TITLE, version);
+      final String zipFn = String.format("%s-%s-linux.zip", PROGRAM_TITLE, version);
       final String zipUrl = String.format("%s/download/%s/%s", url, version, zipFn);
       final String installerFn = String.format("%s-%s-installer.exe", PROGRAM_TITLE, version);
       final String installerUrl = String.format("%s/download/%s/%s", url, version, installerFn);
