@@ -774,35 +774,37 @@ public class FragpipeRun {
     UmpirePanel umpirePanel = Bus.getStickyEvent(UmpirePanel.class);
     if (umpirePanel != null && umpirePanel.isRun()) {
       toConsole(Fragpipe.COLOR_CMDLINE, "(pseudo-MS/MS generation with DIA-Umpire) ", false, console);
-      toConsole(Fragpipe.COLOR_BLACK, "DIA-Umpire: comprehensive computational framework for data-independent acquisition proteomics. Nat Methods 12:258 (2015)", true, console);
+      toConsole(Fragpipe.COLOR_BLACK, "DIA-Umpire: comprehensive computational framework for data-independent acquisition proteomics. Nat Methods. 12:258 (2015)", true, console);
     }
 
     DiaTracerPanel diaTracerPanel = Bus.getStickyEvent(DiaTracerPanel.class);
     if (diaTracerPanel != null && diaTracerPanel.isRun()) {
       toConsole(Fragpipe.COLOR_CMDLINE, "(pseudo-MS/MS generation with diaTracer) ", false, console);
-      toConsole(Fragpipe.COLOR_BLACK, "diaTracer enables spectrum-centric analysis of diaPASEF proteomics data. bioRxiv (2024)", true, console);
+      toConsole(Fragpipe.COLOR_BLACK, "diaTracer enables spectrum-centric analysis of diaPASEF proteomics data. Nat Commun. 16:95 (2025)", true, console);
     }
 
     TabMsfragger tabMsfragger = Bus.getStickyEvent(TabMsfragger.class);
     if (tabMsfragger != null && tabMsfragger.isRun()) {
       toConsole(Fragpipe.COLOR_CMDLINE, "(Any searches) ", false, console);
-      toConsole(Fragpipe.COLOR_BLACK, "MSFragger: ultrafast and comprehensive peptide identification in mass spectrometry–based proteomics. Nat Methods 14:513 (2017)", true, console);
+      toConsole(Fragpipe.COLOR_BLACK, "MSFragger: ultrafast and comprehensive peptide identification in mass spectrometry–based proteomics. Nat Methods. 14:513 (2017)", true, console);
       toConsole(Fragpipe.COLOR_CMDLINE, "(Any searches) ", false, console);
-      toConsole(Fragpipe.COLOR_BLACK, "Fast deisotoping algorithm and its implementation in the MSFragger search engine. J. Proteome Res. 20:498 (2021)", true, console);
+      toConsole(Fragpipe.COLOR_BLACK, "Fast deisotoping algorithm and its implementation in the MSFragger search engine. J Proteome Res. 20:498 (2021)", true, console);
       toConsole(Fragpipe.COLOR_CMDLINE, "(timsTOF ddaPASEF) ", false, console);
-      toConsole(Fragpipe.COLOR_BLACK, "Fast quantitative analysis of timsTOF PASEF data with MSFragger and IonQuant. Mol Cell Proteomics 19:1575 (2020)", true, console);
+      toConsole(Fragpipe.COLOR_BLACK, "Fast quantitative analysis of timsTOF PASEF data with MSFragger and IonQuant. Mol Cell Proteomics. 19:1575 (2020)", true, console);
       toConsole(Fragpipe.COLOR_CMDLINE, "(Open search) ", false, console);
       toConsole(Fragpipe.COLOR_BLACK, "Identification of modified peptides using localization-aware open search. Nat Commun. 11:4065 (2020)", true, console);
       toConsole(Fragpipe.COLOR_CMDLINE, "(Glyco search) ", false, console);
-      toConsole(Fragpipe.COLOR_BLACK, "Fast and comprehensive N- and O-glycoproteomics analysis with MSFragger-Glyco. Nat Methods 17:1125 (2020)", true, console);
+      toConsole(Fragpipe.COLOR_BLACK, "Fast and comprehensive N- and O-glycoproteomics analysis with MSFragger-Glyco. Nat Methods. 17:1125 (2020)", true, console);
       toConsole(Fragpipe.COLOR_CMDLINE, "(Labile search) ", false, console);
-      toConsole(Fragpipe.COLOR_BLACK, "MSFragger-Labile: A Flexible Method to Improve Labile PTM Analysis in Proteomics. Mol Cell Proteomics 22:100538 (2023)", true, console);
+      toConsole(Fragpipe.COLOR_BLACK, "MSFragger-Labile: A Flexible Method to Improve Labile PTM Analysis in Proteomics. Mol Cell Proteomics. 22:100538 (2023)", true, console);
+      toConsole(Fragpipe.COLOR_CMDLINE, "(DDA+ search) ", false, console);
+      toConsole(Fragpipe.COLOR_BLACK, "MSFragger-DDA+ enhances peptide identification sensitivity with full isolation window search. Nat Commun. 16:3329 (2025)", true, console);
     }
 
     CrystalcPanel crystalcPanel = Bus.getStickyEvent(CrystalcPanel.class);
     if (crystalcPanel != null && crystalcPanel.isRun()) {
       toConsole(Fragpipe.COLOR_CMDLINE, "(Open search) ", false, console);
-      toConsole(Fragpipe.COLOR_BLACK, "Crystal-C: A Computational tool for refinement of open search results. J. Proteome Res. 19.6:2511 (2020)", true, console);
+      toConsole(Fragpipe.COLOR_BLACK, "Crystal-C: A Computational tool for refinement of open search results. J Proteome Res. 19.6:2511 (2020)", true, console);
     }
 
     MSBoosterPanel msBoosterPanel = Bus.getStickyEvent(MSBoosterPanel.class);
@@ -814,37 +816,37 @@ public class FragpipeRun {
     PepProphPanel pepProphPanel = Bus.getStickyEvent(PepProphPanel.class);
     if (pepProphPanel != null && pepProphPanel.isRun()) {
       toConsole(Fragpipe.COLOR_CMDLINE, "(PSM validation with PeptideProphet)", false, console);
-      toConsole(Fragpipe.COLOR_BLACK, "Empirical statistical model to estimate the accuracy of peptide identifications made by MS/MS and database search. Anal. Chem. 74:5383 (2002)", true, console);
+      toConsole(Fragpipe.COLOR_BLACK, "Empirical statistical model to estimate the accuracy of peptide identifications made by MS/MS and database search. Anal Chem. 74:5383 (2002)", true, console);
     }
 
     PercolatorPanel percolatorPanel = Bus.getStickyEvent(PercolatorPanel.class);
     if (percolatorPanel != null && percolatorPanel.isRun()) {
       toConsole(Fragpipe.COLOR_CMDLINE, "(PSM validation with Percolator) ", false, console);
-      toConsole(Fragpipe.COLOR_BLACK, "Semi-supervised learning for peptide identification from shotgun proteomics datasets. Nat Methods 4:923 (2007)", true, console);
+      toConsole(Fragpipe.COLOR_BLACK, "Semi-supervised learning for peptide identification from shotgun proteomics datasets. Nat Methods. 4:923 (2007)", true, console);
     }
 
     PtmProphetPanel ptmProphetPanel = Bus.getStickyEvent(PtmProphetPanel.class);
     if (ptmProphetPanel != null && ptmProphetPanel.isRun()) {
       toConsole(Fragpipe.COLOR_CMDLINE, "(PTM localization with PTMProphet)", false, console);
-      toConsole(Fragpipe.COLOR_BLACK, "PTMProphet: fast and accurate mass modification localization for the trans-proteomic pipeline\n. J. Proteome Res. 18:4262 (2019)", true, console);
+      toConsole(Fragpipe.COLOR_BLACK, "PTMProphet: fast and accurate mass modification localization for the trans-proteomic pipeline. J Proteome Res. 18:4262 (2019)", true, console);
     }
 
     ProtProphPanel protProphPanel = Bus.getStickyEvent(ProtProphPanel.class);
     if (protProphPanel != null && protProphPanel.isRun()) {
       toConsole(Fragpipe.COLOR_CMDLINE, "(Protein inference with ProteinProphet)", false, console);
-      toConsole(Fragpipe.COLOR_BLACK, "A statistical model for identifying proteins by tandem mass spectrometry. Anal. Chem. 75:4646 (2003)", true, console);
+      toConsole(Fragpipe.COLOR_BLACK, "A statistical model for identifying proteins by tandem mass spectrometry. Anal Chem. 75:4646 (2003)", true, console);
     }
 
     ReportPanel reportPanel = Bus.getStickyEvent(ReportPanel.class);
     if (reportPanel != null && reportPanel.isRun()) {
       toConsole(Fragpipe.COLOR_CMDLINE, "(FDR filtering and reporting) ", false, console);
-      toConsole(Fragpipe.COLOR_BLACK, "Philosopher: a versatile toolkit for shotgun proteomics data analysis. Nat Methods 17:869 (2020)", true, console);
+      toConsole(Fragpipe.COLOR_BLACK, "Philosopher: a versatile toolkit for shotgun proteomics data analysis. Nat Methods. 17:869 (2020)", true, console);
     }
 
     PtmshepherdPanel ptmshepherdPanel = Bus.getStickyEvent(PtmshepherdPanel.class);
     if (ptmshepherdPanel != null && ptmshepherdPanel.isRun()) {
       toConsole(Fragpipe.COLOR_CMDLINE, "(Open search) ", false, console);
-      toConsole(Fragpipe.COLOR_BLACK, "PTM-Shepherd: analysis and summarization of post-translational and chemical modifications from open search results. Mol Cell Proteomics 20:100018 (2020)", true, console);
+      toConsole(Fragpipe.COLOR_BLACK, "PTM-Shepherd: analysis and summarization of post-translational and chemical modifications from open search results. Mol Cell Proteomics. 20:100018 (2020)", true, console);
       toConsole(Fragpipe.COLOR_CMDLINE, "(Diagnostic ion mining) ", false, console);
       toConsole(Fragpipe.COLOR_BLACK, "Detecting diagnostic features in MS/MS spectra of post-translationally modified peptides. Nat Commun. 14:4132 (2023)", true, console);
     }
@@ -852,19 +854,20 @@ public class FragpipeRun {
     PTMSGlycanAssignPanel ptmsGlycanAssignPanel = Bus.getStickyEvent(PTMSGlycanAssignPanel.class);
     if (ptmsGlycanAssignPanel != null && ptmsGlycanAssignPanel.isRun()) {
       toConsole(Fragpipe.COLOR_CMDLINE, "(Glycan identification and FDR control) ", false, console);
-      toConsole(Fragpipe.COLOR_BLACK, "Multiattribute glycan identification and FDR control for Glycoproteomics. Mol Cell Proteomics 21:100105 (2022)", true, console);
+      toConsole(Fragpipe.COLOR_BLACK, "Multiattribute glycan identification and FDR control for Glycoproteomics. Mol Cell Proteomics.21:100105 (2022)", true, console);
     }
 
     OPairPanel oPairPanel = Bus.getStickyEvent(OPairPanel.class);
     if (oPairPanel != null && oPairPanel.isRun()) {
       toConsole(Fragpipe.COLOR_CMDLINE, "(O-Glycan localization) ", false, console);
-      toConsole(Fragpipe.COLOR_BLACK, "O-Pair Search with MetaMorpheus for O-glycopeptide characterization. Nat Methods 17:1133 (2020)", true, console);
+      toConsole(Fragpipe.COLOR_BLACK, "Quantitative proteome-wide O-glycoproteomics analysis with FragPipe. Anal Bioanal Chem. 417:921 (2025)", true, console);
+      toConsole(Fragpipe.COLOR_BLACK, "O-Pair Search with MetaMorpheus for O-glycopeptide characterization. Nat Methods. 17:1133 (2020)", true, console);
     }
 
     QuantPanelLabelfree quantPanelLabelfree = Bus.getStickyEvent(QuantPanelLabelfree.class);
     if (quantPanelLabelfree != null && quantPanelLabelfree.isRunIonQuant()) {
       toConsole(Fragpipe.COLOR_CMDLINE, "(Label-free/isotopic-labeling quantification) ", false, console);
-      toConsole(Fragpipe.COLOR_BLACK, "IonQuant Enables Accurate and Sensitive Label-Free Quantification With FDR-Controlled Match-Between-Runs. Mol Cell Proteomics 20:100077 (2021)", true, console);
+      toConsole(Fragpipe.COLOR_BLACK, "IonQuant Enables Accurate and Sensitive Label-Free Quantification With FDR-Controlled Match-Between-Runs. Mol Cell Proteomics. 20:100077 (2021)", true, console);
     }
 
     TmtiPanel tmtiPanel = Bus.getStickyEvent(TmtiPanel.class);
