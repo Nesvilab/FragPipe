@@ -13,6 +13,7 @@ FragPipe is a comprehensive computational platform designed for the analysis of 
 #### FragPipe tutorials
 * [Using FragPipe](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html) (general tutorial covering all FragPipe modules)
 * [Running FragPipe in command line interface](https://fragpipe.nesvilab.org/docs/tutorial_headless.html)
+* [Running multiple FragPipe jobs in Batch](https://fragpipe.nesvilab.org/docs/tutorial_batch.html)
 * [Pulling and running FragPipe using Docker](https://fragpipe.nesvilab.org/docs/tutorial_docker.html)
 * PTM discovery
   * [Open search](https://fragpipe.nesvilab.org/docs/tutorial_open.html)
@@ -70,36 +71,34 @@ _Bruker .d indicates ddaPASEF files from timsTOF, other Bruker .d files should b
 _DIA data acquired with overlapping/staggered windows must be [converted to mzML with demultiplexing](https://fragpipe.nesvilab.org/docs/tutorial_convert.html#convert-thermo-dia-raw-files-with-overlappingstaggered-windows)._
 _Quantification from Thermo .raw files with DIA-NN requires installation of Thermo MS File Reader, see the [DIA-NN documentation](https://github.com/vdemichev/DiaNN#raw-data-formats) for details._
 
-Please note TMT/iTRAQ quantification from Thermo .raw files will take longer than from .mzML files.
-
-
 
 #### Additional Documentation
-Complete MSFragger documentation can be found on the [MSFragger wiki](https://github.com/Nesvilab/MSFragger/wiki).
-For documentation on the Philosopher toolkit see the [Philosopher wiki](https://github.com/Nesvilab/philosopher/wiki).
+- [DIA-Umpire](https://diaumpire.nesvilab.org/)
+- [diaTracer](https://diatracer.nesvilab.org/)
+- [MSFragger wiki](https://github.com/Nesvilab/MSFragger/wiki)
+- [Crystal-C](https://www.nesvilab.org/Crystal-C/)
+- [MSBooster](https://github.com/Nesvilab/MSBooster)
+- [Philosopher wiki](https://github.com/Nesvilab/philosopher/wiki)
+- [PTM-Shepherd](https://ptmshepherd.nesvilab.org/)
+- [IonQuant](http://ionquant.nesvilab.org/)
+- [TMT-Integrator](http://tmt-integrator.nesvilab.org/)
 
 #### Questions and Technical Support
 View previous questions/bug reports in the
-[FragPipe issue tracker](https://github.com/Nesvilab/FragPipe/issues). Please post any new questions/bug reports regarding FragPipe itself here as well.
-For questions specific to individual components of FragPipe you can also
-use [MSFragger issue tracker](https://github.com/Nesvilab/MSFragger/issues),
-[Philosopher issue tracker](https://github.com/Nesvilab/philosopher/issues),
-[IonQuant issue tracker](https://github.com/Nesvilab/IonQuant/issues).
-See the MSFragger [wiki](https://github.com/Nesvilab/MSFragger/wiki) and [FAQ](https://github.com/Nesvilab/MSFragger/wiki/Frequently-Asked-Questions). 
-
+[FragPipe issue tracker](https://github.com/Nesvilab/FragPipe/issues).
 
 For other tools developed by Nesvizhskii lab, visit our website 
 [nesvilab.org](http://www.nesvilab.org)
 
 #### How to Run
 - **Windows**:
-  - Double click the `FragPipe.exe` or `FragPipe.bat` from the `bin` folder
-  - Or execute the command: `java -jar FragPipe-x.x.jar`
+  - Install FragPipe by double-clicking the `FragPipe-x.x-Installer.exe`
+  - Double click the `FragPipe-x.x.exe` at the Desktop
 - **Linux**:
   - Run the `fragpipe` shell script (can double-click to run)  
-  - Or execute the command: `java -jar FragPipe-x.x.jar`
 - **Mac OS** (command line interface only):
   - Read [Pulling and running FragPipe using Docker](https://fragpipe.nesvilab.org/docs/tutorial_docker.html)
+
  
 #### Integration
 FragPipe is open source and the output is currently supported by the following software projects:
@@ -118,15 +117,20 @@ FragPipe is open source and the output is currently supported by the following s
 #### Key references
 ##### Database search
 - Kong, A. T., Leprevost, F. V., Avtonomov, D. M., Mellacheruvu, D., & Nesvizhskii, A. I. (2017). MSFragger: ultrafast and comprehensive peptide identification in mass spectrometry–based proteomics. Nature Methods, 14(5), 513-520.
-- Yu, F., Teo, G. C., Kong, A. T., Haynes, S. E., Avtonomov, D. M., Geiszler, D. J., & Nesvizhskii, A. I. (2020). Identification of modified peptides using localization-aware open search. Nature Communications, 11(1), 1-9.
+- Yu, F., Teo, G. C., Kong, A. T., Haynes, S. E., Avtonomov, D. M., Geiszler, D. J., & Nesvizhskii, A. I. (2020). Identification of modified peptides using localization-aware open search. Nature Communications, 11, 4065.
 - Yu, F., Haynes, S. E., Teo, G. C., Avtonomov, D. M., Polasky, D. A., & Nesvizhskii, A. I. (2020). Fast quantitative analysis of timsTOF PASEF data with MSFragger and IonQuant. Molecular & Cellular Proteomics, 10(9), 1575-1585.
 - Teo, G. C., Polasky, D. A., Yu, F., Nesvizhskii, A. I. (2020). A fast deisotoping algorithm and its implementation in the MSFragger search engine. Journal of Proteome Research, 20(1), 498-505.
+
+
+##### Chimeric spectra search
+- Yu, F., Deng, Y. & Nesvizhskii, A.I. (2025). MSFragger-DDA+ enhances peptide identification sensitivity with full isolation window search. Nature Communications, 16, 3329.
 
 
 ##### Glyco/Labile search
 - Polasky, D. A., Yu, F., Teo, G. C., & Nesvizhskii, A. I. (2020). Fast and Comprehensive N-and O-glycoproteomics analysis with MSFragger-Glyco. Nature Methods, 17, 1125-1132.
 - Polasky, D. A., Geiszler, D. J., Yu, F., & Nesvizhskii, A. I. (2022). Multiattribute Glycan Identification and FDR Control for Glycoproteomics. Molecular & Cellular Proteomics, 21(3), 100205.
 - Polasky, D. A., Geiszler, D. J., Yu, F., Kai, Li., Teo, G. C., & Nesvizhskii, A. I. (2023). MSFragger-Labile: A Flexible Method to Improve Labile PTM Analysis in Proteomics. Molecular & Cellular Proteomics, 22(5), 100538.
+- Polasky, D. A., Lu, L., Yu, F., Li, K., Shortreed, M. R., Smith, L. M., & Nesvizhskii, A. I. (2025). Quantitative proteome-wide O-glycoproteomics analysis with FragPipe. Analytical and Bioanalytical Chemistry, 417(5), 921-930.
 
 
 ##### PTM
@@ -137,7 +141,11 @@ FragPipe is open source and the output is currently supported by the following s
 
 ##### DIA
 - Tsou, C. C., Avtonomov, D., Larsen, B., Tucholska, M., Choi, H., Gingras, A. C., & Nesvizhskii, A. I. (2015). DIA-Umpire: comprehensive computational framework for data-independent acquisition proteomics. Nature methods, 12(3), 258-264.
-- Yu, F, Teo, G. C., Kong, A. T., Fröhlich, K., Li, G. X. , Demichev, V, Nesvizhskii, A..I. (2023). Analysis of DIA proteomics data using MSFragger-DIA and FragPipe computational platform, Nature Communications 14:4154.
+- Yu, F, Teo, G. C., Kong, A. T., Fröhlich, K., Li, G. X. , Demichev, V, Nesvizhskii, A..I. (2023). Analysis of DIA proteomics data using MSFragger-DIA and FragPipe computational platform, Nature Communications 14, 4154.
+
+
+##### DIA-PASEF
+- Li, K., Teo, G. C., Yang, K. L., Yu, F., & Nesvizhskii, A. I. (2025). diaTracer enables spectrum-centric analysis of diaPASEF proteomics data. Nature Communications, 16, 95.
 
 
 ##### DDA quantification
@@ -153,26 +161,13 @@ FragPipe is open source and the output is currently supported by the following s
 
 #### Building from scratch
 
-1. Update build version:  
-The version of the build is stored in 3 separate places:  
-    - File: `MSFragger-GUI/src/umich/msfragger/gui/Bundle.properties`  
-      Property: `msfragger.gui.version`
-    - File: `MSFragger-GUI/build.gradle`  
-      Property: `version`
-    - File: `MSFragger-GUI/src/umich/msfragger/gui/Bundle.properties `  
-      Property: `msfragger.gui.version`
-2. Build:  
 You don't need to have Gradle installed, the Gradle wrapper included in this repository will be used. From the root directory of the repository issue the following commands:
 
-    ```bash
-    cd ./MSFragger-GUI
-    ./gradlew makeReleaseZipNoJre
-    ```
-    or use this version to build with Java Runtime (for Windows only):
+```bash
+cd FragPipe-GUI
+./gradlew makeReleaseInstaller # for Windows
+./gradlew makeReleaseZipLinux # for Linux
+```
     
-    ```bash
-    cd ./MSFragger-GUI
-    ./gradlew makeReleaseZipWithJre
-    ```
-    
-3. The .zip output will be in `MSFragger-GUI/build/github-release`.
+The `FragPipe-x.x-Installer.exe` will be in the `FragPipe-GUI/build/installer` directory.
+The `FragPipe-x.x-linux.zip` will be in the `FragPipe-GUI/build/github-release` directory.
