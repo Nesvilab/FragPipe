@@ -17,25 +17,13 @@
 
 package org.nesvilab.fragpipe.tools.diatracer;
 
-import static org.nesvilab.fragpipe.cmd.CmdBase.constructClasspathString;
 import static org.nesvilab.fragpipe.tools.fragger.Msfragger.patternCustomer;
 import static org.nesvilab.fragpipe.tools.fragger.Msfragger.patternExpiryDate;
 import static org.nesvilab.fragpipe.tools.fragger.Msfragger.patternMode;
 
-import org.nesvilab.fragpipe.Fragpipe;
-import org.nesvilab.fragpipe.FragpipeLocations;
-import org.nesvilab.fragpipe.api.Bus;
-import org.nesvilab.fragpipe.api.VersionFetcher;
-import org.nesvilab.fragpipe.cmd.CmdDiaTracer;
-import org.nesvilab.fragpipe.exceptions.ValidationException;
-import org.nesvilab.fragpipe.messages.MessageDiaTracerUpdateAvailable;
-import org.nesvilab.fragpipe.messages.NoteConfigDiaTracer;
-import org.nesvilab.fragpipe.tools.fragger.Msfragger.Version;
-import org.nesvilab.utils.StringUtils;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -44,7 +32,15 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.JavaVersion;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
-import org.jooq.lambda.Seq;
+import org.nesvilab.fragpipe.Fragpipe;
+import org.nesvilab.fragpipe.FragpipeLocations;
+import org.nesvilab.fragpipe.api.Bus;
+import org.nesvilab.fragpipe.api.VersionFetcher;
+import org.nesvilab.fragpipe.exceptions.ValidationException;
+import org.nesvilab.fragpipe.messages.MessageDiaTracerUpdateAvailable;
+import org.nesvilab.fragpipe.messages.NoteConfigDiaTracer;
+import org.nesvilab.fragpipe.tools.fragger.Msfragger.Version;
+import org.nesvilab.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,13 +96,14 @@ public class DiaTracer {
 
     String verStr = null;
     boolean isVersionParsed = false;
-    String license = "Academic";
+    String license = "N/A";
     String customer = "N/A";
     String mode = "N/A";
     String expiryDate = "N/A";
     boolean isValid = true;
     
     if (!jarPath.contains("-Commercial-")) {
+      license = "Academic";
       Matcher m = re.matcher(jarPath);
       if (m.find()) {
         isVersionParsed = true;
@@ -154,6 +151,8 @@ public class DiaTracer {
                 mode = m3.group(1);
               }
             }
+          }  else if (line.startsWith("No license file found.")) {
+            isValid = false;
           }
 
           Matcher m = re2.matcher(line);

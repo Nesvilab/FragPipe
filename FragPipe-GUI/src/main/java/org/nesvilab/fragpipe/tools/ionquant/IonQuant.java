@@ -107,7 +107,7 @@ public class IonQuant {
 
     String verStr = null;
     boolean isVersionParsed = false;
-    String license = "Academic";
+    String license = "N/A";
     String customer = "N/A";
     String mode = "N/A";
     String expiryDate = "N/A";
@@ -115,6 +115,7 @@ public class IonQuant {
 
     
     if (!jarPath.contains("-Commercial-")) {
+      license = "Academic";
       Matcher m = re.matcher(jarPath);
       if (m.find()) {
         isVersionParsed = true;
@@ -169,6 +170,8 @@ public class IonQuant {
                 mode = m3.group(1);
               }
             }
+          } else if (line.startsWith("No license file found.")) {
+            isValid = false;
           }
 
           Matcher m = re2.matcher(line);
