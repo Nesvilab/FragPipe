@@ -17,6 +17,8 @@
 
 package org.nesvilab.fragpipe;
 
+import static org.nesvilab.fragpipe.Version.PROGRAM_TITLE;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -153,7 +155,7 @@ public class FragpipeLocations {
     try {
       return PathUtils.createDirs(path);
     } catch (IOException e) {
-      log.warn("Couldn't create sub directory {} inside FragPipe folder.", dir);
+      log.warn("Couldn't create sub directory {} inside " + PROGRAM_TITLE + " folder.", dir);
       return null;
     }
   }

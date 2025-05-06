@@ -19,20 +19,65 @@ package org.nesvilab.fragpipe.tabs;
 
 import static org.nesvilab.fragpipe.FragpipeRun.createVersionsString;
 import static org.nesvilab.fragpipe.FragpipeRun.printProcessDescription;
+import static org.nesvilab.fragpipe.Version.PROGRAM_TITLE;
 import static org.nesvilab.fragpipe.messages.MessagePrintToConsole.toConsole;
-import static org.nesvilab.fragpipe.tabs.TabMsfragger.setJTableColSize;
-import static org.nesvilab.fragpipe.tabs.TabRun.saveLogToFile;
 import static org.nesvilab.utils.PropertiesUtils.saveConvert;
 
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Desktop;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
+import javax.swing.UIManager;
+import javax.swing.border.TitledBorder;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.nesvilab.fragpipe.Fragpipe;
 import org.nesvilab.fragpipe.FragpipeLocations;
 import org.nesvilab.fragpipe.FragpipeRun;
-import org.nesvilab.fragpipe.api.*;
-import org.nesvilab.fragpipe.cmd.*;
-import org.nesvilab.fragpipe.messages.*;
+import org.nesvilab.fragpipe.api.BatchTable;
+import org.nesvilab.fragpipe.api.BatchTableModel;
+import org.nesvilab.fragpipe.api.Bus;
+import org.nesvilab.fragpipe.cmd.CmdBatch;
+import org.nesvilab.fragpipe.cmd.PbiBuilder;
+import org.nesvilab.fragpipe.cmd.ProcessBuilderInfo;
+import org.nesvilab.fragpipe.cmd.ProcessBuildersDescriptor;
+import org.nesvilab.fragpipe.messages.MessageBatchCrashed;
+import org.nesvilab.fragpipe.messages.MessageBatchRunButtonEnabled;
+import org.nesvilab.fragpipe.messages.MessageKillAll;
+import org.nesvilab.fragpipe.messages.MessageRefreshBatchProgress;
+import org.nesvilab.fragpipe.messages.MessageRunBatch;
+import org.nesvilab.fragpipe.messages.MessageRunButtonEnabled;
+import org.nesvilab.fragpipe.messages.MessageSaveLog;
+import org.nesvilab.fragpipe.messages.MessageStartProcesses;
+import org.nesvilab.fragpipe.messages.MessageUpdateBatchProgress;
 import org.nesvilab.fragpipe.process.ProcessDescription;
 import org.nesvilab.fragpipe.process.ProcessDescription.Builder;
 import org.nesvilab.fragpipe.process.RunnableDescription;
@@ -40,24 +85,13 @@ import org.nesvilab.fragpipe.util.BatchRun;
 import org.nesvilab.utils.OsUtils;
 import org.nesvilab.utils.PathUtils;
 import org.nesvilab.utils.SwingUtils;
-import org.nesvilab.utils.swing.*;
-
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.*;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import javax.swing.*;
-import javax.swing.border.TitledBorder;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
-
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
+import org.nesvilab.utils.swing.FileChooserUtils;
+import org.nesvilab.utils.swing.FileNameEndingFilter;
+import org.nesvilab.utils.swing.JPanelWithEnablement;
+import org.nesvilab.utils.swing.MigUtils;
+import org.nesvilab.utils.swing.TextConsole;
+import org.nesvilab.utils.swing.UiCheck;
+import org.nesvilab.utils.swing.UiUtils;
 import org.nesvilab.utils.swing.renderers.TableCellDoubleRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -294,7 +328,7 @@ public class TabBatch extends JPanelWithEnablement {
         batchRuns = new ArrayList<>();
 
         JPanel pBatch = new JPanel(new MigLayout(new LC()));
-        pBatch.setBorder(new TitledBorder("Batch FragPipe Runs"));
+        pBatch.setBorder(new TitledBorder("Batch " + PROGRAM_TITLE + " Runs"));
         batchTable = createBatchTable();
 
         JScrollPane tableScrollBatch = new JScrollPane(batchTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -372,8 +406,8 @@ public class TabBatch extends JPanelWithEnablement {
 
         Fragpipe.rename(t, "table.batch", TabBatch.TAB_PREFIX);
         t.setToolTipText("<html>jobs table. <br/>" +
-                "Enter paths to workflow and manifest files and output directories for FragPipe runs.<br/>" +
-                "Each row represents a complete FragPipe run.<br/>");
+                "Enter paths to workflow and manifest files and output directories for " + PROGRAM_TITLE + " runs.<br/>" +
+                "Each row represents a complete " + PROGRAM_TITLE + " run.<br/>");
         t.setDefaultRenderer(Double.class, new TableCellDoubleRenderer());
         t.setFillsViewportHeight(true);
 

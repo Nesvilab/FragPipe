@@ -18,6 +18,7 @@
 package org.nesvilab.fragpipe.tabs;
 
 import static org.nesvilab.fragpipe.Fragpipe.getStickyStrict;
+import static org.nesvilab.fragpipe.Version.PROGRAM_TITLE;
 import static org.nesvilab.fragpipe.cmd.CmdBase.constructClasspathString;
 
 import org.nesvilab.fragpipe.Fragpipe;
@@ -426,7 +427,7 @@ public class TabRun extends JPanelWithEnablement {
 
     uiCheckSaveSDRF = new UiCheck("Save SDRF template", null,true);
     uiCheckSaveSDRF.setName("workflow.misc.save-sdrf");
-    uiCheckSaveSDRF.setToolTipText("Save a template SDRF file with technical columns (search parameters) for this FragPipe run. \n" +
+    uiCheckSaveSDRF.setToolTipText("Save a template SDRF file with technical columns (search parameters) for this " + PROGRAM_TITLE + " run. \n" +
         "NOTE: this is not a complete SDRF file, information about the samples needs to be added to complete it.");
 
     List<String> sdrfTypes =  Arrays.stream(SDRFtable.SDRFtypes.values()).map(Enum::name).collect(Collectors.toList());

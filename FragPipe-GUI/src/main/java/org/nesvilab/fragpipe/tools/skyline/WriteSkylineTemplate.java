@@ -18,6 +18,7 @@
 package org.nesvilab.fragpipe.tools.skyline;
 
 
+import static org.nesvilab.fragpipe.Version.PROGRAM_TITLE;
 import static org.nesvilab.fragpipe.tools.glyco.GlycoMassLoader.GLYCAN_MODS_NAME;
 import static org.nesvilab.fragpipe.tools.glyco.GlycoMassLoader.GLYCAN_RESIDUES_NAME;
 import static org.nesvilab.fragpipe.tools.skyline.Skyline.getSkylineVersion;
@@ -190,7 +191,7 @@ public class WriteSkylineTemplate {
       BufferedWriter bw = new BufferedWriter(Files.newBufferedWriter(path));
       bw.write("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
           + "<srm_settings format_version=\"23.1\" software_version=\"Skyline (64-bit) " + getSkylineVersion() + "\">\n"
-          + "  <settings_summary name=\"FragPipe\">\n");
+          + "  <settings_summary name=\"" + PROGRAM_TITLE + "\">\n");
 
       if (!nonUnimodMods.isEmpty()) {
         bw.write("    <peptide_settings>\n"

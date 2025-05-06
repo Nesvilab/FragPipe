@@ -2,9 +2,9 @@
 #define AppVersion "23.0"
 #define AppPublisher "Nesvizhskii Lab"
 #define AppURL "https://fragpipe.nesvilab.org/"
-#define AppExeName "FragPipe-" + AppVersion + ".exe"
-#define SourcePath "build/github-release/FragPipe-" + AppVersion + "-windows/fragpipe-" + AppVersion
-#define DefaultInstallPath "C:\FragPipe\FragPipe"
+#define AppExeName AppName + "-" + AppVersion + ".exe"
+#define SourcePath "build/github-release/" + AppName + "-" + AppVersion + "-windows/fragpipe-" + AppVersion
+#define DefaultInstallPath "C:\" + AppName + "\" + AppName
 #define LicenseFile "../LICENSE"
 
 [Setup]
@@ -25,7 +25,7 @@ DisableProgramGroupPage=yes
 DisableDirPage=no
 ; Remove the following line to run in administrative install mode (install for all users).
 PrivilegesRequired=lowest
-OutputBaseFilename=FragPipe-{#AppVersion}-installer
+OutputBaseFilename={#AppName}-{#AppVersion}-installer
 OutputDir=build/installer
 SolidCompression=yes
 WizardStyle=modern

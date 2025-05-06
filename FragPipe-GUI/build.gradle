@@ -28,7 +28,9 @@ plugins {
 group = 'org.nesvilab'
 version = '23.0'
 
-description = """FragPipe - run complete proteomics analyses from the GUI"""
+def appName = "FragPipe"
+
+description = """${appName} - run complete proteomics analyses from the GUI"""
 
 gradleLint.rules = ['unused-dependency']
 
@@ -164,7 +166,7 @@ task showImplDeps(type: DependencyReportTask, group: 'fragpipe-help',
 task createStartScripts(type: CreateStartScripts, group: "fragpipe-release") {
     outputDir = file('build/pre-zip-release')
     mainClass = "${startClass}"
-    applicationName = 'FragPipe'
+    applicationName = "${appName}"
     classpath = files("fragpipe-${project.version}.jar")
 }
 
@@ -178,7 +180,7 @@ task makeExeAndCopyToScripts(type: Copy, group: 'fragpipe-release', description:
     doLast {
         def scriptsDir = getLayout().buildDirectory.dir('scripts').get().asFile
         def oldExe = new File(scriptsDir, 'fragpipe.exe')
-        def newExe = new File(scriptsDir, "FragPipe-${project.version}.exe")
+        def newExe = new File(scriptsDir, "${appName}-${project.version}.exe")
         if (oldExe.exists()) {
             oldExe.renameTo(newExe)
         }
@@ -256,7 +258,7 @@ task makeReleaseZipLinux(type: Zip, group: 'fragpipe-release') {
     tasks.findByName('copyWorkflows').mustRunAfter 'copyToolsLinux'
     tasks.findByName('copyDatabases').mustRunAfter 'copyToolsLinux'
 
-    archiveFileName = "FragPipe-${project.version}-linux.zip"
+    archiveFileName = "${appName}-${project.version}-linux.zip"
     destinationDirectory = getLayout().buildDirectory.dir(releaseDir)
     from getLayout().buildDirectory.dir("install")
 }
@@ -292,14 +294,14 @@ task makeReleaseWindows(type: Copy, group: 'fragpipe-release') {
         downloadUrl = 'https://adoptium.net/temurin/releases/?package=jdk&version=17&arch=x64'
         bundledJrePath = "../jre"
         version = "${project.version}"
-        fileDescription = "FragPipe"
+        fileDescription = "${appName}"
         copyright = "Copyright © 2025"
         companyName = "Nesvilab"
-        productName = "FragPipe"
+        productName = "${appName}"
     }
 
     from getLayout().buildDirectory.dir("install")
-    into getLayout().buildDirectory.dir("${releaseDir}/FragPipe-${project.version}-windows")
+    into getLayout().buildDirectory.dir("${releaseDir}/${appName}-${project.version}-windows")
 }
 
 task makeReleaseInstaller(type: Exec, group: 'fragpipe-release', description: 'Creates Windows installer using Inno Setup') {

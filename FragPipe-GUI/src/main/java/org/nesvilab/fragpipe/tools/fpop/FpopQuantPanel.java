@@ -17,6 +17,8 @@
 
 package org.nesvilab.fragpipe.tools.fpop;
 
+import static org.nesvilab.fragpipe.Version.PROGRAM_TITLE;
+
 import org.nesvilab.utils.SwingUtils;
 
 import javax.swing.*;
@@ -44,7 +46,7 @@ public class FpopQuantPanel extends JPanelBase {
     @Override
     protected void init() {
         this.setLayout(new BorderLayout());
-        this.setBorder(new TitledBorder("FPOP FragPipe Quant"));
+        this.setBorder(new TitledBorder("FPOP " + PROGRAM_TITLE + " Quant"));
 
         pTop = createPanelTop();
         pContent = createPanelFPOP();
@@ -95,7 +97,7 @@ public class FpopQuantPanel extends JPanelBase {
 
         checkFPOP = UiUtils.createUiCheck("Run FPOP-specific Quantitation", false);
         checkFPOP.setName("fpop.run-fpop");
-        checkFPOP.setToolTipText("Run downstream processing for FPOP analyses using the FragPipe method. Computes % oxidation for each peptide and site based on either LFQ or TMT quant tables.");
+        checkFPOP.setToolTipText("Run downstream processing for FPOP analyses using the " + PROGRAM_TITLE + " method. Computes % oxidation for each peptide and site based on either LFQ or TMT quant tables.");
 
         mu.add(p, checkFPOP).wrap();
         return p;

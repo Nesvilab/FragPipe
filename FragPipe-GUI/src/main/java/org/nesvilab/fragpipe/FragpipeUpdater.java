@@ -17,6 +17,8 @@
 
 package org.nesvilab.fragpipe;
 
+import static org.nesvilab.fragpipe.Version.PROGRAM_TITLE;
+
 import org.nesvilab.fragpipe.api.Bus;
 import org.nesvilab.fragpipe.api.DownloadProgress;
 import org.nesvilab.fragpipe.api.UpdatePackage;
@@ -260,8 +262,8 @@ public class FragpipeUpdater {
       return;
     }
 
-    String text = "FragPipe update packages available, do you want to download and install?\n" +
-        "A restart of FragPipe might be required for all changes to take effect.\n\nUpdates:\n - " +
+    String text = PROGRAM_TITLE +" update packages available, do you want to download and install?\n" +
+        "A restart of " + PROGRAM_TITLE + " might be required for all changes to take effect.\n\nUpdates:\n - " +
         Seq.seq(updates).map(UpdatePackage::getDescriptionOrName).toString("\n - ");
     MigUtils mu = MigUtils.get();
     JPanel p = mu.newPanel(mu.lcFillXNoInsetsTopBottom());

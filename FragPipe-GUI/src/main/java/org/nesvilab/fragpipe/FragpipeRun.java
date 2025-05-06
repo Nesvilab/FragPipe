@@ -19,6 +19,7 @@ package org.nesvilab.fragpipe;
 
 import static org.nesvilab.fragpipe.FragPipeMain.PHILOSOPHER_VERSION;
 import static org.nesvilab.fragpipe.Fragpipe.philosopherBinPath;
+import static org.nesvilab.fragpipe.Version.PROGRAM_TITLE;
 import static org.nesvilab.fragpipe.cmd.CmdBase.constructClasspathString;
 import static org.nesvilab.fragpipe.messages.MessagePrintToConsole.toConsole;
 import static org.nesvilab.fragpipe.tabs.TabDatabase.databaseSizeLimit;
@@ -2204,7 +2205,7 @@ public class FragpipeRun {
         if (Fragpipe.headless) {
           log.error("Spectral Library Generation module was not configured correctly. Please make sure that Python and EasyPQP have been installed.");
         } else {
-          JOptionPane.showMessageDialog(parent, "Spectral Library Generation module was not configured correctly.\nPlease make sure that Python and EasyPQP have been installed, then restart FragPipe.", "Spectral Library Generation Error", JOptionPane.ERROR_MESSAGE);
+          JOptionPane.showMessageDialog(parent, "Spectral Library Generation module was not configured correctly.\nPlease make sure that Python and EasyPQP have been installed, then restart " + PROGRAM_TITLE + ".", "Spectral Library Generation Error", JOptionPane.ERROR_MESSAGE);
         }
         return false;
       }
@@ -2216,7 +2217,7 @@ public class FragpipeRun {
           if (Fragpipe.headless) {
             log.error("Spectral Library Generation scripts did not initialize correctly. Please make sure that Python and EasyPQP have been installed.");
           } else {
-            JOptionPane.showMessageDialog(parent, "Spectral Library Generation scripts did not initialize correctly.\nPlease make sure that Python and EasyPQP have been installed, then restart FragPipe.", "Spectral Library Generation Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(parent, "Spectral Library Generation scripts did not initialize correctly.\nPlease make sure that Python and EasyPQP have been installed, then restart " + PROGRAM_TITLE + ".", "Spectral Library Generation Error", JOptionPane.ERROR_MESSAGE);
           }
           return false;
         }

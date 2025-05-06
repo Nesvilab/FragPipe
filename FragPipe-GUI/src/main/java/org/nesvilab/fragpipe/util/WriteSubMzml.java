@@ -17,6 +17,7 @@
 
 package org.nesvilab.fragpipe.util;
 
+import static org.nesvilab.fragpipe.Version.PROGRAM_TITLE;
 import static org.nesvilab.fragpipe.Version.version;
 
 import org.nesvilab.utils.StringUtils;
@@ -214,10 +215,10 @@ public class WriteSubMzml {
 
   private static void writeMzML(String sourceFilePath, String runName, String outputPath, List<IScan> iScanList) throws Exception {
     List<MsSoftware> softwareList = new ArrayList<>(1);
-    softwareList.add(new MsSoftware("FragPipe", version()));
+    softwareList.add(new MsSoftware(PROGRAM_TITLE, version()));
 
-    ProcessingMethod processingMethod = new ProcessingMethod(0, "FragPipe");
-    processingMethod.addParams("FragPipe pre-processing", "");
+    ProcessingMethod processingMethod = new ProcessingMethod(0, PROGRAM_TITLE);
+    processingMethod.addParams(PROGRAM_TITLE + " pre-processing", "");
     processingMethod.addParams("filter out identified scans", "");
 
     List<ProcessingMethodType> processingMethodTypeList = new ArrayList<>(1);
@@ -226,7 +227,7 @@ public class WriteSubMzml {
     Map<String, Instrument> instrumentMap = new HashMap<>();
     instrumentMap.put("unknown", new Instrument());
 
-    MZMLWriter mzmlWriter = new MZMLWriter(softwareList, "FragPipe", processingMethodTypeList, 1, true);
+    MZMLWriter mzmlWriter = new MZMLWriter(softwareList, PROGRAM_TITLE, processingMethodTypeList, 1, true);
     mzmlWriter.writeMzML(sourceFilePath, runName, "MS:1000768", iScanList.toArray(new IScan[0]), outputPath, null, instrumentMap); // Pretend that the scans are from Thermo. Make it consistent with the scan ID format.
   }
 }

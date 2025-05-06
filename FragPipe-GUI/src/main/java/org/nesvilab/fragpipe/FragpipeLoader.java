@@ -18,6 +18,7 @@
 package org.nesvilab.fragpipe;
 
 import static org.nesvilab.fragpipe.FragpipeLocations.Holder.locations;
+import static org.nesvilab.fragpipe.Version.PROGRAM_TITLE;
 
 import org.nesvilab.fragpipe.api.Bus;
 import org.nesvilab.fragpipe.api.Notifications;
@@ -62,12 +63,12 @@ public class FragpipeLoader {
     if (!Fragpipe.headless) {
       frameLoading = new JFrame();
       Fragpipe.decorateFrame(frameLoading);
-      frameLoading.setTitle("Starting FragPipe");
+      frameLoading.setTitle("Starting " + PROGRAM_TITLE);
       frameLoading.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
       frameLoading.setLayout(new BorderLayout());
       JPanel content = new JPanel(new MigLayout(new LC().fillX()));
 
-      JLabel label = new JLabel("Initializing FragPipe");
+      JLabel label = new JLabel("Initializing " + PROGRAM_TITLE);
       content.add(label, new CC().alignX("center").spanX().wrap());
 
       progress = new JProgressBar();
@@ -116,7 +117,7 @@ public class FragpipeLoader {
   public void on(NoteStartupComplete m) {
     log.debug(
         "Got NoteStartupComplete, which triggers main app start, loader window will close now");
-    Bus.post(new MessageLoaderUpdate("Starting FragPipe"));
+    Bus.post(new MessageLoaderUpdate("Starting " + PROGRAM_TITLE));
 
     log.debug("Closing loader frame");
     Bus.unregister(this);
@@ -126,7 +127,7 @@ public class FragpipeLoader {
     }
 
     if (locations.getJarPath().toAbsolutePath().normalize().toString().contains(" ") || locations.getJarPath().toAbsolutePath().normalize().toString().contains("\t")) {
-      SwingUtils.showErrorDialog(null, "FragPipe cannot be run from a path that contains spaces or tabs. Please move the FragPipe folder to a path without spaces or tabs.", "Spaces in path");
+      SwingUtils.showErrorDialog(null, PROGRAM_TITLE + " cannot be run from a path that contains spaces or tabs. Please move the " + PROGRAM_TITLE + " folder to a path without spaces or tabs.", "Spaces in path");
       System.exit(1);
     }
 

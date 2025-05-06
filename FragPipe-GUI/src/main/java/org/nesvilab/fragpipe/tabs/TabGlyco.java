@@ -17,6 +17,8 @@
 
 package org.nesvilab.fragpipe.tabs;
 
+import static org.nesvilab.fragpipe.Version.PROGRAM_TITLE;
+
 import org.nesvilab.fragpipe.Fragpipe;
 import org.nesvilab.fragpipe.FragpipeLocations;
 import org.nesvilab.fragpipe.dialogs.GlycanModEditDialog;
@@ -121,7 +123,7 @@ public class TabGlyco extends JPanelWithEnablement {
 
         JButton btnOpenInExplorer = SwingUtils.createButtonOpenInFileManager(this, "Open in file manager", () -> FragpipeLocations.get().getDirTools().resolve("Glycan_Databases"));
         btnOpenInExplorer.setToolTipText("Opens the file location with the internal 'glycan_residues.txt' and 'glycan_mods.txt' \nfiles, which " +
-                "control the supported monosaccharides and glycan modifications, respectively, for FragPipe and all glyco tools.\n" +
+                "control the supported monosaccharides and glycan modifications, respectively, for " + PROGRAM_TITLE + " and all glyco tools.\n" +
                 "For details on how to edit these files, please see the glyco tutorial pages at fragpipe.nesvilab.org.");
 
         mu.add(p, jLabelLoadGlycanDB).split();

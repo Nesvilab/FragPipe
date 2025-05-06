@@ -17,55 +17,11 @@
 
 package org.nesvilab.fragpipe;
 
+import static org.nesvilab.fragpipe.Version.PROGRAM_TITLE;
 import static org.nesvilab.fragpipe.Version.PROP_LAST_RELEASE_VER;
 import static org.nesvilab.fragpipe.Version.version;
 import static org.nesvilab.fragpipe.tabs.TabWorkflow.maxProcessors;
 
-import org.nesvilab.fragpipe.api.Bus;
-import org.nesvilab.fragpipe.api.FragpipeCacheUtils;
-import org.nesvilab.fragpipe.api.Notifications;
-import org.nesvilab.fragpipe.api.PropsFile;
-import org.nesvilab.fragpipe.api.PyInfo;
-import org.nesvilab.fragpipe.api.UiTab;
-import org.nesvilab.fragpipe.api.UpdatePackage;
-import org.nesvilab.fragpipe.cmd.ToolingUtils;
-import org.nesvilab.fragpipe.exceptions.NoStickyException;
-import org.nesvilab.fragpipe.exceptions.UnexpectedException;
-import org.nesvilab.fragpipe.exceptions.ValidationException;
-import org.nesvilab.fragpipe.messages.MessageClearCache;
-import org.nesvilab.fragpipe.messages.MessageLoadUi;
-import org.nesvilab.fragpipe.messages.MessageManifestLoad;
-import org.nesvilab.fragpipe.messages.MessageOpenInExplorer;
-import org.nesvilab.fragpipe.messages.MessageRun;
-import org.nesvilab.fragpipe.messages.MessageSaveCache;
-import org.nesvilab.fragpipe.messages.MessageSaveUiState;
-import org.nesvilab.fragpipe.messages.MessageShowAboutDialog;
-import org.nesvilab.fragpipe.messages.MessageUiRevalidate;
-import org.nesvilab.fragpipe.messages.NoteConfigMsfragger;
-import org.nesvilab.fragpipe.messages.NoteConfigPython;
-import org.nesvilab.fragpipe.messages.NoteConfigSpeclibgen;
-import org.nesvilab.fragpipe.messages.NoteConfigTips;
-import org.nesvilab.fragpipe.messages.NoteFragpipeCache;
-import org.nesvilab.fragpipe.messages.NoteFragpipeProperties;
-import org.nesvilab.fragpipe.messages.NoteFragpipeUpdate;
-import org.nesvilab.fragpipe.params.ThisAppProps;
-import org.nesvilab.fragpipe.process.ProcessManager;
-import org.nesvilab.fragpipe.tabs.*;
-import org.nesvilab.fragpipe.tools.dbsplit.DbSplit2;
-import org.nesvilab.fragpipe.tools.fpop.FpopScript;
-import org.nesvilab.fragpipe.tools.speclibgen.SpecLibGen2;
-import org.nesvilab.utils.OsUtils;
-import org.nesvilab.utils.PathUtils;
-import org.nesvilab.utils.PropertiesUtils;
-import org.nesvilab.utils.ScreenUtils;
-import org.nesvilab.utils.StringUtils;
-import org.nesvilab.utils.SwingUtils;
-import org.nesvilab.utils.VersionComparator;
-import org.nesvilab.utils.swing.FormEntry;
-import org.nesvilab.utils.swing.FormEntry.Builder;
-import org.nesvilab.utils.swing.HtmlStyledJEditorPane;
-import org.nesvilab.utils.swing.LogbackJTextPaneAppender;
-import org.nesvilab.utils.swing.TextConsole;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -101,7 +57,6 @@ import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -118,6 +73,66 @@ import org.greenrobot.eventbus.NoSubscriberEvent;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.SubscriberExceptionEvent;
 import org.greenrobot.eventbus.ThreadMode;
+import org.nesvilab.fragpipe.api.Bus;
+import org.nesvilab.fragpipe.api.FragpipeCacheUtils;
+import org.nesvilab.fragpipe.api.Notifications;
+import org.nesvilab.fragpipe.api.PropsFile;
+import org.nesvilab.fragpipe.api.PyInfo;
+import org.nesvilab.fragpipe.api.UiTab;
+import org.nesvilab.fragpipe.api.UpdatePackage;
+import org.nesvilab.fragpipe.cmd.ToolingUtils;
+import org.nesvilab.fragpipe.exceptions.NoStickyException;
+import org.nesvilab.fragpipe.exceptions.UnexpectedException;
+import org.nesvilab.fragpipe.exceptions.ValidationException;
+import org.nesvilab.fragpipe.messages.MessageClearCache;
+import org.nesvilab.fragpipe.messages.MessageLoadUi;
+import org.nesvilab.fragpipe.messages.MessageManifestLoad;
+import org.nesvilab.fragpipe.messages.MessageOpenInExplorer;
+import org.nesvilab.fragpipe.messages.MessageRun;
+import org.nesvilab.fragpipe.messages.MessageSaveCache;
+import org.nesvilab.fragpipe.messages.MessageSaveUiState;
+import org.nesvilab.fragpipe.messages.MessageShowAboutDialog;
+import org.nesvilab.fragpipe.messages.MessageUiRevalidate;
+import org.nesvilab.fragpipe.messages.NoteConfigMsfragger;
+import org.nesvilab.fragpipe.messages.NoteConfigPython;
+import org.nesvilab.fragpipe.messages.NoteConfigSpeclibgen;
+import org.nesvilab.fragpipe.messages.NoteConfigTips;
+import org.nesvilab.fragpipe.messages.NoteFragpipeCache;
+import org.nesvilab.fragpipe.messages.NoteFragpipeProperties;
+import org.nesvilab.fragpipe.messages.NoteFragpipeUpdate;
+import org.nesvilab.fragpipe.params.ThisAppProps;
+import org.nesvilab.fragpipe.process.ProcessManager;
+import org.nesvilab.fragpipe.tabs.TabBatch;
+import org.nesvilab.fragpipe.tabs.TabConfig;
+import org.nesvilab.fragpipe.tabs.TabDatabase;
+import org.nesvilab.fragpipe.tabs.TabDiaPseudoMs2;
+import org.nesvilab.fragpipe.tabs.TabDiann;
+import org.nesvilab.fragpipe.tabs.TabDownstream;
+import org.nesvilab.fragpipe.tabs.TabGlyco;
+import org.nesvilab.fragpipe.tabs.TabMsfragger;
+import org.nesvilab.fragpipe.tabs.TabPtms;
+import org.nesvilab.fragpipe.tabs.TabQuantificationLabeling;
+import org.nesvilab.fragpipe.tabs.TabQuantificationLfq;
+import org.nesvilab.fragpipe.tabs.TabRun;
+import org.nesvilab.fragpipe.tabs.TabSkyline;
+import org.nesvilab.fragpipe.tabs.TabSpecLib;
+import org.nesvilab.fragpipe.tabs.TabValidation;
+import org.nesvilab.fragpipe.tabs.TabWorkflow;
+import org.nesvilab.fragpipe.tools.dbsplit.DbSplit2;
+import org.nesvilab.fragpipe.tools.fpop.FpopScript;
+import org.nesvilab.fragpipe.tools.speclibgen.SpecLibGen2;
+import org.nesvilab.utils.OsUtils;
+import org.nesvilab.utils.PathUtils;
+import org.nesvilab.utils.PropertiesUtils;
+import org.nesvilab.utils.ScreenUtils;
+import org.nesvilab.utils.StringUtils;
+import org.nesvilab.utils.SwingUtils;
+import org.nesvilab.utils.VersionComparator;
+import org.nesvilab.utils.swing.FormEntry;
+import org.nesvilab.utils.swing.FormEntry.Builder;
+import org.nesvilab.utils.swing.HtmlStyledJEditorPane;
+import org.nesvilab.utils.swing.LogbackJTextPaneAppender;
+import org.nesvilab.utils.swing.TextConsole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -389,7 +404,7 @@ public class Fragpipe extends JFrameHeadless {
 
   static void main0() {
     if (!headless && (workflowFile != null || manifestFile != null || workdir != null)) {
-      System.err.println("It looks like you want to run FragPipe in headless mode, but you did not add --headless flag. Please double check your command.");
+      System.err.println("It looks like you want to run " + PROGRAM_TITLE + " in headless mode, but you did not add --headless flag. Please double check your command.");
       System.exit(1);
     }
 
@@ -521,7 +536,7 @@ public class Fragpipe extends JFrameHeadless {
 
       fp.addWindowListener(new WindowAdapter() {
         public void windowClosing(WindowEvent we) {
-          int result = JOptionPane.showConfirmDialog(fp, "Do you want to exit now?", "FragPipe", JOptionPane.YES_NO_OPTION);
+          int result = JOptionPane.showConfirmDialog(fp, "Do you want to exit now?", PROGRAM_TITLE, JOptionPane.YES_NO_OPTION);
           if (result == JOptionPane.YES_OPTION) {
             fp.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
           } else {
@@ -699,7 +714,7 @@ public class Fragpipe extends JFrameHeadless {
     final JFrame fp = this.toJFrame();
     if (!headless) {
       fp.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-      fp.setTitle(Version.PROGRAM_TITLE + " (v" + Version.version() + ")");
+      fp.setTitle(PROGRAM_TITLE + " (v" + Version.version() + ")");
       fp.setLocale(Locale.ROOT);
       fp.setMinimumSize(new Dimension(700, 480));
       fp.setPreferredSize(new Dimension(1300, 1300));
@@ -712,7 +727,7 @@ public class Fragpipe extends JFrameHeadless {
       fp.add(tabs, new CC().grow());
     }
     if (OsUtils.isMac()) {
-      final String notes = "FragPipe is not supported on Mac. Some software used by FragPipe do not work on Mac.";
+      final String notes = PROGRAM_TITLE + " is not supported on Mac. Some software used by " + PROGRAM_TITLE + " do not work on Mac.";
 
       JPanel panel = new JPanel();
       panel.setLayout(new BorderLayout());
@@ -868,7 +883,7 @@ public class Fragpipe extends JFrameHeadless {
     final Properties p = ThisAppProps.getRemotePropertiesWithLocalDefaults();
     String linkSite = p.getProperty(ThisAppProps.PROP_LAB_SITE_URL, "https://www.nesvilab.org/");
 
-    return "FragPipe Proteomics Platform (v" + Version.version() + ")<br>"
+    return PROGRAM_TITLE + " Proteomics Platform (v" + Version.version() + ")<br>"
         + "<a href=\"" + linkSite + "\">Alexey Nesvizhskii lab</a><br/>"
         + "University of Michigan<br><br>"
         + "<a href='https://fragpipe.nesvilab.org/'>FragPipe GUI</a>: Fengchao Yu, Dmitry Avtonomov, Daniel Polasky, Guo Ci Teo<br><br>"
@@ -904,7 +919,7 @@ public class Fragpipe extends JFrameHeadless {
 //    HtmlStyledJEditorPane ep = new HtmlStyledJEditorPane(true, createAboutBody());
     HtmlStyledJEditorPane ep = SwingUtils.createClickableHtml(createAboutBody());
     ep.setPreferredSize(new Dimension(500, 600));
-    SwingUtils.showDialog(parent, ep, "About FragPipe", JOptionPane.INFORMATION_MESSAGE);
+    SwingUtils.showDialog(parent, ep, "About " + PROGRAM_TITLE, JOptionPane.INFORMATION_MESSAGE);
   }
 
   @Subscribe
@@ -1013,7 +1028,7 @@ public class Fragpipe extends JFrameHeadless {
 
   static String help() {
     StringBuilder sb = new StringBuilder();
-    sb.append("FragPipe v").append(version()).append("\n");
+    sb.append(PROGRAM_TITLE).append(" v").append(version()).append("\n");
     sb.append("(c) University of Michigan").append("\n");
     sb.append(OsUtils.OsInfo()).append("\n");
     sb.append(OsUtils.JavaInfo()).append("\n");
@@ -1028,13 +1043,13 @@ public class Fragpipe extends JFrameHeadless {
     sb.append("\t--workflow <string>             # Specify path to workflow file.\n");
     sb.append("\t--manifest <string>             # Specify path to manifest file.\n");
     sb.append("\t--workdir <string>              # Specify the result directory.\n");
-    sb.append("\t--dry-run                       # (optional) Dry run, not really run FragPipe.\n");
-    sb.append("\t--ram <integer>                 # (optional) Specify the maximum allowed memory size. The unit is GB. Set it to 0 to let FragPipe decide. Default = 0\n");
+    sb.append("\t--dry-run                       # (optional) Dry run, not really run " + PROGRAM_TITLE + ".\n");
+    sb.append("\t--ram <integer>                 # (optional) Specify the maximum allowed memory size. The unit is GB. Set it to 0 to let " + PROGRAM_TITLE + " decide. Default = 0\n");
     sb.append("\t--threads <integer>             # (optional) Specify the number of threads. Default = core number - 1\n");
     sb.append("\t--config-tools-folder <string>  # (optional) specify the folder containing MSFragger, IonQuant, and dirTracer. If not specified, using the one in the cache.\n");
     sb.append("\t--config-diann <string>         # (optional) specify the location of the DIA-NN binary file (the actual executable file `DiaNN.exe`, not the DIA-NN installation file). If not specified, using the one in the cache. It could be from the previously configured or the build-in one.\n");
     sb.append("\t--config-python <string>        # (optional) specify the location of the Python directory. If not specified, using the one in the cache.\n");
-    sb.append("To let FragPipe find the TMT annotation file, put the mzML files from the same experiment in the same folder. Then, create the annotation file with the name ending with annotation.txt in the folder.");
+    sb.append("To let " + PROGRAM_TITLE + " find the TMT annotation file, put the mzML files from the same experiment in the same folder. Then, create the annotation file with the name ending with annotation.txt in the folder.");
     sb.append("Note: There must be only one annotation file in each folder.\n");
     return sb.toString();
   }

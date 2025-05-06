@@ -18,7 +18,28 @@
 package org.nesvilab.fragpipe.tabs;
 
 import static org.nesvilab.fragpipe.Fragpipe.philosopherBinPath;
+import static org.nesvilab.fragpipe.Version.PROGRAM_TITLE;
 
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.io.IOException;
+import java.nio.file.AccessDeniedException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JEditorPane;
+import javax.swing.JFileChooser;
+import javax.swing.JPanel;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import net.miginfocom.layout.LC;
+import net.miginfocom.swing.MigLayout;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.nesvilab.fragpipe.Fragpipe;
 import org.nesvilab.fragpipe.FragpipeLocations;
 import org.nesvilab.fragpipe.api.Bus;
@@ -44,27 +65,6 @@ import org.nesvilab.utils.swing.JPanelWithEnablement;
 import org.nesvilab.utils.swing.MigUtils;
 import org.nesvilab.utils.swing.UiText;
 import org.nesvilab.utils.swing.UiUtils;
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.io.IOException;
-import java.nio.file.AccessDeniedException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Stream;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JEditorPane;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import net.miginfocom.layout.LC;
-import net.miginfocom.swing.MigLayout;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -350,14 +350,11 @@ public class TabDatabase extends JPanelWithEnablement {
   }
 
   public static String createSeqDbExplanationContent() {
-    JLabel label = new JLabel();
-    String content = ""
-        + "\"Browse\" to select a FASTA file from a previous FragPipe analysis, or \"Download\" to retrieve a new one from UniProt.<br/>"
+    return "\"Browse\" to select a FASTA file from a previous " + PROGRAM_TITLE + " analysis, or \"Download\" to retrieve a new one from UniProt.<br/>"
         + "Use \"Add decoys\" to append decoy sequences and/or add common <a href=\"https://www.thegpm.org/crap/\">contaminant sequences</a>.<br><br>"
         + "IMPORTANT: Sequence headers must follow certain <a href=\"https://github.com/Nesvilab/philosopher/wiki/How-to-Prepare-a-Protein-Database#header-formatting\">format rules</a>.<br><br>"
         + "To download a database containing two or more organisms during 'Download', list all UniProt proteome IDs separated by commas, e.g., UP000005640,UP000464024 to get a combined human + COVID-19 database.<br>"
         + "<br/>"
         + "<br/>";
-    return content;
   }
 }

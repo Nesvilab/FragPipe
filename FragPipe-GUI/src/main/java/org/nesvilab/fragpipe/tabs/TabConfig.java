@@ -19,6 +19,7 @@ package org.nesvilab.fragpipe.tabs;
 
 import static org.nesvilab.fragpipe.Fragpipe.fe;
 import static org.nesvilab.fragpipe.Fragpipe.headless;
+import static org.nesvilab.fragpipe.Version.PROGRAM_TITLE;
 import static org.nesvilab.fragpipe.Version.version;
 import static org.nesvilab.fragpipe.messages.MessagePrintToConsole.toConsole;
 import static org.nesvilab.utils.OsUtils.isUnix;
@@ -263,7 +264,7 @@ public class TabConfig extends JPanelWithEnablement {
         OsUtils.OsInfo() + "\n"
             + OsUtils.JavaInfo() + "\n"
             + OsUtils.NetCoreInfo() + "\n"
-            + "FragPipe: v" + version(false)));
+            + PROGRAM_TITLE +": v" + version(false)));
             //+ FragpipeLocations.get().getJarPath().toString()));
 
     sysInfo.setVerticalAlignment(JLabel.TOP);
@@ -341,7 +342,7 @@ public class TabConfig extends JPanelWithEnablement {
     log.debug("Got NoteFragpipeUpdate: {}", m.toString());
     StringBuilder sb = new StringBuilder();
     if (StringUtils.isNotBlank(m.releaseVer)) {
-      sb.append(String.format("FragPipe update available, new version %s\n", m.releaseVer));
+      sb.append(String.format(PROGRAM_TITLE + " update available, new version %s\n", m.releaseVer));
     }
     if (!headless && StringUtils.isNotBlank(m.downloadUrl)) {
       sb.append(String.format("<a href=\"%s\">Click here to download</a>\n", m.downloadUrl));
@@ -1149,7 +1150,7 @@ public class TabConfig extends JPanelWithEnablement {
         }
         pb2 = new ProcessBuilder(binPython, "-m", "pip", "install", "easypqp", "lxml", "plotly", "kaleido", "narwhals", "pyarrow", "pypdf2");
       } else {
-        throw new RuntimeException("FragPipe only works in Windows and Linux. FragPipe not supported in this OS");
+        throw new RuntimeException(PROGRAM_TITLE +" only works in Windows and Linux. " + PROGRAM_TITLE + " not supported in this OS");
       }
 
       PyInfo.modifyEnvironmentVariablesForPythonSubprocesses(pb2); // without this, on Windows, will fail with an error related to TLS/SSL

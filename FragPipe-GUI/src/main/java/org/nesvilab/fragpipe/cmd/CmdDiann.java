@@ -17,6 +17,7 @@
 
 package org.nesvilab.fragpipe.cmd;
 
+import static org.nesvilab.fragpipe.Version.PROGRAM_TITLE;
 import static org.nesvilab.fragpipe.cmd.ToolingUtils.BATMASS_IO_JAR;
 import static org.nesvilab.fragpipe.cmd.ToolingUtils.generateLFQExperimentAnnotation;
 import static org.nesvilab.fragpipe.tabs.TabWorkflow.manifestExt;
@@ -227,9 +228,9 @@ public class CmdDiann extends CmdBase {
       List<String> exts = inputLcmsFiles.stream().map(f -> StringUtils.afterLastDot(f.getPath().getFileName().toString().toLowerCase())).distinct().filter(ext -> ext.equalsIgnoreCase("raw")).collect(Collectors.toList());
       if (!exts.isEmpty()) {
         if (Fragpipe.headless) {
-          log.warn("Running DIA-NN with Thermo raw files requires Thermo MS File Reader is installed. If you do not have it installed, please convert to mzML prior to running FragPipe.");
+          log.warn("Running DIA-NN with Thermo raw files requires Thermo MS File Reader is installed. If you do not have it installed, please convert to mzML prior to running " + PROGRAM_TITLE + ".");
         } else {
-          int res = JOptionPane.showConfirmDialog(comp, createClickableHtml("Running DIA-NN with Thermo raw files requires <a href=\"https://thermo.flexnetoperations.com/control/thmo/login?nextURL=%2Fcontrol%2Fthmo%2Fdownload%3Felement%3D6306677\">Thermo MS File Reader</a> is installed.<br>If you do not have it installed, please convert to mzML prior to running FragPipe.<br>\"Yes\" to continue. \"No\" to cancel."), "Data format warning", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+          int res = JOptionPane.showConfirmDialog(comp, createClickableHtml("Running DIA-NN with Thermo raw files requires <a href=\"https://thermo.flexnetoperations.com/control/thmo/login?nextURL=%2Fcontrol%2Fthmo%2Fdownload%3Felement%3D6306677\">Thermo MS File Reader</a> is installed.<br>If you do not have it installed, please convert to mzML prior to running " + PROGRAM_TITLE + ".<br>\"Yes\" to continue. \"No\" to cancel."), "Data format warning", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
           if (JOptionPane.YES_OPTION != res) {
             return false;
           }
@@ -239,9 +240,9 @@ public class CmdDiann extends CmdBase {
       exts = inputLcmsFiles.stream().map(f -> StringUtils.afterLastDot(f.getPath().getFileName().toString().toLowerCase())).distinct().filter(ext -> ext.equals("wiff")).collect(Collectors.toList());
       if (!exts.isEmpty()) {
         if (Fragpipe.headless) {
-          log.warn("Running DIA-NN with WIFF files requires additional library is installed. If you do not have it installed, please convert to mzML prior to running FragPipe.");
+          log.warn("Running DIA-NN with WIFF files requires additional library is installed. If you do not have it installed, please convert to mzML prior to running " + PROGRAM_TITLE + ".");
         } else {
-          int res = JOptionPane.showConfirmDialog(comp, createClickableHtml("Running DIA-NN with WIFF files requires <a href=\"https://github.com/vdemichev/DiaNN/blob/master/README.md#raw-data-formats\">additional library</a> is installed.<br>If you do not have it installed, please convert to mzML prior to running FragPipe.<br>\"Yes\" to continue. \"No\" to cancel."), "Data format warning", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+          int res = JOptionPane.showConfirmDialog(comp, createClickableHtml("Running DIA-NN with WIFF files requires <a href=\"https://github.com/vdemichev/DiaNN/blob/master/README.md#raw-data-formats\">additional library</a> is installed.<br>If you do not have it installed, please convert to mzML prior to running " + PROGRAM_TITLE + ".<br>\"Yes\" to continue. \"No\" to cancel."), "Data format warning", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
           if (JOptionPane.YES_OPTION != res) {
             return false;
           }

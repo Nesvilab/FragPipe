@@ -17,6 +17,7 @@
 
 package org.nesvilab.fragpipe.tools.diann;
 
+import static org.nesvilab.fragpipe.Version.PROGRAM_TITLE;
 import static org.nesvilab.utils.SwingUtils.createClickableHtml;
 import static org.nesvilab.utils.SwingUtils.isEnabledAndChecked;
 
@@ -229,7 +230,7 @@ public class DiannPanel extends JPanelBase {
     mu.border(panelBasic2, 1);
 
     uiTextLibrary = UiUtils.uiTextBuilder().create();
-    FormEntry feLibrary = new FormEntry("library", "Spectral library (optional)", uiTextLibrary, "Alternative spectral library file.\nIf blank, using the library.tsv built from FragPipe.");
+    FormEntry feLibrary = new FormEntry("library", "Spectral library (optional)", uiTextLibrary, "Alternative spectral library file.\nIf blank, using the library.tsv built from " + PROGRAM_TITLE + ".");
     JButton jButtonLibrary = feLibrary.browseButton("Browse", "Select library file", () -> {
       final FileNameExtensionFilter fileNameExtensionFilter = new FileNameExtensionFilter("Library files", "csv", "tsv", "xls", "txt", "speclib", "sptxt", "msp");
       JFileChooser fc = FileChooserUtils.create("Library file", "Select", false, FcMode.FILES_ONLY, true, fileNameExtensionFilter);

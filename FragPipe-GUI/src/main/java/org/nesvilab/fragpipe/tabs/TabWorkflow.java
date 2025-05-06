@@ -21,6 +21,7 @@ import static org.nesvilab.fragpipe.Fragpipe.PROP_NOCACHE;
 import static org.nesvilab.fragpipe.Fragpipe.getStickyStrict;
 import static org.nesvilab.fragpipe.Fragpipe.propsVarGet;
 import static org.nesvilab.fragpipe.Fragpipe.propsVarSet;
+import static org.nesvilab.fragpipe.Version.PROGRAM_TITLE;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -573,7 +574,7 @@ public class TabWorkflow extends JPanelWithEnablement {
       List<PropsFile> diffPropFiles = Seq.seq(filesStored).filter(kv -> diffNames.contains(kv.v1)).map(kv -> kv.v2).toList();
 
       if (!diffNames.isEmpty()) {
-        JLabel message = new JLabel(SwingUtils.makeHtml("Found workflows from previous FragPipe sessions:\n - "+Seq.seq(diffNames).sorted().toString("\n - ")));
+        JLabel message = new JLabel(SwingUtils.makeHtml("Found workflows from previous " + PROGRAM_TITLE + " sessions:\n - "+Seq.seq(diffNames).sorted().toString("\n - ")));
         final String[] choices = {"Copy", "Ignore", "Delete"};
         final int choice = Fragpipe.headless ? JOptionPane.CLOSED_OPTION : SwingUtils.showChoiceDialog(this, "Load workflows?", message, choices, 0);
         switch (choice) {
@@ -614,7 +615,7 @@ public class TabWorkflow extends JPanelWithEnablement {
 
     final String link = Fragpipe.propsFix().getProperty("fragpipe.workflow-tutorial.url", "https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html");
     epWorkflowsInfo = SwingUtils.createClickableHtml(true,
-        String.format("FragPipe supports multiple proteomic workflows.\n"
+        String.format(PROGRAM_TITLE +" supports multiple proteomic workflows.\n"
             + "Select and load an option from the dropdown menu below to configure "
             + "all the tools. Workflows can be customized, saved, and shared.\n"
             + "<a href=\"%s\">See the tutorial</a>.", link));

@@ -17,6 +17,7 @@
 
 package org.nesvilab.fragpipe.tools.skyline;
 
+import static org.nesvilab.fragpipe.Version.PROGRAM_TITLE;
 import static org.nesvilab.utils.OsUtils.isWindows;
 
 import org.nesvilab.fragpipe.messages.MessageUiRevalidate;
@@ -166,7 +167,7 @@ public class SkylinePanel extends JPanelBase {
     String peakBoundsTooltip = "IonQuant and DIA-NN determine peak integration boundaries for DDA and DIA quant, respectively.<br>"
         + "If this box is not checked, those bounds will be displayed in the Skyline document.<br>"
         + "Check the box to override those bounds and have Skyline calculate its own peak boundaries<br>"
-        + "(note: this does NOT affect the output tables from FragPipe).<br>"
+        + "(note: this does NOT affect the output tables from " + PROGRAM_TITLE + ").<br>"
         + "If IonQuant/DIANN are not run, Skyline bounds will be used regardless of this setting.";
     uiCheckUseSsl = UiUtils.createUiCheck("Let Skyline build the library and determine peak boundaries", false);
     uiCheckUseSsl.setName("use-ssl");
