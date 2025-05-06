@@ -140,7 +140,6 @@ public class CmdDiann extends CmdBase {
       Path libsDir = root.resolve("lib");
       if (Files.isDirectory(jarFragpipe)) {
         libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe-" + Version.version() + "/lib");
-        log.debug("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
       }
 
       Set<String> toJoin = classpathJars.stream().map(p -> p.toAbsolutePath().normalize().toString()).collect(Collectors.toSet());
@@ -400,7 +399,6 @@ public class CmdDiann extends CmdBase {
       Path libsDir = root.resolve("lib");
       if (Files.isDirectory(jarFragpipe)) {
         libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe-" + Version.version() + "/lib");
-        log.debug("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
       }
 
       List<String> cmd = new ArrayList<>();
@@ -420,7 +418,6 @@ public class CmdDiann extends CmdBase {
       Path libsDir = root.resolve("lib");
       if (Files.isDirectory(jarFragpipe)) {
         libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe-" + Version.version() + "/lib");
-        log.debug("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
       }
 
       List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(BATMASS_IO_JAR));
@@ -462,7 +459,6 @@ public class CmdDiann extends CmdBase {
       Path libsDir = root.resolve("lib");
       if (Files.isDirectory(jarFragpipe)) {
         libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe-" + Version.version() + "/lib");
-        log.debug("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
       }
 
       Set<String> toJoin = new TreeSet<>();

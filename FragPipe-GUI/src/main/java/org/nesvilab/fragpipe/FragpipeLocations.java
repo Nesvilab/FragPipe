@@ -233,13 +233,10 @@ public class FragpipeLocations {
     } else {
       p = binDir.resolve("fragpipe");
     }
-    log.debug("Getting FragPipe binary, bin dir [{}], resolved path: {}", binDir, p);
     Path exists = PathUtils.existing(p.toString());
     if (exists != null) {
-      log.debug("FragPipe binary found: {}", p);
       return exists;
     }
-    log.error("FragPipe binary NOT found at {}.", p);
     return p;
   }
 

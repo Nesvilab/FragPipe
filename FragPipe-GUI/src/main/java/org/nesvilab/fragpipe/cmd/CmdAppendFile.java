@@ -53,10 +53,9 @@ public class CmdAppendFile extends CmdBase {
         cmd.add(Fragpipe.getBinJava());
         cmd.add("-cp");
         Path root = FragpipeLocations.get().getDirFragpipeRoot();
-        String libsDir = root.resolve("lib").toString() + "/*";
+        String libsDir = root.resolve("lib") + "/*";
         if (Files.isDirectory(jarFragpipe)) {
             libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe-" + Version.version() + "/lib").toString() + "/*";
-            log.debug("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
         }
         cmd.add(libsDir);
         cmd.add(AppendToFile.class.getCanonicalName());

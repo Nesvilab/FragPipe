@@ -434,7 +434,6 @@ public class CmdPeptideProphet extends CmdBase {
     String libsDir = root.resolve("lib") + "/*";
     if (Files.isDirectory(jarFragpipe)) {
       libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe-" + Version.version() + "/lib") + "/*";
-      log.debug("Dev message: Looks like FragPipe was run from IDE, changing libs directory to: {}", libsDir);
     }
     cmd.add(libsDir);
     cmd.add(RewritePepxml.class.getCanonicalName());
