@@ -79,6 +79,10 @@ public class DiaTracerPanel extends JPanelBase {
     updateEnabledStatus(this, m.isValid());
   }
 
+  public boolean isChecked() {
+    return checkRunDiaTracer.isSelected();
+  }
+
   protected void init() {
     this.setLayout(new MigLayout(new LC().flowY().fillX()));
     this.setBorder(new TitledBorder("diaPASEF Spectrum Deconvolution"));

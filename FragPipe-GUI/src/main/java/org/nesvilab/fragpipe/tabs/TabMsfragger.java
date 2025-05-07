@@ -36,50 +36,6 @@ import static org.nesvilab.fragpipe.tools.fragger.MsfraggerParams.PROP_group_var
 import static org.nesvilab.fragpipe.tools.fragger.MsfraggerParams.PROP_mass_offsets_detailed;
 import static org.nesvilab.fragpipe.util.MassOffsetUtils.floatArrToString;
 
-import org.nesvilab.fragpipe.Fragpipe;
-import org.nesvilab.fragpipe.api.*;
-import org.nesvilab.fragpipe.dialogs.DetailedOffsetEditDialog;
-import org.nesvilab.fragpipe.messages.MessageMsfraggerParamsUpdate;
-import org.nesvilab.fragpipe.messages.MessagePrecursorSelectionMode;
-import org.nesvilab.fragpipe.messages.MessageSearchType;
-import org.nesvilab.fragpipe.messages.MessageValidityMassCalibration;
-import org.nesvilab.fragpipe.messages.NoteConfigDbsplit;
-import org.nesvilab.fragpipe.messages.NoteConfigMsfragger;
-import org.nesvilab.fragpipe.params.Props.Prop;
-import org.nesvilab.fragpipe.params.ThisAppProps;
-import org.nesvilab.fragpipe.tools.enums.CleavageType;
-import org.nesvilab.fragpipe.tools.enums.FraggerOutputType;
-import org.nesvilab.fragpipe.tools.enums.FraggerPrecursorMassMode;
-import org.nesvilab.fragpipe.tools.enums.IntensityTransform;
-import org.nesvilab.fragpipe.tools.enums.MassTolUnits;
-import org.nesvilab.fragpipe.tools.enums.PrecursorMassTolUnits;
-import org.nesvilab.fragpipe.tools.enums.RemovePrecursorPeak;
-import org.nesvilab.fragpipe.tools.fragger.EnzymeProvider;
-import org.nesvilab.fragpipe.tools.fragger.Mod;
-import org.nesvilab.fragpipe.tools.fragger.MsfraggerEnzyme;
-import org.nesvilab.fragpipe.tools.fragger.MsfraggerParams;
-import org.nesvilab.fragpipe.tools.fragger.MsfraggerProps;
-import org.nesvilab.fragpipe.util.MassOffsetUtils;
-import org.nesvilab.fragpipe.util.SDRFtable;
-import org.nesvilab.utils.MapUtils;
-import org.nesvilab.utils.StringUtils;
-import org.nesvilab.utils.SwingUtils;
-import org.nesvilab.utils.swing.DocumentFilters;
-import org.nesvilab.utils.swing.FileChooserUtils;
-import org.nesvilab.utils.swing.FileChooserUtils.FcMode;
-import org.nesvilab.utils.swing.FileNameEndingFilter;
-import org.nesvilab.utils.swing.FormEntry;
-import org.nesvilab.utils.swing.JPanelBase;
-import org.nesvilab.utils.swing.MigUtils;
-import org.nesvilab.utils.swing.UiCheck;
-import org.nesvilab.utils.swing.UiCombo;
-import org.nesvilab.utils.swing.UiSpinnerDouble;
-import org.nesvilab.utils.swing.UiSpinnerInt;
-import org.nesvilab.utils.swing.UiText;
-import org.nesvilab.utils.swing.UiUtils;
-import org.nesvilab.utils.swing.renderers.TableCellDoubleRenderer;
-import org.nesvilab.utils.swing.renderers.TableCellIntRenderer;
-import org.nesvilab.utils.swing.renderers.TableCellIntSpinnerEditor;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -145,6 +101,54 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.jooq.lambda.Seq;
+import org.nesvilab.fragpipe.Fragpipe;
+import org.nesvilab.fragpipe.api.Bus;
+import org.nesvilab.fragpipe.api.FragpipeCacheUtils;
+import org.nesvilab.fragpipe.api.ModsTable;
+import org.nesvilab.fragpipe.api.ModsTableModel;
+import org.nesvilab.fragpipe.api.OffsetsTable;
+import org.nesvilab.fragpipe.api.SearchTypeProp;
+import org.nesvilab.fragpipe.dialogs.DetailedOffsetEditDialog;
+import org.nesvilab.fragpipe.messages.MessageMsfraggerParamsUpdate;
+import org.nesvilab.fragpipe.messages.MessagePrecursorSelectionMode;
+import org.nesvilab.fragpipe.messages.MessageSearchType;
+import org.nesvilab.fragpipe.messages.MessageValidityMassCalibration;
+import org.nesvilab.fragpipe.messages.NoteConfigDbsplit;
+import org.nesvilab.fragpipe.messages.NoteConfigMsfragger;
+import org.nesvilab.fragpipe.params.Props.Prop;
+import org.nesvilab.fragpipe.params.ThisAppProps;
+import org.nesvilab.fragpipe.tools.enums.CleavageType;
+import org.nesvilab.fragpipe.tools.enums.FraggerOutputType;
+import org.nesvilab.fragpipe.tools.enums.FraggerPrecursorMassMode;
+import org.nesvilab.fragpipe.tools.enums.IntensityTransform;
+import org.nesvilab.fragpipe.tools.enums.MassTolUnits;
+import org.nesvilab.fragpipe.tools.enums.PrecursorMassTolUnits;
+import org.nesvilab.fragpipe.tools.enums.RemovePrecursorPeak;
+import org.nesvilab.fragpipe.tools.fragger.EnzymeProvider;
+import org.nesvilab.fragpipe.tools.fragger.Mod;
+import org.nesvilab.fragpipe.tools.fragger.MsfraggerEnzyme;
+import org.nesvilab.fragpipe.tools.fragger.MsfraggerParams;
+import org.nesvilab.fragpipe.util.MassOffsetUtils;
+import org.nesvilab.fragpipe.util.SDRFtable;
+import org.nesvilab.utils.MapUtils;
+import org.nesvilab.utils.StringUtils;
+import org.nesvilab.utils.SwingUtils;
+import org.nesvilab.utils.swing.DocumentFilters;
+import org.nesvilab.utils.swing.FileChooserUtils;
+import org.nesvilab.utils.swing.FileChooserUtils.FcMode;
+import org.nesvilab.utils.swing.FileNameEndingFilter;
+import org.nesvilab.utils.swing.FormEntry;
+import org.nesvilab.utils.swing.JPanelBase;
+import org.nesvilab.utils.swing.MigUtils;
+import org.nesvilab.utils.swing.UiCheck;
+import org.nesvilab.utils.swing.UiCombo;
+import org.nesvilab.utils.swing.UiSpinnerDouble;
+import org.nesvilab.utils.swing.UiSpinnerInt;
+import org.nesvilab.utils.swing.UiText;
+import org.nesvilab.utils.swing.UiUtils;
+import org.nesvilab.utils.swing.renderers.TableCellDoubleRenderer;
+import org.nesvilab.utils.swing.renderers.TableCellIntRenderer;
+import org.nesvilab.utils.swing.renderers.TableCellIntSpinnerEditor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1921,6 +1925,10 @@ public class TabMsfragger extends JPanelBase {
 
   public boolean isRun() {
     return SwingUtils.isEnabledAndChecked(checkRun);
+  }
+
+  public boolean isChecked() {
+    return checkRun.isSelected();
   }
 
   public int getMassCalibration() {

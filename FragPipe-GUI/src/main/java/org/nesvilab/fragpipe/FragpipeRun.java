@@ -1381,6 +1381,12 @@ public class FragpipeRun {
 
     final UsageTrigger binDiaTracer = new UsageTrigger(NoteConfigDiaTracer.path, "diaTracer");
     final DiaTracerPanel diaTracerPanel = Fragpipe.getStickyStrict(DiaTracerPanel.class);
+
+    if (diaTracerPanel.isChecked() && !diaTracerPanel.isEnabled()) {
+      SwingUtils.showErrorDialog(parent, "<b>diaTracer</b> is not valid but it is enabled in the workflow. Please disable diaTracer or fix it in the <b>Config</b> tab.", "diaTracer not available");
+      return false;
+    }
+
     final CmdDiaTracer cmdDiaTracer = new CmdDiaTracer(diaTracerPanel.isRun(), wd);
     addConfig.accept(cmdDiaTracer, () -> {
       cmdDiaTracer.setRun(cmdDiaTracer.isRun() && !sharedLcmsFiles.isEmpty());
@@ -1430,6 +1436,12 @@ public class FragpipeRun {
     }
 
     MsfraggerParams p = tabMsf.getParams();
+
+    if (tabMsf.isChecked() && !tabMsf.isEnabled()) {
+      SwingUtils.showErrorDialog(parent, "<b>MSFragger</b> is not valid but it is enabled in the workflow. Please disable MSFragger or fix it in the <b>Config</b> tab.", "MSFragger not available");
+      return false;
+    }
+
     final CmdMsfragger cmdMsfragger = new CmdMsfragger(tabMsf.isRun(), wd, p.getOutputFormat(), tabMsf.getOutputReportTopNDia1(), tabMsf.getOutputReportTopNDdaPlus());
 
     final Map<InputLcmsFile, List<Path>> sharedPepxmlFilesFromMsfragger = new TreeMap<>();
@@ -1783,7 +1795,6 @@ public class FragpipeRun {
       return true;
     });
 
-
     final CmdIprophet cmdIprophet = new CmdIprophet(false, wd);
     addConfig.accept(cmdIprophet, () -> {
       cmdIprophet.setRun(cmdPhilosopherAbacus.isRun() && !quantPanelLabelfree.isRunIonQuant() && reportPanel.isPepSummary());
@@ -1816,8 +1827,8 @@ public class FragpipeRun {
 
     // run Report - IonQuant (Labelfree)
     final CmdIonquant cmdIonquant = new CmdIonquant(quantPanelLabelfree.isRunIonQuant(), wd);
-    if (quantPanelLabelfree.isChecked() && quantPanelLabelfree.isIonQuantChecked() && (!quantPanelLabelfree.isIonQuantEnabled() || !quantPanelLabelfree.isCheckRunEnabled()) && !tabWorkflow.hasDataType("DIA") && !tabWorkflow.hasDataType("GPF-DIA") && !tabWorkflow.hasDataType("DIA-Quant") && !tabWorkflow.hasDataType("DIA-Lib")) {
-      SwingUtils.showErrorDialog(parent, "Looks like IonQuant was not configured.\nIonQuant is currently required.", "No IonQuant");
+    if (quantPanelLabelfree.isIonQuantChecked() && !quantPanelLabelfree.isIonQuantEnabled()) {
+      SwingUtils.showErrorDialog(parent,  "<b>IonQuant</b> is not valid but it is enabled in the workflow. Please disable IonQuant or fix it in the <b>Config</b> tab.", "IonQuant not available");
       return false;
     }
 
@@ -1833,12 +1844,12 @@ public class FragpipeRun {
       try {
         configIonQuant = Fragpipe.getSticky(NoteConfigIonQuant.class);
       } catch (NoStickyException e) {
-        SwingUtils.showErrorDialog(parent, "Looks like IonQuant was not configured.\nIonQuant is currently required.", "No IonQuant");
+        SwingUtils.showErrorDialog(parent,  "<b>IonQuant</b> is not valid but it is enabled in the workflow. Please disable IonQuant or fix it in the <b>Config</b> tab.", "IonQuant not available");
         return false;
       }
 
       if (!configIonQuant.isValid()) {
-        SwingUtils.showErrorDialog(parent, "Looks like IonQuant was not configured.\nIonQuant is currently required.", "IonQuant not available");
+        SwingUtils.showErrorDialog(parent,  "<b>IonQuant</b> is not valid but it is enabled in the workflow. Please disable IonQuant or fix it in the <b>Config</b> tab.", "IonQuant not available");
         return false;
       }
 
@@ -1948,6 +1959,11 @@ public class FragpipeRun {
       }
 
       if (tmtiPanel.getIntensityExtractionTool() == 0) {
+        if (quantPanelLabelfree.isIonQuantChecked() && !quantPanelLabelfree.isIonQuantEnabled()) {
+          SwingUtils.showErrorDialog(parent, "<b>IonQuant</b> is not valid but it is enabled in the workflow. Please disable IonQuant or fix it in the <b>Config</b> tab.", "IonQuant not available");
+          return false;
+        }
+
         addConfig.accept(cmdTmtIonquant, () -> {
           cmdTmtIonquant.setRun(cmdTmtIonquant.isRun() && !sharedPepxmlFilesFromMsfragger.isEmpty());
           if (cmdTmtIonquant.isRun()) {
@@ -1973,6 +1989,12 @@ public class FragpipeRun {
           }
           return true;
         });
+
+        if (quantPanelLabelfree.isIonQuantChecked() && !quantPanelLabelfree.isIonQuantEnabled()) {
+          SwingUtils.showErrorDialog(parent, "<b>IonQuant</b> is not valid but it is enabled in the workflow. Please disable IonQuant or fix it in the <b>Config</b> tab.", "IonQuant not available");
+          return false;
+        }
+
         addConfig.accept(cmdTmtIonquantIsobaric, () -> {
           cmdTmtIonquantIsobaric.setRun(cmdTmtIonquantIsobaric.isRun() && !sharedPepxmlFilesFromMsfragger.isEmpty());
           if (cmdTmtIonquantIsobaric.isRun()) {
