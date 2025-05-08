@@ -1782,7 +1782,11 @@ public class FragpipeRun {
     // run Report - Multi-Experiment report
     final CmdPhilosopherAbacus cmdPhilosopherAbacus = new CmdPhilosopherAbacus(false, wd);
     addConfig.accept(cmdPhilosopherAbacus, () -> {
-      final boolean doRunAbacus = cmdPhilosopherReport.isRun() && (sharedLcmsFileGroups.size() > 1) && !quantPanelLabelfree.isRunIonQuant() && (philosopherGenerateMSstats || (!reportPanel.isNoProtXml() && reportPanel.isProtSummary()) || reportPanel.isPepSummary());
+      final boolean doRunAbacus = cmdPhilosopherReport.isRun() &&
+          (sharedLcmsFileGroups.size() > 1) &&
+          !quantPanelLabelfree.isRunIonQuant() &&
+          !(tmtiPanel.isRun() && tmtiPanel.getIntensityExtractionTool() == 0) &&
+          (philosopherGenerateMSstats || (!reportPanel.isNoProtXml() && reportPanel.isProtSummary()) || reportPanel.isPepSummary());
       cmdPhilosopherAbacus.setRun(doRunAbacus);
       if (cmdPhilosopherAbacus.isRun()) {
         int plex = 0;
