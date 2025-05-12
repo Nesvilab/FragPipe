@@ -223,10 +223,10 @@ class FragPipeReport:
         log_files = []
         for file in os.listdir(self.results_path):
             if file == "fragpipe-files.fp-manifest":
-                self.manifest_data = pd.read_csv(self.results_path + file, sep="\t", header=None,
+                self.manifest_data = pd.read_csv(os.path.join(self.results_path, file), sep="\t", header=None,
                                                  dtype=str)
             if file == "fragpipe.workflow":
-                self.workflow_file = self.results_path + file
+                self.workflow_file = os.path.join(self.results_path, file)
             if file.startswith("log_"):
                 log_files.append(file)
 
@@ -236,7 +236,7 @@ class FragPipeReport:
             raise FileNotFoundError("Log file not found in the results path {}".format(self.results_path))
         self.latest_log_file = log_files[-1]
 
-        with open(self.results_path + self.latest_log_file, 'r') as f:
+        with open(os.path.join(self.results_path, self.latest_log_file), 'r') as f:
             log_lines = f.readlines()
         for line in log_lines:
             if line.startswith("speclibgen.run-speclibgen"):
@@ -256,7 +256,7 @@ class FragPipeReport:
         self.id_nums = pd.concat([self.id_nums, self.read_proteins()], ignore_index=True)
 
     def get_percolator_features(self):
-        with open(self.results_path + self.latest_log_file, "r") as f:
+        with open(os.path.join(self.results_path, self.latest_log_file), "r") as f:
             log_text = f.read()
 
         pattern = (
@@ -302,7 +302,7 @@ class FragPipeReport:
             for h, m, s in times
         ]
 
-        creation_timestamp = os.path.getctime(self.results_path + self.latest_log_file)
+        creation_timestamp = os.path.getctime(os.path.join(self.results_path, self.latest_log_file))
         creation_datetime = dt.datetime.fromtimestamp(creation_timestamp)
 
         self.finish_time = dt.datetime.combine(creation_datetime.date(), dt.time()) + max(td_list)
@@ -312,7 +312,7 @@ class FragPipeReport:
         fragger_time = {}
         running_time_region = False
         main_search_region = False
-        with open(self.results_path + self.latest_log_file, 'r') as f:
+        with open(os.path.join(self.results_path, self.latest_log_file), 'r') as f:
             log_lines = f.readlines()
         for line in log_lines:
 
@@ -370,7 +370,7 @@ class FragPipeReport:
         mass_error_region = False
         data_rows = []
         self.percolator_raw_file = []
-        with open(self.results_path + self.latest_log_file, 'r') as f:
+        with open(os.path.join(self.results_path, self.latest_log_file), 'r') as f:
             log_lines = f.readlines()
         for line in log_lines:
 
@@ -460,13 +460,13 @@ class FragPipeReport:
     def read_psm(self):
         # Read the PSM data
 
-        if os.path.exists(self.results_path + "\\MSBooster\\MSBooster_plots"):
-            msbooster_files = os.listdir(self.results_path + "\\MSBooster\\MSBooster_plots")
+        if os.path.exists(os.path.join(self.results_path, "MSBooster", "MSBooster_plots")):
+            msbooster_files = os.listdir(os.path.join(self.results_path, "MSBooster", "MSBooster_plots"))
             for one_folder in msbooster_files:
                 # check if the folder is a directory
-                if not os.path.isdir(self.results_path + "\\MSBooster\\MSBooster_plots\\" + one_folder):
+                if not os.path.isdir(os.path.join(self.results_path, "MSBooster", "MSBooster_plots", one_folder)):
                     continue
-                for file in os.listdir(self.results_path + "\\MSBooster\\MSBooster_plots\\" + one_folder):
+                for file in os.listdir(os.path.join(self.results_path, "MSBooster", "MSBooster_plots", one_folder)):
                     if file.endswith(".png"):
                         if "edited" in file:
                             run_name = file.split("_edited")[0]
@@ -477,29 +477,29 @@ class FragPipeReport:
                         if one_folder == "RT_calibration_curves":
                             self.msbooster_plots[run_name].append(
                                 Image.open(
-                                    self.results_path + "\\MSBooster\\MSBooster_plots\\" + one_folder + "\\" + file))
+                                    os.path.join(self.results_path, "MSBooster", "MSBooster_plots", one_folder, file)))
                         if "delta_RT_loess" in file or "pred_RT_real_units" in file or "unweighted_spectral_entropy" in file:
                             self.msbooster_plots[run_name].append(
                                 Image.open(
-                                    self.results_path + "\\MSBooster\\MSBooster_plots\\" + one_folder + "\\" + file))
+                                    os.path.join(self.results_path, "MSBooster", "MSBooster_plots", one_folder, file)))
 
         psm_ids = pd.DataFrame(columns=["Experiment", "PSM"])
         if (self.manifest_data["Experiment"].isnull().any() and self.manifest_data["Bioreplicate"].isnull().any()) or self.run_spec_lib:
-            psm_file = self.results_path + "\\psm.tsv"
+            psm_file = os.path.join(self.results_path, "psm.tsv")
             psm_lines = self.count_lines(psm_file, exp="One")
             psm_ids.loc[0] = {"Experiment": "One", "PSM": psm_lines}
 
         elif self.manifest_data["Bioreplicate"].isnull().any() and not self.manifest_data["Experiment"].isnull().any():
             count = 0
             for exp in self.manifest_data["Experiment"].unique():
-                psm_file = self.results_path + "\\" + str(exp) + "\\psm.tsv"
+                psm_file = os.path.join(self.results_path, str(exp), "psm.tsv")
                 psm_lines = self.count_lines(psm_file, exp=str(exp))
                 psm_ids.loc[count] = {"Experiment": str(exp), "PSM": psm_lines}
                 count += 1
         elif self.manifest_data["Experiment"].isnull().any() and not self.manifest_data["Bioreplicate"].isnull().any():
             count = 0
             for bio_rep in self.manifest_data["Bioreplicate"].unique():
-                psm_file = self.results_path + "\\exp_" + str(bio_rep) + "\\psm.tsv"
+                psm_file = os.path.join(self.results_path, "exp_" + str(bio_rep), "psm.tsv")
                 psm_lines = self.count_lines(psm_file, exp=str(bio_rep))
                 psm_ids.loc[count] = {"Experiment": str(bio_rep), "PSM": psm_lines}
                 count += 1
@@ -507,7 +507,7 @@ class FragPipeReport:
         else:
             count = 0
             for exp, bio in zip(self.manifest_data["Experiment"], self.manifest_data["Bioreplicate"]):
-                psm_file = self.results_path + "\\" + str(exp) + "_" + str(bio) + "\\psm.tsv"
+                psm_file = os.path.join(self.results_path, str(exp) + "_" + str(bio), "psm.tsv")
                 psm_lines = self.count_lines(psm_file, exp=str(exp) + "_" + str(bio))
                 psm_ids.loc[count] = {"Experiment": str(exp) + "_" + str(bio), "PSM": psm_lines}
                 count += 1
@@ -516,7 +516,7 @@ class FragPipeReport:
 
     def process_psm(self):
         if (self.manifest_data["Experiment"].isnull().any() and self.manifest_data["Bioreplicate"].isnull().any()) or self.run_spec_lib:
-            psm_file = self.results_path + "\\psm.tsv"
+            psm_file = os.path.join(self.results_path, "psm.tsv")
             psm_df = pd.read_csv(psm_file, sep="\t", on_bad_lines="skip", engine='pyarrow')
             psm_df["Retention"] = psm_df["Retention"] / 60
             psm_df["raw_file"] = psm_df["Spectrum"].apply(
@@ -526,7 +526,7 @@ class FragPipeReport:
 
         elif self.manifest_data["Bioreplicate"].isnull().any():
             for exp in self.manifest_data["Experiment"].unique():
-                psm_file = self.results_path + "\\" + str(exp) + "\\psm.tsv"
+                psm_file = os.path.join(self.results_path, str(exp), "psm.tsv")
                 psm_df = pd.read_csv(psm_file, sep="\t", on_bad_lines="skip", engine='pyarrow')
                 psm_df["Retention"] = psm_df["Retention"] / 60
                 psm_df["raw_file"] = psm_df["Spectrum"].apply(
@@ -535,7 +535,7 @@ class FragPipeReport:
                     self.single_run_data[group] = data
         elif self.manifest_data["Experiment"].isnull().any():
             for bio_rep in self.manifest_data["Bioreplicate"].unique():
-                psm_file = self.results_path + "\\exp_" + str(bio_rep) + "\\psm.tsv"
+                psm_file = os.path.join(self.results_path, "exp_" + str(bio_rep), "psm.tsv")
                 psm_df = pd.read_csv(psm_file, sep="\t", on_bad_lines="skip", engine='pyarrow')
                 psm_df["Retention"] = psm_df["Retention"] / 60
                 psm_df["raw_file"] = psm_df["Spectrum"].apply(
@@ -545,7 +545,7 @@ class FragPipeReport:
 
         else:
             for exp, bio in zip(self.manifest_data["Experiment"], self.manifest_data["Bioreplicate"]):
-                psm_file = self.results_path + "\\" + str(exp) + "_" + str(bio) + "\\psm.tsv"
+                psm_file = os.path.join(self.results_path, str(exp) + "_" + str(bio), "psm.tsv")
                 psm_df = pd.read_csv(psm_file, sep="\t", on_bad_lines="skip", engine='pyarrow')
                 psm_df["Retention"] = psm_df["Retention"] / 60
                 psm_df["raw_file"] = psm_df["Spectrum"].apply(
@@ -557,27 +557,27 @@ class FragPipeReport:
         # Read the Peptides data
         peptides_ids = pd.DataFrame(columns=["Experiment", "Peptides"])
         if (self.manifest_data["Experiment"].isnull().any() and self.manifest_data["Bioreplicate"].isnull().any()) or self.run_spec_lib:
-            peptides_file = self.results_path + "\\peptide.tsv"
+            peptides_file = os.path.join(self.results_path, "peptide.tsv")
             peptides_lines = self.count_lines(peptides_file)
             peptides_ids.loc[0] = {"Experiment": "One", "Peptides": peptides_lines}
         elif self.manifest_data["Bioreplicate"].isnull().any():
             count = 0
             for exp in self.manifest_data["Experiment"].unique():
-                peptides_file = self.results_path + "\\" + str(exp) + "\\peptide.tsv"
+                peptides_file = os.path.join(self.results_path, str(exp), "peptide.tsv")
                 peptides_lines = self.count_lines(peptides_file)
                 peptides_ids.loc[count] = {"Experiment": str(exp), "Peptides": peptides_lines}
                 count += 1
         elif self.manifest_data["Experiment"].isnull().any():
             count = 0
             for bio_rep in self.manifest_data["Bioreplicate"].unique():
-                peptides_file = self.results_path + "\\exp_" + str(bio_rep) + "\\peptide.tsv"
+                peptides_file = os.path.join(self.results_path, "exp_" + str(bio_rep), "peptide.tsv")
                 peptides_lines = self.count_lines(peptides_file)
                 peptides_ids.loc[count] = {"Experiment": str(bio_rep), "Peptides": peptides_lines}
                 count += 1
         else:
             count = 0
             for exp, bio in zip(self.manifest_data["Experiment"], self.manifest_data["Bioreplicate"]):
-                peptides_file = self.results_path + "\\" + str(exp) + "_" + str(bio) + "\\peptide.tsv"
+                peptides_file = os.path.join(self.results_path, str(exp) + "_" + str(bio), "peptide.tsv")
                 peptides_lines = self.count_lines(peptides_file)
                 peptides_ids.loc[count] = {"Experiment": str(exp) + "_" + str(bio), "Peptides": peptides_lines}
                 count += 1
@@ -587,27 +587,27 @@ class FragPipeReport:
         # Read the Proteins data
         proteins_ids = pd.DataFrame(columns=["Experiment", "Proteins"])
         if (self.manifest_data["Experiment"].isnull().any() and self.manifest_data["Bioreplicate"].isnull().any()) or self.run_spec_lib:
-            proteins_file = self.results_path + "\\protein.tsv"
+            proteins_file = os.path.join(self.results_path, "protein.tsv")
             proteins_lines = self.count_lines(proteins_file)
             proteins_ids.loc[0] = {"Experiment": "One", "Proteins": proteins_lines}
         elif self.manifest_data["Bioreplicate"].isnull().any():
             count = 0
             for exp in self.manifest_data["Experiment"].unique():
-                proteins_file = self.results_path + "\\" + str(exp) + "\\protein.tsv"
+                proteins_file = os.path.join(self.results_path, str(exp), "protein.tsv")
                 proteins_lines = self.count_lines(proteins_file)
                 proteins_ids.loc[count] = {"Experiment": str(exp), "Proteins": proteins_lines}
                 count += 1
         elif self.manifest_data["Experiment"].isnull().any():
             count = 0
             for bio_rep in self.manifest_data["Bioreplicate"].unique():
-                proteins_file = self.results_path + "\\exp_" + str(bio_rep) + "\\protein.tsv"
+                proteins_file = os.path.join(self.results_path, "exp_" + str(bio_rep), "protein.tsv")
                 proteins_lines = self.count_lines(proteins_file)
                 proteins_ids.loc[count] = {"Experiment": str(bio_rep), "Proteins": proteins_lines}
                 count += 1
         else:
             count = 0
             for exp, bio in zip(self.manifest_data["Experiment"], self.manifest_data["Bioreplicate"]):
-                proteins_file = self.results_path + "\\" + str(exp) + "_" + str(bio) + "\\protein.tsv"
+                proteins_file = os.path.join(self.results_path, str(exp) + "_" + str(bio), "protein.tsv")
                 proteins_lines = self.count_lines(proteins_file)
                 proteins_ids.loc[count] = {"Experiment": str(exp) + "_" + str(bio), "Proteins": proteins_lines}
                 count += 1
@@ -910,7 +910,7 @@ def main():
     parser = argparse.ArgumentParser(description="FragPipe report generator")
     parser.add_argument("-r", "--results_path", type=str, required=True)
     args = parser.parse_args()
-    results_path = args.results_path + "\\"
+    results_path = args.results_path
 
     pio.kaleido.scope.mathjax = None
 
