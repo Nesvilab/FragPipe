@@ -221,6 +221,7 @@ public class CmdSpecLibGen extends CmdBase {
       pb.directory(groupWd.toFile());
       pb.environment().put("PYTHONIOENCODING", "utf-8");
       pb.environment().put("OMP_NUM_THREADS", String.valueOf(threads));
+      pb.environment().remove("OPENMS_DATA_PATH");
 
       pbis.add(PbiBuilder.from(pb));
       pbis.addAll(PbiBuilder.from(pbsDeleteLcmsFiles));
