@@ -29,6 +29,8 @@ import static org.nesvilab.fragpipe.tabs.TabWorkflow.workflowExt;
 import static org.nesvilab.utils.FileDelete.deleteFileOrFolder;
 import static org.nesvilab.utils.SwingUtils.wrapInScrollForDialog;
 
+import com.google.common.collect.Table;
+import com.google.common.collect.TreeBasedTable;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
@@ -177,9 +179,6 @@ import org.nesvilab.utils.UsageTrigger;
 import org.nesvilab.utils.swing.TextConsole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Table;
-import com.google.common.collect.TreeBasedTable;
 
 public class FragpipeRun {
 
@@ -2279,7 +2278,9 @@ public class FragpipeRun {
             diannPanel.getMedium(),
             diannPanel.getHeavy(),
             jarPath,
-            noteConfigDiann);
+            noteConfigDiann,
+            cmdUmpire.isRun() && !sharedLcmsFiles.isEmpty()
+            );
       }
       return true;
     });

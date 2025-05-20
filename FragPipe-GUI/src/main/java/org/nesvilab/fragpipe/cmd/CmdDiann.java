@@ -116,7 +116,8 @@ public class CmdDiann extends CmdBase {
       String mediumString,
       String heavyString,
       Path jarFragpipe,
-      NoteConfigDiann noteConfigDiann
+      NoteConfigDiann noteConfigDiann,
+      boolean isDiaUmpireRun
   ) {
     initPreConfig();
 
@@ -198,15 +199,20 @@ public class CmdDiann extends CmdBase {
       return false;
     }
 
-    List<LcmsFileGroup> lcmsFileGroups2 = new ArrayList<>(lcmsFileGroups.size());
-    for (LcmsFileGroup group : lcmsFileGroups) {
-      List<InputLcmsFile> lcmsFiles2 = new ArrayList<>(group.lcmsFiles.size());
-      for (InputLcmsFile lcmsFile : group.lcmsFiles) {
-        Path path2 = Paths.get(lcmsFile.getPath().toString().replaceAll("(?i)\\.raw", "_uncalibrated.mzML"));
-        InputLcmsFile lcmsFile2 = new InputLcmsFile(path2, lcmsFile.getExperiment(), lcmsFile.getReplicate(), lcmsFile.getDataType());
-        lcmsFiles2.add(lcmsFile2);
+    Collection<LcmsFileGroup> lcmsFileGroups2;
+    if (isDiaUmpireRun) {
+      lcmsFileGroups2 = lcmsFileGroups;
+    } else {
+      lcmsFileGroups2 = new ArrayList<>(lcmsFileGroups.size());
+      for (LcmsFileGroup group : lcmsFileGroups) {
+        List<InputLcmsFile> lcmsFiles2 = new ArrayList<>(group.lcmsFiles.size());
+        for (InputLcmsFile lcmsFile : group.lcmsFiles) {
+          Path path2 = Paths.get(lcmsFile.getPath().toString().replaceAll("(?i)\\.raw", "_uncalibrated.mzML"));
+          InputLcmsFile lcmsFile2 = new InputLcmsFile(path2, lcmsFile.getExperiment(), lcmsFile.getReplicate(), lcmsFile.getDataType());
+          lcmsFiles2.add(lcmsFile2);
+        }
+        lcmsFileGroups2.add(new LcmsFileGroup(group.name, lcmsFiles2));
       }
-      lcmsFileGroups2.add(new LcmsFileGroup(group.name, lcmsFiles2));
     }
 
     for (LcmsFileGroup group : lcmsFileGroups2) {
