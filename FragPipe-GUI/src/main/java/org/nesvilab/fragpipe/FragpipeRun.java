@@ -26,7 +26,6 @@ import static org.nesvilab.fragpipe.tabs.TabDatabase.databaseSizeLimit;
 import static org.nesvilab.fragpipe.tabs.TabRun.PDV_NAME;
 import static org.nesvilab.fragpipe.tabs.TabWorkflow.manifestExt;
 import static org.nesvilab.fragpipe.tabs.TabWorkflow.workflowExt;
-import static org.nesvilab.fragpipe.tools.skyline.Skyline.skylineVersionT;
 import static org.nesvilab.utils.FileDelete.deleteFileOrFolder;
 import static org.nesvilab.utils.SwingUtils.wrapInScrollForDialog;
 
@@ -2256,18 +2255,7 @@ public class FragpipeRun {
 
 
     // run DIA-NN
-    boolean isNew;
     NoteConfigDiann noteConfigDiann = Fragpipe.getStickyStrict(NoteConfigDiann.class);
-
-    final SkylinePanel skylinePanel = Fragpipe.getStickyStrict(SkylinePanel.class);
-    boolean moveSpeclibForSkyline;
-    if (skylinePanel.isRun()) {
-      DefaultArtifactVersion v = Skyline.getSkylineVersion();
-      moveSpeclibForSkyline = v != null && v.compareTo(skylineVersionT) <= 0;
-    } else {
-        moveSpeclibForSkyline = false;
-    }
-
     final CmdDiann cmdDiann = new CmdDiann(
         diannPanel.isRun() && (tabWorkflow.hasDataType("DIA") || tabWorkflow.hasDataType("DIA-Quant")), wd);
     addConfig.accept(cmdDiann,  () -> {
@@ -2291,13 +2279,13 @@ public class FragpipeRun {
             diannPanel.getMedium(),
             diannPanel.getHeavy(),
             jarPath,
-            moveSpeclibForSkyline,
             noteConfigDiann);
       }
       return true;
     });
 
 
+    final SkylinePanel skylinePanel = Fragpipe.getStickyStrict(SkylinePanel.class);
     final CmdSkyline cmdSkyline = new CmdSkyline(skylinePanel.isRun(), wd);
     addConfig.accept(cmdSkyline, () -> {
       if (cmdSkyline.isRun()) {

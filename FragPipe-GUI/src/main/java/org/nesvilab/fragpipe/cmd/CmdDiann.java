@@ -116,7 +116,6 @@ public class CmdDiann extends CmdBase {
       String mediumString,
       String heavyString,
       Path jarFragpipe,
-      boolean isRunSkyline,
       NoteConfigDiann noteConfigDiann
   ) {
     initPreConfig();
