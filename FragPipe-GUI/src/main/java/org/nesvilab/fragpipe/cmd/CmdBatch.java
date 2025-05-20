@@ -24,6 +24,7 @@ import java.awt.Component;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import org.nesvilab.utils.OsUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,6 +66,11 @@ public class CmdBatch extends CmdBase {
         cmd.add(String.valueOf(run.threads));
 
         ProcessBuilder pb = new ProcessBuilder(cmd);
+        // use bundled Java if on Windows
+        if (OsUtils.isWindows()) {
+            Path javaPath = FragpipeLocations.get().getDirFragpipeRoot().resolve("jre");
+            pb.environment().put("JAVA_HOME", javaPath.toAbsolutePath().normalize().toString());
+        }
         pb.directory(run.outputPath.toFile());
         pbis.add(PbiBuilder.from(pb));
 
