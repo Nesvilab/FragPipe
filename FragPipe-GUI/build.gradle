@@ -214,7 +214,7 @@ task copyToolsLinux(type: Copy, group: 'fragpipe-release', description: "Copies 
     into getLayout().buildDirectory.dir("install/${project.name}-${project.version}/tools").get().asFile
     exclude { details -> 
         details.file.path.contains('windows') ||
-        (details.file.name.endsWith('.exe') && !details.file.path.contains('opair') && !details.file.name.startsWith('Skyline')) ||
+        (details.file.name.endsWith('.exe') && !details.file.path.contains('opair') && !details.file.name.startsWith('Skyline') && !details.file.name.startsWith('BatmassIoThermoServer')) ||
         details.file.name.endsWith('.bat')
     }
 }
