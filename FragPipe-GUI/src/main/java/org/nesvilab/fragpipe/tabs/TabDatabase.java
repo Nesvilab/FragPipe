@@ -63,6 +63,9 @@ import org.nesvilab.utils.swing.FileChooserUtils.FcMode;
 import org.nesvilab.utils.swing.FormEntry;
 import org.nesvilab.utils.swing.JPanelWithEnablement;
 import org.nesvilab.utils.swing.MigUtils;
+import org.nesvilab.utils.swing.UiCheck;
+import org.nesvilab.utils.swing.UiSpinnerDouble;
+import org.nesvilab.utils.swing.UiSpinnerInt;
 import org.nesvilab.utils.swing.UiText;
 import org.nesvilab.utils.swing.UiUtils;
 import org.slf4j.Logger;
@@ -75,14 +78,24 @@ public class TabDatabase extends JPanelWithEnablement {
   public static final String TIP_DB_PATH = "tip.db.path";
   public static final long databaseSizeLimit = 1 << 30L;
   private static final String TIP_DB_DOWNLOAD = "tip.db.download";
-  private static final String TIP_DB_UPDATE = "tip.db.update";
   public static final Pattern disallowedFastaPattern = Pattern.compile("[^A-Za-z0-9_:\\\\/.+-]");
+  private static final String META_PREFIX = "metaproteomics.";
 
   private UiText uiTextDbPath;
   private UiText uiTextDecoyTag;
   private JEditorPane epDbInfo;
   private JButton btnDownload;
   private JButton btnUpdate;
+  private UiCheck uiCheckRunMeta;
+  private JPanel panelMetaproteomics;
+  private UiSpinnerDouble uiSpinnerQvalue;
+  private UiSpinnerDouble uiSpinnerDeltaHyperscore;
+  private UiSpinnerInt uiSpinnerMinPeptCntPerProt;
+  private UiSpinnerInt uiSpinnerMinUniqPeptCntPerProt;
+  private UiSpinnerInt uiSpinerMinUniqPeptCnt;
+  private UiText uiTextHostName;
+  private UiSpinnerInt uiSpinnerIterations;
+  private UiText uiTextCmdLineOpts;
 
   public TabDatabase() {
     init();
@@ -101,6 +114,14 @@ public class TabDatabase extends JPanelWithEnablement {
     mu.add(this, createPanelDbSelection()).growX().wrap();
     mu.add(this, createPanelInfo()).growX().wrap();
 
+    uiCheckRunMeta = UiUtils.createUiCheck("Run Metaproteomics database preparation", false);
+    uiCheckRunMeta.setName(META_PREFIX + "run-metaproteomics");
+
+    mu.add(this, uiCheckRunMeta).wrap();
+    panelMetaproteomics = createPanelMetaproteomicsDbPrep();
+    mu.add(this, panelMetaproteomics).growX().wrap();
+
+    SwingUtils.setEnablementUpdater(this, panelMetaproteomics, uiCheckRunMeta);
   }
 
   private FormEntry.Builder fe(JComponent comp, String name) {
@@ -356,5 +377,125 @@ public class TabDatabase extends JPanelWithEnablement {
         + "To download a database containing two or more organisms during 'Download', list all UniProt proteome IDs separated by commas, e.g., UP000005640,UP000464024 to get a combined human + COVID-19 database.<br>"
         + "<br/>"
         + "<br/>";
+  }
+
+  private JPanel createPanelMetaproteomicsDbPrep() {
+    JPanel p = mu.newPanel("Metaproteomics database preparation", true);
+
+    uiSpinnerQvalue = UiSpinnerDouble.builder(0.01, 0.0, 1.0, 0.01)
+        .setFormat("0.00")
+        .setCols(3)
+        .create();
+    FormEntry feQvalue = mu.feb(META_PREFIX + "qvalue", uiSpinnerQvalue)
+        .label("Q-value")
+        .tooltip("Q-value threshold for PSM filtering")
+        .create();
+
+    uiSpinnerDeltaHyperscore = UiSpinnerDouble.builder(0.0, 0.0, 100.0, 0.1)
+        .setFormat("0.0")
+        .setCols(3)
+        .create();
+    FormEntry feDeltaHyperscore = mu.feb(META_PREFIX + "delta-hyperscore", uiSpinnerDeltaHyperscore)
+      .label("Delta Hyperscore")
+      .tooltip("Minimum deltaHyperscore threshold for PSM filtering, default 0.0")
+      .create();
+
+    uiSpinnerMinPeptCntPerProt = new UiSpinnerInt(1, 0, 100, 1, 3);
+    FormEntry feMinPeptCntPerProt = mu.feb(META_PREFIX + "min-pept-cnt-per-prot", uiSpinnerMinPeptCntPerProt)
+      .label("Min Peptides per Protein")
+      .tooltip("Minimum peptide count per protein")
+      .create();
+
+    uiSpinnerMinUniqPeptCntPerProt = new UiSpinnerInt(1, 0, 100, 1, 3);
+    FormEntry feMinUniqPeptCntPerProt = mu.feb(META_PREFIX + "min-uniq-pept-cnt-per-prot", uiSpinnerMinUniqPeptCntPerProt)
+      .label("Min Unique Peptides per Protein")
+      .tooltip("Minimum unique peptide count for each protein")
+      .create();
+
+    uiSpinerMinUniqPeptCnt = new UiSpinnerInt(3, 0, 100, 1, 3);
+    FormEntry feMinUniqPeptCnt = mu.feb(META_PREFIX + "min-uniq-pept-cnt", uiSpinerMinUniqPeptCnt)
+      .label("Min Unique Peptides")
+      .tooltip("Minimum unique peptide count for each organism")
+      .create();
+
+    uiTextHostName = UiUtils.uiTextBuilder().cols(20).text("Homo sapiens").create();
+    FormEntry feHostName = mu.feb(META_PREFIX + "host-name", uiTextHostName)
+      .label("Host Name")
+      .tooltip("The taxonomy name of host to exclude once specified, e.g. 'Homo sapiens' or 'Mus musculus'")
+      .create();
+
+    uiSpinnerIterations = new UiSpinnerInt(3, 1, 100, 1, 3);
+    FormEntry feIterations = mu.feb(META_PREFIX + "iterations", uiSpinnerIterations)
+      .label("Iterations")
+      .tooltip("Number of iterations for organism pruning")
+      .create();
+
+    uiTextCmdLineOpts = UiUtils.uiTextBuilder().cols(20).text("").create();
+    FormEntry feCmdLineOpts = mu.feb(META_PREFIX + "cmd-line-opts", uiTextCmdLineOpts)
+      .label("Command line options (optional)")
+      .tooltip("Additional command line options")
+      .create();
+
+    mu.add(p, feQvalue.label(), mu.ccR());
+    mu.add(p, feQvalue.comp);
+
+    mu.add(p, feDeltaHyperscore.label(), mu.ccR());
+    mu.add(p, feDeltaHyperscore.comp);
+
+    mu.add(p, feMinPeptCntPerProt.label(), mu.ccR());
+    mu.add(p, feMinPeptCntPerProt.comp).wrap();
+
+    mu.add(p, feMinUniqPeptCntPerProt.label(), mu.ccR());
+    mu.add(p, feMinUniqPeptCntPerProt.comp);
+
+    mu.add(p, feMinUniqPeptCnt.label(), mu.ccR());
+    mu.add(p, feMinUniqPeptCnt.comp);
+
+    mu.add(p, feHostName.label(), mu.ccR());
+    mu.add(p, feHostName.comp).wrap();
+
+    mu.add(p, feIterations.label(), mu.ccR());
+    mu.add(p, feIterations.comp);
+
+    mu.add(p, feCmdLineOpts.label(), mu.ccR());
+    mu.add(p, feCmdLineOpts.comp).growX().spanX();
+
+    return p;
+  }
+
+  public boolean isRunMeta() {
+    return uiCheckRunMeta.isEnabled() && uiCheckRunMeta.isSelected();
+  }
+
+  public float getMetaQvalue() {
+    return (float) uiSpinnerQvalue.getActualValue();
+  }
+
+  public float getMetaDeltaHyperscore() {
+    return (float) uiSpinnerDeltaHyperscore.getActualValue();
+  }
+
+  public int getMetaMinPeptCntPerProt() {
+    return uiSpinnerMinPeptCntPerProt.getActualValue();
+  }
+
+  public int getMetaMinUniqPeptCntPerProt() {
+    return uiSpinnerMinUniqPeptCntPerProt.getActualValue();
+  }
+
+  public int getMetaMinUniqPeptCnt() {
+    return uiSpinerMinUniqPeptCnt.getActualValue();
+  }
+
+  public String getMetaHostName() {
+    return uiTextHostName.getNonGhostText();
+  }
+
+  public int getMetaIterations() {
+    return uiSpinnerIterations.getActualValue();
+  }
+
+  public String getMetaCmdLineOpts() {
+    return uiTextCmdLineOpts.getNonGhostText();
   }
 }

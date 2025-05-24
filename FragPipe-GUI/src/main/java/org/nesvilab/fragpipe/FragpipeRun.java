@@ -92,6 +92,7 @@ import org.nesvilab.fragpipe.cmd.CmdIonquant;
 import org.nesvilab.fragpipe.cmd.CmdIprophet;
 import org.nesvilab.fragpipe.cmd.CmdLabelquant;
 import org.nesvilab.fragpipe.cmd.CmdMSBooster;
+import org.nesvilab.fragpipe.cmd.CmdMetaproteomics;
 import org.nesvilab.fragpipe.cmd.CmdMsfragger;
 import org.nesvilab.fragpipe.cmd.CmdOPair;
 import org.nesvilab.fragpipe.cmd.CmdPairScans;
@@ -1168,6 +1169,7 @@ public class FragpipeRun {
     sb.append("MSBooster version ").append(CmdMSBooster.MSBOOSTER_VERSION == null ? "N/A" : CmdMSBooster.MSBOOSTER_VERSION).append("\n");
     sb.append("Percolator version ").append(CmdPercolator.PERCOLATOR_VERSION == null ? "N/A" : CmdPercolator.PERCOLATOR_VERSION).append("\n");
     sb.append("PTMProphet version ").append(CmdPtmProphet.PTMProphet_VERSION == null ? "N/A" : CmdPtmProphet.PTMProphet_VERSION).append("\n");
+    sb.append("Metaproteomics version ").append(CmdMetaproteomics.VERSION == null ? "N/A" : CmdMetaproteomics.VERSION).append("\n");
     sb.append("Philosopher version ").append(PHILOSOPHER_VERSION == null ? "N/A" : PHILOSOPHER_VERSION).append("\n");
     sb.append("PTM-Shepherd version ").append(CmdPtmshepherd.SHEPHERD_VERSION == null ? "N/A" : CmdPtmshepherd.SHEPHERD_VERSION).append("\n");
     sb.append("IonQuant version ").append(NoteConfigIonQuant.version == null ? "N/A" : NoteConfigIonQuant.version).append("\n");
@@ -1632,7 +1634,7 @@ public class FragpipeRun {
       cmdPercolator.setRun(cmdPercolator.isRun() && !sharedPepxmlFilesBeforePeptideValidation.isEmpty());
       if (cmdPercolator.isRun()) {
         final String percolatorCmd = percolatorPanel.getCmdOpts();
-        if (!cmdPercolator.configure(parent, jarPath, percolatorCmd, isCombinedPepxml_percolator, sharedPepxmlFilesBeforePeptideValidation, crystalcPanel.isRun(), percolatorPanel.getMinProb(), decoyTag, tabMsf.isWriteCalMzml() && tabMsf.getMassCalibration() > 0, tabRun.isWriteSubMzml())) {
+        if (!cmdPercolator.configure(parent, jarPath, percolatorCmd, isCombinedPepxml_percolator, sharedPepxmlFilesBeforePeptideValidation, crystalcPanel.isRun(), percolatorPanel.getMinProb(), decoyTag, tabMsf.isWriteCalMzml() && tabMsf.getMassCalibration() > 0, tabRun.isWriteSubMzml(), tabDatabase.isRunMeta())) {
           return false;
         }
       }
@@ -2296,6 +2298,26 @@ public class FragpipeRun {
       return true;
     });
 
+    // run Meta
+    final CmdMetaproteomics cmdMeta = new CmdMetaproteomics(tabDatabase.isRunMeta(), wd);
+    addConfig.accept(cmdMeta, () -> {
+      if (cmdMeta.isRun()) {
+        return cmdMeta.configure(parent, 
+            ramGb, 
+            tabDatabase.getFastaPath(), 
+            decoyTag, 
+            tabDatabase.getMetaQvalue(), 
+            tabDatabase.getMetaDeltaHyperscore(),
+            tabDatabase.getMetaMinPeptCntPerProt(),
+            tabDatabase.getMetaMinUniqPeptCntPerProt(),
+            tabDatabase.getMetaMinUniqPeptCnt(),
+            tabDatabase.getMetaHostName(),
+            tabDatabase.getMetaIterations(),
+            tabDatabase.getMetaCmdLineOpts());
+      }
+      return true;
+    });
+
 
     // write sub mzML files
     final CmdWriteSubMzml cmdWriteSubMzml = new CmdWriteSubMzml(tabRun.isWriteSubMzml(), wd);
@@ -2358,6 +2380,7 @@ public class FragpipeRun {
     addToGraph(graphOrder, cmdMSBooster, DIRECTION.IN, cmdMsfragger);
     addToGraph(graphOrder, cmdPeptideProphet, DIRECTION.IN, cmdMsfragger, cmdCrystalc);
     addToGraph(graphOrder, cmdPercolator, DIRECTION.IN, cmdMsfragger, cmdCrystalc, cmdMSBooster);
+    addToGraph(graphOrder, cmdMeta, DIRECTION.IN, cmdPercolator);
     for (final CmdBase cmdPeptideValidation : new CmdBase[]{cmdPeptideProphet, cmdPercolator}) {
       addToGraph(graphOrder, cmdPtmProphet, DIRECTION.IN, cmdPeptideValidation);
       addToGraph(graphOrder, cmdProteinProphet, DIRECTION.IN, cmdPeptideValidation, cmdPtmProphet);

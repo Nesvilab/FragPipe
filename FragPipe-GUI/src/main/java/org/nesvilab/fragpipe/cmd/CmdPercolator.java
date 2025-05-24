@@ -113,7 +113,7 @@ public class CmdPercolator extends CmdBase {
     return s;
   }
 
-  public boolean configure(Component comp, Path jarFragpipe, String percolatorCmd, boolean combine, Map<InputLcmsFile, List<Path>> pepxmlFiles, boolean hasCrystalC, double minProb, String decoyTag, boolean hasCalibratedMzml, boolean writeSubMzml) {
+  public boolean configure(Component comp, Path jarFragpipe, String percolatorCmd, boolean combine, Map<InputLcmsFile, List<Path>> pepxmlFiles, boolean hasCrystalC, double minProb, String decoyTag, boolean hasCalibratedMzml, boolean writeSubMzml, boolean isRunMetaproteomics) {
     PeptideProphetParams percolatorParams = new PeptideProphetParams();
     percolatorParams.setCmdLineParams(percolatorCmd);
 
@@ -232,7 +232,9 @@ public class CmdPercolator extends CmdBase {
         PercolatorPanel percolatorPanel = Fragpipe.getStickyStrict(PercolatorPanel.class);
         if (!percolatorPanel.isKeepTsvFiles()) {
           final List<Path> temp = new ArrayList<>();
-          temp.add(pepxmlDir.resolve(strippedBaseName + "_percolator_target_psms.tsv"));
+          if (!isRunMetaproteomics) {
+            temp.add(pepxmlDir.resolve(strippedBaseName + "_percolator_target_psms.tsv"));
+          }
           temp.add(pepxmlDir.resolve(strippedBaseName + "_percolator_decoy_psms.tsv"));
           List<ProcessBuilder> pbsDeleteTemp = ToolingUtils
                   .pbsDeleteFiles(jarFragpipe, temp);

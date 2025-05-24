@@ -1,3 +1,5 @@
 torch_cpu.dll filter=lfs diff=lfs merge=lfs -text
 libtorch_cpu.so filter=lfs diff=lfs merge=lfs -text
 2024-08-05-decoys-Gencode_v42.basicPCnr.602contams_JPTiRT.2043smorfs.nuORFv1.FragPipe.2.fasta.fas filter=lfs diff=lfs merge=lfs -text
+names.dmp filter=lfs diff=lfs merge=lfs -text
+nodes.dmp filter=lfs diff=lfs merge=lfs -text
