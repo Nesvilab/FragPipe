@@ -1167,6 +1167,7 @@ public class FragpipeRun {
     sb.append("Crystal-C version ").append(CmdCrystalc.CRYSTALC_VERSION == null ? "N/A" : CmdCrystalc.CRYSTALC_VERSION).append("\n");
     sb.append("MSBooster version ").append(CmdMSBooster.MSBOOSTER_VERSION == null ? "N/A" : CmdMSBooster.MSBOOSTER_VERSION).append("\n");
     sb.append("Percolator version ").append(CmdPercolator.PERCOLATOR_VERSION == null ? "N/A" : CmdPercolator.PERCOLATOR_VERSION).append("\n");
+    sb.append("PTMProphet version ").append(CmdPtmProphet.PTMProphet_VERSION == null ? "N/A" : CmdPtmProphet.PTMProphet_VERSION).append("\n");
     sb.append("Philosopher version ").append(PHILOSOPHER_VERSION == null ? "N/A" : PHILOSOPHER_VERSION).append("\n");
     sb.append("PTM-Shepherd version ").append(CmdPtmshepherd.SHEPHERD_VERSION == null ? "N/A" : CmdPtmshepherd.SHEPHERD_VERSION).append("\n");
     sb.append("IonQuant version ").append(NoteConfigIonQuant.version == null ? "N/A" : NoteConfigIonQuant.version).append("\n");

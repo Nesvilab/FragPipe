@@ -50,8 +50,8 @@ public class CmdPtmProphet extends CmdBase {
   private static final Pattern pattern3 = Pattern.compile("--([^\\s]+)\\s+(((?!--).)*)");
 
   public static String NAME = "PTMProphet";
-  public static final String PTMProphet_WIN = "PTMProphet/PTMProphetParser.exe";
-  public static final String PTMProphet_LINUX = "PTMProphet/PTMProphetParser";
+  public static final String PTMProphet_NAME = "PTMProphet/PTMProphetParser";
+  public static final String PTMProphet_VERSION = "7.3.0";
 
   public CmdPtmProphet(boolean isRun, Path workDir) {
     super(isRun, workDir);
@@ -67,15 +67,15 @@ public class CmdPtmProphet extends CmdBase {
 
     final List<Path> ptmprophetPath;
     if (isWindows()) {
-      ptmprophetPath = FragpipeLocations.checkToolsMissing(Seq.of(PTMProphet_WIN));
+      ptmprophetPath = FragpipeLocations.checkToolsMissing(Seq.of(PTMProphet_NAME + "-" + PTMProphet_VERSION + ".exe"));
       if (ptmprophetPath == null || ptmprophetPath.size() != 1) {
-        System.err.println("Could not file PTMProphet's executable file " + PTMProphet_WIN);
+        System.err.println("Could not file PTMProphet's executable file " + PTMProphet_NAME + "-" + PTMProphet_VERSION + ".exe");
         return false;
       }
     } else if (isUnix()) {
-      ptmprophetPath = FragpipeLocations.checkToolsMissing(Seq.of(PTMProphet_LINUX));
+      ptmprophetPath = FragpipeLocations.checkToolsMissing(Seq.of(PTMProphet_NAME + "-" + PTMProphet_VERSION));
       if (ptmprophetPath == null || ptmprophetPath.size() != 1) {
-        System.err.println("Could not file PTMProphet's executable file " + PTMProphet_LINUX);
+        System.err.println("Could not file PTMProphet's executable file " + PTMProphet_NAME + "-" + PTMProphet_VERSION);
         return false;
       }
     } else {
