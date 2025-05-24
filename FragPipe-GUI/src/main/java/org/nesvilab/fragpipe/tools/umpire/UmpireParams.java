@@ -77,7 +77,7 @@ public class UmpireParams implements PropertyFileContent {
     public static final String FILE_BASE_EXT = "params";
     /** This file is in the jar, use getResourceAsStream() to get it.  */
     public static final String CACHE_FILE = "diaumpire_se.params";
-    public static final String UMPIRESE_VERSION = "2.3.2";
+    public static final String UMPIRESE_VERSION = "2.3.3";
     public static final String JAR_UMPIRESE_NAME = "DIA_Umpire_SE-" + UMPIRESE_VERSION + ".jar";
     
     Properties props = new Properties();
