@@ -21,6 +21,7 @@ Major external tools included in the distribution:
 - Skyline runner: open source (Apache 2.0) https://skyline.ms/project/home/software/Skyline/begin.view
 - generate_reports_pdf.py: open source (Apache 2.0)
 - LFQ-SiteReporter: closed source, both academic and commercial use is permitted.
+- FragPipe-Meta: closed source, both academic and commercial use is permitted.
 - Batmass-IO: closed source tool, both academic and commercial use is permitted.
 
 Utility tools included in the distribution:
