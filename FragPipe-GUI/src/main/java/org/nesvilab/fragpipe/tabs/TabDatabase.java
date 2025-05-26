@@ -114,7 +114,7 @@ public class TabDatabase extends JPanelWithEnablement {
     mu.add(this, createPanelDbSelection()).growX().wrap();
     mu.add(this, createPanelInfo()).growX().wrap();
 
-    uiCheckRunMeta = UiUtils.createUiCheck("Run Metaproteomics database preparation", false);
+    uiCheckRunMeta = UiUtils.createUiCheck("Run Metaproteomics database preparation (beta)", false);
     uiCheckRunMeta.setName(META_PREFIX + "run-metaproteomics");
 
     mu.add(this, uiCheckRunMeta).wrap();
@@ -380,7 +380,7 @@ public class TabDatabase extends JPanelWithEnablement {
   }
 
   private JPanel createPanelMetaproteomicsDbPrep() {
-    JPanel p = mu.newPanel("Metaproteomics database preparation", true);
+    JPanel p = mu.newPanel("Metaproteomics database preparation (beta)", true);
 
     uiSpinnerQvalue = UiSpinnerDouble.builder(0.01, 0.0, 1.0, 0.01)
         .setFormat("0.00")
