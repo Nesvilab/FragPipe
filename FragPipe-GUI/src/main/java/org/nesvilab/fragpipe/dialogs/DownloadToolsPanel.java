@@ -125,9 +125,10 @@ public class DownloadToolsPanel extends JPanel {
     });
 
     JEditorPane lblAcademic = SwingUtils.createClickableHtml(
-        "<html>Download available for academic users only. Non-academic users must visit<br>"
-            + "Fragmatics at <a href='https://fragmatics.com' target=\"blank_\">www.fragmatics.com</a> or email <a href=\"mailto:info@fragmatics.com\">info@fragmatics.com</a> to purchase<br>"
-            + "a license and access the tools.</html>");
+        "<html>Download available for academic users only. Non-academic users (including those<br>" +
+        "with an existing commercial license from the University of Michigan) must visit <br>" + 
+        "Fragmatics at <a href=\"https://www.fragmatics.com\" target=\"blank_\">www.fragmatics.com</a> or email <a href=\"mailto:info@fragmatics.com\">info@fragmatics.com</a> to purchase or<br>" + 
+        "confirm their license and access the tools.</html>");
 
     mu.add(panelTextboxes, t0).split().spanX().wrap();
 

@@ -681,7 +681,7 @@ public class Version {
           + "- The (<a href='" + zipUrl + "' target='_blank'>" + zipFn + "</a>) is for Linux. You will need Java 11+ to run.\n"
           + "- The (<a href='" + installerUrl + "' target='_blank'>" + installerFn + "</a>) is for Windows. You will need to install it. Java runtime is bundled and Python will be installed automatically.\n"
           + "- The docker image is available at <a href='https://hub.docker.com/r/fcyucn/fragpipe' target='_blank'>https://hub.docker.com/r/fcyucn/fragpipe</a>\n"
-          + "- **NOTE:** non-academic users should email [info@fragmatics.com](mailto:info@fragmatics.com) to get FragPipe with the commercial versions of MSFragger, IonQuant, and diaTracer included."
+          + "- **NOTE:** Non-academic users (including those with an existing commercial license from the University of Michigan) must visit Fragmatics at [www.fragmatics.com](https://www.fragmatics.com) or email [info@fragmatics.com](mailto:info@fragmatics.com) to purchase or confirm their license and access the tools."
           + "## Running\n"
           + "- In Windows, install FragPipe using the installer. Then double-click the `FragPipe-" + version + ".exe` file.\n"
           + "- In Linux, unzip the file. In `bin` subdirectory you will find a `shell script for Linux`\n";
