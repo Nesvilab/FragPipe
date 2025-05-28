@@ -103,7 +103,7 @@ distributions {
 
 dependencies {
     implementation 'com.github.albfernandez:juniversalchardet:2.5.0'
-    implementation files("../tools/batmass-io-1.35.1.jar")
+    implementation files("../tools/batmass-io-1.35.2.jar")
     implementation 'com.google.code.gson:gson:2.12.1'
     implementation 'one.util:streamex:0.8.3'
     implementation 'org.jooq:jool-java-8:0.9.15'
