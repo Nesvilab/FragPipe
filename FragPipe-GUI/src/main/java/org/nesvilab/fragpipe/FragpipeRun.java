@@ -79,44 +79,7 @@ import org.nesvilab.fragpipe.api.Bus;
 import org.nesvilab.fragpipe.api.IConfig;
 import org.nesvilab.fragpipe.api.InputLcmsFile;
 import org.nesvilab.fragpipe.api.LcmsFileGroup;
-import org.nesvilab.fragpipe.cmd.CmdAppendFile;
-import org.nesvilab.fragpipe.cmd.CmdBase;
-import org.nesvilab.fragpipe.cmd.CmdCheckCentroid;
-import org.nesvilab.fragpipe.cmd.CmdCrystalc;
-import org.nesvilab.fragpipe.cmd.CmdDiaTracer;
-import org.nesvilab.fragpipe.cmd.CmdDiann;
-import org.nesvilab.fragpipe.cmd.CmdFPOPcoadaptr;
-import org.nesvilab.fragpipe.cmd.CmdFpopQuant;
-import org.nesvilab.fragpipe.cmd.CmdFreequant;
-import org.nesvilab.fragpipe.cmd.CmdIonquant;
-import org.nesvilab.fragpipe.cmd.CmdIprophet;
-import org.nesvilab.fragpipe.cmd.CmdLabelquant;
-import org.nesvilab.fragpipe.cmd.CmdMSBooster;
-import org.nesvilab.fragpipe.cmd.CmdMetaproteomics;
-import org.nesvilab.fragpipe.cmd.CmdMsfragger;
-import org.nesvilab.fragpipe.cmd.CmdOPair;
-import org.nesvilab.fragpipe.cmd.CmdPairScans;
-import org.nesvilab.fragpipe.cmd.CmdPeptideProphet;
-import org.nesvilab.fragpipe.cmd.CmdPercolator;
-import org.nesvilab.fragpipe.cmd.CmdPhilosopherAbacus;
-import org.nesvilab.fragpipe.cmd.CmdPhilosopherDbAnnotate;
-import org.nesvilab.fragpipe.cmd.CmdPhilosopherFilter;
-import org.nesvilab.fragpipe.cmd.CmdPhilosopherReport;
-import org.nesvilab.fragpipe.cmd.CmdPhilosopherWorkspaceClean;
-import org.nesvilab.fragpipe.cmd.CmdPhilosopherWorkspaceCleanInit;
-import org.nesvilab.fragpipe.cmd.CmdProteinProphet;
-import org.nesvilab.fragpipe.cmd.CmdPtmProphet;
-import org.nesvilab.fragpipe.cmd.CmdPtmshepherd;
-import org.nesvilab.fragpipe.cmd.CmdSkyline;
-import org.nesvilab.fragpipe.cmd.CmdSpecLibGen;
-import org.nesvilab.fragpipe.cmd.CmdStart;
-import org.nesvilab.fragpipe.cmd.CmdTmtIntegrator;
-import org.nesvilab.fragpipe.cmd.CmdUmpireSe;
-import org.nesvilab.fragpipe.cmd.CmdWriteSubMzml;
-import org.nesvilab.fragpipe.cmd.PbiBuilder;
-import org.nesvilab.fragpipe.cmd.ProcessBuilderInfo;
-import org.nesvilab.fragpipe.cmd.ProcessBuildersDescriptor;
-import org.nesvilab.fragpipe.cmd.ToolingUtils;
+import org.nesvilab.fragpipe.cmd.*;
 import org.nesvilab.fragpipe.exceptions.NoStickyException;
 import org.nesvilab.fragpipe.internal.DefEdge;
 import org.nesvilab.fragpipe.messages.MessageClearConsole;
@@ -466,6 +429,12 @@ public class FragpipeRun {
         toConsole("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", tabRun.console);
       } catch (IOException e) {
         log.error("Could not collect form text representation for printing to console");
+      }
+
+      if (!pbis.isEmpty()) {
+        toConsole("Java home: " + pbis.get(0).pb.environment().get("JAVA_HOME"), tabRun.console);
+        toConsole("Path: " + pbis.get(0).pb.environment().get("Path"), tabRun.console);
+        toConsole("", tabRun.console);
       }
 
       // run everything
@@ -1324,6 +1293,15 @@ public class FragpipeRun {
         }
       }
 
+      return true;
+    });
+
+    CmdCheckJava cmdCheckJava = new CmdCheckJava(true, wd);
+    addConfig.accept(cmdCheckJava, () -> {
+      cmdCheckJava.setRun(cmdCheckJava.isRun());
+      if (cmdCheckJava.isRun()) {
+        return cmdCheckJava.configure();
+      }
       return true;
     });
 
@@ -2370,6 +2348,8 @@ public class FragpipeRun {
 
 
     addToGraph(graphOrder, cmdStart, DIRECTION.IN);
+    addToGraph(graphOrder, cmdCheckJava, DIRECTION.IN, cmdStart);
+    addToGraph(graphOrder, cmdCheckCentroid, DIRECTION.IN, cmdStart, cmdCheckJava);
     addToGraph(graphOrder, cmdCheckCentroid, DIRECTION.IN, cmdStart);
     addToGraph(graphOrder, cmdUmpire, DIRECTION.IN, cmdCheckCentroid);
     addToGraph(graphOrder, cmdDiaTracer, DIRECTION.IN, cmdCheckCentroid);
