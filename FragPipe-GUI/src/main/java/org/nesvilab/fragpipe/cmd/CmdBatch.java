@@ -69,7 +69,10 @@ public class CmdBatch extends CmdBase {
         // use bundled Java if on Windows
         if (OsUtils.isWindows()) {
             Path javaPath = FragpipeLocations.get().getDirFragpipeRoot().resolve("jre");
-            pb.environment().put("JAVA_HOME", javaPath.toAbsolutePath().normalize().toString());
+            String javaHome = javaPath.toAbsolutePath().normalize().toString();
+            pb.environment().put("JAVA_HOME", javaHome);
+            // update the PATH to have the bundled Java first
+            pb.environment().compute("Path", (k, path) -> javaHome + "\\bin;" + path);
         }
         pb.directory(run.outputPath.toFile());
         pbis.add(PbiBuilder.from(pb));
