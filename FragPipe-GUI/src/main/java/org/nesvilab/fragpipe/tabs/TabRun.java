@@ -31,6 +31,7 @@ import org.nesvilab.fragpipe.cmd.PbiBuilder;
 import org.nesvilab.fragpipe.cmd.ProcessBuilderInfo;
 import org.nesvilab.fragpipe.cmd.ToolingUtils;
 import org.nesvilab.fragpipe.messages.MessageClearConsole;
+import org.nesvilab.fragpipe.messages.MessageExportLog;
 import org.nesvilab.fragpipe.messages.MessageKillAll;
 import org.nesvilab.fragpipe.messages.MessageKillAll.REASON;
 import org.nesvilab.fragpipe.messages.MessagePrintToConsole;
@@ -48,6 +49,7 @@ import org.nesvilab.utils.swing.FileChooserUtils;
 import org.nesvilab.utils.swing.FileChooserUtils.FcMode;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -56,6 +58,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.FileAlreadyExistsException;
@@ -70,7 +73,9 @@ import java.util.stream.Stream;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -98,6 +103,7 @@ public class TabRun extends JPanelWithEnablement {
   public static final MigUtils mu = MigUtils.get();
   public static final String TAB_PREFIX = "tab-run.";
   private static final String LAST_WORK_DIR = "workdir.last-path";
+  private static final String PROP_FILECHOOSER_LAST_PATH = TAB_PREFIX + "filechooser.last-path";
   public static final String PDV_NAME = "/FP-PDV/FP-PDV-1.4.4.jar";
   public static final String GENERATE_REPORTS_NAME = "generate_reports_pdf.py";
   private static final String FRAGPIPE_ANALYST_URL = Fragpipe.propsFix().getProperty("fragpipe-analyst-url", "http://fragpipe-analyst.nesvilab.org/");
@@ -389,6 +395,7 @@ public class TabRun extends JPanelWithEnablement {
       }
     });
 
+    JButton btnExport = UiUtils.createButton("Export Log", e -> Bus.post(new MessageExportLog()));
     JButton btnReportErrors = UiUtils.createButton("Report Errors", e -> {
       final String prop = Version.isDevBuild() ? Version.PROP_ISSUE_TRACKER_URL_DEV : Version.PROP_ISSUE_TRACKER_URL;
       final String issueTrackerAddress = Fragpipe.getPropFix(prop);
@@ -456,7 +463,8 @@ public class TabRun extends JPanelWithEnablement {
     mu.add(p, btnOpenFragPipeAnalyst);
     mu.add(p, btnGenerateSummaryReport).push();
 
-    mu.add(p, btnReportErrors).split(5);
+    mu.add(p, btnExport).split(6);
+    mu.add(p, btnReportErrors);
     mu.add(p, btnClearConsole);
     mu.add(p, uiCheckSaveSDRF);
     mu.add(p, feComboSDRFtype.label(), mu.ccR());
@@ -545,6 +553,11 @@ public class TabRun extends JPanelWithEnablement {
 
       private void doPop(MouseEvent e) {
         JPopupMenu menu = new JPopupMenu();
+        JMenuItem ctxItemExport = new JMenuItem("Export log to text file");
+        ctxItemExport.addActionListener(e1 -> {
+          Bus.post(new MessageExportLog());
+        });
+        menu.add(ctxItemExport);
         menu.show(e.getComponent(), e.getX(), e.getY());
       }
     });
@@ -554,6 +567,12 @@ public class TabRun extends JPanelWithEnablement {
   public void on(MessageSaveLog m) {
     log.debug("Got MessageSaveLog, trying to save log");
     saveLogToFile(m.console, m.workDir);
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+  public void on(MessageExportLog m) {
+    log.debug("Got MessageExportLog, trying to save log");
+    exportLogToFile(console, uiTextWorkdir.getNonGhostText());
   }
 
   private void actionBtnSaveJob(ActionEvent e) {
@@ -611,6 +630,36 @@ public class TabRun extends JPanelWithEnablement {
     tabBatch.addBatchRuns(jobs);
 
     SwingUtils.showInfoDialog(this, String.format("Saved job to %s and loaded it to the Batch table", savePath), "Job saved");
+  }
+
+  private void exportLogToFile(TextConsole console, String savePathHint) {
+    JFileChooser fc = FileChooserUtils.builder("Export log to").approveButton("Save")
+        .acceptAll(true).mode(FcMode.FILES_ONLY).multi(false)
+        .paths(Seq.of(savePathHint, Fragpipe.propsVarGet(TabRun.PROP_FILECHOOSER_LAST_PATH))).create();
+    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+    Date now = new Date();
+    fc.setSelectedFile(new File(String.format("log_%s.txt", df.format(now))));
+
+    final Component parent = SwingUtils.findParentFrameForDialog(this);
+    if (JFileChooser.APPROVE_OPTION == fc.showSaveDialog(parent)) {
+      File selectedFile = fc.getSelectedFile();
+      Path path = Paths.get(selectedFile.getAbsolutePath());
+      Fragpipe.propsVarSet(TabRun.PROP_FILECHOOSER_LAST_PATH, path.toString());
+
+      // if exists, overwrite
+      if (Files.exists(path)) {
+        int overwrite = JOptionPane.showConfirmDialog(parent, "<html>File exists, overwrtie?<br/><br/>" + path, "Overwrite", JOptionPane.OK_CANCEL_OPTION);
+        if (JOptionPane.OK_OPTION == overwrite) {
+          try {
+            Files.delete(path);
+          } catch (IOException ex) {
+            JOptionPane.showMessageDialog(parent, "Could not overwrite", "Overwrite", JOptionPane.ERROR_MESSAGE);
+            return;
+          }
+        }
+      }
+      saveLogToFile(console, path);
+    }
   }
 
   private static void saveLogToFileCreateNew(final String text, final Path path) throws FileAlreadyExistsException {
