@@ -59,6 +59,10 @@ if len(argv) == 0:
 	print('python3 msfragger_pep_split.pyz 3 "java -Xmx10g -jar" msfragger.jar fragger.params *.mzML')
 	sys.exit(0)
 
+license_path = None
+if '--license' in argv:
+	license_path = argv[argv.index('--license') + 1]
+	argv = argv[:argv.index('--license')] + argv[argv.index('--license') + 2:]
 
 num_parts_str, jvm_cmd_str, msfragger_jar_path_str, param_path_str, *infiles_str = argv
 
@@ -106,10 +110,8 @@ fasta_part_paths: typing.List[pathlib.Path] = [tempdir / str(i) / f'{fasta_path.
 param_part_paths: typing.List[pathlib.Path] = [tempdir / str(i) / param_path.name for i in range(num_parts)]
 infiles_name = [e.absolute() for e in infiles]
 infiles_symlinks_target_pairs = [(ee / e.name, e) for e in infiles for ee in tempdir_parts]
-# cmds = [msfragger_cmd + [param_part_path.name, *infiles_name, '--partial', f'{i}']
-# 		for i, param_part_path in zip(range(num_parts), param_part_paths)]
 
-generate_expect_cmd = msfragger_cmd + ['--generate_expect_functions'] + [f.stem + '_scores_histogram.tsv' for f in infiles]
+generate_expect_cmd = msfragger_cmd + (['--license', license_path] if license_path is not None else []) + ['--generate_expect_functions'] + [f.stem + '_scores_histogram.tsv' for f in infiles]
 
 def set_up_directories():
 	try:
@@ -142,7 +144,7 @@ def write_params(params_txt):
 
 
 def run_msfragger(infiles_name):
-	cmds = [msfragger_cmd + [param_part_path.name, *infiles_name, '--partial', f'{i}'] # + (['--split2', '1'] if calibrate_mass else [])
+	cmds = [msfragger_cmd + [param_part_path.name] + (['--license', license_path] if license_path is not None else []) + [*infiles_name, '--partial', f'{i}']
 			for i, param_part_path in zip(range(num_parts), param_part_paths)]
 	for i, (cmd, cwd) in enumerate(zip(cmds, tempdir_parts), start=1):
 		print(f'STARTED: DB split {i} of {len(cmds)}', flush=True)
@@ -497,7 +499,7 @@ def calibrate(fasta_path_sample, calibrate_mass: int):
 	params_path_calibrate = tempdir / param_path.name
 	params_txt_new = params_txt
 	params_path_calibrate.write_text(recomp_fasta.sub(f'database_name = {fasta_path_sample.relative_to(tempdir)}', params_txt_new))
-	calibrate_cmd = msfragger_cmd + [params_path_calibrate.resolve(), '--split1', *infiles_name]
+	calibrate_cmd = msfragger_cmd + [params_path_calibrate.resolve()] + (['--license', license_path] if license_path is not None else []) + ['--split1', *infiles_name]
 	print(f'{calibrate_cmd}', flush=True)
 	p = subprocess.Popen(list(map(os.fspath, calibrate_cmd)), cwd=tempdir, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 	out = b''
