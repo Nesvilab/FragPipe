@@ -79,44 +79,7 @@ import org.nesvilab.fragpipe.api.Bus;
 import org.nesvilab.fragpipe.api.IConfig;
 import org.nesvilab.fragpipe.api.InputLcmsFile;
 import org.nesvilab.fragpipe.api.LcmsFileGroup;
-import org.nesvilab.fragpipe.cmd.CmdAppendFile;
-import org.nesvilab.fragpipe.cmd.CmdBase;
-import org.nesvilab.fragpipe.cmd.CmdCheckCentroid;
-import org.nesvilab.fragpipe.cmd.CmdCrystalc;
-import org.nesvilab.fragpipe.cmd.CmdDiaTracer;
-import org.nesvilab.fragpipe.cmd.CmdDiann;
-import org.nesvilab.fragpipe.cmd.CmdFPOPcoadaptr;
-import org.nesvilab.fragpipe.cmd.CmdFpopQuant;
-import org.nesvilab.fragpipe.cmd.CmdFreequant;
-import org.nesvilab.fragpipe.cmd.CmdIonquant;
-import org.nesvilab.fragpipe.cmd.CmdIprophet;
-import org.nesvilab.fragpipe.cmd.CmdLabelquant;
-import org.nesvilab.fragpipe.cmd.CmdMSBooster;
-import org.nesvilab.fragpipe.cmd.CmdMetaproteomics;
-import org.nesvilab.fragpipe.cmd.CmdMsfragger;
-import org.nesvilab.fragpipe.cmd.CmdOPair;
-import org.nesvilab.fragpipe.cmd.CmdPairScans;
-import org.nesvilab.fragpipe.cmd.CmdPeptideProphet;
-import org.nesvilab.fragpipe.cmd.CmdPercolator;
-import org.nesvilab.fragpipe.cmd.CmdPhilosopherAbacus;
-import org.nesvilab.fragpipe.cmd.CmdPhilosopherDbAnnotate;
-import org.nesvilab.fragpipe.cmd.CmdPhilosopherFilter;
-import org.nesvilab.fragpipe.cmd.CmdPhilosopherReport;
-import org.nesvilab.fragpipe.cmd.CmdPhilosopherWorkspaceClean;
-import org.nesvilab.fragpipe.cmd.CmdPhilosopherWorkspaceCleanInit;
-import org.nesvilab.fragpipe.cmd.CmdProteinProphet;
-import org.nesvilab.fragpipe.cmd.CmdPtmProphet;
-import org.nesvilab.fragpipe.cmd.CmdPtmshepherd;
-import org.nesvilab.fragpipe.cmd.CmdSkyline;
-import org.nesvilab.fragpipe.cmd.CmdSpecLibGen;
-import org.nesvilab.fragpipe.cmd.CmdStart;
-import org.nesvilab.fragpipe.cmd.CmdTmtIntegrator;
-import org.nesvilab.fragpipe.cmd.CmdUmpireSe;
-import org.nesvilab.fragpipe.cmd.CmdWriteSubMzml;
-import org.nesvilab.fragpipe.cmd.PbiBuilder;
-import org.nesvilab.fragpipe.cmd.ProcessBuilderInfo;
-import org.nesvilab.fragpipe.cmd.ProcessBuildersDescriptor;
-import org.nesvilab.fragpipe.cmd.ToolingUtils;
+import org.nesvilab.fragpipe.cmd.*;
 import org.nesvilab.fragpipe.exceptions.NoStickyException;
 import org.nesvilab.fragpipe.internal.DefEdge;
 import org.nesvilab.fragpipe.messages.MessageClearConsole;
@@ -140,13 +103,7 @@ import org.nesvilab.fragpipe.process.ProcessDescription.Builder;
 import org.nesvilab.fragpipe.process.ProcessManager;
 import org.nesvilab.fragpipe.process.ProcessResult;
 import org.nesvilab.fragpipe.process.RunnableDescription;
-import org.nesvilab.fragpipe.tabs.TabBatch;
-import org.nesvilab.fragpipe.tabs.TabConfig;
-import org.nesvilab.fragpipe.tabs.TabDatabase;
-import org.nesvilab.fragpipe.tabs.TabDownstream;
-import org.nesvilab.fragpipe.tabs.TabMsfragger;
-import org.nesvilab.fragpipe.tabs.TabRun;
-import org.nesvilab.fragpipe.tabs.TabWorkflow;
+import org.nesvilab.fragpipe.tabs.*;
 import org.nesvilab.fragpipe.tabs.TabWorkflow.InputDataType;
 import org.nesvilab.fragpipe.tools.crystalc.CrystalcPanel;
 import org.nesvilab.fragpipe.tools.crystalc.CrystalcParams;
@@ -155,6 +112,7 @@ import org.nesvilab.fragpipe.tools.diatracer.DiaTracerPanel;
 import org.nesvilab.fragpipe.tools.fpop.FpopQuantPanel;
 import org.nesvilab.fragpipe.tools.fragger.MsfraggerParams;
 import org.nesvilab.fragpipe.tools.ionquant.QuantPanelLabelfree;
+import org.nesvilab.fragpipe.tools.mbg.MBGPanel;
 import org.nesvilab.fragpipe.tools.msbooster.MSBoosterPanel;
 import org.nesvilab.fragpipe.tools.opair.OPairPanel;
 import org.nesvilab.fragpipe.tools.opair.OPairParams;
@@ -1865,14 +1823,26 @@ public class FragpipeRun {
       return true;
     });
 
+    final UsageTrigger binIonQuant = new UsageTrigger(NoteConfigIonQuant.path, "IonQuant");
+
+    // match-between-glycans (aka glycoform inference) - first part
+    MBGPanel mbgPanel = Fragpipe.getStickyStrict(MBGPanel.class);
+    TabGlyco tabGlyco = Fragpipe.getStickyStrict(TabGlyco.class);
+    final CmdMBGMatch cmdMBGMatch = new CmdMBGMatch(mbgPanel.isRun(), wd);
+    addConfig.accept(cmdMBGMatch, () -> {
+      cmdMBGMatch.setRun(cmdMBGMatch.isRun() && !sharedMapGroupsToProtxml.isEmpty());
+      if (cmdMBGMatch.isRun()) {
+        return cmdMBGMatch.configure(parent, wd, sharedMapGroupsToProtxml, mbgPanel.getMBGParams(), isDryRun, threads, tabWorkflow.getInputDataType(), quantPanelLabelfree.toMap(), tabGlyco.glycanDBloader, wd.resolve("fragpipe-files" + manifestExt), Paths.get(binIonQuant.getBin()), extLibsThermo, extLibsBruker, sharedLcmsFiles, tmtiPanel.isRun());
+      }
+      return true;
+    });
+
     // run Report - IonQuant (Labelfree)
     final CmdIonquant cmdIonquant = new CmdIonquant(quantPanelLabelfree.isRunIonQuant(), wd);
     if (quantPanelLabelfree.isIonQuantChecked() && !quantPanelLabelfree.isIonQuantEnabled()) {
       SwingUtils.showErrorDialog(parent,  "<b>IonQuant</b> is not valid but it is enabled in the workflow. Please disable IonQuant or fix it in the <b>Config</b> tab.", "IonQuant not available");
       return false;
     }
-
-    final UsageTrigger binIonQuant = new UsageTrigger(NoteConfigIonQuant.path, "IonQuant");
 
     Set<Float> modMassSet = new TreeSet<>();
     modMassSet.addAll(tabMsf.getVarModMassSet());
@@ -2433,7 +2403,8 @@ public class FragpipeRun {
     addToGraph(graphOrder, cmdOPair, DIRECTION.IN, cmdPairScans);
     addToGraph(graphOrder, cmdPtmshepherd, DIRECTION.IN, cmdPhilosopherReport, cmdPhilosopherAbacus);
     addToGraph(graphOrder, cmdAppendFile, DIRECTION.IN, cmdPtmshepherd);
-    addToGraph(graphOrder, cmdIonquant, DIRECTION.IN, cmdPhilosopherReport, cmdPhilosopherAbacus, cmdPtmshepherd);
+    addToGraph(graphOrder, cmdMBGMatch, DIRECTION.IN, cmdPhilosopherReport, cmdPhilosopherAbacus, cmdPtmshepherd, cmdOPair);
+    addToGraph(graphOrder, cmdIonquant, DIRECTION.IN, cmdPhilosopherReport, cmdPhilosopherAbacus, cmdPtmshepherd, cmdMBGMatch);
     addToGraph(graphOrder, cmdTmtIonquant, DIRECTION.IN, cmdPhilosopherReport, cmdPhilosopherAbacus, cmdPtmshepherd);
     addToGraph(graphOrder, cmdTmtIonquantIsobaric, DIRECTION.IN, cmdPhilosopherReport, cmdPhilosopherAbacus, cmdPtmshepherd, cmdIonquant);
     addToGraph(graphOrder, cmdTmt, DIRECTION.IN, cmdPhilosopherReport, cmdTmtFreequant, cmdTmtLabelQuant, cmdPhilosopherAbacus, cmdPtmshepherd, cmdTmtIonquant, cmdTmtIonquantIsobaric);

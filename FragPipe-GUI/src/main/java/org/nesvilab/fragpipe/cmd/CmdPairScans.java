@@ -29,9 +29,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.jooq.lambda.Seq;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CmdPairScans extends CmdBase {
 
+    private static final Logger log = LoggerFactory.getLogger(CmdPairScans.class);
     public static final String NAME = "PairScans";
     public static final String JAR_MSFTBX_NAME = ToolingUtils.BATMASS_IO_JAR;
     private static String[] JAR_DEPS = {JAR_MSFTBX_NAME};
@@ -80,7 +83,11 @@ public class CmdPairScans extends CmdBase {
             brukerLib = createJavaDParamString("libs.bruker.dir", extLibsBruker.toString());
         } else {
             if (lcmsFiles.stream().anyMatch(f -> f.getPath().getFileName().toString().toLowerCase().endsWith(".d"))) {
-                SwingUtils.showErrorDialog(component, "When processing .d files PairScans requires native Bruker libraries. Native libraries come with MSFragger zip download, contained in ext sub-directory.", NAME + " error");
+                if (Fragpipe.headless) {
+                    log.error("When processing .d files PairScans requires native Bruker libraries. Native libraries come with MSFragger zip download, contained in ext sub-directory.");
+                } else {
+                    SwingUtils.showErrorDialog(component, "When processing .d files PairScans requires native Bruker libraries. Native libraries come with MSFragger zip download, contained in ext sub-directory.", NAME + " error");
+                }
                 return false;
             }
         }
@@ -89,7 +96,11 @@ public class CmdPairScans extends CmdBase {
             thermoLib = createJavaDParamString("libs.thermo.dir", extLibsThermo.toString());
         } else {
             if (lcmsFiles.stream().anyMatch(f -> f.getPath().getFileName().toString().toLowerCase().endsWith(".raw"))) {
-                SwingUtils.showErrorDialog(component, "When processing .RAW files PairScans requires native Thermo libraries. Native libraries come with MSFragger zip download, contained in ext sub-directory.", NAME + " error");
+                if (Fragpipe.headless) {
+                    log.error("When processing .RAW files PairScans requires native Thermo libraries. Native libraries come with MSFragger zip download, contained in ext sub-directory.");
+                } else {
+                    SwingUtils.showErrorDialog(component, "When processing .RAW files PairScans requires native Thermo libraries. Native libraries come with MSFragger zip download, contained in ext sub-directory.", NAME + " error");
+                }
                 return false;
             }
         }
@@ -98,10 +109,10 @@ public class CmdPairScans extends CmdBase {
             List<String> cmd = new ArrayList<>();
             cmd.add(Fragpipe.getBinJava());
             cmd.add("-Xmx" + ramGb + "G");
-            if (!brukerLib.equals("")) {
+            if (!brukerLib.isEmpty()) {
                 cmd.add(brukerLib);
             }
-            if (!thermoLib.equals("")) {
+            if (!thermoLib.isEmpty()) {
                 cmd.add(thermoLib);
             }
             cmd.add("-cp");
@@ -121,10 +132,14 @@ public class CmdPairScans extends CmdBase {
         return true;
     }
 
-    private boolean checkCompatibleFormats(Component comp, List<InputLcmsFile> inputLcmsFiles, List<String> supportedFormats) {
+    public static boolean checkCompatibleFormats(Component comp, List<InputLcmsFile> inputLcmsFiles, List<String> supportedFormats) {
         List<String> notSupportedExts = getNotSupportedExts(inputLcmsFiles, supportedFormats);
         if (!notSupportedExts.isEmpty()) {
-            SwingUtils.showErrorDialog(comp, String.format(".%s files need the \"ext\" folder from MSFragger.", String.join(", ", notSupportedExts)), NAME + " error");
+            if (Fragpipe.headless) {
+                log.error(".{} files need the \"ext\" folder from MSFragger.", String.join(", ", notSupportedExts));
+            } else {
+                SwingUtils.showErrorDialog(comp, String.format(".%s files need the \"ext\" folder from MSFragger.", String.join(", ", notSupportedExts)), NAME + " error");
+            }
             return false;
         }
         return true;

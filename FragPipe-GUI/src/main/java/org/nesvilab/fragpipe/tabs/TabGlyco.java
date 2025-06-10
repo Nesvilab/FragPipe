@@ -23,6 +23,7 @@ import org.nesvilab.fragpipe.Fragpipe;
 import org.nesvilab.fragpipe.FragpipeLocations;
 import org.nesvilab.fragpipe.dialogs.GlycanModEditDialog;
 import org.nesvilab.fragpipe.dialogs.GlycanResidueEditDialog;
+import org.nesvilab.fragpipe.tools.mbg.MBGPanel;
 import org.nesvilab.utils.swing.JPanelWithEnablement;
 import org.nesvilab.utils.swing.MigUtils;
 import org.nesvilab.utils.swing.UiCombo;
@@ -60,6 +61,7 @@ public class TabGlyco extends JPanelWithEnablement {
     private OPairPanel panelOPair;
     private PTMSGlycanAssignPanel panelGlycanAssign;
     private JPanel panelLoadGlycans;
+    private MBGPanel panelMBG;
     private static final Logger log = LoggerFactory.getLogger(TabGlyco.class);
     private UiText textLoadGlycans;
     private UiCombo uiComboLoadBuiltinGlycans;
@@ -86,10 +88,12 @@ public class TabGlyco extends JPanelWithEnablement {
         panelLoadGlycans = createPanelLoadGlycans();
         panelGlycanAssign = new PTMSGlycanAssignPanel();
         panelOPair = new OPairPanel();
+        panelMBG = new MBGPanel(glycanDBloader);
 
         mu.add(this, panelLoadGlycans).spanX().growX().wrap();
         mu.add(this, panelGlycanAssign).spanX().growX().wrap();
         mu.add(this, panelOPair).spanX().growX().wrap();
+        mu.add(this, panelMBG).spanX().growX().wrap();
     }
 
     private void initMore() {
@@ -127,7 +131,7 @@ public class TabGlyco extends JPanelWithEnablement {
                 "For details on how to edit these files, please see the glyco tutorial pages at fragpipe.nesvilab.org.");
 
         mu.add(p, jLabelLoadGlycanDB).split();
-        mu.add(p, uiComboLoadBuiltinGlycans).split();
+        mu.add(p, uiComboLoadBuiltinGlycans).split().wrap();
         mu.add(p, textLoadGlycans).spanX().growX().wrap();
         mu.add(p, btnEditGlycanResiduesTable).split();
         mu.add(p, btnEditGlycanModsTable).split();

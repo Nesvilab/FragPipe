@@ -109,4 +109,14 @@ public class GlycoModsTableModel extends DefaultTableModel {
         }
         return list;
     }
+
+    public String getMBGresidues() {
+        ArrayList<String> residues = new ArrayList<>();
+        for (Vector<?> row : dataVector) {
+            if ((Boolean) row.get(COL_ENABLED)) {
+                residues.add(row.get(COL_NAME) + "(1)");
+            }
+        }
+        return StringUtils.join(residues, ",");
+    }
 }
