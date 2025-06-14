@@ -687,7 +687,7 @@ public class CmdMsfragger extends CmdBase {
       paramsNew.setMinimumRatio(0);
       paramsNew.setOutputReportTopN(outputReportTopNDia1);
       paramsNew.setPrecursorTrueUnits(MassTolUnits.PPM);
-      paramsNew.setPrecursorTrueTolerance(10);
+      paramsNew.setPrecursorTrueTolerance(Math.min(10, params.getPrecursorTrueTolerance()));
       if (params.getPrecursorMassUnits() == PrecursorMassTolUnits.PPM) {
         paramsNew.setPrecursorMassLower(Math.max(-10, params.getPrecursorMassLower()));
         paramsNew.setPrecursorMassUpper(Math.min(10, params.getPrecursorMassUpper()));
