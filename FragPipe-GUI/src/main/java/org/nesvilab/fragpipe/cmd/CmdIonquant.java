@@ -17,19 +17,11 @@
 
 package org.nesvilab.fragpipe.cmd;
 
-import static org.nesvilab.fragpipe.cmd.ToolingUtils.BATMASS_IO_JAR;
 import static org.nesvilab.fragpipe.cmd.ToolingUtils.JFREECHART_JAR;
 import static org.nesvilab.fragpipe.cmd.ToolingUtils.generateLFQExperimentAnnotation;
 import static org.nesvilab.fragpipe.cmd.ToolingUtils.writeIsobaricQuantExperimentAnnotation;
 import static org.nesvilab.utils.SwingUtils.showErrorDialogWithStacktrace;
 
-import org.nesvilab.fragpipe.Fragpipe;
-import org.nesvilab.fragpipe.FragpipeLocations;
-import org.nesvilab.fragpipe.api.InputLcmsFile;
-import org.nesvilab.fragpipe.api.LcmsFileGroup;
-import org.nesvilab.fragpipe.tabs.TabWorkflow.InputDataType;
-import org.nesvilab.utils.StringUtils;
-import org.nesvilab.utils.SwingUtils;
 import java.awt.Component;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -44,6 +36,13 @@ import java.util.Map.Entry;
 import java.util.Set;
 import javax.swing.JOptionPane;
 import org.jooq.lambda.Seq;
+import org.nesvilab.fragpipe.Fragpipe;
+import org.nesvilab.fragpipe.FragpipeLocations;
+import org.nesvilab.fragpipe.api.InputLcmsFile;
+import org.nesvilab.fragpipe.api.LcmsFileGroup;
+import org.nesvilab.fragpipe.tabs.TabWorkflow.InputDataType;
+import org.nesvilab.utils.StringUtils;
+import org.nesvilab.utils.SwingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -282,6 +281,7 @@ public class CmdIonquant extends CmdBase {
           "peptidefdr",
           "normalization",
           "minisotopes",
+          "intensitymode",
           "minscans",
           "writeindex",
           "light",

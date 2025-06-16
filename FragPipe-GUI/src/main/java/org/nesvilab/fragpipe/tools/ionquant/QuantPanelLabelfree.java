@@ -292,6 +292,7 @@ public class QuantPanelLabelfree extends JPanelBase {
     UiSpinnerDouble uiSpinnerMbrImTol = UiUtils.spinnerDouble(0.05, 0.001, 0.5, 0.001)
         .setCols(5).setFormat("#.###").create();
 
+    UiCombo uiComboIntensityMode = UiUtils.createUiCombo(Arrays.asList("apex", "area"));
 
     UiSpinnerDouble uiSpinnerMinFreq = UiUtils.spinnerDouble(0, 0, 1, 0.1)
         .setCols(5).setFormat("#.##").create();
@@ -346,6 +347,8 @@ public class QuantPanelLabelfree extends JPanelBase {
     FormEntry feWriteIndex = mu.feb("ionquant.writeindex", UiUtils.createUiCheck("Keep index on disk", false)).tooltip("Keep built index on disk for further usage").create();
     UiSpinnerDouble uiSpinnerMinSiteProb = UiSpinnerDouble.builder(0.75, -1, 1.0, 0.01).setFormat(new DecimalFormat("#.##")).setCols(5).create();
     FormEntry feMinSiteProb = mu.feb(uiSpinnerMinSiteProb).name("ionquant.locprob").label("Min site localization probability").tooltip("Site localization confidence threshold").create();
+
+    FormEntry feIntensityMode = mu.feb(uiComboIntensityMode).name("ionquant.intensitymode").label("Intensity mode").tooltip("Intensity calculation mode: apex or area.").create();
 
     FormEntry feExcludemods = mu.feb(uiTextExcludemods).name("ionquant.excludemods").label("Excluded mods").tooltip("String specifying modifications to be excluded from protein quantification, e.g. M15.9949;STY79.96633").create();
 
@@ -461,7 +464,9 @@ public class QuantPanelLabelfree extends JPanelBase {
     mu.add(pTopRows, feMinScans.label(), mu.ccR()).split(2);
     mu.add(pTopRows, feMinScans.comp);
     mu.add(pTopRows, feMinIsotopes.label(), mu.ccR()).split(2);
-    mu.add(pTopRows, feMinIsotopes.comp).wrap();
+    mu.add(pTopRows, feMinIsotopes.comp);
+    mu.add(pTopRows, feIntensityMode.label(), mu.ccR()).split(2);
+    mu.add(pTopRows, feIntensityMode.comp).wrap();
 
     // Second row
     mu.add(pTopRows, feMzTol.label(), mu.ccR()).split(2);

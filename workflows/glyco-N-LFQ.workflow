@@ -63,6 +63,7 @@ ionquant.excludemods=
 ionquant.formula=
 ionquant.heavy=
 ionquant.imtol=0.05
+ionquant.intensitymode=0
 ionquant.ionfdr=0.01
 ionquant.light=
 ionquant.locprob=0
