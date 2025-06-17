@@ -1364,6 +1364,13 @@ public class FragpipeRun {
     addConfig.accept(cmdUmpire, () -> {
       cmdUmpire.setRun(cmdUmpire.isRun() && !sharedLcmsFiles.isEmpty());
       if (cmdUmpire.isRun()) {
+        for (InputLcmsFile inputLcmsFile : sharedLcmsFiles) {
+          if (inputLcmsFile.getPath().toString().toLowerCase().endsWith(".d")) {
+            SwingUtils.showErrorDialog(parent, "DIA-Umpire is enabled but there are timsTOF (.d) files. Please double check the parameter settings.", "Invalid configurations");
+            return false;
+          }
+        }
+
         if (!cmdUmpire.configure(parent,
             isDryRun,
             jarPath,
@@ -1392,6 +1399,13 @@ public class FragpipeRun {
     addConfig.accept(cmdDiaTracer, () -> {
       cmdDiaTracer.setRun(cmdDiaTracer.isRun() && !sharedLcmsFiles.isEmpty());
       if (cmdDiaTracer.isRun()) {
+        for (InputLcmsFile inputLcmsFile : sharedLcmsFiles) {
+          if (!inputLcmsFile.getPath().toString().toLowerCase().endsWith(".d") && (inputLcmsFile.getDataType().equals("DIA") || inputLcmsFile.getDataType().equals("DIA-Lib") || inputLcmsFile.getDataType().equals("GPF-DIA"))) {
+            SwingUtils.showErrorDialog(parent, "diaTracer is enabled but there are DIA files not in .d format. Please double check the parameter settings.", "Invalid configurations");
+            return false;
+          }
+        }
+
         if (!cmdDiaTracer.configure(
             parent,
             ramGb,
