@@ -168,7 +168,7 @@ public class UmpirePanel extends JPanelBase {
     // Panel - top
     JPanel pTop = mu.newPanel(mu.lcFillXNoInsetsTopBottom());
 
-    checkRunUmpireSe = new UiCheck("Run DIA-Umpire SE (Signal Extraction)", null, false);
+    checkRunUmpireSe = new UiCheck("Run DIA-Umpire SE (Signal Extraction) for non-timsTOF data", null, false);
     checkRunUmpireSe.setName("diaumpire.run-diaumpire");
     pTop.add(checkRunUmpireSe, new CC().spanX().wrap());
 
