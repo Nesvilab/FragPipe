@@ -22,7 +22,6 @@ import static org.nesvilab.fragpipe.Version.PROP_LAST_RELEASE_VER;
 import static org.nesvilab.fragpipe.Version.version;
 import static org.nesvilab.fragpipe.tabs.TabWorkflow.maxProcessors;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Desktop;
@@ -52,18 +51,14 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
 import javax.swing.event.HyperlinkEvent;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
@@ -730,23 +725,6 @@ public class Fragpipe extends JFrameHeadless {
     tabs = createTabs(console);
     if (!headless) {
       fp.add(tabs, new CC().grow());
-    }
-    if (OsUtils.isMac()) {
-      final String notes = PROGRAM_TITLE + " is not supported on Mac. Some software used by " + PROGRAM_TITLE + " do not work on Mac.";
-
-      JPanel panel = new JPanel();
-      panel.setLayout(new BorderLayout());
-      panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-      panel.add(new JLabel("Unsupported OS"), BorderLayout.PAGE_START);
-      JTextArea notesArea = new JTextArea();
-      notesArea.setText(notes);
-      JScrollPane notesScroller = new JScrollPane();
-      notesScroller.setBorder(BorderFactory.createTitledBorder("Details: "));
-      notesScroller.setViewportView(notesArea);
-      panel.add(notesScroller, BorderLayout.CENTER);
-      if (!headless) {
-        SwingUtils.showDialog(this.toJFrame(), panel);
-      }
     }
 
     log.debug("Done Fragpipe.initUi()");

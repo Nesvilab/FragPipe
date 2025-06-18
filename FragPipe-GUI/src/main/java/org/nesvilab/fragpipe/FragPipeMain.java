@@ -17,6 +17,8 @@
 
 package org.nesvilab.fragpipe;
 
+import static org.nesvilab.utils.OsUtils.getOsName;
+import static org.nesvilab.utils.OsUtils.isMac;
 import static org.nesvilab.utils.OsUtils.isUnix;
 import static org.nesvilab.utils.OsUtils.isWindows;
 
@@ -34,7 +36,8 @@ public class FragPipeMain {
 
   public static String PHILOSOPHER_VERSION = "0.0.0";
   private static final Pattern patternWin = Pattern.compile("philosopher-v(.+)\\.exe");
-  private static final Pattern patternUnix = Pattern.compile("philosopher-v((?!.*\\.exe$).+)");
+  private static final Pattern patternUnix = Pattern.compile("philosopher-v((?!.*\\.(exe|app)$).+)");
+  private static final Pattern patternMac = Pattern.compile("philosopher-v(.+)\\.app");
 
   public static void main(String[] args) {
     if (args.length == 1 && (args[0].equalsIgnoreCase("--help") || args[0].equalsIgnoreCase("-h"))) {
@@ -79,13 +82,16 @@ public class FragPipeMain {
     Path p = FragpipeLocations.get().getDirTools().resolve("Philosopher");
     DefaultArtifactVersion latestVersionWin = new DefaultArtifactVersion(PHILOSOPHER_VERSION);
     DefaultArtifactVersion latestVersionUnix = new DefaultArtifactVersion(PHILOSOPHER_VERSION);
+    DefaultArtifactVersion latestVersionMac = new DefaultArtifactVersion(PHILOSOPHER_VERSION);
     Path pWin = null;
     Path pUnix = null;
+    Path pMac = null;
 
     try (DirectoryStream<Path> stream = Files.newDirectoryStream(p)) {
       for (Path entry : stream) {
         Matcher mWin = patternWin.matcher(entry.getFileName().toString());
         Matcher mUnix = patternUnix.matcher(entry.getFileName().toString());
+        Matcher mMac = patternMac.matcher(entry.getFileName().toString());
         if (mWin.matches()) {
           DefaultArtifactVersion v = new DefaultArtifactVersion(mWin.group(1));
           if (latestVersionWin.compareTo(v) < 0) {
@@ -98,6 +104,13 @@ public class FragPipeMain {
           if (latestVersionUnix.compareTo(v) < 0) {
             latestVersionUnix = v;
             pUnix = entry;
+          }
+        }
+        if (mMac.matches()) {
+          DefaultArtifactVersion v = new DefaultArtifactVersion(mMac.group(1));
+          if (latestVersionMac.compareTo(v) < 0) {
+            latestVersionMac = v;
+            pMac = entry;
           }
         }
       }
@@ -122,11 +135,21 @@ public class FragPipeMain {
         Fragpipe.philosopherBinPath = pUnix.normalize().toAbsolutePath().normalize().toString();
         PHILOSOPHER_VERSION = latestVersionUnix.toString();
       } else {
+        SwingUtils.showErrorDialog(null, "Philosopher binary not found at " + p, "Philosopher not found");
+        Fragpipe.philosopherBinPath = null;
+        PHILOSOPHER_VERSION = "NA";
+      }
+    } else if (isMac()) {
+      if (pMac != null) {
+        Fragpipe.philosopherBinPath = pMac.normalize().toAbsolutePath().normalize().toString();
+        PHILOSOPHER_VERSION = latestVersionMac.toString();
+      } else {
+        SwingUtils.showErrorDialog(null, "Philosopher binary not found at " + p, "Philosopher not found");
         Fragpipe.philosopherBinPath = null;
         PHILOSOPHER_VERSION = "NA";
       }
     } else {
-      SwingUtils.showErrorDialog(null, "Philosopher only supports Windows and Unix systems", "Philosopher not supported in this OS");
+      SwingUtils.showErrorDialog(null, "Philosopher not supported in " + getOsName(), "Philosopher not supported in this OS");
       Fragpipe.philosopherBinPath = null;
       PHILOSOPHER_VERSION = "NA";
     }

@@ -202,8 +202,10 @@ task copyToolsWindows(type: Copy, group: 'fragpipe-release', description: "Copie
     into getLayout().buildDirectory.dir("install/${project.name}-${project.version}/tools").get().asFile
     exclude { details ->
         details.file.path.contains('linux') ||
+        details.file.path.contains('mac') ||
         details.file.path.contains('diann_so') ||
         (details.file.name.startsWith('philosopher-') && !details.file.name.endsWith('.exe')) ||
+        (details.file.name.startsWith('philosopher-') && !details.file.name.endsWith('.app')) ||
         (details.file.name == 'PTMProphetParser') ||
         (details.file.name.startsWith('SAINTexpress-') && !details.file.name.endsWith('.exe'))
     }
@@ -214,7 +216,23 @@ task copyToolsLinux(type: Copy, group: 'fragpipe-release', description: "Copies 
     into getLayout().buildDirectory.dir("install/${project.name}-${project.version}/tools").get().asFile
     exclude { details -> 
         details.file.path.contains('windows') ||
+        details.file.path.contains('mac') ||
         (details.file.name.endsWith('.exe') && !details.file.path.contains('opair') && !details.file.name.startsWith('Skyline') && !details.file.name.startsWith('BatmassIoThermoServer')) ||
+        details.file.name.endsWith('.app') ||
+        details.file.name.endsWith('.bat')
+    }
+}
+
+task copyToolsMac(type: Copy, group: 'fragpipe-release', description: "Copies Mac tools") {
+    from getLayout().buildDirectory.dir("../../tools").get()
+    into getLayout().buildDirectory.dir("install/${project.name}-${project.version}/tools").get().asFile
+    exclude { details ->
+        details.file.path.contains('windows') ||
+        details.file.path.contains('linux') ||
+        details.file.path.contains('diann') ||
+        details.file.path.contains('SAINTexpress') ||
+        (details.file.name.endsWith('.exe') && !details.file.path.contains('opair') && !details.file.name.startsWith('Skyline') && !details.file.name.startsWith('BatmassIoThermoServer')) ||
+        (details.file.name.startsWith('philosopher-') && !details.file.name.endsWith('.app')) ||
         details.file.name.endsWith('.bat')
     }
 }
@@ -259,6 +277,32 @@ task makeReleaseZipLinux(type: Zip, group: 'fragpipe-release') {
     tasks.findByName('copyDatabases').mustRunAfter 'copyToolsLinux'
 
     archiveFileName = "${appName}-${project.version}-linux.zip"
+    destinationDirectory = getLayout().buildDirectory.dir(releaseDir)
+    from getLayout().buildDirectory.dir("install")
+}
+
+task makeReleaseZipMac(type: Zip, group: 'fragpipe-release') {
+    // for build on Windows, zip with execute bit
+    // for a gradle Windows build, files requiring execute bit set (ELF and Unix shell scripts)
+    // are zipped without execute bit. The default file mode is 0644
+    // https://github.com/gradle/gradle/blob/54b385133a1edde78243105e9aaf0db5990b3507/subprojects/native/src/main/java/org/gradle/internal/nativeintegration/filesystem/services/FileSystemServices.java#L75
+    fileMode = 0755
+    dependsOn 'clean'
+    dependsOn 'test'
+    dependsOn 'makeExeAndCopyToScripts'
+    dependsOn 'installDist'
+    dependsOn 'copyToolsMac'
+    dependsOn 'copyWorkflows'
+    dependsOn 'copyDatabases'
+
+    tasks.findByName('test').mustRunAfter 'clean'
+    tasks.findByName('makeExeAndCopyToScripts').mustRunAfter 'test'
+    tasks.findByName('installDist').mustRunAfter 'makeExeAndCopyToScripts'
+    tasks.findByName('copyToolsMac').mustRunAfter 'installDist'
+    tasks.findByName('copyWorkflows').mustRunAfter 'copyToolsMac'
+    tasks.findByName('copyDatabases').mustRunAfter 'copyToolsMac'
+
+    archiveFileName = "${appName}-${project.version}-mac.zip"
     destinationDirectory = getLayout().buildDirectory.dir(releaseDir)
     from getLayout().buildDirectory.dir("install")
 }
