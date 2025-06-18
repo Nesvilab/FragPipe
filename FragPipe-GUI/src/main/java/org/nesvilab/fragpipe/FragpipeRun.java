@@ -171,6 +171,7 @@ import org.nesvilab.fragpipe.tools.tmtintegrator.QuantLabel;
 import org.nesvilab.fragpipe.tools.tmtintegrator.TmtiPanel;
 import org.nesvilab.fragpipe.tools.umpire.UmpirePanel;
 import org.nesvilab.fragpipe.tools.umpire.UmpireParams;
+import org.nesvilab.fragpipe.util.BatchRun;
 import org.nesvilab.utils.MapUtils;
 import org.nesvilab.utils.OsUtils;
 import org.nesvilab.utils.PathUtils;
@@ -367,6 +368,25 @@ public class FragpipeRun {
 
       saveRuntimeConfig(wd);
 
+      // save job to wd with the manifest and workflow files that were just saved
+      final TabConfig tabConfig = Fragpipe.getStickyStrict(TabConfig.class);
+      final TabDatabase tabDatabase = Fragpipe.getStickyStrict(TabDatabase.class);
+      Path workflowPath = wd.resolve("fragpipe-workflow" + workflowExt);
+      final int ramGb = tabWorkflow.getRamGb() > 0 ? tabWorkflow.getRamGb() : OsUtils.getDefaultXmx();
+      final int threads = tabWorkflow.getThreads();
+      final String toolsPath = Fragpipe.headless ? Fragpipe.toolsFolderPath : tabConfig.uiTextToolsFolder.getNonGhostText();
+      BatchRun job = new BatchRun("runtime-save", workflowPath.toString(), pp.toString(), wd.toString(), toolsPath, tabDatabase.getFastaPath(), ramGb, threads);
+      ArrayList<BatchRun> jobs = new ArrayList<>();
+      jobs.add(job);
+      try {
+        TabBatch.saveJobsToFile(jobs, wd.resolve("fragpipe.job"));
+      } catch (IOException e) {
+        if (Fragpipe.headless) {
+          log.error("Error saving runtime job to file: {}", e.getMessage());
+        } else {
+            JOptionPane.showMessageDialog(tabRun, "Error saving runtime job to file: " + e.getMessage(), "Errors", JOptionPane.ERROR_MESSAGE);
+        }
+      }
 
       // Converting process builders descriptors to process builder infos
       final List<ProcessBuilderInfo> pbis = pbDescsBuilderDescs.stream()
@@ -408,7 +428,6 @@ public class FragpipeRun {
 
       // Write top 20 lines of the fasta file to the console.
       List<String> proteinHeaders = new ArrayList<>();
-      final TabDatabase tabDatabase = Fragpipe.getStickyStrict(TabDatabase.class);
       toConsole("", tabRun.console);
       toConsole("~~~~~~Sample of " + tabDatabase.getFastaPath() + "~~~~~~~", tabRun.console);
       try {

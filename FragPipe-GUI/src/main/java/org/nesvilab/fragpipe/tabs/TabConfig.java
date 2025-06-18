@@ -141,7 +141,7 @@ public class TabConfig extends JPanelWithEnablement {
 
   public static final String TAB_NAME = "Config";
 
-  UiText uiTextToolsFolder;
+  public UiText uiTextToolsFolder;
   private HtmlStyledJEditorPane epFraggerVer;
   private HtmlStyledJEditorPane epIonQuantVer;
   private HtmlStyledJEditorPane epDiaTracerVer;
