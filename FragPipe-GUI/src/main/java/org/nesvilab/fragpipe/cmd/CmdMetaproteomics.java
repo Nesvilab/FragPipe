@@ -30,7 +30,7 @@ import org.nesvilab.utils.StringUtils;
 public class CmdMetaproteomics extends CmdBase {
 
   public static String NAME = "Metaproteomics";
-  public static String VERSION = "1.0.0";
+  public static String VERSION = "1.0.1";
   public static String JAR_NAME = "FragPipe-Meta-" + VERSION + ".jar";
   private String taxonNameFile;
   private String taxonNodeFile;
