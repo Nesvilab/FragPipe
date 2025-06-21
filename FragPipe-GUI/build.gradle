@@ -209,6 +209,29 @@ task copyToolsWindows(type: Copy, group: 'fragpipe-release', description: "Copie
     }
 }
 
+def filesToChmod =
+        (fileTree(dir: '../tools/Philosopher', include: ['philosopher-v*']).files +
+                fileTree(dir: '../tools/diann', include: ['*/linux/diann-*']).files +
+                fileTree(dir: '../tools', includes: ['percolator_3_7_1/linux/percolator']).files)
+
+print "Files to chmod: ${filesToChmod}\n"
+assert filesToChmod.size() == 4: "Expected 4 files to chmod, but found ${filesToChmod.size()}.\n"
+
+task chmodFiles(type: Exec) {
+    commandLine(['git', 'update-index', '--chmod=+x'] + filesToChmod.collect { it.toString() })
+    if (org.gradle.internal.os.OperatingSystem.current().isLinux())
+        commandLine(['chmod', '+x'] + filesToChmod.collect { it.toString() })
+    commandLine(['git', 'update-index', '--chmod=+x'] + filesToChmod.collect { it.toString() })
+    doFirst {
+        filesToChmod.each { f ->
+            if (!file(f).exists()) {
+                throw new GradleException("File to chmod does not exist: $f")
+            }
+        }
+    }
+}
+
+
 task copyToolsLinux(type: Copy, group: 'fragpipe-release', description: "Copies Linux tools") {
     from getLayout().buildDirectory.dir("../../tools").get()
     into getLayout().buildDirectory.dir("install/${project.name}-${project.version}/tools").get().asFile
@@ -217,6 +240,11 @@ task copyToolsLinux(type: Copy, group: 'fragpipe-release', description: "Copies 
         (details.file.name.endsWith('.exe') && !details.file.path.contains('opair') && !details.file.name.startsWith('Skyline') && !details.file.name.startsWith('BatmassIoThermoServer')) ||
         details.file.name.endsWith('.bat')
     }
+}
+
+// Ensure that the chmodFiles task runs before copying tools for Linux
+tasks.named('copyToolsLinux').configure {
+    dependsOn chmodFiles
 }
 
 task copyDatabases(type: Copy, group: 'fragpipe-release', description: "Copies databases") {
