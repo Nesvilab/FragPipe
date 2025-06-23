@@ -773,6 +773,9 @@ public class TabMsfragger extends JPanelBase {
       @Override
       public void focusLost(FocusEvent evt) {
         super.focusLost(evt);
+        if (StringUtils.isBlank(uiTextCuts.getNonGhostText())) {
+          uiTextCuts.setText("@");
+        }
         final String cuts = StringUtils.sortedChars(uiTextCuts.getNonGhostText());
         final String nocuts = StringUtils.sortedChars(uiTextNocuts.getNonGhostText());
         final String sense = StringUtils.sortedChars(uiComboSense.asString());
@@ -798,6 +801,9 @@ public class TabMsfragger extends JPanelBase {
       @Override
       public void focusLost(FocusEvent evt) {
         super.focusLost(evt);
+        if (StringUtils.isBlank(uiTextCuts2.getNonGhostText())) {
+          uiTextCuts2.setText("@");
+        }
         final String cuts = StringUtils.sortedChars(uiTextCuts2.getNonGhostText());
         final String nocuts = StringUtils.sortedChars(uiTextNocuts2.getNonGhostText());
         final String sense = StringUtils.sortedChars(uiComboSense2.asString());
