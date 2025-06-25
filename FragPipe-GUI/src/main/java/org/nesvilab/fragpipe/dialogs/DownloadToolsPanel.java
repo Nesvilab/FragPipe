@@ -60,7 +60,7 @@ public class DownloadToolsPanel extends JPanel {
 
   @Override
   public Dimension getPreferredSize() {
-    return new Dimension(500, 500);
+    return new Dimension(500, 600);
   }
 
   private void initMore() {
@@ -69,9 +69,9 @@ public class DownloadToolsPanel extends JPanel {
     panelTextboxes.setLayout(new MigLayout(mu.lcFillXNoInsetsTopBottom()));
 
     JEditorPane t0 = SwingUtils.createClickableHtml(
-        "<br>MSFragger, IonQuant, and diaTracer software are available freely for academic research,<br>"
-            + "non-commercial or educational purposes under academic license.<br><br>"
-            + "Read the <a href=\"" + WEB_DOMAIN + "upgrader/LICENSE-ACADEMIC.pdf\" target=\"blank_\">academic license</a> for MSFragger, IonQuant, and diaTracer.<br><br>");
+        "<br>MSFragger, IonQuant, and diaTracer software are available freely for academic research, non-commercial<br>"
+            + "or educational purposes under academic license.<br><br>"
+            + "Read the <a href=\"" + WEB_DOMAIN + "upgrader/LICENSE-ACADEMIC.pdf\" target=\"blank_\">academic license</a> for MSFragger, IonQuant, and diaTracer.<br>");
 
     feFirstName = mu.feb(UiUtils.uiTextBuilder().cols(40).create()).label("First Name:").create();
     feLastName = mu.feb(UiUtils.uiTextBuilder().cols(40).create()).label("Last Name:").create();
@@ -125,12 +125,20 @@ public class DownloadToolsPanel extends JPanel {
     });
 
     JEditorPane lblAcademic = SwingUtils.createClickableHtml(
-        "<html>Download available for academic users only. Non-academic users (including those<br>" +
-        "with an existing commercial license from the University of Michigan) must visit <br>" + 
-        "Fragmatics at <a href=\"https://www.fragmatics.com\" target=\"blank_\">www.fragmatics.com</a> or email <a href=\"mailto:info@fragmatics.com\">info@fragmatics.com</a> to purchase or<br>" + 
-        "confirm their license and access the tools.</html>");
+        "<html>Download available for academic users only. Non-academic users (including those with an existing<br>" +
+        "commercial license from the University of Michigan) must visit Fragmatics at <a href=\"https://www.fragmatics.com\" target=\"blank_\">www.fragmatics.com</a> or<br>" + 
+        "email <a href=\"mailto:info@fragmatics.com\">info@fragmatics.com</a> to purchase or confirm their license and access the tools.<br><br></html>");
+
+    JEditorPane lblEmailNote = SwingUtils.createClickableHtml(
+        "<html><b>NOTE:</b> If you don’t receive the verification email, check your spam folder. If it's not there<br>" + 
+        "download <a href=\"" + WEB_DOMAIN + "upgrader\">MSFragger</a>, <a href=\"" + WEB_DOMAIN + "upgrader\">IonQuant</a>, and <a href=\"" + WEB_DOMAIN + "upgrader\">diaTracer</a> through your browser. Unzip them, put them<br>" + 
+        "in the same folder, and enter the folder path in the 'Config' tab.<br>" +
+        "<b>If none of the above works, please contact <a href=\"mailto:info@fragpipe.info\">info@fragpipe.info</a>.</b>" +
+        "</html>");
 
     mu.add(panelTextboxes, t0).split().spanX().wrap();
+
+    mu.add(panelTextboxes, lblAcademic).split().spanX().wrap();
 
     mu.add(panelTextboxes, feFirstName.label(), mu.ccR());
     mu.add(panelTextboxes, feFirstName.comp).wrap();
@@ -143,8 +151,6 @@ public class DownloadToolsPanel extends JPanel {
     mu.add(panelTextboxes, feInstitution.label(), mu.ccR());
     mu.add(panelTextboxes, feInstitution.comp).spanX().wrap();
 
-    mu.add(panelTextboxes, lblAcademic).spanX().alignX("center").wrap();
-
     mu.add(panelTextboxes, license1, mu.ccR());
     mu.add(panelTextboxes, t1).spanX().wrap();
 
@@ -155,6 +161,8 @@ public class DownloadToolsPanel extends JPanel {
     mu.add(panelTextboxes, t3).spanX().wrap();
 
     mu.add(panelTextboxes, btnSendRequest).spanX().alignX("center").wrap();
+
+    mu.add(panelTextboxes, lblEmailNote).spanX().alignX("center").wrap();
 
     mu.add(panelTextboxes, feVerificationCode.label(), mu.ccR());
     mu.add(panelTextboxes, feVerificationCode.comp).spanX().wrap();
