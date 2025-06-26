@@ -140,6 +140,8 @@ import org.nesvilab.fragpipe.process.ProcessDescription.Builder;
 import org.nesvilab.fragpipe.process.ProcessManager;
 import org.nesvilab.fragpipe.process.ProcessResult;
 import org.nesvilab.fragpipe.process.RunnableDescription;
+import org.nesvilab.fragpipe.tabs.TabBatch;
+import org.nesvilab.fragpipe.tabs.TabConfig;
 import org.nesvilab.fragpipe.tabs.TabDatabase;
 import org.nesvilab.fragpipe.tabs.TabDownstream;
 import org.nesvilab.fragpipe.tabs.TabMsfragger;
