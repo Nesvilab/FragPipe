@@ -52,8 +52,8 @@ RUN mkdir tmp
 RUN chmod 777 tmp
 
 # download and install fragPipe
-RUN wget https://github.com/Nesvilab/FragPipe/releases/download/23.0/FragPipe-23.0-linux.zip -P fragpipe-23.0
-RUN unzip fragpipe-23.0/FragPipe-23.0-linux.zip -d fragpipe-23.0
+RUN wget https://github.com/Nesvilab/FragPipe/releases/download/23.1/FragPipe-23.1-linux.zip -P fragpipe-23.1
+RUN unzip fragpipe-23.1/FragPipe-23.1-linux.zip -d fragpipe-23.1
 RUN chmod -R 777 /fragpipe_bin
 
 # set environment variables
