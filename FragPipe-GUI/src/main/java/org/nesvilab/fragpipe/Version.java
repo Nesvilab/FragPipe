@@ -705,8 +705,8 @@ public class Version {
       final String installerUrl = String.format("%s/download/%s/%s", url, version, installerFn);
       String githubReleaseMessage =
           "## Downloading\n"
-          + "- The (<a href='" + zipUrl + "' target='_blank'>" + zipFn + "</a>) is for Linux. You will need Java 11+ to run.\n"
-          + "- The (<a href='" + installerUrl + "' target='_blank'>" + installerFn + "</a>) is for Windows. You will need to install it. Java runtime is bundled and Python will be installed automatically.\n"
+          + "- The <a href='" + installerUrl + "' target='_blank'>" + installerFn + "</a> is for Windows. You will need to install it. Java runtime is bundled and Python will be installed automatically.\n"
+          + "- The <a href='" + zipUrl + "' target='_blank'>" + zipFn + "</a> is for Linux. You will need Java 11+ to run.\n"
           + "- The docker image is available at <a href='https://hub.docker.com/r/fcyucn/fragpipe' target='_blank'>https://hub.docker.com/r/fcyucn/fragpipe</a>\n"
           + "- **NOTE:** Non-academic users (including those with an existing commercial license from the University of Michigan) must visit Fragmatics at [www.fragmatics.com](https://www.fragmatics.com) or email [info@fragmatics.com](mailto:info@fragmatics.com) to purchase or confirm their license and access the tools.\n"
           + "## Running\n"
