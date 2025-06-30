@@ -55,6 +55,35 @@ public class Version {
       new VersionComparator());
 
   static {
+    CHANGELOG.put("23.1", Arrays.asList(
+        "FragPipe GUI:",
+        "New metaproteomics database generation module (beta)",
+        "Add Prosit MultiFrag model to the MSBosoter's dropdown menu",
+        "Do not run Abacus when IonQuant is used in the TMT intensity extraction",
+        "Add intensity mode to IonQuant panel",
+        "Add the 'export log' back",
+        "Optimize the memory footprint",
+
+        "MSFragger version 4.3 full changelog can be found in https://msfragger.nesvilab.org/CHANGELOG.html",
+        "IonQuant version 1.11.11 full changelog can be found in https://ionquant.nesvilab.org/CHANGELOG.html",
+        "diaTracer version 1.3.3 changelog can be found in https://diatracer.nesvilab.org/CHANGELOG.html",
+
+        "Miscellaneous:",
+        "Require Java 11+",
+        "Require MSFragger 4.3+",
+        "Require IonQuant 1.11.1+",
+        "Require diaTracer 1.3.3+",
+        "Require Python 3.9, 3.10, or 3.11",
+        "Require EasyPQP 0.1.52+",
+        "Upgrade Crystal-C to 1.5.9",
+        "Upgrade MSBooster to 1.3.17",
+        "Upgrade Percolator to 3.7.1",
+        "Upgrade Philosopher to 5.1.2",
+        "Upgrade PTM-Shepherd to 3.0.2",
+        "Upgrade TMT-Integrator to 6.1.1",
+        "Upgrade FragPipe-PDV to 1.4.4"
+    ));
+
     CHANGELOG.put("23.0", Arrays.asList(
         "FragPipe GUI:",
         "Create an installer for the Windows version",
