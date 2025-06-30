@@ -67,21 +67,19 @@ public class Version {
         "MSFragger version 4.3 full changelog can be found in https://msfragger.nesvilab.org/CHANGELOG.html",
         "IonQuant version 1.11.11 full changelog can be found in https://ionquant.nesvilab.org/CHANGELOG.html",
         "diaTracer version 1.3.3 changelog can be found in https://diatracer.nesvilab.org/CHANGELOG.html",
+        "Various bug fixes and performance improvements",
 
         "Miscellaneous:",
         "Require Java 11+",
         "Require MSFragger 4.3+",
-        "Require IonQuant 1.11.1+",
+        "Require IonQuant 1.11.11+",
         "Require diaTracer 1.3.3+",
         "Require Python 3.9, 3.10, or 3.11",
         "Require EasyPQP 0.1.52+",
         "Upgrade Crystal-C to 1.5.9",
         "Upgrade MSBooster to 1.3.17",
-        "Upgrade Percolator to 3.7.1",
         "Upgrade Philosopher to 5.1.2",
-        "Upgrade PTM-Shepherd to 3.0.2",
-        "Upgrade TMT-Integrator to 6.1.1",
-        "Upgrade FragPipe-PDV to 1.4.4"
+        "Upgrade PTM-Shepherd to 3.0.2"
     ));
 
     CHANGELOG.put("23.0", Arrays.asList(
@@ -710,7 +708,7 @@ public class Version {
           + "- The (<a href='" + zipUrl + "' target='_blank'>" + zipFn + "</a>) is for Linux. You will need Java 11+ to run.\n"
           + "- The (<a href='" + installerUrl + "' target='_blank'>" + installerFn + "</a>) is for Windows. You will need to install it. Java runtime is bundled and Python will be installed automatically.\n"
           + "- The docker image is available at <a href='https://hub.docker.com/r/fcyucn/fragpipe' target='_blank'>https://hub.docker.com/r/fcyucn/fragpipe</a>\n"
-          + "- **NOTE:** Non-academic users (including those with an existing commercial license from the University of Michigan) must visit Fragmatics at [www.fragmatics.com](https://www.fragmatics.com) or email [info@fragmatics.com](mailto:info@fragmatics.com) to purchase or confirm their license and access the tools."
+          + "- **NOTE:** Non-academic users (including those with an existing commercial license from the University of Michigan) must visit Fragmatics at [www.fragmatics.com](https://www.fragmatics.com) or email [info@fragmatics.com](mailto:info@fragmatics.com) to purchase or confirm their license and access the tools.\n"
           + "## Running\n"
           + "- In Windows, install FragPipe using the installer. Then double-click the `FragPipe-" + version + ".exe` file.\n"
           + "- In Linux, unzip the file. In `bin` subdirectory you will find a `shell script for Linux`\n";
