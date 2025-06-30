@@ -131,9 +131,9 @@ import org.slf4j.LoggerFactory;
 public class TabConfig extends JPanelWithEnablement {
 
   private static final Logger log = LoggerFactory.getLogger(TabConfig.class);
-  private static final DefaultArtifactVersion msfraggerMinVersion = new DefaultArtifactVersion("4.2");
-  private static final DefaultArtifactVersion ionquantMinVersion = new DefaultArtifactVersion("1.11.9");
-  private static final DefaultArtifactVersion diatracerMinVersion = new DefaultArtifactVersion("1.2.5");
+  private static final DefaultArtifactVersion msfraggerMinVersion = new DefaultArtifactVersion("4.3");
+  private static final DefaultArtifactVersion ionquantMinVersion = new DefaultArtifactVersion("1.11.11");
+  private static final DefaultArtifactVersion diatracerMinVersion = new DefaultArtifactVersion("1.3.3");
   public static final DefaultArtifactVersion pythonMinVersion = new DefaultArtifactVersion("3.9");
 
   private static final MigUtils mu = MigUtils.get();
