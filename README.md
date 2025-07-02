@@ -14,7 +14,7 @@ FragPipe is a comprehensive computational platform designed for the analysis of 
 * [Using FragPipe](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html) (general tutorial covering all FragPipe modules)
 * [Running FragPipe in command line interface](https://fragpipe.nesvilab.org/docs/tutorial_headless.html)
 * [Running multiple FragPipe jobs in Batch](https://fragpipe.nesvilab.org/docs/tutorial_batch.html)
-* [Pulling and running FragPipe using Docker](https://fragpipe.nesvilab.org/docs/tutorial_docker.html)
+* [Pulling and running FragPipe using Docker or Singularity](https://fragpipe.nesvilab.org/docs/tutorial_docker.html)
 * PTM discovery
   * [Open search](https://fragpipe.nesvilab.org/docs/tutorial_open.html)
   * [Mass offset search](https://fragpipe.nesvilab.org/docs/tutorial_offset.html)
