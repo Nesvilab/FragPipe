@@ -976,28 +976,28 @@ public class TabMsfragger extends JPanelBase {
     FormEntry feMinSeqMatches = mu.feb(MsfraggerParams.PROP_min_sequence_matches, uiSpinnerMinSeqMatches)
             .label("Min Sequence-specific Ions")
             .tooltip("<html>The minimum number of peptide sequence-specific ions (i.e., not Y ions)\n" +
-                    "required to record a match. Only used if Y ions are searched. Default: 2").create();
+                    "required to record a match. Only used if Peptide Remainder ions are searched. Default: 2").create();
 
     UiText ep1 = new UiText();
     FormEntry feYIonMasses = mu.feb(ep1).name(MsfraggerParams.PROP_Y_type_masses)
-        .label("Y ion masses")
-            .tooltip("List of possible Y ion (intact peptide + partially fragmented modification) masses\n" +
-                    "Should include 0 in most cases. Space or / separated\n" +
+        .label("Peptide Remainder masses")
+            .tooltip("List of possible Peptide Remainder ion (intact peptide + partially fragmented modification) masses\n" +
+                    "Provide as neutral masses. Should include 0 in most cases. Space or / separated\n" +
                     "example: '0 203.0794 365.1322'")
             .create();
 
     UiText ep2 = new UiText();
     FormEntry feOxoniumIons = mu.feb(ep2).name(MsfraggerParams.PROP_diagnostic_fragments)
-        .label("Diagnostic fragment masses")
-            .tooltip("List of possible diagnostic fragment ions to consider.\n" +
+        .label("Diagnostic ion m/zs")
+            .tooltip("List of possible diagnostic fragment ions to consider. NOTE: provide as [M+H]+, NOT neutral masses.\n" +
                     "Not used if Diagnostic Ion Minimum Intensity is 0\n" +
                     "Space or / separated")
             .create();
 
     uiTextRemainderMasses = new UiText();
     FormEntry feRemainderIons = mu.feb(MsfraggerParams.PROP_remainder_masses, uiTextRemainderMasses)
-            .label("Remainder fragment masses")
-            .tooltip("List of possible remainder fragment ions to consider.\n" +
+            .label("Fragment Remainder masses")
+            .tooltip("List of possible remainder fragment ions to consider. Provide as neutral masses.\n" +
                     "Remainder masses are partial modification masses left on b/y ions\n" +
                     "after fragmentation.\n ")
             .create();
@@ -1026,10 +1026,10 @@ public class TabMsfragger extends JPanelBase {
     mu.add(p, feOxoniumIonMinimumIntensity.comp);
     mu.add(p, feMinSeqMatches.label(), mu.ccR());
     mu.add(p, feMinSeqMatches.comp).pushX().wrap();
-    mu.add(p, feYIonMasses.label(), mu.ccR());
-    mu.add(p, feYIonMasses.comp).spanX().growX().wrap();
     mu.add(p, feOxoniumIons.label(), mu.ccR());
     mu.add(p, feOxoniumIons.comp).spanX().growX().wrap();
+    mu.add(p, feYIonMasses.label(), mu.ccR());
+    mu.add(p, feYIonMasses.comp).spanX().growX().wrap();
     mu.add(p, feRemainderIons.label(), mu.ccR());
     mu.add(p, feRemainderIons.comp).spanX().growX().wrap();
 
