@@ -320,6 +320,9 @@ public class PercolatorOutputToPepXML {
             int indexOf_spectralSimilarity = -1;
             int indexOf_RTscore = -1;
             int indexOf_IMscore = -1;
+            if (colnames.contains("bray_curtis")) { //will need to adjust in future, if more scores are allowed
+                indexOf_spectralSimilarity = colnames.indexOf("bray_curtis");
+            }
             if (colnames.contains("unweighted_spectral_entropy")) {
                 indexOf_spectralSimilarity = colnames.indexOf("unweighted_spectral_entropy");
             }
