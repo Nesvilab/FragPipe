@@ -1173,7 +1173,7 @@ public class TabMsfragger extends JPanelBase {
         .label("Max variable mods on a peptide")
         .tooltip("<html>The maximum number of variable modifications allowed per\n" +
             "peptide sequence. This number does not include fixed modifications.").create();
-    FormEntry feMaxCombos = mu.feb(MsfraggerParams.PROP_max_variable_mods_combinations, new UiSpinnerInt(5000, 0, 100000, 500, 4))
+    FormEntry feMaxCombos = mu.feb(MsfraggerParams.PROP_max_variable_mods_combinations, new UiSpinnerInt(5000, 0, 10000000, 500, 4))
         .label("Max combinations").create();
 
     FormEntry feUseAllModsInFirstSearch = mu.feb(MsfraggerParams.PROP_use_all_mods_in_first_search, new UiCheck("Use all mods in first search", null)).create();
