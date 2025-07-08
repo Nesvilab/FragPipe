@@ -207,9 +207,13 @@ public class CmdDiann extends CmdBase {
       for (LcmsFileGroup group : lcmsFileGroups) {
         List<InputLcmsFile> lcmsFiles2 = new ArrayList<>(group.lcmsFiles.size());
         for (InputLcmsFile lcmsFile : group.lcmsFiles) {
-          Path path2 = Paths.get(lcmsFile.getPath().toString().replaceAll("(?i)\\.raw", "_uncalibrated.mzML"));
-          InputLcmsFile lcmsFile2 = new InputLcmsFile(path2, lcmsFile.getExperiment(), lcmsFile.getReplicate(), lcmsFile.getDataType());
-          lcmsFiles2.add(lcmsFile2);
+          if (lcmsFile.getDataType().contentEquals("DIA-Quant")) {
+            lcmsFiles2.add(lcmsFile);   // do not use uncalibrated mzML for DIA-Quant since it will not be generated (the file is not sent to MSFragger)
+          } else {
+            Path path2 = Paths.get(lcmsFile.getPath().toString().replaceAll("(?i)\\.raw", "_uncalibrated.mzML"));
+            InputLcmsFile lcmsFile2 = new InputLcmsFile(path2, lcmsFile.getExperiment(), lcmsFile.getReplicate(), lcmsFile.getDataType());
+            lcmsFiles2.add(lcmsFile2);
+          }
         }
         lcmsFileGroups2.add(new LcmsFileGroup(group.name, lcmsFiles2));
       }
