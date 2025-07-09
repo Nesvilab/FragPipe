@@ -319,7 +319,7 @@ public class QuantPanelLabelfree extends JPanelBase {
     FormEntry feMzTol = mu.feb(uiSpinnerMzTol).name("ionquant.mztol").label("m/z tolerance (ppm)").create();
     FormEntry feRtTol = mu.feb(uiSpinnerRtTol).name("ionquant.rttol").label("RT tolerance (minutes)").create();
     FormEntry feImTol = mu.feb(uiSpinnerImTol).name("ionquant.imtol").label("IM tolerance (1/k0)").create();
-    FormEntry feFormula = mu.feb(uiTextFormula).name("ionquant.formula").label("Formula (optional)").tooltip("Formula of the modifications. Used to calculate the precise isotope distributions.\nFormat: chemical composition;chemical composition...  <chemical composition> example: C(2)H(2)O;HO(3)P;2H(4)C(2)").create();
+    FormEntry feFormula = mu.feb(uiTextFormula).name("ionquant.formula").label("Formula (optional)").tooltip("Formula of the modifications. Used to calculate the precise isotope distributions.\nFormat: <chemical composition>;<chemical composition>;...;<chemical composition>\nExample: C(2)H(2)O;HO(3)P;2H(4)C(2)").create();
 
     FormEntry feMaxLfqMinIons = mu.feb(uiSpinnerMaxLfqMinIons).name("ionquant.minions").label("MaxLFQ min ions").tooltip("Minimum ions required to quantify a protein. Only used in MaxLFQ intensity.").create();
     FormEntry feTopIons = mu.feb(uiSpinnerTopIons).name("ionquant.tp").label("Top N ions").tooltip("Number of ions to use in quantifying proteins").create();
