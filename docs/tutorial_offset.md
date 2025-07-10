@@ -2,7 +2,8 @@
 * [Offset search for PTMs with FragPipe](https://fragpipe.nesvilab.org/docs/tutorial_offset.html#Offset-search-for-PTMs-with-FragPipe)
 * [Types of Mass Offset Searches](https://fragpipe.nesvilab.org/docs/tutorial_offset.html#Types-of-Mass-Offset-Searches)
 * [Options for Reporting Mass Offsets](https://fragpipe.nesvilab.org/docs/tutorial_offset.html#Options-for-Reporting-Mass-Offsets)
-* [Example Mass Offset Search Tutorial](https://fragpipe.nesvilab.org/docs/tutorial_offset.html#Example-Mass-Offset-Search-Tutorial)
+* [Example Mass Offset Search Tutorial (tubulin search)](https://fragpipe.nesvilab.org/docs/tutorial_offset.html#Example-Mass-Offset-Search-Tutorial)
+* [Histone Detailed Mass Offset (DMO) Search using the HiP-Frag method](https://fragpipe.nesvilab.org/docs/tutorial_DMO_histones_example.html)
 
 ### Offset search for PTMs with FragPipe
 Traditional closed search requires that precursor masses match the identified peptide within a small mass tolerance (e.g., +/-20 ppm), often with variable modifications allowed on only one or a few amino acid residues. In contrast, the open search strategy allows precursor masses to differ from the identified peptide by any mass within a large range (e.g., -100 to +150). Mass offset search is an intermediate strategy, allowing selected mass differences (within a tolerance, e.g. 20 ppm) on any peptide match (far right, below).
