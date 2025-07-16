@@ -801,9 +801,6 @@ public class TabMsfragger extends JPanelBase {
       @Override
       public void focusLost(FocusEvent evt) {
         super.focusLost(evt);
-        if (StringUtils.isBlank(uiTextCuts2.getNonGhostText())) {
-          uiTextCuts2.setText("@");
-        }
         final String cuts = StringUtils.sortedChars(uiTextCuts2.getNonGhostText());
         final String nocuts = StringUtils.sortedChars(uiTextNocuts2.getNonGhostText());
         final String sense = StringUtils.sortedChars(uiComboSense2.asString());
@@ -830,11 +827,11 @@ public class TabMsfragger extends JPanelBase {
     uiTextCuts = UiUtils.uiTextBuilder().cols(6).filter("[^A-Z@]", "@").text("KR").create();
     uiTextCuts.addFocusListener(enzymeSpecFocusListener);
     FormEntry feCuts = mu.feb(MsfraggerParams.PROP_search_enzyme_cut_1, uiTextCuts).label("Cuts 1")
-        .tooltip("Capital letters for amino acids after which the enzyme cuts.").create();
+        .tooltip("Enter capital letters for amino acids where the enzyme cuts, or ‘@’ if none.").create();
     uiTextNocuts = UiUtils.uiTextBuilder().cols(3).filter("[^A-Z@]", "@").text("P").create();
     uiTextNocuts.addFocusListener(enzymeSpecFocusListener);
     FormEntry feNocuts = mu.feb(MsfraggerParams.PROP_search_enzyme_nocut_1, uiTextNocuts).label("No cuts 1")
-        .tooltip("Amino acids before which the enzyme won't cut.").create();
+        .tooltip("Amino acids before which the enzyme won’t cut, or ‘@’ if none.").create();
 
     List<String> cleavageTypeNames = Arrays.stream(CleavageType.values()).map(Enum::name)
         .collect(Collectors.toList());
@@ -851,11 +848,11 @@ public class TabMsfragger extends JPanelBase {
     uiTextCuts2 = UiUtils.uiTextBuilder().cols(6).filter("[^A-Z@]", "@").text("KR").create();
     uiTextCuts2.addFocusListener(enzymeSpecFocusListener2);
     FormEntry feCuts2 = mu.feb(MsfraggerParams.PROP_search_enzyme_cut_2, uiTextCuts2).label("Cuts 2")
-        .tooltip("Capital letters for amino acids after which the enzyme cuts.").create();
+        .tooltip("Enter capital letters for amino acids where the enzyme cuts, or ‘@’ if none. Leave empty to not use this enzyme.").create();
     uiTextNocuts2 = UiUtils.uiTextBuilder().cols(3).filter("[^A-Z@]", "@").text("P").create();
     uiTextNocuts2.addFocusListener(enzymeSpecFocusListener2);
     FormEntry feNocuts2 = mu.feb(MsfraggerParams.PROP_search_enzyme_nocut_2, uiTextNocuts2).label("No cuts 2")
-        .tooltip("Amino acids before which the enzyme won't cut.").create();
+        .tooltip("Amino acids before which the enzyme won’t cut, or ‘@’ if none. Leave empty to not use this enzyme.").create();
 
 
     UiSpinnerInt uiSpinnerMissedCleavages2 = new UiSpinnerInt(2, 0, 1000, 1);
