@@ -47,12 +47,8 @@ import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
 import java.awt.event.ItemEvent;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
@@ -106,7 +102,6 @@ import org.nesvilab.fragpipe.api.Bus;
 import org.nesvilab.fragpipe.api.FragpipeCacheUtils;
 import org.nesvilab.fragpipe.api.ModsTable;
 import org.nesvilab.fragpipe.api.ModsTableModel;
-import org.nesvilab.fragpipe.api.OffsetsTable;
 import org.nesvilab.fragpipe.api.SearchTypeProp;
 import org.nesvilab.fragpipe.dialogs.DetailedOffsetEditDialog;
 import org.nesvilab.fragpipe.messages.MessageMsfraggerParamsUpdate;
@@ -135,7 +130,6 @@ import org.nesvilab.utils.StringUtils;
 import org.nesvilab.utils.SwingUtils;
 import org.nesvilab.utils.swing.DocumentFilters;
 import org.nesvilab.utils.swing.FileChooserUtils;
-import org.nesvilab.utils.swing.FileChooserUtils.FcMode;
 import org.nesvilab.utils.swing.FileNameEndingFilter;
 import org.nesvilab.utils.swing.FormEntry;
 import org.nesvilab.utils.swing.JPanelBase;
@@ -194,7 +188,6 @@ public class TabMsfragger extends JPanelBase {
   private static final List<String> ACTIVATION_TYPES_UI = Arrays
           .asList(ACTIVATION_TYPE_ALL, ACTIVATION_TYPE_HCD, ACTIVATION_TYPE_ETD, ACTIVATION_TYPE_CID, ACTIVATION_TYPE_ECD);
   private static final List<String> ANALYZER_TYPES_UI = Arrays.asList(ANALYZER_TYPE_ALL, ANALYZER_TYPE_FTMS, ANALYZER_TYPE_ITMS, ANALYZER_TYPE_ASTMS);
-  private static final String LOAD_CUSTOM_CONFIG_OPTION = "Custom MSFragger parameter file from disk";
   private static final HashMap<String, String> ACTIVATION_MAP;  // to handle input of "" or "all" for activation param
   private static final Map<String, String> ANALYZER_MAP = new HashMap<>();
 
@@ -230,14 +223,9 @@ public class TabMsfragger extends JPanelBase {
   };
 
   UiCombo uiComboMassDiffToVariableMod;
-  UiSpinnerInt uiSpinnterIntGlycoCombos;
 
   private static String itos(int i) {
     return Integer.toString(i);
-  }
-
-  private static String stobtoitos(String s) {
-    return itos(Boolean.parseBoolean(s) ? 1 : 0);
   }
 
   static {
@@ -390,7 +378,6 @@ public class TabMsfragger extends JPanelBase {
   private JPanel pContent;
   private ModsTable tableVarMods;
   private ModsTable tableFixMods;
-  private OffsetsTable tableOffsets;
   public UiCombo uiComboMassCalibrate;
   public UiCombo uiComboOutputType;
   private UiCombo uiComboMassMode;
@@ -400,7 +387,6 @@ public class TabMsfragger extends JPanelBase {
   private UiText uiTextCustomIonSeries;
   private JLabel labelCustomIonSeries;
   private Map<Component, Boolean> enablementMapping = new HashMap<>();
-  private UiCheck requirePrecursor;
 
   private UiCombo uiComboEnzymes;
   private UiText uiTextCuts;
@@ -415,7 +401,6 @@ public class TabMsfragger extends JPanelBase {
   private UiCombo uiComboSense2;
   private UiText uiTextEnzymeName2;
 
-  private UiCombo uiComboLoadDefaultsNames;
   private UiText uiTextMassOffsets;
   private UiText uiTextRemainderMasses;
   private UiCheck uiCheckMassOffsetFile;
@@ -580,16 +565,6 @@ public class TabMsfragger extends JPanelBase {
       updateEnabledStatus(pContent, isSelected);
     });
 
-    JButton btnSave = new JButton("Save Config");
-    btnSave.setToolTipText("<html>Save MSFragger compatible config file \n</br>"
-        + "which can be used with MSFragger from command line");
-    btnSave.addActionListener(this::actionBtnConfigSave);
-
-    List<String> loadOptions = Seq.of(LOAD_CUSTOM_CONFIG_OPTION).append(Seq.seq(SEARCH_TYPE_NAME_MAPPING.keySet())).toList();
-    uiComboLoadDefaultsNames = UiUtils.createUiCombo(loadOptions);
-    JButton btnLoad = new JButton("Load");
-    btnLoad.addActionListener(this::actionBtnConfigLoad);
-
     JLabel imageLabel = new JLabel();
     try {
       BufferedImage image = ImageIO.read(Objects.requireNonNull(getClass().getResource("/org/nesvilab/fragpipe/icons/msfragger-128.png")));
@@ -598,11 +573,7 @@ public class TabMsfragger extends JPanelBase {
       ex.printStackTrace();
     }
 
-    mu.add(pTop, checkRun).wrap();
-    mu.add(pTop, btnSave).split(4);
-    mu.add(pTop, btnLoad);
-    mu.add(pTop, new JLabel(":")).gapLeft("3px").gapRight("3px");
-    mu.add(pTop, uiComboLoadDefaultsNames);
+    mu.add(pTop, checkRun);
     mu.add(pTop, imageLabel, mu.ccR()).gapRight("50").wrap();
 
     return pTop;
@@ -1003,7 +974,6 @@ public class TabMsfragger extends JPanelBase {
       // needs to be done after components to be turned on/off have been created
       final String selected = (String)uiComboGlyco.getSelectedItem();
       final boolean enabled = !MsfraggerParams.GLYCO_OPTION_off.equalsIgnoreCase(selected);
-      final boolean sitesEnabled = enabled && (GLYCO_OPTION_labile.equalsIgnoreCase(selected));
       updateEnabledStatus(uiSpinnerMinInt, enabled);
       updateEnabledStatus(ep1, enabled);
       updateEnabledStatus(ep2, enabled);
@@ -1252,9 +1222,7 @@ public class TabMsfragger extends JPanelBase {
 
     epMassOffsets = new UiText();
     epMassOffsets.setPreferredSize(new Dimension(100, 25));
-    //epMassOffsets.setMaximumSize(new Dimension(200, 25));
     epMassOffsets.setBorder(new LineBorder(Color.LIGHT_GRAY, 1));
-    //epMassOffsets.setFont(new JLabel().getFont());
 
     uiTextMassOffsets = UiUtils.uiTextBuilder().filter("[^-\\(\\)\\./,\\d ]").text("0").create();
 
@@ -1888,10 +1856,6 @@ public class TabMsfragger extends JPanelBase {
     return map;
   }
 
-  private boolean modListContainsIllegalSites(List<Mod> mods) {
-    return mods.stream().anyMatch(m -> m.sites != null && m.sites.contains("[*"));
-  }
-
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteConfigMsfragger m) {
     updateEnabledStatus(this, m.isValid());
@@ -1993,95 +1957,6 @@ public class TabMsfragger extends JPanelBase {
   }
 
   public List<Mod> getVarModsTable() { return formToMap(tableVarMods.model); }
-
-  private void actionBtnConfigSave(ActionEvent e) {
-    // now save the actual user's choice
-    JFileChooser fc = FileChooserUtils.builder("Choose where params file should be saved")
-        .approveButton("Save")
-        .multi(false).acceptAll(true).mode(FcMode.FILES_ONLY)
-        .paths(Seq.of(
-            Fragpipe.propsVarGet(ThisAppProps.PROP_FRAGGER_PARAMS_FILE_IN),
-            Fragpipe.propsVarGet(PROP_FILECHOOSER_LAST_PATH))).create();
-
-    fc.setSelectedFile(new File(MsfraggerParams.CACHE_FILE));
-    final Component parent = SwingUtils.findParentFrameForDialog(this);
-    if (JFileChooser.APPROVE_OPTION == fc.showSaveDialog(parent)) {
-      File selectedFile = fc.getSelectedFile();
-      Path path = Paths.get(selectedFile.getAbsolutePath());
-      Fragpipe.propsVarSet(ThisAppProps.PROP_FRAGGER_PARAMS_FILE_IN, path.toString());
-      Fragpipe.propsVarSet(PROP_FILECHOOSER_LAST_PATH, path.toString());
-
-      // if exists, overwrite
-      if (Files.exists(path)) {
-        int overwrite = JOptionPane.showConfirmDialog(parent, "<html>File exists, overwrtie?<br/><br/>" + path, "Overwrite", JOptionPane.OK_CANCEL_OPTION);
-        if (JOptionPane.OK_OPTION != overwrite) {
-          return;
-        }
-        try {
-          Files.delete(path);
-        } catch (IOException ex) {
-          JOptionPane.showMessageDialog(parent, "Could not overwrite", "Overwrite", JOptionPane.ERROR_MESSAGE);
-          return;
-        }
-      }
-      try {
-        MsfraggerParams params = formCollect();
-        params.save(new FileOutputStream(path.toFile()));
-        params.save();
-
-      } catch (IOException ex) {
-        JOptionPane.showMessageDialog(parent, "<html>Could not save file: <br/>" + path + "<br/>" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-      }
-    }
-  }
-
-  private void actionConfigLoadUserSelected(ActionEvent e) {
-    FileNameExtensionFilter filter = new FileNameExtensionFilter("Properties/Params",
-        "properties", "params", "para", "conf", "txt");
-    JFileChooser fc = FileChooserUtils.create("Select saved file", "Load", false, FcMode.FILES_ONLY, true, filter);
-    fc.setFileFilter(filter);
-    FileChooserUtils.setPath(fc, Stream.of(ThisAppProps.load(ThisAppProps.PROP_FRAGGER_PARAMS_FILE_IN)));
-
-    Component parent = SwingUtils.findParentFrameForDialog(this);
-    int saveResult = fc.showOpenDialog(parent);
-    if (JFileChooser.APPROVE_OPTION == saveResult) {
-      File f = fc.getSelectedFile();
-      Path p = Paths.get(f.getAbsolutePath());
-      ThisAppProps.save(ThisAppProps.PROP_FRAGGER_PARAMS_FILE_IN, p.toString());
-
-      if (Files.exists(p)) {
-        try {
-          MsfraggerParams params = formCollect();
-          params.load(new FileInputStream(f), true);
-          Bus.post(new MessageMsfraggerParamsUpdate(params));
-          params.save();
-
-        } catch (Exception ex) {
-          JOptionPane.showMessageDialog(parent, "<html>Could not load the saved file: <br/>" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
-      } else {
-        JOptionPane.showMessageDialog(parent, "<html>This is strange,<br/> "
-                + "but the file you chose to load doesn't exist anymore.", "Strange", JOptionPane.ERROR_MESSAGE);
-      }
-    }
-  }
-
-  private void actionBtnConfigLoad(ActionEvent actionEvent) {
-    String option = (String)uiComboLoadDefaultsNames.getSelectedItem();
-
-    if (LOAD_CUSTOM_CONFIG_OPTION.equals(option)) {
-      actionConfigLoadUserSelected(actionEvent);
-      return;
-    }
-
-    SearchTypeProp type = SEARCH_TYPE_NAME_MAPPING.get(option);
-    if (type == null) {
-      throw new IllegalStateException(String.format("No mapping for search type string '%s'", option));
-    }
-    if (loadDefaults(type, true)) {
-      postSearchTypeUpdate(type, true);
-    }
-  }
 
   private void actionBtnLoadDetailedOffsets(ActionEvent event) {
     List<FileFilter> tsvFilters = new ArrayList<>();
@@ -2221,22 +2096,6 @@ public class TabMsfragger extends JPanelBase {
     }
     return false;
   }
-  /**
-   * @return False if user's confirmation was required, but they cancelled the operation. True
-   *         otherwise.
-   */
-  private boolean postSearchTypeUpdate(SearchTypeProp type, boolean askConfirmation) {
-    if (askConfirmation) {
-      int confirmation = JOptionPane.showConfirmDialog(SwingUtils.findParentFrameForDialog(this),
-          "<html>Would you like to update options for other tools as well?<br/>"
-              + "<b>Highly recommended</b>, unless you're sure what you're doing)");
-      if (JOptionPane.OK_OPTION != confirmation) {
-        return false;
-      }
-    }
-    Bus.post(new MessageSearchType(type));
-    return true;
-  }
 
   public String getEnzymeName() {
     return uiTextEnzymeName.getNonGhostText();
@@ -2296,7 +2155,7 @@ public class TabMsfragger extends JPanelBase {
 
         String unimodName = SDRFtable.matchUnimod(mod.massDelta, sitesWithTermini);
         String name = getModName(mod.massDelta, mod.sites, unimodName);
-        String siteStr = sitesTemp.length() == 0 ? "" : String.format(";TA=%s", sitesTemp);
+        String siteStr = sitesTemp.isEmpty() ? "" : String.format(";TA=%s", sitesTemp);
         String modStr = String.format("NT=%s;MT=Variable;PP=%s%s;MM=%.5f", name, terminal, siteStr, mod.massDelta);
         mods.add(modStr);
       }
