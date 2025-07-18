@@ -1979,6 +1979,10 @@ public class TabMsfragger extends JPanelBase {
     return FraggerOutputType.valueOf(val);
   }
 
+  public int getOutputReportTopNDda() {
+    return uiSpinnerOutputReportTopNDda.getActualValue();
+  }
+
   public int getOutputReportTopNDia1() {
     return uiSpinnerOutputReportTopNDia1.getActualValue();
   }

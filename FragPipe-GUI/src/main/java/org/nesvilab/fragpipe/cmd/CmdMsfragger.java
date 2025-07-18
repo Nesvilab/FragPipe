@@ -70,6 +70,7 @@ public class CmdMsfragger extends CmdBase {
   private static volatile Path pathBruker = PATH_NONE;
   private static final List<String> timsdataPattern = Arrays.asList("^timsdata.*\\.dll", "^libtimsdata.*\\.so");
   private final FraggerOutputType fraggerOutputType;
+  private final int outputReportTopNDda;
   private final int outputReportTopNDia1;
   private final int outputReportTopNDdaPlus;
   private MsfraggerParams paramsDda;
@@ -77,9 +78,10 @@ public class CmdMsfragger extends CmdBase {
   private MsfraggerParams paramsDia;
   private MsfraggerParams paramsGpfDia;
 
-  public CmdMsfragger(boolean isRun, Path workDir, FraggerOutputType fraggerOutputType, int outputReportTopNDia1, int outputReportTopNDdaPlus) {
+  public CmdMsfragger(boolean isRun, Path workDir, FraggerOutputType fraggerOutputType, int outputReportTopNDda, int outputReportTopNDia1, int outputReportTopNDdaPlus) {
     super(isRun, workDir);
     this.fraggerOutputType = fraggerOutputType;
+    this.outputReportTopNDda = outputReportTopNDda;
     this.outputReportTopNDia1 = outputReportTopNDia1;
     this.outputReportTopNDdaPlus = outputReportTopNDdaPlus;
   }
@@ -338,10 +340,17 @@ public class CmdMsfragger extends CmdBase {
         return false;
       }
 
-      if ((!isRunDiaU && !isRunDiaTracer) && (hasDia || hasGpfDia || hasDiaLib || hasDdaPlus)) {
-        SwingUtils.showErrorDialog(comp, "<html>MSFrgger-DIA <code>split database</code> is incompatible with DIA, GPF-DIA, DIA-Lib, or DDA+ data types.\n"
-            + "Please set the split database to 1.\n"
-            + "For DIA and DIA-Lib data types, you can also use the DIA-Umpire based DIA workflow (DIA_DIA-Umpire_SpecLib_Quant workflow), which supports the split database option.", "Incompatible options");
+      boolean bad = false;
+      if ((isRunDiaU || isRunDiaTracer) && outputReportTopNDda > 1) {
+        bad = true;
+      } else if ((hasDia || hasGpfDia || hasDiaLib) && outputReportTopNDia1 > 1) {
+        bad = true;
+      } else if (hasDdaPlus && outputReportTopNDdaPlus > 1) {
+        bad = true;
+      }
+
+      if (bad) {
+        SwingUtils.showErrorDialog(comp, "<html>The <code>split database</code> option is not compatible with multiple rank reporting, which is typical for DIA, GPF-DIA, DIA-Lib, or DDA+ data types.<br>\nPlease set <code>split database</code> to 1.", "Incompatible options");
         return false;
       }
 
