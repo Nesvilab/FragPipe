@@ -67,6 +67,9 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
     private static final String PROP_print_decoys = "print_decoys";
     private static final String PROP_prob_mass = "prob_mass";
     private static final String PROP_print_extended_params = "print_full_glyco_params";
+    private static final String PROP_glyco_lda = "glyco_lda";
+    private static final String PROP_glyco_lda_features_text = "glyco_lda_features";
+    private static final String PROP_glyco_second_pass = "use_glycan_fragment_probs";
 
     private static final String PROP_nglyco_mode = "n_glyco";
 
@@ -197,6 +200,16 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
                         "and O-glycan default database used.")
                 .create();
 
+        FormEntry feUseLDA = mu.feb(PROP_glyco_lda, UiUtils.createUiCheck("Use LDA", false))
+                .create();
+        FormEntry feSecondPass = mu.feb(PROP_glyco_second_pass, UiUtils.createUiCheck("Use 2 pass mode", false))
+                .create();
+
+        UiText UiTextLDAfeatures = UiUtils.uiTextBuilder().create();
+        UiTextLDAfeatures.setPreferredSize(new Dimension(50, 25));
+        FormEntry feLDAfeatures = mu.feb(PROP_glyco_lda_features_text, UiTextLDAfeatures)
+                .label("LDA features to use").tooltip("valid values: yscore,oxo,mass,mass2nd,glycanfreq,kl,iso,iso2nd,yprop").create();
+
         mu.add(pGlycoAssignContent, feGlycanFDR.label()).split(2);
         mu.add(pGlycoAssignContent, feGlycanFDR.comp);
 
@@ -225,13 +238,18 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
         mu.add(pGlycanAssignment, pGlycoAssignContent).growX().wrap();
 
         // advanced params panel
-        mu.add(pGlycoAdvParams, feDecoyType.label(), mu.ccR());
+        mu.add(pGlycoAdvParams, feDecoyType.label(), mu.ccL()).split(7);
         mu.add(pGlycoAdvParams, feDecoyType.comp).split();
         mu.add(pGlycoAdvParams, feRemoveGlycoDeltaMass.comp).split();
         mu.add(pGlycoAdvParams, fePrintGlycoDecoys.comp).split();
         mu.add(pGlycoAdvParams, feMassProb.label(), mu.ccR());
         mu.add(pGlycoAdvParams, feMassProb.comp).split();
         mu.add(pGlycoAdvParams, fePrintExtGlycoParams.comp).split().spanX().pushX().wrap();
+
+        mu.add(pGlycoAdvParams, feUseLDA.comp).split(4);
+        mu.add(pGlycoAdvParams, feSecondPass.comp).split();
+        mu.add(pGlycoAdvParams, feLDAfeatures.label(), mu.ccL()).split().spanX();
+        mu.add(pGlycoAdvParams, feLDAfeatures.comp).growX().wrap();
 
         mu.add(pGlycanAssignment, uiCheckGlycoAdvParams).split().spanX().wrap();
         mu.add(pGlycanAssignment, pGlycoAdvParams).growX().wrap();
