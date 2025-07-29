@@ -238,9 +238,7 @@ public class SkylinePanel extends JPanelBase {
     DefaultArtifactVersion skylineDailyVersion = Skyline.getSkylineDailyVersion();
 
     if (skylineVersion != null && skylineDailyVersion != null) {
-      uiRadioSkyline.setSelected(true);
       updateEnabledStatus(uiRadioSkyline, true);
-      uiRadioSkylineDaily.setSelected(false);
       updateEnabledStatus(uiRadioSkylineDaily, true);
     } else if (skylineVersion != null) {
       uiRadioSkyline.setSelected(true);
