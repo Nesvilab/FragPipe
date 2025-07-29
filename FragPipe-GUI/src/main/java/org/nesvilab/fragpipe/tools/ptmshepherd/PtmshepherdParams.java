@@ -100,4 +100,18 @@ public class PtmshepherdParams {
 
     return sb.toString();
   }
+
+  public String getProp(String key) {
+    if (props == null) {
+      return null;
+    }
+    return props.getOrDefault(key, "");
+  }
+
+  public boolean needsIonQuant() {
+    if (props == null) {
+      return false;
+    }
+    return getProp("glyco_lda_features").contains("kl");
+  }
 }

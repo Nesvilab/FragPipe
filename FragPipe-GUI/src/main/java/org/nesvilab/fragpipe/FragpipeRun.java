@@ -2153,13 +2153,14 @@ public class FragpipeRun {
             .filter(StringUtils::isNotBlank)
             .ifPresent(v -> additionalShepherdParams.put("isotope_error", v));
         return cmdPtmshepherd.configure(parent,
-            isDryRun,
-            extLibsThermo,
-            ramGb,
-            fastaPath,
-            sharedMapGroupsToProtxml,
-            additionalShepherdParams,
-            jarPath);
+                isDryRun,
+                extLibsThermo,
+                ramGb,
+                fastaPath,
+                sharedMapGroupsToProtxml,
+                additionalShepherdParams,
+                jarPath,
+                Paths.get(binIonQuant.getBin()));
       }
       return true;
     });

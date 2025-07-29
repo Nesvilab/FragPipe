@@ -66,13 +66,14 @@ public class CmdPtmshepherd extends CmdBase {
   }
 
   public boolean configure(Component comp,
-      boolean isDryRun,
-      Path extLibsThermo,
-      int ramGb,
-      Path db,
-      Map<LcmsFileGroup, Path> mapGroupsToProtxml,
-      Map<String, String> additionalProps,
-      Path jarFragpipe) {
+                           boolean isDryRun,
+                           Path extLibsThermo,
+                           int ramGb,
+                           Path db,
+                           Map<LcmsFileGroup, Path> mapGroupsToProtxml,
+                           Map<String, String> additionalProps,
+                           Path jarFragpipe,
+                           Path binIonQuant) {
 
     initPreConfig();
 
@@ -153,8 +154,11 @@ public class CmdPtmshepherd extends CmdBase {
       cmd.add(createJavaDParamString("libs.thermo.dir", extLibsThermo.toString()));
     }
     cmd.add("-cp");
-    cmd.add(classpath);
+    if (params.needsIonQuant()) {
+      cmd.add(constructClasspathString(classpathJars, binIonQuant));
+    } else {
       cmd.add(constructClasspathString(classpathJars));
+    }
     cmd.add(JAR_SHEPHERD_MAIN_CLASS);
     cmd.add("\"" + pathConfig.toAbsolutePath() + "\"");
     ProcessBuilder pb = new ProcessBuilder(cmd);
