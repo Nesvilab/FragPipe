@@ -102,26 +102,6 @@ public class CmdPtmshepherd extends CmdBase {
       return false;
     }
 
-    Path root = FragpipeLocations.get().getDirFragpipeRoot();
-    Path libsDir = root.resolve("lib");
-    if (Files.isDirectory(jarFragpipe)) {
-      libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe-" + Version.version() + "/lib");
-    }
-
-    Set<String> toJoin = classpathJars.stream().map(p -> p.toAbsolutePath().normalize().toString()).collect(Collectors.toSet());
-    try {
-      toJoin.addAll(Files.walk(libsDir).filter(p -> p.getFileName().toString().endsWith(".jar")).
-          filter(p -> p.getFileName().toString().startsWith("commons-lang3")).
-          map(p -> p.toAbsolutePath().normalize().toString()).collect(Collectors.toList())
-      );
-    } catch (IOException ex) {
-      ex.printStackTrace();
-      return false;
-    }
-
-    toJoin.add(jarFragpipe.toAbsolutePath().normalize().toString());
-    final String classpath = OsUtils.asSingleArgument(String.join(System.getProperties().getProperty("path.separator"), toJoin));
-
     PtmshepherdParams params = new PtmshepherdParams(wd, db, mapGroupsToProtxml, additionalProps);
     String config;
     try {
@@ -174,6 +154,7 @@ public class CmdPtmshepherd extends CmdBase {
     }
     cmd.add("-cp");
     cmd.add(classpath);
+      cmd.add(constructClasspathString(classpathJars));
     cmd.add(JAR_SHEPHERD_MAIN_CLASS);
     cmd.add("\"" + pathConfig.toAbsolutePath() + "\"");
     ProcessBuilder pb = new ProcessBuilder(cmd);
