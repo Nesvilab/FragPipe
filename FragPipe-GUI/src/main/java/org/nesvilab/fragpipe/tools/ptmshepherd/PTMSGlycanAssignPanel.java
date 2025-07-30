@@ -55,6 +55,7 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
     private UiCheck checkRunGlycanAssignment;
     private UiCheck uiCheckGlycoAdvParams;
     private UiText uiTextGlycanDBFile;
+    private UiText uiTextLDAfeatures;
 
     private static final String PROP_run_glyco_mode = "run_glyco_mode";
     private static final String PROP_glycan_fdr = "glyco_fdr";
@@ -114,6 +115,10 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
     @Override
     public boolean isRun() {
         return SwingUtils.isEnabledAndChecked(checkRunGlycanAssignment);
+    }
+
+    public boolean needsIonQuant() {
+        return isRun() && uiTextLDAfeatures.getNonGhostText().contains("kl");
     }
 
     // Get params for PTM-S glycan assignment to pass to PTM-S configure method as additional params
@@ -205,9 +210,9 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
         FormEntry feSecondPass = mu.feb(PROP_glyco_second_pass, UiUtils.createUiCheck("Use 2 pass mode", false))
                 .create();
 
-        UiText UiTextLDAfeatures = UiUtils.uiTextBuilder().create();
-        UiTextLDAfeatures.setPreferredSize(new Dimension(50, 25));
-        FormEntry feLDAfeatures = mu.feb(PROP_glyco_lda_features_text, UiTextLDAfeatures)
+        uiTextLDAfeatures = UiUtils.uiTextBuilder().create();
+        uiTextLDAfeatures.setPreferredSize(new Dimension(50, 25));
+        FormEntry feLDAfeatures = mu.feb(PROP_glyco_lda_features_text, uiTextLDAfeatures)
                 .label("LDA features to use").tooltip("valid values: yscore,oxo,mass,mass2nd,glycanfreq,kl,iso,iso2nd,yprop").create();
 
         mu.add(pGlycoAssignContent, feGlycanFDR.label()).split(2);

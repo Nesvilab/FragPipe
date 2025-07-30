@@ -1849,7 +1849,7 @@ public class FragpipeRun {
     modMassSet.addAll(tabMsf.getFixedModMassSet());
     modMassSet.addAll(tabMsf.getMassOffsetSet());
 
-    if (cmdIonquant.isRun()) {
+    if (cmdIonquant.isRun() || (ptmsGlycanPanel.isRun() && ptmsGlycanPanel.needsIonQuant())) {
       final NoteConfigIonQuant configIonQuant;
       try {
         configIonQuant = Fragpipe.getSticky(NoteConfigIonQuant.class);
