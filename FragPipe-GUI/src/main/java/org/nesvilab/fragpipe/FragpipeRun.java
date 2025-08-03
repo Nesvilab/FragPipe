@@ -2285,7 +2285,7 @@ public class FragpipeRun {
         }
         final SpecLibGen2 slg = speclibConf.instance;
 
-        return cmdSpecLibGen.configure(parent, slg, sharedMapGroupsToProtxml, fastaFile, isRunProteinProphet, tabWorkflow.getInputDataType(), threads, decoyTag);
+        return cmdSpecLibGen.configure(parent, slg, sharedMapGroupsToProtxml, fastaFile, isRunProteinProphet, tabWorkflow.getInputDataType(), threads, decoyTag, binMsfragger, ramGb);
       }
       return true;
     });

@@ -45,6 +45,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 import org.apache.commons.io.FilenameUtils;
+import org.nesvilab.utils.UsageTrigger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +63,7 @@ public class CmdSpecLibGen extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, SpecLibGen2 slg, Map<LcmsFileGroup, Path> mapGroupsToProtxml, String fastaPath, boolean isRunProteinProphet, InputDataType dataType, int threads, String decoyTag) {
+  public boolean configure(Component comp, SpecLibGen2 slg, Map<LcmsFileGroup, Path> mapGroupsToProtxml, String fastaPath, boolean isRunProteinProphet, InputDataType dataType, int threads, String decoyTag, UsageTrigger binFragger, int ramGb) {
 
     initPreConfig();
 
@@ -221,6 +222,9 @@ public class CmdSpecLibGen extends CmdBase {
       pb.directory(groupWd.toFile());
       pb.environment().put("PYTHONIOENCODING", "utf-8");
       pb.environment().put("OMP_NUM_THREADS", String.valueOf(threads));
+      final List<String> javaCmd = Arrays.asList(
+              Fragpipe.getBinJava(), "-jar", "-Dfile.encoding=UTF-8", "-Xmx" + ramGb + "G");
+      pb.environment().put("FRAGPIPE_PARSE_MZML_CMD", javaCmd + binFragger.getBin());
       pb.environment().remove("OPENMS_DATA_PATH");
 
       pbis.add(PbiBuilder.from(pb));
