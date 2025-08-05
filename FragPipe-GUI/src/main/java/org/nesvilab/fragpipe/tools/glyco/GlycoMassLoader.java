@@ -132,17 +132,17 @@ public class GlycoMassLoader {
             final int confirmation = SwingUtils.showConfirmDialog2(parent, optionsPanel, "Glycan database options", OK_CANCEL_OPTION);
             if (JOptionPane.OK_OPTION == confirmation) {
                 TabGlyco.stopJTableEditing(optionsPanel.tableGlycoMods);
+                // combine glycan masses if requested (e.g. O-glycans)
+                glycanDBnoCombos = new ArrayList<>(glycanDB);       // hold a copy of glycans without combination for O-Pair
+                if (optionsPanel.getMaxCombos() > 1) {
+                    glycanDB = generateGlycanCombos(glycanDB, optionsPanel.getMaxCombos(), optionsPanel.useMassFilter(), optionsPanel.getMaxMass(), optionsPanel.getMinMass());
+                }
                 if (optionsPanel.isGlycanModsChanged()) {
                     // user has specified glycan mods: update glycan database
                     addModsToGlycanDB(optionsPanel.getMaxModCombos());
                 }
                 if (optionsPanel.useMassFilter()) {
                     glycanDB = filterMasses(glycanDB, optionsPanel.getMinMass(), optionsPanel.getMaxMass());
-                }
-                // combine glycan masses if requested (e.g. O-glycans)
-                glycanDBnoCombos = new ArrayList<>(glycanDB);       // hold a copy of glycans without combination for O-Pair
-                if (optionsPanel.getMaxCombos() > 1) {
-                    glycanDB = generateGlycanCombos(glycanDB, optionsPanel.getMaxCombos(), optionsPanel.useMassFilter(), optionsPanel.getMaxMass(), optionsPanel.getMinMass());
                 }
             } else {
                 // reset the loaded glyans if user cancels at this point
