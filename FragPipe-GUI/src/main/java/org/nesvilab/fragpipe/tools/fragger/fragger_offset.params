@@ -39,6 +39,7 @@ localize_delta_mass = 1
 delta_mass_exclude_ranges = (-1.5,3.5)
 fragment_ion_series = b,y
 ion_series_definitions=
+labile_fragment_ion_series =
 
 labile_search_mode = off
 restrict_deltamass_to = all

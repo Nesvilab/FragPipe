@@ -133,6 +133,7 @@ public class MsfraggerParams extends AbstractParams {
     public static final String PROP_digest_mass_range = "digest_mass_range";
     public static final String PROP_max_fragment_charge = "max_fragment_charge";
     public static final String PROP_fragment_ion_series = "fragment_ion_series";
+    public static final String PROP_labile_fragment_ion_series = "labile_fragment_ion_series";
     public static final String PROP_ion_series_definitions = "ion_series_definitions";
 
     
@@ -223,6 +224,7 @@ public class MsfraggerParams extends AbstractParams {
         PROP_digest_mass_range,
         PROP_max_fragment_charge,
         PROP_fragment_ion_series,
+        PROP_labile_fragment_ion_series,
         PROP_ion_series_definitions,
         PROP_track_zero_topN,
         PROP_zero_bin_accept_expect,
@@ -364,6 +366,7 @@ public class MsfraggerParams extends AbstractParams {
         c.put(PROP_localize_delta_mass, "Include fragment ions mass-shifted by unknown modifications (recommended for open and mass offset searches) (0 for OFF, 1 for ON).");
         c.put(PROP_delta_mass_exclude_ranges, "Exclude mass range for shifted ions searching.");
         c.put(PROP_fragment_ion_series, "Ion series used in search, specify any of a,b,c,x,y,z,Y,b-18,y-18 (comma separated).");
+        c.put(PROP_labile_fragment_ion_series, "Labile ion series used in labile search, specify any of a,b,c,x,y,z (comma separated). Replaces intact mods with labile ion(s) for each specified ion type.");
         c.put(PROP_ion_series_definitions, "User defined ion series. Example: \"b* N -17.026548;b0 N -18.010565\".");
         c.put(PROP_search_enzyme_name_1, "Name of the first enzyme.");
         c.put(PROP_search_enzyme_name_2, "Name of the second enzyme.");

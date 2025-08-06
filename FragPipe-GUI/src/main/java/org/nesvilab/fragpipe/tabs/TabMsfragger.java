@@ -287,6 +287,7 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_output_format, s -> FraggerOutputType.valueOf(s).valueInParamsFile());
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_report_alternative_proteins, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_fragment_ion_series, ionStr -> ionStr.trim().replaceAll("[\\s,;]+",","));
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_labile_fragment_ion_series, ionStr -> ionStr.trim().replaceAll("[\\s,;]+",","));
 
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_labile_search_mode, s -> GLYCO_OPTIONS.get(GLYCO_OPTIONS_UI.indexOf(s)));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_mass_offsets, s -> {
@@ -384,6 +385,7 @@ public class TabMsfragger extends JPanelBase {
   private UiCombo uiComboFragTolUnits;
   private UiSpinnerInt uiSpinnerDbsplit;
   private UiCheck uiCheckLocalizeDeltaMass;
+  private UiText uiTextLabileIonSeries;
   private UiText uiTextCustomIonSeries;
   private JLabel labelCustomIonSeries;
   private Map<Component, Boolean> enablementMapping = new HashMap<>();
@@ -970,7 +972,20 @@ public class TabMsfragger extends JPanelBase {
                     "after fragmentation.\n ")
             .create();
 
-    uiComboGlyco.addItemListener(e -> {
+      uiTextLabileIonSeries = new UiText(10);
+      uiTextLabileIonSeries.setText("b,y");
+      FormEntry feLabileIonSeries = mu.feb(MsfraggerParams.PROP_labile_fragment_ion_series, uiTextLabileIonSeries)
+              .label("Labile fragment ion series").tooltip(
+                      "Which peptide ion series to search for labile ions. REPLACES intact mods with labile remainder(s) as specified.\n"
+                              + "<b>Use spaces, commas or semicolons as delimiters</b>, e.g. \"b,y\"\n"
+                              + "This mostly depends on fragmentation method.\n"
+                              + "Typically \"b,y\" are used for CID and none for for ETD/ECD.\n"
+                              + "c,z can be added for very high supplemental activation in EThcD or similar.\n"
+                              + "others can be added for other fragmentation types (e.g., UVPD, EID, etc.).\n"
+                              + "MSFragger supports \"a,b,c,x,y,z\".").create();
+
+
+      uiComboGlyco.addItemListener(e -> {
       // needs to be done after components to be turned on/off have been created
       final String selected = (String)uiComboGlyco.getSelectedItem();
       final boolean enabled = !MsfraggerParams.GLYCO_OPTION_off.equalsIgnoreCase(selected);
@@ -979,6 +994,7 @@ public class TabMsfragger extends JPanelBase {
       updateEnabledStatus(ep2, enabled);
       updateEnabledStatus(uiTextRemainderMasses, enabled);
       updateEnabledStatus(uiSpinnerMinSeqMatches, enabled);
+      updateEnabledStatus(uiTextLabileIonSeries, enabled);
     });
     // trigger the item listener on startup
     // (done with indexes so that it breaks if the list and OFF option are changed)
@@ -992,7 +1008,9 @@ public class TabMsfragger extends JPanelBase {
     mu.add(p, feOxoniumIonMinimumIntensity.label(), mu.ccR());
     mu.add(p, feOxoniumIonMinimumIntensity.comp);
     mu.add(p, feMinSeqMatches.label(), mu.ccR());
-    mu.add(p, feMinSeqMatches.comp).pushX().wrap();
+    mu.add(p, feMinSeqMatches.comp);
+    mu.add(p, feLabileIonSeries.label(), mu.ccR());
+    mu.add(p, feLabileIonSeries.comp).wrap();
     mu.add(p, feOxoniumIons.label(), mu.ccR());
     mu.add(p, feOxoniumIons.comp).spanX().growX().wrap();
     mu.add(p, feYIonMasses.label(), mu.ccR());
@@ -1767,6 +1785,10 @@ public class TabMsfragger extends JPanelBase {
         if (MsfraggerParams.PROP_fragment_ion_series.equals(k) && StringUtils.isNullOrWhitespace(converted)) {
           // don't set ion series to be used in the fragger config file if the string is emtpty
           continue;
+        }
+        if (MsfraggerParams.PROP_labile_fragment_ion_series.equals(k) && StringUtils.isNullOrWhitespace(converted)) {
+            // don't set ion series to be used in the fragger config file if the string is emtpty
+            continue;
         }
         p.getProps().setProp(k, converted);
 

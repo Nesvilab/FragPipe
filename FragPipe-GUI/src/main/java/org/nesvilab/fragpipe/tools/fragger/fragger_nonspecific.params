@@ -46,6 +46,7 @@ diagnostic_intensity_filter = 0.0
 Y_type_masses =
 diagnostic_fragments =
 remainder_fragment_masses =
+labile_fragment_ion_series =
 
 search_enzyme_name_1 = nonspecific
 search_enzyme_cut_1 = @
