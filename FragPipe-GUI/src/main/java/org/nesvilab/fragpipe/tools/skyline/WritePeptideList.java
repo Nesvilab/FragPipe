@@ -49,7 +49,9 @@ public class WritePeptideList {
         BufferedWriter writer = new BufferedWriter(new FileWriter(outputPath.toFile()));
         for (Map.Entry<String, Set<String>> entry : proteinMap.entrySet()) {
             writer.write(String.format(">>%s\n", entry.getKey()));
-            for (String pep : entry.getValue()) {
+            List<String> sortedPeptides = new ArrayList<>(entry.getValue());
+            Collections.sort(sortedPeptides);   // sort alphabetically so the skyline document is easier to read
+            for (String pep : sortedPeptides) {
                 writer.write(pep + "\n");
             }
         }
