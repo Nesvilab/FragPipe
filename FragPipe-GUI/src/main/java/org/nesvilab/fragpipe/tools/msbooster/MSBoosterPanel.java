@@ -93,6 +93,8 @@ public class MSBoosterPanel extends JPanelBase {
     modelMap.put("MS2PIP timsTOF 2024", "ms2pip_timsTOF2024");
     modelMap.put("MS2PIP TTOF 5600", "ms2pip_ttof5600");
     modelMap.put("MS2PIP Immuno HCD", "ms2pip_immuno_hcd");
+    modelMap.put("MS2PIP CID TMT", "ms2pip_CID_TMT");
+    modelMap.put("MS2PIP iTRAQ Phospho", "ms2pip_iTRAQphospho");
     modelMap.put("AlphaPept MS2 Generic", "AlphaPept_ms2_generic");
     modelMap.put("Prosit 2019 Intensity", "Prosit_2019_intensity");
     modelMap.put("Prosit 2023 Intensity timsTOF", "Prosit_2023_intensity_timsTOF");
@@ -100,6 +102,7 @@ public class MSBoosterPanel extends JPanelBase {
     modelMap.put("Prosit 2020 Intensity TMT", "Prosit_2020_intensity_TMT");
     modelMap.put("Prosit 2020 Intensity HCD", "Prosit_2020_intensity_HCD");
     modelMap.put("AlphaPept CCS Generic", "AlphaPept_ccs_generic");
+    modelMap.put("IM2Deep", "IM2Deep");
     modelMap.put("UniSpec", "UniSpec");
     modelMap.put("Prosit 2024 Intensity CIT", "Prosit_2024_intensity_cit");
     modelMap.put("Prosit 2025 Intensity MultiFrag", "Prosit_2025_intensity_MultiFrag");
@@ -191,6 +194,8 @@ public class MSBoosterPanel extends JPanelBase {
         "MS2PIP timsTOF 2024",
         "MS2PIP TTOF 5600",
         "MS2PIP Immuno HCD",
+        "MS2PIP CID TMT",
+        "MS2PIP iTRAQ Phospho",
         "AlphaPept MS2 Generic",
         "Prosit 2019 Intensity",
         "Prosit 2023 Intensity timsTOF",
@@ -208,7 +213,8 @@ public class MSBoosterPanel extends JPanelBase {
 
     uiComboImModel = createUiCombo(new String[]{
         "DIA-NN",
-        "AlphaPept CCS Generic"
+        "AlphaPept CCS Generic",
+        "IM2Deep"
     });
     FormEntry feImModel = mu.feb("im-model", uiComboImModel)
         .label("Model: ")
@@ -326,6 +332,8 @@ public class MSBoosterPanel extends JPanelBase {
         new Model("MS2PIP timsTOF 2024", true),
         new Model("MS2PIP TTOF 5600", true),
         new Model("MS2PIP Immuno HCD", true),
+        new Model("MS2PIP CID TMT", true),
+        new Model("MS2PIP iTRAQ Phospho", true),
         new Model("AlphaPept MS2 Generic", true),
         new Model("Prosit 2019 Intensity", true),
         new Model("Prosit 2023 Intensity timsTOF", true),
@@ -358,7 +366,8 @@ public class MSBoosterPanel extends JPanelBase {
 
     List<Model> models = List.of(
         new Model("DIA-NN", true),
-        new Model("AlphaPept CCS Generic", true)
+        new Model("AlphaPept CCS Generic", true),
+        new Model("IM2Deep", true)
     );
 
     tableImModels = createTableModels(models, "table.im-models");
