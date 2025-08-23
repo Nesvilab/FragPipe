@@ -23,11 +23,13 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 
 public class FileMoveWithExtension {
 
     public static void main(String[] args) throws IOException {
+        Locale.setDefault(Locale.US);
         if (args.length != 3) {
             throw new IllegalArgumentException("Input must be 3 arguments: origin dir, extension, and destination.");
         }

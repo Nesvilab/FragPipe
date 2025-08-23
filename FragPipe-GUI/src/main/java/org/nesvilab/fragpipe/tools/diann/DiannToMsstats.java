@@ -22,6 +22,7 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
@@ -35,6 +36,7 @@ public class DiannToMsstats {
   private static final Pattern pattern2 = Pattern.compile("([ncA-Z]+):([\\d.-]+)");
 
   public static void main(String[] args) {
+    Locale.setDefault(Locale.US);
     long startTime = System.nanoTime();
 
     try {

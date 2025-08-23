@@ -3,6 +3,7 @@ package org.nesvilab.fragpipe.tools.diann;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Locale;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.apache.hadoop.fs.Path;
@@ -44,6 +45,7 @@ public class ParquetToTsv {
 
 
   public static void main(String[] args) {
+    Locale.setDefault(Locale.US);
     try {
       convertParquetToTsv(args[0], args[1]);
     } catch (IOException e) {

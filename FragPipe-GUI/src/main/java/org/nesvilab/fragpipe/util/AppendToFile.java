@@ -19,6 +19,7 @@ package org.nesvilab.fragpipe.util;
 
 import java.io.*;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 public class AppendToFile {
@@ -28,6 +29,7 @@ public class AppendToFile {
     }
 
     public static void main(String[] args) {
+        Locale.setDefault(Locale.US);
         try {
             /* Args:
              * - file to append to

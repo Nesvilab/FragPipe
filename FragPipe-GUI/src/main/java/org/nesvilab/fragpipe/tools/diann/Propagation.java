@@ -32,6 +32,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -51,6 +52,7 @@ public class Propagation {
 
 
   public static void main(String[] args) {
+    Locale.setDefault(Locale.US);
     long startTime = System.nanoTime();
 
     Path wd = Paths.get(args[0].trim());

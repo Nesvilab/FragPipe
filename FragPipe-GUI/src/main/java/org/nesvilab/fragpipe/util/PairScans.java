@@ -17,6 +17,7 @@
 
 package org.nesvilab.fragpipe.util;
 
+import java.util.Locale;
 import org.nesvilab.fragpipe.tools.enums.ActivationTypes;
 import org.nesvilab.utils.StringUtils;
 import java.io.PrintWriter;
@@ -50,6 +51,7 @@ public class PairScans {
     }
 
     public static void main(String[] args) {
+        Locale.setDefault(Locale.US);
         long time = System.nanoTime();
         PairScans pairer = new PairScans();
         try {

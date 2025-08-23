@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -21,6 +22,7 @@ public class FPOP_PSMwriter {
     private HashMap<String, Integer> columns;
 
     public static void main(String[] args) {
+        Locale.setDefault(Locale.US);
         ArrayList<Path> psmPaths = new ArrayList<>();
         try {
             psmPaths = getPSMPaths(args[0]);

@@ -1,19 +1,27 @@
 package org.nesvilab.fragpipe.tools.fpop;
 
-import umich.ms.fileio.filetypes.unimod.UnimodOboReader;
+import static org.nesvilab.fragpipe.cmd.ToolingUtils.UNIMOD_OBO;
+import static org.nesvilab.fragpipe.cmd.ToolingUtils.getUnimodOboPath;
+import static org.nesvilab.fragpipe.util.AAMasses.AAMasses;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static org.nesvilab.fragpipe.cmd.ToolingUtils.UNIMOD_OBO;
-import static org.nesvilab.fragpipe.cmd.ToolingUtils.getUnimodOboPath;
-import static org.nesvilab.fragpipe.util.AAMasses.AAMasses;
+import umich.ms.fileio.filetypes.unimod.UnimodOboReader;
 
 public class FPOP_DiannReport_Editor {
 
@@ -25,6 +33,7 @@ public class FPOP_DiannReport_Editor {
     private HashMap<String, Integer> columns;
 
     public static void main(String[] args) {
+        Locale.setDefault(Locale.US);
         ArrayList<Path> reportPaths = new ArrayList<>();
         try {
             reportPaths = getReportPaths(args[0]);

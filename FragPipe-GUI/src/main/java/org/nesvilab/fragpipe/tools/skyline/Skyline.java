@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -93,6 +94,7 @@ public class Skyline {
   }
 
   public static void main(String[] args) {
+    Locale.setDefault(Locale.US);
     try {
       runSkyline(args[0], Paths.get(args[1]), args[2], Integer.parseInt(args[3]), Boolean.parseBoolean(args[4]), Integer.parseInt(args[5]), Integer.parseInt(args[6]));
     } catch (Exception e) {

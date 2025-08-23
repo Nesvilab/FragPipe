@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Locale;
 
 /**
  *
@@ -34,6 +35,7 @@ public class FileDelete {
     // `java -cp fragpipe.jar org.nesvilab.utils.FileDelete`
 
     public static void main(String[] args) throws IOException {
+        Locale.setDefault(Locale.US);
         if (args.length != 1)
             throw new IllegalArgumentException("Must provide exactly one argument - the file or directory to delete.");
         Path path = Paths.get(args[0]);

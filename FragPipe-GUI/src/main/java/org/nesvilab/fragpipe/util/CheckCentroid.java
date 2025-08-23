@@ -20,6 +20,7 @@ package org.nesvilab.fragpipe.util;
 import static umich.ms.fileio.filetypes.mzbin.Utils.shortArray;
 
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 import umich.ms.datatypes.LCMSDataSubset;
@@ -34,6 +35,7 @@ import umich.ms.fileio.filetypes.mzxml.MZXMLFile;
 public class CheckCentroid {
 
   public static void main(String[] args) {
+    Locale.setDefault(Locale.US);
     long time = System.nanoTime();
     try {
       if (!isCentroid(args[0].trim(), Integer.parseInt(args[1]))) {

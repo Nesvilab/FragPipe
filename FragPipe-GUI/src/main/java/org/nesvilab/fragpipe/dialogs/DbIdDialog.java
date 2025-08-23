@@ -17,6 +17,7 @@
 
 package org.nesvilab.fragpipe.dialogs;
 
+import java.util.Locale;
 import org.nesvilab.utils.StringUtils;
 import java.awt.BorderLayout;
 import java.awt.event.KeyEvent;
@@ -144,6 +145,7 @@ public class DbIdDialog extends JDialog {
   }
 
   public static void main(String[] args) {
+    Locale.setDefault(Locale.US);
     DbIdDialog dialog = new DbIdDialog();
     dialog.pack();
     dialog.setVisible(true);

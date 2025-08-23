@@ -20,6 +20,7 @@ package org.nesvilab.fragpipe;
 import static org.nesvilab.utils.OsUtils.isUnix;
 import static org.nesvilab.utils.OsUtils.isWindows;
 
+import java.util.Locale;
 import org.nesvilab.utils.SwingUtils;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -37,6 +38,7 @@ public class FragPipeMain {
   private static final Pattern patternUnix = Pattern.compile("philosopher-v((?!.*\\.exe$).+)");
 
   public static void main(String[] args) {
+    Locale.setDefault(Locale.US);
     if (args.length == 1 && (args[0].equalsIgnoreCase("--help") || args[0].equalsIgnoreCase("-h"))) {
       System.out.print(Fragpipe.help());
       System.exit(1);

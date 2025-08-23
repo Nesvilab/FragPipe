@@ -20,6 +20,7 @@ package org.nesvilab.fragpipe.util;
 import static org.nesvilab.fragpipe.Version.PROGRAM_TITLE;
 import static org.nesvilab.fragpipe.Version.version;
 
+import java.util.Locale;
 import org.nesvilab.utils.StringUtils;
 import java.io.BufferedReader;
 import java.io.File;
@@ -57,6 +58,7 @@ public class WriteSubMzml {
   private static final Pattern pattern = Pattern.compile("^(.+)\\.(\\d+)\\.(\\d+)\\.(\\d+)");
 
   public static void main(String[] args) {
+    Locale.setDefault(Locale.US);
     long time = System.nanoTime();
     try {
       writeSubMzml(args[0], Paths.get(args[1]), Paths.get(args[2]), Float.parseFloat(args[3]), Integer.parseInt(args[4]) == 1);

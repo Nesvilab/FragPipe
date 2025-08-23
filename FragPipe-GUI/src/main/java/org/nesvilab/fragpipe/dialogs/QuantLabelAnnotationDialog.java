@@ -17,6 +17,7 @@
 
 package org.nesvilab.fragpipe.dialogs;
 
+import java.util.Locale;
 import org.nesvilab.utils.swing.MigUtils;
 import org.nesvilab.utils.swing.UiCombo;
 import org.nesvilab.utils.swing.UiUtils;
@@ -224,6 +225,7 @@ public class QuantLabelAnnotationDialog extends javax.swing.JDialog {
   }
 
   public static void main(String[] args) {
+    Locale.setDefault(Locale.US);
     QuantLabelAnnotationDialog dialog = new QuantLabelAnnotationDialog(null,
         new ExpNameToAnnotationFile("test-experiment", Collections.emptyList(), "Not yet selected"),
         "TMT-10", Collections.emptyList());

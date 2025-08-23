@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Locale;
 
 /**
  *
@@ -27,6 +28,7 @@ import java.nio.file.Paths;
  */
 public class FileSymlink {
     public static void main(String[] args) throws IOException {
+        Locale.setDefault(Locale.US);
         if (args.length  != 2)
             throw new IllegalArgumentException("Must provide exactly 2 arguments. The file to create"
                     + " the link to and the symlink file path itself.");

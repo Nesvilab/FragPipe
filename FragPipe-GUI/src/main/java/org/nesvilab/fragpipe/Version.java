@@ -18,6 +18,7 @@ package org.nesvilab.fragpipe;
 
 import static org.nesvilab.fragpipe.params.ThisAppProps.LOCAL_PATH_BUNDLE;
 
+import java.util.Locale;
 import org.nesvilab.fragpipe.params.ThisAppProps;
 import org.nesvilab.utils.VersionComparator;
 import java.io.IOException;
@@ -668,6 +669,7 @@ public class Version {
    *             integer how many versions back worth of changelog to print.
    */
   public static void main(String[] args) {
+    Locale.setDefault(Locale.US);
     int maxVersionsToPrint = 0;
     boolean printGihubPreamble = true;
     if (args != null && args.length > 0) {

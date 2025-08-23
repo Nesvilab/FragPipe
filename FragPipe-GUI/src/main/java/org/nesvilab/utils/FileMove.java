@@ -21,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Locale;
 import org.apache.commons.io.FileUtils;
 
 /**
@@ -37,6 +38,7 @@ public class FileMove {
      * @throws IOException
      */
     public static void main(String[] args) throws IOException {
+        Locale.setDefault(Locale.US);
         if (args.length != 2 && args.length != 3) {
             throw new IllegalArgumentException("Input must be either 2 arguments: origin and destination "
                 + "or optionally prepended with --no-err ot suppress file existence checks.");

@@ -19,6 +19,7 @@ package org.nesvilab.fragpipe.util;
 
 import static org.nesvilab.utils.StringUtils.upToLastDot;
 
+import java.util.Locale;
 import org.nesvilab.utils.StringUtils;
 import java.io.EOFException;
 import java.io.IOException;
@@ -40,6 +41,7 @@ public class RewritePepxml {
   private static final Logger log = LoggerFactory.getLogger(RewritePepxml.class);
 
   public static void main(String[] args) throws IOException {
+    Locale.setDefault(Locale.US);
     // Check if the LCMS files exist. Replace the non-existing ones with the existing ones if possible.
     for (int i = 0; i < args.length; ++i) {
       if (!Files.exists(Paths.get(args[i]))) { // Try to find the alternative file.

@@ -22,6 +22,7 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Locale;
 
 /**
  *
@@ -29,6 +30,7 @@ import java.nio.file.StandardCopyOption;
  */
 public class FileCopy {
     public static void main(String[] args) throws IOException {
+        Locale.setDefault(Locale.US);
         if (args.length != 2) {
             throw new IllegalArgumentException("Input must be exactly 2 arguments: origin and destination");
         }
