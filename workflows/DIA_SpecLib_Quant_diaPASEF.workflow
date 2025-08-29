@@ -364,8 +364,8 @@ tmtintegrator.unique_gene=0
 tmtintegrator.unique_pep=false
 tmtintegrator.use_glycan_composition=false
 workflow.description=<p style\="margin-top\: 0">Wokflow for diaPASEF data, similar to DIA_SpecLib_Quant.</p>\n<p style\="margin-top\: 0">See K. Li et al., diaTracer enables spectrum-centric analysis of diaPASEF proteomics data, Nat Commun 16, 95 (2025).</p> NOTE\: diaTracer needs to be run only once. If .diatracer.mzML files already exist (located in the folder next to the original .d files), load them and annotate as 'DDA' type. Load the original diaPASEF .d files and annotate as 'DIA-Quant'. This will avoid redoing the conversion from .d to diatracer.mzML files.
-workflow.input.data-type.im-ms=false
-workflow.input.data-type.regular-ms=true
+workflow.input.data-type.im-ms=true
+workflow.input.data-type.regular-ms=false
 workflow.misc.save-sdrf=true
 workflow.misc.sdrf-type=Default
 workflow.saved-with-ver=23.0-build36
