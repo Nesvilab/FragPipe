@@ -292,7 +292,8 @@ public class QuantPanelLabelfree extends JPanelBase {
     UiSpinnerDouble uiSpinnerMbrImTol = UiUtils.spinnerDouble(0.05, 0.001, 0.5, 0.001)
         .setCols(5).setFormat("#.###").create();
 
-    UiCombo uiComboIntensityMode = UiUtils.createUiCombo(Arrays.asList("apex", "area"));
+    UiCombo uiComboIntensityMode = UiUtils.createUiCombo(Arrays.asList("apex", "area", "auto"));
+    uiComboIntensityMode.setSelectedItem("auto");
 
     UiSpinnerDouble uiSpinnerMinFreq = UiUtils.spinnerDouble(0, 0, 1, 0.1)
         .setCols(5).setFormat("#.##").create();
@@ -348,7 +349,7 @@ public class QuantPanelLabelfree extends JPanelBase {
     UiSpinnerDouble uiSpinnerMinSiteProb = UiSpinnerDouble.builder(0.75, -1, 1.0, 0.01).setFormat(new DecimalFormat("#.##")).setCols(5).create();
     FormEntry feMinSiteProb = mu.feb(uiSpinnerMinSiteProb).name("ionquant.locprob").label("Min site localization probability").tooltip("Site localization confidence threshold").create();
 
-    FormEntry feIntensityMode = mu.feb(uiComboIntensityMode).name("ionquant.intensitymode").label("Intensity mode").tooltip("Intensity calculation mode: apex or area.").create();
+    FormEntry feIntensityMode = mu.feb(uiComboIntensityMode).name("ionquant.intensitymode").label("Intensity mode").tooltip("Intensity calculation mode: apex, area, or auto.").create();
 
     FormEntry feExcludemods = mu.feb(uiTextExcludemods).name("ionquant.excludemods").label("Excluded mods").tooltip("String specifying modifications to be excluded from protein quantification, e.g. M15.9949;STY79.96633").create();
 

@@ -138,6 +138,7 @@ ionquant.uniqueness::unique+razor <=> 0
 ionquant.uniqueness::unique only <=> 1
 ionquant.intensitymode::apex <=> 0
 ionquant.intensitymode::area <=> 1
+ionquant.intensitymode::auto <=> 2
 
 msbooster.rt-model::DIA-NN <=> DIA-NN
 msbooster.rt-model::DeepLC HeLa HF <=> Deeplc_hela_hf
