@@ -21,11 +21,7 @@ import static javax.swing.JOptionPane.OK_CANCEL_OPTION;
 
 import java.awt.Component;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.swing.JFileChooser;
@@ -238,7 +234,7 @@ public class GlycoMassLoader {
             // iterate combinations
             List<int[]> combos = GlycoMassLoader.combinationsWithRepetition(glycans.size(), count);
             for (int[] combo : combos) {
-                Glycan comboGlycan = new Glycan(new HashMap<>());
+                Glycan comboGlycan = new Glycan(new TreeMap<>());
                 // calculate mass as the sum of the glycans at selected indices
                 for (int i : combo) {
                     comboGlycan.addGlycan(glycans.get(i));
