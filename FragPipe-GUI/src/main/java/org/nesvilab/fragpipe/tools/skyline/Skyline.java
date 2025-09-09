@@ -193,8 +193,15 @@ public class Skyline {
         }
       }
 
+        String mbgGlycans = null;
+        if (pf.getProperty("mbg.run-mbg").equalsIgnoreCase("true")) {
+            if (Files.exists(wd.resolve("mbg_added_glycans.txt"))) {
+                mbgGlycans = Files.readString(wd.resolve("mbg_added_glycans.txt"));
+            }
+        }
+
       Path skylineTemplateXmlPath = wd.resolve("skyline_template.xml");
-      WriteSkylineTemplate writeSkylineTemplate = new WriteSkylineTemplate(skylineTemplateXmlPath, pf, modsMode, matchUnimod, !useSpeclib, addedMods, sslWriter != null && sslWriter.hasCv);
+      WriteSkylineTemplate writeSkylineTemplate = new WriteSkylineTemplate(skylineTemplateXmlPath, pf, modsMode, matchUnimod, !useSpeclib, addedMods, sslWriter != null && sslWriter.hasCv, mbgGlycans);
 
       Path pp = wd.resolve("filelist_skyline.txt");
 
