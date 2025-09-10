@@ -1008,7 +1008,7 @@ public class Fragpipe extends JFrameHeadless {
     T sticky = Bus.getStickyEvent(clazz);
     if (sticky == null) {
       if (clazz.getName().contentEquals("org.nesvilab.fragpipe.messages.NoteConfigSpeclibgen")) {
-        Bus.postSticky(new NoteConfigSpeclibgen(null, new ValidationException("Python binary or EasyPQP not valid")));
+        Bus.postSticky(new NoteConfigSpeclibgen(null, new ValidationException("Python, EasyPQP, or MSFragger not valid")));
         sticky = Bus.getStickyEvent(clazz);
       } else {
         throw new NoSuchElementException("Sticky note not on the bus: " + clazz.getCanonicalName());

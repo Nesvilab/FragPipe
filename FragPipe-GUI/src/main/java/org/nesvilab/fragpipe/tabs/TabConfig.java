@@ -913,9 +913,9 @@ public class TabConfig extends JPanelWithEnablement {
       pythonTextScroll.setVisible(!dbsplitEnabled);
     } else {
       if (errMsg.isEmpty()) {
-        sb.append("EasyPQP: <b>Not available</b>. Used for spectral library building.<br><br>");
+        sb.append("EasyPQP: <b>Not available</b>. Used for spectral library building.<br>Please check Python, EasyPQP, and MSFragger configurations.<br><br>");
       } else {
-        sb.append("EasyPQP: <b>Not available</b>. Used for spectral library building.<br><br>").append(errMsg);
+        sb.append("EasyPQP: <b>Not available</b>. Used for spectral library building.<br>Please check Python, EasyPQP, and MSFragger configurations.<br><br>").append(errMsg);
       }
     }
     return sb.toString();
