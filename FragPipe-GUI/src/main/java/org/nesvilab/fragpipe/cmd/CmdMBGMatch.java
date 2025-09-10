@@ -47,7 +47,7 @@ import static org.nesvilab.fragpipe.cmd.CmdPairScans.checkCompatibleFormats;
 public class CmdMBGMatch  extends CmdBase {
     private static final Logger log = LoggerFactory.getLogger(CmdMBGMatch.class);
     public static String NAME = "MBG";
-    private static final String JAR_MBG_NAME = "MBG-0.3.3.jar";
+    private static final String JAR_MBG_NAME = "MBG-0.3.4.jar";
     public static final String JAR_MBG_MAIN_CLASS = "com.mbg.MBG";
     public static final String[] JAR_DEPS = {ToolingUtils.BATMASS_IO_JAR};
     private static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML", "mzXML");
