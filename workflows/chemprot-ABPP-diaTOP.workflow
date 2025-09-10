@@ -3,7 +3,7 @@
 crystalc.run-crystalc=false
 database.decoy-tag=rev_
 diann.channel-normalization-strategy=0
-diann.cmd-opts=
+diann.cmd-opts=--mod 280.1899,280.1899
 diann.generate-msstats=true
 diann.heavy=
 diann.library=
