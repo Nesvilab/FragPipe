@@ -8,6 +8,16 @@ public class MBGParams {
     private int intGlycans;
     private int expandDB;
     private int maxSkips;
+    private boolean allowChimeric;
+
+    public boolean allowChimeric() {
+        return allowChimeric;
+    }
+
+    public void setAllowChimeric(boolean allowChimeric) {
+        this.allowChimeric = allowChimeric;
+    }
+
 
     public int getMaxSkips() { return maxSkips;}
 

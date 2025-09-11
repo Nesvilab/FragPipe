@@ -53,6 +53,7 @@ public class MBGPanel extends JPanelBase {
     private static final String PROP_MBG_FDR = "fdr";
     private static final String PROP_MBG_expand_DB = "expand_db";
     private static final String PROP_MBG_max_skips = "max_skips";
+    private static final String PROP_MBG_allow_chimeric = "allow_chimeric";
 
     private UiSpinnerDouble uiSpinnerMaxQ;
     private UiSpinnerDouble uiSpinnerFDR;
@@ -61,6 +62,7 @@ public class MBGPanel extends JPanelBase {
     private UiSpinnerInt uiSpinnerIntExpandDB;
     private UiText uiTextResiduesToAdd;
     private UiSpinnerInt uiSpinnerIntMaxSkips;
+    private UiCheck uiCheckAllowChimeric;
 
     private final GlycoMassLoader glycoLoader;
 
@@ -120,23 +122,27 @@ public class MBGPanel extends JPanelBase {
         uiSpinnerIntMaxSkips.setToolTipText("Number of missing glycoforms to allow while expanding database. For example, skips=1 allows one round of continued inference on a missed peak.");
         FormEntry feMaxSkips = new FormEntry(PROP_MBG_max_skips, "Max Inference Skips", uiSpinnerIntMaxSkips);
 
+        uiCheckAllowChimeric = new UiCheck("Allow Inferring Chimeric Spectra", null, false);
+        uiCheckAllowChimeric.setName(PROP_MBG_allow_chimeric);
+
         uiTextResiduesToAdd = UiUtils.uiTextBuilder().create();
         uiTextResiduesToAdd.setPreferredSize(new Dimension(200, 25));
         FormEntry feResiduesToAdd = mu.feb(PROP_residues_to_add, uiTextResiduesToAdd)
                 .label("Residues to Add:").tooltip("Choose which glycan residues/mods are considered for MBG matching").create();
 
-        mu.add(pContent, feMaxQ.label(), mu.ccL()).split(10);
+        mu.add(pContent, feMaxQ.label(), mu.ccL()).split(8);
         mu.add(pContent, feMaxQ.comp).split();
         mu.add(pContent, feMinPSMs.label(), mu.ccR());
         mu.add(pContent, feMinPSMs.comp);
         mu.add(pContent, feMinGlycans.label(), mu.ccR());
         mu.add(pContent, feMinGlycans.comp);
         mu.add(pContent, feFDR.label(), mu.ccR());
-        mu.add(pContent, feFDR.comp);
-        mu.add(pContent, feExpandDB.label(), mu.ccR());
+        mu.add(pContent, feFDR.comp).wrap();
+        mu.add(pContent, feExpandDB.label(), mu.ccL()).split(5);
         mu.add(pContent, feExpandDB.comp);
         mu.add(pContent, feMaxSkips.label(), mu.ccR());
-        mu.add(pContent, feMaxSkips.comp).wrap();
+        mu.add(pContent, feMaxSkips.comp);
+        mu.add(pContent, uiCheckAllowChimeric, mu.ccR()).wrap();
 
         JButton btnChooseMBGresidues = new JButton("Pick Residues");
         btnChooseMBGresidues.addActionListener(this::actionBtnChooseMBGresidues);
@@ -202,6 +208,7 @@ public class MBGPanel extends JPanelBase {
         params.setResiduesToAdd(uiTextResiduesToAdd.getNonGhostText());
         params.setExpandDB(uiSpinnerIntExpandDB.getActualValue());
         params.setMaxSkips(uiSpinnerIntMaxSkips.getActualValue());
+        params.setAllowChimeric(uiCheckAllowChimeric.isSelected());
         return params;
     }
 

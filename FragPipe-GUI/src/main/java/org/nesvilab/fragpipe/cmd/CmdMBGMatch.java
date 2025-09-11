@@ -204,6 +204,8 @@ public class CmdMBGMatch  extends CmdBase {
             cmd.add(String.valueOf(params.getExpandDB()));
             cmd.add("--maxskips");
             cmd.add(String.valueOf(params.getMaxSkips()));
+            cmd.add("--allowchimeric");
+            cmd.add(String.valueOf(params.allowChimeric()));
 
             ProcessBuilder pb = new ProcessBuilder(cmd);
             pb.directory(wd.toFile());
