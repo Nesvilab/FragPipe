@@ -133,7 +133,6 @@ public class DownloadToolsPanel extends JPanel {
         "<html><b>NOTE:</b> If you don’t receive the verification email, check your spam folder. If it's not there<br>" + 
         "download <a href=\"" + WEB_DOMAIN + "upgrader\">MSFragger</a>, <a href=\"" + WEB_DOMAIN + "upgrader\">IonQuant</a>, and <a href=\"" + WEB_DOMAIN + "upgrader\">diaTracer</a> through your browser. Unzip them, put them<br>" + 
         "in the same folder, and enter the folder path in the 'Config' tab.<br>" +
-        "<b>If none of the above works, please contact <a href=\"mailto:info@fragpipe.info\">info@fragpipe.info</a>.</b>" +
         "</html>");
 
     mu.add(panelTextboxes, t0).split().spanX().wrap();
