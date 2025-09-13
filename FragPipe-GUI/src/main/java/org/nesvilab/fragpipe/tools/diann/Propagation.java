@@ -296,11 +296,18 @@ public class Propagation {
         System.arraycopy(parts, 0, columnArray, 0, parts.length);
         writer.write(String.join("\t", columnArray));
 
-        Precursor precursor = new Precursor(parts[modifiedSequenceColumnIdx],
-            parts[strippedSequenceColumnIdx].length(),
-            Integer.parseInt(parts[chargeColumnIdx]),
-            unimodOboReader.unimodMassMap,
-            diannLabelMassMap);
+        Precursor precursor = null;
+        try {
+          precursor = new Precursor(parts[modifiedSequenceColumnIdx],
+              parts[strippedSequenceColumnIdx].length(),
+              Integer.parseInt(parts[chargeColumnIdx]),
+              unimodOboReader.unimodMassMap,
+              diannLabelMassMap);
+        } catch (Exception e) {
+          System.err.println("Something was wrong with the file " + p.toAbsolutePath() + "; line: " + line);
+          e.printStackTrace();
+          System.exit(1);
+        }
 
         String[] ss = precursorProteinGeneMap.get(precursor.getSequence());
         if (ss == null) {
