@@ -293,7 +293,7 @@ public class Propagation {
 
         // Make sure that all rows have the same number of columns.
         Arrays.fill(columnArray, "");
-        System.arraycopy(line.split("\t"), 0, columnArray, 0, parts.length);
+        System.arraycopy(parts, 0, columnArray, 0, parts.length);
         writer.write(String.join("\t", columnArray));
 
         Precursor precursor = new Precursor(parts[modifiedSequenceColumnIdx],
