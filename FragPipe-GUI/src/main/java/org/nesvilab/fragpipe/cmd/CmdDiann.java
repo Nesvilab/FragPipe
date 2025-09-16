@@ -101,6 +101,7 @@ public class CmdDiann extends CmdBase {
   public boolean configure(Component comp,
       Collection<LcmsFileGroup> lcmsFileGroups,
       int nThreads,
+      int ramGb,
       Set<String> quantificationStrategy,
       String channelNormalizationStrategy,
       boolean usePredict,
@@ -518,6 +519,7 @@ public class CmdDiann extends CmdBase {
       DiannPanel diannPanel = Fragpipe.getStickyStrict(DiannPanel.class);
       List<String> cmd = new ArrayList<>();
       cmd.add(Fragpipe.getBinJava());
+      cmd.add("-Xmx" + ramGb + "G");
       cmd.add("-jar");
       cmd.add(constructClasspathString(classpathJars));
       cmd.add("-pr");

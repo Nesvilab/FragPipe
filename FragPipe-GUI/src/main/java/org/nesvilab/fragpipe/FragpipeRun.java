@@ -2272,6 +2272,7 @@ public class FragpipeRun {
         return cmdDiann.configure(parent,
             sharedLcmsFileGroupsAll.values(),
             threads,
+            ramGb,
             diannPanel.getDiannQuantificationStrategy(noteConfigDiann),
             diannPanel.getDiannChannelNormalizationStrategy(),
             diannPanel.usePredict(),
