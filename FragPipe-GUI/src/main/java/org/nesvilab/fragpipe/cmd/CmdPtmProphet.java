@@ -51,7 +51,7 @@ public class CmdPtmProphet extends CmdBase {
 
   public static String NAME = "PTMProphet";
   public static final String PTMProphet_NAME = "PTMProphet/PTMProphetParser";
-  public static final String PTMProphet_VERSION = "7.3.0";
+  public static final String PTMProphet_VERSION = "6.3.2";
 
   public CmdPtmProphet(boolean isRun, Path workDir) {
     super(isRun, workDir);
