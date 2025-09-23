@@ -291,7 +291,7 @@ public class SpeclibPanel extends JPanelBase {
             "O-glyco = modifications larger than 140 Da on S,T residues are considered labile and are not placed on fragment ions\n" +
             "N-glyco = modifications larger than 140 Da on N residues are considered labile and are not placed on fragment ions\n" +
             "N-glyco+HexNAc = modifications larger than 140 Da on N residues have a HexNAc fragment remainder ion (203.08 Da) placed instead of the intact modification mass";
-    FormEntry feComboGlycoMode = mu.feb(uiComboGlycoMode).name("easypqp.labile_mode").label("Glyco Mode").tooltip(glycoTooltip).create();
+    FormEntry feComboGlycoMode = mu.feb(uiComboGlycoMode).name("easypqp.labile_mode").label("Glyco mode").tooltip(glycoTooltip).create();
 
     uiSpinner_max_glycan_qval = UiUtils.spinnerDouble(1, 0, 1, 0.01)
             .setCols(5).setFormat("#.##").create();

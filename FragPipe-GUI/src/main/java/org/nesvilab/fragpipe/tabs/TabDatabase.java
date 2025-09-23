@@ -396,31 +396,31 @@ public class TabDatabase extends JPanelWithEnablement {
         .setCols(3)
         .create();
     FormEntry feDeltaHyperscore = mu.feb(META_PREFIX + "delta-hyperscore", uiSpinnerDeltaHyperscore)
-      .label("Delta Hyperscore")
+      .label("Delta hyperscore")
       .tooltip("Minimum deltaHyperscore threshold for PSM filtering, default 0.0")
       .create();
 
     uiSpinnerMinPeptCntPerProt = new UiSpinnerInt(1, 0, 100, 1, 3);
     FormEntry feMinPeptCntPerProt = mu.feb(META_PREFIX + "min-pept-cnt-per-prot", uiSpinnerMinPeptCntPerProt)
-      .label("Min Peptides per Protein")
+      .label("Min peptides per protein")
       .tooltip("Minimum peptide count per protein")
       .create();
 
     uiSpinnerMinUniqPeptCntPerProt = new UiSpinnerInt(1, 0, 100, 1, 3);
     FormEntry feMinUniqPeptCntPerProt = mu.feb(META_PREFIX + "min-uniq-pept-cnt-per-prot", uiSpinnerMinUniqPeptCntPerProt)
-      .label("Min Unique Peptides per Protein")
+      .label("Min unique peptides per protein")
       .tooltip("Minimum unique peptide count for each protein")
       .create();
 
     uiSpinerMinUniqPeptCnt = new UiSpinnerInt(3, 0, 100, 1, 3);
     FormEntry feMinUniqPeptCnt = mu.feb(META_PREFIX + "min-uniq-pept-cnt", uiSpinerMinUniqPeptCnt)
-      .label("Min Unique Peptides")
+      .label("Min unique peptides")
       .tooltip("Minimum unique peptide count for each organism")
       .create();
 
     uiTextHostName = UiUtils.uiTextBuilder().cols(20).text("Homo sapiens").create();
     FormEntry feHostName = mu.feb(META_PREFIX + "host-name", uiTextHostName)
-      .label("Host Name")
+      .label("Host name")
       .tooltip("The taxonomy name of host to exclude once specified, e.g. 'Homo sapiens' or 'Mus musculus'")
       .create();
 

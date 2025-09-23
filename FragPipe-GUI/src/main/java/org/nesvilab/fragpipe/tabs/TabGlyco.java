@@ -102,9 +102,9 @@ public class TabGlyco extends JPanelWithEnablement {
     }
 
     private JPanel createPanelLoadGlycans() {
-        JPanel p = mu.newPanel("Glycan Database Options", true);
+        JPanel p = mu.newPanel("Glycan database options", true);
 
-        JLabel jLabelLoadGlycanDB = new JLabel("Select Glycan Database to Load:");
+        JLabel jLabelLoadGlycanDB = new JLabel("Select Glycan database to load:");
         try {
             glycanDBs = getGlycanDBs();
         } catch (IOException ex) {
@@ -117,11 +117,11 @@ public class TabGlyco extends JPanelWithEnablement {
         uiComboLoadBuiltinGlycans.addActionListener(this::actionBtnLoadGlycans);
         textLoadGlycans = new UiText();
 
-        JButton btnEditGlycanResiduesTable = new JButton("Edit Glycan Residue Definitions");
+        JButton btnEditGlycanResiduesTable = new JButton("Edit Glycan residue definitions");
         btnEditGlycanResiduesTable.addActionListener(this::actionBtnEditGlycanResidues);
         btnEditGlycanResiduesTable.setToolTipText("Edit the internal glycan residue definitions used by all tools.");
 
-        JButton btnEditGlycanModsTable = new JButton("Edit Glycan Modification Definitions");
+        JButton btnEditGlycanModsTable = new JButton("Edit Glycan modification definitions");
         btnEditGlycanModsTable.addActionListener(this::actionBtnEditGlycanMods);
         btnEditGlycanModsTable.setToolTipText("Edit the internal glycan modification definitions. The defined mods will be available when loading a glycan database");
 

@@ -198,7 +198,7 @@ public class QuantPanelLabelfree extends JPanelBase {
       }
     });
 
-    JButton btnLoadDefaults = new JButton("Load Quant defaults");
+    JButton btnLoadDefaults = new JButton("Load quant defaults");
     btnLoadDefaults.addActionListener((e) -> Bus.post(new MessageLoadQuantDefaults(true)));
 
     JLabel imageLabel = new JLabel();

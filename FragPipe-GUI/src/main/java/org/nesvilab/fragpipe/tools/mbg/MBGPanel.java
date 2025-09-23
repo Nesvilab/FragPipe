@@ -116,19 +116,19 @@ public class MBGPanel extends JPanelBase {
 
         uiSpinnerIntExpandDB = new UiSpinnerInt(2, 1, 10, 1);
         uiSpinnerIntExpandDB.setToolTipText("Maximum rounds of inference to perform. If an inferred glycoform is found, allows continuing to further glycoforms from that peak up to this many times.");
-        FormEntry feExpandDB = new FormEntry(PROP_MBG_expand_DB, "Max Inference Step", uiSpinnerIntExpandDB);
+        FormEntry feExpandDB = new FormEntry(PROP_MBG_expand_DB, "Max inference step", uiSpinnerIntExpandDB);
 
         uiSpinnerIntMaxSkips = new UiSpinnerInt(0, 0, 10, 1);
         uiSpinnerIntMaxSkips.setToolTipText("Number of missing glycoforms to allow while expanding database. For example, skips=1 allows one round of continued inference on a missed peak.");
-        FormEntry feMaxSkips = new FormEntry(PROP_MBG_max_skips, "Max Inference Skips", uiSpinnerIntMaxSkips);
+        FormEntry feMaxSkips = new FormEntry(PROP_MBG_max_skips, "Max inference skips", uiSpinnerIntMaxSkips);
 
-        uiCheckAllowChimeric = new UiCheck("Allow Inferring Chimeric Spectra", null, false);
+        uiCheckAllowChimeric = new UiCheck("Allow inferring chimeric spectra", null, false);
         uiCheckAllowChimeric.setName(PROP_MBG_allow_chimeric);
 
         uiTextResiduesToAdd = UiUtils.uiTextBuilder().create();
         uiTextResiduesToAdd.setPreferredSize(new Dimension(200, 25));
         FormEntry feResiduesToAdd = mu.feb(PROP_residues_to_add, uiTextResiduesToAdd)
-                .label("Residues to Add:").tooltip("Choose which glycan residues/mods are considered for MBG matching").create();
+                .label("Residues to add:").tooltip("Choose which glycan residues/mods are considered for MBG matching").create();
 
         mu.add(pContent, feMaxQ.label(), mu.ccL()).split(8);
         mu.add(pContent, feMaxQ.comp).split();
@@ -144,7 +144,7 @@ public class MBGPanel extends JPanelBase {
         mu.add(pContent, feMaxSkips.comp);
         mu.add(pContent, uiCheckAllowChimeric, mu.ccR()).wrap();
 
-        JButton btnChooseMBGresidues = new JButton("Pick Residues");
+        JButton btnChooseMBGresidues = new JButton("Pick residues");
         btnChooseMBGresidues.addActionListener(this::actionBtnChooseMBGresidues);
         btnChooseMBGresidues.setToolTipText("Define the glycans and/or mods from the reference tables to search with MBG.\n" +
                 "Multi-residue glycan differences are allowed (e.g., HexNAc(1)Hex(1)NeuAc(1) for a LacNAc unit).\n" +
@@ -162,7 +162,7 @@ public class MBGPanel extends JPanelBase {
 
         JPanel p = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
 
-        checkRun = new UiCheck("Run Glycoform Inference", null, false);
+        checkRun = new UiCheck("Run Glycoform inference", null, false);
         checkRun.setName("run-mbg");
         JLabel info = new JLabel("<html>MBG: Glycoform inference.");
 

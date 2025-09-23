@@ -50,8 +50,8 @@ public class GlycanResidueEditDialog extends javax.swing.JDialog {
     public GlycoResiduesTable table;
     private Frame parent;
     private int dialogResult = JOptionPane.CLOSED_OPTION;
-    private static final String[] TABLE_COL_NAMES = {"Name", "Mass", "Alternate Names (optional)",
-            "is labile?", "Y prob +", "Y prob -", "Elemental Composition"};
+    private static final String[] TABLE_COL_NAMES = {"Name", "Mass", "Alternate names (optional)",
+            "is labile?", "Y prob +", "Y prob -", "Elemental composition"};
     public static final String TAB_PREFIX = "glycan-database.";
 
     public GlycanResidueEditDialog(java.awt.Frame parent, List<? extends GlycanResidue> initialResidues) {
@@ -100,7 +100,7 @@ public class GlycanResidueEditDialog extends javax.swing.JDialog {
         setContentPane(scroll);
         setModal(true);
         setModalityType(ModalityType.APPLICATION_MODAL);
-        setTitle("Edit Glycan Residue Definitions:");
+        setTitle("Edit Glycan residue definitions:");
         setIconImages(ToolingUtils.loadIcon());
         getRootPane().setDefaultButton(buttonOK);
 

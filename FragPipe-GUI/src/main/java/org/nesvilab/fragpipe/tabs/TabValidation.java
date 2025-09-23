@@ -55,7 +55,7 @@ public class TabValidation extends JPanelWithEnablement {
     JPanel pContent = mu.newPanel(mu.lcFillXNoInsetsTopBottom());
     mu.borderEmpty(pContent);
 
-    checkRun = new UiCheck("Run Validation Tools", null, true);
+    checkRun = new UiCheck("Run validation tools", null, true);
     checkRun.setName("run-validation-tab");
 
     PSMValidation psmValidation = new PSMValidation();

@@ -261,7 +261,7 @@ public class TmtiPanel extends JPanelBase {
     tt.add("Philosopher");
     tt.add("Skip extraction. Run TMT-Integrator only");
     uiComboIntensityExtractionTool = UiUtils.createUiCombo(tt);
-    FormEntry feIntensityExtractionTool = fe("extraction_tool", "Intensity Extraction Tool", uiComboIntensityExtractionTool, "MS1 and reporter ion intensity extraction tool");
+    FormEntry feIntensityExtractionTool = fe("extraction_tool", "Intensity extraction tool", uiComboIntensityExtractionTool, "MS1 and reporter ion intensity extraction tool");
 
     JLabel imageLabel = new JLabel();
     try {
@@ -420,7 +420,7 @@ public class TmtiPanel extends JPanelBase {
 
   private JPanel createPanelOptsAdvanced() {
     JPanel p = mu.newPanel(new LC().fillX());
-    mu.border(p, "Advanced Options");
+    mu.border(p, "Advanced options");
 
     JPanel[] t = createPanelOptsAdvancedGeneral();
 
@@ -434,7 +434,7 @@ public class TmtiPanel extends JPanelBase {
     UiCombo uiComboUniqueGene = UiUtils.createUiCombo(TmtiConfProps.COMBO_UNIQUE_GENE.stream()
         .map(ComboValue::getValInUi).collect(Collectors.toList()));
     FormEntry feUniqueGene = fe(TmtiConfProps.PROP_unique_gene,
-        "Peptide-Gene uniqueness", uiComboUniqueGene,
+        "Peptide-gene uniqueness", uiComboUniqueGene,
         "<html>0: allow all PSMs <br/>"
             + "1: remove PSMs mapping to more than one gene with evidence of expression in the dataset <br/>\n"
             + "2: remove all PSMs mapping to more than one gene in the FASTA database\n");
@@ -458,14 +458,14 @@ public class TmtiPanel extends JPanelBase {
     uiSpinnerMinPercent = UiSpinnerDouble
         .builder(0.05, 0.0, 1.0, 0.05).setFormat(df3).setCols(5).create();
     FormEntry feMinPercent = fe(TmtiConfProps.PROP_min_percent,
-        "Min Intensity (percent)", uiSpinnerMinPercent,
+        "Min intensity (percent)", uiSpinnerMinPercent,
         "<html>Remove low intensity PSMs (e.g. value of 0.05 indicates removal <br/>\n"
             + "of PSMs with the summed TMT reporter ions intensity in the lowest 5% of <br/>\n"
             + "all PSMs)");
 
     uiSpinnerMinResolution = UiUtils.spinnerInt(45000, 0, Integer.MAX_VALUE, 1000).setCols(5).create();
     FormEntry feMinResolution = fe(TmtiConfProps.PROP_min_resolution,
-        "Min Resolution", uiSpinnerMinResolution,
+        "Min resolution", uiSpinnerMinResolution,
         "<html>Remove the PSM if there are any channels having resolution less than the min resolution and SNR greater than or equal to 1.<br/>\n"
             + "(only for RAW file formats)");
 
@@ -489,7 +489,7 @@ public class TmtiPanel extends JPanelBase {
     UiCombo uiComboUniquePep = UiUtils.createUiCombo(TmtiConfProps.COMBO_PEPTIDE_PROTEIN_UNIQUENESS.stream()
         .map(ComboValue::getValInUi).collect(Collectors.toList()));
     FormEntry feUniquePep = fe(TmtiConfProps.PROP_unique_pep,
-        "Peptide-Protein uniqueness", uiComboUniquePep,
+        "Peptide-protein uniqueness", uiComboUniquePep,
         "<html>Unique only: use peptides that are unique or confidently assigned to a<br/>\n"
             + "single protein (or a single indistinguishable protein group) <br/>\n"
             + "<br/>\n"
@@ -587,7 +587,7 @@ public class TmtiPanel extends JPanelBase {
     mu.add(p, feProtExclude.comp).spanX().growX().wrap();
 
     JPanel p2 = mu.newPanel(mu.lcNoInsetsTopBottom());
-    mu.border(p2, "Ratio to Abundance conversion");
+    mu.border(p2, "Ratio to abundance conversion");
     mu.add(p2, labelUse).split(3);
     mu.add(p2, uiRadioMs1);
     mu.add(p2, uiRadioMs2).wrap();
@@ -626,7 +626,7 @@ public class TmtiPanel extends JPanelBase {
             "<html>(optional) Remove PSMs not passing glycan FDR at specified level (q-value) <br/>\n"
                     + "Set to -1 to ignore. Requires glycan assignment from PTM-Shepherd. <br/>\n");
 
-    UiCheck uiCheckGlycanComposition = new UiCheck("Use Glycan Compositions", null, false);
+    UiCheck uiCheckGlycanComposition = new UiCheck("Use Glycan compositions", null, false);
     FormEntry feGlycoComposition = fe(TmtiConfProps.PROP_use_glycan_composition,
             "not-shown", uiCheckGlycanComposition,
             "<html>For multi-mass report, index by glycan composition instead of mass to separate<br/>\n"

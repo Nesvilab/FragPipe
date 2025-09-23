@@ -92,7 +92,7 @@ public class Version {
         "Add workflow for TMT-based quantification using Bruker timsTOF (ddaPASEF) platform",
         "Add workflow for TMT data on Thermo Fisher Scientific Astral platform",
         "Add workflow for TMT35-plex quantification",
-        "New tool for generating summary reports ('Generate Summary Report' option in the 'Run' tab). It will generate a summary report for the result in the 'output dir'",
+        "New tool for generating summary reports ('Generate summary report' option in the 'Run' tab). It will generate a summary report for the result in the 'output dir'",
         "Add 'export matched fragments' option to the 'Run' tab",
         "Automatically load the workflow when it is selected in the dropdown menu on the 'Workflow' tab. There is no 'Load' button anymore.",
         "Adjust the 'Download' window according to the changes of the tools downloading",

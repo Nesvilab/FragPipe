@@ -85,15 +85,15 @@ public class DetailedOffsetEditDialog extends javax.swing.JDialog {
         JScrollPane scroll = new JScrollPane(p, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         this.setContentPane(scroll);
 
-        buttonOK = new JButton("Save Offsets");
+        buttonOK = new JButton("Save offsets");
         buttonCancel = new JButton("Cancel");
         table = createTableOffsets();
 
-        JButton buttonAddRow = new JButton("Add Row");
+        JButton buttonAddRow = new JButton("Add row");
         buttonAddRow.addActionListener(e -> {
             model.addRow(new Object[]{"", "", "", "", ""});
         });
-        JButton buttonRemoveRow = new JButton("Remove Row");
+        JButton buttonRemoveRow = new JButton("Remove row");
         buttonRemoveRow.addActionListener(e -> {
             int rowCount = model.getRowCount();
             if (rowCount > 0) {
@@ -101,7 +101,7 @@ public class DetailedOffsetEditDialog extends javax.swing.JDialog {
             }
         });
 
-        JButton buttonClearTable = new JButton("Clear Table");
+        JButton buttonClearTable = new JButton("Clear table");
         buttonClearTable.addActionListener(e -> {
             int rowCount = model.getRowCount();
             while (rowCount > 0) {

@@ -70,10 +70,10 @@ public class PSMValidation extends JPanelBase {
   @Override
   protected void init() {
     this.setLayout(new BorderLayout());
-    this.setBorder(new TitledBorder("PSM Validation"));
+    this.setBorder(new TitledBorder("PSM validation"));
 
     JPanel p = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
-    checkRun = new UiCheck("Run PSM Validation", null, true);
+    checkRun = new UiCheck("Run PSM validation", null, true);
     checkRun.setName("run-psm-validation");
     mu.add(p, checkRun).growX().wrap();
 

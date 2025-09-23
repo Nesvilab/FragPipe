@@ -53,7 +53,7 @@ public class TabDiaPseudoMs2 extends JPanelWithEnablement {
     JPanel textPanel = new JPanel(new MigLayout());
     textPanel.setBorder(new TitledBorder("Notes"));
     JEditorPane epInfo = SwingUtils.createClickableHtml("<b>PTM searches:</b><br>"
-        + "Change Mass Defect Filter to OFF<br><br>");
+        + "Change Mass defect filter to OFF<br><br>");
     epInfo.setPreferredSize(new Dimension(500, 50));
     textPanel.add(epInfo);
 

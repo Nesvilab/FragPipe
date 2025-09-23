@@ -112,7 +112,7 @@ public class MBGchooseResiduesDialog extends javax.swing.JDialog  {
     }
 
     private JPanel createPanelChooseResidues() {
-        JPanel p = mu.newPanel("Choose Glycan Residues/Mods for MBG Matching", true);
+        JPanel p = mu.newPanel("Choose Glycan residues/mods for MBG matching", true);
 
         tableGlycoMods = createTableMBGresidues();
         SwingUtilities.invokeLater(() -> {

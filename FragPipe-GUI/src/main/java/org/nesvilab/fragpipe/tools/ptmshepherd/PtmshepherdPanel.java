@@ -364,7 +364,7 @@ public class PtmshepherdPanel extends JPanelBase {
   }
 
   private JPanel createPanelDiagnosticExtraction() {
-    JPanel p = mu.newPanel("Diagnostic Feature Extraction", mu.lcFillXNoInsetsTopBottom());
+    JPanel p = mu.newPanel("Diagnostic feature extraction", mu.lcFillXNoInsetsTopBottom());
     pDiagnosticKnownContent = mu.newPanel(null, true);
 
     // known diag ion params
@@ -424,7 +424,7 @@ public class PtmshepherdPanel extends JPanelBase {
   }
 
   private JPanel createPanelDiagnosticMining() {
-    JPanel p = mu.newPanel("Diagnostic Feature Discovery", mu.lcFillXNoInsetsTopBottom());
+    JPanel p = mu.newPanel("Diagnostic feature discovery", mu.lcFillXNoInsetsTopBottom());
     pDiagnosticMiningContent = mu.newPanel(null, true);
     // pDiagnosticKnownContent = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
 
@@ -606,7 +606,7 @@ public class PtmshepherdPanel extends JPanelBase {
           }
         });
 
-    UiCheck uiCheckAnnotateAssignedMods = UiUtils.createUiCheck("Include Variable Mods in PTM Profile", false);
+    UiCheck uiCheckAnnotateAssignedMods = UiUtils.createUiCheck("Include variable mods in PTM profile", false);
     uiCheckAnnotateAssignedMods.setName(PROP_annotate_assigned_mods);
     uiCheckAnnotateAssignedMods.setToolTipText("If selected, variable mods (Assigned Modifications in the psm.tsv) will be included" +
             "in the PTM profile and modification summaries.");
@@ -698,7 +698,7 @@ public class PtmshepherdPanel extends JPanelBase {
             "<html>Restricts localization to specified residues.\n" +
                     "Includes glyco mode localization of remainder masses. Example: STYNP");
 
-    UiCheck uiCheckUseMSFraggerLoc = UiUtils.createUiCheck("Use MSFragger Localization", false);
+    UiCheck uiCheckUseMSFraggerLoc = UiUtils.createUiCheck("Use MSFragger localization", false);
     uiCheckUseMSFraggerLoc.setName(PROP_use_msfragger_localization);
     uiCheckUseMSFraggerLoc.setToolTipText("Do not perform PTM localization, read the MSFragger delta mass localization instead. " +
             "Requires that localize_delta_mass was enabled in MSFragger");
@@ -744,7 +744,7 @@ public class PtmshepherdPanel extends JPanelBase {
     FormEntry feSpectraRatio = new FormEntry(PROP_spectra_condRatio, "Min ratio",
             uiSpinnerSpectraRatio);
 
-    JPanel p4 = mu.newPanel("Spectrum Preprocessing", true);
+    JPanel p4 = mu.newPanel("Spectrum preprocessing", true);
 
     mu.add(p4, feMaxFragCharge.label(), mu.ccR());
     mu.add(p4, feMaxFragCharge.comp);

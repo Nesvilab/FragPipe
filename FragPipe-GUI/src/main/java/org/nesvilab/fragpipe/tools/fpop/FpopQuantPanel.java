@@ -46,7 +46,7 @@ public class FpopQuantPanel extends JPanelBase {
     @Override
     protected void init() {
         this.setLayout(new BorderLayout());
-        this.setBorder(new TitledBorder("FPOP " + PROGRAM_TITLE + " Quant"));
+        this.setBorder(new TitledBorder("FPOP " + PROGRAM_TITLE + " quant"));
 
         pTop = createPanelTop();
         pContent = createPanelFPOP();
@@ -95,7 +95,7 @@ public class FpopQuantPanel extends JPanelBase {
     private JPanel createPanelTop() {
         JPanel p = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
 
-        checkFPOP = UiUtils.createUiCheck("Run FPOP-specific Quantitation", false);
+        checkFPOP = UiUtils.createUiCheck("Run FPOP-specific quantitation", false);
         checkFPOP.setName("fpop.run-fpop");
         checkFPOP.setToolTipText("Run downstream processing for FPOP analyses using the " + PROGRAM_TITLE + " method. Computes % oxidation for each peptide and site based on either LFQ or TMT quant tables.");
 
@@ -107,22 +107,22 @@ public class FpopQuantPanel extends JPanelBase {
     private JPanel createPanelFPOP() {
         JPanel p = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
 
-        uiCheckIsTmt = UiUtils.createUiCheck("TMT FPOP Analysis", false);
+        uiCheckIsTmt = UiUtils.createUiCheck("TMT FPOP analysis", false);
         uiCheckIsTmt.setName("fpop.fpop-tmt");
         uiCheckIsTmt.setToolTipText("Check if this FPOP data uses TMT for quantification. If unchecked, uses label free quant");
 
-        checkSubtractControl = UiUtils.createUiCheck("Subtract Control Oxidation", false);
+        checkSubtractControl = UiUtils.createUiCheck("Subtract control oxidation", false);
         checkSubtractControl.setName("fpop.subtract-control");
         checkSubtractControl.setToolTipText("Optional: automatically pair samples into experiment and control conditions and subtract control oxidation from experiment.\n" +
                 " Requires that all LC-MS run names include an identifying string for either experiment or control conditions.");
 
         uiTextControl = UiUtils.uiTextBuilder().cols(15).create();
-        FormEntry feControl = mu.feb(uiTextControl).name("fpop.label_control").label("  Control Label").tooltip("Optional: only needed if using 'Subtract Control'. Label found in all control experiment/group names (to be subtracted from FPOP label)").create();
+        FormEntry feControl = mu.feb(uiTextControl).name("fpop.label_control").label("  Control label").tooltip("Optional: only needed if using 'Subtract Control'. Label found in all control experiment/group names (to be subtracted from FPOP label)").create();
         uiTextFPOP = UiUtils.uiTextBuilder().cols(15).create();
         FormEntry feFPOP = mu.feb(uiTextFPOP).name("fpop.label_fpop").label("   FPOP Label").tooltip("Optional: only needed if using 'Subtract Control'. Label found in all sample experiment/group names").create();
 
         uiSpinnerRegionSize = UiUtils.spinnerInt(1, 1, 1000, 1).setCols(4).create();
-        FormEntry feRegionSize = mu.feb(uiSpinnerRegionSize).name("fpop.region_size").label("          Site Region Size").tooltip("Number of amino acids to consider a group/region around a modified site").create();
+        FormEntry feRegionSize = mu.feb(uiSpinnerRegionSize).name("fpop.region_size").label("          Site region size").tooltip("Number of amino acids to consider a group/region around a modified site").create();
 
         mu.add(p, uiCheckIsTmt).split();
         mu.add(p, checkSubtractControl).split();

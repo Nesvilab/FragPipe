@@ -50,8 +50,8 @@ public class GlycanModEditDialog extends javax.swing.JDialog {
     public GlycoResiduesTable table;
     private Frame parent;
     private int dialogResult = JOptionPane.CLOSED_OPTION;
-    private static final String[] MOD_TABLE_COL_NAMES = {"Name", "Mass", "Alternate Names (optional)",
-            "is labile?", "Y prob +", "Y prob -", "Elemental Composition", "Required Residue(s)", "Intrinsic Charge"};
+    private static final String[] MOD_TABLE_COL_NAMES = {"Name", "Mass", "Alternate names (optional)",
+            "is labile?", "Y prob +", "Y prob -", "Elemental composition", "Required residue(s)", "Intrinsic charge"};
     public static final String TAB_PREFIX = "glycan-database.";
 
     public GlycanModEditDialog(java.awt.Frame parent, List<? extends GlycanResidue> initialResidues) {
@@ -147,7 +147,7 @@ public class GlycanModEditDialog extends javax.swing.JDialog {
         t.setToolTipText("<html>Edit the glycan modification definitions (also possible by editing the file manually).<br/>\n" +
                 "Name: required - the name of the glycan residue in glycan databases that will be loaded<br/>\n" +
                 "Mass: required - the monoisotopic mass of the glycan residue<br/>\n" +
-                "Alternate Names: optional - other names that the glycan might be called<br/>\n" +
+                "Alternate names: optional - other names that the glycan might be called<br/>\n" +
                 "is labile?: optional - if the residue is expected to be lost from fragment ions<br/>\n" +
                 "Y prob +: required unless labile - empirical score factor for finding Y ions. Default 5<br/>\n" +
                 "Y prob -: required unless labile - empirical score factor for missing Y ions. Default 0.5<br/>\n" +

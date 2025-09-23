@@ -1761,7 +1761,7 @@ public class FragpipeRun {
     boolean philosopherGenerateMSstats = tmtiPanel.isRun() && tmtiPanel.isMsstats();
 
     if (philosopherGenerateMSstats && tmtiPanel.getIntensityExtractionTool() == 0) {
-      SwingUtils.showErrorDialog(parent, "<b>Generate MSstats files (using Philosopher)</b> was enabled but Philosopher was not selected as <b>Intensity Extraction Tool</b>.", "Parameter incompatibility");
+      SwingUtils.showErrorDialog(parent, "<b>Generate MSstats files (using Philosopher)</b> was enabled but Philosopher was not selected as <b>Intensity extraction tool</b>.", "Parameter incompatibility");
       return false;
     }
 
@@ -1910,7 +1910,7 @@ public class FragpipeRun {
           return false;
         }
         if (reportPanel.isRun() && tmtiPanel.getIntensityExtractionTool() == 2) {
-          SwingUtils.showErrorDialog(parent, "'Intensity Extraction Tool' in 'Quant (Isobaric)' tab was set to 'Skip extraction. Run TMT-Integrator only'. Please change it to 'IonQuant'.", "TMT-Integrator error");
+          SwingUtils.showErrorDialog(parent, "'Intensity extraction tool' in 'Quant (Isobaric)' tab was set to 'Skip extraction. Run TMT-Integrator only'. Please change it to 'IonQuant'.", "TMT-Integrator error");
           return false;
         }
         Map<LcmsFileGroup, Path> annotations = tmtiPanel.getAnnotations(wd, isDryRun);

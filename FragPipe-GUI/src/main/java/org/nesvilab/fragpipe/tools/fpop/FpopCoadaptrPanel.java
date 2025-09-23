@@ -43,7 +43,7 @@ public class FpopCoadaptrPanel extends JPanelBase {
     @Override
     protected void init() {
         this.setLayout(new BorderLayout());
-        this.setBorder(new TitledBorder("FPOP coADAPTr Prep"));
+        this.setBorder(new TitledBorder("FPOP coADAPTr prep"));
 
         JPanel pCoadaptrTop = createCoadaptrPanelTop();
         pCoadaptrContent = createPanelCoadaptrContent();

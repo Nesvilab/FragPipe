@@ -883,7 +883,7 @@ public class TabConfig extends JPanelWithEnablement {
   }
 
   private String textDbsplitEnabled(boolean isEnabled) {
-    return "Database Splitting: <b>" + (isEnabled ? "Available" : "Not available") + "</b>.&emsp;"
+    return "Database splitting: <b>" + (isEnabled ? "Available" : "Not available") + "</b>.&emsp;"
         + "Used for searching very large databases by splitting into smaller chunks.";
   }
 
@@ -1083,7 +1083,7 @@ public class TabConfig extends JPanelWithEnablement {
     epDbsplitText = new HtmlStyledJEditorPane(textDbsplitEnabled(false));
     epEasyPQPText = new HtmlStyledJEditorPane(textEasyPQP("N/A", false, ""));
 
-    btnFinishPythonInstall = UiUtils.createButton("Finish Python Install", e -> Bus.post(new MessageInstallEasyPQP(console)));
+    btnFinishPythonInstall = UiUtils.createButton("Finish Python install", e -> Bus.post(new MessageInstallEasyPQP(console)));
 
     pythonTextConsole = new TextConsole(!true);
     final var currentFont = pythonTextConsole.getFont();

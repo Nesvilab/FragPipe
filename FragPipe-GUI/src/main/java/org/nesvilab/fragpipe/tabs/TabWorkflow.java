@@ -638,7 +638,7 @@ public class TabWorkflow extends JPanelWithEnablement {
 
     FormEntry feComboWorkflow = Fragpipe.feNoCache(uiComboWorkflows, "workflow-option").label("Select a workflow:").tooltip("Conveniently loads appropriate defaults for various standard workflows\n").create();
     JButton btnOpenInExplorer = SwingUtils.createButtonOpenInFileManager(this, "Open built-in folder", () -> FragpipeLocations.get().getDirWorkflows());
-    JButton btnLoadJob = UiUtils.createButton("Load Previous Job", this::actionLoadJob);
+    JButton btnLoadJob = UiUtils.createButton("Load previous job", this::actionLoadJob);
 
     mu.add(p, epWorkflowsInfo).growX().spanX().wrap();
     mu.add(p, feComboWorkflow.label()).split();
@@ -968,7 +968,7 @@ public class TabWorkflow extends JPanelWithEnablement {
   }
 
   private JPanel createPanelLcmsFiles() {
-    JPanel p = mu.newPanel("Input LC-MS Files", true);
+    JPanel p = mu.newPanel("Input LC-MS files", true);
 
     btnGroupMsType = new ButtonGroup();
     btnTypeRegularMs = new JRadioButton("Regular MS");

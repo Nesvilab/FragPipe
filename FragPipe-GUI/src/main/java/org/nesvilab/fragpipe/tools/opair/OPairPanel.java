@@ -130,10 +130,10 @@ public class OPairPanel extends JPanelBase {
 
         // To make sure that max isotope >= min isotope
         uiSpinnerMinIsotope = new UiSpinnerInt(0, -10, 0, 1, 1);
-        FormEntry feMinIsotope = new FormEntry(PROP_minIsotope, "Min Isotope Error", uiSpinnerMinIsotope,
+        FormEntry feMinIsotope = new FormEntry(PROP_minIsotope, "Min isotope error", uiSpinnerMinIsotope,
                 "Precursor isotope error range lower bound");
         uiSpinnerMaxIsotope = new UiSpinnerInt(2, 0, 10, 1, 1);
-        FormEntry feMaxIsotope = new FormEntry(PROP_maxIsotope, "Max Isotope Error", uiSpinnerMaxIsotope,
+        FormEntry feMaxIsotope = new FormEntry(PROP_maxIsotope, "Max isotope error", uiSpinnerMaxIsotope,
                 "Precursor isotope error range upper bound");
 
         uiComboActivation1 = UiUtils.createUiCombo(ActivationTypes.values());
@@ -147,22 +147,22 @@ public class OPairPanel extends JPanelBase {
         uiCheckSingleScanType = UiUtils.createUiCheck("Single scan type", false);
         uiCheckSingleScanType.setName(PROP_singleScanType);
         uiCheckSingleScanType.setToolTipText("Use if only one scan type (must be hybrid activation)");
-        uiCheckFilterOxonium = UiUtils.createUiCheck("Oxonium Filter", true);
+        uiCheckFilterOxonium = UiUtils.createUiCheck("Oxonium filter", true);
         uiCheckFilterOxonium.setName(PROP_filterOxonium);
         uiCheckFilterOxonium.setToolTipText("Filter possible glycan groups by requiring monosaccharide-specific oxonium ions");
         uiSpinnerOxoMinInt = UiSpinnerDouble.builder(0.05, 0, 1, 0.05)
                 .setFormat(new DecimalFormat("0.##")).setCols(4).create();
-        FormEntry feOxoMinInt = new FormEntry(PROP_oxoMinInt, "Oxonium Min. Relative Abundance", uiSpinnerOxoMinInt, "If using oxonium ion filtering, oxonium ions must be at least this intense. " +
+        FormEntry feOxoMinInt = new FormEntry(PROP_oxoMinInt, "Oxonium min. relative abundance", uiSpinnerOxoMinInt, "If using oxonium ion filtering, oxonium ions must be at least this intense. " +
                 "Value is ratio of oxonium ion intensity to spectrum base peak intensity");
 
         String tooltipGlycanDBFile = "Glycan database file in Byonic or pGlyco formats (.txt or .pdb). Will use internal default O-glycan list if not provided.";
         uiTextOGlycanDBFile = UiUtils.uiTextBuilder().cols(85).create();
         FormEntry feGlycanDBFile = mu.feb(PROP_glycoDB, uiTextOGlycanDBFile)
-                .label("O-Pair Database").tooltip(tooltipGlycanDBFile).create();
+                .label("O-Pair database").tooltip(tooltipGlycanDBFile).create();
 
         uiTextAllowedSites = UiUtils.uiTextBuilder().cols(10).create();
         FormEntry feAllowedSites = mu.feb(PROP_allowedSites, uiTextAllowedSites)
-                .label("Allowed Sites").tooltip("Allowed residues. Default: ST").create();
+                .label("Allowed sites").tooltip("Allowed residues. Default: ST").create();
 
         String tooltipOxoniumFilterFile = "(Optional) Load custom oxonium filter rules from file. Will use default filtering rules if not provided.";
         uiTextOxoRuleFile = UiUtils.uiTextBuilder().cols(59).create();
@@ -170,7 +170,7 @@ public class OPairPanel extends JPanelBase {
         FileFilter oxoFilter = new FileNameExtensionFilter("Oxonium filtering rules file (tsv)", "tsv");
         oxoFilters.add(oxoFilter);
         FormEntry feOxoFiltersFile = mu.feb(PROP_oxoRulesFile, uiTextOxoRuleFile)
-                .label("Custom Oxonium Filtering Rules").tooltip(tooltipOxoniumFilterFile).create();
+                .label("Custom oxonium filtering rules").tooltip(tooltipOxoniumFilterFile).create();
         JButton btnBrosweOxoRuleFile = feOxoFiltersFile.browseButton("Browse", tooltipOxoniumFilterFile,
                 () -> FileChooserUtils.builder("Select custom oxonium filtering rules file")
                         .approveButton("Select").mode(FileChooserUtils.FcMode.FILES_ONLY).acceptAll(false).multi(false).filters(oxoFilters)

@@ -161,14 +161,14 @@ public class UmpirePanel extends JPanelBase {
     icon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/org/nesvilab/fragpipe/icons/dia-umpire-16x16.png")));
 
     this.setLayout(new MigLayout(new LC().flowY().fillX()));
-    this.setBorder(new TitledBorder("DIA Spectrum Deconvolution"));
+    this.setBorder(new TitledBorder("DIA spectrum deconvolution"));
 
     LC lc = new LC();//.debug();
 
     // Panel - top
     JPanel pTop = mu.newPanel(mu.lcFillXNoInsetsTopBottom());
 
-    checkRunUmpireSe = new UiCheck("Run DIA-Umpire SE (Signal Extraction) for non-timsTOF data", null, false);
+    checkRunUmpireSe = new UiCheck("Run DIA-Umpire SE (signal extraction) for non-timsTOF data", null, false);
     checkRunUmpireSe.setName("diaumpire.run-diaumpire");
     pTop.add(checkRunUmpireSe, new CC().spanX().wrap());
 
@@ -223,20 +223,20 @@ public class UmpirePanel extends JPanelBase {
 
     FormEntry feRpMax = new FormEntry(PROP_RPmax, "RP max", new JFormattedTextField(decimal), PREFIX);
     FormEntry feRfMax = new FormEntry(PROP_RFmax, "RF max", new JFormattedTextField(decimal), PREFIX);
-    FormEntry feCorrThresh = new FormEntry(PROP_CorrThreshold, "Corr Threshold", new JFormattedTextField(decimal), PREFIX);
-    FormEntry feDeltaApex = new FormEntry(PROP_DeltaApex, "Delta Apex", new JFormattedTextField(decimal), PREFIX);
-    FormEntry feRtOverlap = new FormEntry(PROP_RTOverlap, "RT Overlap", new JFormattedTextField(decimal), PREFIX);
+    FormEntry feCorrThresh = new FormEntry(PROP_CorrThreshold, "Corr threshold", new JFormattedTextField(decimal), PREFIX);
+    FormEntry feDeltaApex = new FormEntry(PROP_DeltaApex, "Delta apex", new JFormattedTextField(decimal), PREFIX);
+    FormEntry feRtOverlap = new FormEntry(PROP_RTOverlap, "RT overlap", new JFormattedTextField(decimal), PREFIX);
     FormEntry feCheckBoostComplimentaryIons = new FormEntry(PROP_BoostComplementaryIon, "Boost complimentary ions", new JCheckBox(), PREFIX);
     FormEntry feCheckAdjustFragIntensitys = new FormEntry(PROP_AdjustFragIntensity, "Adjust fragment intensity", new JCheckBox(), PREFIX);
 
-    FormEntry feMs1Ppm = new FormEntry(UmpireParams.PROP_MS1PPM, "MS1 PPM", new JFormattedTextField(decimalAsInt), PREFIX);
-    FormEntry feMs2Ppm = new FormEntry(UmpireParams.PROP_MS2PPM, "MS2 PPM", new JFormattedTextField(decimalAsInt), PREFIX);
-    FormEntry feNoMissedScans = new FormEntry(UmpireParams.PROP_NoMissedScan, "Max Missed Scans", new JFormattedTextField(decimalAsInt), PREFIX);
-    FormEntry feEstimateBG = new FormEntry(UmpireParams.PROP_EstimateBG, "Remove Background", new JCheckBox(), PREFIX);
-    FormEntry feIsoPattern = new FormEntry(PROP_IsoPattern, "Isotope Pattern", new JFormattedTextField(decimal), PREFIX);
-    FormEntry feMassDefectFilter = new FormEntry(PROP_MassDefectFilter, "Mass Defect Filter", new JCheckBox(), PREFIX);
-    FormEntry feMassDefectOffset = new FormEntry(PROP_MassDefectOffset, "Mass Defect Offset", new JFormattedTextField(decimal), PREFIX);
-    FormEntry feExportPrecursorPeak = new FormEntry(PROP_ExportPrecursorPeak, "Export Precursor Peak", new JCheckBox(), PREFIX);
+    FormEntry feMs1Ppm = new FormEntry(UmpireParams.PROP_MS1PPM, "MS1 ppm", new JFormattedTextField(decimalAsInt), PREFIX);
+    FormEntry feMs2Ppm = new FormEntry(UmpireParams.PROP_MS2PPM, "MS2 ppm", new JFormattedTextField(decimalAsInt), PREFIX);
+    FormEntry feNoMissedScans = new FormEntry(UmpireParams.PROP_NoMissedScan, "Max missed scans", new JFormattedTextField(decimalAsInt), PREFIX);
+    FormEntry feEstimateBG = new FormEntry(UmpireParams.PROP_EstimateBG, "Remove background", new JCheckBox(), PREFIX);
+    FormEntry feIsoPattern = new FormEntry(PROP_IsoPattern, "Isotope pattern", new JFormattedTextField(decimal), PREFIX);
+    FormEntry feMassDefectFilter = new FormEntry(PROP_MassDefectFilter, "Mass defect filter", new JCheckBox(), PREFIX);
+    FormEntry feMassDefectOffset = new FormEntry(PROP_MassDefectOffset, "Mass defect offset", new JFormattedTextField(decimal), PREFIX);
+    FormEntry feExportPrecursorPeak = new FormEntry(PROP_ExportPrecursorPeak, "Export precursor peak", new JCheckBox(), PREFIX);
     feQ1 = new FormEntry(PROP_Q1, "Q1", new JCheckBox(), PREFIX);
     feQ2 = new FormEntry(PROP_Q2, "Q2", new JCheckBox(), PREFIX);
     feQ3 = new FormEntry(PROP_Q3, "Q3", new JCheckBox(), PREFIX);

@@ -136,7 +136,7 @@ public class FpopScript {
                     byStatus.add(bad.get(status) + " - " + list.stream().map(pm -> pm.installName).collect(Collectors.joining(", ")));
                 }
             }
-            throw new ValidationException("Click 'Finish Python Install' and wait.");
+            throw new ValidationException("Click 'Finish Python install' and wait.");
         }
 
         this.pi = pi;

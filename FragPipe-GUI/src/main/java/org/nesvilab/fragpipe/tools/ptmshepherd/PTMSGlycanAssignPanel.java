@@ -80,7 +80,7 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
 
     protected void init() {
         mu.layout(this, mu.lcFillXNoInsetsTopBottom());
-        mu.border(this, "Glycan Composition Assignment and FDR (using PTM-Shepherd)");
+        mu.border(this, "Glycan composition assignment and FDR (using PTM-Shepherd)");
 
         pGlycanAssignment = createpanelGlycanAssignment();
         mu.add(this, pGlycanAssignment).spanX().growX().wrap();
@@ -149,7 +149,7 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
         checkRunGlycanAssignment = UiUtils.createUiCheck("Assign Glycans with FDR", false);
         checkRunGlycanAssignment.setName(PROP_run_glyco_mode);
         checkRunGlycanAssignment.setToolTipText("NOTE: requires PTM-Shepherd! Check the 'Run PTM-Shepherd' box on the PTMs tab to enable this section. Perform glycan assignment and glycan FDR on PSMs reported with a delta mass");
-        uiCheckGlycoAdvParams = UiUtils.createUiCheck("Edit Advanced Parameters", false);
+        uiCheckGlycoAdvParams = UiUtils.createUiCheck("Edit advanced parameters", false);
         uiCheckGlycoAdvParams.setName("adv_params");
         uiCheckGlycoAdvParams.setToolTipText("Enable/disable the advanced parameter options below");
 
@@ -163,20 +163,20 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
         FormEntry feGlycanMassErr = new FormEntry(PROP_glyco_mass_error_ppm, "Glycan mass tolerance (ppm)", uiSpinnerGlycanMassErr,
                 "Mass tolerance for finding possible glycan candidates to consider in glycan assignment (ppm).\n");
 
-        FormEntry feGlycanIsotopesLow = new FormEntry(PROP_glyco_isotope_error_low, "Isotope Error Range Min:",
+        FormEntry feGlycanIsotopesLow = new FormEntry(PROP_glyco_isotope_error_low, "Isotope error range min:",
                 new UiSpinnerInt(-1, -2, 0, 1, 3),
-                "Lowest isotope error to consider. Allowed isotope errors will go from this value to Isotope Error Range Max (inclusive).");
+                "Lowest isotope error to consider. Allowed isotope errors will go from this value to Isotope error range max (inclusive).");
         FormEntry feGlycanIsotopesHigh = new FormEntry(PROP_glyco_isotope_error_high, "Max:",
                 new UiSpinnerInt(3, 0, 4, 1, 3),
-                "Highest isotope error to consider. Allowed isotope errors will go from Isotope Error Range Min to this value (inclusive).");
+                "Highest isotope error to consider. Allowed isotope errors will go from Isotope error range min to this value (inclusive).");
 
         String tooltipGlycanDBFile = "Custom glycan database. Will use internal default N-glycan list if not provided.";
         uiTextGlycanDBFile = UiUtils.uiTextBuilder().create();
         uiTextGlycanDBFile.setPreferredSize(new Dimension(100, 25));
         FormEntry feGlycanDBFile = mu.feb(PROP_glycan_database, uiTextGlycanDBFile)
-                .label("Glycan Database").tooltip(tooltipGlycanDBFile).create();
+                .label("Glycan database").tooltip(tooltipGlycanDBFile).create();
 
-        FormEntry feDecoyType = new FormEntry(PROP_decoy_type, "Decoy Type",
+        FormEntry feDecoyType = new FormEntry(PROP_decoy_type, "Decoy type",
                 new UiSpinnerInt(1, 0, 3, 1, 1),
                 "How to generate decoy glycan intact mass.\n " +
                         "0: Random mass shift within +/- 3 Da\n" +
@@ -184,22 +184,22 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
                         "2: Random mass shift within glycan mass error tolerance, no isotope error\n" +
                         "3: exact same mass as target");
 
-        FormEntry fePrintGlycoDecoys = mu.feb(PROP_print_decoys, UiUtils.createUiCheck("Print Decoy Glycans", false))
+        FormEntry fePrintGlycoDecoys = mu.feb(PROP_print_decoys, UiUtils.createUiCheck("Print decoy glycans", false))
                 .tooltip("By default, the best target glycan is printed to the PSM table for PSMs assigned to a decoy glycan (with q-value = 1)\n" +
                         "Check this box to instead print the decoy glycan (identified by 'Decoy_[glycan name])")
                 .create();
-        FormEntry feRemoveGlycoDeltaMass = mu.feb(PROP_remove_glyco_deltamass, UiUtils.createUiCheck("Remove Glycan Delta Mass", false))
+        FormEntry feRemoveGlycoDeltaMass = mu.feb(PROP_remove_glyco_deltamass, UiUtils.createUiCheck("Remove glycan delta mass", false))
                 .tooltip("Removes glycan mass from Delta Mass column in PSM table, even for PSMs that do not pass glycan FDR.\n" +
                         "Required for processing by IonQuant and for PSM table integrity, but prevents re-analysis by PTM-Shepherd.")
                 .create();
-        FormEntry fePrintExtGlycoParams = mu.feb(PROP_print_extended_params, UiUtils.createUiCheck("Print Extended Params", false))
+        FormEntry fePrintExtGlycoParams = mu.feb(PROP_print_extended_params, UiUtils.createUiCheck("Print extended params", false))
                 .tooltip("Print additional glyco parameter information for debugging.")
                 .create();
         UiSpinnerDouble uiSpinnerMassProb = UiSpinnerDouble.builder(0.5, 0.01, 10.0, 0.1)
                 .setFormat(new DecimalFormat("0.0#")).setCols(2).create();
-        FormEntry feMassProb = new FormEntry(PROP_prob_mass, "Mass Score Scaling", uiSpinnerMassProb,
+        FormEntry feMassProb = new FormEntry(PROP_prob_mass, "Mass score scaling", uiSpinnerMassProb,
                 "Empirical scaling factor for scoring mass deviations. Set to 1 for no scaling. Default 0.5");
-        FormEntry feNGlycanMode = mu.feb(PROP_nglyco_mode, UiUtils.createUiCheck("N-Glycan Mode", false))
+        FormEntry feNGlycanMode = mu.feb(PROP_nglyco_mode, UiUtils.createUiCheck("N-Glycan mode", false))
                 .tooltip("Sets localization to N-X-S/T sequon if enabled and uses default N-glycan database if custom glycan database is not provided\n. " +
                         "If disabled, localization settings are taken from 'Restrict localization to' parameter above\n" +
                         "and O-glycan default database used.")
@@ -213,7 +213,7 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
         uiTextLDAfeatures = UiUtils.uiTextBuilder().create();
         uiTextLDAfeatures.setPreferredSize(new Dimension(50, 25));
         FormEntry feLDAfeatures = mu.feb(PROP_glyco_lda_features_text, uiTextLDAfeatures)
-                .label("LDA features to use").tooltip("valid values: yscore,oxo,mass,mass2nd,glycanfreq,kl,iso,iso2nd,yprop").create();
+                .label("LDA features to use").tooltip("Valid values: yscore,oxo,mass,mass2nd,glycanfreq,kl,iso,iso2nd,yprop").create();
 
         mu.add(pGlycoAssignContent, feGlycanFDR.label()).split(2);
         mu.add(pGlycoAssignContent, feGlycanFDR.comp);

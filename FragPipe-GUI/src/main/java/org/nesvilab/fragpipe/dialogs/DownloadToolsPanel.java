@@ -73,8 +73,8 @@ public class DownloadToolsPanel extends JPanel {
             + "or educational purposes under academic license.<br><br>"
             + "Read the <a href=\"" + WEB_DOMAIN + "upgrader/LICENSE-ACADEMIC.pdf\" target=\"blank_\">academic license</a> for MSFragger, IonQuant, and diaTracer.<br>");
 
-    feFirstName = mu.feb(UiUtils.uiTextBuilder().cols(40).create()).label("First Name:").create();
-    feLastName = mu.feb(UiUtils.uiTextBuilder().cols(40).create()).label("Last Name:").create();
+    feFirstName = mu.feb(UiUtils.uiTextBuilder().cols(40).create()).label("First name:").create();
+    feLastName = mu.feb(UiUtils.uiTextBuilder().cols(40).create()).label("Last name:").create();
     feEmail = mu.feb(UiUtils.uiTextBuilder().cols(40).create()).label("<html><div align='right'>Email:<br>(academic email)</div></html>").create();
     feInstitution = mu.feb(UiUtils.uiTextBuilder().cols(40).create()).label("<html><div align='right'>Institution:<br>(academic only)</div></html>").create();
 
@@ -105,7 +105,7 @@ public class DownloadToolsPanel extends JPanel {
     license3 = new JCheckBox();
 
     uiTextVerificationCode = UiUtils.uiTextBuilder().cols(40).create();
-    feVerificationCode = mu.feb(uiTextVerificationCode).label("Verification Code:").create();
+    feVerificationCode = mu.feb(uiTextVerificationCode).label("Verification code:").create();
     feVerificationCode.comp.setVisible(true);
     feVerificationCode.label().setVisible(true);
     feVerificationCode.comp.setEnabled(false);

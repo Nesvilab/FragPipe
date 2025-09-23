@@ -96,7 +96,7 @@ public class ProtProphPanel extends JPanelBase {
     FormEntry feCmdOpts = mu.feb("cmd-opts", uiTextCmdOpts).label("Cmd line opts:").create();
 
     mu.layout(this, mu.lcFillXNoInsetsTopBottom());
-    mu.border(this, "Protein Inference");
+    mu.border(this, "Protein inference");
 
     pTop = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
     mu.add(pTop, checkRun).wrap();

@@ -115,8 +115,8 @@ public class TabBatch extends JPanelWithEnablement {
     private UiCheck uiCheckWordWrap;
 
     private BatchTable batchTable;
-    private static final String[] TABLE_BATCH_COL_NAMES = {"Job Name (optional)", "Workflow File Path", "Manifest File Path", "Output Directory",
-             "Tools Folder Path (optional)", "Fasta Path (optional)", "RAM (optional)", "Threads (optional)"};
+    private static final String[] TABLE_BATCH_COL_NAMES = {"Job name (optional)", "Workflow file path", "Manifest file path", "Output directory",
+             "Tools folder path (optional)", "Fasta path (optional)", "RAM (optional)", "Threads (optional)"};
     public static final String PROP_FILECHOOSER_LAST_PATH = "batch.filechooser.path";
 
 
@@ -240,10 +240,10 @@ public class TabBatch extends JPanelWithEnablement {
     }
 
     private JPanel createPanelBottom(TextConsole console) {
-        uiCheckDryRun = UiUtils.createUiCheck("Dry Run", false);
-        btnRun = UiUtils.createButton("Run All", e -> Bus.post(new MessageRunBatch(isDryRun(), null)));
+        uiCheckDryRun = UiUtils.createUiCheck("Dry run", false);
+        btnRun = UiUtils.createButton("Run all", e -> Bus.post(new MessageRunBatch(isDryRun(), null)));
 
-        JButton btnClearConsole = UiUtils.createButton("Clear Console", e -> clearConsole());
+        JButton btnClearConsole = UiUtils.createButton("Clear console", e -> clearConsole());
         uiCheckWordWrap = UiUtils.createUiCheck("Word wrap", true, e -> {
             console.setScrollableTracksViewportWidth(uiCheckWordWrap.isSelected());
             console.setVisible(false);
@@ -253,7 +253,7 @@ public class TabBatch extends JPanelWithEnablement {
         console.setScrollableTracksViewportWidth(true);
         batchProgressBar = new JProgressBar(0, 100);
 
-        btnStop = UiUtils.createButton("Stop All", e -> {
+        btnStop = UiUtils.createButton("Stop all", e -> {
             Bus.post(new MessageKillAll(MessageKillAll.REASON.USER_ACTION, console));
             Path currentWorkDir = batchRuns.get(batchProgressBar.getValue()).outputPath;
             if (currentWorkDir != null) {
@@ -328,26 +328,26 @@ public class TabBatch extends JPanelWithEnablement {
         batchRuns = new ArrayList<>();
 
         JPanel pBatch = new JPanel(new MigLayout(new LC()));
-        pBatch.setBorder(new TitledBorder("Batch " + PROGRAM_TITLE + " Runs"));
+        pBatch.setBorder(new TitledBorder("Batch " + PROGRAM_TITLE + " runs"));
         batchTable = createBatchTable();
 
         JScrollPane tableScrollBatch = new JScrollPane(batchTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         tableScrollBatch.setPreferredSize(new Dimension(1200, 200));
 
-        JButton btnLoadJobs = new JButton("Load Job(s)");     // loads jobs from built-in jobs folder
+        JButton btnLoadJobs = new JButton("Load job(s)");     // loads jobs from built-in jobs folder
         btnLoadJobs.addActionListener(e -> this.actionBtnLoadBatchTemplate(e, FragpipeLocations.get().getDirJobs().toString()));
-        JButton btnLoadBatchTemplate = new JButton("Load Job Manifest");    // loads jobs from user's saved manifest file(s)
+        JButton btnLoadBatchTemplate = new JButton("Load job manifest");    // loads jobs from user's saved manifest file(s)
         btnLoadBatchTemplate.addActionListener(e -> this.actionBtnLoadBatchTemplate(e, Fragpipe.propsVarGet(PROP_FILECHOOSER_LAST_PATH)));
-        JButton btnSaveBatchTemplate = new JButton("Save Job Manifest");
+        JButton btnSaveBatchTemplate = new JButton("Save job manifest");
         btnSaveBatchTemplate.addActionListener(this::actionBtnSaveBatchTemplate);
-        JButton btnOpenJobsFolder = new JButton("Open Jobs Folder in File Manager");
+        JButton btnOpenJobsFolder = new JButton("Open jobs folder in file manager");
         btnOpenJobsFolder.addActionListener(e -> openJobsFolder());
 
-        JButton btnRemoveSelected = new JButton("Remove Selected");
+        JButton btnRemoveSelected = new JButton("Remove selected");
         btnRemoveSelected.addActionListener(e -> btnRemoveSelected());
-        JButton btnClearTable = new JButton("Clear Table");
+        JButton btnClearTable = new JButton("Clear table");
         btnClearTable.addActionListener(e -> clearTable());
-        JButton btnCreateBatchScript = new JButton("Write Jobs to Batch Script");
+        JButton btnCreateBatchScript = new JButton("Write jobs to batch script");
         btnCreateBatchScript.addActionListener(e -> createBatchScript());
 
         mu.add(pBatch, btnLoadJobs).split();

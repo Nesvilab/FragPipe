@@ -135,7 +135,7 @@ public class MSBoosterPanel extends JPanelBase {
   @Override
   protected void init() {
     mu.layout(this, mu.lcFillXNoInsetsTopBottom());
-    mu.border(this, "Rescoring Using Deep Learning Prediction");
+    mu.border(this, "Rescoring using deep learning prediction");
 
     pTop = createPanelTop();
 

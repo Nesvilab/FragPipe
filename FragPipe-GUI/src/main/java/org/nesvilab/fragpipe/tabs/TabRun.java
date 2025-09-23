@@ -200,7 +200,7 @@ public class TabRun extends JPanelWithEnablement {
     JButton btnBrowse = feWorkdir.browseButton(() -> FileChooserUtils.builder("Select output directory").mode(FcMode.DIRS_ONLY).multi(false).paths(Stream.of(uiTextWorkdir.getNonGhostText(), Fragpipe.propsVar().getProperty(LAST_WORK_DIR))).create(), "Select output directory", selected -> {
       uiTextWorkdir.setText(selected.get(0).toString());
     });
-    JButton btnOpenInFileManager = UiUtils.createButton("Open in File Manager", e -> {
+    JButton btnOpenInFileManager = UiUtils.createButton("Open in file manager", e -> {
       String text = uiTextWorkdir.getNonGhostText();
       if (StringUtils.isBlank(text)) {
         SwingUtils.showInfoDialog(TabRun.this, "Empty path", "Does not exist");
@@ -223,7 +223,7 @@ public class TabRun extends JPanelWithEnablement {
       uiTextWorkdir.setText(Fragpipe.workdir);
     }
 
-    uiCheckDryRun = UiUtils.createUiCheck("Dry Run", false);
+    uiCheckDryRun = UiUtils.createUiCheck("Dry run", false);
 
     uiCheckDeleteTempFiles = UiUtils.createUiCheck("Delete temp files", false);
     uiCheckDeleteTempFiles.setName(TAB_PREFIX + "delete_temp_files");
@@ -265,7 +265,7 @@ public class TabRun extends JPanelWithEnablement {
     });
     btnStop.setEnabled(false);
 
-    JButton btnSaveJob = UiUtils.createButton("Save as Job", this::actionBtnSaveJob);
+    JButton btnSaveJob = UiUtils.createButton("Save as job", this::actionBtnSaveJob);
     btnSaveJob.setToolTipText("Save the current configuration as a Job for future batch processing.\n" +
         "The job can then be loaded on the Batch tab for batch processing.\n" +
         "The job is saved in the jobs directory.");
@@ -329,7 +329,7 @@ public class TabRun extends JPanelWithEnablement {
       SwingUtils.openBrowserOrThrow(FRAGPIPE_ANALYST_URL);
     });
 
-    btnGenerateSummaryReport = UiUtils.createButton("Generate Summary Report", e -> {
+    btnGenerateSummaryReport = UiUtils.createButton("Generate summary report", e -> {
       String binPython = Fragpipe.getBinPython();
       if (binPython == null || binPython.isEmpty()) {
         SwingUtils.showErrorDialog(this, "Cannot find the python executable file.", "No python executable");
@@ -395,8 +395,8 @@ public class TabRun extends JPanelWithEnablement {
       }
     });
 
-    JButton btnExport = UiUtils.createButton("Export Log", e -> Bus.post(new MessageExportLog()));
-    JButton btnReportErrors = UiUtils.createButton("Report Errors", e -> {
+    JButton btnExport = UiUtils.createButton("Export log", e -> Bus.post(new MessageExportLog()));
+    JButton btnReportErrors = UiUtils.createButton("Report errors", e -> {
       final String prop = Version.isDevBuild() ? Version.PROP_ISSUE_TRACKER_URL_DEV : Version.PROP_ISSUE_TRACKER_URL;
       final String issueTrackerAddress = Fragpipe.getPropFix(prop);
       try {
@@ -406,7 +406,7 @@ public class TabRun extends JPanelWithEnablement {
         SwingUtils.showErrorDialogWithStacktrace(ex, TabRun.this);
       }
     });
-    JButton btnClearConsole = UiUtils.createButton("Clear Console", e -> clearConsole() );
+    JButton btnClearConsole = UiUtils.createButton("Clear console", e -> clearConsole() );
     uiCheckWordWrap = UiUtils
         .createUiCheck("Word wrap", true, e -> {
           console.setScrollableTracksViewportWidth(uiCheckWordWrap.isSelected());
@@ -439,7 +439,7 @@ public class TabRun extends JPanelWithEnablement {
 
     List<String> sdrfTypes =  Arrays.stream(SDRFtable.SDRFtypes.values()).map(Enum::name).collect(Collectors.toList());
     uiComboSDRFtype = UiUtils.createUiCombo(sdrfTypes);
-    FormEntry feComboSDRFtype = new FormEntry("workflow.misc.sdrf-type", "SDRF Type", uiComboSDRFtype, "SDRF template type to use");
+    FormEntry feComboSDRFtype = new FormEntry("workflow.misc.sdrf-type", "SDRF type", uiComboSDRFtype, "SDRF template type to use");
 
     uiTextJobName = UiUtils.uiTextBuilder().ghost("Enter a name for saving the job (optional).").cols(50).create();
 

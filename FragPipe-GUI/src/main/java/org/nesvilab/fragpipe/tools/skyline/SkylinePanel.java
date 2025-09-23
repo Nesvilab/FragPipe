@@ -100,7 +100,7 @@ public class SkylinePanel extends JPanelBase {
     JPanel p = new JPanel(new MigLayout(new LC().insetsAll("0px")));
     mu.borderEmpty(p);
 
-    checkRun = new UiCheck("Generate Skyline Document", null, false);
+    checkRun = new UiCheck("Generate Skyline document", null, false);
     checkRun.setName("run-skyline");
 
     JLabel imageLabel = new JLabel();
@@ -175,15 +175,15 @@ public class SkylinePanel extends JPanelBase {
 
     uiComboModsMode = UiUtils.createUiCombo(Arrays.asList("Default", "O-glyco", "N-glyco"));
     uiComboModsMode.setSelectedIndex(0);
-    FormEntry feComboModsMode = new FormEntry("skyline-mods-mode", "Special Modifications Mode", uiComboModsMode, "Special modification support.<br>"
+    FormEntry feComboModsMode = new FormEntry("skyline-mods-mode", "Special modifications mode", uiComboModsMode, "Special modification support.<br>"
         + "If O-glyco, uses O-Pair glycan database instead of mass offsets list.<br>"
         + "If N-glyco, uses Glycan Composition Assignment glycan database instead of mass offsets list.");
 
     uiSpinnerPrecursorTolerance = new UiSpinnerInt(10, 1, 1000, 1);
-    FormEntry fePrecursorTolerance = new FormEntry("skyline-precursor-tolerance", "Precursor Tolerance (ppm)", uiSpinnerPrecursorTolerance, "Precursor tolerance in ppm");
+    FormEntry fePrecursorTolerance = new FormEntry("skyline-precursor-tolerance", "Precursor tolerance (ppm)", uiSpinnerPrecursorTolerance, "Precursor tolerance in ppm");
 
     uiSpinnerFragmentTolerance = new UiSpinnerInt(10, 1, 1000, 1);
-    FormEntry feFragmentTolerance = new FormEntry("skyline-fragment-tolerance", "Fragment Tolerance (ppm)", uiSpinnerFragmentTolerance, "Fragment tolerance in ppm");
+    FormEntry feFragmentTolerance = new FormEntry("skyline-fragment-tolerance", "Fragment tolerance (ppm)", uiSpinnerFragmentTolerance, "Fragment tolerance in ppm");
 
     mu.add(panelBasic, feRadioSkyline.comp);
     mu.add(panelBasic, feRadioSkylineDaily.comp);

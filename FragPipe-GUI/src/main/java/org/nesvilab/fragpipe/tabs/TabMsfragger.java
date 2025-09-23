@@ -157,10 +157,10 @@ public class TabMsfragger extends JPanelBase {
   public static final String CACHE_PROPS = "msfragger-props" + ThisAppProps.TEMP_FILE_EXT;
   public static final LinkedHashMap<String, SearchTypeProp> SEARCH_TYPE_NAME_MAPPING;
   private static final String[] TABLE_VAR_MODS_COL_NAMES = {"Enabled", "Site (editable)",
-      "Mass Delta (editable)", "Max occurrences (editable)"};
+      "Mass delta (editable)", "Max occurrences (editable)"};
   private static final String[] TABLE_FIX_MODS_COL_NAMES = {"Enabled", "Site",
-      "Mass Delta (editable)"};
-  public static final String[] TABLE_OFFSET_COL_NAMES = {"Mass", "Sites", "Diagnostic Ions", "Peptide Remainders", "Fragment Remainders"};
+      "Mass delta (editable)"};
+  public static final String[] TABLE_OFFSET_COL_NAMES = {"Mass", "Sites", "Diagnostic ions", "Peptide remainders", "Fragment remainders"};
   private static final String PROP_misc_adjust_precurosr_mass = "misc.adjust-precursor-mass";
   private static final String PROP_misc_slice_db = "misc.slice-db";
   private static final String PROP_misc_ram = "misc.ram";
@@ -368,10 +368,10 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_deneutralloss, s -> Integer.parseInt(s) == 1 ? "Yes" : "No");
 
     SEARCH_TYPE_NAME_MAPPING = new LinkedHashMap<>();
-    SEARCH_TYPE_NAME_MAPPING.put("Closed Search default config", SearchTypeProp.closed);
-    SEARCH_TYPE_NAME_MAPPING.put("Open Search default config", SearchTypeProp.open);
-    SEARCH_TYPE_NAME_MAPPING.put("Non-specific Search default config", SearchTypeProp.nonspecific);
-    SEARCH_TYPE_NAME_MAPPING.put("Mass Offset Search default config", SearchTypeProp.offset);
+    SEARCH_TYPE_NAME_MAPPING.put("Closed search default config", SearchTypeProp.closed);
+    SEARCH_TYPE_NAME_MAPPING.put("Open search default config", SearchTypeProp.open);
+    SEARCH_TYPE_NAME_MAPPING.put("Non-specific search default config", SearchTypeProp.nonspecific);
+    SEARCH_TYPE_NAME_MAPPING.put("Mass offset search default config", SearchTypeProp.offset);
   }
 
   private UiCheck checkRun;
@@ -586,7 +586,7 @@ public class TabMsfragger extends JPanelBase {
   }
 
   private JPanel createPanelBasicPeakMatch() {
-    JPanel p = mu.newPanel("Peak Matching", true);
+    JPanel p = mu.newPanel("Peak matching", true);
 
     // precursor mass tolerance
     List<String> units = Seq.of(PrecursorMassTolUnits.values()).map(PrecursorMassTolUnits::name).toList();
@@ -640,7 +640,7 @@ public class TabMsfragger extends JPanelBase {
     // mass calibrate
     uiComboMassCalibrate = UiUtils.createUiCombo(CALIBRATE_LABELS);
     FormEntry feCalibrate = mu.feb(MsfraggerParams.PROP_calibrate_mass, uiComboMassCalibrate)
-        .label("<html>Calibration and Optimization").create();
+        .label("<html>Calibration and optimization").create();
 
     uiTextIsoErr = UiUtils.uiTextBuilder().cols(10).filter("[^\\d/-]+").text("-1/0/1/2").create();
     FormEntry feIsotopeError = mu.feb(MsfraggerParams.PROP_isotope_error, uiTextIsoErr)
@@ -668,7 +668,7 @@ public class TabMsfragger extends JPanelBase {
 
   private JPanel createPanelDigest() {
     // Digest panel
-    JPanel p = mu.newPanel("Protein Digestion", true);
+    JPanel p = mu.newPanel("Protein digestion", true);
 
     uiComboEnzymes = UiUtils.createUiCombo(ENZYMES.stream().map(msfe -> msfe.name).collect(Collectors.toList()));
     Optional<MsfraggerEnzyme> trypsin = ENZYMES.stream().filter(e -> e.name.toLowerCase().startsWith("trypsin")).min(Comparator.comparing(o -> o.name));
@@ -909,7 +909,7 @@ public class TabMsfragger extends JPanelBase {
 
   /** Panel with all the basic options. */
   private JPanel createPanelBasicOptions() {
-      JPanel pBase = mu.newPanel("Common Options (Advanced Options are at the end of the page)", true);
+      JPanel pBase = mu.newPanel("Common options (advanced options are at the end of the page)", true);
       mu.add(pBase, createPanelBasicPeakMatch()).growX().wrap();
       mu.add(pBase, createPanelDigest()).growX().wrap();
 
@@ -917,7 +917,7 @@ public class TabMsfragger extends JPanelBase {
   }
 
   private JPanel createPanelGlyco() {
-    JPanel p = mu.newPanel("Glyco/Labile Mods", mu.lcFillXNoInsetsTopBottom());
+    JPanel p = mu.newPanel("Glyco/Labile mods", mu.lcFillXNoInsetsTopBottom());
 
     uiComboGlyco = UiUtils.createUiCombo(GLYCO_OPTIONS_UI);
     FormEntry feGlycoSearchMode = mu.feb(uiComboGlyco)
@@ -942,14 +942,14 @@ public class TabMsfragger extends JPanelBase {
 
     final UiSpinnerInt uiSpinnerMinSeqMatches = new UiSpinnerInt(2, 0, 1000, 1, 4);
     FormEntry feMinSeqMatches = mu.feb(MsfraggerParams.PROP_min_sequence_matches, uiSpinnerMinSeqMatches)
-            .label("Min Sequence-specific Ions")
+            .label("Min sequence-specific ions")
             .tooltip("<html>The minimum number of peptide sequence-specific ions (i.e., not Y ions)\n" +
-                    "required to record a match. Only used if Peptide Remainder ions are searched. Default: 2").create();
+                    "required to record a match. Only used if peptide remainder ions are searched. Default: 2").create();
 
     UiText ep1 = new UiText();
     FormEntry feYIonMasses = mu.feb(ep1).name(MsfraggerParams.PROP_Y_type_masses)
-        .label("Peptide Remainder masses")
-            .tooltip("List of possible Peptide Remainder ion (intact peptide + partially fragmented modification) masses\n" +
+        .label("Peptide remainder masses")
+            .tooltip("List of possible peptide remainder ion (intact peptide + partially fragmented modification) masses\n" +
                     "Provide as neutral masses. Should include 0 in most cases. Space or / separated\n" +
                     "example: '0 203.0794 365.1322'")
             .create();
@@ -964,7 +964,7 @@ public class TabMsfragger extends JPanelBase {
 
     uiTextRemainderMasses = new UiText();
     FormEntry feRemainderIons = mu.feb(MsfraggerParams.PROP_remainder_masses, uiTextRemainderMasses)
-            .label("Fragment Remainder masses")
+            .label("Fragment remainder masses")
             .tooltip("List of possible remainder fragment ions to consider. Provide as neutral masses.\n" +
                     "Remainder masses are partial modification masses left on b/y ions\n" +
                     "after fragmentation.\n ")
@@ -1183,7 +1183,7 @@ public class TabMsfragger extends JPanelBase {
 
   /** Panel with all the advanced options. */
   private JPanel createPanelAdvancedOptions() {
-    JPanel p = mu.newPanel("Advanced Options", new LC());
+    JPanel p = mu.newPanel("Advanced options", new LC());
 
     mu.add(p, createPanelMassOffsets()).growX().wrap();
     mu.add(p, createPanelGlyco()).growX().wrap();
@@ -1196,7 +1196,7 @@ public class TabMsfragger extends JPanelBase {
   }
 
   private JPanel createPanelMassOffsets() {
-    JPanel p = mu.newPanel("Mass Offsets", true);
+    JPanel p = mu.newPanel("Mass offsets", true);
 
     // create separate panels for the regular vs detailed offset mode to allow enabling only one at a time
     pOffsetRegular = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
@@ -1227,10 +1227,10 @@ public class TabMsfragger extends JPanelBase {
     uiTextMassOffsets = UiUtils.uiTextBuilder().filter("[^-\\(\\)\\./,\\d ]").text("0").create();
 
     FormEntry feMassOffsets = mu.feb(MsfraggerParams.PROP_mass_offsets, epMassOffsets)
-        .label("Mass Offsets")
+        .label("Mass offsets")
         .tooltip(tooltipMassOffsets).create();
 
-    uiCheckMassOffsetFile = UiUtils.createUiCheck("Use Detailed Mass Offsets", false);
+    uiCheckMassOffsetFile = UiUtils.createUiCheck("Use detailed mass offsets", false);
     String offsetCheckTip = "If checked, uses the provided detailed mass offset list to perform a mass offset search with specific allowed amino acids and/or fragment ions for each offset.";
     FormEntry feCheckMassOffsetFile = mu.feb(MsfraggerParams.PROP_use_detailed_offsets, uiCheckMassOffsetFile).tooltip(offsetCheckTip).create();
 
@@ -1240,14 +1240,14 @@ public class TabMsfragger extends JPanelBase {
 
     String tooltipOffsetDetailed = "(Optional) Detailed mass offset list. Overrides mass offset information above if provided. Can be loaded from & saved to template files using the buttons.";
     FormEntry feMassOffsetsDetailed = mu.feb(MsfraggerParams.PROP_mass_offsets_detailed, epDetailedMassOffsets)
-            .label("Detailed Mass Offsets")
+            .label("Detailed mass offsets")
             .tooltip(tooltipOffsetDetailed).create();
 
-    JButton btnLoadOffsetsFile = new JButton("Load Offsets");
+    JButton btnLoadOffsetsFile = new JButton("Load offsets");
     btnLoadOffsetsFile.addActionListener(this::actionBtnLoadDetailedOffsets);
-    JButton btnSaveOffsetsFile = new JButton("Save Offsets");
+    JButton btnSaveOffsetsFile = new JButton("Save offsets");
     btnSaveOffsetsFile.addActionListener(this::actionBtnSaveDetailedOffsets);
-    JButton btnEditOffsetsTable = new JButton("Edit Detailed Mass Offsets");
+    JButton btnEditOffsetsTable = new JButton("Edit detailed mass offsets");
     btnEditOffsetsTable.addActionListener(this::actionBtnEditDetailedOffsets);
 
     mu.add(pOffsetRegular, feMassOffsets.comp).spanX().growX().pushX().wrap();
@@ -1267,7 +1267,7 @@ public class TabMsfragger extends JPanelBase {
   }
 
   private JPanel createPanelAdvancedSpectral() {
-    JPanel p = mu.newPanel("Spectral Processing", true);
+    JPanel p = mu.newPanel("Spectral processing", true);
 
     FormEntry feMinPeaks = mu.feb(MsfraggerParams.PROP_minimum_peaks, new UiSpinnerInt(15, 0, 1000, 1, 4))
         .label("Min peaks").create();
@@ -1310,11 +1310,11 @@ public class TabMsfragger extends JPanelBase {
     FormEntry feIntensityTransform = mu.feb(MsfraggerParams.PROP_intensity_transform, UiUtils.createUiCombo(IntensityTransform.getNames())).label("Intensity transform").create();
     FormEntry feCheckReuseDiaFragmentPeaks = mu.feb(MsfraggerParams.PROP_reuse_dia_fragment_peaks, UiUtils.createUiCheck("Reuse DIA fragment peaks", false)).tooltip("Allow the same peak matches to multiple peptides. For DIA data type only.").create();
     FormEntry feCheckSpectralFiles = mu.feb(MsfraggerParams.PROP_check_spectral_files, UiUtils.createUiCheck("Check spectral files", true)).tooltip("Checking spectral files before searching.").create();
-    FormEntry feActivationFilter = mu.feb(MsfraggerParams.PROP_activation_filter, UiUtils.createUiCombo(ACTIVATION_TYPES_UI)).label("Activation Type Filter")
+    FormEntry feActivationFilter = mu.feb(MsfraggerParams.PROP_activation_filter, UiUtils.createUiCombo(ACTIVATION_TYPES_UI)).label("Activation type filter")
             .tooltip("Filter to include only scans matching the corresponding activation type.\n" +
                     "NOTE: not all instruments and activation types are supported. Use ETD for EThcd\n" +
                     "or other hybrid data.").create();
-    FormEntry feAnalyzerTypes = mu.feb(MsfraggerParams.PROP_analyzer_types, UiUtils.createUiCombo(ANALYZER_TYPES_UI)).label("Analyzer Filter")
+    FormEntry feAnalyzerTypes = mu.feb(MsfraggerParams.PROP_analyzer_types, UiUtils.createUiCombo(ANALYZER_TYPES_UI)).label("Analyzer filter")
         .tooltip("Filter to include only scans matching the corresponding analyzer type.\nNOTE: only support mzML and raw format files.").create();
     FormEntry feCheckRequirePrecursor = mu.feb(MsfraggerParams.PROP_require_precursor, UiUtils.createUiCheck("Require precursor", true))
         .tooltip("If required, PSMs with no precursor peaks will be discarded. For DIA data type only.").create();
@@ -1355,7 +1355,7 @@ public class TabMsfragger extends JPanelBase {
 
   /** Advanced peak matching panel */
   private JPanel createPanelAdvancedPeakMatch() {
-    JPanel p = mu.newPanel("Advanced Peak Matching Options", true);
+    JPanel p = mu.newPanel("Advanced peak matching options", true);
 
     FormEntry feMinFragsModeling = mu.feb(MsfraggerParams.PROP_min_fragments_modelling, new UiSpinnerInt(2, 0, 1000, 1, 4)).label("Min frags modeling").create();
     FormEntry feMinMatchedFrags = mu.feb(MsfraggerParams.PROP_min_matched_fragments, new UiSpinnerInt(4, 0, 1000, 1, 4)).label("Min matched frags").create();
@@ -1456,7 +1456,7 @@ public class TabMsfragger extends JPanelBase {
   }
 
   private JPanel createPanelAdvancedOutput() {
-    JPanel p = mu.newPanel("Advanced Output Options", true);
+    JPanel p = mu.newPanel("Advanced output options", true);
 
     uiSpinnerOutputReportTopNDda = new UiSpinnerInt(1, 1, 10000, 1, 4);
     uiSpinnerOutputReportTopNDia1 = new UiSpinnerInt(5, 1, 10000, 1, 4);
@@ -1523,7 +1523,7 @@ public class TabMsfragger extends JPanelBase {
 
   private JPanel createPanelAdvancedOpenSearch() {
     JPanel p = new JPanel(new MigLayout(new LC()));
-    p.setBorder(new TitledBorder("Open Search Options"));
+    p.setBorder(new TitledBorder("Open search options"));
     FormEntry feTrackZeroTopN = mu.feb(MsfraggerParams.PROP_track_zero_topN,
         new UiSpinnerInt(0, 0, 1000, 5, 5)).label("Track zero top N").create();
     UiSpinnerDouble spinnerZeroBinAcceptExpect = new UiSpinnerDouble(0, 0, Double.MAX_VALUE, 0.1, 5,

@@ -85,7 +85,7 @@ public class DiaTracerPanel extends JPanelBase {
 
   protected void init() {
     this.setLayout(new MigLayout(new LC().flowY().fillX()));
-    this.setBorder(new TitledBorder("diaPASEF Spectrum Deconvolution"));
+    this.setBorder(new TitledBorder("diaPASEF spectrum deconvolution"));
 
     pTop = mu.newPanel(mu.lcFillXNoInsetsTopBottom());
     p = mu.newPanel(mu.lcFillXNoInsetsTopBottom());
@@ -121,7 +121,7 @@ public class DiaTracerPanel extends JPanelBase {
     uiCheckWriteIntermediateFiles = new UiCheck("Write intermediate files", null, false);
     uiSpinnerApexIM = new UiSpinnerDouble(0.01, 0.01, 10, 0.01, new DecimalFormat("0.##"));
     uiSpinnerApexRT = new UiSpinnerInt(3, 1, 100, 1);
-    uiCheckMassDefectFilter = new UiCheck("Mass Defect Filter", null, true);
+    uiCheckMassDefectFilter = new UiCheck("Mass defect filter", null, true);
     uiSpinnerMassDefectOffset = new UiSpinnerDouble(0.1, 0, 10, 0.1, new DecimalFormat("0.#"));
     uiSpinnerMassDefectOffset.setColumns(3);
     uiSpinnerMs1MS2Corr = new UiSpinnerDouble(0.3, 0.0, 1.0, 0.1, new DecimalFormat("0.#"));
@@ -132,19 +132,19 @@ public class DiaTracerPanel extends JPanelBase {
         .label("Write intermediate files")
         .create();
     FormEntry feApexIm = mu.feb("delta-apex-im", uiSpinnerApexIM)
-        .label("Delta Apex IM")
+        .label("Delta apex IM")
         .create();
     FormEntry feApexRt = mu.feb("delta-apex-rt", uiSpinnerApexRT)
-        .label("Delta Apex RT")
+        .label("Delta apex RT")
         .create();
     FormEntry feMassDefectFilter = mu.feb("mass-defect-filter", uiCheckMassDefectFilter)
-        .label("Mass Defect Filter")
+        .label("Mass defect filter")
         .create();
     FormEntry feMassDefectOffset = mu.feb("mass-defect-offset", uiSpinnerMassDefectOffset)
-        .label("Mass Defect Offset")
+        .label("Mass defect offset")
         .create();
     FormEntry feMs1MS2Corr = mu.feb("corr-threshold", uiSpinnerMs1MS2Corr)
-        .label("Corr Threshold")
+        .label("Corr threshold")
         .create();
     FormEntry feRFMax = mu.feb("rf-max", uiSpinnerRFMax)
         .label("RF max")
