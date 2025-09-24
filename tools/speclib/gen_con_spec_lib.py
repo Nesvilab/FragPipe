@@ -385,6 +385,9 @@ def easypqp_lib_export(lib_type: str, params: easyPQPparams):
 	t = dict(zip(df_psm['Peptide'], df_psm['AllMappedProteins']))
 	df_lib['AllMappedProteins'] = df_lib['PeptideSequence'].map(t)
 
+	# FIXME: temporary fix
+	df_lib = df_lib.dropna(axis='rows', subset='AllMappedProteins')
+
 	df_psm['AllMappedGenes'] = df_psm.apply(lambda x: f"{x['Gene']};{x['Mapped Genes']}" if pd.notna(x['Mapped Genes']) else x['Gene'], axis=1)
 	t = dict(zip(df_psm['Peptide'], df_psm['AllMappedGenes']))
 	df_lib['AllMappedGenes'] = df_lib['PeptideSequence'].map(t)
