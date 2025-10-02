@@ -23,13 +23,24 @@ Options:
         --config-python <string>        # (optional) specify the location of the Python directory. If not specified, using the one in the cache.
 ```
 
+The built-in workflow files can be found in [https://github.com/Nesvilab/FragPipe/tree/develop/workflows](https://github.com/Nesvilab/FragPipe/tree/develop/workflows)
+
+The manifest file format is `<path to LC-MS file>	<experiment name>	<bioreplicate>	<data type>`. The columns are separted by tab. The following is an example:
+```test
+/storage/b1906_293T_proteinID_01A_QE3_122212.mzML	exp_a	1	DDA
+/storage/b1922_293T_proteinID_02A_QE3_122212.mzML	exp_a	2	DDA
+/storage/b1923_293T_proteinID_03A_QE3_122212.mzML	exp_b	1	DDA
+/storage/b1924_293T_proteinID_04A_QE3_122212.mzML	exp_b	2	DDA
+/storage/b1925_293T_proteinID_05A_QE3_122212.mzML	exp_c	1	DDA
+```
+
 __Note: For the first time running FragPipe in command line mode, must specify `--config-tools-folder`, `--config-diann`, and `--config-python`.__
 
 To let FragPipe find the TMT annotation file in the headless mode, put the mzML files from the same experiment in the same folder. Then, create the annotation file with the name ending with `annotation.txt` in the folder.
 
 __Note: There must be only one annotation file in each folder.__
 
-To get the workflow and manifest files, running FragPipe GUI, set the parameters, save the workflow to custom folder, and save the manifest file. These two files can also be edited by any text editor.
+To export the workflow and manifest files, running FragPipe GUI, set the parameters, save the workflow to custom folder, and save the manifest file. These two files can also be edited by any text editor.
 
 <img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/headless.jpg" width="1000px"/>
 
