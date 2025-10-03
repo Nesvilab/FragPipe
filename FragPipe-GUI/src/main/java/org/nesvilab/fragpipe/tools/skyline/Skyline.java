@@ -342,7 +342,7 @@ public class Skyline {
       return skylineRunnerPath;
     }
     try {
-      sub("SkylineRunner.exe");
+      sub("Skyline/SkylineRunner.exe");
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -354,7 +354,7 @@ public class Skyline {
       return skylineDailyRunnerPath;
     }
     try {
-      sub("SkylineDailyRunner.exe");
+      sub("Skyline/SkylineDailyRunner.exe");
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -366,7 +366,7 @@ public class Skyline {
       return skylineVersion;
     }
     try {
-      sub("SkylineRunner.exe");
+      sub("Skyline/SkylineRunner.exe");
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -378,7 +378,7 @@ public class Skyline {
       return skylineDailyVersion;
     }
     try {
-      sub("SkylineDailyRunner.exe");
+      sub("Skyline/SkylineDailyRunner.exe");
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -432,10 +432,10 @@ public class Skyline {
     if (classpathJars != null && !classpathJars.isEmpty()) {
       Version version = validate(classpathJars.get(0).toAbsolutePath().normalize().toString());
       if (version != null) {
-        if (s.contentEquals("SkylineRunner.exe")) {
+        if (s.contentEquals("Skyline/SkylineRunner.exe")) {
           skylineVersion = new DefaultArtifactVersion(version.strippedVersion);
           skylineRunnerPath = classpathJars.get(0).toAbsolutePath().normalize().toString();
-        } else if (s.contentEquals("SkylineDailyRunner.exe")) {
+        } else if (s.contentEquals("Skyline/SkylineDailyRunner.exe")) {
           skylineDailyVersion = new DefaultArtifactVersion(version.strippedVersion);
           skylineDailyRunnerPath = classpathJars.get(0).toAbsolutePath().normalize().toString();
         } else {
