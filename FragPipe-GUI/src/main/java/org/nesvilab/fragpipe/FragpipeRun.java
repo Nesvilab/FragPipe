@@ -2289,8 +2289,9 @@ public class FragpipeRun {
             diannPanel.getHeavy(),
             jarPath,
             noteConfigDiann,
-            cmdUmpire.isRun() && !sharedLcmsFiles.isEmpty()
-            );
+            cmdUmpire.isRun() && !sharedLcmsFiles.isEmpty(),
+            diannPanel.getModTag(),
+            diannPanel.getSiteProb());
       }
       return true;
     });

@@ -59,7 +59,6 @@ import org.nesvilab.fragpipe.api.InputLcmsFile;
 import org.nesvilab.fragpipe.api.LcmsFileGroup;
 import org.nesvilab.fragpipe.messages.NoteConfigDiann;
 import org.nesvilab.fragpipe.tools.diann.Diann;
-import org.nesvilab.fragpipe.tools.diann.DiannPanel;
 import org.nesvilab.fragpipe.tools.diann.DiannToMsstats;
 import org.nesvilab.fragpipe.tools.diann.ParquetToTsv;
 import org.nesvilab.fragpipe.tools.diann.PlexDiaHelper;
@@ -118,8 +117,9 @@ public class CmdDiann extends CmdBase {
       String heavyString,
       Path jarFragpipe,
       NoteConfigDiann noteConfigDiann,
-      boolean isDiaUmpireRun
-  ) {
+      boolean isDiaUmpireRun,
+      String modTag,
+      float siteProb) {
     initPreConfig();
 
     if (libraryPath != null && !libraryPath.trim().isEmpty()) {
@@ -516,7 +516,6 @@ public class CmdDiann extends CmdBase {
     if (classpathJars == null) {
       System.err.println("Could not find " + SITE_REPORTER);
     } else {
-      DiannPanel diannPanel = Fragpipe.getStickyStrict(DiannPanel.class);
       List<String> cmd = new ArrayList<>();
       cmd.add(Fragpipe.getBinJava());
       cmd.add("-Xmx" + ramGb + "G");
@@ -529,9 +528,9 @@ public class CmdDiann extends CmdBase {
       cmd.add("-out_dir");
       cmd.add(wd.resolve("dia-quant-output").toAbsolutePath().normalize().toString());
       cmd.add("-mod_tag");
-      cmd.add(diannPanel.getModTag());
+      cmd.add(modTag);
       cmd.add("-min_site_prob");
-      cmd.add(String.valueOf(diannPanel.getSiteProb()));
+      cmd.add(String.valueOf(siteProb));
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(wd.resolve("dia-quant-output").toFile());
       pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + " generate site reports").create());

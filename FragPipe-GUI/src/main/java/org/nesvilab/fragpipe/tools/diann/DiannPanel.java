@@ -169,7 +169,6 @@ public class DiannPanel extends JPanelBase {
     panelBasic = createPanelBasic();
     panelBasic2 = createPanelBasic2();
     panelPlex = createPanelPlex();
-    panelSiteReport = createPanelSiteReport();
 
     mu.add(p2, panelBasic).spanX();
     p2.add(Box.createHorizontalStrut(10));
@@ -355,6 +354,7 @@ public class DiannPanel extends JPanelBase {
 
     pTop = createPanelTop();
     pContent = createPanelContent();
+    panelSiteReport = createPanelSiteReport();
 
     this.add(pTop, BorderLayout.NORTH);
     this.add(pContent, BorderLayout.CENTER);
