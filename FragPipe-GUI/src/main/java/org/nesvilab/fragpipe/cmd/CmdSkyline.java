@@ -18,6 +18,7 @@
 package org.nesvilab.fragpipe.cmd;
 
 import static org.nesvilab.fragpipe.cmd.ToolingUtils.BATMASS_IO_JAR;
+import static org.nesvilab.fragpipe.tabs.TabWorkflow.manifestExt;
 
 import org.nesvilab.fragpipe.Fragpipe;
 import org.nesvilab.fragpipe.FragpipeLocations;
@@ -158,15 +159,15 @@ public class CmdSkyline extends CmdBase {
         cmd2.add("-Xmx" + ramGb + "G");
         cmd2.add("-jar");
         cmd2.add(constructClasspathString(classpathJars));
-        cmd2.add("-pr");
+        cmd2.add("--pr");
         cmd2.add(wd.resolve("skyline_files").resolve("fragpipe_skyline_quant.csv").toAbsolutePath().normalize().toString());
-        cmd2.add("-psm");
-        cmd2.add(wd.resolve("psm.tsv").toAbsolutePath().normalize().toString());
-        cmd2.add("-out_dir");
+        cmd2.add("--exp-ann");
+        cmd2.add(wd.resolve("fragpipe-files" + manifestExt).toAbsolutePath().normalize().toString());
+        cmd2.add("--out-dir");
         cmd2.add(wd.resolve("skyline_files").toAbsolutePath().normalize().toString());
-        cmd2.add("-mod_tag");
+        cmd2.add("--mod-tag");
         cmd2.add(modTag);
-        cmd2.add("-min_site_prob");
+        cmd2.add("--min-site-prob");
         cmd2.add(String.valueOf(siteProb));
         ProcessBuilder pb = new ProcessBuilder(cmd2);
         pb.directory(wd.resolve("skyline_files").toFile());

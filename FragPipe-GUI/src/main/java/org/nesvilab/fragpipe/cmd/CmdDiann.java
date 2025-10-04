@@ -75,7 +75,7 @@ public class CmdDiann extends CmdBase {
   private static final String NAME = "DIA-Quant";
   private static final List<String> SUPPORTED_FORMATS_WIN = Arrays.asList("mzML", "d", "dia", "wiff", "raw");
   private static final List<String> SUPPORTED_FORMATS_LINUX = Arrays.asList("mzML", "d", "dia", "raw");
-  public static final String SITE_REPORTER = "LFQ-SiteReporter-1.0.21.jar";
+  public static final String SITE_REPORTER = "LFQ-SiteReporter-1.0.23.jar";
   public static final Pattern labelPattern = Pattern.compile("([A-Znc*]+)([\\d.+-]+)");
 
   private final String diannPath;
@@ -521,15 +521,15 @@ public class CmdDiann extends CmdBase {
       cmd.add("-Xmx" + ramGb + "G");
       cmd.add("-jar");
       cmd.add(constructClasspathString(classpathJars));
-      cmd.add("-pr");
+      cmd.add("--pr");
       cmd.add(wd.resolve("dia-quant-output").resolve("report.tsv").toAbsolutePath().normalize().toString());
-      cmd.add("-psm");
-      cmd.add(wd.resolve("psm.tsv").toAbsolutePath().normalize().toString());
-      cmd.add("-out_dir");
+      cmd.add("--exp-ann");
+      cmd.add(wd.resolve("fragpipe-files" + manifestExt).toAbsolutePath().normalize().toString());
+      cmd.add("--out-dir");
       cmd.add(wd.resolve("dia-quant-output").toAbsolutePath().normalize().toString());
-      cmd.add("-mod_tag");
+      cmd.add("--mod-tag");
       cmd.add(modTag);
-      cmd.add("-min_site_prob");
+      cmd.add("--min-site-prob");
       cmd.add(String.valueOf(siteProb));
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(wd.resolve("dia-quant-output").toFile());
