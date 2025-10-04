@@ -24,6 +24,8 @@ import org.nesvilab.fragpipe.FragpipeLocations;
 import org.nesvilab.fragpipe.Version;
 import org.nesvilab.fragpipe.tools.skyline.Skyline;
 import org.nesvilab.utils.OsUtils;
+import org.nesvilab.utils.SwingUtils;
+
 import java.awt.Component;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -32,6 +34,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import javax.swing.JOptionPane;
 import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
@@ -52,7 +56,19 @@ public class CmdSkyline extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, String skylinePath, String skylineVersion, Path jarFragpipe, int ramGb, int modsMode, boolean useSsl, int precursorTolerance, int fragmentTolerance) {
+  public boolean configure(Component comp,
+      String skylinePath,
+      String skylineVersion,
+      Path jarFragpipe,
+      int ramGb,
+      int modsMode,
+      boolean useSsl,
+      int precursorTolerance,
+      int fragmentTolerance,
+      boolean runSkylineQuant,
+      boolean skipSkylineDocumentGeneration,
+      String modTag,
+      float siteProb) {
     initPreConfig();
 
     if (skylinePath == null) {
@@ -66,52 +82,97 @@ public class CmdSkyline extends CmdBase {
       return false;
     }
 
-    final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(BATMASS_IO_JAR));
-    if (classpathJars == null) {
-      return false;
+    if (!skipSkylineDocumentGeneration) {
+      final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(BATMASS_IO_JAR));
+      if (classpathJars == null) {
+        return false;
+      }
+  
+      Path root = FragpipeLocations.get().getDirFragpipeRoot();
+      Path libsDir = root.resolve("lib");
+      if (Files.isDirectory(jarFragpipe)) {
+        libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe-" + Version.version() + "/lib");
+      }
+  
+      Set<String> toJoin = classpathJars.stream().map(p -> p.toAbsolutePath().normalize().toString()).collect(Collectors.toSet());
+      try {
+        toJoin.addAll(Files.walk(libsDir).filter(p -> p.getFileName().toString().endsWith(".jar")).
+                filter(p -> p.getFileName().toString().startsWith("maven-artifact") ||
+                        p.getFileName().toString().startsWith("commons-lang3") ||
+                        p.getFileName().toString().startsWith("fragpipe-")).
+                map(p -> p.toAbsolutePath().normalize().toString()).collect(Collectors.toList())
+        );
+      } catch (IOException ex) {
+        ex.printStackTrace();
+        return false;
+      }
+  
+      toJoin.add(jarFragpipe.toAbsolutePath().normalize().toString());
+      final String classpath = OsUtils.asSingleArgument(String.join(System.getProperties().getProperty("path.separator"), toJoin));
+  
+      List<String> cmd = new ArrayList<>();
+      cmd.add(Fragpipe.getBinJava());
+      if (Fragpipe.headless) {
+        cmd.add("-Djava.awt.headless=true");
+      }
+      cmd.add("-Xmx" + ramGb + "G");
+      cmd.add("-cp");
+      cmd.add(classpath);
+      cmd.add(Skyline.class.getCanonicalName());
+      cmd.add(skylinePath);
+      cmd.add(wd.toAbsolutePath().normalize().toString());
+      cmd.add(skylineVersion);
+      cmd.add(String.valueOf(modsMode));
+      cmd.add(String.valueOf(useSsl));
+      cmd.add(String.valueOf(precursorTolerance));
+      cmd.add(String.valueOf(fragmentTolerance));
+      ProcessBuilder pb = new ProcessBuilder(cmd);
+      pb.directory(wd.toFile());
+      pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + " create Skyline document").create());
     }
 
-    Path root = FragpipeLocations.get().getDirFragpipeRoot();
-    Path libsDir = root.resolve("lib");
-    if (Files.isDirectory(jarFragpipe)) {
-      libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe-" + Version.version() + "/lib");
-    }
+    if (runSkylineQuant) {
+      List<Path> tt = FragpipeLocations.checkToolsMissing(Seq.of("Skyline/fragpipe_report.skyr"));
+      if (tt == null || tt.isEmpty()) {
+        SwingUtils.showErrorDialog(comp, "Could not find Skyline quant report tempolate file.", "Error");
+        return false;
+      }
 
-    Set<String> toJoin = classpathJars.stream().map(p -> p.toAbsolutePath().normalize().toString()).collect(Collectors.toSet());
-    try {
-      toJoin.addAll(Files.walk(libsDir).filter(p -> p.getFileName().toString().endsWith(".jar")).
-              filter(p -> p.getFileName().toString().startsWith("maven-artifact") ||
-                      p.getFileName().toString().startsWith("commons-lang3") ||
-                      p.getFileName().toString().startsWith("fragpipe-")).
-              map(p -> p.toAbsolutePath().normalize().toString()).collect(Collectors.toList())
-      );
-    } catch (IOException ex) {
-      ex.printStackTrace();
-      return false;
-    }
+      List<String> cmd = new ArrayList<>();
+      cmd.add(skylinePath);
+      cmd.add("--in=\"" + wd.resolve("skyline_files").resolve("fragpipe.sky").toAbsolutePath().normalize() + "\"");
+      cmd.add("--report-add=\"" + tt.get(0).toAbsolutePath().normalize() + "\"");
+      cmd.add("--report-conflict-resolution=overwrite");
+      cmd.add("--report-name=\"FragPipe_Skyline_quant\"");
+      cmd.add("--report-file=\"" + wd.resolve("skyline_files").resolve("fragpipe_skyline_quant.csv").toAbsolutePath().normalize() + "\"");
+      ProcessBuilder pb2 = new ProcessBuilder(cmd);
+      pb2.directory(wd.resolve("skyline_files").toFile());
+      pbis.add(new PbiBuilder().setPb(pb2).setName(getCmdName() + " run Skyline quant").create());
 
-    toJoin.add(jarFragpipe.toAbsolutePath().normalize().toString());
-    final String classpath = OsUtils.asSingleArgument(String.join(System.getProperties().getProperty("path.separator"), toJoin));
-
-    List<String> cmd = new ArrayList<>();
-    cmd.add(Fragpipe.getBinJava());
-    if (Fragpipe.headless) {
-      cmd.add("-Djava.awt.headless=true");
+      List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Stream.of(CmdDiann.SITE_REPORTER));
+      if (classpathJars == null) {
+        System.err.println("Could not find " + CmdDiann.SITE_REPORTER);
+      } else {
+        List<String> cmd2 = new ArrayList<>();
+        cmd2.add(Fragpipe.getBinJava());
+        cmd2.add("-Xmx" + ramGb + "G");
+        cmd2.add("-jar");
+        cmd2.add(constructClasspathString(classpathJars));
+        cmd2.add("-pr");
+        cmd2.add(wd.resolve("skyline_files").resolve("fragpipe_skyline_quant.csv").toAbsolutePath().normalize().toString());
+        cmd2.add("-psm");
+        cmd2.add(wd.resolve("psm.tsv").toAbsolutePath().normalize().toString());
+        cmd2.add("-out_dir");
+        cmd2.add(wd.resolve("skyline_files").toAbsolutePath().normalize().toString());
+        cmd2.add("-mod_tag");
+        cmd2.add(modTag);
+        cmd2.add("-min_site_prob");
+        cmd2.add(String.valueOf(siteProb));
+        ProcessBuilder pb = new ProcessBuilder(cmd2);
+        pb.directory(wd.resolve("skyline_files").toFile());
+        pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + " generate site reports").create());
+      }
     }
-    cmd.add("-Xmx" + ramGb + "G");
-    cmd.add("-cp");
-    cmd.add(classpath);
-    cmd.add(Skyline.class.getCanonicalName());
-    cmd.add(skylinePath);
-    cmd.add(wd.toAbsolutePath().normalize().toString());
-    cmd.add(skylineVersion);
-    cmd.add(String.valueOf(modsMode));
-    cmd.add(String.valueOf(useSsl));
-    cmd.add(String.valueOf(precursorTolerance));
-    cmd.add(String.valueOf(fragmentTolerance));
-    ProcessBuilder pb = new ProcessBuilder(cmd);
-    pb.directory(wd.toFile());
-    pbis.add(PbiBuilder.from(pb));
 
     isConfigured = true;
     return true;

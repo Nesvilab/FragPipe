@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<views>
+  <view name="FragPipe_Skyline_quant" rowsource="pwiz.Skyline.Model.Databinding.Entities.Precursor" sublist="Results!*" uimode="proteomic">
+    <column name="Peptide.Protein" />
+    <column name="Peptide.Protein.Accession" />
+    <column name="Peptide.ModifiedSequence" />
+    <column name="Charge" />
+    <column name="" />
+    <column name="Results!*.Value.BestRetentionTime" />
+    <column name="Results!*.Value.DetectionQValue" />
+    <column name="Results!*.Value.PeptideResult.ResultFile.FileName" />
+    <column name="Results!*.Value.PeptideResult.ResultFile.FilePath" />
+    <column name="Results!*.Value.PeptideResult.ProteinResult.Abundance" />
+    <column name="Results!*.Value.TotalAreaMs1" />
+    <column name="Results!*.Value.TotalBackgroundMs1" />
+    <column name="Results!*.Value.TotalAreaFragment" />
+    <column name="Results!*.Value.TotalBackgroundFragment" />
+  </view>
+</views>

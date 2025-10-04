@@ -29,6 +29,7 @@ import org.nesvilab.utils.swing.JPanelBase;
 import org.nesvilab.utils.swing.UiCheck;
 import org.nesvilab.utils.swing.UiCombo;
 import org.nesvilab.utils.swing.UiRadio;
+import org.nesvilab.utils.swing.UiSpinnerDouble;
 import org.nesvilab.utils.swing.UiSpinnerInt;
 import org.nesvilab.utils.swing.UiText;
 import org.nesvilab.utils.swing.UiUtils;
@@ -65,6 +66,7 @@ public class SkylinePanel extends JPanelBase {
   private JPanel pContent;
   private JPanel pTop;
   private JPanel panelBasic;
+  private JPanel panelQuant;
   private UiRadio uiRadioSkyline;
   private UiRadio uiRadioSkylineDaily;
   private UiRadio uiRadioSkylineCustom;
@@ -73,11 +75,17 @@ public class SkylinePanel extends JPanelBase {
   private UiCombo uiComboModsMode;
   private UiSpinnerInt uiSpinnerPrecursorTolerance;
   private UiSpinnerInt uiSpinnerFragmentTolerance;
+  private UiCheck uiCheckRunSkylineQuant;
+  private UiCheck uiCheckSkipSkylineDocumentGeneration;
+  private JPanel panelSiteReport;
+  private UiText uiTextModTag;
+  private UiSpinnerDouble uiSpinnerSiteProb;
 
   @Override
   protected void initMore() {
     super.initMore();
     SwingUtils.setEnablementUpdater(this, pContent, checkRun);
+    SwingUtils.setEnablementUpdater(this, panelSiteReport, checkRun);
   }
 
   @Override
@@ -122,8 +130,10 @@ public class SkylinePanel extends JPanelBase {
     mu.borderEmpty(p);
 
     panelBasic = createPanelBasic();
+    panelQuant = createPanelQuant();
 
     mu.add(p, panelBasic).growX().wrap();
+    mu.add(p, panelQuant).growX().wrap();
 
     return p;
   }
@@ -211,6 +221,51 @@ public class SkylinePanel extends JPanelBase {
     return panelBasic;
   }
 
+  private JPanel createPanelQuant() {
+    panelQuant = mu.newPanel(mu.lcFillX());
+    mu.border(panelQuant, 1);
+
+    uiCheckRunSkylineQuant = UiUtils.createUiCheck("Run Skyline quant", false);
+    uiCheckRunSkylineQuant.setName("run-skyline-quant");
+
+    uiCheckSkipSkylineDocumentGeneration = UiUtils.createUiCheck("Skip Skyline document generation", false);
+    uiCheckSkipSkylineDocumentGeneration.setName("skip-skyline-document-generation");
+    uiCheckSkipSkylineDocumentGeneration.setToolTipText("If you already generated a Skyline document, you can skip the generation of a new one.");
+
+    uiCheckRunSkylineQuant.addItemListener(e -> {
+      updateEnabledStatus(uiCheckSkipSkylineDocumentGeneration, uiCheckRunSkylineQuant.isSelected());
+    });
+
+    mu.add(panelQuant, uiCheckRunSkylineQuant).wrap();
+    mu.add(panelQuant, uiCheckSkipSkylineDocumentGeneration).wrap();
+    
+    updateEnabledStatus(panelQuant, true);
+
+    return panelQuant;
+  }
+
+  private JPanel createPanelSiteReport() {
+    panelSiteReport = mu.newPanel(mu.lcFillX());
+    mu.border(panelSiteReport, 1);
+    mu.border(panelSiteReport, "PTM site report (optional)");
+
+    uiTextModTag = UiUtils.uiTextBuilder().cols(40).create();
+    FormEntry feModTag = new FormEntry("mod-tag", "Mod tag", uiTextModTag, "<html>Modification tag for generating modification-specific reports <br/>\n"
+        + "STY:79.9663 for phospho<br/>\n"
+        + "K:114.0429 for ubiquitin");
+
+    uiSpinnerSiteProb = UiUtils.spinnerDouble(0.75, 0, 1, 0.01).setCols(5).setFormat("#.###").create();
+    FormEntry feSiteProb = mu.feb(uiSpinnerSiteProb).name("min-site-prob").label("Min site probability").tooltip("Site localization confidence threshold").create();
+
+    mu.add(panelSiteReport, feModTag.label(), mu.ccL()).split(2);
+    mu.add(panelSiteReport, feModTag.comp).growX();
+    mu.add(panelSiteReport, feSiteProb.label()).split(2);
+    mu.add(panelSiteReport, feSiteProb.comp, mu.ccL());
+
+    updateEnabledStatus(panelSiteReport, true);
+    return panelSiteReport;
+  }
+
   @Override
   protected void init() {
     this.setLayout(new BorderLayout());
@@ -218,9 +273,11 @@ public class SkylinePanel extends JPanelBase {
 
     pTop = createPanelTop();
     pContent = createPanelContent();
+    panelSiteReport = createPanelSiteReport();
 
     this.add(pTop, BorderLayout.NORTH);
     this.add(pContent, BorderLayout.CENTER);
+    this.add(panelSiteReport, BorderLayout.SOUTH);
   }
 
   @Override
@@ -302,5 +359,21 @@ public class SkylinePanel extends JPanelBase {
 
   public int getFragmentTolerance() {
     return uiSpinnerFragmentTolerance.getActualValue();
+  }
+
+  public boolean isRunSkylineQuant() {
+    return SwingUtils.isEnabledAndChecked(uiCheckRunSkylineQuant);
+  }
+
+  public boolean isSkipSkylineDocumentGeneration() {
+    return SwingUtils.isEnabledAndChecked(uiCheckSkipSkylineDocumentGeneration);
+  }
+
+  public String getModTag() {
+    return uiTextModTag.getNonGhostText().trim();
+  }
+
+  public float getSiteProb() {
+    return (float) uiSpinnerSiteProb.getActualValue();
   }
 }
