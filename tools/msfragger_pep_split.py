@@ -392,7 +392,7 @@ def write_pepxml(infile: pathlib.Path) -> None:
 	if ranked:
 		for rank, pepxml_parts in enumerate(all_pepxmls, 1):
 			write_pepxml_single_rank(infile.with_name(f'{infile.stem}_rank{rank}.{output_file_extension}'),
-									 pepxml_parts, expect_funcs)
+									 pepxml_parts, expect_funcs, pep_to_prot)
 	else:
 		write_pepxml_single_rank(infile.with_suffix(f'.{output_file_extension}'),
 								 all_pepxmls[0], expect_funcs, pep_to_prot)
