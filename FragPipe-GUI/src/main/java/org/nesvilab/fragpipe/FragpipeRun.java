@@ -2313,7 +2313,8 @@ public class FragpipeRun {
             skylinePanel.isRunSkylineQuant(),
             skylinePanel.isSkipSkylineDocumentGeneration(),
             skylinePanel.getModTag(),
-            skylinePanel.getSiteProb());
+            skylinePanel.getSiteProb(),
+            isDryRun);
       }
       return true;
     });

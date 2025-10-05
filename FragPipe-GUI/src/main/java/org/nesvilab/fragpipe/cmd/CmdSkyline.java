@@ -19,6 +19,8 @@ package org.nesvilab.fragpipe.cmd;
 
 import static org.nesvilab.fragpipe.cmd.ToolingUtils.BATMASS_IO_JAR;
 import static org.nesvilab.fragpipe.tabs.TabWorkflow.manifestExt;
+import static org.nesvilab.fragpipe.cmd.ToolingUtils.generateLFQExperimentAnnotation;
+import static org.nesvilab.utils.SwingUtils.showErrorDialogWithStacktrace;
 
 import org.nesvilab.fragpipe.Fragpipe;
 import org.nesvilab.fragpipe.FragpipeLocations;
@@ -69,7 +71,8 @@ public class CmdSkyline extends CmdBase {
       boolean runSkylineQuant,
       boolean skipSkylineDocumentGeneration,
       String modTag,
-      float siteProb) {
+      float siteProb,
+      boolean isDryRun) {
     initPreConfig();
 
     if (skylinePath == null) {
@@ -172,6 +175,15 @@ public class CmdSkyline extends CmdBase {
         ProcessBuilder pb = new ProcessBuilder(cmd2);
         pb.directory(wd.resolve("skyline_files").toFile());
         pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + " generate site reports").create());
+      }
+    }
+
+    if (!isDryRun) {
+      try {
+        generateLFQExperimentAnnotation(wd, 1);
+      } catch (Exception ex) {
+        showErrorDialogWithStacktrace(ex, comp);
+        return false;
       }
     }
 
