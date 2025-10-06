@@ -200,7 +200,7 @@ public class Fragpipe extends JFrameHeadless {
   static {
     updater = new FragpipeUpdater();
     Bus.registerQuietly(updater);
-    WEB_DOMAIN = Version.isDevBuild() ? "" : "https://msfragger-upgrader.nesvilab.org/";
+    WEB_DOMAIN = Version.isDevBuild() ? "https://fragpipe.net/" : "https://msfragger-upgrader.nesvilab.org/";
   }
 
   private UiTab uiTabConfig;
