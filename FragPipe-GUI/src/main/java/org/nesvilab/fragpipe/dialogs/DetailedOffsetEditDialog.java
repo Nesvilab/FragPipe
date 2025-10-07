@@ -91,13 +91,25 @@ public class DetailedOffsetEditDialog extends javax.swing.JDialog {
 
         JButton buttonAddRow = new JButton("Add row");
         buttonAddRow.addActionListener(e -> {
-            model.addRow(new Object[]{"", "", "", "", ""});
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow != -1) {
+                // insert a new row after the selected row
+                model.insertRow(selectedRow + 1, new Object[]{"", "", "", "", ""});
+            } else {
+                model.addRow(new Object[]{"", "", "", "", ""});
+            }
         });
         JButton buttonRemoveRow = new JButton("Remove row");
         buttonRemoveRow.addActionListener(e -> {
-            int rowCount = model.getRowCount();
-            if (rowCount > 0) {
-                model.removeRow(rowCount - 1);
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow != -1) {
+                model.removeRow(selectedRow);
+            } else {
+                // if no row is selected, remove the last row
+                int rowCount = model.getRowCount();
+                if (rowCount > 0) {
+                    model.removeRow(rowCount - 1);
+                }
             }
         });
 
