@@ -1,5 +1,7 @@
 # Workflow: Mass-Offset-CommonPTMs
 
+
+
 crystalc.run-crystalc=false
 database.decoy-tag=rev_
 diann.channel-normalization-strategy=0
@@ -145,7 +147,7 @@ msfragger.ion_series_definitions=
 msfragger.isotope_error=0/1
 msfragger.labile_search_mode=off
 msfragger.localize_delta_mass=true
-msfragger.mass_diff_to_variable_mod=0
+msfragger.mass_diff_to_variable_mod=1
 msfragger.mass_offsets=
 msfragger.mass_offsets_detailed=541.06110(aa\=DKETSNRH_d\=136.06232,250.09401,348.07037,428.03668_p\=0.00000,114.03169,193.99802,291.97491,406.00662_f\=0.00000);484.03961(aa\=C_d\=136.06232,250.09401,348.07037,428.03668_p\=0.00000,114.03169,193.99802,291.97491,406.00662_f\=0.00000);406.15869(aa\=TSN_d\=204.08664,168.06552,144.06560,138.05499_p\=203.07938,406.15875_f\=0.00000);365.13220(aa\=NTS_d\=204.08664,168.06552,366.13947,144.06560,138.05499_p\=203.07938,365.13220_f\=0.00000);349.13730(aa\=TSN_d\=350.14456_p\=203.07938,349.13727_f\=0.00000);340.10059(aa\=K);301.98651(aa\=DE);238.22971(aa\=TSK);229.01401(aa\=K);228.11099(aa\=N);210.19839(aa\=K);203.07941(aa\=TSN_d\=204.08664,168.06552,144.06560,138.05499_p\=203.07938_f\=0.00000);183.03540(aa\=YSKH);181.20821(aa\=C);178.04770(aa\=K);176.03210(aa\=ST);162.05280(aa\=WTSNRKY_d\=163.06009,145.04953_f\=0.00000);153.17690(aa\=C);147.16631(aa\=C);146.05791(aa\=NTS_f\=0.00000);114.04290(aa\=TSKHR);105.03140(aa\=C);100.01600(aa\=[^K);86.00040(aa\=SK);79.96630(aa\=ERKHDYTS_f\=-18.01056);79.95680(aa\=STY_f\=0.00000);71.03710(aa\=K);70.04190(aa\=KH);68.02620(aa\=K);61.98260(aa\=C);61.92180(aa\=EDH);61.91350(aa\=EDH);57.02150(aa\=n^YTSEDHKMC);53.91930(aa\=DE);47.98470(aa\=YW);44.98510(aa\=YWF);43.98980(aa\=EDKW);43.00580(aa\=n^YTSMRK);42.04700(aa\=RKDE);42.01060(aa\=[^TSKYHR);37.95590(aa\=ED);37.94690(aa\=ED);31.98980(aa\=WYFMKRPEILV);31.97210(aa\=DW);29.97420(aa\=WY);28.99020(aa\=Y);28.97890(aa\=C);28.03130(aa\=[^NKRHED);27.99490(aa\=n^TKS);26.01570(aa\=KH);23.95810(aa\=DE);22.94490(aa\=C);22.93540(aa\=C);21.98190(aa\=DE);21.96940(aa\=DE);19.98980(aa\=W);15.99490(aa\=TESQLIWHVRMYFPNKD);14.01570(aa\=[^CEDLIRQNKHST);13.97930(aa\=PWSRQLIEAV);13.02040(aa\=C);3.99490(aa\=W);0.98400(aa\=NQC);0.00000(aa\=);-0.98400(aa\=]^);-2.01570(aa\=SYT);-9.03670(aa\=C);-14.01570(aa\=C);-15.01090(aa\=C);-17.02650(aa\=nQnCQTS);-18.01060(aa\=cEDYTS);-25.03160(aa\=C);-25.04940(aa\=C);-28.03130(aa\=C);-30.01060(aa\=PDE);-32.00850(aa\=M);-41.02650(aa\=C);-43.00580(aa\=C);-45.02150(aa\=C);-58.02930(aa\=C);-91.00920(aa\=C)
 msfragger.max_fragment_charge=1
@@ -221,11 +223,11 @@ opair.run-opair=false
 opair.single_scan_type=false
 peptide-prophet.cmd-opts=--nonparam --expectscore --decoyprobs --masswidth 1000.0 --clevel -2
 peptide-prophet.combine-pepxml=true
-peptide-prophet.run-peptide-prophet=true
+peptide-prophet.run-peptide-prophet=false
 percolator.cmd-opts=--only-psms --no-terminate --post-processing-tdc
 percolator.keep-tsv-files=false
 percolator.min-prob=0.5
-percolator.run-percolator=false
+percolator.run-percolator=true
 phi-report.dont-use-prot-proph-file=false
 phi-report.filter=--sequential --mapmods --prot 0.01
 phi-report.pep-level-summary=false
@@ -239,7 +241,7 @@ ptmprophet.cmdline=
 ptmprophet.override-defaults=false
 ptmprophet.run-ptmprophet=false
 ptmshepherd.adv_params=false
-ptmshepherd.annotate_assigned_mods=false
+ptmshepherd.annotate_assigned_mods=true
 ptmshepherd.annotation-common=true
 ptmshepherd.annotation-custom=false
 ptmshepherd.annotation-glyco=false
@@ -262,8 +264,8 @@ ptmshepherd.glyco_fdr=1.00
 ptmshepherd.glyco_isotope_max=3
 ptmshepherd.glyco_isotope_min=-1
 ptmshepherd.glyco_lda=true
-ptmshepherd.glyco_ppm_tol=50
 ptmshepherd.glyco_lda_features=yscore,oxo,mass
+ptmshepherd.glyco_ppm_tol=50
 ptmshepherd.glycodatabase=
 ptmshepherd.histo_smoothbins=2
 ptmshepherd.iontype_a=false
@@ -299,7 +301,6 @@ ptmshepherd.spectra_maxfragcharge=2
 ptmshepherd.spectra_ppmtol=20
 ptmshepherd.use_glycan_fragment_probs=true
 ptmshepherd.use_msfragger_localization=true
-ptmshepherd.use_msfragger_localization=false
 ptmshepherd.varmod_masses=
 quantitation.run-label-free-quant=false
 run-psm-validation=true
@@ -379,9 +380,9 @@ tmtintegrator.tolerance=20
 tmtintegrator.unique_gene=0
 tmtintegrator.unique_pep=false
 tmtintegrator.use_glycan_composition=false
-workflow.description=<p style\="margin-top\: 0in">Mass Offset (also known as Multinotch) search workflow for a fast search for most common modifications (list of mass shifts specified in MSFragger 'Mass Offset' field). MSFragger localization-aware open search (LOS) algorithm, filtered to report PSMs with specified mass shifts only (with isotope errors allowed). No variable modifications are specified. Mass calibration, parameter optimization, and precursor monoisotope error correction are enabled. PSM validation using PeptideProphet with extended mass model. Protein inference with ProteinProphet. Data filtered using 1% protein level FDR and additionally 1% FDR at the peptide/ion/PSM level. Precursor ion quantification using Freequant. PTM-Shepherd for mass shift summarization.</p>
+workflow.description=<p style\="margin-top\: 0in">Mass Offset (also known as Multinotch) search workflow for a fast search for most common modifications (list of mass shifts specified in MSFragger 'Mass Offset' field). MSFragger localization-aware open search (LOS) algorithm, filtered to report PSMs with specified mass shifts only (with isotope errors allowed). Mass calibration, parameter optimization, and precursor monoisotope error correction are enabled. PSM validation using Percolator. Protein inference with ProteinProphet. Data filtered using 1% protein level FDR and additionally 1% FDR at the peptide/ion/PSM level. PTM-Shepherd for mass shift summarization.</p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
 workflow.misc.save-sdrf=true
 workflow.misc.sdrf-type=Default
-workflow.saved-with-ver=23.2-build12
+workflow.saved-with-ver=23.2-build15
