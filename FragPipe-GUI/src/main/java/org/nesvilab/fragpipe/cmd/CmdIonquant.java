@@ -96,7 +96,7 @@ public class CmdIonquant extends CmdBase {
         generateSiteReport,
         generateMSstatsInput,
         20,
-        2,
+        "MS2",
         "tmt10",
         null,
         writeExperimentAnnotation);
@@ -118,7 +118,7 @@ public class CmdIonquant extends CmdBase {
       boolean generateSiteReport,
       boolean generateMSstatsInput,
       float isoTol,
-      int isoLevel,
+      String isoLevel,
       String isoType,
       Map<LcmsFileGroup, Path> annotationMap,
       boolean writeExperimentAnnotation) {
@@ -203,7 +203,13 @@ public class CmdIonquant extends CmdBase {
     cmd.add("--isotol");
     cmd.add(String.valueOf(isoTol));
     cmd.add("--isolevel");
-    cmd.add(String.valueOf(isoLevel));
+    if (isoLevel.equals("MS2")) {
+      cmd.add("2");
+    } else if (isoLevel.equals("MS3")) {
+      cmd.add("3");
+    } else if (isoLevel.equals("ZOOM-HR")) {
+      cmd.add("4");
+    }
     cmd.add("--isotype");
     cmd.add(isoType);
     cmd.add("--ionmobility");

@@ -2029,7 +2029,7 @@ public class FragpipeRun {
                 false,
                 false,
                 tolerance,
-                Integer.parseInt(quantLevel),
+                quantLevel,
                 label.getName(),
                 annotations,
                 true);

@@ -98,7 +98,14 @@ public class CmdLabelquant extends CmdBase {
       cmd.add("--tol");
       cmd.add(tolerance + "");
       cmd.add("--level");
-      cmd.add(quantLevel);
+      if (quantLevel.equals("MS2")) {
+        cmd.add("2");
+      } else if (quantLevel.equals("MS3")) {
+        cmd.add("3");
+      } else if (quantLevel.equals("ZOOM-HR")) {
+        SwingUtils.showErrorDialog(comp, "ZOOM-HR is not supported for Philosopher" + NAME + ". Please switch the `Intensity extraction tool` to `IonQuant`.", NAME + " Error");
+        return false;
+      }
       cmd.add("--minprob");
       cmd.add(String.format("%.3f", minprob)); // Need to match the Spinner's format: DecimalFormat df3 = new DecimalFormat("#.###");
       cmd.add("--purity");

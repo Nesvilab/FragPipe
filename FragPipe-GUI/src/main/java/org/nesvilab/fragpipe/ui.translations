@@ -118,6 +118,9 @@ tmtintegrator.unique_pep :: Unique+Razor <=> false
 tmtintegrator.unique_pep :: Unique only <=> true
 tmtintegrator.aggregation_method :: Median <=> 0
 tmtintegrator.aggregation_method :: Weighted <=> 1
+tmtintegrator.quant_level :: MS2 <=> 2
+tmtintegrator.quant_level :: MS3 <=> 3
+tmtintegrator.quant_level :: ZOOM-HR <=> 4
 
 ionquant.ionmobility::timsTOF <=> 1
 ionquant.ionmobility::Non-timsTOF <=> 0

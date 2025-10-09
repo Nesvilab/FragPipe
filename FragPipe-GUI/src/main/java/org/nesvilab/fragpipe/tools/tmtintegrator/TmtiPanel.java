@@ -325,8 +325,8 @@ public class TmtiPanel extends JPanelBase {
     FormEntry feLabelType = fe(TmtiConfProps.PROP_channel_num,
         "Label type", uiComboLabelNames, null);
 
-    uiComboQuantLevel = UiUtils.createUiCombo(new String[]{"2", "3"});
-    FormEntry feQuantLevel = fe("quant_level", "Quant level", uiComboQuantLevel, "MS level of quantification (2: MS2; 3: MS3)");
+    uiComboQuantLevel = UiUtils.createUiCombo(new String[]{"MS2", "MS3", "ZOOM-HR"});
+    FormEntry feQuantLevel = fe("quant_level", "Quant level", uiComboQuantLevel, "MS level of quantification");
 
     uiSpinnerTolerance = UiUtils.spinnerInt(20, 1, 9999, 1).create();
     FormEntry feTolerance = fe("tolerance", "Mass tolerance (ppm)", uiSpinnerTolerance, "Reporter ions mass tolerance in PPM");
