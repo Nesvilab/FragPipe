@@ -47,6 +47,7 @@ import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.jooq.lambda.Seq;
 import org.nesvilab.fragpipe.FragpipeLocations;
 import org.nesvilab.fragpipe.api.PropsFile;
+import org.nesvilab.fragpipe.cmd.CmdSkyline;
 import org.nesvilab.fragpipe.cmd.PbiBuilder;
 import org.nesvilab.fragpipe.cmd.ProcessBuilderInfo;
 import org.nesvilab.fragpipe.exceptions.UnexpectedException;
@@ -63,11 +64,15 @@ public class Skyline {
   private static final Pattern versionWithSpacesPattern = Pattern.compile(" ([\\d.]+) ?");
   private static final Pattern versionNoSpacesPattern = Pattern.compile("([\\d.]+)");
 
+  public static final String skylineSingularityUrl= "docker://proteowizard/pwiz-skyline-i-agree-to-the-vendor-licenses:latest";
+  public static final String skylineSingularityPath = "/wineprefix64/drive_c/pwiz/skyline/SkylineCmd.exe";
+
   public static DefaultArtifactVersion skylineVersionT = new DefaultArtifactVersion("23.1.1.0");
   private static DefaultArtifactVersion skylineVersion = null;
   private static String skylineRunnerPath = null;
   private static DefaultArtifactVersion skylineDailyVersion = null;
   private static String skylineDailyRunnerPath = null;
+  private static DefaultArtifactVersion skylineSingularityVersion = null;
 
   // convert our names to Skyline names
   // names from Skyline cmd documentation (version 24.0-daily, 7/19/2024)
@@ -282,7 +287,7 @@ public class Skyline {
       writer.close();
 
       List<String> cmd = new ArrayList<>();
-      cmd.add(skylinePath);
+      cmd.addAll(CmdSkyline.getSkylineCmd(skylinePath, wd));
       cmd.add("--timestamp");
       cmd.add("--dir=" + wd.toAbsolutePath());
       cmd.add("--batch-commands=" + pp.toAbsolutePath());
@@ -361,6 +366,10 @@ public class Skyline {
     return skylineDailyRunnerPath;
   }
 
+  public static String getSkylineSingularityRunnerPath() {
+    return "singularity";
+  }
+
   public static DefaultArtifactVersion getSkylineVersion() {
     if (skylineVersion != null) {
       return skylineVersion;
@@ -383,6 +392,18 @@ public class Skyline {
       e.printStackTrace();
     }
     return skylineDailyVersion;
+  }
+
+  public static DefaultArtifactVersion getSkylineSingularityVersion() {
+    if (skylineSingularityVersion != null) {
+      return skylineSingularityVersion;
+    }
+    try {
+      sub3();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return skylineSingularityVersion;
   }
 
   /**
@@ -454,6 +475,29 @@ public class Skyline {
       }
     }
     return null;
+  }
+
+  public static void sub3() throws Exception {
+    StringBuilder sbVer = new StringBuilder();
+
+    ProcessBuilder pb = new ProcessBuilder("singularity", "run", "--compat", skylineSingularityUrl, skylineSingularityPath, "--version");
+    pb.redirectErrorStream(true);
+    ProcessUtils.consumeLines(pb, line -> {
+      String trimmed = line.trim();
+      if (trimmed.toLowerCase().startsWith("skyline")) {
+        sbVer.setLength(0);
+        sbVer.append(trimmed);
+        return false;
+      }
+      return true;
+    });
+
+    if (sbVer.length() == 0 || sbVer.toString().startsWith("Error")) {
+      throw new RuntimeException("Failed to get Skyline singularity version");
+    }
+
+    Version version = new Version(sbVer.toString(), false, DOWNLOAD_URL);
+    skylineSingularityVersion = new DefaultArtifactVersion(version.strippedVersion);
   }
 
   public static Version validate(String path) throws ValidationException, UnexpectedException {

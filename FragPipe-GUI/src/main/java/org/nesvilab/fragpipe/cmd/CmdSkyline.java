@@ -143,7 +143,7 @@ public class CmdSkyline extends CmdBase {
       }
 
       List<String> cmd = new ArrayList<>();
-      cmd.add(skylinePath);
+      cmd.addAll(getSkylineCmd(skylinePath, wd));
       cmd.add("--in=\"" + wd.resolve("skyline_files").resolve("fragpipe.sky").toAbsolutePath().normalize() + "\"");
       cmd.add("--report-add=\"" + tt.get(0).toAbsolutePath().normalize() + "\"");
       cmd.add("--report-conflict-resolution=overwrite");
@@ -189,6 +189,23 @@ public class CmdSkyline extends CmdBase {
 
     isConfigured = true;
     return true;
+  }
+
+  public static List<String> getSkylineCmd(String skylinePath, Path wd) {
+    List<String> cmd = new ArrayList<>();
+    if (skylinePath.equals("singularity")) {
+      cmd.add("singularity");
+      cmd.add("run");
+      cmd.add("--compat");
+      cmd.add("--bind");
+      cmd.add(wd.resolve("skyline_files").toAbsolutePath().normalize().toString() + ":/data");
+      cmd.add(Skyline.skylineSingularityUrl);
+      cmd.add("wine");
+      cmd.add(Skyline.skylineSingularityPath);
+    } else {
+      cmd.add(skylinePath);
+    }
+    return cmd;
   }
 
 }

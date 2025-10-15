@@ -69,6 +69,7 @@ public class SkylinePanel extends JPanelBase {
   private JPanel panelQuant;
   private UiRadio uiRadioSkyline;
   private UiRadio uiRadioSkylineDaily;
+  private UiRadio uiRadioSkylineSingularity;
   private UiRadio uiRadioSkylineCustom;
   private UiText uiTextSkylineCustom;
   private UiCheck uiCheckUseSsl;
@@ -152,6 +153,10 @@ public class SkylinePanel extends JPanelBase {
     radioGroup.add(uiRadioSkylineDaily);
     FormEntry feRadioSkylineDaily = new FormEntry("skyline-daily", "Not shown", uiRadioSkylineDaily);
 
+    uiRadioSkylineSingularity = new UiRadio("Skyline Singularity", null, false);
+    radioGroup.add(uiRadioSkylineSingularity);
+    FormEntry feRadioSkylineSingularity = new FormEntry("skyline-singularity", "Not shown", uiRadioSkylineSingularity);
+
     uiRadioSkylineCustom = new UiRadio("Custom", null, false);
     radioGroup.add(uiRadioSkylineCustom);
     FormEntry feRadioSkylineCustom = new FormEntry("skyline-custom", "Not shown", uiRadioSkylineCustom);
@@ -197,6 +202,7 @@ public class SkylinePanel extends JPanelBase {
 
     mu.add(panelBasic, feRadioSkyline.comp);
     mu.add(panelBasic, feRadioSkylineDaily.comp);
+    mu.add(panelBasic, feRadioSkylineSingularity.comp);
     mu.add(panelBasic, feRadioSkylineCustom.comp);
     mu.add(panelBasic, feSkylineCustom.comp).growX().pushX();
     mu.add(panelBasic, jButtonSkylineCustom).wrap();
@@ -317,7 +323,11 @@ public class SkylinePanel extends JPanelBase {
 
   public String getSkylinePath() {
     if (!isWindows()) {
-      return null;
+      if (SwingUtils.isEnabledAndChecked(uiRadioSkylineSingularity)) {
+        return Skyline.getSkylineSingularityRunnerPath();
+      } else {
+        return null;
+      }
     } else if (SwingUtils.isEnabledAndChecked(uiRadioSkyline)) {
       return Skyline.getSkylineRunnerPath();
     } else if (SwingUtils.isEnabledAndChecked(uiRadioSkylineDaily)) {
@@ -330,7 +340,13 @@ public class SkylinePanel extends JPanelBase {
   }
 
   public String getSkylineVersion() {
-    if (SwingUtils.isEnabledAndChecked(uiRadioSkyline)) {
+    if (!isWindows()) {
+      if (SwingUtils.isEnabledAndChecked(uiRadioSkylineSingularity)) {
+        return Skyline.getSkylineSingularityVersion().toString();
+      } else {
+        return null;
+      }
+    } else if (SwingUtils.isEnabledAndChecked(uiRadioSkyline)) {
       return Skyline.getSkylineVersion().toString();
     } else if (SwingUtils.isEnabledAndChecked(uiRadioSkylineDaily)) {
       return Skyline.getSkylineDailyVersion().toString();
