@@ -11,7 +11,7 @@
 
 - Install Singularity
 - Open terminal and pull the Docker image: `singularity pull docker://fcyucn/fragpipe:latest`
-- Enter the image: `singularity shell --compat --bind /storage:/storage fragpipe_latest.sif /bin/`
+- Enter the image: `singularity shell --compat --bind /storage:/storage fragpipe_latest.sif /bin/bash`
 - Then, you have entered the Singularity image, and FragPipe is located in `/fragpipe_bin`
 - Go to `/fragpipe_bin/fragpipe-x.x/fragpipe-x.x/bin` directory and execute `./fragpipe --help` in the terminal
 
