@@ -471,8 +471,13 @@ public class Skyline {
     ProcessBuilder pb = new ProcessBuilder(binPath, "--version");
     pb.redirectErrorStream(true);
     ProcessUtils.consumeLines(pb, line -> {
-      sbVer.append(line);
-      return sbVer.length() == 0;
+      String trimmed = line.trim();
+      if (trimmed.toLowerCase().startsWith("skyline")) {
+        sbVer.setLength(0);
+        sbVer.append(trimmed);
+        return false;
+      }
+      return true;
     });
 
     if (sbVer.length() == 0 || sbVer.toString().startsWith("Error")) {

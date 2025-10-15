@@ -318,11 +318,11 @@ public class SkylinePanel extends JPanelBase {
   public String getSkylinePath() {
     if (!isWindows()) {
       return null;
-    } else if (uiRadioSkyline.isEnabled() && uiRadioSkyline.isSelected()) {
+    } else if (SwingUtils.isEnabledAndChecked(uiRadioSkyline)) {
       return Skyline.getSkylineRunnerPath();
-    } else if (uiRadioSkylineDaily.isEnabled() && uiRadioSkylineDaily.isSelected()) {
+    } else if (SwingUtils.isEnabledAndChecked(uiRadioSkylineDaily)) {
       return Skyline.getSkylineDailyRunnerPath();
-    } else if (uiRadioSkylineCustom.isSelected()) {
+    } else if (SwingUtils.isEnabledAndChecked(uiRadioSkylineCustom)) {
       return uiTextSkylineCustom.getNonGhostText();
     } else {
       return null;
@@ -330,11 +330,11 @@ public class SkylinePanel extends JPanelBase {
   }
 
   public String getSkylineVersion() {
-    if (uiRadioSkyline.isEnabled() && uiRadioSkyline.isSelected()) {
+    if (SwingUtils.isEnabledAndChecked(uiRadioSkyline)) {
       return Skyline.getSkylineVersion().toString();
-    } else if (uiRadioSkylineDaily.isEnabled() && uiRadioSkylineDaily.isSelected()) {
+    } else if (SwingUtils.isEnabledAndChecked(uiRadioSkylineDaily)) {
       return Skyline.getSkylineDailyVersion().toString();
-    } else if (uiRadioSkylineCustom.isSelected()) {
+    } else if (SwingUtils.isEnabledAndChecked(uiRadioSkylineCustom)) {
       try {
         return Skyline.sub2(uiTextSkylineCustom.getNonGhostText());
       } catch (Exception e) {
