@@ -21,7 +21,9 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
@@ -219,7 +221,7 @@ public class DiannToMsstats {
             throw new RuntimeException("There are different number of fragment quant and fragment info: " + fragmentInfo + " vs " + fragmentIntensity);
           }
 
-          int[] startEnd = peptideStartEntryMap.get(row[strippedSequenceColumn].trim());
+          int[] startEnd = getPeptideStartEnd(row[strippedSequenceColumn].trim(), peptideStartEntryMap);
 
           if (startEnd == null) {
             bufferedReader.close();
@@ -269,5 +271,42 @@ public class DiannToMsstats {
     }
     bufferedReader.close();
     bufferedWriter.close();
+  }
+
+  private static int[] getPeptideStartEnd(String peptideSequence, Map<String, int[]> peptideStartEntryMap) {
+    int[] result = peptideStartEntryMap.get(peptideSequence);
+    if (result != null) {
+      return result;
+    }
+
+    List<Integer> tt = new ArrayList<>();
+    for (int i = 0; i < peptideSequence.length(); ++i) {
+      char c = peptideSequence.charAt(i);
+      if (c == 'I' || c == 'L') {
+        tt.add(i);
+      }
+    }
+
+    if (tt.isEmpty()) {
+      return null;
+    }
+
+    int numCombinations = 1 << tt.size();
+    for (int mask = 1; mask < numCombinations; ++mask) {
+      char[] chars = peptideSequence.toCharArray();
+      for (int i = 0; i < tt.size(); ++i) {
+        if ((mask & (1 << i)) != 0) {
+          int pos = tt.get(i);
+          chars[pos] = (chars[pos] == 'I') ? 'L' : 'I';
+        }
+      }
+      String variant = new String(chars);
+      result = peptideStartEntryMap.get(variant);
+      if (result != null) {
+        return result;
+      }
+    }
+
+    return null;
   }
 }
