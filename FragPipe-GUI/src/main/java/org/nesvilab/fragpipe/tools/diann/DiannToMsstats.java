@@ -87,6 +87,7 @@ public class DiannToMsstats {
         }
       } else {
         if (peptideColumn == -1 || startColumn == -1 || endColumn == -1) {
+          bufferedReader.close();
           throw new RuntimeException("Could not find all the required columns in the PSM file: " + psmPath);
         }
 
@@ -178,6 +179,8 @@ public class DiannToMsstats {
             globalPgQValueColumn == -1 ||
             fragmentQuantRawColumn == -1 ||
             fragmentInfoColumn == -1) {
+          bufferedReader.close();
+          bufferedWriter.close();
           throw new RuntimeException("Could not find all the required columns in the DIA-NN output file: " + diannPath);
         }
 
@@ -194,9 +197,13 @@ public class DiannToMsstats {
               run = run.substring(0, run.indexOf("_uncalibrated"));
               conditionBioreplicate = runConditionBioreplicateMap.get(run);
               if (conditionBioreplicate == null) {
+                bufferedReader.close();
+                bufferedWriter.close();
                 throw new RuntimeException("Could not find the run in the PSM file (tried with and without _uncalibrated): " + run);
               }
             } else {
+              bufferedReader.close();
+              bufferedWriter.close();
               throw new RuntimeException("Could not find the run in the PSM file: " + run);
             }
           }
@@ -207,12 +214,16 @@ public class DiannToMsstats {
           String[] fragmentIntensitySplit = fragmentIntensity.split(";");
 
           if (fragmentInfoSplit.length != fragmentIntensitySplit.length) {
+            bufferedReader.close();
+            bufferedWriter.close();
             throw new RuntimeException("There are different number of fragment quant and fragment info: " + fragmentInfo + " vs " + fragmentIntensity);
           }
 
           int[] startEnd = peptideStartEntryMap.get(row[strippedSequenceColumn].trim());
 
           if (startEnd == null) {
+            bufferedReader.close();
+            bufferedWriter.close();
             throw new RuntimeException("Could not find the peptide in the PSM file: " + row[strippedSequenceColumn].trim());
           }
 
@@ -248,6 +259,8 @@ public class DiannToMsstats {
 
               bufferedWriter.write("\n");
             } else {
+              bufferedReader.close();
+              bufferedWriter.close();
               throw new RuntimeException("Could not parse fragment info: " + fragmentInfoSplit[i]);
             }
           }
