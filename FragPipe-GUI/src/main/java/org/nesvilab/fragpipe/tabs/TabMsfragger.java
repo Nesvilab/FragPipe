@@ -406,8 +406,8 @@ public class TabMsfragger extends JPanelBase {
 
   private UiText uiTextMassOffsets;
   private UiText uiTextRemainderMasses;
-  private UiCheck uiCheckMassOffsetFile;
-  private UiCombo uiComboGlyco;
+  public UiCheck uiCheckMassOffsetFile;
+  public UiCombo uiComboGlyco;
   private UiSpinnerDouble uiSpinnerPrecTolLo;
   private UiSpinnerDouble uiSpinnerPrecTolHi;
   private UiSpinnerDouble uiSpinnerFragTol;
@@ -1754,6 +1754,10 @@ public class TabMsfragger extends JPanelBase {
       }
     }
     return offsets;
+  }
+
+  public void setDetailedOffsets(String offsetsText) {
+    epDetailedMassOffsets.setText(offsetsText);
   }
 
   public String getRegularOffsetStringFromDetailedOffsets() {

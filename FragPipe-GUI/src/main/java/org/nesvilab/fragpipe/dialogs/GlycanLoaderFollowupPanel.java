@@ -22,12 +22,8 @@ import org.nesvilab.fragpipe.api.GlycoModsTable;
 import org.nesvilab.fragpipe.api.GlycoModsTableModel;
 import org.nesvilab.fragpipe.tabs.TabMsfragger;
 import org.nesvilab.fragpipe.tools.fragger.MsfraggerParams;
-import org.nesvilab.utils.swing.FormEntry;
-import org.nesvilab.utils.swing.MigUtils;
-import org.nesvilab.utils.swing.UiCheck;
-import org.nesvilab.utils.swing.UiSpinnerDouble;
-import org.nesvilab.utils.swing.UiSpinnerInt;
-import org.nesvilab.utils.swing.UiUtils;
+import org.nesvilab.utils.SwingUtils;
+import org.nesvilab.utils.swing.*;
 import umich.ms.glyco.GlycanMod;
 import org.nesvilab.fragpipe.tools.glyco.GlycoMassLoader;
 import org.nesvilab.utils.swing.renderers.TableCellDoubleRenderer;
@@ -40,15 +36,21 @@ import java.awt.*;
 import java.text.DecimalFormat;
 import java.util.List;
 
-public class GlycanLoaderFollowupPanel extends JPanel {
+public class GlycanLoaderFollowupPanel extends JPanelWithEnablement {
     private UiSpinnerDouble maxOffsetMass;
     private UiSpinnerDouble minOffsetMass;
     private UiSpinnerInt maxOffsetCombos;
     private UiSpinnerInt maxModsCombos;
     private UiCheck filterMass;
+    private UiCheck useDetailedOffsets;
+    private UiCheck uiChecknGlycan;
+    private UiText uiTextAllowedSites;
+    private UiSpinnerDouble uiSpinnerDoubleMaxYMass;
+    private List<JRadioButton> fragmentMassRadios;
     private MigUtils mu;
     public GlycoModsTable tableGlycoMods;
     private final GlycoMassLoader glycoLoader;
+    private JPanel pDetailedOffsets;
 
     private static final String[] TABLE_MODS_COL_NAMES = {"Enabled", "Name", "Mass", "Site(s)", "is variable?", "Max occurrences"};
     public static final String TAB_PREFIX = "glycan-database.";
@@ -86,6 +88,26 @@ public class GlycanLoaderFollowupPanel extends JPanel {
                 .label("Max Mass").tooltip(maxMassTooltip).create();
         filterMass = UiUtils.createUiCheck("Filter Glycans by Mass", false);
 
+        // detailed offsets section
+        useDetailedOffsets = UiUtils.createUiCheck("Use detailed glycan offsets", false);
+        uiChecknGlycan = UiUtils.createUiCheck("N-glycan", true);
+        uiTextAllowedSites = new UiText("N");
+        uiTextAllowedSites.setColumns(6);
+        FormEntry feAllowedSites = Fragpipe.feNoCache(uiTextAllowedSites, "Allowed glycan sites", Fragpipe.PROP_NOCACHE)
+                .label("Allowed Sites").tooltip("Residues where glycan attachment is allowed.").create();
+        uiSpinnerDoubleMaxYMass = new UiSpinnerDouble(900, 0, 10000, 100, 0, new DecimalFormat("0"));
+        FormEntry feMaxYMass = Fragpipe.feNoCache(uiSpinnerDoubleMaxYMass, "Max Y mass", Fragpipe.PROP_NOCACHE)
+                .label("Max Y mass").tooltip("Maximum Y-ion mass to consider when matching glycan fragments during MSFragger only (all Y ions are considered during downstream composition assignment). Large values (>1000) here will generally reduce search speed and sensitivity.").create();
+        JRadioButton fragmentRadioButton0 = new JRadioButton("0");
+        JRadioButton fragmentRadioButton203 = new JRadioButton("203.07937");
+        ButtonGroup fragMassGroup = new ButtonGroup();
+        fragMassGroup.add(fragmentRadioButton0);
+        fragMassGroup.add(fragmentRadioButton203);
+        fragmentRadioButton203.setSelected(true);
+        fragmentMassRadios = new java.util.ArrayList<>();
+        fragmentMassRadios.add(fragmentRadioButton0);
+        fragmentMassRadios.add(fragmentRadioButton203);
+
         JPanel glycoModsPanel = createPanelGlycoMods();
         container.add(glycoModsPanel);
 
@@ -99,11 +121,29 @@ public class GlycanLoaderFollowupPanel extends JPanel {
         mu.add(entries, feMinMass.comp).split();
         mu.add(entries, feMaxMass.label()).split();
         mu.add(entries, feMaxMass.comp).wrap();
+        mu.add(entries, useDetailedOffsets).split().wrap();
+        pDetailedOffsets = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
+        mu.add(pDetailedOffsets, uiChecknGlycan).split();
+        mu.add(pDetailedOffsets, feAllowedSites.label()).split();
+        mu.add(pDetailedOffsets, feAllowedSites.comp).split();
+        mu.add(pDetailedOffsets, feMaxYMass.label()).split();
+        mu.add(pDetailedOffsets, feMaxYMass.comp).wrap();
+        mu.add(pDetailedOffsets, new JLabel("Fragment remainder mass:")).split();
+        mu.add(pDetailedOffsets, fragmentRadioButton0).split();
+        mu.add(pDetailedOffsets, fragmentRadioButton203).wrap();
+
+        mu.add(entries, pDetailedOffsets).growX().wrap();
         container.add(entries);
 
         JScrollPane scroll = new JScrollPane(container);
         this.setLayout(new BorderLayout());
         this.add(scroll, BorderLayout.CENTER);
+
+        initMore();
+    }
+
+    private void initMore() {
+        SwingUtils.setEnablementUpdater(this, pDetailedOffsets, useDetailedOffsets);
     }
 
     private JPanel createPanelGlycoMods() {
@@ -187,10 +227,33 @@ public class GlycanLoaderFollowupPanel extends JPanel {
         return maxModsCombos.getActualValue();
     }
     public boolean useMassFilter() { return filterMass.isSelected(); }
+    public boolean useDetailedOffests() { return useDetailedOffsets.isSelected(); }
     public double getMaxMass() {
         return maxOffsetMass.getActualValue();
     }
     public double getMinMass() {
         return minOffsetMass.getActualValue();
+    }
+
+    public boolean isNglycanMode() {
+        return uiChecknGlycan.isSelected();
+    }
+
+    public String getUiTextAllowedSites() {
+        // todo: string checking
+        return uiTextAllowedSites.getNonGhostText();
+    }
+
+    public double getMaxYmass() {
+        return uiSpinnerDoubleMaxYMass.getActualValue();
+    }
+
+    public String getFragmentMassFromRadios() {
+        for (JRadioButton rb : fragmentMassRadios) {
+            if (rb != null && rb.isSelected()) {
+                return rb.getText();
+            }
+        }
+        return null;
     }
 }

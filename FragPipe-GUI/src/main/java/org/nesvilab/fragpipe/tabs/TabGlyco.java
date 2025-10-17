@@ -23,6 +23,7 @@ import org.nesvilab.fragpipe.Fragpipe;
 import org.nesvilab.fragpipe.FragpipeLocations;
 import org.nesvilab.fragpipe.dialogs.GlycanModEditDialog;
 import org.nesvilab.fragpipe.dialogs.GlycanResidueEditDialog;
+import org.nesvilab.fragpipe.tools.fragger.MsfraggerParams;
 import org.nesvilab.fragpipe.tools.mbg.MBGPanel;
 import org.nesvilab.utils.swing.JPanelWithEnablement;
 import org.nesvilab.utils.swing.MigUtils;
@@ -45,8 +46,6 @@ import javax.swing.table.TableCellEditor;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -240,12 +239,26 @@ public class TabGlyco extends JPanelWithEnablement {
      */
     private void loadGlycansFollowup() {
         if (!glycanDBloader.glycanDB.isEmpty()) {
-            List<String> massStrings = getMassStrings();
-            String offsetsText = String.join(" ", massStrings);
             TabMsfragger fraggerTab = Fragpipe.getStickyStrict(TabMsfragger.class);
-            fraggerTab.setMassOffsets(offsetsText);
-            textLoadGlycans.setText(String.format("Loaded %d unique glycan masses from file", massStrings.size() - 1));
-            log.info(String.format("[Glyco Tab load glycans button] Loaded %d unique mass offsets from file", massStrings.size() - 1));
+            int numGlycans;
+            if (glycanDBloader.optionsPanel.useDetailedOffests()) {
+                // detailed offset load
+                String detailedOffsetText = glycanDBloader.getGlycanDetailedOffsets();
+                fraggerTab.setDetailedOffsets(detailedOffsetText);
+                fraggerTab.uiCheckMassOffsetFile.setSelected(true);
+                numGlycans = detailedOffsetText.split(";").length;
+                if (glycanDBloader.optionsPanel.isNglycanMode()) {
+                    fraggerTab.uiComboGlyco.setSelectedItem(MsfraggerParams.GLYCO_OPTIONS.indexOf(MsfraggerParams.GLYCO_OPTION_nglycan));
+                }
+            } else {
+                // regular offset load
+                List<String> massStrings = glycanDBloader.getGlycanMassOffsets();
+                String offsetsText = String.join(" ", massStrings);
+                fraggerTab.setMassOffsets(offsetsText);
+                numGlycans = massStrings.size() - 1;    // minus 1 because 0 is always included as an offset
+            }
+            textLoadGlycans.setText(String.format("Loaded %d unique glycan masses from file", numGlycans));
+            log.info(String.format("[Glyco Tab load glycans button] Loaded %d unique mass offsets from file", numGlycans));
 
             panelGlycanAssign.setGlycanDatabase(glycanDBloader.getGlycanDBString());
 
@@ -256,23 +269,6 @@ public class TabGlyco extends JPanelWithEnablement {
             textLoadGlycans.setText("No glycans loaded");
             log.info("[Glyco Tab load glycans button] no glycans loaded");
         }
-    }
-
-    // clean up masses before returning final strings (round off floating point errors at and remove duplicates)
-    private List<String> getMassStrings() {
-        List<String> massStrings = new ArrayList<>();
-        Set<Long> previousMasses = new HashSet<>();
-        for (Glycan glycan : glycanDBloader.glycanDB) {
-            long massKey = Math.round(glycan.mass * 10000);
-            if (!previousMasses.contains(massKey)) {
-                previousMasses.add(massKey);
-                BigDecimal decimal = new BigDecimal(glycan.mass).setScale(10, RoundingMode.HALF_EVEN).stripTrailingZeros();
-                massStrings.add(decimal.toPlainString());
-            }
-        }
-        // make sure 0 is included in the mass offsets list
-        massStrings.add(0, "0");
-        return massStrings;
     }
 
     // Find all ".glyc" files in the glycan databases internal folder and return them as a map of name -> File
