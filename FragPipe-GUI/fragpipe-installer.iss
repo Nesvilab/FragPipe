@@ -49,6 +49,6 @@ Name: "{autodesktop}\{#AppExeName}"; Filename: "{app}\bin\{#AppExeName}"; Tasks:
 Type: filesandordirs; Name: "{app}"
 
 [Run]
-Filename: "cmd.exe"; Parameters: "/C set PATH={app}\python;%PATH% && {app}\python_packages\uv pip install --system --no-cache --no-deps -r python_packages\requirements.txt --no-index --find-links   python_packages"; WorkingDir: "{app}"; Flags: waituntilterminated
+Filename: "cmd.exe"; Parameters: "/C set PATH={app}\python;%PATH% && set TMP={app} && {app}\python_packages\uv pip install --system --no-cache --no-deps -r python_packages\requirements.txt --no-index --find-links   python_packages"; WorkingDir: "{app}"; Flags: waituntilterminated
 
 Filename: "{app}\bin\{#AppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(AppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
