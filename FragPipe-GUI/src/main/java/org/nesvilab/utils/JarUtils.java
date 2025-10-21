@@ -83,6 +83,11 @@ public class JarUtils {
       }
   }
 
+  public static boolean isInIDE() {
+      String jarPath = getCurrentJarPath();
+      return jarPath != null && jarPath.toLowerCase().replaceAll("\\\\", "/").contains("build/classes/java/main");
+  }
+
   public static URI getCurrentJarUri() {
       try {
           CodeSource codeSource = OsUtils.class.getProtectionDomain().getCodeSource();

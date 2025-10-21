@@ -91,9 +91,8 @@ public class FragpipeLocations {
       Path cache = dir.resolve(Paths.get("../cache"));
 
       Path tools;
-      final String debugClassLoc = "build/classes/java/main";
-      final String debugParentDirName = "FragPipe-GUI";
-      if (dir.toString().toLowerCase().replaceAll("\\\\", "/").contains(debugClassLoc)) {
+      if (JarUtils.isInIDE()) {
+        final String debugParentDirName = "FragPipe-GUI";
         Path debugDir = dir;
         while (!debugDir.getFileName().toString().equals(debugParentDirName) && debugDir.getParent() != null) {
           debugDir = debugDir.getParent();
