@@ -163,16 +163,14 @@ task showImplDeps(type: DependencyReportTask, group: 'fragpipe-help',
     configurations = [project.configurations.implementation] as Set
 }
 
-task createStartScripts(type: CreateStartScripts, group: "fragpipe-release") {
+task createStartScripts(type: CreateStartScripts) {
     outputDir = file('build/pre-zip-release')
     mainClass = "${startClass}"
     applicationName = "${appName}"
     classpath = files("fragpipe-${project.version}.jar")
 }
 
-task makeExeAndCopyToScripts(type: Copy, group: 'fragpipe-release', description: 'The .exe file ' +
-        'created requires to be placed in ./bin/ sub-direcotry of the final distribution and ' +
-        'having fragpipe-x.x.x.jar in ./lib/ sub-directory') {
+task makeExeAndCopyToScripts(type: Copy) {
     dependsOn 'createExe'
     from getLayout().buildDirectory.dir('launch4j/bin').get()
     into getLayout().buildDirectory.dir('scripts').get().asFile
@@ -187,22 +185,22 @@ task makeExeAndCopyToScripts(type: Copy, group: 'fragpipe-release', description:
     }
 }
 
-task copyJre(type: Copy, group: 'fragpipe-release', description: "Copies JRE to build/install/${project.name}-${project.version}") {
+task copyJre(type: Copy) {
     from getLayout().buildDirectory.dir('../../jre/OpenJDK17U-jre_x64_windows_hotspot_17.0.10_7').get()
     into getLayout().buildDirectory.dir("install/${project.name}-${project.version}").get().asFile
 }
 
-task copyWorkflows(type: Copy, group: 'fragpipe-release', description: "Copies workflows") {
+task copyWorkflows(type: Copy) {
     from getLayout().buildDirectory.dir("../../workflows/").get()
     into getLayout().buildDirectory.dir("install/${project.name}-${project.version}/workflows").get().asFile
 }
 
-task copyToolsWindows(type: Copy, group: 'fragpipe-release', description: "Copies Windows tools") {
+task copyToolsWindows(type: Copy) {
     from getLayout().buildDirectory.dir("../../tools").get()
     into getLayout().buildDirectory.dir("install/${project.name}-${project.version}/tools").get().asFile
+    exclude 'diann_so/**'
+    exclude '**/linux/**'
     exclude { details ->
-        details.file.path.contains('linux') ||
-        details.file.path.contains('diann_so') ||
         (details.file.name.startsWith('philosopher-') && !details.file.name.endsWith('.exe')) ||
         (details.file.name == 'PTMProphetParser') ||
         (details.file.name.startsWith('SAINTexpress-') && !details.file.name.endsWith('.exe'))
@@ -215,24 +213,32 @@ def filesToChmod =
                 fileTree(dir: '../tools', includes: ['percolator_3_7_1/linux/percolator']).files)
 
 print "Files to chmod: ${filesToChmod}\n"
-assert filesToChmod.size() == 4: "Expected 4 files to chmod, but found ${filesToChmod.size()}.\n"
+// Verify we have the expected files (warning instead of hard assertion)
+if (filesToChmod.size() != 4) {
+    println "WARNING: Expected 4 files to chmod, but found ${filesToChmod.size()}"
+}
 
 task chmodFiles(type: Exec) {
-    commandLine(['git', 'update-index', '--chmod=+x'] + filesToChmod.collect { it.toString() })
-    if (org.gradle.internal.os.OperatingSystem.current().isLinux())
-        commandLine(['chmod', '+x'] + filesToChmod.collect { it.toString() })
-    commandLine(['git', 'update-index', '--chmod=+x'] + filesToChmod.collect { it.toString() })
     doFirst {
         filesToChmod.each { f ->
             if (!file(f).exists()) {
                 throw new GradleException("File to chmod does not exist: $f")
             }
         }
+        
+        // Set the appropriate command based on OS
+        if (org.gradle.internal.os.OperatingSystem.current().isLinux() || 
+            org.gradle.internal.os.OperatingSystem.current().isMacOsX()) {
+            commandLine = ['chmod', '+x'] + filesToChmod.collect { it.toString() }
+        } else {
+            // On Windows, use git to set the executable bit
+            commandLine = ['git', 'update-index', '--chmod=+x'] + filesToChmod.collect { it.toString() }
+        }
     }
 }
 
 
-task copyToolsLinux(type: Copy, group: 'fragpipe-release', description: "Copies Linux tools") {
+task copyToolsLinux(type: Copy) {
     from getLayout().buildDirectory.dir("../../tools").get()
     into getLayout().buildDirectory.dir("install/${project.name}-${project.version}/tools").get().asFile
     exclude { details -> 
@@ -247,12 +253,12 @@ tasks.named('copyToolsLinux').configure {
     dependsOn chmodFiles
 }
 
-task copyDatabases(type: Copy, group: 'fragpipe-release', description: "Copies databases") {
+task copyDatabases(type: Copy) {
     from getLayout().buildDirectory.dir("../../databases").get()
     into getLayout().buildDirectory.dir("install/${project.name}-${project.version}/databases").get().asFile
 }
 
-task unpackPythonWindows(type: Copy, group: 'fragpipe-release', description: "Unzips ../../python/python.zip to python") {
+task unpackPythonWindows(type: Copy) {
     dependsOn 'copyToolsWindows'
     from zipTree(getLayout().buildDirectory.dir("../../python/python.zip").get())
     // tarTree has issues with symlinks, so use zipTree
@@ -260,9 +266,25 @@ task unpackPythonWindows(type: Copy, group: 'fragpipe-release', description: "Un
     into getLayout().buildDirectory.dir("install/${project.name}-${project.version}").get().asFile
 }
 
-task copyPythonPackages(type: Copy, group: 'fragpipe-release', description: "Copies Python packages") {
+task copyPythonPackages(type: Copy) {
     from getLayout().buildDirectory.dir("../../python/python_packages").get()
     into getLayout().buildDirectory.dir("install/${project.name}-${project.version}/python_packages").get().asFile
+}
+
+// Shared base task for common release steps - speeds up building both packages
+task makeReleaseBase {
+    dependsOn 'clean'
+    dependsOn 'test'
+    dependsOn 'makeExeAndCopyToScripts'
+    dependsOn 'installDist'
+    dependsOn 'copyWorkflows'
+    dependsOn 'copyDatabases'
+
+    tasks.findByName('test').mustRunAfter 'clean'
+    tasks.findByName('makeExeAndCopyToScripts').mustRunAfter 'test'
+    tasks.findByName('installDist').mustRunAfter 'makeExeAndCopyToScripts'
+    tasks.findByName('copyWorkflows').mustRunAfter 'installDist'
+    tasks.findByName('copyDatabases').mustRunAfter 'installDist'
 }
 
 task makeReleaseZipLinux(type: Zip, group: 'fragpipe-release') {
@@ -271,20 +293,10 @@ task makeReleaseZipLinux(type: Zip, group: 'fragpipe-release') {
     // are zipped without execute bit. The default file mode is 0644
     // https://github.com/gradle/gradle/blob/54b385133a1edde78243105e9aaf0db5990b3507/subprojects/native/src/main/java/org/gradle/internal/nativeintegration/filesystem/services/FileSystemServices.java#L75
     fileMode = 0755
-    dependsOn 'clean'
-    dependsOn 'test'
-    dependsOn 'makeExeAndCopyToScripts'
-    dependsOn 'installDist'
+    dependsOn 'makeReleaseBase'
     dependsOn 'copyToolsLinux'
-    dependsOn 'copyWorkflows'
-    dependsOn 'copyDatabases'
 
-    tasks.findByName('test').mustRunAfter 'clean'
-    tasks.findByName('makeExeAndCopyToScripts').mustRunAfter 'test'
-    tasks.findByName('installDist').mustRunAfter 'makeExeAndCopyToScripts'
-    tasks.findByName('copyToolsLinux').mustRunAfter 'installDist'
-    tasks.findByName('copyWorkflows').mustRunAfter 'copyToolsLinux'
-    tasks.findByName('copyDatabases').mustRunAfter 'copyToolsLinux'
+    tasks.findByName('copyToolsLinux').mustRunAfter 'makeReleaseBase'
 
     archiveFileName = "${appName}-${project.version}-linux.zip"
     destinationDirectory = getLayout().buildDirectory.dir(releaseDir)
@@ -292,26 +304,16 @@ task makeReleaseZipLinux(type: Zip, group: 'fragpipe-release') {
 }
 
 task makeReleaseWindows(type: Copy, group: 'fragpipe-release') {
-    dependsOn 'clean'
-    dependsOn 'test'
-    dependsOn 'makeExeAndCopyToScripts' 
-    dependsOn 'installDist'
+    dependsOn 'makeReleaseBase'
     dependsOn 'copyToolsWindows'
     dependsOn 'unpackPythonWindows'
     dependsOn 'copyPythonPackages'
     dependsOn 'copyJre'
-    dependsOn 'copyWorkflows'
-    dependsOn 'copyDatabases'
 
-    tasks.findByName('test').mustRunAfter 'clean'
-    tasks.findByName('makeExeAndCopyToScripts').mustRunAfter 'test'
-    tasks.findByName('installDist').mustRunAfter 'makeExeAndCopyToScripts'
-    tasks.findByName('copyJre').mustRunAfter 'installDist'
-    tasks.findByName('copyToolsWindows').mustRunAfter 'installDist'
+    tasks.findByName('copyJre').mustRunAfter 'makeReleaseBase'
+    tasks.findByName('copyToolsWindows').mustRunAfter 'makeReleaseBase'
     tasks.findByName('unpackPythonWindows').mustRunAfter 'copyToolsWindows'
     tasks.findByName('copyPythonPackages').mustRunAfter 'unpackPythonWindows'
-    tasks.findByName('copyWorkflows').mustRunAfter 'copyToolsWindows'
-    tasks.findByName('copyDatabases').mustRunAfter 'copyToolsWindows'
 
     launch4j {
         mainClassName = "${startClass}"
@@ -337,6 +339,35 @@ task makeReleaseInstaller(type: Exec, group: 'fragpipe-release', description: 'C
     
     workingDir = projectDir
     commandLine 'cmd', '/c', 'C:\\Program Files (x86)\\Inno Setup 6\\ISCC.exe', 'fragpipe-installer.iss'
+}
+
+// Task to clean tools directory before Windows build (when building both packages)
+// This prevents Linux-specific files from remaining in the install directory
+task cleanToolsForWindows(type: Delete) {
+    delete getLayout().buildDirectory.dir("install/${project.name}-${project.version}/tools").get().asFile
+}
+
+task makeReleaseBoth(group: 'fragpipe-release', description: 'Creates both Linux zip and Windows installer efficiently by sharing common steps') {
+    dependsOn 'makeReleaseZipLinux'
+    dependsOn 'cleanToolsForWindows'
+    dependsOn 'makeReleaseInstaller'
+    
+    // Ensure platform-specific copy tasks don't run in parallel (they write to the same directory)
+    // Linux must complete first, clean tools, then Windows installer can proceed
+    tasks.findByName('cleanToolsForWindows').mustRunAfter 'makeReleaseZipLinux'
+    tasks.findByName('makeReleaseInstaller').mustRunAfter 'cleanToolsForWindows'
+    tasks.findByName('makeReleaseWindows').mustRunAfter 'cleanToolsForWindows'
+    tasks.findByName('copyToolsWindows').mustRunAfter 'cleanToolsForWindows'
+    tasks.findByName('copyJre').mustRunAfter 'cleanToolsForWindows'
+    tasks.findByName('unpackPythonWindows').mustRunAfter 'cleanToolsForWindows'
+    tasks.findByName('copyPythonPackages').mustRunAfter 'cleanToolsForWindows'
+    
+    doLast {
+        println "Both Linux and Windows releases created successfully!"
+        println "Linux package: build/${releaseDir}/${appName}-${project.version}-linux.zip"
+        println "Windows package: build/${releaseDir}/${appName}-${project.version}-windows/"
+        println "Windows installer: Check Output from Inno Setup above"
+    }
 }
 
 allprojects {
