@@ -844,7 +844,7 @@ public class TabConfig extends JPanelWithEnablement {
   public void on(MessagePythonNewBin m) {
     PyInfo pi;
     try {
-      if (OsUtils.isWindows()) {
+      if (OsUtils.isWindows() && !JarUtils.isInIDE()) {
         List<Path> pyPaths = FragpipeLocations.checkToolsMissing(Seq.of(PyInfo.pythonWinPath));
         final var command = pyPaths.get(0).toString();
         m = new MessagePythonNewBin(command);
