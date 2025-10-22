@@ -157,7 +157,7 @@ class easyPQPparams(object):
 			os.environ['PATHEXT'] = '.py' + os.pathsep + os.environ['PATHEXT']
 		os.environ['PATH'] = os.getcwd() + os.pathsep + os.environ['PATH']
 
-		self.easypqp = get_bin_path('easypqp', 'easypqp')
+		self.easypqp = get_bin_path('fragpipe-speclib', 'fragpipe-speclib')
 
 
 def cpu_count() -> int:

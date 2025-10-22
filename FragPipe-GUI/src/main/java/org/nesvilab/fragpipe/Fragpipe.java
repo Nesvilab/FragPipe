@@ -908,13 +908,13 @@ public class Fragpipe extends JFrameHeadless {
         + "<a href='https://github.com/lonelu/PTMLocalization'>O-Pair</a>: Lei Lu, Michael Shortreed, Daniel Polasky<br>"
         + "<a href='https://tmt-integrator.nesvilab.org/'>TMT-Integrator</a>: Hui-Yin Chang, Yamei Deng, Ruohong Li<br>"
         + "Spectral library generation: Guo Ci Teo<br>"
-        + "<a href='https://github.com/grosenberger/easypqp'>EasyPQP</a>: George Rosenberger, Guo Ci Teo, Fengchao Yu<br>"
+        + "<a href='https://github.com/Nesvilab/FragPipe-SpecLib'>FragPipe-SpecLib</a>: George Rosenberger, Guo Ci Teo, Fengchao Yu<br>"
         + "<a href='https://github.com/vdemichev/DiaNN'>DIA-NN</a>: Vadim Demichev<br>"
         + "<a href='https://github.com/Nesvilab/FragPipe-PDV'>FragPipe-PDV</a>: Kai Li, Bo Wen<br>"
         + "<a href='https://skyline.ms/project/home/software/Skyline/begin.view'>Skyline</a>: Brendan MacLean, Matthew Chambers<br>"
         + "<a href='https://saint-apms.sourceforge.net/Main.html'>SAINT</a>: Hyungwon Choi, Guo Ci Teo<br>"
         + "Websites and tutorials: Sarah Haynes<br><br>"
-        + "Special thanks to Lukas Käll (Percolator), David Shteynberg (TPP, PTMProphet), George Rosenberger (EasyPQP), Vadim Demichev (DIA-NN), Brendan MacLean (Skyline), and Matthew Chambers (Skyline).<br><br>"
+        + "Special thanks to Lukas Käll (Percolator), David Shteynberg (TPP, PTMProphet), George Rosenberger (FragPipe-SpecLib), Vadim Demichev (DIA-NN), Brendan MacLean (Skyline), and Matthew Chambers (Skyline).<br><br>"
         + "RawFileReader reading tool: Copyright (c) 2016 by Thermo Fisher Scientific, Inc. All rights reserved.<br>"
         + "Bruker SDK library: Included software components: Copyright (c) 2022 by Bruker Daltonics GmbH & Co. KG. All rights reserved.”<br>";
   }
@@ -1008,7 +1008,7 @@ public class Fragpipe extends JFrameHeadless {
     T sticky = Bus.getStickyEvent(clazz);
     if (sticky == null) {
       if (clazz.getName().contentEquals("org.nesvilab.fragpipe.messages.NoteConfigSpeclibgen")) {
-        Bus.postSticky(new NoteConfigSpeclibgen(null, new ValidationException("Python, EasyPQP, or MSFragger not valid")));
+        Bus.postSticky(new NoteConfigSpeclibgen(null, new ValidationException("Python, FragPipe-SpecLib, or MSFragger not valid")));
         sticky = Bus.getStickyEvent(clazz);
       } else {
         throw new NoSuchElementException("Sticky note not on the bus: " + clazz.getCanonicalName());

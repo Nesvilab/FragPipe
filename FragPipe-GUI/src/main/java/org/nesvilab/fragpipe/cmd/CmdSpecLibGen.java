@@ -75,11 +75,11 @@ public class CmdSpecLibGen extends CmdBase {
         .anyMatch(lcms -> isFileCompatible.negate().test(lcms.getPath().getFileName().toString()));
     if (isIncompatibleInputs) {
       if (Fragpipe.headless) {
-        log.error(String.format("Spectral library generation with %s is currently only compatible with %s input files. You can convert your data using msconvert program from ProteoWizard.", "EasyPQP", String.join(", ", compatibleExts)));
+        log.error(String.format("Spectral library generation with %s is currently only compatible with %s input files. You can convert your data using msconvert program from ProteoWizard.", "FragPipe-SpecLib", String.join(", ", compatibleExts)));
       } else {
         JOptionPane.showMessageDialog(comp, String.format("Spectral library generation with %s is currently only\n"
             + "compatible with %s input files.\n"
-            + "You can convert your data using msconvert program from ProteoWizard.", "EasyPQP", String.join(", ", compatibleExts)), "Incompatible input data", JOptionPane.WARNING_MESSAGE);
+            + "You can convert your data using msconvert program from ProteoWizard.", "FragPipe-SpecLib", String.join(", ", compatibleExts)), "Incompatible input data", JOptionPane.WARNING_MESSAGE);
       }
       return false;
     }
@@ -106,9 +106,9 @@ public class CmdSpecLibGen extends CmdBase {
     final SpeclibPanel speclibPanel = Fragpipe.getStickyStrict(SpeclibPanel.class);
     if (!speclibPanel.checkGlycoMode()) {
       if (Fragpipe.headless) {
-        log.error("EasyPQP glyco modes are only supported for psm.tsv conversion. Please change conversion filetype to psm.tsv and try again.");
+        log.error("FragPipe-SpecLib glyco modes are only supported for psm.tsv conversion. Please change conversion filetype to psm.tsv and try again.");
       } else {
-        JOptionPane.showMessageDialog(comp, "EasyPQP glyco modes are only supported for psm.tsv conversion. Please change conversion filetype to psm.tsv and try again.", "Conversion type error", JOptionPane.WARNING_MESSAGE);
+        JOptionPane.showMessageDialog(comp, "FragPipe-SpecLib glyco modes are only supported for psm.tsv conversion. Please change conversion filetype to psm.tsv and try again.", "Conversion type error", JOptionPane.WARNING_MESSAGE);
       }
       return false;
     }
@@ -144,8 +144,8 @@ public class CmdSpecLibGen extends CmdBase {
       cmd.add(slg.getScriptSpecLibGenPath().toString());
 
       /**
-       * See https://github.com/grosenberger/easypqp on how to install EasyPQP
-       * EasyPQP needs the following placed in the pep xml directory
+        * See https://github.com/Nesvilab/FragPipe-SpecLib on how to install FragPipe-SpecLib
+       * FragPipe-SpecLib needs the following placed in the pep xml directory
        * - MGFs or mzMLs
        * - interact.pep.xml
        * - peptide.tsv, psm.tsv from Philosopher
@@ -155,8 +155,8 @@ public class CmdSpecLibGen extends CmdBase {
       cmd.add("unused");  // lcms files, `File.pathSeparator` separated
       cmd.add(groupWd.toString()); // output directory
       cmd.add("True"); // overwrite (true/false), optional arg
-      cmd.add("unused"); // philosopher binary path (not needed for easyPQP)
-      cmd.add("use_easypqp"); // philosopher binary path (not needed for easyPQP)
+      cmd.add("unused"); // philosopher binary path (not needed for FragPipe-SpecLib)
+      cmd.add("use_easypqp"); // philosopher binary path (not needed for FragPipe-SpecLib)
 
       TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
 
@@ -168,10 +168,10 @@ public class CmdSpecLibGen extends CmdBase {
               (im_cal.equals("a tsv file") ? imCalTsvPath.toString() : im_cal)); // alignment options
       cmd.add(String.valueOf(tabWorkflow.getThreads()));
 
-      final double max_delta_unimod = speclibPanel.getEasypqp_max_delta_unimod(); // EasyPQP convert
-      final double max_delta_ppm = speclibPanel.getEasypqp_max_delta_ppm(); // EasyPQP convert
-      final String fragment_types = speclibPanel.getEasypqp_fragment_types(); // EasyPQP convert
-      final double rt_lowess_fraction = speclibPanel.getEasypqpRTLowessFraction(); // EasyPQP library
+      final double max_delta_unimod = speclibPanel.getEasypqp_max_delta_unimod(); // FragPipe-SpecLib convert
+      final double max_delta_ppm = speclibPanel.getEasypqp_max_delta_ppm(); // FragPipe-SpecLib convert
+      final String fragment_types = speclibPanel.getEasypqp_fragment_types(); // FragPipe-SpecLib convert
+      final double rt_lowess_fraction = speclibPanel.getEasypqpRTLowessFraction(); // FragPipe-SpecLib library
 
       cmd.add(OsUtils.asSingleArgument(String.format("--max_delta_unimod %s --max_delta_ppm %s --fragment_types %s %s%s%s%s",
               max_delta_unimod,
@@ -181,9 +181,9 @@ public class CmdSpecLibGen extends CmdBase {
               speclibPanel.isConvertPSM() ? "--decoy_prefix " + decoyTag + " ": "",
               speclibPanel.isConvertPSM() && !speclibPanel.getEasypqpGlycoOption().isEmpty() ? "--labile_mods " + speclibPanel.getEasypqpGlycoOption() + " " : "",
               speclibPanel.isConvertPSM() ? String.format("--max_glycan_q %s ", speclibPanel.getEasypqpMaxGlycanQ()) : ""
-      )));   // EasyPQP convert extra args
+      )));   // FragPipe-SpecLib convert extra args
 
-      cmd.add(OsUtils.asSingleArgument(String.format("--rt_lowess_fraction %s", rt_lowess_fraction))); // EasyPQP library args
+      cmd.add(OsUtils.asSingleArgument(String.format("--rt_lowess_fraction %s", rt_lowess_fraction))); // FragPipe-SpecLib library args
 
       final List<String> lcmsfiles = group.lcmsFiles.stream()
           .map(lcms -> {

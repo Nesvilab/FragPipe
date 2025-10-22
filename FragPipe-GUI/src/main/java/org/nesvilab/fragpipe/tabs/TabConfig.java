@@ -907,15 +907,15 @@ public class TabConfig extends JPanelWithEnablement {
   private String textEasyPQP(String easypqpLocalVersion, boolean enableEasypqp, String errMsg) {
     StringBuilder sb = new StringBuilder();
     if (enableEasypqp && !easypqpLocalVersion.contentEquals("N/A")) {
-      sb.append("EasyPQP: <b>Available</b>. Version: " + easypqpLocalVersion + ". Used for spectral library building.<br><br>");
+      sb.append("FragPipe-SpecLib: <b>Available</b>. Version: " + easypqpLocalVersion + ". Used for spectral library building.<br><br>");
       easyPQPEnabled = true;
       btnFinishPythonInstall.setVisible(!dbsplitEnabled);
       pythonTextScroll.setVisible(!dbsplitEnabled);
     } else {
       if (errMsg.isEmpty()) {
-        sb.append("EasyPQP: <b>Not available</b>. Used for spectral library building.<br>Please check Python, EasyPQP, and MSFragger configurations.<br><br>");
+        sb.append("FragPipe-SpecLib: <b>Not available</b>. Used for spectral library building.<br>Please check Python, FragPipe-SpecLib, and MSFragger configurations.<br><br>");
       } else {
-        sb.append("EasyPQP: <b>Not available</b>. Used for spectral library building.<br>Please check Python, EasyPQP, and MSFragger configurations.<br><br>").append(errMsg);
+        sb.append("FragPipe-SpecLib: <b>Not available</b>. Used for spectral library building.<br>Please check Python, FragPipe-SpecLib, and MSFragger configurations.<br><br>").append(errMsg);
       }
     }
     return sb.toString();
@@ -941,7 +941,7 @@ public class TabConfig extends JPanelWithEnablement {
         final ProcessBuilder pb = new ProcessBuilder(m.instance.getPython().getCommand(), (isWindows() ? "-Ic" : "-c"),
                 "import importlib.metadata\n" +
                         "try:\n" +
-                        "    print(importlib.metadata.version('easypqp'))\n" +
+                        "    print(importlib.metadata.version('fragpipe-speclib'))\n" +
                         "except importlib.metadata.PackageNotFoundError:\n" +
                         "    print('N/A')"
         );
@@ -1006,7 +1006,7 @@ public class TabConfig extends JPanelWithEnablement {
         .append(", <a href=\"").append("https://ptmshepherd.nesvilab.org/").append("\">PTM-Shepherd</a>")
         .append(", <a href=\"").append("https://github.com/lonelu/PTMLocalization").append("\">O-Pair</a>")
         .append(", <a href=\"").append("https://tmt-integrator.nesvilab.org/").append("\">TMT-Integrator</a>")
-        .append(", <a href=\"").append("https://github.com/grosenberger/easypqp").append("\">EasyPQP</a>")
+        .append(", <a href=\"").append("https://github.com/Nesvilab/FragPipe-SpecLib").append("\">FragPipe-SpecLib</a>")
         .append(", <a href=\"").append("https://github.com/Nesvilab/FragPipe-PDV").append("\">FragPipe-PDV</a>")
         .append(", <a href=\"").append("https://skyline.ms/project/home/software/Skyline/begin.view").append("\">Skyline</a>")
         .append(", <a href=\"").append("https://saint-apms.sourceforge.net/Main.html").append("\">SAINT</a>");
@@ -1137,7 +1137,7 @@ public class TabConfig extends JPanelWithEnablement {
         pb2.environment().put(path_env_key, Path.of(binPython).getParent() + java.io.File.pathSeparator + pb2.environment().get(path_env_key));
       } else if (isUnix()) {
         try {
-          new ProcessBuilder(binPython, "-m", "pip", "uninstall", "--yes", "easypqp");
+          new ProcessBuilder(binPython, "-m", "pip", "uninstall", "--yes", "fragpipe-speclib");
         } catch (Exception ex) {
           pythonPipOutputNew += ex.toString();
           ok = false;
@@ -1148,7 +1148,7 @@ public class TabConfig extends JPanelWithEnablement {
           pythonPipOutputNew += ex.toString();
           ok = false;
         }
-        pb2 = new ProcessBuilder(binPython, "-m", "pip", "install", "easypqp", "lxml", "plotly", "kaleido", "narwhals", "pyarrow", "pypdf2");
+        pb2 = new ProcessBuilder(binPython, "-m", "pip", "install", "fragpipe-speclib", "lxml", "plotly", "kaleido", "narwhals", "pyarrow", "pypdf2");
       } else {
         throw new RuntimeException(PROGRAM_TITLE +" only works in Windows and Linux. " + PROGRAM_TITLE + " not supported in this OS");
       }

@@ -27,7 +27,7 @@ public class PythonModule {
   public static final PythonModule PANDAS = new PythonModule("pandas", "pandas");
 
   // for speclib generation
-  public static final PythonModule EASYPQP = new PythonModule("easypqp", "easypqp");
+  public static final PythonModule EASYPQP = new PythonModule("fragpipe-speclib", "easypqp");
   public static final PythonModule LXML = new PythonModule("lxml", "lxml");
 
   public PythonModule(String installName, String someImportName) {

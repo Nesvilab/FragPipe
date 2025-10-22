@@ -349,7 +349,7 @@ public class SpeclibPanel extends JPanelBase {
       SwingUtils.traverse(p, false, c -> {
         String name = c.getName();
         if (name != null && name.contains("easypqp.select-file.")) {
-          log.debug("Traversing easyPQP options panel, found matching component: {}", name);
+          log.debug("Traversing FragPipe-SpecLib options panel, found matching component: {}", name);
           if (c.isVisible() != show) {
             visibilityChanged.set(show);
             c.setVisible(show);
@@ -370,7 +370,7 @@ public class SpeclibPanel extends JPanelBase {
       SwingUtils.traverse(p, false, c -> {
         String name = c.getName();
         if (name != null && name.contains("easypqp.select-im-file.")) {
-          log.debug("Traversing easyPQP options panel, found matching component: {}", name);
+          log.debug("Traversing FragPipe-SpecLib options panel, found matching component: {}", name);
           if (c.isVisible() != show) {
             visibilityChanged.set(show);
             c.setVisible(show);

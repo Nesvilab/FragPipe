@@ -1153,7 +1153,7 @@ public class FragpipeRun {
     sb.append("PTM-Shepherd version ").append(CmdPtmshepherd.SHEPHERD_VERSION == null ? "N/A" : CmdPtmshepherd.SHEPHERD_VERSION).append("\n");
     sb.append("IonQuant version ").append(NoteConfigIonQuant.version == null ? "N/A" : NoteConfigIonQuant.version).append("\n");
     sb.append("TMT-Integrator version ").append(CmdTmtIntegrator.TMT_INTEGRATOR_VERSION == null ? "N/A" : CmdTmtIntegrator.TMT_INTEGRATOR_VERSION).append("\n");
-    sb.append("EasyPQP version ").append(easypqpVersion == null ? "N/A" : easypqpVersion).append("\n");
+    sb.append("FragPipe-SpecLib version ").append(easypqpVersion == null ? "N/A" : easypqpVersion).append("\n");
     sb.append("DIA-NN version ").append(diannVersion == null ? "N/A" : diannVersion).append("\n");
     sb.append("Skyline version ").append(skylineVersion == null ? "N/A" : skylineVersion.toString()).append("\n");
     sb.append("Pandas version ").append(pandasVersion == null ? "N/A" : pandasVersion).append("\n");
@@ -2236,9 +2236,9 @@ public class FragpipeRun {
     addConfig.accept(cmdSpecLibGen, () -> {
       if (speclibPanel.isChecked() && !speclibPanel.isCheckRunEnabled()) {
         if (Fragpipe.headless) {
-          log.error("Spectral Library Generation module was not configured correctly. Please make sure that Python and EasyPQP have been installed.");
+          log.error("Spectral Library Generation module was not configured correctly. Please make sure that Python and FragPipe-SpecLib have been installed.");
         } else {
-          JOptionPane.showMessageDialog(parent, "Spectral Library Generation module was not configured correctly.\nPlease make sure that Python and EasyPQP have been installed, then restart " + PROGRAM_TITLE + ".", "Spectral Library Generation Error", JOptionPane.ERROR_MESSAGE);
+          JOptionPane.showMessageDialog(parent, "Spectral Library Generation module was not configured correctly.\nPlease make sure that Python and FragPipe-SpecLib have been installed, then restart " + PROGRAM_TITLE + ".", "Spectral Library Generation Error", JOptionPane.ERROR_MESSAGE);
         }
         return false;
       }
@@ -2248,9 +2248,9 @@ public class FragpipeRun {
         NoteConfigSpeclibgen speclibConf = Fragpipe.getStickyStrict(NoteConfigSpeclibgen.class);
         if (!speclibConf.isValid()) {
           if (Fragpipe.headless) {
-            log.error("Spectral Library Generation scripts did not initialize correctly. Please make sure that Python and EasyPQP have been installed.");
+            log.error("Spectral Library Generation scripts did not initialize correctly. Please make sure that Python and FragPipe-SpecLib have been installed.");
           } else {
-            JOptionPane.showMessageDialog(parent, "Spectral Library Generation scripts did not initialize correctly.\nPlease make sure that Python and EasyPQP have been installed, then restart " + PROGRAM_TITLE + ".", "Spectral Library Generation Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(parent, "Spectral Library Generation scripts did not initialize correctly.\nPlease make sure that Python and FragPipe-SpecLib have been installed, then restart " + PROGRAM_TITLE + ".", "Spectral Library Generation Error", JOptionPane.ERROR_MESSAGE);
           }
           return false;
         }
