@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
 
 public class MassOffsetUtils {
 
-    private static final Pattern sitesPattern = Pattern.compile("([A-Zall-nc\\[\\]^*])");
+    private static final Pattern sitesPattern = Pattern.compile("([A-Zalnc\\[\\]^*-])");
     private static final Pattern massPattern = Pattern.compile("([\\d.-]+)\\(");
     private static final Pattern diagPattern = Pattern.compile("d=([\\d.\\-,\\s]+)");
     private static final Pattern fragRemPattern = Pattern.compile("f=([\\d.\\-,\\s]+)");
