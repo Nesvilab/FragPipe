@@ -17,7 +17,6 @@
 
 package org.nesvilab.fragpipe.cmd;
 
-import static org.nesvilab.fragpipe.cmd.ToolingUtils.getUnimodOboPath;
 import static org.nesvilab.utils.OsUtils.isWindows;
 
 import org.nesvilab.fragpipe.Fragpipe;
@@ -28,7 +27,6 @@ import org.nesvilab.fragpipe.tabs.TabWorkflow.InputDataType;
 import org.nesvilab.fragpipe.tools.speclibgen.SpecLibGen2;
 import org.nesvilab.fragpipe.tools.speclibgen.SpeclibPanel;
 import org.nesvilab.utils.OsUtils;
-import org.nesvilab.utils.SwingUtils;
 import java.awt.Component;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -63,7 +61,7 @@ public class CmdSpecLibGen extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, SpecLibGen2 slg, Map<LcmsFileGroup, Path> mapGroupsToProtxml, String fastaPath, boolean isRunProteinProphet, InputDataType dataType, int threads, String decoyTag, UsageTrigger binFragger, int ramGb) {
+  public boolean configure(Component comp, SpecLibGen2 slg, Map<LcmsFileGroup, Path> mapGroupsToProtxml, String fastaPath, InputDataType dataType, int threads, String decoyTag, UsageTrigger binFragger, int ramGb) {
 
     initPreConfig();
 
@@ -115,21 +113,7 @@ public class CmdSpecLibGen extends CmdBase {
 
     for (Entry<LcmsFileGroup, Path> e : mapGroupsToProtxml.entrySet()) {
       final LcmsFileGroup group = e.getKey();
-      final Path protxml = e.getValue();
       final Path groupWd = group.outputDir(wd);
-
-      if (!isRunProteinProphet && !Files.exists(protxml)) {
-        if (Fragpipe.headless) {
-          log.error("ProteinProphet not selected and the output directory: " + groupWd.toString() + " does not contain a '" + protxml.getFileName().toString() + "' file. Either uncheck Spectral Library Generation checkbox or enable ProteinProphet.");
-        } else {
-          JOptionPane.showMessageDialog(comp,
-              "ProteinProphet not selected and the output directory:\n"
-                  + "    " + groupWd.toString() + "\n"
-                  + "does not contain a '" + protxml.getFileName().toString() + "' file.\n\n"
-                  + "Either uncheck Spectral Library Generation checkbox or enable ProteinProphet.", "Spec Lib Gen configuration Error", JOptionPane.ERROR_MESSAGE);
-        }
-        return false;
-      }
 
       // for current implementation of speclibgen scripts mzml files need to be
       // located next to pepxml files
