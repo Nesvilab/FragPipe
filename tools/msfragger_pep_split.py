@@ -213,9 +213,7 @@ def step1(spec_queries: typing.Tuple[bytes]) -> typing.Tuple[typing.List[bytes],
 	d = collections.defaultdict(list)
 	for header, txt in header_txts:
 		d[header].append(txt)
-	for k, v in d.items():
-		d[k] = v[0]
-	return spec_query_heads, list(d.values())
+	return spec_query_heads, list(itertools.chain.from_iterable(d.values()))
 
 
 re_scores = re.compile(b'''^<search_score name="hyperscore" value="(.+?)"/>
