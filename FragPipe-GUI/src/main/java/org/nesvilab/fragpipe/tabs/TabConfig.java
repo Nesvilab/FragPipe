@@ -834,6 +834,9 @@ public class TabConfig extends JPanelWithEnablement {
         Bus.post(new MessagePythonNewBin(pi.getCommand()));
       } else {
         log.debug("Did not find system python");
+        if (OsUtils.isWindows() && !JarUtils.isInIDE()) {
+          Bus.post(new MessagePythonNewBin(PyInfo.pythonWinPath));
+        }
       }
     } catch (UnexpectedException e) {
       log.warn("Problems while searching for system wide python installation", e);
