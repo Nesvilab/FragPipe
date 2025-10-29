@@ -176,14 +176,14 @@ public class CmdSkyline extends CmdBase {
         pb.directory(wd.resolve("skyline_files").toFile());
         pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + " generate site reports").create());
       }
-    }
 
-    if (!isDryRun) {
-      try {
-        generateLFQExperimentAnnotation(wd, 1);
-      } catch (Exception ex) {
-        showErrorDialogWithStacktrace(ex, comp);
-        return false;
+      if (!isDryRun) {
+        try {
+          generateLFQExperimentAnnotation(wd, 1);
+        } catch (Exception ex) {
+          showErrorDialogWithStacktrace(ex, comp);
+          return false;
+        }
       }
     }
 
