@@ -118,6 +118,7 @@ import org.nesvilab.fragpipe.tabs.TabQuantificationLfq;
 import org.nesvilab.fragpipe.tabs.TabRun;
 import org.nesvilab.fragpipe.tabs.TabSkyline;
 import org.nesvilab.fragpipe.tabs.TabSpecLib;
+import org.nesvilab.fragpipe.tabs.TabTransferLearning;
 import org.nesvilab.fragpipe.tabs.TabValidation;
 import org.nesvilab.fragpipe.tabs.TabWorkflow;
 import org.nesvilab.fragpipe.tools.dbsplit.DbSplit2;
@@ -216,6 +217,7 @@ public class Fragpipe extends JFrameHeadless {
   private UiTab uiTabSpecLib;
   private UiTab uiTabDiann;
   private UiTab uiTabSkyline;
+  private UiTab uiTabTransferLearning;
   private UiTab uiTabRun;
   private UiTab uiTabBatch;
   private UiTab uiTabDownstream;
@@ -657,6 +659,7 @@ public class Fragpipe extends JFrameHeadless {
     TabPtms tabPtms = new TabPtms();
     TabGlyco tabGlyco = new TabGlyco();
     TabSpecLib tabSpecLib = new TabSpecLib();
+    TabTransferLearning tabTransferLearning = new TabTransferLearning();
     TabDiann tabDiann = new TabDiann();
     TabSkyline tabSkyline = new TabSkyline();
     TabDownstream tabDownstream = new TabDownstream();
@@ -682,6 +685,7 @@ public class Fragpipe extends JFrameHeadless {
       "/org/nesvilab/fragpipe/icons/icon-scales-balance-color-2-16.png", null, true);
     uiTabSpecLib = new UiTab("Spec Lib", tabSpecLib,
       "/org/nesvilab/fragpipe/icons/icon-library-16.png", null, true);
+    uiTabTransferLearning = new UiTab("Transfer Learning", tabTransferLearning, "/org/nesvilab/fragpipe/icons/icon-msbooster-16.png", null, true);
     uiTabDiann = new UiTab("Quant (DIA)", tabDiann,
       "/org/nesvilab/fragpipe/icons/icon-diann-16.png", null, true);
     uiTabSkyline = new UiTab("Skyline", tabSkyline, "/org/nesvilab/fragpipe/icons/icon-skyline-16.png", null, true);
@@ -700,6 +704,7 @@ public class Fragpipe extends JFrameHeadless {
     addTab(tp, uiTabQuantLfq);
     addTab(tp, uiTabQuantLabeled);
     addTab(tp, uiTabSpecLib);
+    addTab(tp, uiTabTransferLearning);
     addTab(tp, uiTabDiann);
     addTab(tp, uiTabSkyline);
     addTab(tp, uiTabRun);
@@ -721,8 +726,8 @@ public class Fragpipe extends JFrameHeadless {
       fp.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
       fp.setTitle(PROGRAM_TITLE + " (v" + Version.version() + ")");
       fp.setLocale(Locale.ROOT);
-      fp.setMinimumSize(new Dimension(700, 480));
-      fp.setPreferredSize(new Dimension(1300, 1300));
+      fp.setMinimumSize(new Dimension(1300, 480));
+      fp.setPreferredSize(new Dimension(1500, 1300));
       fp.setLayout(new MigLayout(new LC().fill()));
     }
     defFont = new JLabel("dummy label to get default font from");

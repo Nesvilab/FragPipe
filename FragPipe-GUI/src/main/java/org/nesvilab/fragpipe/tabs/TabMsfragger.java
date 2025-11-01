@@ -376,6 +376,7 @@ public class TabMsfragger extends JPanelBase {
   }
 
   private UiCheck checkRun;
+  private UiCheck checkDigestOnly;
   private JPanel pContent;
   private ModsTable tableVarMods;
   private ModsTable tableFixMods;
@@ -565,7 +566,12 @@ public class TabMsfragger extends JPanelBase {
     checkRun.addActionListener(e -> {
       final boolean isSelected = checkRun.isSelected();
       updateEnabledStatus(pContent, isSelected);
+      updateEnabledStatus(checkDigestOnly, isSelected);
     });
+
+    checkDigestOnly = new UiCheck("Digestion only", null, false);
+    checkDigestOnly.setName("digest-only");
+    checkDigestOnly.setToolTipText("Digest the proteins into peptides without running database search. Mostly for spectral library prediction.");
 
     JLabel imageLabel = new JLabel();
     try {
@@ -577,6 +583,7 @@ public class TabMsfragger extends JPanelBase {
 
     mu.add(pTop, checkRun);
     mu.add(pTop, imageLabel, mu.ccR()).gapRight("50").wrap();
+    mu.add(pTop, checkDigestOnly).wrap();
 
     return pTop;
   }
@@ -1913,11 +1920,15 @@ public class TabMsfragger extends JPanelBase {
   }
 
   public boolean isRun() {
-    return SwingUtils.isEnabledAndChecked(checkRun);
+    return SwingUtils.isEnabledAndChecked(checkRun) && !isDigestOnly();
   }
 
   public boolean isChecked() {
     return checkRun.isSelected();
+  }
+
+  public boolean isDigestOnly() {
+    return checkDigestOnly.isSelected();
   }
 
   public int getMassCalibration() {

@@ -120,6 +120,7 @@ dependencies {
     implementation 'io.reactivex.rxjava3:rxjava:3.1.10'
 
     implementation 'org.greenrobot:eventbus-java:3.3.1'
+    implementation 'org.greenrobot:essentials:3.1.0'
     implementation 'org.jsoup:jsoup:1.19.1'
     implementation 'com.squareup.okio:okio:3.10.2'
         implementation 'com.squareup.okhttp3:okhttp:4.12.0'

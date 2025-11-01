@@ -51,7 +51,7 @@ public class CmdMSBooster extends CmdBase {
   public static final String MSBOOSTER_VERSION = "1.4.0";
   public static final String JAR_MSBOOSTER_NAME = "MSBooster-" + MSBOOSTER_VERSION + ".jar";
   public static final String JAR_MSBOOSTER_MAIN_CLASS = "mainsteps.MainClass";
-  private static final String[] JAR_DEPS = {BATMASS_IO_JAR};
+  public static final String[] JAR_DEPS = {BATMASS_IO_JAR};
   private static final Pattern pattern1 = Pattern.compile("\\.pepXML$");
   private static final Pattern pattern2 = Pattern.compile("_rank[0-9]+\\.pepXML$");
 

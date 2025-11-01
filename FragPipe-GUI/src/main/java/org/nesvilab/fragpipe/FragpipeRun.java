@@ -29,8 +29,6 @@ import static org.nesvilab.fragpipe.tabs.TabWorkflow.workflowExt;
 import static org.nesvilab.utils.FileDelete.deleteFileOrFolder;
 import static org.nesvilab.utils.SwingUtils.wrapInScrollForDialog;
 
-import com.google.common.collect.Table;
-import com.google.common.collect.TreeBasedTable;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
@@ -60,10 +58,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
@@ -79,7 +79,47 @@ import org.nesvilab.fragpipe.api.Bus;
 import org.nesvilab.fragpipe.api.IConfig;
 import org.nesvilab.fragpipe.api.InputLcmsFile;
 import org.nesvilab.fragpipe.api.LcmsFileGroup;
-import org.nesvilab.fragpipe.cmd.*;
+import org.nesvilab.fragpipe.cmd.CmdAppendFile;
+import org.nesvilab.fragpipe.cmd.CmdBase;
+import org.nesvilab.fragpipe.cmd.CmdCheckCentroid;
+import org.nesvilab.fragpipe.cmd.CmdCrystalc;
+import org.nesvilab.fragpipe.cmd.CmdDiaTracer;
+import org.nesvilab.fragpipe.cmd.CmdDiann;
+import org.nesvilab.fragpipe.cmd.CmdFPOPcoadaptr;
+import org.nesvilab.fragpipe.cmd.CmdFpopQuant;
+import org.nesvilab.fragpipe.cmd.CmdFreequant;
+import org.nesvilab.fragpipe.cmd.CmdIonquant;
+import org.nesvilab.fragpipe.cmd.CmdIprophet;
+import org.nesvilab.fragpipe.cmd.CmdLabelquant;
+import org.nesvilab.fragpipe.cmd.CmdMBGMatch;
+import org.nesvilab.fragpipe.cmd.CmdMSBooster;
+import org.nesvilab.fragpipe.cmd.CmdMetaproteomics;
+import org.nesvilab.fragpipe.cmd.CmdMsfragger;
+import org.nesvilab.fragpipe.cmd.CmdMsfraggerDigest;
+import org.nesvilab.fragpipe.cmd.CmdOPair;
+import org.nesvilab.fragpipe.cmd.CmdPairScans;
+import org.nesvilab.fragpipe.cmd.CmdPeptideProphet;
+import org.nesvilab.fragpipe.cmd.CmdPercolator;
+import org.nesvilab.fragpipe.cmd.CmdPhilosopherAbacus;
+import org.nesvilab.fragpipe.cmd.CmdPhilosopherDbAnnotate;
+import org.nesvilab.fragpipe.cmd.CmdPhilosopherFilter;
+import org.nesvilab.fragpipe.cmd.CmdPhilosopherReport;
+import org.nesvilab.fragpipe.cmd.CmdPhilosopherWorkspaceClean;
+import org.nesvilab.fragpipe.cmd.CmdPhilosopherWorkspaceCleanInit;
+import org.nesvilab.fragpipe.cmd.CmdProteinProphet;
+import org.nesvilab.fragpipe.cmd.CmdPtmProphet;
+import org.nesvilab.fragpipe.cmd.CmdPtmshepherd;
+import org.nesvilab.fragpipe.cmd.CmdSkyline;
+import org.nesvilab.fragpipe.cmd.CmdSpecLibGen;
+import org.nesvilab.fragpipe.cmd.CmdStart;
+import org.nesvilab.fragpipe.cmd.CmdTmtIntegrator;
+import org.nesvilab.fragpipe.cmd.CmdTransferLearning;
+import org.nesvilab.fragpipe.cmd.CmdUmpireSe;
+import org.nesvilab.fragpipe.cmd.CmdWriteSubMzml;
+import org.nesvilab.fragpipe.cmd.PbiBuilder;
+import org.nesvilab.fragpipe.cmd.ProcessBuilderInfo;
+import org.nesvilab.fragpipe.cmd.ProcessBuildersDescriptor;
+import org.nesvilab.fragpipe.cmd.ToolingUtils;
 import org.nesvilab.fragpipe.exceptions.NoStickyException;
 import org.nesvilab.fragpipe.internal.DefEdge;
 import org.nesvilab.fragpipe.messages.MessageClearConsole;
@@ -103,7 +143,14 @@ import org.nesvilab.fragpipe.process.ProcessDescription.Builder;
 import org.nesvilab.fragpipe.process.ProcessManager;
 import org.nesvilab.fragpipe.process.ProcessResult;
 import org.nesvilab.fragpipe.process.RunnableDescription;
-import org.nesvilab.fragpipe.tabs.*;
+import org.nesvilab.fragpipe.tabs.TabBatch;
+import org.nesvilab.fragpipe.tabs.TabConfig;
+import org.nesvilab.fragpipe.tabs.TabDatabase;
+import org.nesvilab.fragpipe.tabs.TabDownstream;
+import org.nesvilab.fragpipe.tabs.TabGlyco;
+import org.nesvilab.fragpipe.tabs.TabMsfragger;
+import org.nesvilab.fragpipe.tabs.TabRun;
+import org.nesvilab.fragpipe.tabs.TabWorkflow;
 import org.nesvilab.fragpipe.tabs.TabWorkflow.InputDataType;
 import org.nesvilab.fragpipe.tools.crystalc.CrystalcPanel;
 import org.nesvilab.fragpipe.tools.crystalc.CrystalcParams;
@@ -129,6 +176,7 @@ import org.nesvilab.fragpipe.tools.speclibgen.SpecLibGen2;
 import org.nesvilab.fragpipe.tools.speclibgen.SpeclibPanel;
 import org.nesvilab.fragpipe.tools.tmtintegrator.QuantLabel;
 import org.nesvilab.fragpipe.tools.tmtintegrator.TmtiPanel;
+import org.nesvilab.fragpipe.tools.transferlearning.TransferLearningPanel;
 import org.nesvilab.fragpipe.tools.umpire.UmpirePanel;
 import org.nesvilab.fragpipe.tools.umpire.UmpireParams;
 import org.nesvilab.fragpipe.util.BatchRun;
@@ -141,6 +189,9 @@ import org.nesvilab.utils.UsageTrigger;
 import org.nesvilab.utils.swing.TextConsole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Table;
+import com.google.common.collect.TreeBasedTable;
 
 public class FragpipeRun {
 
@@ -1003,16 +1054,7 @@ public class FragpipeRun {
         .flatMap(group -> group.lcmsFiles.stream())
         .collect(Collectors.toCollection(ArrayList::new));
 
-    if (lcmsFilesAll.isEmpty()) {
-      if (Fragpipe.headless) {
-        log.error("No LC/MS data files selected.");
-      } else {
-        JOptionPane.showMessageDialog(parent, "No LC/MS data files selected.\n"
-                + "Check 'Workflow' tab, 'Input LC/MS Files' section.", "Error",
-            JOptionPane.WARNING_MESSAGE);
-      }
-      return null;
-    } else {
+    if (!lcmsFilesAll.isEmpty()) {
       // check that all input LCMS files have unique filenames
       Map<String, List<Path>> inputFnMap = new HashMap<>();
       for (LcmsFileGroup group : lcmsFileGroups.values()) {
@@ -1269,10 +1311,6 @@ public class FragpipeRun {
       MapUtils.refill(sharedLcmsFileGroupsAll, tabWorkflow.getLcmsFileGroups());
       sharedLcmsFilesAll.clear();
       sharedLcmsFilesAll.addAll(Seq.seq(sharedLcmsFileGroupsAll.values()).flatMap(group -> group.lcmsFiles.stream()).toList());
-      if (sharedLcmsFilesAll.isEmpty()) {
-        SwingUtils.showErrorDialog(parent, "No LCMS files provided.", "Add LCMS files");
-        return false;
-      }
 
       if (sharedLcmsFileGroupsAll.size() > 1) {
         for (String s : sharedLcmsFileGroupsAll.keySet()) {
@@ -1292,16 +1330,6 @@ public class FragpipeRun {
       }
       sharedLcmsFiles.clear();
       sharedLcmsFiles.addAll(Seq.seq(sharedLcmsFileGroups.values()).flatMap(group -> group.lcmsFiles.stream()).toList());
-      if (sharedLcmsFiles.isEmpty()) {
-        DiannPanel diannPanel = Fragpipe.getStickyStrict(DiannPanel.class);
-        if (!diannPanel.isRun()) {
-          SwingUtils.showErrorDialog(parent, "There are only DIA-Quant runs, but the DIA-NN quant was not enabled.", "Add LCMS files");
-          return false;
-        } else if (diannPanel.getLibraryPath().isEmpty()) {
-          SwingUtils.showErrorDialog(parent, "There are only DIA-Quant runs, but there is no spectral library provided to the DIA-NN quant.", "Add LCMS files");
-          return false;
-        }
-      }
 
       return true;
     });
@@ -2262,6 +2290,53 @@ public class FragpipeRun {
     });
 
 
+    // run transfer learning
+    final TransferLearningPanel transferLearningPanel = Fragpipe.getStickyStrict(TransferLearningPanel.class);
+    final CmdMsfraggerDigest cmdMSFraggerDigest = new CmdMsfraggerDigest(transferLearningPanel.isRun() && transferLearningPanel.isRunPrediction() && (transferLearningPanel.getPeptidesToPredict() == 1 || transferLearningPanel.getPeptidesToPredict() == 2), wd);
+    final CmdTransferLearning cmdTransferLearning = new CmdTransferLearning(transferLearningPanel.isRun(), wd);
+
+    addConfig.accept(cmdMSFraggerDigest, () -> {
+      if (cmdMSFraggerDigest.isRun()) {
+        return cmdMSFraggerDigest.configure(parent,
+          isDryRun,
+          jarPath,
+          binMsfragger,
+          fastaFile,
+          tabMsf.getParams(),
+          ramGb,
+          decoyTag,
+          transferLearningPanel.getPeptidesToPredict() == 1);
+      }
+      return true;
+    });
+
+    addConfig.accept(cmdTransferLearning, () -> {
+      if (cmdTransferLearning.isRun()) {
+        return cmdTransferLearning.configure(parent, 
+          jarPath,
+          ramGb,
+          sharedPepxmlFilesFromMsfragger,
+          transferLearningPanel.getURL(),
+          transferLearningPanel.getAPIKey(),
+          transferLearningPanel.isRunTraining(),
+          transferLearningPanel.isRunPrediction(),
+          transferLearningPanel.getLibraryPath(),
+          transferLearningPanel.getModelPath(),
+          transferLearningPanel.isPredictMS2(),
+          transferLearningPanel.isPredictRT(),
+          transferLearningPanel.isPredictIM(),
+          transferLearningPanel.getOutputFormat(),
+          transferLearningPanel.getPeptidesToPredict(),
+          transferLearningPanel.getCustomPeptideListPath(),
+          transferLearningPanel.getMinCharge(),
+          transferLearningPanel.getMaxCharge(),
+          transferLearningPanel.getInstrument(),
+          transferLearningPanel.getNce());
+      }
+      return true;
+    });
+
+
     // run DIA-NN
     NoteConfigDiann noteConfigDiann = Fragpipe.getStickyStrict(NoteConfigDiann.class);
     final CmdDiann cmdDiann = new CmdDiann(
@@ -2297,6 +2372,7 @@ public class FragpipeRun {
     });
 
 
+    // run Skyline
     final SkylinePanel skylinePanel = Fragpipe.getStickyStrict(SkylinePanel.class);
     final CmdSkyline cmdSkyline = new CmdSkyline(skylinePanel.isRun(), wd);
     addConfig.accept(cmdSkyline, () -> {
@@ -2427,6 +2503,8 @@ public class FragpipeRun {
     addToGraph(graphOrder, cmdTmtFpop, DIRECTION.IN, cmdPhilosopherReport, cmdTmtFreequant, cmdTmtLabelQuant, cmdPhilosopherAbacus, cmdPtmshepherd, cmdTmtIonquant, cmdTmtIonquantIsobaric);
     addToGraph(graphOrder, cmdFpopQuant, DIRECTION.IN, cmdIonquant, cmdTmt, cmdTmtFpop);
     addToGraph(graphOrder, cmdSpecLibGen, DIRECTION.IN, cmdPhilosopherReport, cmdOPair);
+    addToGraph(graphOrder, cmdMSFraggerDigest, DIRECTION.IN, cmdSpecLibGen);
+    addToGraph(graphOrder, cmdTransferLearning, DIRECTION.IN, cmdSpecLibGen, cmdMSFraggerDigest);
     addToGraph(graphOrder, cmdDiann, DIRECTION.IN, cmdSpecLibGen);
     addToGraph(graphOrder, cmdFPOPcoadaptr, DIRECTION.IN, cmdPhilosopherReport, cmdIonquant, cmdTmt, cmdDiann);
     addToGraph(graphOrder, cmdSkyline, DIRECTION.IN, cmdDiann, cmdSpecLibGen, cmdPhilosopherReport);
