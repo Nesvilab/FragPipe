@@ -88,6 +88,8 @@ public class DiannPanel extends JPanelBase {
   private UiCheck uiCheckUseRunSpecificProteinQvalue;
   private UiCheck uiCheckUnrelatedRuns;
   private UiCheck uiCheckGenerateMsstats;
+  private UiCheck uiCheckMbr;
+  private UiCheck uiCheckRedoProteinInference;
   private UiText uiTextLight;
   private UiText uiTextMedium;
   private UiText uiTextHeavy;
@@ -209,6 +211,12 @@ public class DiannPanel extends JPanelBase {
     uiCheckUnrelatedRuns = UiUtils.createUiCheck("Unrelated runs", false);
     FormEntry feUnrelatedRuns = new FormEntry("unrelated-runs", "Unrelated runs", uiCheckUnrelatedRuns, "Different runs will be treated as unrelated, i.e. mass accuracy (when automatic) will be determined separately, as well as the retention time scan window.");
 
+    uiCheckMbr = UiUtils.createUiCheck("MBR", false);
+    FormEntry feMbr = new FormEntry("mbr", "MBR", uiCheckMbr, "Enable DIA-NN's MBR functionality. Only used when the input spectral library is from prediction of whole proteome.");
+
+    uiCheckRedoProteinInference = UiUtils.createUiCheck("Redo protein inference", false);
+    FormEntry feRedoProteinInference = new FormEntry("redo-protein-inference", "Redo protein inference", uiCheckRedoProteinInference, "Let DIA-NN redo the protein inference.");
+
     mu.add(panelBasic, feQvalue.label(), mu.ccL());
     mu.add(panelBasic, feQvalue.comp).wrap();
     mu.add(panelBasic, feUseRunSpecificProteinQvalue.comp).wrap();
@@ -217,6 +225,8 @@ public class DiannPanel extends JPanelBase {
     mu.add(panelBasic, labelQuantificationStrategy2, mu.ccL());
     mu.add(panelBasic, feQuantificationStrategy2.comp).wrap();
     mu.add(panelBasic, feUnrelatedRuns.comp).wrap();
+    mu.add(panelBasic, feMbr.comp).wrap();
+    mu.add(panelBasic, feRedoProteinInference.comp).wrap();
     mu.add(panelBasic, feUsePredictedSpectra.comp).wrap();
     mu.add(panelBasic, feGenerateMsstats.comp).wrap();
 
@@ -443,6 +453,14 @@ public class DiannPanel extends JPanelBase {
 
   public boolean unrelatedRuns() {
     return isEnabledAndChecked(uiCheckUnrelatedRuns);
+  }
+
+  public boolean useMbr() {
+    return isEnabledAndChecked(uiCheckMbr);
+  }
+
+  public boolean redoProteinInference() {
+    return isEnabledAndChecked(uiCheckRedoProteinInference);
   }
 
   public String getModTag() {

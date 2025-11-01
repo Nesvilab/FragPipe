@@ -107,6 +107,9 @@ public class CmdDiann extends CmdBase {
       boolean unrelatedRuns,
       float qvalue,
       boolean useRunSpecificProteinQvalue,
+      boolean useMbr,
+      boolean redoProteinInference,
+      String fastaFile,
       String libraryPath,
       String additionalCmdOpts,
       boolean isDryRun,
@@ -315,6 +318,9 @@ public class CmdDiann extends CmdBase {
       cmd.add("--out");
       cmd.add("dia-quant-output" + File.separator + "report.tsv");
       cmd.add("--qvalue");
+      if (useMbr) {
+        cmd.add("--reanalyse");
+      }
       cmd.add(String.valueOf(qvalue));
       if (useRunSpecificProteinQvalue) {
         cmd.add("--matrix-spec-q");
@@ -323,7 +329,22 @@ public class CmdDiann extends CmdBase {
       cmd.add("--matrix-qvalue");
       cmd.add(String.valueOf(qvalue));
       cmd.add("--matrices");
-      cmd.add("--no-prot-inf");
+      if (noteConfigDiann.compareVersion("2.0") < 0) {
+        if (redoProteinInference) {
+          cmd.add("--relaxed-prot-inf");
+          cmd.add("--fasta");
+          cmd.add(fastaFile);
+        } else {
+          cmd.add("--no-prot-inf");
+        }
+      } else {
+        if (redoProteinInference) {
+          cmd.add("--fasta");
+          cmd.add(fastaFile);
+        } else {
+          cmd.add("--no-prot-inf");
+        }
+      }
       cmd.add("--smart-profiling");
       cmd.add("--no-quant-files");
       cmd.addAll(quantificationStrategy);
