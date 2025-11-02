@@ -2508,7 +2508,7 @@ public class FragpipeRun {
     addToGraph(graphOrder, cmdSpecLibGen, DIRECTION.IN, cmdPhilosopherReport, cmdOPair);
     addToGraph(graphOrder, cmdMSFraggerDigest, DIRECTION.IN, cmdSpecLibGen);
     addToGraph(graphOrder, cmdTransferLearning, DIRECTION.IN, cmdSpecLibGen, cmdMSFraggerDigest);
-    addToGraph(graphOrder, cmdDiann, DIRECTION.IN, cmdSpecLibGen);
+    addToGraph(graphOrder, cmdDiann, DIRECTION.IN, cmdSpecLibGen, cmdTransferLearning);
     addToGraph(graphOrder, cmdFPOPcoadaptr, DIRECTION.IN, cmdPhilosopherReport, cmdIonquant, cmdTmt, cmdDiann);
     addToGraph(graphOrder, cmdSkyline, DIRECTION.IN, cmdDiann, cmdSpecLibGen, cmdPhilosopherReport);
     addToGraph(graphOrder, cmdWriteSubMzml, DIRECTION.IN, cmdPhilosopherReport);
