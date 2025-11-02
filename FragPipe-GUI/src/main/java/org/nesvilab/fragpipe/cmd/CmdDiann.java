@@ -318,10 +318,10 @@ public class CmdDiann extends CmdBase {
       cmd.add("--out");
       cmd.add("dia-quant-output" + File.separator + "report.tsv");
       cmd.add("--qvalue");
+      cmd.add(String.valueOf(qvalue));
       if (useMbr) {
         cmd.add("--reanalyse");
       }
-      cmd.add(String.valueOf(qvalue));
       if (useRunSpecificProteinQvalue) {
         cmd.add("--matrix-spec-q");
         cmd.add(String.valueOf(qvalue));
