@@ -202,8 +202,8 @@ public class DiannPanel extends JPanelBase {
     uiComboQuantificationStrategy2.setSelectedIndex(2);
     labelQuantificationStrategy2 = feQuantificationStrategy2.label();
 
-    uiCheckUsePredictedSpectra = UiUtils.createUiCheck("Replace library spectra with predicted", false);
-    FormEntry feUsePredictedSpectra = new FormEntry("use-predicted-spectra", "Replace library spectra with predicted", uiCheckUsePredictedSpectra);
+    uiCheckUsePredictedSpectra = UiUtils.createUiCheck("Let DIA-NN predict fragment intensities", false);
+    FormEntry feUsePredictedSpectra = new FormEntry("use-predicted-spectra", "Let DIA-NN predict fragment intensities for the peptides in the library", uiCheckUsePredictedSpectra);
 
     uiCheckGenerateMsstats = UiUtils.createUiCheck("Generate MSstats input", true);
     FormEntry feGenerateMsstats = new FormEntry("generate-msstats", "Generate MSstats input", uiCheckGenerateMsstats, "Convert the DIA-NN output to MSstats format.");
