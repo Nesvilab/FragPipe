@@ -103,7 +103,7 @@ public class CmdTransferLearning extends CmdBase {
     }
 
     if (isRunPrediction && (modelPath == null || modelPath.isEmpty())) {
-      modelPath = wd.resolve("MSBooster/" + Utils.getBasenameExt(libraryPath, false)[0] + "-fragpipe-transfer-learning.zip").toAbsolutePath().normalize().toString();
+      modelPath = wd.resolve("MSBooster").resolve("fragpipe-transfer-learning-model.zip").toAbsolutePath().normalize().toString();
     }
 
     final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(CmdMSBooster.JAR_MSBOOSTER_NAME).concat(CmdMSBooster.JAR_DEPS));
