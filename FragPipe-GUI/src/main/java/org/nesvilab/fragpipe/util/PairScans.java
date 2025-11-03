@@ -76,12 +76,6 @@ public class PairScans {
         String ext = StringUtils.afterLastDot(spectralPath);
         String outputPath = StringUtils.upToLastDot(spectralPath) + ".pairs";
 
-        // skip if file already exists
-        if (Files.exists(Paths.get(outputPath))) {
-            System.out.printf("Paired scan file already exists for input %s, will use it\n", spectralPath);
-            return;
-        }
-
         if (!ext.equalsIgnoreCase("mzml") && !ext.equalsIgnoreCase("raw") && !ext.equalsIgnoreCase("mzxml")) {
             System.err.println(spectralPath + " not supported. Scan pairing is only supported for mzML, mzXML, and raw formats. Scans not paired.\n");
             return;
