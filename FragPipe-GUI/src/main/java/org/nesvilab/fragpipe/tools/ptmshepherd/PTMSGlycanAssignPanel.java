@@ -205,15 +205,15 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
                         "and O-glycan default database used.")
                 .create();
 
-        FormEntry feUseLDA = mu.feb(PROP_glyco_lda, UiUtils.createUiCheck("Use LDA", false))
+        FormEntry feUseLDA = mu.feb(PROP_glyco_lda, UiUtils.createUiCheck("(BETA) Use LDA", false))
                 .create();
-        FormEntry feSecondPass = mu.feb(PROP_glyco_second_pass, UiUtils.createUiCheck("Use 2 pass mode", false))
+        FormEntry feSecondPass = mu.feb(PROP_glyco_second_pass, UiUtils.createUiCheck("2 pass mode", false))
                 .create();
 
         uiTextLDAfeatures = UiUtils.uiTextBuilder().create();
         uiTextLDAfeatures.setPreferredSize(new Dimension(50, 25));
         FormEntry feLDAfeatures = mu.feb(PROP_glyco_lda_features_text, uiTextLDAfeatures)
-                .label("LDA features to use").tooltip("Valid values: yscore,oxo,mass,mass2nd,glycanfreq,kl,iso,iso2nd,yprop").create();
+                .label("LDA features").tooltip("Valid values: yscore,oxo,mass,mass2nd,glycanfreq,kl,iso,iso2nd,yprop").create();
 
         mu.add(pGlycoAssignContent, feGlycanFDR.label()).split(2);
         mu.add(pGlycoAssignContent, feGlycanFDR.comp);
