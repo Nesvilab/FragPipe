@@ -80,7 +80,6 @@ speclibgen.easypqp.rt-cal :: User provided RT calibration file <=> a tsv file
 
 tmtintegrator.add_Ref :: Reference sample <=>  -1
 tmtintegrator.add_Ref :: Virtual <=> 1
-tmtintegrator.add_Ref :: Virtual <=> 2
 tmtintegrator.channel_num :: TMT-0 <=> 0
 tmtintegrator.channel_num :: TMT-2 <=> 2
 tmtintegrator.channel_num :: TMT-6 <=> 6
