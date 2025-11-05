@@ -146,7 +146,7 @@ public class CmdProteinProphet extends CmdBase {
       }
       Path protxml = interactProtXmls.iterator().next();
       if (!protxml.toAbsolutePath().getParent().equals(wd)) {
-        throw new IllegalStateException("Protxml not in global output directory when groups processed together.");
+        throw new IllegalStateException("prot.xml file's parent directory is not the global output directory when groups processed together: " + protxml.toAbsolutePath().getParent() + " != " + wd);
       }
       List<String> pepxmlsPaths = pepxmlFiles.entrySet().stream()
           .flatMap(pepxml -> pepxml.getValue().stream()).map(Path::toString)
