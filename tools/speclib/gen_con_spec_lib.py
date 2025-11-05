@@ -320,7 +320,7 @@ def main_easypqp(params, irt_df, allcmds, easypqp_convert_cmds) -> None:
 	print(f'''Spectral library building\nCommands to execute:\n{allcmds}\n{'~' * 69}''', flush=True)
 
 	(output_directory / 'cmds.txt').write_text(allcmds)
-	subprocess.run([os.fspath(params.easypqp), '--version'], check=True)
+	subprocess.run([sys.executable, *(["-I"] if sys.platform == 'win32' else []), os.fspath(params.easypqp), '--version'], check=True)
 	procs = []
 	for i, e in enumerate(easypqp_convert_cmds):
 		print('Executing "' + ' '.join(e) + '"')
