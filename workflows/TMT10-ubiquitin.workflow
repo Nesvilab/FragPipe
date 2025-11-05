@@ -395,7 +395,7 @@ transfer-learning.predict-im=true
 transfer-learning.predict-ms2=true
 transfer-learning.predict-rt=true
 transfer-learning.predict-spectral-library=true
-transfer-learning.run-transfer-learning=true
+transfer-learning.run-transfer-learning=false
 transfer-learning.spectral-library-path=
 transfer-learning.url=
 workflow.description=<p style\="margin-top\: 0">TMT 10-plex workflow for ubiquitin enriched data, with quantification from MS2. Site localization based on the MSFragger search engine assignment. TMT is specified as fixed on K and n-term. Oxidation is specified as variable modification. Ubiq is specified as two variable modifications\: +114 (Ubiq in addition to TMT on the same residue) and -115 (just Ubiq, without TMT on the same residue). Up to 3 missed cleavages and 4 variable modifications in total. PSM validation with Percolator, and protein inference with ProteinProphet. Data is filtered at 1% FDR at the PSM, ion, peptide, and protein levels. TMT-Integrator with virtual reference approach, median-centering normalization, data summarization at the gene/protein/peptide/site levels. If a reference/bridge sample is available, specify the corresponding channel/sample name tag in the annotation file(s) and in TMT-Integrator tab.</p>

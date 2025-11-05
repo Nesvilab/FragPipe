@@ -396,7 +396,7 @@ transfer-learning.predict-im=true
 transfer-learning.predict-ms2=true
 transfer-learning.predict-rt=true
 transfer-learning.predict-spectral-library=true
-transfer-learning.run-transfer-learning=true
+transfer-learning.run-transfer-learning=false
 transfer-learning.spectral-library-path=
 transfer-learning.url=
 workflow.description=<p style\="margin-top\: 0in">Nonspecific HLA peptidome search using a custom protein database, with Group FDR analysis based on the Protein Evidence (PE) level ('PE\=' tag in the fasta file).</p>\n<p style\="margin-top\: 0in"></p>\n<p style\="margin-top\: 0in">The custom database is a modified version of the the Broad Institute database Gencode_v42.basicPCnr.602contams_JPTiRT.2043smorfs.nuORFv1.</p> It includes non redundant protein coding transcript biotypes mapped to the human reference genome GRCh42 (sequenes annotated as PE\=1) and common laboratory contaminants. It also includes 2043 curated smORFs (lncRNA and uORFs) and 237,427 novel unannotated ORFs (nuORF), annotated as PE\=2 in the database. \n<p style\="margin-top\: 0in"></p>\n<p style\="margin-top\: 0in">Peptide length 7-25. MSFragger search assumes cysteines were not alkylated (i.e. samples were not treated with iodoacetamide). Cysteinylation (C+119) is specified as variable modification. MSFragger rescoring with MSBooster. PSM validation with Percolator. Protein FDR filter is not applied, so each output file (PSM, ion, peptide) is filtered to 1% FDR at that level. Group FDR based on the PE class (i.e., separating peptide identifications based on the PE value into two groups) is applied.</p>

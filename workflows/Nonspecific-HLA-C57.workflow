@@ -395,7 +395,7 @@ transfer-learning.predict-im=true
 transfer-learning.predict-ms2=true
 transfer-learning.predict-rt=true
 transfer-learning.predict-spectral-library=true
-transfer-learning.run-transfer-learning=true
+transfer-learning.run-transfer-learning=false
 transfer-learning.spectral-library-path=
 transfer-learning.url=
 workflow.description=<p style\="margin-top\: 0in">Nonspecific search, with recommended settings for HLA peptides. Peptide length 7-25. MSFragger search assumes cysteines were alkylated. Cysteinylation minus 57 (C+62, 62+57\=119) is specified as variable modification. MSFragger rescoring with MSBooster. PSM validation with Percolator. Protein FDR filter is not applied, so each output file (PSM, ion, peptide) is filtered to 1% FDR at that level. If needed, extend to add label-free quantifcation (using IonQuant) or spectral library building with EasyPQP.</p>

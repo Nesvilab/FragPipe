@@ -395,7 +395,7 @@ transfer-learning.predict-im=true
 transfer-learning.predict-ms2=true
 transfer-learning.predict-rt=true
 transfer-learning.predict-spectral-library=true
-transfer-learning.run-transfer-learning=true
+transfer-learning.run-transfer-learning=false
 transfer-learning.spectral-library-path=
 transfer-learning.url=
 workflow.description=<p style\="margin-top\: 0">Searches for phosphorylation with combined labile/nonlabile search. Uses accurate mass modeling in PeptideProphet and PTMProphet for localization. Settings are for HCD/CID data. For Hybrid (EThcD, etc), change MSFragger ion types and diagnostic fragment settings.</p>

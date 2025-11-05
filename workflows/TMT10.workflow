@@ -395,7 +395,7 @@ transfer-learning.predict-im=true
 transfer-learning.predict-ms2=true
 transfer-learning.predict-rt=true
 transfer-learning.predict-spectral-library=true
-transfer-learning.run-transfer-learning=true
+transfer-learning.run-transfer-learning=false
 transfer-learning.spectral-library-path=
 transfer-learning.url=
 workflow.description=<p style\="margin-top\: 0">Basic TMT 10-plex workflow, with identification and quantification from high mass accuracy MS2. Met oxidation, protein N-term Acetyl, n-term TMT, and TMT on S ("overlabeling") are specified as variable modifications. TMT-Integrator with virtual reference approach, median-centering normalization, data summarization at the gene level. If a reference/bridge sample is available, specify the corresponding channel/sample name tag in the annotation file(s) and in TMT-Integrator tab.</p>

@@ -394,7 +394,7 @@ transfer-learning.predict-im=true
 transfer-learning.predict-ms2=true
 transfer-learning.predict-rt=true
 transfer-learning.predict-spectral-library=true
-transfer-learning.run-transfer-learning=true
+transfer-learning.run-transfer-learning=false
 transfer-learning.spectral-library-path=
 transfer-learning.url=
 workflow.description=<p style\="margin-top\: 0in">Workflow for identification of glycopeptides in HLA peptidome data. Nonspecific search, peptide length 7-25, N-linked glyco mode settings (198 glycan list). MSFragger search assumes cysteines were not alkylated (i.e. samples were not treated with iodoacetamide). Optionally add C+119 as variable mod. PSM validation with PeptideProphet (glyco mode settings).Class speciifc FDR filtering (unmodified, peptides with common mods, and glycopeptides are filtered separately). Protein FDR filter of 1%. PTM-Shepherd glycan assignment. Optionally add LFQ with FreeQuant.</p>

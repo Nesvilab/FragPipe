@@ -395,7 +395,7 @@ transfer-learning.predict-im=true
 transfer-learning.predict-ms2=true
 transfer-learning.predict-rt=true
 transfer-learning.predict-spectral-library=true
-transfer-learning.run-transfer-learning=true
+transfer-learning.run-transfer-learning=false
 transfer-learning.spectral-library-path=
 transfer-learning.url=
 workflow.description=<p style\="margin-top\: 0">TMT 10-plex workflow for phosphopeptide enriched data, with quantification from MS2. PTMProphet for site localization. TMT-Integrator with Bridge channel (labeled as 'pool' in the annotation files), median-centering normalization, data summarization at the gene/protein/peptide/site levels.</p>

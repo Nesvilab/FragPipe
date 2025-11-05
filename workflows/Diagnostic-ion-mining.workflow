@@ -395,7 +395,7 @@ transfer-learning.predict-im=true
 transfer-learning.predict-ms2=true
 transfer-learning.predict-rt=true
 transfer-learning.predict-spectral-library=true
-transfer-learning.run-transfer-learning=true
+transfer-learning.run-transfer-learning=false
 transfer-learning.spectral-library-path=
 transfer-learning.url=
 workflow.description=<p style\="margin-top\: 0in">Open search workflow for PTM analysis with diagnostic ion mining. MSFragger localization-aware open search (LOS) algorithm, with deisotoping, mass calibration, parameter optimization, and monoisotope correction enabled. Calibrated, decharged, and deisotoped mgfs are written for PTM-Shepherd. Mass range -20 to 500 Da. PeptideProphet with extended mass model. Crystal-C for artifact removal. Precursor ion quantification using Freequant. PTM-Shepherd for mass shift summarization and diagnostic ion mining. For faster run time, in MSFragger change the number of allowed missed cleavages to 1.</p>

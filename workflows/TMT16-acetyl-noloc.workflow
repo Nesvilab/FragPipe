@@ -395,7 +395,7 @@ transfer-learning.predict-im=true
 transfer-learning.predict-ms2=true
 transfer-learning.predict-rt=true
 transfer-learning.predict-spectral-library=true
-transfer-learning.run-transfer-learning=true
+transfer-learning.run-transfer-learning=false
 transfer-learning.spectral-library-path=
 transfer-learning.url=
 workflow.description=<p style\="margin-top\: 0">TMT 16-plex workflow for acetylation enriched data, with quantification from MS2. Site localization based on the MSFragger search engine assignment. TMT is specified as fixed modification on n-term and K. Oxidation is specified as variable modifications. Acetyl is specified as -262 (mass of Acetyl minus TMT, as these two modifications are not expected at the same time on the same residue). Also allowed is Carbamyl, specified as -261 (mass of carbamyl minus TMT). Up to 4 missed cleavages and 4 variable modifications in total. PSM validation with Percolator, and protein inference with ProteinProphet. Data is filtered at 1% FDR at the PSM, ion, peptide, and protein levels. TMT-Integrator with virtual reference approach, median-centering normalization, data summarization at the gene/protein/peptide/site levels. If a reference/bridge sample is available, specify the corresponding channel/sample name tag in the annotation file(s) and in TMT-Integrator tab.</p>

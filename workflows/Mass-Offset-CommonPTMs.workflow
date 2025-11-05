@@ -398,7 +398,7 @@ transfer-learning.predict-im=true
 transfer-learning.predict-ms2=true
 transfer-learning.predict-rt=true
 transfer-learning.predict-spectral-library=true
-transfer-learning.run-transfer-learning=true
+transfer-learning.run-transfer-learning=false
 transfer-learning.spectral-library-path=
 transfer-learning.url=
 workflow.description=<p style\="margin-top\: 0in">Mass Offset (also known as Multinotch) search workflow for a fast search for most common modifications (list of mass shifts specified in MSFragger 'Mass Offset' field). MSFragger localization-aware open search (LOS) algorithm, filtered to report PSMs with specified mass shifts only (with isotope errors allowed). Mass calibration, parameter optimization, and precursor monoisotope error correction are enabled. PSM validation using Percolator. Protein inference with ProteinProphet. Data filtered using 1% protein level FDR and additionally 1% FDR at the peptide/ion/PSM level. PTM-Shepherd for mass shift summarization.</p>

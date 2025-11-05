@@ -397,7 +397,7 @@ transfer-learning.predict-im=true
 transfer-learning.predict-ms2=true
 transfer-learning.predict-rt=true
 transfer-learning.predict-spectral-library=true
-transfer-learning.run-transfer-learning=true
+transfer-learning.run-transfer-learning=false
 transfer-learning.spectral-library-path=
 transfer-learning.url=
 workflow.description=<p style\="margin-top\: 0in">Workflow for quantitative HLA type I peptidome profiling using Astral narrow window DIA. Supports DDA-based (when DDA data is available), direct Astral DIA-based, and hybrid (from both DIA and DDA) spectral library building. Narrow window DIA files are searched directly using MSFragger-DIA. Nonspecific search, peptide length 7-15, cysteines assumed to be not alkylated (i.e. samples were not treated with iodoacetamide). Cysteinylation (C+119) can be added optionally as a variable modification. Deep learning-based rescoring of MSFragger results with MSBooster, followed by PSM validation with Percolator. Protein inference is performed with ProteinProphet but protein FDR filter is not applied, so each output file (PSM, ion, peptide) is filtered to 1% FDR at that level. Spectral library building with EasyPQP (the library is filtered to 1% peptide-level FDR) followed by quantification, using that library, from the DIA files using DIA-NN.</p>\n<p style\="margin-top\: 0in"></p> Notes\: for HLA type II peptides, increase max peptide length to 20 or 25. If samples were alkylated, specify C+57 as fixed modification (in that case, can also optionally add Cysteinylation, C+61.98264, as variable modification).

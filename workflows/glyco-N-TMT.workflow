@@ -396,7 +396,7 @@ transfer-learning.predict-im=true
 transfer-learning.predict-ms2=true
 transfer-learning.predict-rt=true
 transfer-learning.predict-spectral-library=true
-transfer-learning.run-transfer-learning=true
+transfer-learning.run-transfer-learning=false
 transfer-learning.spectral-library-path=
 transfer-learning.url=
 workflow.description=<p style\="margin-top\: 0">For search and TMT quantitation of enriched N-glycopeptides fragmented with CID/HCD. Performs MSFragger glyco search, glycan FDR control in PTM-Shepherd, and TMT quant/summarization with TMT-Integrator. Settings are provided for TMT-11 with virtual reference channel - method can be adapated for other TMT settings by adjusting TMT-Integrator parameters.</p>

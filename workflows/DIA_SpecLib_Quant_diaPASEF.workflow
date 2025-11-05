@@ -397,7 +397,7 @@ transfer-learning.predict-im=true
 transfer-learning.predict-ms2=true
 transfer-learning.predict-rt=true
 transfer-learning.predict-spectral-library=true
-transfer-learning.run-transfer-learning=true
+transfer-learning.run-transfer-learning=false
 transfer-learning.spectral-library-path=
 transfer-learning.url=
 workflow.description=<p style\="margin-top\: 0">Wokflow for diaPASEF data, similar to DIA_SpecLib_Quant.</p>\n<p style\="margin-top\: 0">See K. Li et al., diaTracer enables spectrum-centric analysis of diaPASEF proteomics data, Nat Commun 16, 95 (2025).</p> NOTE\: diaTracer needs to be run only once. If .diatracer.mzML files already exist (located in the folder next to the original .d files), load them and annotate as 'DDA' type. Load the original diaPASEF .d files and annotate as 'DIA-Quant'. This will avoid redoing the conversion from .d to diatracer.mzML files.
