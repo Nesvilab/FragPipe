@@ -2101,7 +2101,7 @@ public class FragpipeRun {
 
     // Run scan pairing - make scan pair files if O-Pair is run
     final OPairPanel oPairPanel = Fragpipe.getStickyStrict(OPairPanel.class);
-    CmdPairScans cmdPairScans = new CmdPairScans(oPairPanel.isRun(), wd);
+    CmdPairScans cmdPairScans = new CmdPairScans(oPairPanel.isRun() && !oPairPanel.getOPairParams().isSingleScanType(), wd);
     addConfig.accept(cmdPairScans, () -> {
       cmdPairScans.setRun(cmdPairScans.isRun() && !sharedLcmsFiles.isEmpty());
       if (cmdPairScans.isRun()) {
