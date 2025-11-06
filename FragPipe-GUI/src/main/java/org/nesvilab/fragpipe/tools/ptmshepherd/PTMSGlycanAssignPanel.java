@@ -71,6 +71,7 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
     private static final String PROP_glyco_lda = "glyco_lda";
     private static final String PROP_glyco_lda_features_text = "glyco_lda_features";
     private static final String PROP_glyco_second_pass = "use_glycan_fragment_probs";
+    private static final String PROP_shuffle_decoys = "shuffle_decoy_intensities";
 
     private static final String PROP_nglyco_mode = "n_glyco";
 
@@ -209,6 +210,8 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
                 .create();
         FormEntry feSecondPass = mu.feb(PROP_glyco_second_pass, UiUtils.createUiCheck("2 pass mode", false))
                 .create();
+        FormEntry feShuffleDecoys = mu.feb(PROP_shuffle_decoys, UiUtils.createUiCheck("Shuffle decoy intensities", false))
+                .create();
 
         uiTextLDAfeatures = UiUtils.uiTextBuilder().create();
         uiTextLDAfeatures.setPreferredSize(new Dimension(50, 25));
@@ -251,8 +254,9 @@ public class PTMSGlycanAssignPanel extends JPanelBase {
         mu.add(pGlycoAdvParams, feMassProb.comp).split();
         mu.add(pGlycoAdvParams, fePrintExtGlycoParams.comp).split().spanX().pushX().wrap();
 
-        mu.add(pGlycoAdvParams, feUseLDA.comp).split(4);
+        mu.add(pGlycoAdvParams, feUseLDA.comp).split();
         mu.add(pGlycoAdvParams, feSecondPass.comp).split();
+        mu.add(pGlycoAdvParams, feShuffleDecoys.comp).split();
         mu.add(pGlycoAdvParams, feLDAfeatures.label(), mu.ccL()).split().spanX();
         mu.add(pGlycoAdvParams, feLDAfeatures.comp).growX().wrap();
 
