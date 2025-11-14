@@ -209,7 +209,7 @@ public class CmdTransferLearning extends CmdBase {
         cmdPredict.add(String.valueOf(maxCharge));
         cmdPredict.add("--peptide-list-to-predict");
         if (customPeptideListPath == null || customPeptideListPath.isEmpty()) {
-          customPeptideListPath = wd.resolve("peptide_list.csv").toAbsolutePath().normalize().toString();
+          customPeptideListPath = wd.resolve("peptide_list.parquet").toAbsolutePath().normalize().toString();
         }
         cmdPredict.add(customPeptideListPath);
       }
