@@ -59,7 +59,7 @@ public class CmdMsfraggerDigest extends CmdBase {
       MsfraggerParams params,
       int ramGb,
       final String decoyTag,
-      boolean excludeDecoys) {
+      boolean keepDecoys) {
 
     initPreConfig();
 
@@ -87,7 +87,7 @@ public class CmdMsfraggerDigest extends CmdBase {
 
     params.setDatabaseName(pathFasta);
     params.setDecoyPrefix(decoyTag);
-    params.setExcludeDecoys(excludeDecoys);
+    params.setKeepDecoys(keepDecoys);
     Path savedParamsPath = wd.resolve("fragger_digest.params");
 
     if (!isDryRun) {

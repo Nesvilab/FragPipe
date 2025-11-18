@@ -69,6 +69,7 @@ public class TransferLearningPanel extends JPanelBase {
   private UiCheck uiCheckPredictRT;
   private UiCheck uiCheckPredictIM;
   private UiCombo uiComboPeptidesToPredict;
+  private UiCheck uiCheckKeepDecoys;
   private UiText uiTextCustomPeptideList;
   private UiSpinnerInt uiSpinnerMinCharge;
   private UiSpinnerInt uiSpinnerMaxCharge;
@@ -264,15 +265,17 @@ public class TransferLearningPanel extends JPanelBase {
       uiTextModelPath.setText(path.toString());
     });
 
-    uiComboPeptidesToPredict = UiUtils.createUiCombo(new String[]{"MSFragger search results", "Whole FASTA file (exclude decoys)", "Whole FASTA file (include decoys)", "Custom peptide list"});
+    uiComboPeptidesToPredict = UiUtils.createUiCombo(new String[]{"MSFragger search results", "Whole FASTA file", "Custom peptide list"});
     uiComboPeptidesToPredict.setSelectedIndex(1);
     FormEntry fePeptidesToPredict = mu.feb("peptides-to-predict", uiComboPeptidesToPredict)
         .label("Peptides to predict: ")
         .tooltip("MSFragger search results: use the peptides after MSFragger search to predict a spectral library.<br>"
-            + "Whole FASTA file (exclude decoys): use the peptides digesed from the whole FASTA file (excluding decoys) to predict a spectral library.<br>"
-            + "Whole FASTA file (include decoys): use the peptides digesed from the whole FASTA file (including decoys) to predict a spectral library.<br>"
+            + "Whole FASTA file: use the peptides digested from the whole FASTA file to predict a spectral library.<br>"
             + "Custom peptide list: use a custom peptide list to predict a spectral library.")
         .create();
+
+    uiCheckKeepDecoys = new UiCheck("Keep decoys", null, false);
+    uiCheckKeepDecoys.setName("keep-decoys");
 
     uiTextCustomPeptideList = new UiText("", "");
     uiTextCustomPeptideList.setColumns(20);
@@ -295,19 +298,19 @@ public class TransferLearningPanel extends JPanelBase {
     uiSpinnerMinCharge = new UiSpinnerInt(2, 1, 7, 1);
     FormEntry feMinCharge = mu.feb("min-charge", uiSpinnerMinCharge)
         .label("Min precursor charge")
-        .tooltip("Min precursor charge when predicting spectral library. Available when 'Whole FASTA file (exclude decoys)', 'Whole FASTA file (include decoys)', or 'Custom peptide list' is selected.")
+        .tooltip("Min precursor charge when predicting spectral library. Available when 'Whole FASTA file' or 'Custom peptide list' is selected.")
         .create();
 
     uiSpinnerMaxCharge = new UiSpinnerInt(3, 1, 7, 1);
     FormEntry feMaxCharge = mu.feb("max-charge", uiSpinnerMaxCharge)
         .label("Max precursor charge")
-        .tooltip("Max precursor charge when predicting spectral library. Available when 'Whole FASTA file (exclude decoys)', 'Whole FASTA file (include decoys)', or 'Custom peptide list' is selected.")
+        .tooltip("Max precursor charge when predicting spectral library. Available when 'Whole FASTA file' or 'Custom peptide list' is selected.")
         .create();
 
     uiComboInstrument = UiUtils.createUiCombo(instrumentMap.keySet().toArray(new String[0]));
     FormEntry feInstrument = mu.feb("instrument", uiComboInstrument)
         .label("Instrument")
-        .tooltip("Instrument type when predicting spectral library. Available when 'Whole FASTA file (exclude decoys)', 'Whole FASTA file (include decoys)', or 'Custom peptide list' is selected.")
+        .tooltip("Instrument type when predicting spectral library. Available when 'Whole FASTA file' or 'Custom peptide list' is selected.")
         .create();
 
     uiSpinnerNce = new UiSpinnerInt(30, 1, 100, 1);
@@ -316,9 +319,9 @@ public class TransferLearningPanel extends JPanelBase {
         .tooltip("NCE when predicting spectral library. Available when 'Whole FASTA file' or 'Custom peptide list' is selected.")
         .create();
 
-    updateEnabledStatus(feCustomPeptideList.label(), isRunPrediction() && getPeptidesToPredict() == 3);
-    updateEnabledStatus(feCustomPeptideList.comp, isRunPrediction() && getPeptidesToPredict() == 3);
-    updateEnabledStatus(jButtonCustomPeptideList, isRunPrediction() && getPeptidesToPredict() == 3);
+    updateEnabledStatus(feCustomPeptideList.label(), isRunPrediction() && getPeptidesToPredict() == 2);
+    updateEnabledStatus(feCustomPeptideList.comp, isRunPrediction() && getPeptidesToPredict() == 2);
+    updateEnabledStatus(jButtonCustomPeptideList, isRunPrediction() && getPeptidesToPredict() == 2);
     updateEnabledStatus(feMinCharge.label(), isRunPrediction() && getPeptidesToPredict() > 0);
     updateEnabledStatus(feMinCharge.comp, isRunPrediction() && getPeptidesToPredict() > 0);
     updateEnabledStatus(feMaxCharge.label(), isRunPrediction() && getPeptidesToPredict() > 0);
@@ -327,11 +330,12 @@ public class TransferLearningPanel extends JPanelBase {
     updateEnabledStatus(feInstrument.comp, isRunPrediction() && getPeptidesToPredict() > 0);
     updateEnabledStatus(feNce.label(), isRunPrediction() && getPeptidesToPredict() > 0);
     updateEnabledStatus(feNce.comp, isRunPrediction() && getPeptidesToPredict() > 0);
+    updateEnabledStatus(uiCheckKeepDecoys, isRunPrediction() && getPeptidesToPredict() != 2);
 
     checkRunPrediction.addItemListener(e -> {
-      updateEnabledStatus(feCustomPeptideList.label(), isRunPrediction() && getPeptidesToPredict() == 3);
-      updateEnabledStatus(feCustomPeptideList.comp, isRunPrediction() && getPeptidesToPredict() == 3);
-      updateEnabledStatus(jButtonCustomPeptideList, isRunPrediction() && getPeptidesToPredict() == 3);
+      updateEnabledStatus(feCustomPeptideList.label(), isRunPrediction() && getPeptidesToPredict() == 2);
+      updateEnabledStatus(feCustomPeptideList.comp, isRunPrediction() && getPeptidesToPredict() == 2);
+      updateEnabledStatus(jButtonCustomPeptideList, isRunPrediction() && getPeptidesToPredict() == 2);
       updateEnabledStatus(feMinCharge.label(), isRunPrediction() && getPeptidesToPredict() > 0);
       updateEnabledStatus(feMinCharge.comp, isRunPrediction() && getPeptidesToPredict() > 0);
       updateEnabledStatus(feMaxCharge.label(), isRunPrediction() && getPeptidesToPredict() > 0);
@@ -340,12 +344,13 @@ public class TransferLearningPanel extends JPanelBase {
       updateEnabledStatus(feInstrument.comp, isRunPrediction() && getPeptidesToPredict() > 0);
       updateEnabledStatus(feNce.label(), isRunPrediction() && getPeptidesToPredict() > 0);
       updateEnabledStatus(feNce.comp, isRunPrediction() && getPeptidesToPredict() > 0);
+      updateEnabledStatus(uiCheckKeepDecoys, isRunPrediction() && getPeptidesToPredict() != 2);
     });
 
     uiComboPeptidesToPredict.addItemListener(e -> {
-      updateEnabledStatus(feCustomPeptideList.label(), getPeptidesToPredict() == 3);
-      updateEnabledStatus(feCustomPeptideList.comp, getPeptidesToPredict() == 3);
-      updateEnabledStatus(jButtonCustomPeptideList, getPeptidesToPredict() == 3);
+      updateEnabledStatus(feCustomPeptideList.label(), getPeptidesToPredict() == 2);
+      updateEnabledStatus(feCustomPeptideList.comp, getPeptidesToPredict() == 2);
+      updateEnabledStatus(jButtonCustomPeptideList, getPeptidesToPredict() == 2);
       updateEnabledStatus(feMinCharge.label(), getPeptidesToPredict() > 0);
       updateEnabledStatus(feMinCharge.comp, getPeptidesToPredict() > 0);
       updateEnabledStatus(feMaxCharge.label(), getPeptidesToPredict() > 0);
@@ -354,6 +359,7 @@ public class TransferLearningPanel extends JPanelBase {
       updateEnabledStatus(feInstrument.comp, getPeptidesToPredict() > 0);
       updateEnabledStatus(feNce.label(), getPeptidesToPredict() > 0);
       updateEnabledStatus(feNce.comp, getPeptidesToPredict() > 0);
+      updateEnabledStatus(uiCheckKeepDecoys, getPeptidesToPredict() != 2);
     });
 
     mu.add(panelPrediction, feModelPath.label()).split(3);
@@ -372,10 +378,11 @@ public class TransferLearningPanel extends JPanelBase {
     mu.add(panelPrediction, feCustomPeptideList.comp).growX().pushX();
     mu.add(panelPrediction, jButtonCustomPeptideList).wrap();
 
-    mu.add(panelPrediction, feMinCharge.label()).split(4);
+    mu.add(panelPrediction, feMinCharge.label()).split(5);
     mu.add(panelPrediction, feMinCharge.comp);
     mu.add(panelPrediction, feMaxCharge.label());
-    mu.add(panelPrediction, feMaxCharge.comp).wrap();
+    mu.add(panelPrediction, feMaxCharge.comp);
+    mu.add(panelPrediction, uiCheckKeepDecoys).wrap();
     mu.add(panelPrediction, feInstrument.label()).split(4);
     mu.add(panelPrediction, feInstrument.comp);
     mu.add(panelPrediction, feNce.label());
@@ -462,5 +469,9 @@ public class TransferLearningPanel extends JPanelBase {
 
   public String getOutputFormat() {
     return uiComboOutputFormat.getSelectedItem().toString();
+  }
+
+  public boolean isKeepDecoys() {
+    return uiCheckKeepDecoys.isSelected();
   }
 }

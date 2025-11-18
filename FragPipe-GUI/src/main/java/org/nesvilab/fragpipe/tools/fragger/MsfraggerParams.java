@@ -68,7 +68,7 @@ public class MsfraggerParams extends AbstractParams {
 
     public static final String PROP_database_name = "database_name";
     public static final String PROP_decoy_prefix = "decoy_prefix";
-    public static final String PROP_exclude_decoys = "exclude_decoys";
+    public static final String PROP_keep_decoys = "keep_decoys";
     public static final String PROP_fragpipe_ram = "fragpipe_ram";
     public static final String PROP_num_threads = "num_threads";
     public static final String PROP_precursor_mass_lower = "precursor_mass_lower";
@@ -168,7 +168,7 @@ public class MsfraggerParams extends AbstractParams {
         PROP_min_sequence_matches,
         PROP_database_name,
         PROP_decoy_prefix,
-        PROP_exclude_decoys,
+        PROP_keep_decoys,
         PROP_fragpipe_ram,
         PROP_num_threads,
         PROP_precursor_mass_lower,
@@ -358,7 +358,7 @@ public class MsfraggerParams extends AbstractParams {
         c.put(PROP_write_calibrated_mzml, "Write calibrated MS2 scan to a mzML file (0 for No, 1 for Yes).");
         c.put(PROP_write_uncalibrated_mzml, "Write uncalibrated MS2 scan to a mzML file (0 for No, 1 for Yes). Only for .raw and .d formats.");
         c.put(PROP_decoy_prefix, "Prefix of the decoy protein entries. Used for parameter optimization only.");
-        c.put(PROP_exclude_decoys, "");
+        c.put(PROP_keep_decoys, "");
         c.put(PROP_isotope_error, "Also search for MS/MS events triggered on specified isotopic peaks.");
         c.put(PROP_mass_offsets, "Creates multiple precursor tolerance windows with specified mass offsets.");
         c.put(PROP_mass_offsets_detailed, "Optional detailed mass offset list. Overrides mass_offsets if use_detailed_offsets = 1.");
@@ -511,12 +511,12 @@ public class MsfraggerParams extends AbstractParams {
         props.setProp(PROP_decoy_prefix, decoyPrefix);
     }
 
-    public boolean getExcludeDecoys() {
-        return getInt(PROP_exclude_decoys, "0") == 1;
+    public boolean getKeepDecoys() {
+        return getInt(PROP_keep_decoys, "0") == 1;
     }
 
-    public void setExcludeDecoys(boolean v) {
-        setInt(PROP_exclude_decoys, v ? 1 : 0);
+    public void setKeepDecoys(boolean v) {
+        setInt(PROP_keep_decoys, v ? 1 : 0);
     }
 
     public int getFragpipeRam() {

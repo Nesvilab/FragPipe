@@ -113,7 +113,8 @@ public class CmdTransferLearning extends CmdBase {
     int minCharge,
     int maxCharge,
     String instrument,
-    int nce) {
+    int nce,
+    boolean keepDecoys) {
 
     initPreConfig();
 
@@ -143,7 +144,7 @@ public class CmdTransferLearning extends CmdBase {
       return false;
     }
 
-    if (isRunPrediction && peptidesToPredict == 3 && (customPeptideListPath == null || customPeptideListPath.isEmpty())) {
+    if (isRunPrediction && peptidesToPredict == 2 && (customPeptideListPath == null || customPeptideListPath.isEmpty())) {
       SwingUtils.showErrorDialog(comp, "Custom peptide list path is empty.", NAME + " error");
       return false;
     }
@@ -262,6 +263,9 @@ public class CmdTransferLearning extends CmdBase {
           customPeptideListPath = wd.resolve("peptide_list.parquet").toAbsolutePath().normalize().toString();
         }
         cmdPredict.add(customPeptideListPath);
+      } else if (peptidesToPredict == 0) {
+        cmdPredict.add("--keep-decoys");
+        cmdPredict.add(keepDecoys ? "1" : "0");
       }
       cmdPredict.add("--output-dir");
       cmdPredict.add(wd.toAbsolutePath().normalize().toString());

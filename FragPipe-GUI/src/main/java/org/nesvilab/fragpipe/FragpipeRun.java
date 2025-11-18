@@ -2301,7 +2301,7 @@ public class FragpipeRun {
 
 
     // run transfer learning
-    final CmdMsfraggerDigest cmdMSFraggerDigest = new CmdMsfraggerDigest(transferLearningPanel.isRun() && transferLearningPanel.isRunPrediction() && (transferLearningPanel.getPeptidesToPredict() == 1 || transferLearningPanel.getPeptidesToPredict() == 2), wd);
+    final CmdMsfraggerDigest cmdMSFraggerDigest = new CmdMsfraggerDigest(transferLearningPanel.isRun() && transferLearningPanel.isRunPrediction() && transferLearningPanel.getPeptidesToPredict() == 1, wd);
     final CmdTransferLearning cmdTransferLearning = new CmdTransferLearning(transferLearningPanel.isRun(), wd);
 
     addConfig.accept(cmdMSFraggerDigest, () -> {
@@ -2314,7 +2314,7 @@ public class FragpipeRun {
           tabMsf.getParams(),
           ramGb,
           decoyTag,
-          transferLearningPanel.getPeptidesToPredict() == 1);
+          transferLearningPanel.isKeepDecoys());
       }
       return true;
     });
@@ -2339,7 +2339,8 @@ public class FragpipeRun {
           transferLearningPanel.getMinCharge(),
           transferLearningPanel.getMaxCharge(),
           transferLearningPanel.getInstrument(),
-          transferLearningPanel.getNce());
+          transferLearningPanel.getNce(),
+          transferLearningPanel.isKeepDecoys());
       }
       return true;
     });
