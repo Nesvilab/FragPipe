@@ -21,6 +21,7 @@ import java.awt.Component;
 import java.io.BufferedWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -38,8 +39,6 @@ import org.nesvilab.utils.SwingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import umich.ms.fileio.filetypes.mzbin.Utils;
-
 public class CmdTransferLearning extends CmdBase {
 
   private static final Logger log = LoggerFactory.getLogger(CmdTransferLearning.class);
@@ -49,6 +48,42 @@ public class CmdTransferLearning extends CmdBase {
   private static final Pattern pattern2 = Pattern.compile("_rank[0-9]+\\.pepXML$");
 
   public static String NAME = "Transfer Learning";
+
+  public static class Credential {
+    public final String url;
+    public final String apiKey;
+    
+    public Credential(String url, String apiKey) {
+      this.url = url;
+      this.apiKey = apiKey;
+    }
+  }
+
+  public static Credential parseCredential(String credentialPath) throws Exception {
+    List<String> lines = Files.readAllLines(Paths.get(credentialPath));
+    List<String> nonEmptyLines = new ArrayList<>();
+    for (String line : lines) {
+      if (!line.trim().isEmpty()) {
+        nonEmptyLines.add(line.trim());
+      }
+    }
+    
+    String url = null;
+    String apiKey = null;
+    
+    if (nonEmptyLines.size() > 0) {
+      url = nonEmptyLines.get(0);
+      // Handle BOM (Byte Order Mark) which might be present in Windows files
+      if (url.startsWith("\uFEFF")) {
+        url = url.substring(1);
+      }
+    }
+    if (nonEmptyLines.size() > 1) {
+      apiKey = nonEmptyLines.get(1);
+    }
+    
+    return new Credential(url, apiKey);
+  }
 
 
   public CmdTransferLearning(boolean isRun, Path workDir) {
@@ -64,8 +99,7 @@ public class CmdTransferLearning extends CmdBase {
     Path jarFragpipe, 
     int ramGb,
     Map<InputLcmsFile, List<Path>> lcmsToFraggerPepxml,
-    String url,
-    String apiKey,
+    String credentialPath,
     boolean isRunTraining,
     boolean isRunPrediction,
     String libraryPath,
@@ -82,6 +116,22 @@ public class CmdTransferLearning extends CmdBase {
     int nce) {
 
     initPreConfig();
+
+    if (credentialPath == null || credentialPath.isEmpty()) {
+      SwingUtils.showErrorDialog(comp, "A credential file is required for transfer learning.", NAME + " error");
+      return false;
+    }
+    
+    Credential credential = null;
+    try {
+      credential = parseCredential(credentialPath);
+    } catch (Exception e) {
+      SwingUtils.showErrorDialog(comp, "Failed to read the credential file: " + e.getMessage(), NAME + " error");
+      return false;
+    }
+
+    String url = credential.url;
+    String apiKey = credential.apiKey;
 
     if (url == null || url.isEmpty()) {
       SwingUtils.showErrorDialog(comp, "URL is required for transfer learning.", NAME + " error");

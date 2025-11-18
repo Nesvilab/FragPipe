@@ -383,7 +383,7 @@ tmtintegrator.tolerance=20
 tmtintegrator.unique_gene=0
 tmtintegrator.unique_pep=false
 tmtintegrator.use_glycan_composition=false
-transfer-learning.api-key=
+transfer-learning.credential=
 transfer-learning.custom-peptide-list=
 transfer-learning.instrument=Astral
 transfer-learning.max-charge=3
@@ -399,7 +399,6 @@ transfer-learning.predict-rt=true
 transfer-learning.predict-spectral-library=true
 transfer-learning.run-transfer-learning=false
 transfer-learning.spectral-library-path=
-transfer-learning.url=
 workflow.description=<p style\="margin-top\: 0in">Alternative workflow for DIA analysis using spectral library building and quantification using DIA-NN. This is an alternative to the main DIA_SpecLib_Quant workflow in that DIA data (files annotated as \u2018DIA\u2019 type) are first converted to pseudo-MS/MS spectra using DIA-Umpire, followed by conventional MSFragger (DDA mode) search.</p>\n<p style\="margin-top\: 0in"></p>\n<p style\="margin-top\: 0in">Spectral library can be built from DIA (via DIA-Umpire) and optionally DDA data. All data (DDA and pseudo-MS/MS spectra from DIA) are processed together using MSFragger - MSBooster - Percolator - ProteinProphet (Philosopher) - EasyPQP. The library is filtered to 1% FDR at the protein and peptide levels. <span>&nbsp;</span></p>\n<p style\="margin-top\: 0in"></p>\n<p style\="margin-top\: 0in">Supports Thermo and Sciex data only. For spectral library building both RAW and mzML files are supported, however, quantification with DIA-NN requires mzML files.</p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true

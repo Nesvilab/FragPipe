@@ -383,7 +383,7 @@ tmtintegrator.tolerance=20
 tmtintegrator.unique_gene=0
 tmtintegrator.unique_pep=false
 tmtintegrator.use_glycan_composition=false
-transfer-learning.api-key=
+transfer-learning.credential=
 transfer-learning.custom-peptide-list=
 transfer-learning.instrument=Astral
 transfer-learning.max-charge=3
@@ -399,7 +399,6 @@ transfer-learning.predict-rt=true
 transfer-learning.predict-spectral-library=true
 transfer-learning.run-transfer-learning=false
 transfer-learning.spectral-library-path=
-transfer-learning.url=
 workflow.description=<p style\="margin-top\: 0">TMT 10-plex, quantification and identification from high mass accuracy MS2. Met oxidation, protein N-term Acetyl, n-term TMT, and TMT on S ("overlabeling") are specified as variable modifications. TMT-Integrator with Bridge channel (labeled as 'pool' in the annotation files), data summarization at the gene level. Printing results with three normalization options (None; MD\: Median Centering; GN\: median centering with MAD variance scaling.</p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true

@@ -385,7 +385,7 @@ tmtintegrator.tolerance=20
 tmtintegrator.unique_gene=0
 tmtintegrator.unique_pep=false
 tmtintegrator.use_glycan_composition=false
-transfer-learning.api-key=
+transfer-learning.credential=
 transfer-learning.custom-peptide-list=
 transfer-learning.instrument=Astral
 transfer-learning.max-charge=3
@@ -401,7 +401,6 @@ transfer-learning.predict-rt=true
 transfer-learning.predict-spectral-library=true
 transfer-learning.run-transfer-learning=false
 transfer-learning.spectral-library-path=
-transfer-learning.url=
 workflow.description=<p style\="margin-top\: 0in">Workflow for TMT16-based cysteine activity-based protein profiling method using IA-DTB tag used in e.g. Kuljanin et al. \u201CReimagining high-throughput profiling of reactive cysteines for cell-based screening of large electrophile libraries\u201D. Nat Biotechnol 39, 630\u2013641 (2021).</p>\n<p style\="margin-top\: 0in"></p>\n<p style\="margin-top\: 0in">TMT 16-plex, quantification from MS3 with real-time-search (RTS) option and identification form low mass accuracy MS2 (ion trap). Cysteines are labeled with DBIA (+239) which is specified, in addition to Met oxidation, as a variable modification. Cystein carbamethyl is specified as fixed modification. 20 ppm precursor tolerance (parameter optimization enabled). Fully tryptic, up to 2 missed cleavages. In scoring, only single charged fragments are used (changed for DBIA data from the default, which is maximum fragment charge of 2). Rescoring with MSBooster. Validation with Percolator and ProteinProphet. TMT-Integrator with virtual reference approach, median-centering normalization, data summarization at all levels (with C[399], i.e. Cys+DBIA, for the site-level reports; localization directly from MSFragger).</p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true

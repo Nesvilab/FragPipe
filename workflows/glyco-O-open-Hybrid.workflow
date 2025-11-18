@@ -386,7 +386,7 @@ tmtintegrator.tolerance=20
 tmtintegrator.unique_gene=0
 tmtintegrator.unique_pep=false
 tmtintegrator.use_glycan_composition=true
-transfer-learning.api-key=
+transfer-learning.credential=
 transfer-learning.custom-peptide-list=
 transfer-learning.instrument=Astral
 transfer-learning.max-charge=3
@@ -402,7 +402,6 @@ transfer-learning.predict-rt=true
 transfer-learning.predict-spectral-library=true
 transfer-learning.run-transfer-learning=false
 transfer-learning.spectral-library-path=
-transfer-learning.url=
 workflow.description=<p style\="margin-top\: 0">For hybrid activation open search of O-glycopeptides. NOTE\: glycan assignment/FDR control is NOT yet supported for open searches and is not performed in this workflow.</p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true

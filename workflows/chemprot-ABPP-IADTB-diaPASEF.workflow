@@ -385,7 +385,7 @@ tmtintegrator.tolerance=20
 tmtintegrator.unique_gene=0
 tmtintegrator.unique_pep=false
 tmtintegrator.use_glycan_composition=false
-transfer-learning.api-key=
+transfer-learning.credential=
 transfer-learning.custom-peptide-list=
 transfer-learning.instrument=Astral
 transfer-learning.max-charge=3
@@ -401,7 +401,6 @@ transfer-learning.predict-rt=true
 transfer-learning.predict-spectral-library=true
 transfer-learning.run-transfer-learning=false
 transfer-learning.spectral-library-path=
-transfer-learning.url=
 workflow.description=<p class\="MsoNormal" style\="margin-bottom\: 0in; line-height\: normal">Workflow for cysteine activity-based protein profiling (IA-DTB) with diaPASEF-based label-free quantification, see e.g. Biggs J. et al, "Robust proteome profiling of cysteine-reactive fragments using label-free chemoproteomics", Nat Commun 16\:73 (2025).</p>\n<p style\="margin-top\: 0in">Peptide identification directly from DIA data using diaTracer and MSFragger. MSFragger search with +57.02146 (iodoacetamide alkylation) and +296.1844 (IA-DTB) specified on cysteine as variable modifications. In addition, Met oxidation and N-terminal Acetyl are specified as variable modifications. 10 ppm precursor tolerance, parameter optimization enabled. Fully tryptic search, up to 1 missed cleavages. Deep learning-based rescoring of MSFragger results with MSBooster, followed by PSM validation with Percolator. Protein inference is performed with ProteinProphet. The data is filtered to 1% protein FDR and additionally at 1% FDR at the peptide and PSM levels. Spectral library building with EasyPQP followed by quantification, using that library, from the DIA files using DIA-NN. Site level reports are generated using LFQ-SiteReporter (site localization probability 0.75).</p> NOTE\: diaTracer needs to be run only once. If .diatracer.mzML files already exist (located in the folder next to the original .d files), load them and annotate as 'DDA' type. Load the original diaPASEF .d files and annotate as 'DIA-Quant'. This will avoid redoing the conversion from .d to diatracer.mzML files.
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true

@@ -75,7 +75,15 @@ public class ProcessBuilderInfo {
       try {
         TransferLearningPanel panel = Bus.getStickyEvent(TransferLearningPanel.class);
         if (panel != null) {
-          url = panel.getURL();
+          String credentialPath = panel.getCredentialPath();
+          if (credentialPath != null && !credentialPath.isEmpty()) {
+            try {
+              CmdTransferLearning.Credential credential = CmdTransferLearning.parseCredential(credentialPath);
+              url = credential.url;
+            } catch (Exception e) {
+              log.warn("Failed to read the credential file to get URL for job tracking: " + e.getMessage());
+            }
+          }
         }
       } catch (Exception e) {
         throw new RuntimeException("Could not retrieve URL from TransferLearningPanel: " + e.getMessage());

@@ -385,7 +385,7 @@ tmtintegrator.tolerance=20
 tmtintegrator.unique_gene=0
 tmtintegrator.unique_pep=false
 tmtintegrator.use_glycan_composition=false
-transfer-learning.api-key=
+transfer-learning.credential=
 transfer-learning.custom-peptide-list=
 transfer-learning.instrument=Astral
 transfer-learning.max-charge=3
@@ -401,7 +401,6 @@ transfer-learning.predict-rt=true
 transfer-learning.predict-spectral-library=true
 transfer-learning.run-transfer-learning=false
 transfer-learning.spectral-library-path=
-transfer-learning.url=
 workflow.description=<p class\="MsoNormal" style\="margin-bottom\: 0in; line-height\: normal">Workflow for cysteine activity-based protein profiling method with DIA-based label-free quantification, IA-alkyne conjugated acid-cleavable tag, based on data described in\: "Quantitative Chemoproteomic Profiling with Data-Independent Acquisition-Based Mass Spectrometry", Fan Yang et al. JACS 144\:901\u2013911 (2022).</p>\n<p style\="margin-top\: 0in"></p>\n<p style\="margin-top\: 0in">This workflow supports DDA-based (when DDA data is available), DIA-based (directDIA via MSFragger-DIA), and hybrid (from both DIA and DDA) spectral library building. MSFragger (MSFragger-DIA for DIA data) search with +57.02146 on cysteine (iodoacetamide alkylation) and +280.1899 specified on cysteine as variable modifications to account for the probe mass (IA-alkyne conjugated acid-cleavable tag). In addition, Met oxidation and N-terminal Acetyl are specified as variable modifications. 20 ppm precursor tolerance, parameter optimization enabled. Fully tryptic search, up to 2 missed cleavages.</p>\n<p style\="margin-top\: 0in"></p>\n<p style\="margin-top\: 0in">Deep learning-based rescoring of MSFragger results with MSBooster, followed by PSM validation with Percolator. Protein inference is performed with ProteinProphet. The data is filtered to 1% protein FDR and additionally at 1% FDR at the peptide and PSM levels. Spectral library building with EasyPQP followed by quantification, using that library, from the DIA files using DIA-NN. Site level reports are generated using LFQ-SiteReporter (min site localization probability 0.75).</p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true

@@ -383,7 +383,7 @@ tmtintegrator.tolerance=20
 tmtintegrator.unique_gene=0
 tmtintegrator.unique_pep=false
 tmtintegrator.use_glycan_composition=false
-transfer-learning.api-key=
+transfer-learning.credential=
 transfer-learning.custom-peptide-list=
 transfer-learning.instrument=Astral
 transfer-learning.max-charge=3
@@ -399,7 +399,6 @@ transfer-learning.predict-rt=true
 transfer-learning.predict-spectral-library=true
 transfer-learning.run-transfer-learning=false
 transfer-learning.spectral-library-path=
-transfer-learning.url=
 workflow.description=<p style\="margin-top\: 0in">Workflow for identification of phosphopeptides in HLA peptidome data. Nonspecific search, peptide length 7-20. MSFragger search assumes cysteines were not alkylated (i.e. samples were not treated with iodoacetamide). Optionally add C+119 as variable mod. PSM rescoring and validation with MSBooster and Percolator. Group-speciifc FDR filtering (unmodified, peptides with common mods, and phosphopeptides are filtered separately). Protein FDR filter of 1%. Optionally add LFQ with IonQuant.</p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true

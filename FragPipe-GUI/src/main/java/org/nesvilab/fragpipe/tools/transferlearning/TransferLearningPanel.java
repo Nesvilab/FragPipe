@@ -60,8 +60,7 @@ public class TransferLearningPanel extends JPanelBase {
   private JPanel pTop;
   private JPanel panelTraining;
   private JPanel panelPrediction;
-  private UiText uiTextURL;
-  private UiText uiTextAPIKey;
+  private UiText uiTextCredential;
   private UiCheck checkRunTraining;
   private UiText uiTextLibrary;
   private UiText uiTextModelPath;
@@ -108,8 +107,7 @@ public class TransferLearningPanel extends JPanelBase {
       }
     };
     
-    uiTextURL.getDocument().addDocumentListener(textFieldListener);
-    uiTextAPIKey.getDocument().addDocumentListener(textFieldListener);
+    uiTextCredential.getDocument().addDocumentListener(textFieldListener);
     
     checkRun.addItemListener(e -> updateContentPanelEnablement());
     
@@ -117,10 +115,9 @@ public class TransferLearningPanel extends JPanelBase {
   }
   
   private void updateContentPanelEnablement() {
-    boolean urlNotBlank = !uiTextURL.getNonGhostText().trim().isEmpty();
-    boolean apiKeyNotBlank = !uiTextAPIKey.getNonGhostText().trim().isEmpty();
+    boolean credentialNotBlank = !uiTextCredential.getNonGhostText().trim().isEmpty();
     boolean checkRunSelected = checkRun.isSelected();
-    boolean shouldEnable = checkRunSelected && urlNotBlank && apiKeyNotBlank;
+    boolean shouldEnable = checkRunSelected && credentialNotBlank;
     
     if (pContent != null) {
       updateEnabledStatus(pContent, shouldEnable);
@@ -146,18 +143,23 @@ public class TransferLearningPanel extends JPanelBase {
     JPanel p = new JPanel(new MigLayout(new LC().insets("0", "0", "25", "0")));
     mu.borderEmpty(p);
 
-    uiTextURL = new UiText("", "");
-    uiTextURL.setColumns(20);
-    FormEntry feURL = mu.feb("url", uiTextURL)
-        .label("Transfer learning server URL: ")
-        .tooltip("The public one is XXX")
+    uiTextCredential = new UiText("", "");
+    uiTextCredential.setColumns(20);
+    FormEntry feCredential = mu.feb("credential", uiTextCredential)
+        .label("Credential file: ")
+        .tooltip("A text file containing the transfer learning server URL in the first line and the API key in the second line.")
         .create();
 
-    uiTextAPIKey = new UiText("", "");
-    uiTextAPIKey.setColumns(20);
-    FormEntry feAPIKey = mu.feb("api-key", uiTextAPIKey)
-        .label("Transfer learning API key: ")
-        .create();
+    JButton jButtonCredential = feCredential.browseButton("Browse", "Select credential file", () -> {
+      final FileNameExtensionFilter fileNameExtensionFilter = new FileNameExtensionFilter("Key files", "key");
+      JFileChooser fc = FileChooserUtils.create("Credential file", "Select", false, FcMode.FILES_ONLY, true, fileNameExtensionFilter);
+      fc.setFileFilter(fileNameExtensionFilter);
+      FileChooserUtils.setPath(fc, Stream.of(uiTextCredential.getNonGhostText()));
+      return fc;
+    }, paths -> {
+      Path path = paths.get(0);
+      uiTextCredential.setText(path.toString());
+    });
 
     checkRun = new UiCheck("Perform transfer learning and/or predict spectral library", null, false);
     checkRun.setName("run-transfer-learning");
@@ -165,11 +167,9 @@ public class TransferLearningPanel extends JPanelBase {
     JLabel availabilityLabel = new JLabel("<html><b>Note: Currently available to selected collaborators only.</b></html>");
 
     mu.add(p, checkRun).pushX().wrap();
-    mu.add(p, feURL.label()).split(2);
-    mu.add(p, feURL.comp).growX().wrap();
-
-    mu.add(p, feAPIKey.label()).split(2);
-    mu.add(p, feAPIKey.comp).growX().wrap();
+    mu.add(p, feCredential.label()).split(3);
+    mu.add(p, feCredential.comp).growX().pushX();
+    mu.add(p, jButtonCredential).wrap();
 
     mu.add(p, availabilityLabel).wrap();
 
@@ -412,12 +412,8 @@ public class TransferLearningPanel extends JPanelBase {
     return SwingUtils.isEnabledAndChecked(checkRunPrediction);
   }
 
-  public String getURL() {
-    return uiTextURL.getNonGhostText();
-  }
-
-  public String getAPIKey() {
-    return uiTextAPIKey.getNonGhostText();
+  public String getCredentialPath() {
+    return uiTextCredential.getNonGhostText();
   }
 
   public String getLibraryPath() {

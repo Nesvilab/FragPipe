@@ -383,7 +383,7 @@ tmtintegrator.tolerance=20
 tmtintegrator.unique_gene=0
 tmtintegrator.unique_pep=false
 tmtintegrator.use_glycan_composition=false
-transfer-learning.api-key=
+transfer-learning.credential=
 transfer-learning.custom-peptide-list=
 transfer-learning.instrument=Astral
 transfer-learning.max-charge=3
@@ -399,7 +399,6 @@ transfer-learning.predict-rt=true
 transfer-learning.predict-spectral-library=true
 transfer-learning.run-transfer-learning=false
 transfer-learning.spectral-library-path=
-transfer-learning.url=
 workflow.description=<p style\="margin-top\: 0in">Workflow for quantitative HLA peptidome profiling using DIA. Supports DDA-based (when DDA data is available), DIA-based (directDIA via DIA-Umpire) and hybrid (from both DIA and DDA) spectral library building. DIA files are first processed using DIA-Umpire. Pseudo-MS/MS spectra extracted by DIA-Umpire, and DDA data (when available), are then processed together using MSFragger nonspecific search, with recommended settings for HLA peptides. Peptide length 7-25, cysteines assumed to be not alkylated (i.e. samples were not treated with iodoacetamide). Cysteinylation (C+119) is specified as a variable modification. Deep learning-based rescoring of MSFragger results with MSBooster, followed by PSM validation with Percolator. Protein inference is performed with ProteinProphet but protein FDR filter is not applied, so each output file (PSM, ion, peptide) is filtered to 1% FDR at that level. Spectral library building with EasyPQP followed by quantification, using that library, from the DIA files using DIA-NN.</p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true

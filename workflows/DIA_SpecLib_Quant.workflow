@@ -383,7 +383,7 @@ tmtintegrator.tolerance=20
 tmtintegrator.unique_gene=0
 tmtintegrator.unique_pep=false
 tmtintegrator.use_glycan_composition=false
-transfer-learning.api-key=
+transfer-learning.credential=
 transfer-learning.custom-peptide-list=
 transfer-learning.instrument=Astral
 transfer-learning.max-charge=3
@@ -399,7 +399,6 @@ transfer-learning.predict-rt=true
 transfer-learning.predict-spectral-library=true
 transfer-learning.run-transfer-learning=false
 transfer-learning.spectral-library-path=
-transfer-learning.url=
 workflow.description=<p style\="margin-top\: 0">Complete workflow for DIA analysis using spectral library building and quantification using DIA-NN.</p>\n<p style\="margin-top\: 0"></p>\n<p style\="margin-top\: 0">Spectral library can be built from DDA data and/or DIA data, with direct identification from DIA data using MSFragger-DIA. All data are processed together using MSFragger (in DDA or DIA mode, respectively) - MSBooster - Percolator - ProteinProphet (Philosopher) - EasyPQP. The library is filtered to 1% FDR at the protein and peptide levels. DIA files annotated as 'DIA-Quant' are used for quantification only (i.e. not used for spectral library building). If building the library from fractionated DDA data only, in EasyPQP tab change RT Calibration option to "ciRT", or "iRT" if using organisms other than yeast or human (requires iRT peptides).</p>\n<p style\="margin-top\: 0"></p>\n<p style\="margin-top\: 0">Supports DDA RAW/.d files, mzML, and MGF files. DIA files with staggered windows should be mzML files demultiplexed using Proteowizard. For quantification using DIA-NN, Thermo/Sciex DIA files should be in mzML format, and .d for Bruker's timsTOF. diaPASEF DIA data will only be used for quantification (i.e. automatically considered as 'DIA-Quant' data type).</p>
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
