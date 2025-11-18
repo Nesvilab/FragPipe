@@ -103,7 +103,7 @@ public class CmdTransferLearning extends CmdBase {
     }
 
     if (isRunPrediction && (modelPath == null || modelPath.isEmpty())) {
-      modelPath = wd.resolve("MSBooster").resolve("fragpipe-transfer-learning-model.zip").toAbsolutePath().normalize().toString();
+      modelPath = wd.resolve("fragpipe-transfer-learning-model.zip").toAbsolutePath().normalize().toString();
     }
 
     final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(CmdMSBooster.JAR_MSBOOSTER_NAME).concat(CmdMSBooster.JAR_DEPS));
@@ -129,7 +129,7 @@ public class CmdTransferLearning extends CmdBase {
       cmdTrain.add("--library");
       cmdTrain.add(libraryPath);
       cmdTrain.add("--output-dir");
-      cmdTrain.add(wd.resolve("MSBooster").toAbsolutePath().normalize().toString());
+      cmdTrain.add(wd.toAbsolutePath().normalize().toString());
       cmdTrain.add("--basename");
       cmdTrain.add("fragpipe-transfer-learning-model");
 
@@ -214,7 +214,7 @@ public class CmdTransferLearning extends CmdBase {
         cmdPredict.add(customPeptideListPath);
       }
       cmdPredict.add("--output-dir");
-      cmdPredict.add(wd.resolve("MSBooster").toAbsolutePath().normalize().toString());
+      cmdPredict.add(wd.toAbsolutePath().normalize().toString());
       cmdPredict.add("--basename");
       cmdPredict.add("fragpipe-predicted-speclib");
 
