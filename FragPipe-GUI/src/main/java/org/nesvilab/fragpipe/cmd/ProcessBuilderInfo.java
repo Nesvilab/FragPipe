@@ -23,6 +23,8 @@ import java.awt.Color;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.function.BiConsumer;
 import org.nesvilab.fragpipe.Fragpipe;
@@ -60,6 +62,16 @@ public class ProcessBuilderInfo {
     this.fnStdout = fnStdout;
     this.fnStderr = fnStderr;
     this.parallelGroup = parallelGroup;
+  }
+
+  public static List<String> getMaskedCommand(List<String> command) {
+    List<String> cmdList = new ArrayList<>(command);
+    for (int i = 0; i < cmdList.size() - 1; i++) {
+      if (cmdList.get(i).equals("--api-key")) {
+        cmdList.set(i + 1, "********");
+      }
+    }
+    return cmdList;
   }
 
   private static void parseAndStoreJobId(String output, JobType jobType) {

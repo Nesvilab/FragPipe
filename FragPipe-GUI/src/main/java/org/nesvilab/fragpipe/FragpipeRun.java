@@ -1224,8 +1224,9 @@ public class FragpipeRun {
       toConsole(Fragpipe.COLOR_WORKDIR, " [Work dir: " + pbi.pb.directory() + "]", false, console);
     }
     toConsole("", true, console);
-    final String cmd = pbi.pb.command().stream()
-            .map(e -> OsUtils.isUnix() && Pattern.matches(".*\\s.*", e) ? "\"" + e + "\"" : e) // insert quotes for arguments with whitespace
+    
+    final String cmd = ProcessBuilderInfo.getMaskedCommand(pbi.pb.command()).stream()
+            .map(e -> OsUtils.isUnix() && Pattern.matches(".*\\s.*", e) ? "\"" + e + "\"" : e)
             .collect(Collectors.joining(" "));
     toConsole(Fragpipe.COLOR_CMDLINE, cmd, true, console);
   }
