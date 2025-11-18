@@ -1278,9 +1278,6 @@ public class FragpipeRun {
     final TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
 
     // confirm with user that multi-experiment report is not needed
-    final ProtProphPanel protProphPanel = Fragpipe.getStickyStrict(ProtProphPanel.class);
-    final ReportPanel reportPanel = Fragpipe.getStickyStrict(ReportPanel.class);
-
     final UsageTrigger usePhi = new UsageTrigger(philosopherBinPath, "Philosopher");
 
     // all the configurations are aggregated before being executed
@@ -1334,14 +1331,56 @@ public class FragpipeRun {
       return true;
     });
 
-    // Check if the scans are centroided.
+    final UmpirePanel umpirePanel = Fragpipe.getStickyStrict(UmpirePanel.class);
+    final DiaTracerPanel diaTracerPanel = Fragpipe.getStickyStrict(DiaTracerPanel.class);
     final TabMsfragger tabMsf = Fragpipe.getStickyStrict(TabMsfragger.class);
+    final CrystalcPanel crystalcPanel = Fragpipe.getStickyStrict(CrystalcPanel.class);
+    final MSBoosterPanel msBoosterPanel = Fragpipe.getStickyStrict(MSBoosterPanel.class);
+    final PepProphPanel pepProphPanel = Fragpipe.getStickyStrict(PepProphPanel.class);
+    final PercolatorPanel percolatorPanel = Fragpipe.getStickyStrict(PercolatorPanel.class);
+    final PtmProphetPanel ptmProphetPanel = Fragpipe.getStickyStrict(PtmProphetPanel.class);
+    final ProtProphPanel protProphPanel = Fragpipe.getStickyStrict(ProtProphPanel.class);
+    final ReportPanel reportPanel = Fragpipe.getStickyStrict(ReportPanel.class);
+    final PtmshepherdPanel ptmshepherdPanel = Fragpipe.getStickyStrict(PtmshepherdPanel.class);
+    final PTMSGlycanAssignPanel ptmsGlycanPanel = Fragpipe.getStickyStrict(PTMSGlycanAssignPanel.class);
+    final OPairPanel oPairPanel = Fragpipe.getStickyStrict(OPairPanel.class);
+    final MBGPanel mbgPanel = Fragpipe.getStickyStrict(MBGPanel.class);
+    final QuantPanelLabelfree quantPanelLabelfree = Fragpipe.getStickyStrict(QuantPanelLabelfree.class);
+    final TmtiPanel tmtiPanel = Fragpipe.getStickyStrict(TmtiPanel.class);
+    final SpeclibPanel speclibPanel = Fragpipe.getStickyStrict(SpeclibPanel.class);
+    final TransferLearningPanel transferLearningPanel = Fragpipe.getStickyStrict(TransferLearningPanel.class);
+    final DiannPanel diannPanel = Fragpipe.getStickyStrict(DiannPanel.class);
+    final SkylinePanel skylinePanel = Fragpipe.getStickyStrict(SkylinePanel.class);
+
+    // Check if the scans are centroided.
     final int ramGb = tabWorkflow.getRamGb() > 0 ? tabWorkflow.getRamGb() : OsUtils.getDefaultXmx();
     final int threads = tabWorkflow.getThreads();
+    
+    boolean onlyTransferLearning = transferLearningPanel.isRun() 
+        && !tabMsf.isRun() 
+        && !umpirePanel.isRun() 
+        && !diaTracerPanel.isRun() 
+        && !crystalcPanel.isRun() 
+        && !msBoosterPanel.isRun() 
+        && !pepProphPanel.isRun() 
+        && !percolatorPanel.isRun() 
+        && !ptmProphetPanel.isRun() 
+        && !protProphPanel.isRun() 
+        && !reportPanel.isRun() 
+        && !ptmshepherdPanel.isRun() 
+        && !ptmsGlycanPanel.isRun() 
+        && !oPairPanel.isRun() 
+        && !mbgPanel.isRun() 
+        && !quantPanelLabelfree.isRunIonQuant() 
+        && !quantPanelLabelfree.isRunFreeQuant() 
+        && !tmtiPanel.isRun() 
+        && !speclibPanel.isRun() 
+        && !diannPanel.isRun() 
+        && !skylinePanel.isRun();
 
     CmdCheckCentroid cmdCheckCentroid = new CmdCheckCentroid(true, wd);
     addConfig.accept(cmdCheckCentroid, () -> {
-      cmdCheckCentroid.setRun(cmdCheckCentroid.isRun() && !sharedLcmsFiles.isEmpty());;
+      cmdCheckCentroid.setRun(cmdCheckCentroid.isRun() && !sharedLcmsFiles.isEmpty() && !onlyTransferLearning);;
       if (cmdCheckCentroid.isRun()) {
         return cmdCheckCentroid.configure(jarPath, ramGb, threads, sharedLcmsFiles);
       }
@@ -1366,7 +1405,6 @@ public class FragpipeRun {
       extLibsBruker = null;
     }
 
-    final UmpirePanel umpirePanel = Fragpipe.getStickyStrict(UmpirePanel.class);
     final CmdUmpireSe cmdUmpire = new CmdUmpireSe(umpirePanel.isRun(), wd);
     addConfig.accept(cmdUmpire, () -> {
       cmdUmpire.setRun(cmdUmpire.isRun() && !sharedLcmsFiles.isEmpty());
@@ -1395,7 +1433,6 @@ public class FragpipeRun {
     });
 
     final UsageTrigger binDiaTracer = new UsageTrigger(NoteConfigDiaTracer.path, "diaTracer");
-    final DiaTracerPanel diaTracerPanel = Fragpipe.getStickyStrict(DiaTracerPanel.class);
 
     if (diaTracerPanel.isChecked() && !diaTracerPanel.isEnabled()) {
       SwingUtils.showErrorDialog(parent, "<b>diaTracer</b> is not valid but it is enabled in the workflow. Please disable diaTracer or fix it in the <b>Config</b> tab.", "diaTracer not available");
@@ -1535,7 +1572,6 @@ public class FragpipeRun {
     });
 
     // run Crystalc
-    CrystalcPanel crystalcPanel = Fragpipe.getStickyStrict(CrystalcPanel.class);
     final CmdCrystalc cmdCrystalc = new CmdCrystalc(crystalcPanel.isRun(), wd);
 
     addConfig.accept(cmdCrystalc, () -> {
@@ -1565,7 +1601,6 @@ public class FragpipeRun {
     });
 
     // Run MSBooster
-    final MSBoosterPanel msBoosterPanel = Fragpipe.getStickyStrict(MSBoosterPanel.class);
     final CmdMSBooster cmdMSBooster = new CmdMSBooster(msBoosterPanel.isRun(), wd);
     addConfig.accept(cmdMSBooster, () -> {
       cmdMSBooster.setRun(cmdMSBooster.isRun() && !sharedPepxmlFilesFromMsfragger.isEmpty());
@@ -1602,13 +1637,10 @@ public class FragpipeRun {
     });
 
     // run PeptideProphet
-    final PepProphPanel pepProphPanel = Fragpipe.getStickyStrict(PepProphPanel.class);
     final boolean isRunPeptideProphet = pepProphPanel.isRun();
     final boolean isCombinedPepxml = pepProphPanel.isCombinePepxml();
 
     final CmdPeptideProphet cmdPeptideProphet = new CmdPeptideProphet(isRunPeptideProphet, wd);
-
-    final PercolatorPanel percolatorPanel = Fragpipe.getStickyStrict(PercolatorPanel.class);
 
     addCheck.accept(() -> {
       if (cmdPeptideProphet.isRun()) {
@@ -1669,8 +1701,7 @@ public class FragpipeRun {
     });
 
     // Run PTM-Prophet.
-    final PtmProphetPanel panelPtmProphet = Fragpipe.getStickyStrict(PtmProphetPanel.class);
-    final CmdPtmProphet cmdPtmProphet = new CmdPtmProphet(panelPtmProphet.isRun(), wd);
+    final CmdPtmProphet cmdPtmProphet = new CmdPtmProphet(ptmProphetPanel.isRun(), wd);
     addConfig.accept(cmdPtmProphet, () -> {
       // PeptideProphet is run, so we run adjustments of the pepxml files.
       List<Tuple2<InputLcmsFile, Path>> lcmsToPepxml = Seq.seq(sharedPepxmlFiles)
@@ -1679,7 +1710,7 @@ public class FragpipeRun {
 
       cmdPtmProphet.setRun(cmdPtmProphet.isRun() && !lcmsToPepxml.isEmpty());
       if (cmdPtmProphet.isRun()) {
-        return cmdPtmProphet.configure(parent, panelPtmProphet.getCmdLineOpts(), lcmsToPepxml, threads);
+        return cmdPtmProphet.configure(parent, ptmProphetPanel.getCmdLineOpts(), lcmsToPepxml, threads);
       }
       return true;
     });
@@ -1702,8 +1733,6 @@ public class FragpipeRun {
       MapUtils.refill(sharedMapGroupsToProtxml, outputs);
       return true;
     });
-
-    final QuantPanelLabelfree quantPanelLabelfree = Fragpipe.getStickyStrict(QuantPanelLabelfree.class);
 
     // run Report - DbAnnotate
     final CmdPhilosopherDbAnnotate cmdPhilosopherDbAnnotate = new CmdPhilosopherDbAnnotate(reportPanel.isRun(), wd);
@@ -1782,8 +1811,6 @@ public class FragpipeRun {
       return true;
     });
 
-    final TmtiPanel tmtiPanel = Fragpipe.getStickyStrict(TmtiPanel.class);
-
     // run Report - Report command itself
     final CmdPhilosopherReport cmdPhilosopherReport = new CmdPhilosopherReport(reportPanel.isRun() || quantPanelLabelfree.isRunFreeQuant(), wd);
     boolean philosopherGenerateMSstats = tmtiPanel.isRun() && tmtiPanel.isMsstats();
@@ -1841,7 +1868,6 @@ public class FragpipeRun {
     });
 
     // PTM-S glycan assignment can assign additional masses to PSMs. Append those masses to the mass list file after PTM-S is run for IonQuant (including IonQuant for MS2 quant extraction)
-    PTMSGlycanAssignPanel ptmsGlycanPanel = Fragpipe.getStickyStrict(PTMSGlycanAssignPanel.class);
     final CmdAppendFile cmdAppendFile = new CmdAppendFile(ptmsGlycanPanel.isRun() && (quantPanelLabelfree.isRunIonQuant() || (tmtiPanel.isRun() && tmtiPanel.getIntensityExtractionTool() == 0)), wd);
     addConfig.accept(cmdAppendFile,  () -> {
       cmdAppendFile.setRun(cmdAppendFile.isRun() && !sharedPepxmlFilesFromMsfragger.isEmpty());
@@ -1854,7 +1880,6 @@ public class FragpipeRun {
     final UsageTrigger binIonQuant = new UsageTrigger(NoteConfigIonQuant.path, "IonQuant");
 
     // match-between-glycans (aka glycoform inference) - first part
-    MBGPanel mbgPanel = Fragpipe.getStickyStrict(MBGPanel.class);
     TabGlyco tabGlyco = Fragpipe.getStickyStrict(TabGlyco.class);
     final CmdMBGMatch cmdMBGMatch = new CmdMBGMatch(mbgPanel.isRun(), wd);
     addConfig.accept(cmdMBGMatch, () -> {
@@ -1894,10 +1919,6 @@ public class FragpipeRun {
       addConfig.accept(cmdIonquant,  () -> {
         cmdIonquant.setRun(cmdIonquant.isRun() && !sharedPepxmlFilesFromMsfragger.isEmpty());
         if (cmdIonquant.isRun()) {
-          OPairPanel oPairPanel = Bus.getStickyEvent(OPairPanel.class);
-          if (oPairPanel == null) {
-            throw new IllegalStateException("OPairPanel has not been posted to the bus");
-          }
 
           return cmdIonquant.configure(parent,
               extLibsThermo,
@@ -2005,10 +2026,6 @@ public class FragpipeRun {
         addConfig.accept(cmdTmtIonquant, () -> {
           cmdTmtIonquant.setRun(cmdTmtIonquant.isRun() && !sharedPepxmlFilesFromMsfragger.isEmpty());
           if (cmdTmtIonquant.isRun()) {
-            OPairPanel oPairPanel = Bus.getStickyEvent(OPairPanel.class);
-            if (oPairPanel == null) {
-              throw new IllegalStateException("OPairPanel has not been posted to the bus");
-            }
             return cmdTmtIonquant.configure(parent,
                 extLibsThermo,
                 extLibsBruker,
@@ -2036,10 +2053,6 @@ public class FragpipeRun {
         addConfig.accept(cmdTmtIonquantIsobaric, () -> {
           cmdTmtIonquantIsobaric.setRun(cmdTmtIonquantIsobaric.isRun() && !sharedPepxmlFilesFromMsfragger.isEmpty());
           if (cmdTmtIonquantIsobaric.isRun()) {
-            OPairPanel oPairPanel = Bus.getStickyEvent(OPairPanel.class);
-            if (oPairPanel == null) {
-              throw new IllegalStateException("OPairPanel has not been posted to the bus");
-            }
             return cmdTmtIonquantIsobaric.configure(parent,
                 extLibsThermo,
                 extLibsBruker,
@@ -2100,7 +2113,6 @@ public class FragpipeRun {
     }
 
     // Run scan pairing - make scan pair files if O-Pair is run
-    final OPairPanel oPairPanel = Fragpipe.getStickyStrict(OPairPanel.class);
     CmdPairScans cmdPairScans = new CmdPairScans(oPairPanel.isRun() && !oPairPanel.getOPairParams().isSingleScanType(), wd);
     addConfig.accept(cmdPairScans, () -> {
       cmdPairScans.setRun(cmdPairScans.isRun() && !sharedLcmsFiles.isEmpty());
@@ -2129,8 +2141,7 @@ public class FragpipeRun {
     });
 
     // run PTMShepherd
-    PtmshepherdPanel ptmsPanel = Fragpipe.getStickyStrict(PtmshepherdPanel.class);
-    final boolean isRunShepherd = ptmsPanel.isRun() || ptmsGlycanPanel.isRun();
+    final boolean isRunShepherd = ptmshepherdPanel.isRun() || ptmsGlycanPanel.isRun();
     final CmdPtmshepherd cmdPtmshepherd = new CmdPtmshepherd(isRunShepherd, wd);
 
     // do not allow O-Pair and PTM-S to run in the same workflow
@@ -2148,7 +2159,7 @@ public class FragpipeRun {
     });
 
     addCheck.accept(() -> {
-      if (!ptmsPanel.validateForm()) {
+      if (!ptmshepherdPanel.validateForm()) {
         if (Fragpipe.headless) {
           log.error("There are errors in PTM-Shepherd configuration panel on Report tab.");
         } else {
@@ -2162,7 +2173,7 @@ public class FragpipeRun {
       cmdPtmshepherd.setRun(cmdPtmshepherd.isRun() && !sharedMapGroupsToProtxml.isEmpty());
       if (cmdPtmshepherd.isRun()) {
         Path fastaPath = Paths.get(fastaFile);
-        Map<String, String> additionalShepherdParams = ptmsPanel.toPtmsParamsMap();
+        Map<String, String> additionalShepherdParams = ptmshepherdPanel.toPtmsParamsMap();
         if (threads > 0) {
           additionalShepherdParams.put("threads", Integer.toString(threads));
         }
@@ -2173,7 +2184,7 @@ public class FragpipeRun {
         additionalShepherdParams.put("msfragger_massdiff_to_varmod", Integer.toString(tabMsf.getMassDiffToVariableMod()));
         if (ptmsGlycanPanel.isRun()) {
           additionalShepherdParams.putAll(ptmsGlycanPanel.getGlycanAssignParams());
-          if (!ptmsPanel.isRun()) {
+          if (!ptmshepherdPanel.isRun()) {
             additionalShepherdParams.put("glyco_only_mode", "true");
           }
         }
@@ -2194,7 +2205,6 @@ public class FragpipeRun {
     });
 
     // run FPOP coADAPTr converter
-    final DiannPanel diannPanel = Fragpipe.getStickyStrict(DiannPanel.class);
     final TabDownstream tabDownstream = Fragpipe.getStickyStrict(TabDownstream.class);
     CmdFPOPcoadaptr cmdFPOPcoadaptr = new CmdFPOPcoadaptr(tabDownstream.pFpopCoadaptr.isRun(), wd);
     addConfig.accept(cmdFPOPcoadaptr, () -> {
@@ -2258,7 +2268,6 @@ public class FragpipeRun {
 
 
     // run Spectral library generation
-    final SpeclibPanel speclibPanel = Fragpipe.getStickyStrict(SpeclibPanel.class);
     final CmdSpecLibGen cmdSpecLibGen = new CmdSpecLibGen(speclibPanel.isRun(), wd);
 
     addConfig.accept(cmdSpecLibGen, () -> {
@@ -2291,7 +2300,6 @@ public class FragpipeRun {
 
 
     // run transfer learning
-    final TransferLearningPanel transferLearningPanel = Fragpipe.getStickyStrict(TransferLearningPanel.class);
     final CmdMsfraggerDigest cmdMSFraggerDigest = new CmdMsfraggerDigest(transferLearningPanel.isRun() && transferLearningPanel.isRunPrediction() && (transferLearningPanel.getPeptidesToPredict() == 1 || transferLearningPanel.getPeptidesToPredict() == 2), wd);
     final CmdTransferLearning cmdTransferLearning = new CmdTransferLearning(transferLearningPanel.isRun(), wd);
 
@@ -2376,7 +2384,6 @@ public class FragpipeRun {
 
 
     // run Skyline
-    final SkylinePanel skylinePanel = Fragpipe.getStickyStrict(SkylinePanel.class);
     final CmdSkyline cmdSkyline = new CmdSkyline(skylinePanel.isRun(), wd);
     addConfig.accept(cmdSkyline, () -> {
       if (cmdSkyline.isRun()) {
