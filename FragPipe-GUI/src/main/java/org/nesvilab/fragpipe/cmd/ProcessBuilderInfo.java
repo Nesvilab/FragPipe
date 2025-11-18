@@ -31,14 +31,21 @@ import org.nesvilab.fragpipe.messages.MessageBatchCrashed;
 import org.nesvilab.fragpipe.messages.MessageKillAll;
 import org.nesvilab.fragpipe.messages.MessageKillAll.REASON;
 import org.nesvilab.fragpipe.messages.MessageSaveLog;
+import org.nesvilab.fragpipe.messages.MessageTransferLearningJobInfo;
+import org.nesvilab.fragpipe.messages.MessageTransferLearningJobInfo.JobType;
 import org.nesvilab.fragpipe.process.ProcessResult;
+import org.nesvilab.fragpipe.tools.transferlearning.TransferLearningPanel;
 import org.nesvilab.utils.swing.TextConsole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ProcessBuilderInfo {
 
   private static final Logger log = LoggerFactory.getLogger(ProcessBuilderInfo.class);
+  private static final Pattern JOB_ID_PATTERN = Pattern.compile("(?i)Job ID:\\s*([a-f0-9-]+)");
+  
   public final ProcessBuilder pb;
   public final String name;
   public final String fnStdout;
@@ -53,6 +60,40 @@ public class ProcessBuilderInfo {
     this.fnStdout = fnStdout;
     this.fnStderr = fnStderr;
     this.parallelGroup = parallelGroup;
+  }
+
+  private static void parseAndStoreJobId(String output, JobType jobType) {
+    if (output == null || output.isEmpty()) {
+      return;
+    }
+    
+    Matcher matcher = JOB_ID_PATTERN.matcher(output);
+    if (matcher.find()) {
+      String jobId = matcher.group(1);
+      
+      String url = null;
+      try {
+        TransferLearningPanel panel = Bus.getStickyEvent(TransferLearningPanel.class);
+        if (panel != null) {
+          url = panel.getURL();
+        }
+      } catch (Exception e) {
+        throw new RuntimeException("Could not retrieve URL from TransferLearningPanel: " + e.getMessage());
+      }
+      
+      if (jobId != null && url != null && !url.trim().isEmpty()) {
+        Bus.postSticky(new MessageTransferLearningJobInfo(jobType, url, jobId, true));
+      } else {
+        throw new RuntimeException("Found job ID " + jobId + " but URL is not available or empty");
+      }
+    }
+  }
+
+  private static void markJobAsNotRunning(JobType jobType) {
+    MessageTransferLearningJobInfo jobInfo = Bus.getStickyEvent(MessageTransferLearningJobInfo.class);
+    if (jobInfo != null && jobInfo.jobType == jobType && jobInfo.url != null && jobInfo.jobId != null && jobInfo.isRunning) {
+      Bus.postSticky(new MessageTransferLearningJobInfo(jobType, jobInfo.url, jobInfo.jobId, false));
+    }
   }
 
   public static Runnable toRunnable(final ProcessBuilderInfo pbi, final Path wdPath, BiConsumer<ProcessBuilderInfo, TextConsole> pbiPrinter, TextConsole console, boolean isDownstream) {
@@ -111,6 +152,15 @@ public class ProcessBuilderInfo {
             } else {
               String outStr = pr.appendOut(pollOut);
               toConsole(null, outStr, false, console);
+              
+              String nameLower = pbi.name.toLowerCase();
+              if (nameLower.contains("transfer learning")) {
+                if (nameLower.contains("prediction")) {
+                  parseAndStoreJobId(outStr, JobType.PREDICTION);
+                } else if (nameLower.contains("training")) {
+                  parseAndStoreJobId(outStr, JobType.TRAINING);
+                }
+              }
             }
           }
 
@@ -152,6 +202,15 @@ public class ProcessBuilderInfo {
         toConsole(Fragpipe.COLOR_RED_DARKEST, msg, true, console);
         // all the cleanup is done in the final block
       } finally {
+        String nameLower = pbi.name.toLowerCase();
+        if (nameLower.contains("transfer learning")) {
+          if (nameLower.contains("prediction")) {
+            markJobAsNotRunning(JobType.PREDICTION);
+          } else if (nameLower.contains("training")) {
+            markJobAsNotRunning(JobType.TRAINING);
+          }
+        }
+        
         // grab the exit code of the process to use for System.exit() if operating in headless mode
         int overallExitCode = 0;
         try {

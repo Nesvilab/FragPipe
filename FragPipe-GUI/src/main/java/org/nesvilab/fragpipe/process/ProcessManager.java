@@ -25,8 +25,16 @@ import org.nesvilab.fragpipe.Fragpipe;
 import org.nesvilab.fragpipe.api.Bus;
 import org.nesvilab.fragpipe.cmd.ProcessBuilderInfo;
 import org.nesvilab.fragpipe.messages.*;
+import org.nesvilab.fragpipe.messages.MessageTransferLearningJobInfo.JobType;
 import org.nesvilab.utils.FileDelete;
+import org.nesvilab.utils.swing.TextConsole;
+
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.file.FileSystemException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -315,6 +323,74 @@ public class ProcessManager {
     group.clear();
   }
 
+  private void cancelJob(String url, String jobId, String jobType, String urlPath, TextConsole console, Runnable clearStickyEvent) {
+    Thread cancelThread = new Thread(() -> {
+      HttpURLConnection connection = null;
+      try {
+        String cancelUrlPath = url + urlPath + jobId;
+        URL cancelUrl = new URL(cancelUrlPath);
+        toConsole(Fragpipe.COLOR_BLACK, "Cancelling " + jobType + " job: " + cancelUrlPath, true, console);
+
+        connection = (HttpURLConnection) cancelUrl.openConnection();
+        connection.setRequestMethod("GET");
+        connection.setConnectTimeout(5000);
+        connection.setReadTimeout(5000);
+        connection.connect();
+
+        int responseCode = connection.getResponseCode();
+        if (responseCode >= 200 && responseCode < 300) {
+          toConsole(Fragpipe.COLOR_BLACK, jobType + " job cancelled successfully (response code: " + responseCode + ")", true, console);
+        } else {
+          toConsole(Fragpipe.COLOR_BLACK, jobType + " job cancellation returned code: " + responseCode, true, console);
+        }
+
+        try (InputStream responseStream = connection.getInputStream();
+             BufferedReader in = new BufferedReader(new InputStreamReader(responseStream))) {
+          String line;
+          while ((line = in.readLine()) != null) {
+            toConsole(Fragpipe.COLOR_BLACK, line, true, console);
+          }
+        }
+      } catch (Exception e) {
+        toConsole(Fragpipe.COLOR_RED_DARKEST, "Error cancelling " + jobType + " job: " + e.getMessage(), true, console);
+      } finally {
+        if (connection != null) {
+          connection.disconnect();
+        }
+        // Clear the sticky event after cancellation attempt
+        clearStickyEvent.run();
+      }
+    });
+    cancelThread.setName(jobType + "Cancellation");
+    cancelThread.start();
+  }
+
+  private void cancelPredictionJob(TextConsole console) {
+    MessageTransferLearningJobInfo jobInfo = Bus.getStickyEvent(MessageTransferLearningJobInfo.class);
+    
+    if (jobInfo == null || jobInfo.jobType != JobType.PREDICTION || 
+        !jobInfo.isRunning || jobInfo.url == null || jobInfo.jobId == null || 
+        jobInfo.url.trim().isEmpty() || jobInfo.jobId.trim().isEmpty()) {
+      return;
+    }
+
+    cancelJob(jobInfo.url, jobInfo.jobId, "Prediction", "/predict/cancel/", console,
+        () -> Bus.postSticky(new MessageTransferLearningJobInfo(JobType.PREDICTION, null, null, false)));
+  }
+
+  private void cancelTrainingJob(TextConsole console) {
+    MessageTransferLearningJobInfo jobInfo = Bus.getStickyEvent(MessageTransferLearningJobInfo.class);
+    
+    if (jobInfo == null || jobInfo.jobType != JobType.TRAINING || 
+        !jobInfo.isRunning || jobInfo.url == null || jobInfo.jobId == null || 
+        jobInfo.url.trim().isEmpty() || jobInfo.jobId.trim().isEmpty()) {
+      return;
+    }
+
+    cancelJob(jobInfo.url, jobInfo.jobId, "Training", "/train/cancel/", console,
+        () -> Bus.postSticky(new MessageTransferLearningJobInfo(JobType.TRAINING, null, null, false)));
+  }
+
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
   public void on(MessageKillAll m) {
     long notStarted = taskGroups.stream().mapToInt(List::size).sum();
@@ -322,6 +398,8 @@ public class ProcessManager {
     toConsole(Fragpipe.COLOR_RED_DARKEST, msg, true, m.console);
 
     try {
+      cancelPredictionJob(m.console);
+      cancelTrainingJob(m.console);
       stop();
       deleteTempFiles(); // try deleting old temp files
     } finally {
