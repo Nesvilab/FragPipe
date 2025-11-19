@@ -484,7 +484,7 @@ public class CmdMsfragger extends CmdBase {
     // 32k symbols splitting for regular command.
     // But for slicing it's all up to the python script.
     // final int commandLenLimit = isSlicing ? Integer.MAX_VALUE : 32000;
-    final int commandLenLimit = 32000; // Make is a little bit smaller than 1 << 15 to make sure that it won't crash.
+    final int commandLenLimit = 30000; // Make is a little bit smaller than 1 << 15 to make sure that it won't crash.
 
     /* disable deletion of temp dir when error occurs
     if (isSlicing) {
@@ -550,6 +550,8 @@ public class CmdMsfragger extends CmdBase {
       }
     }
 
+    String extraPath = isSlicing ? "/split_peptide_index_tempdir/" : "";
+
     for (Map.Entry<String, List<InputLcmsFile>> e : t.entrySet()) {
       int fileIndex = 0;
       while (fileIndex < e.getValue().size()) {
@@ -594,10 +596,10 @@ public class CmdMsfragger extends CmdBase {
           InputLcmsFile f = e.getValue().get(fileIndex);
           // if adding this file to the command line will make the command length
           // longer than the allowed maximum, stop adding files
-          if (sb.length() + f.getPath().toString().length() > commandLenLimit) {
+          if (sb.length() + f.getPath().toString().length() + extraPath.length() > commandLenLimit) {
             break;
           }
-          sb.append(f.getPath().toString()).append(" ");
+          sb.append(f.getPath().toString() + extraPath).append(" ");
           cmd.add(f.getPath().toString());
           addedLcmsFiles.add(f);
           fileIndex++;
