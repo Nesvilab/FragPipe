@@ -259,10 +259,11 @@ public class CmdTransferLearning extends CmdBase {
         cmdPredict.add("--max-charge");
         cmdPredict.add(String.valueOf(maxCharge));
         cmdPredict.add("--peptide-list-to-predict");
-        if (customPeptideListPath == null || customPeptideListPath.isEmpty()) {
-          customPeptideListPath = wd.resolve("peptide_list.parquet").toAbsolutePath().normalize().toString();
+        if (peptidesToPredict == 1) {
+          cmdPredict.add(wd.resolve("peptide_list.parquet").toAbsolutePath().normalize().toString());
+        } else if (peptidesToPredict == 2) {
+          cmdPredict.add(customPeptideListPath);
         }
-        cmdPredict.add(customPeptideListPath);
       } else if (peptidesToPredict == 0) {
         cmdPredict.add("--keep-decoys");
         cmdPredict.add(keepDecoys ? "1" : "0");
