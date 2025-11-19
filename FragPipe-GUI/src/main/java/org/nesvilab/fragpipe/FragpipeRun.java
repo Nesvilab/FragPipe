@@ -2340,7 +2340,8 @@ public class FragpipeRun {
           transferLearningPanel.getMaxCharge(),
           transferLearningPanel.getInstrument(),
           transferLearningPanel.getNce(),
-          transferLearningPanel.isKeepDecoys());
+          transferLearningPanel.isKeepDecoys(),
+          fastaFile);
       }
       return true;
     });

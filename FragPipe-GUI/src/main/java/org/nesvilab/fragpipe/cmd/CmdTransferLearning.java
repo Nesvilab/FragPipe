@@ -114,7 +114,8 @@ public class CmdTransferLearning extends CmdBase {
     int maxCharge,
     String instrument,
     int nce,
-    boolean keepDecoys) {
+    boolean keepDecoys,
+    String fastaPath) {
 
     initPreConfig();
 
@@ -272,6 +273,8 @@ public class CmdTransferLearning extends CmdBase {
       cmdPredict.add(wd.toAbsolutePath().normalize().toString());
       cmdPredict.add("--basename");
       cmdPredict.add("fragpipe-predicted-speclib");
+      cmdPredict.add("--fasta");
+      cmdPredict.add(fastaPath);
 
       ProcessBuilder pbPredict = new ProcessBuilder(cmdPredict);
       pbPredict.directory(wd.toFile());
