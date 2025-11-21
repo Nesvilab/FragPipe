@@ -187,9 +187,44 @@ public class TransferLearningPanel extends JPanelBase {
     checkRunPrediction = new UiCheck("Predict spectral library", null, true);
     checkRunPrediction.setName("predict-spectral-library");
 
+    uiComboInstrument = UiUtils.createUiCombo(instrumentMap.keySet().toArray(new String[0]));
+    FormEntry feInstrument = mu.feb("instrument", uiComboInstrument)
+        .label("Instrument")
+        .tooltip("Instrument type when predicting spectral library. Available when 'Perform transfer learning', 'Whole FASTA file', or 'Custom peptide list' is selected.")
+        .create();
+
+    uiSpinnerNce = new UiSpinnerInt(30, 1, 100, 1);
+    FormEntry feNce = mu.feb("nce", uiSpinnerNce)
+        .label("NCE")
+        .tooltip("NCE when predicting spectral library. Available when 'Perform transfer learning', 'Whole FASTA file', or 'Custom peptide list' is selected.")
+        .create();
+
     panelTraining = createPanelTraining();
     panelPrediction = createPanelPrediction();
 
+    updateEnabledStatus(feInstrument.label(), isRunTraining() || getPeptidesToPredict() > 0);
+    updateEnabledStatus(feInstrument.comp, isRunTraining() || getPeptidesToPredict() > 0);
+    updateEnabledStatus(feNce.label(), isRunTraining() || getPeptidesToPredict() > 0);
+    updateEnabledStatus(feNce.comp, isRunTraining() || getPeptidesToPredict() > 0);
+
+    checkRunTraining.addItemListener(e -> {
+      updateEnabledStatus(feInstrument.label(), isRunTraining() || getPeptidesToPredict() > 0);
+      updateEnabledStatus(feInstrument.comp, isRunTraining() || getPeptidesToPredict() > 0);
+      updateEnabledStatus(feNce.label(), isRunTraining() || getPeptidesToPredict() > 0);
+      updateEnabledStatus(feNce.comp, isRunTraining() || getPeptidesToPredict() > 0);
+    });
+
+    uiComboPeptidesToPredict.addItemListener(e -> {
+      updateEnabledStatus(feInstrument.label(), isRunTraining() || getPeptidesToPredict() > 0);
+      updateEnabledStatus(feInstrument.comp, isRunTraining() || getPeptidesToPredict() > 0);
+      updateEnabledStatus(feNce.label(), isRunTraining() || getPeptidesToPredict() > 0);
+      updateEnabledStatus(feNce.comp, isRunTraining() || getPeptidesToPredict() > 0);
+    });
+
+    mu.add(p, feInstrument.label()).split(4);
+    mu.add(p, feInstrument.comp);
+    mu.add(p, feNce.label());
+    mu.add(p, feNce.comp).wrap();
     mu.add(p, checkRunTraining).wrap();
     mu.add(p, panelTraining).growX().wrap();
     mu.add(p, checkRunPrediction).wrap();
@@ -307,18 +342,6 @@ public class TransferLearningPanel extends JPanelBase {
         .tooltip("Max precursor charge when predicting spectral library. Available when 'Whole FASTA file' or 'Custom peptide list' is selected.")
         .create();
 
-    uiComboInstrument = UiUtils.createUiCombo(instrumentMap.keySet().toArray(new String[0]));
-    FormEntry feInstrument = mu.feb("instrument", uiComboInstrument)
-        .label("Instrument")
-        .tooltip("Instrument type when predicting spectral library. Available when 'Whole FASTA file' or 'Custom peptide list' is selected.")
-        .create();
-
-    uiSpinnerNce = new UiSpinnerInt(30, 1, 100, 1);
-    FormEntry feNce = mu.feb("nce", uiSpinnerNce)
-        .label("NCE")
-        .tooltip("NCE when predicting spectral library. Available when 'Whole FASTA file' or 'Custom peptide list' is selected.")
-        .create();
-
     updateEnabledStatus(feCustomPeptideList.label(), isRunPrediction() && getPeptidesToPredict() == 2);
     updateEnabledStatus(feCustomPeptideList.comp, isRunPrediction() && getPeptidesToPredict() == 2);
     updateEnabledStatus(jButtonCustomPeptideList, isRunPrediction() && getPeptidesToPredict() == 2);
@@ -326,10 +349,6 @@ public class TransferLearningPanel extends JPanelBase {
     updateEnabledStatus(feMinCharge.comp, isRunPrediction() && getPeptidesToPredict() > 0);
     updateEnabledStatus(feMaxCharge.label(), isRunPrediction() && getPeptidesToPredict() > 0);
     updateEnabledStatus(feMaxCharge.comp, isRunPrediction() && getPeptidesToPredict() > 0);
-    updateEnabledStatus(feInstrument.label(), isRunPrediction() && getPeptidesToPredict() > 0);
-    updateEnabledStatus(feInstrument.comp, isRunPrediction() && getPeptidesToPredict() > 0);
-    updateEnabledStatus(feNce.label(), isRunPrediction() && getPeptidesToPredict() > 0);
-    updateEnabledStatus(feNce.comp, isRunPrediction() && getPeptidesToPredict() > 0);
     updateEnabledStatus(uiCheckKeepDecoys, isRunPrediction() && getPeptidesToPredict() != 2);
 
     checkRunPrediction.addItemListener(e -> {
@@ -340,10 +359,6 @@ public class TransferLearningPanel extends JPanelBase {
       updateEnabledStatus(feMinCharge.comp, isRunPrediction() && getPeptidesToPredict() > 0);
       updateEnabledStatus(feMaxCharge.label(), isRunPrediction() && getPeptidesToPredict() > 0);
       updateEnabledStatus(feMaxCharge.comp, isRunPrediction() && getPeptidesToPredict() > 0);
-      updateEnabledStatus(feInstrument.label(), isRunPrediction() && getPeptidesToPredict() > 0);
-      updateEnabledStatus(feInstrument.comp, isRunPrediction() && getPeptidesToPredict() > 0);
-      updateEnabledStatus(feNce.label(), isRunPrediction() && getPeptidesToPredict() > 0);
-      updateEnabledStatus(feNce.comp, isRunPrediction() && getPeptidesToPredict() > 0);
       updateEnabledStatus(uiCheckKeepDecoys, isRunPrediction() && getPeptidesToPredict() != 2);
     });
 
@@ -355,10 +370,6 @@ public class TransferLearningPanel extends JPanelBase {
       updateEnabledStatus(feMinCharge.comp, getPeptidesToPredict() > 0);
       updateEnabledStatus(feMaxCharge.label(), getPeptidesToPredict() > 0);
       updateEnabledStatus(feMaxCharge.comp, getPeptidesToPredict() > 0);
-      updateEnabledStatus(feInstrument.label(), getPeptidesToPredict() > 0);
-      updateEnabledStatus(feInstrument.comp, getPeptidesToPredict() > 0);
-      updateEnabledStatus(feNce.label(), getPeptidesToPredict() > 0);
-      updateEnabledStatus(feNce.comp, getPeptidesToPredict() > 0);
       updateEnabledStatus(uiCheckKeepDecoys, getPeptidesToPredict() != 2);
     });
 
@@ -383,10 +394,6 @@ public class TransferLearningPanel extends JPanelBase {
     mu.add(panelPrediction, feMaxCharge.label());
     mu.add(panelPrediction, feMaxCharge.comp);
     mu.add(panelPrediction, uiCheckKeepDecoys).wrap();
-    mu.add(panelPrediction, feInstrument.label()).split(4);
-    mu.add(panelPrediction, feInstrument.comp);
-    mu.add(panelPrediction, feNce.label());
-    mu.add(panelPrediction, feNce.comp).wrap();
 
     updateEnabledStatus(panelPrediction, true);
 

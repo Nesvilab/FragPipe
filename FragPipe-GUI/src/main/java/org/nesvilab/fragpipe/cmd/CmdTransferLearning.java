@@ -184,6 +184,10 @@ public class CmdTransferLearning extends CmdBase {
       cmdTrain.add(wd.toAbsolutePath().normalize().toString());
       cmdTrain.add("--basename");
       cmdTrain.add("fragpipe-transfer-learning-model");
+      cmdTrain.add("--instrument");
+      cmdTrain.add(instrument);
+      cmdTrain.add("--nce");
+      cmdTrain.add(String.valueOf(nce));
 
       ProcessBuilder pbTrain = new ProcessBuilder(cmdTrain);
       pbTrain.directory(wd.toFile());
