@@ -366,6 +366,12 @@ public class TabMsfragger extends JPanelBase {
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_Y_type_masses, text -> String.join(" ", text.split("/")));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_diagnostic_fragments, text -> String.join(" ", text.split("/")));
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_remainder_masses, text -> String.join(" ", text.split("/")));
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_labile_fragment_ion_series, text -> {
+      if (text == null || text.trim().isEmpty()) {
+        return "b,y";
+      }
+      return text;
+    });
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_deneutralloss, s -> Integer.parseInt(s) == 1 ? "Yes" : "No");
 
     SEARCH_TYPE_NAME_MAPPING = new LinkedHashMap<>();
