@@ -18,7 +18,6 @@
 package org.nesvilab.utils.swing;
 
 import javax.swing.JComboBox;
-import org.nesvilab.utils.SwingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,13 +34,10 @@ public class UiCombo extends JComboBox<String> implements StringRepresentable {
   @Override
   public void fromString(String s) {
     if (!isInModel(s)) {
-      String message = "String '" + s + "' is not in the UiCombo current range.\n"
-          + "Component name: [" + getName() + "]\n"
-          + "Selection will be set to the first value in list: " + getModel().getElementAt(0) + "\n"
-          + "You are probably using an incompatible workflow file or cached configurations.";
-      log.error(message);
-      SwingUtils.showErrorDialog(null, message, "Dropdown menu options changed");
-      //throw new NoSuchElementException(message);
+      String message = "String '" + s + "' is not in the UiCombo current range. "
+          + "Component name: [" + getName() + "]. "
+          + "Selection will be set to the first value in list: " + getModel().getElementAt(0);
+      log.debug(message);
       setSelectedIndex(0);
     } else {
       setSelectedItem(s);
