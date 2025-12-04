@@ -115,7 +115,8 @@ public class CmdTransferLearning extends CmdBase {
     String instrument,
     int nce,
     boolean keepDecoys,
-    String fastaPath) {
+    String fastaPath,
+    String decoyTag) {
 
     initPreConfig();
 
@@ -258,6 +259,8 @@ public class CmdTransferLearning extends CmdBase {
       cmdPredict.add(outputFormat);
       cmdPredict.add("--paramsList");
       cmdPredict.add(paramPath.toAbsolutePath().normalize().toString());
+      cmdPredict.add("--decoy-tag");
+      cmdPredict.add(decoyTag);
       if (peptidesToPredict > 0) {
         cmdPredict.add("--min-charge");
         cmdPredict.add(String.valueOf(minCharge));

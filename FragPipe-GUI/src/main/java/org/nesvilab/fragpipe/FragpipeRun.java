@@ -2341,7 +2341,8 @@ public class FragpipeRun {
           transferLearningPanel.getInstrument(),
           transferLearningPanel.getNce(),
           transferLearningPanel.isKeepDecoys(),
-          fastaFile);
+          fastaFile,
+          decoyTag);
       }
       return true;
     });
