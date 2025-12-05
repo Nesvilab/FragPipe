@@ -20,10 +20,8 @@ package org.nesvilab.fragpipe;
 import static org.nesvilab.fragpipe.FragPipeMain.PHILOSOPHER_VERSION;
 import static org.nesvilab.fragpipe.Fragpipe.philosopherBinPath;
 import static org.nesvilab.fragpipe.Version.PROGRAM_TITLE;
-import static org.nesvilab.fragpipe.cmd.CmdBase.constructClasspathString;
 import static org.nesvilab.fragpipe.messages.MessagePrintToConsole.toConsole;
 import static org.nesvilab.fragpipe.tabs.TabDatabase.databaseSizeLimit;
-import static org.nesvilab.fragpipe.tabs.TabRun.PDV_NAME;
 import static org.nesvilab.fragpipe.tabs.TabWorkflow.manifestExt;
 import static org.nesvilab.fragpipe.tabs.TabWorkflow.workflowExt;
 import static org.nesvilab.utils.FileDelete.deleteFileOrFolder;
@@ -85,6 +83,7 @@ import org.nesvilab.fragpipe.cmd.CmdCheckCentroid;
 import org.nesvilab.fragpipe.cmd.CmdCrystalc;
 import org.nesvilab.fragpipe.cmd.CmdDiaTracer;
 import org.nesvilab.fragpipe.cmd.CmdDiann;
+import org.nesvilab.fragpipe.cmd.CmdExportMatchedFragments;
 import org.nesvilab.fragpipe.cmd.CmdFPOPcoadaptr;
 import org.nesvilab.fragpipe.cmd.CmdFpopQuant;
 import org.nesvilab.fragpipe.cmd.CmdFreequant;
@@ -119,7 +118,6 @@ import org.nesvilab.fragpipe.cmd.CmdWriteSubMzml;
 import org.nesvilab.fragpipe.cmd.PbiBuilder;
 import org.nesvilab.fragpipe.cmd.ProcessBuilderInfo;
 import org.nesvilab.fragpipe.cmd.ProcessBuildersDescriptor;
-import org.nesvilab.fragpipe.cmd.ToolingUtils;
 import org.nesvilab.fragpipe.exceptions.NoStickyException;
 import org.nesvilab.fragpipe.internal.DefEdge;
 import org.nesvilab.fragpipe.messages.MessageClearConsole;
@@ -141,7 +139,6 @@ import org.nesvilab.fragpipe.params.ThisAppProps;
 import org.nesvilab.fragpipe.process.ProcessDescription;
 import org.nesvilab.fragpipe.process.ProcessDescription.Builder;
 import org.nesvilab.fragpipe.process.ProcessManager;
-import org.nesvilab.fragpipe.process.ProcessResult;
 import org.nesvilab.fragpipe.process.RunnableDescription;
 import org.nesvilab.fragpipe.tabs.TabBatch;
 import org.nesvilab.fragpipe.tabs.TabConfig;
@@ -215,8 +212,6 @@ public class FragpipeRun {
       Pattern.compile(".+_calibrated\\.mzML")
   };
   private static final Pattern fppdvDbPattern = Pattern.compile(".+\\.db");
-  private static Thread pdvThread = null;
-  private static Process pdvProcess = null;
 
   private FragpipeRun() {
   }
@@ -548,56 +543,6 @@ public class FragpipeRun {
       List<String> finalProteinHeaders = proteinHeaders;
       final Runnable finalizerRun = () -> {
         long finalizerStartTime = System.nanoTime();
-        
-        if (tabRun.isExportMatchedFragments()) {
-          toConsole(Fragpipe.COLOR_TOOL, "\nExport matched fragments", true, tabRun.console);
-          String[] t = {ToolingUtils.BATMASS_IO_JAR};
-          List<Path> pdvPath = FragpipeLocations.checkToolsMissing(Seq.of(PDV_NAME).concat(t));
-          if (pdvPath == null || pdvPath.isEmpty()) {
-            toConsole("Cannot find the visualization executable executable file.", tabRun.console);
-          } else {
-            int nThreads = tabWorkflow.getThreads();
-
-            List<String> cmd = new ArrayList<>();
-            cmd.add(Fragpipe.getBinJava());
-            cmd.add("-cp");
-            cmd.add(constructClasspathString(pdvPath));
-            cmd.add("GUI.GUIMainClass");
-            cmd.add(tabRun.uiTextWorkdir.getNonGhostText());
-            cmd.add(nThreads + "");
-            cmd.add("r");
-            log.debug("Executing: " + String.join(" ", cmd));
-            pdvThread = new Thread(() -> {
-              try {
-                ProcessBuilder pb = new ProcessBuilder(cmd);
-                ProcessBuilderInfo pbi = new PbiBuilder().setPb(pb).setName(pb.toString()).setFnStdOut(null).setFnStdErr(null).setParallelGroup(null).create();
-                ProcessResult pr = new ProcessResult(pbi);
-                pdvProcess = pr.start();
-                if (pdvProcess.waitFor() == 0) {
-                  log.debug("Process output: {}", pr.getOutput().toString());
-                  final int exitValue = pr.getProcess().exitValue();
-                  if (exitValue != 0) {
-                    String errStr = pr.appendErr(pr.pollStdErr());
-                    log.debug("Process " + pb + " returned non zero value. Message:\n" + (errStr == null ? "" : errStr));
-                  }
-                } else {
-                  String errStr = pr.appendErr(pr.pollStdErr());
-                  log.debug("Process " + pb + " returned non zero value. Message:\n " + (errStr == null ? "" : errStr));
-                }
-
-                String outStr = pr.appendOut(pr.pollStdOut());
-                log.debug("Process output: {}", (outStr == null ? "" : outStr));
-              } catch (Exception ex) {
-                ex.printStackTrace();
-                log.error(ExceptionUtils.getStackTrace(ex));
-                if (pdvProcess != null) {
-                  pdvProcess.destroyForcibly();
-                }
-              }
-            });
-            pdvThread.start();
-          }
-        }
 
         if (tabRun.isDeleteTempFiles()) {
           toConsole(Fragpipe.COLOR_TOOL, "\nDelete temp files", true, tabRun.console);
@@ -2452,6 +2397,16 @@ public class FragpipeRun {
     });
 
 
+    // export matched fragments
+    final CmdExportMatchedFragments cmdExportMatchedFragments = new CmdExportMatchedFragments(tabRun.isExportMatchedFragments(), wd);
+    addConfig.accept(cmdExportMatchedFragments, () -> {
+      if (cmdExportMatchedFragments.isRun()) {
+        return cmdExportMatchedFragments.configure(parent, wd, threads);
+      }
+      return true;
+    });
+
+
     // check if any incompatible tools are requested
     addCheck.accept(() -> {
       if (InputDataType.ImMsTimsTof == tabWorkflow.getInputDataType()) {
@@ -2522,6 +2477,7 @@ public class FragpipeRun {
     addToGraph(graphOrder, cmdFPOPcoadaptr, DIRECTION.IN, cmdPhilosopherReport, cmdIonquant, cmdTmt, cmdDiann);
     addToGraph(graphOrder, cmdSkyline, DIRECTION.IN, cmdDiann, cmdSpecLibGen, cmdPhilosopherReport);
     addToGraph(graphOrder, cmdWriteSubMzml, DIRECTION.IN, cmdPhilosopherReport);
+    addToGraph(graphOrder, cmdExportMatchedFragments, DIRECTION.IN, cmdPhilosopherReport);
 
     // compose graph of required dependencies
     final Graph<CmdBase, DefEdge> graphDeps = new DirectedAcyclicGraph<>(DefEdge.class);
