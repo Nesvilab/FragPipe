@@ -275,9 +275,19 @@ public class Skyline {
       }
 
       writer.write("--import-search-exclude-library-sources ");
+      writer.write("--decoys-add=reverse ");
+
       for (String s : lcmsFiles) {
         writer.write("--import-file=" + s + " ");
       }
+
+      writer.write("\n");
+
+      writer.write("--in=" + skylineFilesDir.resolve("fragpipe.sky").toAbsolutePath() + " ");
+      writer.write("--reintegrate-model-name=\"mProphet\" ");
+      writer.write("--reintegrate-create-model ");
+      writer.write("--reintegrate-overwrite-peaks ");
+      writer.write("--save");
 
       writer.close();
 
