@@ -606,10 +606,10 @@ public class PtmshepherdPanel extends JPanelBase {
           }
         });
 
-    UiCheck uiCheckAnnotateAssignedMods = UiUtils.createUiCheck("Include variable mods in PTM profile", false);
+    UiCheck uiCheckAnnotateAssignedMods = UiUtils.createUiCheck("Include variable/fixed mods in PTM profile", false);
     uiCheckAnnotateAssignedMods.setName(PROP_annotate_assigned_mods);
-    uiCheckAnnotateAssignedMods.setToolTipText("If selected, variable mods (Assigned Modifications in the psm.tsv) will be included" +
-            "in the PTM profile and modification summaries.");
+    uiCheckAnnotateAssignedMods.setToolTipText("If selected, variable and fixed mods (from Assigned Modifications in the psm.tsv) will be included" +
+            " in the PTM profile and modification summary peak frequency counts (but not localization, similarity, etc.).");
 
     JPanel p1 = mu.newPanel(null, true);
     mu.border(p1, 1);
