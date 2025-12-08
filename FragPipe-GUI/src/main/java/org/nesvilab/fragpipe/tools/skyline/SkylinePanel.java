@@ -80,6 +80,7 @@ public class SkylinePanel extends JPanelBase {
   private JPanel panelSiteReport;
   private UiText uiTextModTag;
   private UiSpinnerDouble uiSpinnerSiteProb;
+  private UiSpinnerDouble uiSpinnerQValue;
 
   @Override
   protected void initMore() {
@@ -257,6 +258,11 @@ public class SkylinePanel extends JPanelBase {
     uiSpinnerSiteProb = UiUtils.spinnerDouble(0.75, 0, 1, 0.01).setCols(5).setFormat("#.###").create();
     FormEntry feSiteProb = mu.feb(uiSpinnerSiteProb).name("min-site-prob").label("Min site probability").tooltip("Site localization confidence threshold").create();
 
+    uiSpinnerQValue = UiUtils.spinnerDouble(0.01, 0, 1, 0.01).setCols(5).setFormat("#.###").create();
+    FormEntry feQValue = mu.feb(uiSpinnerQValue).name("q-value").label("Q-value").tooltip("Q-value threshold").create();
+
+    mu.add(panelSiteReport, feQValue.label()).split(2);
+    mu.add(panelSiteReport, feQValue.comp, mu.ccL());
     mu.add(panelSiteReport, feModTag.label(), mu.ccL()).split(2);
     mu.add(panelSiteReport, feModTag.comp).growX();
     mu.add(panelSiteReport, feSiteProb.label()).split(2);
@@ -375,5 +381,9 @@ public class SkylinePanel extends JPanelBase {
 
   public float getSiteProb() {
     return (float) uiSpinnerSiteProb.getActualValue();
+  }
+
+  public float getQValue() {
+    return (float) uiSpinnerQValue.getActualValue();
   }
 }

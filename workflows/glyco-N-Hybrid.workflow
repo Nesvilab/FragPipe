@@ -315,6 +315,7 @@ saintexpress.run-saint-express=true
 saintexpress.virtual-controls=100
 skyline.min-site-prob=0.75
 skyline.mod-tag=
+skyline.q-value=0.01
 skyline.run-skyline=false
 skyline.run-skyline-quant=false
 skyline.skip-skyline-document-generation=false

@@ -2348,6 +2348,7 @@ public class FragpipeRun {
             skylinePanel.isSkipSkylineDocumentGeneration(),
             skylinePanel.getModTag(),
             skylinePanel.getSiteProb(),
+            skylinePanel.getQValue(),
             isDryRun);
       }
       return true;

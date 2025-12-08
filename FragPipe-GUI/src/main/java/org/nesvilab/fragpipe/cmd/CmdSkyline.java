@@ -72,6 +72,7 @@ public class CmdSkyline extends CmdBase {
       boolean skipSkylineDocumentGeneration,
       String modTag,
       float siteProb,
+      float qValue,
       boolean isDryRun) {
     initPreConfig();
 
@@ -168,6 +169,8 @@ public class CmdSkyline extends CmdBase {
         cmd2.add(wd.resolve("fragpipe-files" + manifestExt).toAbsolutePath().normalize().toString());
         cmd2.add("--out-dir");
         cmd2.add(wd.resolve("skyline_files").toAbsolutePath().normalize().toString());
+        cmd2.add("--qvalue");
+        cmd2.add(String.valueOf(qValue));
         cmd2.add("--mod-tag");
         cmd2.add(modTag);
         cmd2.add("--min-site-prob");
