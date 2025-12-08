@@ -5,8 +5,9 @@
     <column name="Peptide.Protein.Accession" />
     <column name="Peptide.ModifiedSequence" />
     <column name="Charge" />
-    <column name="" />
+    <column name="IsDecoy" />
     <column name="Results!*.Value.BestRetentionTime" />
+    <column name="Results!*.Value.DetectionZScore" />
     <column name="Results!*.Value.DetectionQValue" />
     <column name="Results!*.Value.PeptideResult.ResultFile.FileName" />
     <column name="Results!*.Value.PeptideResult.ResultFile.FilePath" />
