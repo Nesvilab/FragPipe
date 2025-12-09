@@ -302,10 +302,14 @@ class FragPipeReport:
             for h, m, s in times
         ]
 
-        creation_timestamp = os.path.getctime(os.path.join(self.results_path, self.latest_log_file))
-        creation_datetime = dt.datetime.fromtimestamp(creation_timestamp)
-
-        self.finish_time = dt.datetime.combine(creation_datetime.date(), dt.time()) + max(td_list)
+        log_file_path = os.path.join(self.results_path, self.latest_log_file)
+        if td_list:
+            creation_timestamp = os.path.getctime(log_file_path)
+            creation_datetime = dt.datetime.fromtimestamp(creation_timestamp)
+            self.finish_time = dt.datetime.combine(creation_datetime.date(), dt.time()) + max(td_list)
+        else:
+            modification_timestamp = os.path.getmtime(log_file_path)
+            self.finish_time = dt.datetime.fromtimestamp(modification_timestamp)
 
     def get_running_time(self):
         self.runtime_dict = {}
@@ -912,7 +916,7 @@ def main():
     args = parser.parse_args()
     results_path = args.results_path
 
-    pio.kaleido.scope.mathjax = None
+    pio.defaults.mathjax = None
 
     pdf_pages = []
     fragPipeReport = FragPipeReport(results_path=results_path)
@@ -976,7 +980,7 @@ def main():
     # Convert the MSBooster plots to PDF bytes
     for run_name, images in fragPipeReport.msbooster_plots.items():
         # Convert the images to PDF bytes
-        if run_name in fragPipeReport.single_run_data.keys():
+        if run_name in fragPipeReport.single_run_data.keys() and run_name in fragPipeReport.features_weight:
             msbooster_pdf = fragPipeReport.make_composite(run_name, images)
             pdf_pages.append(msbooster_pdf)
 

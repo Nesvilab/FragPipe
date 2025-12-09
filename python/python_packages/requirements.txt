@@ -7,7 +7,7 @@ cycler==0.12.1
 fragpipe-speclib==0.1.56
 fonttools==4.61.0
 joblib==1.5.2
-kaleido==1.2.0
+kaleido==0.2.1
 kiwisolver==1.4.7
 llvmlite==0.45.1
 matplotlib==3.10.7
