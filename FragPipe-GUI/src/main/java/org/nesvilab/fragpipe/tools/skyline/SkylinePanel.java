@@ -248,7 +248,7 @@ public class SkylinePanel extends JPanelBase {
   private JPanel createPanelSiteReport() {
     panelSiteReport = mu.newPanel(mu.lcFillX());
     mu.border(panelSiteReport, 1);
-    mu.border(panelSiteReport, "PTM site report (optional)");
+    mu.border(panelSiteReport, "Site report (optional)");
 
     uiTextModTag = UiUtils.uiTextBuilder().cols(40).create();
     FormEntry feModTag = new FormEntry("mod-tag", "Mod tag", uiTextModTag, "<html>Modification tag for generating modification-specific reports <br/>\n"
