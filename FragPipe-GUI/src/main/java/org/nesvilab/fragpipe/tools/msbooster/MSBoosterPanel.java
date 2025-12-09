@@ -476,8 +476,8 @@ public class MSBoosterPanel extends JPanelBase {
 
   @Override
   public void initMore() {
-    updateEnabledStatus(this, true);
     super.initMore();
+    SwingUtilities.invokeLater(() -> SwingUtilities.invokeLater(() -> updateEnabledStatus(pContent, checkRun.isSelected())));
   }
 
   private ModelsTable createTableModels(List<Model> models, String paramName) {
