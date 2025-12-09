@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
 
 public class MassOffsetUtils {
 
-    private static final Pattern sitesPattern = Pattern.compile("([A-Zalnc\\[\\]^*-])");
+    private static final Pattern sitesPattern = Pattern.compile("\\(aa=([\\w()\\-\\[\\]^*]+)?[)_]");
     private static final Pattern massPattern = Pattern.compile("([\\d.-]+)\\(");
     private static final Pattern diagPattern = Pattern.compile("d=([\\d.\\-,\\s]+)");
     private static final Pattern fragRemPattern = Pattern.compile("f=([\\d.\\-,\\s]+)");
@@ -48,7 +48,6 @@ public class MassOffsetUtils {
      * @throws IOException
      */
     public static String parseOffsetsFile(String massOffsetFilePath, Component parent) throws IOException, NumberFormatException {
-        ArrayList<MassOffset> offsets = new ArrayList<>();
         ArrayList<String> offsetStrs = new ArrayList<>();
 
         BufferedReader in = new BufferedReader(new FileReader(massOffsetFilePath));
@@ -89,36 +88,24 @@ public class MassOffsetUtils {
             if (mass == 0.0) {
                 foundZero = true;
             }
-            ArrayList<String> sites = getSites(splits[1]);
+            String sites = splits[1];
 
             // keep track of all unique fragment and peptide remainder ions for later indexing. Rounded to 6 decimal places
             float[] peptideRems = parseFloats(splits[3], parent);
             float[] fragmentRems = parseFloats(splits[4], parent);
 
             // generate the MassOffset and its string
-            MassOffset offset = new MassOffset(mass, sites.toArray(new String[0]), parseFloats(splits[2], parent), peptideRems, fragmentRems);
-            offsets.add(offset);
+            MassOffset offset = new MassOffset(mass, sites, parseFloats(splits[2], parent), peptideRems, fragmentRems);
             offsetStrs.add(offset.toString());
         }
         // make sure 0 offset is included in the list
         if (!foundZero) {
-            MassOffset zeroOffset = new MassOffset(0, new String[0], new float[0], new float[0], new float[0]);
-            offsets.add(0, zeroOffset);
+            MassOffset zeroOffset = new MassOffset(0, "", new float[0], new float[0], new float[0]);
             offsetStrs.add(0, zeroOffset.toString());
             log.warn("Warning: 0 was not included in the mass offsets file. Adding it to the offsets list.");
         }
 
         return String.join(DELIMITER, offsetStrs);
-    }
-
-
-    public static ArrayList<String> getSites(String splits) {
-        ArrayList<String> sites = new ArrayList<>();
-        Matcher matcher = sitesPattern.matcher(splits);
-        while (matcher.find()) {
-            sites.add(matcher.group());
-        }
-        return sites;
     }
 
     private static float[] parseFloats(String floatList, Component parent) throws NumberFormatException {
@@ -153,9 +140,9 @@ public class MassOffsetUtils {
         public float[] peptideRemainderIons;
         public float[] fragmentRemainderIons;
         public float mass;
-        public String[] allowedResidues;
+        public String allowedResidues;
 
-        public MassOffset(float mass, String[] allowedResidues, float[] diagnosticIons, float[] peptideRemainderIons, float[] fragmentRemainderIons) {
+        public MassOffset(float mass, String allowedResidues, float[] diagnosticIons, float[] peptideRemainderIons, float[] fragmentRemainderIons) {
             this.mass = mass;
             this.diagnosticIons = diagnosticIons;
             this.peptideRemainderIons = peptideRemainderIons;
@@ -170,12 +157,14 @@ public class MassOffsetUtils {
                 this.mass = Float.parseFloat(massMatch.group(1));
             }
 
-            Pattern sitesStringPattern = Pattern.compile("aa=([A-Z-nc\\[\\]^*]+)");
-            Matcher sitesMatch = sitesStringPattern.matcher(offsetString);
+            Matcher sitesMatch = sitesPattern.matcher(offsetString);
             if (sitesMatch.find()) {
-                this.allowedResidues = getSites(sitesMatch.group(1)).toArray(new String[0]);
+                this.allowedResidues = sitesMatch.group(1);
+                if (this.allowedResidues == null) {
+                    this.allowedResidues = "";      // in case of parsing old format (e.g., previous workflow files)
+                }
             } else {
-                this.allowedResidues = new String[0];
+                this.allowedResidues = "";
             }
 
             Matcher diagMatch = diagPattern.matcher(offsetString);
@@ -215,22 +204,22 @@ public class MassOffsetUtils {
             }
         }
 
-        public String getSiteStr() {
-            return String.join("", allowedResidues);
-        }
-
         @Override
         public String toString() {
+            boolean hasLabileIons = diagnosticIons.length > 0 || peptideRemainderIons.length > 0 || fragmentRemainderIons.length > 0;
+            String aas = !allowedResidues.isEmpty() ? "(aa=" + allowedResidues : hasLabileIons ? "(" : "";
             String diagnostic = diagnosticIons.length > 0 ? "_d=" + floatArrToString(diagnosticIons) : "";
             String peprem = peptideRemainderIons.length > 0 ? "_p=" + floatArrToString(peptideRemainderIons) : "";
             String fragrem = fragmentRemainderIons.length > 0 ? "_f=" + floatArrToString(fragmentRemainderIons) : "";
+            String closing = !allowedResidues.isEmpty() || hasLabileIons ? ")" : "";
 
-            return String.format("%.5f(aa=%s%s%s%s)",
+            return String.format("%.5f%s%s%s%s%s",
                     mass,
-                    String.join("", allowedResidues),
+                    aas,
                     diagnostic,
                     peprem,
-                    fragrem
+                    fragrem,
+                    closing
             );
         }
 
@@ -238,7 +227,7 @@ public class MassOffsetUtils {
         public String toFileString() {
             return String.format("%.4f\t%s\t%s\t%s\t%s\n",
                     mass,
-                    String.join("", allowedResidues),
+                    allowedResidues,
                     floatArrToString(diagnosticIons),
                     floatArrToString(peptideRemainderIons),
                     floatArrToString(fragmentRemainderIons));

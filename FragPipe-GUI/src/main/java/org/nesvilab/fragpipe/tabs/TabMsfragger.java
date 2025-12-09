@@ -1039,7 +1039,7 @@ public class TabMsfragger extends JPanelBase {
     for (int i = 0; i < offsets.size(); i++) {
       MassOffsetUtils.MassOffset m = offsets.get(i);
       data[i][0] = m.mass;
-      data[i][1] = m.getSiteStr();
+      data[i][1] = m.allowedResidues;
       data[i][2] = floatArrToString(m.diagnosticIons);
       data[i][3] = floatArrToString(m.peptideRemainderIons);
       data[i][4] = floatArrToString(m.fragmentRemainderIons);

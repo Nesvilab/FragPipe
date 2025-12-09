@@ -35,7 +35,7 @@ public class OffsetsTableModel extends DefaultTableModel {
                 }
                 foundZero = true;
             }
-            String[] sites = MassOffsetUtils.getSites((String) getValueAt(i, COL_SITES)).toArray(new String[0]);
+            String sites = (String) getValueAt(i, COL_SITES);
             float[] diagnosticIons = parseFloats(String.valueOf(getValueAt(i, COL_DIAGNOSTIC_IONS)));
             float[] peptideRemainders = parseFloats(String.valueOf(getValueAt(i, COL_PEPTIDE_REMAINDERS)));
             float[] fragmentRemainders = parseFloats(String.valueOf(getValueAt(i, COL_FRAGMENT_REMAINDERS)));
