@@ -150,8 +150,6 @@ public class CmdSkyline extends CmdBase {
       cmd.add("--report-conflict-resolution=overwrite");
       cmd.add("--report-name=\"FragPipe_Skyline_quant\"");
       cmd.add("--report-file=\"" + wd.resolve("skyline_files").resolve("fragpipe_skyline_quant.csv").toAbsolutePath().normalize() + "\"");
-      cmd.add("--refine-qvalue-cutoff=0.05");
-
       ProcessBuilder pb2 = new ProcessBuilder(cmd);
       pb2.directory(wd.resolve("skyline_files").toFile());
       pbis.add(new PbiBuilder().setPb(pb2).setName(getCmdName() + " run Skyline quant").create());
