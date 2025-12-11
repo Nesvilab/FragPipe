@@ -78,7 +78,7 @@ public class SkylinePanel extends JPanelBase {
   private JPanel panelSkylineQuant;
   private UiText uiTextModTag;
   private UiSpinnerDouble uiSpinnerSiteProb;
-  private UiSpinnerDouble uiSpinnerQValue;
+  private UiSpinnerDouble uiSpinnerFdr;
 
   @Override
   protected void initMore() {
@@ -228,16 +228,16 @@ public class SkylinePanel extends JPanelBase {
     uiSpinnerSiteProb = UiUtils.spinnerDouble(0.75, 0, 1, 0.01).setCols(5).setFormat("#.###").create();
     FormEntry feSiteProb = mu.feb(uiSpinnerSiteProb).name("min-site-prob").label("Min site probability").tooltip("Site localization confidence threshold").create();
 
-    uiSpinnerQValue = UiUtils.spinnerDouble(0.01, 0, 1, 0.01).setCols(5).setFormat("#.###").create();
-    FormEntry feQValue = mu.feb(uiSpinnerQValue).name("q-value").label("Q-value").tooltip("Q-value threshold").create();
+    uiSpinnerFdr = UiUtils.spinnerDouble(0.01, 0, 1, 0.01).setCols(5).setFormat("#.###").create();
+    FormEntry feFdr = mu.feb(uiSpinnerFdr).name("fdr").label("FDR").tooltip("False discovery rate threshold").create();
 
-    updateEnabledStatus(feQValue.comp, SwingUtils.isEnabledAndChecked(uiCheckGenerateSkylineQuantReport));
+    updateEnabledStatus(feFdr.comp, SwingUtils.isEnabledAndChecked(uiCheckGenerateSkylineQuantReport));
     updateEnabledStatus(feModTag.comp, SwingUtils.isEnabledAndChecked(uiCheckGenerateSkylineQuantReport));
     updateEnabledStatus(feSiteProb.comp, SwingUtils.isEnabledAndChecked(uiCheckGenerateSkylineQuantReport));
     updateEnabledStatus(uiCheckSkipSkylineDocumentGeneration, SwingUtils.isEnabledAndChecked(uiCheckGenerateSkylineQuantReport));
 
     uiCheckGenerateSkylineQuantReport.addItemListener(e -> {
-      updateEnabledStatus(feQValue.comp, SwingUtils.isEnabledAndChecked(uiCheckGenerateSkylineQuantReport));
+      updateEnabledStatus(feFdr.comp, SwingUtils.isEnabledAndChecked(uiCheckGenerateSkylineQuantReport));
       updateEnabledStatus(feModTag.comp, SwingUtils.isEnabledAndChecked(uiCheckGenerateSkylineQuantReport));
       updateEnabledStatus(feSiteProb.comp, SwingUtils.isEnabledAndChecked(uiCheckGenerateSkylineQuantReport));
       updateEnabledStatus(uiCheckSkipSkylineDocumentGeneration, SwingUtils.isEnabledAndChecked(uiCheckGenerateSkylineQuantReport));
@@ -245,8 +245,8 @@ public class SkylinePanel extends JPanelBase {
 
     mu.add(panelSkylineQuant, uiCheckGenerateSkylineQuantReport).wrap();
     mu.add(panelSkylineQuant, uiCheckSkipSkylineDocumentGeneration).wrap();
-    mu.add(panelSkylineQuant, feQValue.label()).split(2);
-    mu.add(panelSkylineQuant, feQValue.comp, mu.ccL());
+    mu.add(panelSkylineQuant, feFdr.label()).split(2);
+    mu.add(panelSkylineQuant, feFdr.comp, mu.ccL());
     mu.add(panelSkylineQuant, feModTag.label(), mu.ccL()).split(2);
     mu.add(panelSkylineQuant, feModTag.comp).growX();
     mu.add(panelSkylineQuant, feSiteProb.label()).split(2);
@@ -363,7 +363,7 @@ public class SkylinePanel extends JPanelBase {
     return (float) uiSpinnerSiteProb.getActualValue();
   }
 
-  public float getQValue() {
-    return (float) uiSpinnerQValue.getActualValue();
+  public float getFdr() {
+    return (float) uiSpinnerFdr.getActualValue();
   }
 }
