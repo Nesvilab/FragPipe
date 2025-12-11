@@ -68,6 +68,7 @@ public class CmdSkyline extends CmdBase {
       int precursorTolerance,
       int fragmentTolerance,
       boolean runSkylineQuant,
+      boolean skipSkylineDocumentGeneration,
       String modTag,
       float siteProb,
       float qValue,
@@ -85,12 +86,7 @@ public class CmdSkyline extends CmdBase {
       return false;
     }
 
-    if (Files.exists(wd.resolve("skyline_files").resolve("fragpipe.sky"))) {
-      if (!Files.isReadable(wd.resolve("skyline_files").resolve("fragpipe.sky"))) {
-        SwingUtils.showErrorDialog(comp, "fragpipe.sky exists but is not readable. Please delete it and run again.", "Error");
-        return false;
-      }
-    } else {
+    if (!skipSkylineDocumentGeneration) {
       final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(BATMASS_IO_JAR));
       if (classpathJars == null) {
         return false;

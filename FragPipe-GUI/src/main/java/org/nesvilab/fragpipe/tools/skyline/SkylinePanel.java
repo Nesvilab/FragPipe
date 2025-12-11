@@ -74,6 +74,7 @@ public class SkylinePanel extends JPanelBase {
   private UiSpinnerInt uiSpinnerPrecursorTolerance;
   private UiSpinnerInt uiSpinnerFragmentTolerance;
   private UiCheck uiCheckGenerateSkylineQuantReport;
+  private UiCheck uiCheckSkipSkylineDocumentGeneration;
   private JPanel panelSkylineQuant;
   private UiText uiTextModTag;
   private UiSpinnerDouble uiSpinnerSiteProb;
@@ -215,6 +216,10 @@ public class SkylinePanel extends JPanelBase {
     uiCheckGenerateSkylineQuantReport = UiUtils.createUiCheck("Generate Skyline quant report", false);
     uiCheckGenerateSkylineQuantReport.setName("generate-skyline-quant-report");
 
+    uiCheckSkipSkylineDocumentGeneration = UiUtils.createUiCheck("Skip Skyline document generation", false);
+    uiCheckSkipSkylineDocumentGeneration.setName("skip-skyline-document-generation");
+    uiCheckSkipSkylineDocumentGeneration.setToolTipText("If you already generated a Skyline document, you can skip the generation of a new one.");
+
     uiTextModTag = UiUtils.uiTextBuilder().cols(40).create();
     FormEntry feModTag = new FormEntry("mod-tag", "Mod tag", uiTextModTag, "<html>Modification tag for generating modification-specific reports <br/>\n"
         + "STY:79.9663 for phospho<br/>\n"
@@ -229,14 +234,17 @@ public class SkylinePanel extends JPanelBase {
     updateEnabledStatus(feQValue.comp, SwingUtils.isEnabledAndChecked(uiCheckGenerateSkylineQuantReport));
     updateEnabledStatus(feModTag.comp, SwingUtils.isEnabledAndChecked(uiCheckGenerateSkylineQuantReport));
     updateEnabledStatus(feSiteProb.comp, SwingUtils.isEnabledAndChecked(uiCheckGenerateSkylineQuantReport));
+    updateEnabledStatus(uiCheckSkipSkylineDocumentGeneration, SwingUtils.isEnabledAndChecked(uiCheckGenerateSkylineQuantReport));
 
     uiCheckGenerateSkylineQuantReport.addItemListener(e -> {
       updateEnabledStatus(feQValue.comp, SwingUtils.isEnabledAndChecked(uiCheckGenerateSkylineQuantReport));
       updateEnabledStatus(feModTag.comp, SwingUtils.isEnabledAndChecked(uiCheckGenerateSkylineQuantReport));
       updateEnabledStatus(feSiteProb.comp, SwingUtils.isEnabledAndChecked(uiCheckGenerateSkylineQuantReport));
+      updateEnabledStatus(uiCheckSkipSkylineDocumentGeneration, SwingUtils.isEnabledAndChecked(uiCheckGenerateSkylineQuantReport));
     });
 
     mu.add(panelSkylineQuant, uiCheckGenerateSkylineQuantReport).wrap();
+    mu.add(panelSkylineQuant, uiCheckSkipSkylineDocumentGeneration).wrap();
     mu.add(panelSkylineQuant, feQValue.label()).split(2);
     mu.add(panelSkylineQuant, feQValue.comp, mu.ccL());
     mu.add(panelSkylineQuant, feModTag.label(), mu.ccL()).split(2);
@@ -341,6 +349,10 @@ public class SkylinePanel extends JPanelBase {
 
   public boolean isRunSkylineQuant() {
     return SwingUtils.isEnabledAndChecked(uiCheckGenerateSkylineQuantReport);
+  }
+
+  public boolean isSkipSkylineDocumentGeneration() {
+    return SwingUtils.isEnabledAndChecked(uiCheckSkipSkylineDocumentGeneration);
   }
 
   public String getModTag() {

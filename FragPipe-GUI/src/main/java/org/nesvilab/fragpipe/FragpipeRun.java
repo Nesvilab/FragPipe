@@ -2344,6 +2344,7 @@ public class FragpipeRun {
             skylinePanel.getPrecursorTolerance(),
             skylinePanel.getFragmentTolerance(),
             skylinePanel.isRunSkylineQuant(),
+            skylinePanel.isSkipSkylineDocumentGeneration(),
             skylinePanel.getModTag(),
             skylinePanel.getSiteProb(),
             skylinePanel.getQValue(),
