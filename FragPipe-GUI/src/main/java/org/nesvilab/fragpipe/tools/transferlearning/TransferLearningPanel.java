@@ -202,25 +202,6 @@ public class TransferLearningPanel extends JPanelBase {
     panelTraining = createPanelTraining();
     panelPrediction = createPanelPrediction();
 
-    updateEnabledStatus(feInstrument.label(), isRunTraining() || getPeptidesToPredict() > 0);
-    updateEnabledStatus(feInstrument.comp, isRunTraining() || getPeptidesToPredict() > 0);
-    updateEnabledStatus(feNce.label(), isRunTraining() || getPeptidesToPredict() > 0);
-    updateEnabledStatus(feNce.comp, isRunTraining() || getPeptidesToPredict() > 0);
-
-    checkRunTraining.addItemListener(e -> {
-      updateEnabledStatus(feInstrument.label(), isRunTraining() || getPeptidesToPredict() > 0);
-      updateEnabledStatus(feInstrument.comp, isRunTraining() || getPeptidesToPredict() > 0);
-      updateEnabledStatus(feNce.label(), isRunTraining() || getPeptidesToPredict() > 0);
-      updateEnabledStatus(feNce.comp, isRunTraining() || getPeptidesToPredict() > 0);
-    });
-
-    uiComboPeptidesToPredict.addItemListener(e -> {
-      updateEnabledStatus(feInstrument.label(), isRunTraining() || getPeptidesToPredict() > 0);
-      updateEnabledStatus(feInstrument.comp, isRunTraining() || getPeptidesToPredict() > 0);
-      updateEnabledStatus(feNce.label(), isRunTraining() || getPeptidesToPredict() > 0);
-      updateEnabledStatus(feNce.comp, isRunTraining() || getPeptidesToPredict() > 0);
-    });
-
     mu.add(p, feInstrument.label()).split(4);
     mu.add(p, feInstrument.comp);
     mu.add(p, feNce.label());

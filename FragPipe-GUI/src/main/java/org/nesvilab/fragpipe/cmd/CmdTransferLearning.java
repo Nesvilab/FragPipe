@@ -223,10 +223,9 @@ public class CmdTransferLearning extends CmdBase {
               }
             }
             bufferedWriter.write(String.join(" ", pinFiles) + "\n");
-          } else {
-            bufferedWriter.write("instrument = " + instrument + "\n");
-            bufferedWriter.write("NCE = " + nce + "\n");
           }
+          bufferedWriter.write("instrument = " + instrument + "\n");
+          bufferedWriter.write("NCE = " + nce + "\n");
           bufferedWriter.close();
         } catch (Exception ex) {
           ex.printStackTrace();
