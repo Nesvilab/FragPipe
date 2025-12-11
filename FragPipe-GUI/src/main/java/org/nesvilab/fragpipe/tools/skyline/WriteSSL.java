@@ -28,7 +28,7 @@ public class WriteSSL {
      * file     scan    charge  sequence    score-type  score   RT  IM
      * Sequence includes all mods. IM is optional. Score-type can be PERCOLATOR QVALUE or PEPTIDE PROPHET SOMETHING
      */
-    public void writeSSL(Set<Path> psmtsvFiles, Path outputPath, boolean isPercolator, Set<String> lcmsFiles, boolean useIonQuantPeaks) throws IOException {
+    public void writeSSL(Set<Path> psmtsvFiles, Path outputPath, boolean isPercolator, Set<String> lcmsFiles) throws IOException {
         ArrayList<String> output = new ArrayList<>();
 
         // map file paths to the file names that will be in the psm.tsv
@@ -40,6 +40,7 @@ public class WriteSSL {
             lcmsFileNames.put(fileName.substring(0, dotIndex), lcmsFile.replace("\\", "/").replaceFirst("\\.d$", "_uncalibrated.mzML"));
         }
 
+        boolean useIonQuantPeaks = true;
         for (Path psmtsv: psmtsvFiles) {
             BufferedReader reader = new BufferedReader(new FileReader(psmtsv.toFile()));
             initHeader(reader.readLine(), reader.readLine());
@@ -93,15 +94,13 @@ public class WriteSSL {
                     sslLine.append("1/K0").append("\t");
                 }
 
-                // add IonQuant peak bounds if requested and present
-                if (useIonQuantPeaks) {
-                    if (!columns.containsKey(COL_RT_START) || !columns.containsKey(COL_RT_END)) {
-                        useIonQuantPeaks = false;
-                    } else {
-                        sslLine.append(Float.parseFloat(splits[columns.get(COL_RT_START)]) / 60).append("\t");
-                        sslLine.append(Float.parseFloat(splits[columns.get(COL_RT_END)]) / 60).append("\t");
-                    }
+                if (!columns.containsKey(COL_RT_START) || !columns.containsKey(COL_RT_END)) {
+                    useIonQuantPeaks = false;
+                } else {
+                    sslLine.append(Float.parseFloat(splits[columns.get(COL_RT_START)]) / 60).append("\t");
+                    sslLine.append(Float.parseFloat(splits[columns.get(COL_RT_END)]) / 60).append("\t");
                 }
+    
                 output.add(sslLine.toString());
             }
 

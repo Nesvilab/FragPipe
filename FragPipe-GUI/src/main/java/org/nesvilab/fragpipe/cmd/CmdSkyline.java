@@ -65,11 +65,9 @@ public class CmdSkyline extends CmdBase {
       Path jarFragpipe,
       int ramGb,
       int modsMode,
-      boolean useSsl,
       int precursorTolerance,
       int fragmentTolerance,
       boolean runSkylineQuant,
-      boolean skipSkylineDocumentGeneration,
       String modTag,
       float siteProb,
       float qValue,
@@ -87,7 +85,12 @@ public class CmdSkyline extends CmdBase {
       return false;
     }
 
-    if (!skipSkylineDocumentGeneration) {
+    if (Files.exists(wd.resolve("skyline_files").resolve("fragpipe.sky"))) {
+      if (!Files.isReadable(wd.resolve("skyline_files").resolve("fragpipe.sky"))) {
+        SwingUtils.showErrorDialog(comp, "fragpipe.sky exists but is not readable. Please delete it and run again.", "Error");
+        return false;
+      }
+    } else {
       final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(BATMASS_IO_JAR));
       if (classpathJars == null) {
         return false;
@@ -128,9 +131,9 @@ public class CmdSkyline extends CmdBase {
       cmd.add(wd.toAbsolutePath().normalize().toString());
       cmd.add(skylineVersion);
       cmd.add(String.valueOf(modsMode));
-      cmd.add(String.valueOf(useSsl));
       cmd.add(String.valueOf(precursorTolerance));
       cmd.add(String.valueOf(fragmentTolerance));
+      cmd.add(String.valueOf(runSkylineQuant));
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(wd.toFile());
       pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + " create Skyline document").create());
@@ -152,7 +155,7 @@ public class CmdSkyline extends CmdBase {
       cmd.add("--report-file=\"" + wd.resolve("skyline_files").resolve("fragpipe_skyline_quant.csv").toAbsolutePath().normalize() + "\"");
       ProcessBuilder pb2 = new ProcessBuilder(cmd);
       pb2.directory(wd.resolve("skyline_files").toFile());
-      pbis.add(new PbiBuilder().setPb(pb2).setName(getCmdName() + " run Skyline quant").create());
+      pbis.add(new PbiBuilder().setPb(pb2).setName(getCmdName() + " export quant result").create());
 
       List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Stream.of(CmdDiann.SITE_REPORTER));
       if (classpathJars == null) {

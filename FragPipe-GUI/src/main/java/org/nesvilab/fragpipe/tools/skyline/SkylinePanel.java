@@ -66,18 +66,15 @@ public class SkylinePanel extends JPanelBase {
   private JPanel pContent;
   private JPanel pTop;
   private JPanel panelBasic;
-  private JPanel panelQuant;
   private UiRadio uiRadioSkyline;
   private UiRadio uiRadioSkylineDaily;
   private UiRadio uiRadioSkylineCustom;
   private UiText uiTextSkylineCustom;
-  private UiCheck uiCheckUseSsl;
   private UiCombo uiComboModsMode;
   private UiSpinnerInt uiSpinnerPrecursorTolerance;
   private UiSpinnerInt uiSpinnerFragmentTolerance;
-  private UiCheck uiCheckRunSkylineQuant;
-  private UiCheck uiCheckSkipSkylineDocumentGeneration;
-  private JPanel panelSiteReport;
+  private UiCheck uiCheckGenerateSkylineQuantReport;
+  private JPanel panelSkylineQuant;
   private UiText uiTextModTag;
   private UiSpinnerDouble uiSpinnerSiteProb;
   private UiSpinnerDouble uiSpinnerQValue;
@@ -86,7 +83,7 @@ public class SkylinePanel extends JPanelBase {
   protected void initMore() {
     super.initMore();
     SwingUtils.setEnablementUpdater(this, pContent, checkRun);
-    SwingUtils.setEnablementUpdater(this, panelSiteReport, checkRun);
+    SwingUtils.setEnablementUpdater(this, panelSkylineQuant, checkRun);
   }
 
   @Override
@@ -109,7 +106,7 @@ public class SkylinePanel extends JPanelBase {
     JPanel p = new JPanel(new MigLayout(new LC().insetsAll("0px")));
     mu.borderEmpty(p);
 
-    checkRun = new UiCheck("Generate Skyline document", null, false);
+    checkRun = new UiCheck("Run Skyline", null, false);
     checkRun.setName("run-skyline");
 
     JLabel imageLabel = new JLabel();
@@ -131,10 +128,8 @@ public class SkylinePanel extends JPanelBase {
     mu.borderEmpty(p);
 
     panelBasic = createPanelBasic();
-    panelQuant = createPanelQuant();
 
     mu.add(p, panelBasic).growX().wrap();
-    mu.add(p, panelQuant).growX().wrap();
 
     return p;
   }
@@ -142,6 +137,7 @@ public class SkylinePanel extends JPanelBase {
   private JPanel createPanelBasic() {
     panelBasic = mu.newPanel(mu.lcFillX());
     mu.border(panelBasic, 1);
+    mu.border(panelBasic, "Basic settings");
 
     ButtonGroup radioGroup = new ButtonGroup();
 
@@ -175,15 +171,6 @@ public class SkylinePanel extends JPanelBase {
       updateEnabledStatus(jButtonSkylineCustom, uiRadioSkylineCustom.isSelected());
     });
 
-    String peakBoundsTooltip = "IonQuant and DIA-NN determine peak integration boundaries for DDA and DIA quant, respectively.<br>"
-        + "If this box is not checked, those bounds will be displayed in the Skyline document.<br>"
-        + "Check the box to override those bounds and have Skyline calculate its own peak boundaries<br>"
-        + "(note: this does NOT affect the output tables from " + PROGRAM_TITLE + ").<br>"
-        + "If IonQuant/DIANN are not run, Skyline bounds will be used regardless of this setting.";
-    uiCheckUseSsl = UiUtils.createUiCheck("Let Skyline build the library and determine peak boundaries", false);
-    uiCheckUseSsl.setName("use-ssl");
-    uiCheckUseSsl.setToolTipText(SwingUtils.makeHtml(peakBoundsTooltip));
-
     uiComboModsMode = UiUtils.createUiCombo(Arrays.asList("Default", "O-glyco", "N-glyco"));
     uiComboModsMode.setSelectedIndex(0);
     FormEntry feComboModsMode = new FormEntry("skyline-mods-mode", "Special modifications mode", uiComboModsMode, "Special modification support.<br>"
@@ -202,10 +189,8 @@ public class SkylinePanel extends JPanelBase {
     mu.add(panelBasic, feSkylineCustom.comp).growX().pushX();
     mu.add(panelBasic, jButtonSkylineCustom).wrap();
 
-    mu.add(panelBasic, uiCheckUseSsl).wrap();
-
     mu.add(panelBasic, feComboModsMode.label(), mu.ccL()).split(2);
-    mu.add(panelBasic, feComboModsMode.comp).wrap();
+    mu.add(panelBasic, feComboModsMode.comp);
 
     mu.add(panelBasic, fePrecursorTolerance.label(), mu.ccL()).split(2);
     mu.add(panelBasic, fePrecursorTolerance.comp);
@@ -222,33 +207,13 @@ public class SkylinePanel extends JPanelBase {
     return panelBasic;
   }
 
-  private JPanel createPanelQuant() {
-    panelQuant = mu.newPanel(mu.lcFillX());
-    mu.border(panelQuant, 1);
+  private JPanel createPanelSkylineQuant() {
+    panelSkylineQuant = mu.newPanel(mu.lcFillX());
+    mu.border(panelSkylineQuant, 1);
+    mu.border(panelSkylineQuant, "Perform Skyline quantification");
 
-    uiCheckRunSkylineQuant = UiUtils.createUiCheck("Run Skyline quant", false);
-    uiCheckRunSkylineQuant.setName("run-skyline-quant");
-
-    uiCheckSkipSkylineDocumentGeneration = UiUtils.createUiCheck("Skip Skyline document generation", false);
-    uiCheckSkipSkylineDocumentGeneration.setName("skip-skyline-document-generation");
-    uiCheckSkipSkylineDocumentGeneration.setToolTipText("If you already generated a Skyline document, you can skip the generation of a new one.");
-
-    uiCheckRunSkylineQuant.addItemListener(e -> {
-      updateEnabledStatus(uiCheckSkipSkylineDocumentGeneration, uiCheckRunSkylineQuant.isSelected());
-    });
-
-    mu.add(panelQuant, uiCheckRunSkylineQuant).wrap();
-    mu.add(panelQuant, uiCheckSkipSkylineDocumentGeneration).wrap();
-    
-    updateEnabledStatus(panelQuant, true);
-
-    return panelQuant;
-  }
-
-  private JPanel createPanelSiteReport() {
-    panelSiteReport = mu.newPanel(mu.lcFillX());
-    mu.border(panelSiteReport, 1);
-    mu.border(panelSiteReport, "Site report (optional)");
+    uiCheckGenerateSkylineQuantReport = UiUtils.createUiCheck("Generate Skyline quant report", false);
+    uiCheckGenerateSkylineQuantReport.setName("generate-skyline-quant-report");
 
     uiTextModTag = UiUtils.uiTextBuilder().cols(40).create();
     FormEntry feModTag = new FormEntry("mod-tag", "Mod tag", uiTextModTag, "<html>Modification tag for generating modification-specific reports <br/>\n"
@@ -261,15 +226,26 @@ public class SkylinePanel extends JPanelBase {
     uiSpinnerQValue = UiUtils.spinnerDouble(0.01, 0, 1, 0.01).setCols(5).setFormat("#.###").create();
     FormEntry feQValue = mu.feb(uiSpinnerQValue).name("q-value").label("Q-value").tooltip("Q-value threshold").create();
 
-    mu.add(panelSiteReport, feQValue.label()).split(2);
-    mu.add(panelSiteReport, feQValue.comp, mu.ccL());
-    mu.add(panelSiteReport, feModTag.label(), mu.ccL()).split(2);
-    mu.add(panelSiteReport, feModTag.comp).growX();
-    mu.add(panelSiteReport, feSiteProb.label()).split(2);
-    mu.add(panelSiteReport, feSiteProb.comp, mu.ccL());
+    updateEnabledStatus(feQValue.comp, SwingUtils.isEnabledAndChecked(uiCheckGenerateSkylineQuantReport));
+    updateEnabledStatus(feModTag.comp, SwingUtils.isEnabledAndChecked(uiCheckGenerateSkylineQuantReport));
+    updateEnabledStatus(feSiteProb.comp, SwingUtils.isEnabledAndChecked(uiCheckGenerateSkylineQuantReport));
 
-    updateEnabledStatus(panelSiteReport, true);
-    return panelSiteReport;
+    uiCheckGenerateSkylineQuantReport.addItemListener(e -> {
+      updateEnabledStatus(feQValue.comp, SwingUtils.isEnabledAndChecked(uiCheckGenerateSkylineQuantReport));
+      updateEnabledStatus(feModTag.comp, SwingUtils.isEnabledAndChecked(uiCheckGenerateSkylineQuantReport));
+      updateEnabledStatus(feSiteProb.comp, SwingUtils.isEnabledAndChecked(uiCheckGenerateSkylineQuantReport));
+    });
+
+    mu.add(panelSkylineQuant, uiCheckGenerateSkylineQuantReport).wrap();
+    mu.add(panelSkylineQuant, feQValue.label()).split(2);
+    mu.add(panelSkylineQuant, feQValue.comp, mu.ccL());
+    mu.add(panelSkylineQuant, feModTag.label(), mu.ccL()).split(2);
+    mu.add(panelSkylineQuant, feModTag.comp).growX();
+    mu.add(panelSkylineQuant, feSiteProb.label()).split(2);
+    mu.add(panelSkylineQuant, feSiteProb.comp, mu.ccL());
+
+    updateEnabledStatus(panelSkylineQuant, true);
+    return panelSkylineQuant;
   }
 
   @Override
@@ -279,11 +255,11 @@ public class SkylinePanel extends JPanelBase {
 
     pTop = createPanelTop();
     pContent = createPanelContent();
-    panelSiteReport = createPanelSiteReport();
+    panelSkylineQuant = createPanelSkylineQuant();
 
     this.add(pTop, BorderLayout.NORTH);
     this.add(pContent, BorderLayout.CENTER);
-    this.add(panelSiteReport, BorderLayout.SOUTH);
+    this.add(panelSkylineQuant, BorderLayout.SOUTH);
   }
 
   @Override
@@ -351,10 +327,6 @@ public class SkylinePanel extends JPanelBase {
     }
   }
 
-  public boolean isUseSsl() {
-    return uiCheckUseSsl.isSelected();
-  }
-
   public int getModsMode() {
     return uiComboModsMode.getSelectedIndex();
   }
@@ -368,11 +340,7 @@ public class SkylinePanel extends JPanelBase {
   }
 
   public boolean isRunSkylineQuant() {
-    return SwingUtils.isEnabledAndChecked(uiCheckRunSkylineQuant);
-  }
-
-  public boolean isSkipSkylineDocumentGeneration() {
-    return SwingUtils.isEnabledAndChecked(uiCheckSkipSkylineDocumentGeneration);
+    return SwingUtils.isEnabledAndChecked(uiCheckGenerateSkylineQuantReport);
   }
 
   public String getModTag() {

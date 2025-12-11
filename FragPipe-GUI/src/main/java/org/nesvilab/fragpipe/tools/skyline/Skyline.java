@@ -96,14 +96,14 @@ public class Skyline {
   public static void main(String[] args) {
     Locale.setDefault(Locale.US);
     try {
-      runSkyline(args[0], Paths.get(args[1]), args[2], Integer.parseInt(args[3]), Boolean.parseBoolean(args[4]), Integer.parseInt(args[5]), Integer.parseInt(args[6]));
+      runSkyline(args[0], Paths.get(args[1]), args[2], Integer.parseInt(args[3]), Integer.parseInt(args[4]), Integer.parseInt(args[5]), Boolean.parseBoolean(args[6]));
     } catch (Exception e) {
       e.printStackTrace();
       System.exit(1);
     }
   }
 
-  private static void runSkyline(String skylinePath, Path wd, String skylineVersion, int modsMode, boolean useSsl, int precursorTolerance, int fragmentTolerance) throws Exception {
+  private static void runSkyline(String skylinePath, Path wd, String skylineVersion, int modsMode, int precursorTolerance, int fragmentTolerance, boolean runSkylineQuant) throws Exception {
     if (skylinePath == null || skylinePath.isEmpty()) {
       throw new RuntimeException("Cannot find the Skyline executable file.");
     } else {
@@ -128,7 +128,6 @@ public class Skyline {
         }
       }
       reader.close();
-      boolean useSpeclib = dataType.contentEquals("DIA") && !useSsl;
 
       reader = Files.newBufferedReader(wd.resolve("fragpipe-files.fp-manifest"));
       while ((line = reader.readLine()) != null) {
@@ -163,12 +162,9 @@ public class Skyline {
         speclibFiles = Collections.emptyList();
       }
 
-      Set<Path> psmTsvFiles = Files.walk(wd).filter(p -> p.getFileName().toString().startsWith("psm.tsv") && p.getFileName().toString().endsWith("psm.tsv")).collect(Collectors.toCollection(TreeSet::new));
+      boolean useSpeclib = !speclibFiles.isEmpty();
 
-      if (useSpeclib && speclibFiles.isEmpty()) {
-        System.out.println("No DIA-NN .speclib files found in " + wd.resolve("dia-quant-output") + " but Skyline was set to use the spectral library as input and DIA-NN was enabled. Did the DIA-NN run fail? No Skyline document will be generated.");
-        System.exit(1);
-      }
+      Set<Path> psmTsvFiles = Files.walk(wd).filter(p -> p.getFileName().toString().startsWith("psm.tsv") && p.getFileName().toString().endsWith("psm.tsv")).collect(Collectors.toCollection(TreeSet::new));
 
       Path skylineFilesDir = wd.resolve("skyline_files");
       Files.createDirectories(skylineFilesDir);
@@ -187,9 +183,9 @@ public class Skyline {
         sslWriter = new WriteSSL();
         if (dataType.contentEquals("DIA")) {
           // psm.tsv refers to DDA files, need to provide as well
-          sslWriter.writeSSL(psmTsvFiles, sslPath, isPercolator, ddaAndDIAfiles, !useSsl);
+          sslWriter.writeSSL(psmTsvFiles, sslPath, isPercolator, ddaAndDIAfiles);
         } else {
-          sslWriter.writeSSL(psmTsvFiles, sslPath, isPercolator, lcmsFiles, !useSsl);
+          sslWriter.writeSSL(psmTsvFiles, sslPath, isPercolator, lcmsFiles);
         }
       }
 
@@ -275,19 +271,23 @@ public class Skyline {
       }
 
       writer.write("--import-search-exclude-library-sources ");
-      writer.write("--decoys-add=reverse ");
+
+      if (runSkylineQuant) {
+        writer.write("--decoys-add=reverse ");
+      }
 
       for (String s : lcmsFiles) {
         writer.write("--import-file=" + s + " ");
       }
 
-      writer.write("\n");
-
-      writer.write("--in=" + skylineFilesDir.resolve("fragpipe.sky").toAbsolutePath() + " ");
-      writer.write("--reintegrate-model-name=\"mProphet\" ");
-      writer.write("--reintegrate-create-model ");
-      writer.write("--reintegrate-overwrite-peaks ");
-      writer.write("--save");
+      if (runSkylineQuant) {
+        writer.write("\n");
+        writer.write("--in=" + skylineFilesDir.resolve("fragpipe.sky").toAbsolutePath() + " ");
+        writer.write("--reintegrate-model-name=\"mProphet\" ");
+        writer.write("--reintegrate-create-model ");
+        writer.write("--reintegrate-overwrite-peaks ");
+        writer.write("--save");
+      }
 
       writer.close();
 
