@@ -92,6 +92,7 @@ import org.nesvilab.fragpipe.messages.MessageManifestLoad;
 import org.nesvilab.fragpipe.messages.MessageOpenInExplorer;
 import org.nesvilab.fragpipe.messages.MessageRun;
 import org.nesvilab.fragpipe.messages.MessageSaveCache;
+import org.nesvilab.fragpipe.messages.MessageSaveLog;
 import org.nesvilab.fragpipe.messages.MessageSaveUiState;
 import org.nesvilab.fragpipe.messages.MessageShowAboutDialog;
 import org.nesvilab.fragpipe.messages.MessageUiRevalidate;
@@ -149,6 +150,7 @@ public class Fragpipe extends JFrameHeadless {
   public static java.util.concurrent.CountDownLatch loadManifestDone = new java.util.concurrent.CountDownLatch(1);
   public static java.util.concurrent.CountDownLatch loadWorkflowDone = new java.util.concurrent.CountDownLatch(1);
   public static java.util.concurrent.CountDownLatch runDone = new java.util.concurrent.CountDownLatch(1);
+  public static volatile boolean headlessLogSaved = false;
   public static boolean dryRun = false;
   public static Integer ram = null;
   static Integer nThreadsHeadlessOnly = null; // Note: this variable is only for headless mode. For the GUI mode, please get the number of threads using TabWorkflow:getThreads().
@@ -469,6 +471,24 @@ public class Fragpipe extends JFrameHeadless {
   }
 
   public static void headless(final Path workflowFile) {
+    // Add shutdown hook to save log file when user presses Ctrl+C
+    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+      if (headlessLogSaved) {
+        return;
+      }
+      try {
+        TabRun tabRun = Bus.getStickyEvent(TabRun.class);
+        if (tabRun != null && tabRun.console != null && workdir != null) {
+          Path wdPath = PathUtils.existing(workdir);
+          if (wdPath != null) {
+            TabRun.saveLogToFile(tabRun.console, MessageSaveLog.saveInDir(wdPath, tabRun.console).workDir);
+          }
+        }
+      } catch (Exception e) {
+        // Ignore exceptions during shutdown - best effort log saving
+      }
+    }, "FragPipe-LogSaver-ShutdownHook"));
+
     try {
       initDone.await();
     } catch (InterruptedException ex) {
@@ -516,7 +536,6 @@ public class Fragpipe extends JFrameHeadless {
 
     try {
       runDone.await();
-      Thread.sleep(5000);
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
     }

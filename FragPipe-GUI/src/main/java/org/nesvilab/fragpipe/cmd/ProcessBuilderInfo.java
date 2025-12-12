@@ -36,6 +36,7 @@ import org.nesvilab.fragpipe.messages.MessageSaveLog;
 import org.nesvilab.fragpipe.messages.MessageTransferLearningJobInfo;
 import org.nesvilab.fragpipe.messages.MessageTransferLearningJobInfo.JobType;
 import org.nesvilab.fragpipe.process.ProcessResult;
+import org.nesvilab.fragpipe.tabs.TabRun;
 import org.nesvilab.fragpipe.tools.transferlearning.TransferLearningPanel;
 import org.nesvilab.utils.swing.TextConsole;
 import org.slf4j.Logger;
@@ -204,7 +205,13 @@ public class ProcessBuilderInfo {
               log.debug("Exit value not zero, killing all processes");
               toConsole(Fragpipe.COLOR_RED, "Process returned non-zero exit code, stopping", true, console);
               Bus.post(new MessageKillAll(REASON.NON_ZERO_RETURN_FROM_PROCESS, console));
-              Bus.post(MessageSaveLog.saveInDir(wdPath, console));
+              if (Fragpipe.headless) {
+                // In headless mode, save the log file synchronously to ensure it's written before exit
+                TabRun.saveLogToFile(console, MessageSaveLog.saveInDir(wdPath, console).workDir);
+                Fragpipe.headlessLogSaved = true;
+              } else {
+                Bus.post(MessageSaveLog.saveInDir(wdPath, console));
+              }
               Bus.post(new MessageBatchCrashed(console));  // to notify the batch tab, if applicable
               break;
             }
