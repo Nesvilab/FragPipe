@@ -213,12 +213,21 @@ public class SkylinePanel extends JPanelBase {
     mu.border(panelSkylineQuant, 1);
     mu.border(panelSkylineQuant, "Perform Skyline quantification");
 
-    uiCheckGenerateSkylineQuantReport = UiUtils.createUiCheck("Generate Skyline quant report", false);
+    uiCheckGenerateSkylineQuantReport = UiUtils.createUiCheck("Build library, quantify, extract report", false);
     uiCheckGenerateSkylineQuantReport.setName("generate-skyline-quant-report");
 
-    uiCheckSkipSkylineDocumentGeneration = UiUtils.createUiCheck("Skip Skyline document generation", false);
-    uiCheckSkipSkylineDocumentGeneration.setName("skip-skyline-document-generation");
+    JPanel panelQuantOptions = mu.newPanel(mu.lcFillX());
+
+    uiCheckSkipSkylineDocumentGeneration = UiUtils.createUiCheck("Use existing Skyline document", false);
+    uiCheckSkipSkylineDocumentGeneration.setName("use-existing-skyline-document");
     uiCheckSkipSkylineDocumentGeneration.setToolTipText("If you already generated a Skyline document, you can skip the generation of a new one.");
+
+    uiSpinnerFdr = UiUtils.spinnerDouble(0.01, 0, 1, 0.01).setCols(5).setFormat("#.###").create();
+    FormEntry feFdr = mu.feb(uiSpinnerFdr).name("fdr").label("FDR").tooltip("False discovery rate threshold").create();
+
+    JPanel panelSiteReport = mu.newPanel(mu.lcFillX());
+    mu.border(panelSiteReport, 1);
+    mu.border(panelSiteReport, "Site report (optional)");
 
     uiTextModTag = UiUtils.uiTextBuilder().cols(40).create();
     FormEntry feModTag = new FormEntry("mod-tag", "Mod tag", uiTextModTag, "<html>Modification tag for generating modification-specific reports <br/>\n"
@@ -228,29 +237,24 @@ public class SkylinePanel extends JPanelBase {
     uiSpinnerSiteProb = UiUtils.spinnerDouble(0.75, 0, 1, 0.01).setCols(5).setFormat("#.###").create();
     FormEntry feSiteProb = mu.feb(uiSpinnerSiteProb).name("min-site-prob").label("Min site probability").tooltip("Site localization confidence threshold").create();
 
-    uiSpinnerFdr = UiUtils.spinnerDouble(0.01, 0, 1, 0.01).setCols(5).setFormat("#.###").create();
-    FormEntry feFdr = mu.feb(uiSpinnerFdr).name("fdr").label("FDR").tooltip("False discovery rate threshold").create();
+    mu.add(panelSiteReport, feModTag.label(), mu.ccL()).split(2);
+    mu.add(panelSiteReport, feModTag.comp).growX();
+    mu.add(panelSiteReport, feSiteProb.label()).split(2);
+    mu.add(panelSiteReport, feSiteProb.comp, mu.ccL());
 
-    updateEnabledStatus(feFdr.comp, SwingUtils.isEnabledAndChecked(uiCheckGenerateSkylineQuantReport));
-    updateEnabledStatus(feModTag.comp, SwingUtils.isEnabledAndChecked(uiCheckGenerateSkylineQuantReport));
-    updateEnabledStatus(feSiteProb.comp, SwingUtils.isEnabledAndChecked(uiCheckGenerateSkylineQuantReport));
-    updateEnabledStatus(uiCheckSkipSkylineDocumentGeneration, SwingUtils.isEnabledAndChecked(uiCheckGenerateSkylineQuantReport));
+    mu.add(panelQuantOptions, uiCheckSkipSkylineDocumentGeneration).wrap();
+    mu.add(panelQuantOptions, feFdr.label()).split(2);
+    mu.add(panelQuantOptions, feFdr.comp, mu.ccL()).wrap();
+    mu.add(panelQuantOptions, panelSiteReport).growX().spanX().wrap();
+
+    updateEnabledStatus(panelQuantOptions, SwingUtils.isEnabledAndChecked(uiCheckGenerateSkylineQuantReport));
 
     uiCheckGenerateSkylineQuantReport.addItemListener(e -> {
-      updateEnabledStatus(feFdr.comp, SwingUtils.isEnabledAndChecked(uiCheckGenerateSkylineQuantReport));
-      updateEnabledStatus(feModTag.comp, SwingUtils.isEnabledAndChecked(uiCheckGenerateSkylineQuantReport));
-      updateEnabledStatus(feSiteProb.comp, SwingUtils.isEnabledAndChecked(uiCheckGenerateSkylineQuantReport));
-      updateEnabledStatus(uiCheckSkipSkylineDocumentGeneration, SwingUtils.isEnabledAndChecked(uiCheckGenerateSkylineQuantReport));
+      updateEnabledStatus(panelQuantOptions, SwingUtils.isEnabledAndChecked(uiCheckGenerateSkylineQuantReport));
     });
 
     mu.add(panelSkylineQuant, uiCheckGenerateSkylineQuantReport).wrap();
-    mu.add(panelSkylineQuant, uiCheckSkipSkylineDocumentGeneration).wrap();
-    mu.add(panelSkylineQuant, feFdr.label()).split(2);
-    mu.add(panelSkylineQuant, feFdr.comp, mu.ccL());
-    mu.add(panelSkylineQuant, feModTag.label(), mu.ccL()).split(2);
-    mu.add(panelSkylineQuant, feModTag.comp).growX();
-    mu.add(panelSkylineQuant, feSiteProb.label()).split(2);
-    mu.add(panelSkylineQuant, feSiteProb.comp, mu.ccL());
+    mu.add(panelSkylineQuant, panelQuantOptions).growX().spanX().wrap();
 
     updateEnabledStatus(panelSkylineQuant, true);
     return panelSkylineQuant;
