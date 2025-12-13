@@ -27,6 +27,7 @@ import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.nesvilab.fragpipe.params.ThisAppProps;
+import org.nesvilab.fragpipe.Version;
 
 public class CacheUtils {
   private static final Logger log = LoggerFactory.getLogger(CacheUtils.class);
@@ -41,6 +42,7 @@ public class CacheUtils {
     }
     return null;
   }).get();
+  
   public static final String XDG_CACHE_HOME = ((Supplier<String>) () -> {
     if (OsUtils.isUnix()) {
       if (System.getenv("XDG_CACHE_HOME") == null || System.getenv("XDG_CACHE_HOME").isEmpty())
@@ -54,7 +56,7 @@ public class CacheUtils {
   private CacheUtils() {}
 
   public static Path getTempDir() {
-    return getSystemTempDir().resolve(ThisAppProps.APP_TEMP_DIR);
+    return getSystemTempDir().resolve(ThisAppProps.APP_TEMP_DIR).resolve(Version.version());
   }
 
   private static Path locateTempFile(Path tempDir, String fn) throws FileNotFoundException {
