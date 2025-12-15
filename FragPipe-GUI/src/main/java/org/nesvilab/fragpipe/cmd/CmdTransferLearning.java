@@ -23,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -285,6 +286,21 @@ public class CmdTransferLearning extends CmdBase {
       ProcessBuilder pbPredict = new ProcessBuilder(cmdPredict);
       pbPredict.directory(wd.toFile());
       pbis.add(new PbiBuilder().setPb(pbPredict).setName(getCmdName() + " prediction").create());
+
+      if (outputFormat.equalsIgnoreCase("speclib")) {
+        Path speclibFile = wd.resolve("fragpipe-predicted-speclib.speclib");
+        Path msboosterDir = wd.resolve("MSBooster");
+        if (!Files.exists(msboosterDir)) {
+          try {
+            Files.createDirectories(msboosterDir);
+          } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+          }
+        }
+        List<ProcessBuilder> pbsCopy = ToolingUtils.pbsCopyFiles(jarFragpipe, msboosterDir, Collections.singletonList(speclibFile));
+        pbis.addAll(PbiBuilder.from(pbsCopy, getCmdName() + " copy speclib to MSBooster"));
+      }
     }
 
     isConfigured = true;
