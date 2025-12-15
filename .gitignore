@@ -3,6 +3,7 @@
 /MSFragger-GUI/dist/
 .DS_Store
 *~
+.claude
 
 # Created by https://www.gitignore.io/api/visualstudiocode
 
