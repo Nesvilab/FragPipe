@@ -105,6 +105,7 @@ public class TabRun extends JPanelWithEnablement {
   private static final String LAST_WORK_DIR = "workdir.last-path";
   private static final String PROP_FILECHOOSER_LAST_PATH = TAB_PREFIX + "filechooser.last-path";
   public static final String PDV_NAME = "/FP-PDV/FP-PDV-1.5.0.jar";
+  public static final String FP_FRAGMENTS = "/FP-PDV/FP-Fragments-1.0.0.jar";
   public static final String GENERATE_REPORTS_NAME = "generate_reports_pdf.py";
   private static final String FRAGPIPE_ANALYST_URL = Fragpipe.propsFix().getProperty("fragpipe-analyst-url", "http://fragpipe-analyst.nesvilab.org/");
 

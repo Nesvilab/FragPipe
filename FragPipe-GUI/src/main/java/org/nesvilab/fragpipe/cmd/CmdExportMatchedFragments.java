@@ -46,9 +46,9 @@ public class CmdExportMatchedFragments extends CmdBase {
   public boolean configure(Component comp, Path workDir, int nThreads) {
     initPreConfig();
 
-    final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(TabRun.PDV_NAME).concat(JAR_DEPS));
+    final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(TabRun.FP_FRAGMENTS).concat(JAR_DEPS));
     if (classpathJars == null || classpathJars.isEmpty()) {
-      log.error("Cannot find the visualization executable file.");
+      log.error("Cannot find the matched fragments executable file.");
       return false;
     }
 
@@ -56,7 +56,7 @@ public class CmdExportMatchedFragments extends CmdBase {
     cmd.add(Fragpipe.getBinJava());
     cmd.add("-cp");
     cmd.add(constructClasspathString(classpathJars));
-    cmd.add("GUI.GUIMainClass");
+    cmd.add("FragmentsExportMainClass");
     cmd.add(workDir.toAbsolutePath().normalize().toString());
     cmd.add(nThreads + "");
     cmd.add("r");
