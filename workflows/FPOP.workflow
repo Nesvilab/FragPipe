@@ -1,5 +1,7 @@
 # Workflow: FPOP
 
+
+
 crystalc.run-crystalc=false
 database.decoy-tag=rev_
 diann.channel-normalization-strategy=0
@@ -176,7 +178,7 @@ msfragger.labile_search_mode=off
 msfragger.localize_delta_mass=true
 msfragger.mass_diff_to_variable_mod=1
 msfragger.mass_offsets=0
-msfragger.mass_offsets_detailed=0.00000(aa\=);-43.98980(aa\=DE);-43.05340(aa\=R);-30.01060(aa\=DE);-27.99490(aa\=DE);-23.01600(aa\=H);-22.03200(aa\=H);-10.03200(aa\=H);4.97350(aa\=H);13.97930(aa\=EIKLPQRV);15.99490(aa\=GAILSTYRKWPFMHDEQNV);-41.02656(aa\=C);31.98980(aa\=FMWY);-25.03166(aa\=C);47.98470(aa\=FWY);-9.03676(aa\=C)
+msfragger.mass_offsets_detailed=0.00000;-43.98980(aa\=DE);-43.05340(aa\=R);-30.01060(aa\=DE);-27.99490(aa\=DE);-23.01600(aa\=H);-22.03200(aa\=H);-10.03200(aa\=H);4.97350(aa\=H);13.97930(aa\=EIKLPQRV);15.99490(aa\=GAILSTYRKWPFMHDEQNV);-41.02656(aa\=C);31.98980(aa\=FMWY);-25.03166(aa\=C);47.98470(aa\=FWY);-9.03676(aa\=C)
 msfragger.max_fragment_charge=1
 msfragger.max_variable_mods_combinations=5000
 msfragger.max_variable_mods_per_peptide=3
