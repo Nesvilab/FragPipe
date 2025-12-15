@@ -142,24 +142,13 @@ public class CmdDiann extends CmdBase {
       }
 
       Path root = FragpipeLocations.get().getDirFragpipeRoot();
-      Path libsDir = root.resolve("lib");
+      String libsDir = root.resolve("lib").toAbsolutePath().normalize() + "/*";
       if (Files.isDirectory(jarFragpipe)) {
-        libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe-" + Version.version() + "/lib");
+        libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe-" + Version.version() + "/lib").toAbsolutePath().normalize() + "/*";
       }
 
       Set<String> toJoin = classpathJars.stream().map(p -> p.toAbsolutePath().normalize().toString()).collect(Collectors.toSet());
-      try {
-        toJoin.addAll(Files.walk(libsDir).
-            filter(p -> p.getFileName().toString().endsWith(".jar")).
-            filter(p -> p.getFileName().toString().startsWith("fragpipe-")).
-            map(p -> p.toAbsolutePath().normalize().toString()).collect(Collectors.toList())
-        );
-      } catch (IOException ex) {
-        ex.printStackTrace();
-        return false;
-      }
-
-      toJoin.add(jarFragpipe.toAbsolutePath().normalize().toString());
+      toJoin.add(libsDir);
       final String classpath = OsUtils.asSingleArgument(String.join(System.getProperties().getProperty("path.separator"), toJoin));
 
       for (LcmsFileGroup group : lcmsFileGroups) {
@@ -428,9 +417,9 @@ public class CmdDiann extends CmdBase {
 
     if (noteConfigDiann.compareVersion("2.0") >= 0) {
       Path root = FragpipeLocations.get().getDirFragpipeRoot();
-      Path libsDir = root.resolve("lib");
+      Path libsDir = root.resolve("lib").toAbsolutePath().normalize();
       if (Files.isDirectory(jarFragpipe)) {
-        libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe-" + Version.version() + "/lib");
+        libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe-" + Version.version() + "/lib").toAbsolutePath().normalize();
       }
 
       List<String> cmd = new ArrayList<>();
@@ -447,9 +436,9 @@ public class CmdDiann extends CmdBase {
 
     if (!isRunPlex) {
       Path root = FragpipeLocations.get().getDirFragpipeRoot();
-      Path libsDir = root.resolve("lib");
+      String libsDir = root.resolve("lib").toAbsolutePath().normalize() + "/*";
       if (Files.isDirectory(jarFragpipe)) {
-        libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe-" + Version.version() + "/lib");
+        libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe-" + Version.version() + "/lib").toAbsolutePath().normalize() + "/*";
       }
 
       List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(BATMASS_IO_JAR));
@@ -458,18 +447,7 @@ public class CmdDiann extends CmdBase {
       }
 
       Set<String> toJoin = classpathJars.stream().map(p -> p.toAbsolutePath().normalize().toString()).collect(Collectors.toSet());
-
-      try {
-        toJoin.addAll(Files.walk(libsDir).filter(p -> p.getFileName().toString().endsWith(".jar")).filter(p -> {
-          String t = p.getFileName().toString();
-          return t.startsWith("fragpipe-");
-        }).map(p -> p.toAbsolutePath().normalize().toString()).collect(Collectors.toList()));
-      } catch (Exception ex) {
-        ex.printStackTrace();
-        return false;
-      }
-
-      toJoin.add(jarFragpipe.toAbsolutePath().normalize().toString());
+      toJoin.add(libsDir);
       final String classpath = OsUtils.asSingleArgument(String.join(System.getProperties().getProperty("path.separator"), toJoin));
 
       List<String> cmd = new ArrayList<>();
@@ -488,27 +466,13 @@ public class CmdDiann extends CmdBase {
 
     if (!isRunPlex && generateMsstats && noteConfigDiann.compareVersion("2.0") < 0) {
       Path root = FragpipeLocations.get().getDirFragpipeRoot();
-      Path libsDir = root.resolve("lib");
+      String libsDir = root.resolve("lib").toAbsolutePath().normalize() + "/*";
       if (Files.isDirectory(jarFragpipe)) {
-        libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe-" + Version.version() + "/lib");
+        libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe-" + Version.version() + "/lib").toAbsolutePath().normalize() + "/*";
       }
 
       Set<String> toJoin = new TreeSet<>();
-      try {
-        toJoin.addAll(Files.walk(libsDir).
-            filter(p -> p.getFileName().toString().endsWith(".jar")).
-            filter(p -> {
-              String t = p.getFileName().toString();
-              return t.startsWith("fragpipe-") || t.startsWith("commons-io");
-            }).
-            map(p -> p.toAbsolutePath().normalize().toString()).collect(Collectors.toList())
-        );
-      } catch (IOException ex) {
-        ex.printStackTrace();
-        return false;
-      }
-
-      toJoin.add(jarFragpipe.toAbsolutePath().normalize().toString());
+      toJoin.add(libsDir);
       final String classpath = OsUtils.asSingleArgument(String.join(System.getProperties().getProperty("path.separator"), toJoin));
 
       List<String> cmd = new ArrayList<>();

@@ -35,9 +35,9 @@ public class CmdFPOPcoadaptr extends CmdBase {
         cmd.add(Fragpipe.getBinJava());
         cmd.add("-cp");
         Path root = FragpipeLocations.get().getDirFragpipeRoot();
-        String libsDir = root.resolve("lib") + "/*";
+        String libsDir = root.resolve("lib").toAbsolutePath().normalize() + "/*";
         if (Files.isDirectory(jarFragpipe)) {
-            libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe/lib").toString() + "/*";
+            libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe/lib").toAbsolutePath().normalize() + "/*";
         }
         cmd.add(libsDir);
         if (isDIA) {

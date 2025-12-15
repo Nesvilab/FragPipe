@@ -79,7 +79,9 @@ sourceSets {
 shadowJar {
     archiveBaseName.set("${project.name}-${project.version}")
     archiveClassifier.set('')
-    minimize()
+    minimize {
+        exclude(dependency('org.apache.maven:maven-artifact:.*'))
+    }
 }
 
 distributions {

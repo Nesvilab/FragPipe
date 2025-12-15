@@ -85,26 +85,13 @@ public class CmdWriteSubMzml extends CmdBase {
     }
 
     Path root = FragpipeLocations.get().getDirFragpipeRoot();
-    Path libsDir = root.resolve("lib");
+    String libsDir = root.resolve("lib").toAbsolutePath().normalize() + "/*";
     if (Files.isDirectory(jarFragpipe)) {
-      libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe-" + Version.version() + "/lib");
+      libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe-" + Version.version() + "/lib").toAbsolutePath().normalize() + "/*";
     }
 
     Set<String> toJoin = classpathJars.stream().map(p -> p.toAbsolutePath().normalize().toString()).collect(Collectors.toSet());
-    try {
-      toJoin.addAll(Files.walk(libsDir).
-          filter(p -> p.getFileName().toString().endsWith(".jar")).
-          filter(p -> p.getFileName().toString().startsWith("maven-artifact") ||
-              p.getFileName().toString().startsWith("commons-lang3") ||
-              p.getFileName().toString().startsWith("fragpipe-")).
-          map(p -> p.toAbsolutePath().normalize().toString()).collect(Collectors.toList())
-      );
-    } catch (IOException ex) {
-      ex.printStackTrace();
-      return false;
-    }
-
-    toJoin.add(jarFragpipe.toAbsolutePath().normalize().toString());
+    toJoin.add(libsDir);
     final String classpath = OsUtils.asSingleArgument(String.join(System.getProperties().getProperty("path.separator"), toJoin));
 
     int idx = 0;
