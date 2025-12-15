@@ -153,9 +153,9 @@ public class CmdSkyline extends CmdBase {
       pb2.directory(wd.resolve("skyline_files").toFile());
       pbis.add(new PbiBuilder().setPb(pb2).setName(getCmdName() + " export quant result").create());
 
-      List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Stream.of(CmdDiann.SITE_REPORTER));
+      List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Stream.of(CmdDiann.FRAG_REPORTER));
       if (classpathJars == null) {
-        System.err.println("Could not find " + CmdDiann.SITE_REPORTER);
+        System.err.println("Could not find " + CmdDiann.FRAG_REPORTER);
       } else {
         List<String> cmd2 = new ArrayList<>();
         cmd2.add(Fragpipe.getBinJava());

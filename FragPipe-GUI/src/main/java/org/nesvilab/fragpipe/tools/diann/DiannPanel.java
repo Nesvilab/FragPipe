@@ -81,7 +81,7 @@ public class DiannPanel extends JPanelBase {
   private JPanel panelBasic;
   private JPanel panelBasic2;
   private JPanel panelPlex;
-  private JPanel panelSiteReport;
+  private JPanel panelFragReporter;
   private UiText uiTextModTag;
   private UiSpinnerDouble uiSpinnerSiteProb;
   private UiCheck uiCheckUsePredictedSpectra;
@@ -98,7 +98,7 @@ public class DiannPanel extends JPanelBase {
   protected void initMore() {
     super.initMore();
     SwingUtils.setEnablementUpdater(this, pContent, checkRun);
-    SwingUtils.setEnablementUpdater(this, panelSiteReport, checkRun);
+    SwingUtils.setEnablementUpdater(this, panelFragReporter, checkRun);
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
@@ -335,10 +335,10 @@ public class DiannPanel extends JPanelBase {
     return panelPlex;
   }
 
-  private JPanel createPanelSiteReport() {
-    panelSiteReport = mu.newPanel(mu.lcFillX());
-    mu.border(panelSiteReport, 1);
-    mu.border(panelSiteReport, "Site report (optional)");
+  private JPanel createPanelFragReporter() {
+    panelFragReporter = mu.newPanel(mu.lcFillX());
+    mu.border(panelFragReporter, 1);
+    mu.border(panelFragReporter, "Site report (optional)");
 
     uiTextModTag = UiUtils.uiTextBuilder().cols(40).create();
     FormEntry feModTag = new FormEntry("mod-tag", "Mod tag", uiTextModTag, "<html>Modification tag for generating modification-specific reports <br/>\n"
@@ -348,13 +348,13 @@ public class DiannPanel extends JPanelBase {
     uiSpinnerSiteProb = UiUtils.spinnerDouble(0.75, 0, 1, 0.01).setCols(5).setFormat("#.###").create();
     FormEntry feSiteProb = mu.feb(uiSpinnerSiteProb).name("min-site-prob").label("Min site probability").tooltip("Site localization confidence threshold").create();
 
-    mu.add(panelSiteReport, feModTag.label(), mu.ccL()).split(2);
-    mu.add(panelSiteReport, feModTag.comp).growX();
-    mu.add(panelSiteReport, feSiteProb.label()).split(2);
-    mu.add(panelSiteReport, feSiteProb.comp, mu.ccL());
+    mu.add(panelFragReporter, feModTag.label(), mu.ccL()).split(2);
+    mu.add(panelFragReporter, feModTag.comp).growX();
+    mu.add(panelFragReporter, feSiteProb.label()).split(2);
+    mu.add(panelFragReporter, feSiteProb.comp, mu.ccL());
 
-    updateEnabledStatus(panelSiteReport, true);
-    return panelSiteReport;
+    updateEnabledStatus(panelFragReporter, true);
+    return panelFragReporter;
   }
 
   @Override
@@ -364,11 +364,11 @@ public class DiannPanel extends JPanelBase {
 
     pTop = createPanelTop();
     pContent = createPanelContent();
-    panelSiteReport = createPanelSiteReport();
+    panelFragReporter = createPanelFragReporter();
 
     this.add(pTop, BorderLayout.NORTH);
     this.add(pContent, BorderLayout.CENTER);
-    this.add(panelSiteReport, BorderLayout.SOUTH);
+    this.add(panelFragReporter, BorderLayout.SOUTH);
   }
 
   @Override

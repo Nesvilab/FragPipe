@@ -75,7 +75,7 @@ public class CmdDiann extends CmdBase {
   private static final String NAME = "DIA-Quant";
   private static final List<String> SUPPORTED_FORMATS_WIN = Arrays.asList("mzML", "d", "dia", "wiff", "raw");
   private static final List<String> SUPPORTED_FORMATS_LINUX = Arrays.asList("mzML", "d", "dia", "raw");
-  public static final String SITE_REPORTER = "LFQ-SiteReporter-1.0.32.jar";
+  public static final String FRAG_REPORTER = "FragReporter-1.1.0.jar";
   public static final Pattern labelPattern = Pattern.compile("([A-Znc*]+)([\\d.+-]+)");
 
   private final String diannPath;
@@ -533,9 +533,9 @@ public class CmdDiann extends CmdBase {
       pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + " convert DIA-NN output to MSstats.csv").create());
     }
 
-    List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Stream.of(SITE_REPORTER));
+    List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Stream.of(FRAG_REPORTER));
     if (classpathJars == null) {
-      System.err.println("Could not find " + SITE_REPORTER);
+      System.err.println("Could not find " + FRAG_REPORTER);
     } else {
       List<String> cmd = new ArrayList<>();
       cmd.add(Fragpipe.getBinJava());
