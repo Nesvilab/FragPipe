@@ -96,14 +96,14 @@ public class Skyline {
   public static void main(String[] args) {
     Locale.setDefault(Locale.US);
     try {
-      runSkyline(args[0], Paths.get(args[1]), args[2], Integer.parseInt(args[3]), Integer.parseInt(args[4]), Integer.parseInt(args[5]), Boolean.parseBoolean(args[6]));
+      runSkyline(args[0], Paths.get(args[1]), args[2], Integer.parseInt(args[3]), Integer.parseInt(args[4]), Integer.parseInt(args[5]), Double.parseDouble(args[6]), Integer.parseInt(args[7]), Boolean.parseBoolean(args[8]));
     } catch (Exception e) {
       e.printStackTrace();
       System.exit(1);
     }
   }
 
-  private static void runSkyline(String skylinePath, Path wd, String skylineVersion, int modsMode, int precursorTolerance, int fragmentTolerance, boolean runSkylineQuant) throws Exception {
+  private static void runSkyline(String skylinePath, Path wd, String skylineVersion, int modsMode, int precursorTolerance, int fragmentTolerance, double rtTolerance, int libraryProductIons, boolean runSkylineQuant) throws Exception {
     if (skylinePath == null || skylinePath.isEmpty()) {
       throw new RuntimeException("Cannot find the Skyline executable file.");
     } else {
@@ -251,7 +251,7 @@ public class Skyline {
       writer.write("--tran-product-end-ion=\"last ion\" ");
       writer.write("--tran-product-clear-special-ions ");
       writer.write("--library-match-tolerance=" + fragmentTolerance + "ppm ");
-      writer.write("--library-product-ions=12 ");
+      writer.write("--library-product-ions=" + libraryProductIons + " ");
       writer.write("--library-min-product-ions=1 ");
       writer.write("--library-pick-product-ions=filter ");
       writer.write("--full-scan-precursor-analyzer=centroided ");
@@ -261,7 +261,7 @@ public class Skyline {
       writer.write("--full-scan-precursor-res=" + precursorTolerance + " ");
       writer.write("--full-scan-product-res=" + fragmentTolerance + " ");
       writer.write("--full-scan-rt-filter=ms2_ids ");
-      writer.write("--full-scan-rt-filter-tolerance=2 ");
+      writer.write("--full-scan-rt-filter-tolerance=" + rtTolerance + " ");
       writer.write("--instrument-min-mz=50 ");
       writer.write("--instrument-max-mz=2000 ");
       writer.write("--full-scan-precursor-isotopes=Count ");

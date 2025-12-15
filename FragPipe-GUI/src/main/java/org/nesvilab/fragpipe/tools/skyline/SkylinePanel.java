@@ -73,6 +73,8 @@ public class SkylinePanel extends JPanelBase {
   private UiCombo uiComboModsMode;
   private UiSpinnerInt uiSpinnerPrecursorTolerance;
   private UiSpinnerInt uiSpinnerFragmentTolerance;
+  private UiSpinnerDouble uiSpinnerRtTolerance;
+  private UiSpinnerInt uiSpinnerLibraryProductIons;
   private UiCheck uiCheckGenerateSkylineQuantReport;
   private UiCheck uiCheckSkipSkylineDocumentGeneration;
   private JPanel panelSkylineQuant;
@@ -184,20 +186,32 @@ public class SkylinePanel extends JPanelBase {
     uiSpinnerFragmentTolerance = new UiSpinnerInt(10, 1, 1000, 1);
     FormEntry feFragmentTolerance = new FormEntry("skyline-fragment-tolerance", "Fragment tolerance (ppm)", uiSpinnerFragmentTolerance, "Fragment tolerance in ppm");
 
+    uiSpinnerRtTolerance = UiUtils.spinnerDouble(5.0, 0.1, 60.0, 0.1).setCols(5).setFormat("#.##").create(); // Skyline's default is 5.0
+    FormEntry feRtTolerance = new FormEntry("skyline-rt-tolerance", "RT tolerance (min)", uiSpinnerRtTolerance, "Retention time tolerance in minutes");
+
+    uiSpinnerLibraryProductIons = new UiSpinnerInt(3, 1, 100, 1); // Skyline's default is 3
+    FormEntry feLibraryProductIons = new FormEntry("skyline-library-product-ions", "Library product ions", uiSpinnerLibraryProductIons, "Number of library product ions");
+
     mu.add(panelBasic, feRadioSkyline.comp);
     mu.add(panelBasic, feRadioSkylineDaily.comp);
-    mu.add(panelBasic, feRadioSkylineCustom.comp);
+    mu.add(panelBasic, feRadioSkylineCustom.comp).split(3);
     mu.add(panelBasic, feSkylineCustom.comp).growX().pushX();
     mu.add(panelBasic, jButtonSkylineCustom).wrap();
-
-    mu.add(panelBasic, feComboModsMode.label(), mu.ccL()).split(2);
-    mu.add(panelBasic, feComboModsMode.comp);
 
     mu.add(panelBasic, fePrecursorTolerance.label(), mu.ccL()).split(2);
     mu.add(panelBasic, fePrecursorTolerance.comp);
 
     mu.add(panelBasic, feFragmentTolerance.label(), mu.ccL()).split(2);
-    mu.add(panelBasic, feFragmentTolerance.comp).wrap();
+    mu.add(panelBasic, feFragmentTolerance.comp);
+
+    mu.add(panelBasic, feRtTolerance.label(), mu.ccL()).split(2);
+    mu.add(panelBasic, feRtTolerance.comp).wrap();
+
+    mu.add(panelBasic, feLibraryProductIons.label(), mu.ccL()).split(2);
+    mu.add(panelBasic, feLibraryProductIons.comp);
+
+    mu.add(panelBasic, feComboModsMode.label(), mu.ccL()).split(2);
+    mu.add(panelBasic, feComboModsMode.comp).wrap();
 
     updateEnabledStatus(feSkylineCustom.comp, uiRadioSkylineCustom.isSelected());
     updateEnabledStatus(jButtonSkylineCustom, uiRadioSkylineCustom.isSelected());
@@ -349,6 +363,14 @@ public class SkylinePanel extends JPanelBase {
 
   public int getFragmentTolerance() {
     return uiSpinnerFragmentTolerance.getActualValue();
+  }
+
+  public double getRtTolerance() {
+    return uiSpinnerRtTolerance.getActualValue();
+  }
+
+  public int getLibraryProductIons() {
+    return uiSpinnerLibraryProductIons.getActualValue();
   }
 
   public boolean isRunSkylineQuant() {

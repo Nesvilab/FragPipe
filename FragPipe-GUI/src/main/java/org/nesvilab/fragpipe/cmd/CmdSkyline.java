@@ -67,6 +67,8 @@ public class CmdSkyline extends CmdBase {
       int modsMode,
       int precursorTolerance,
       int fragmentTolerance,
+      double rtTolerance,
+      int libraryProductIons,
       boolean runSkylineQuant,
       boolean skipSkylineDocumentGeneration,
       String modTag,
@@ -129,6 +131,8 @@ public class CmdSkyline extends CmdBase {
       cmd.add(String.valueOf(modsMode));
       cmd.add(String.valueOf(precursorTolerance));
       cmd.add(String.valueOf(fragmentTolerance));
+      cmd.add(String.valueOf(rtTolerance));
+      cmd.add(String.valueOf(libraryProductIons));
       cmd.add(String.valueOf(runSkylineQuant));
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(wd.toFile());
