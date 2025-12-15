@@ -186,10 +186,10 @@ public class SkylinePanel extends JPanelBase {
     uiSpinnerFragmentTolerance = new UiSpinnerInt(10, 1, 1000, 1);
     FormEntry feFragmentTolerance = new FormEntry("skyline-fragment-tolerance", "Fragment tolerance (ppm)", uiSpinnerFragmentTolerance, "Fragment tolerance in ppm");
 
-    uiSpinnerRtTolerance = UiUtils.spinnerDouble(5.0, 0.1, 60.0, 0.1).setCols(5).setFormat("#.##").create(); // Skyline's default is 5.0
+    uiSpinnerRtTolerance = UiUtils.spinnerDouble(2.0, 0.1, 60.0, 0.1).setCols(5).setFormat("#.##").create();
     FormEntry feRtTolerance = new FormEntry("skyline-rt-tolerance", "RT tolerance (min)", uiSpinnerRtTolerance, "Retention time tolerance in minutes");
 
-    uiSpinnerLibraryProductIons = new UiSpinnerInt(3, 1, 100, 1); // Skyline's default is 3
+    uiSpinnerLibraryProductIons = new UiSpinnerInt(12, 1, 100, 1);
     FormEntry feLibraryProductIons = new FormEntry("skyline-library-product-ions", "Library product ions", uiSpinnerLibraryProductIons, "Number of library product ions");
 
     mu.add(panelBasic, feRadioSkyline.comp);
