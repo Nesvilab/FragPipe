@@ -18,6 +18,8 @@
 package org.nesvilab.fragpipe.tabs;
 
 import static org.nesvilab.fragpipe.Version.PROGRAM_TITLE;
+import static org.nesvilab.fragpipe.tabs.TabWorkflow.getSaveFilePath;
+import static org.nesvilab.fragpipe.tools.glyco.GlycoMassLoader.PROP_FILECHOOSER_LAST_PATH;
 
 import org.nesvilab.fragpipe.Fragpipe;
 import org.nesvilab.fragpipe.FragpipeLocations;
@@ -25,11 +27,7 @@ import org.nesvilab.fragpipe.dialogs.GlycanModEditDialog;
 import org.nesvilab.fragpipe.dialogs.GlycanResidueEditDialog;
 import org.nesvilab.fragpipe.tools.fragger.MsfraggerParams;
 import org.nesvilab.fragpipe.tools.mbg.MBGPanel;
-import org.nesvilab.utils.swing.JPanelWithEnablement;
-import org.nesvilab.utils.swing.MigUtils;
-import org.nesvilab.utils.swing.UiCombo;
-import org.nesvilab.utils.swing.UiText;
-import org.nesvilab.utils.swing.UiUtils;
+import org.nesvilab.utils.swing.*;
 import umich.ms.glyco.*;
 import org.nesvilab.fragpipe.tools.opair.OPairPanel;
 import org.nesvilab.fragpipe.tools.ptmshepherd.PTMSGlycanAssignPanel;
@@ -116,6 +114,10 @@ public class TabGlyco extends JPanelWithEnablement {
         uiComboLoadBuiltinGlycans.addActionListener(this::actionBtnLoadGlycans);
         textLoadGlycans = new UiText();
 
+        JButton btnSaveGlycanDB = new JButton("Save Glycan Database");
+        btnSaveGlycanDB.addActionListener(this::actionBtnSaveGlycanDB);
+        btnSaveGlycanDB.setToolTipText("Save the currently loaded glycan database to a file (.tsv)");
+
         JButton btnEditGlycanResiduesTable = new JButton("Edit Glycan residue definitions");
         btnEditGlycanResiduesTable.addActionListener(this::actionBtnEditGlycanResidues);
         btnEditGlycanResiduesTable.setToolTipText("Edit the internal glycan residue definitions used by all tools.");
@@ -132,6 +134,7 @@ public class TabGlyco extends JPanelWithEnablement {
         mu.add(p, jLabelLoadGlycanDB).split();
         mu.add(p, uiComboLoadBuiltinGlycans).split().wrap();
         mu.add(p, textLoadGlycans).spanX().growX().wrap();
+        mu.add(p, btnSaveGlycanDB).split();
         mu.add(p, btnEditGlycanResiduesTable).split();
         mu.add(p, btnEditGlycanModsTable).split();
         mu.add(p, btnOpenInExplorer).wrap();
@@ -159,6 +162,16 @@ public class TabGlyco extends JPanelWithEnablement {
             }
         }
         loadGlycansFollowup();
+    }
+
+    private void actionBtnSaveGlycanDB(ActionEvent actionEvent) {
+        FileNameEndingFilter filter = new FileNameEndingFilter("Glycan Database (.tsv)", "tsv");
+
+        Path savePath = getSaveFilePath(null, PROP_FILECHOOSER_LAST_PATH, filter, ".tsv", false, this);
+        if (savePath == null) {
+            return;     // user canceled action
+        }
+        glycanDBloader.saveGlycanDBtoFile(savePath, this);
     }
 
     /**

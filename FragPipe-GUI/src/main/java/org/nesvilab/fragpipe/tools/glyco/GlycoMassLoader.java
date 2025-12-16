@@ -20,7 +20,10 @@ package org.nesvilab.fragpipe.tools.glyco;
 import static javax.swing.JOptionPane.OK_CANCEL_OPTION;
 
 import java.awt.Component;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.nio.file.Path;
@@ -95,6 +98,18 @@ public class GlycoMassLoader {
     private void loadGlycansFromFile(String selectedPath) {
         DatabaseType dbType = GlycanParser.detectDBtype(selectedPath);
         glycanDB = GlycanParser.loadGlycansFromText(selectedPath, dbType, glycanResidues);
+    }
+
+    public void saveGlycanDBtoFile(Path outputPath, Component parent) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputPath.toFile()))) {
+            writer.write("# Composition\tMass\n");
+            for (Glycan glycan : glycanDB) {
+                writer.write(String.format("%s\t%.4f%n", glycan, glycan.mass));
+            }
+        } catch (IOException e) {
+            SwingUtils.showErrorDialog(parent, "Error saving glycan database to file: " + outputPath + "\n" + e.getMessage(), "Error saving glycan database");
+            log.error("Error saving glycan database to file: {}", outputPath, e);
+        }
     }
 
     public void loadCustomGlycans(Component parent) {
