@@ -28,7 +28,7 @@ public class WriteSSL {
      * file     scan    charge  sequence    score-type  score   RT  IM
      * Sequence includes all mods. IM is optional. Score-type can be PERCOLATOR QVALUE or PEPTIDE PROPHET SOMETHING
      */
-    public void writeSSL(Set<Path> psmtsvFiles, Path outputPath, boolean isPercolator, Set<String> lcmsFiles) throws IOException {
+    public void writeSSL(Set<Path> psmtsvFiles, Path outputPath, boolean isPercolator, Set<String> lcmsFiles, boolean isDia) throws IOException {
         ArrayList<String> output = new ArrayList<>();
 
         // map file paths to the file names that will be in the psm.tsv
@@ -37,7 +37,13 @@ public class WriteSSL {
             Path path = Paths.get(lcmsFile);
             String fileName = path.getFileName().toString();
             int dotIndex = fileName.lastIndexOf('.');
-            lcmsFileNames.put(fileName.substring(0, dotIndex), lcmsFile.replace("\\", "/").replaceFirst("\\.d$", "_uncalibrated.mzML"));
+            if (isDia) {
+                if (lcmsFile.endsWith(".d")) {
+                    lcmsFileNames.put(fileName.substring(0, dotIndex) + "_diatracer", lcmsFile.replace("\\", "/").replaceFirst("\\.d$", "_diatracer.mzML"));
+                }
+            } else {
+                lcmsFileNames.put(fileName.substring(0, dotIndex), lcmsFile.replace("\\", "/").replaceFirst("\\.d$", "_uncalibrated.mzML"));
+            }
         }
 
         boolean useIonQuantPeaks = true;

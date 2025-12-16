@@ -183,9 +183,9 @@ public class Skyline {
         sslWriter = new WriteSSL();
         if (dataType.contentEquals("DIA")) {
           // psm.tsv refers to DDA files, need to provide as well
-          sslWriter.writeSSL(psmTsvFiles, sslPath, isPercolator, ddaAndDIAfiles);
+          sslWriter.writeSSL(psmTsvFiles, sslPath, isPercolator, ddaAndDIAfiles, dataType.equalsIgnoreCase("dia"));
         } else {
-          sslWriter.writeSSL(psmTsvFiles, sslPath, isPercolator, lcmsFiles);
+          sslWriter.writeSSL(psmTsvFiles, sslPath, isPercolator, lcmsFiles, dataType.equalsIgnoreCase("dia"));
         }
       }
 
