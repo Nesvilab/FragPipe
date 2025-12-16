@@ -392,6 +392,10 @@ public class TransferLearningPanel extends JPanelBase {
     mu.add(panelPrediction, feMaxCharge.comp);
     mu.add(panelPrediction, uiCheckKeepDecoys).wrap();
 
+    JLabel digestParamNote = new JLabel("<html><b>Note: For 'Whole FASTA file' prediction, digestion parameters (peptide length, missed cleavages, PTMs) can be customized<br>"
+        + "by enabling the MSFragger tab and checking 'Digestion only'. Recommended: length 7-30, 1 missed cleavage, minimal PTMs.</b></html>");
+    mu.add(panelPrediction, digestParamNote).spanX().wrap();
+
     updateEnabledStatus(panelPrediction, true);
 
     return panelPrediction;
