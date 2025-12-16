@@ -131,11 +131,8 @@ public class CmdDiann extends CmdBase {
 
     String predictedSpeclibPath = null;
     if (isTransferLearningRun && isTransferLearningPrediction) {
-      String extension = getSpeclibExtension(transferLearningOutputFormat);
-      if (extension != null) {
-        Path predictedSpeclib = wd.resolve("fragpipe-predicted-speclib" + extension);
-        predictedSpeclibPath = predictedSpeclib.toAbsolutePath().normalize().toString();
-      }
+      Path predictedSpeclib = wd.resolve("fragpipe-predicted-speclib." + transferLearningOutputFormat);
+      predictedSpeclibPath = predictedSpeclib.toAbsolutePath().normalize().toString();
     }
 
     if (libraryPath != null && !libraryPath.trim().isEmpty()) {
@@ -761,7 +758,7 @@ public class CmdDiann extends CmdBase {
     switch (outputFormat.toLowerCase()) {
       case "speclib":
         return ".speclib";
-      case "librarytsv":
+      case "tsv":
         return ".tsv";
       case "parquet":
         return ".parquet";

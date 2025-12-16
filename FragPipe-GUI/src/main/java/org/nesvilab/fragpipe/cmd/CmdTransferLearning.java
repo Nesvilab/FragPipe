@@ -256,7 +256,7 @@ public class CmdTransferLearning extends CmdBase {
       cmdPredict.add("--im");
       cmdPredict.add(String.valueOf(predictIM));
       cmdPredict.add("--output-format");
-      cmdPredict.add(outputFormat);
+      cmdPredict.add(outputFormat.contentEquals("tsv") ? "librarytsv" : outputFormat);
       cmdPredict.add("--paramsList");
       cmdPredict.add(paramPath.toAbsolutePath().normalize().toString());
       cmdPredict.add("--decoy-tag");

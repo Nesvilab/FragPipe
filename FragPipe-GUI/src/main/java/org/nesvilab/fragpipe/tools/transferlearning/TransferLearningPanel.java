@@ -272,7 +272,7 @@ public class TransferLearningPanel extends JPanelBase {
     uiCheckPredictIM = new UiCheck("Predict IM", null, true);
     uiCheckPredictIM.setName("predict-im");
 
-    uiComboOutputFormat = UiUtils.createUiCombo(new String[]{"speclib", "librarytsv", "parquet", "mgf"});
+    uiComboOutputFormat = UiUtils.createUiCombo(new String[]{"speclib", "tsv", "parquet", "mgf"});
     uiComboOutputFormat.setSelectedIndex(0);
     FormEntry feOutputFormat = mu.feb("output-format", uiComboOutputFormat)
         .label("Output format")
