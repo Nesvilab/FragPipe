@@ -22,7 +22,10 @@ import static org.nesvilab.utils.SwingUtils.createClickableHtml;
 import static org.nesvilab.utils.SwingUtils.isEnabledAndChecked;
 
 import org.nesvilab.fragpipe.messages.NoteConfigDiann;
+import org.nesvilab.fragpipe.messages.NoteConfigTransferLearning;
 import org.nesvilab.utils.SwingUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.nesvilab.utils.swing.FileChooserUtils;
 import org.nesvilab.utils.swing.FileChooserUtils.FcMode;
 import org.nesvilab.utils.swing.FormEntry;
@@ -115,6 +118,15 @@ public class DiannPanel extends JPanelBase {
       uiCheckGenerateMsstats.setVisible(m.compareVersion("2.0") < 0);
     } else {
       updateEnabledStatus(this, false);
+    }
+  }
+
+  @Subscribe(sticky = true, threadMode = ThreadMode.POSTING)
+  public void on(NoteConfigTransferLearning m) {
+    boolean useWholeFasta = m.isUsingWholeFastaPrediction();
+    if (uiCheckMbr != null && uiCheckRedoProteinInference != null) {
+      uiCheckMbr.setSelected(useWholeFasta);
+      uiCheckRedoProteinInference.setSelected(useWholeFasta);
     }
   }
 

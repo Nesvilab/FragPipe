@@ -122,8 +122,21 @@ public class CmdDiann extends CmdBase {
       NoteConfigDiann noteConfigDiann,
       boolean isDiaUmpireRun,
       String modTag,
-      float siteProb) {
+      float siteProb,
+      boolean isTransferLearningRun,
+      boolean isTransferLearningPrediction,
+      int transferLearningPeptidesToPredict,
+      String transferLearningOutputFormat) {
     initPreConfig();
+
+    String predictedSpeclibPath = null;
+    if (isTransferLearningRun && isTransferLearningPrediction) {
+      String extension = getSpeclibExtension(transferLearningOutputFormat);
+      if (extension != null) {
+        Path predictedSpeclib = wd.resolve("fragpipe-predicted-speclib" + extension);
+        predictedSpeclibPath = predictedSpeclib.toAbsolutePath().normalize().toString();
+      }
+    }
 
     if (libraryPath != null && !libraryPath.trim().isEmpty()) {
       System.out.println("There are external spectral library. Will not generate the MSstats file.");
@@ -133,6 +146,11 @@ public class CmdDiann extends CmdBase {
     if (isRunPlex) {
       if ((lightString == null || lightString.isEmpty()) && (mediumString == null || mediumString.isEmpty()) && (heavyString == null || heavyString.isEmpty())) {
         SwingUtils.showErrorDialog(comp, "All light, medium, and heavy labels are empty.<br>Please disable/uncheck <b>plexDIA</b> in <b>Quant (DIA)</b> tab or provide label info.", "No label info");
+        return false;
+      }
+
+      if (predictedSpeclibPath != null && !predictedSpeclibPath.toLowerCase().endsWith(".tsv")) {
+        SwingUtils.showErrorDialog(comp, "plexDIA requires a TSV format spectral library.", "Incompatible library format");
         return false;
       }
 
@@ -173,7 +191,7 @@ public class CmdDiann extends CmdBase {
           cmd.add(heavyString);
         }
         cmd.add("--library");
-        cmd.add("library.tsv");
+        cmd.add(predictedSpeclibPath != null ? predictedSpeclibPath : "library.tsv");
         cmd.add("--out");
         cmd.add("library_2.tsv");
         ProcessBuilder pb = new ProcessBuilder(cmd);
@@ -299,7 +317,17 @@ public class CmdDiann extends CmdBase {
       List<String> cmd = new ArrayList<>();
       cmd.add(diannPath);
       cmd.add("--lib");
-      cmd.add((!isRunPlex && libraryPath != null && !libraryPath.isEmpty()) ? libraryPath : (isRunPlex ? "library_2.tsv" : "library.tsv"));
+      String libraryToUse;
+      if (!isRunPlex && libraryPath != null && !libraryPath.isEmpty()) {
+        libraryToUse = libraryPath;
+      } else if (isRunPlex) {
+        libraryToUse = "library_2.tsv";
+      } else if (predictedSpeclibPath != null) {
+        libraryToUse = predictedSpeclibPath;
+      } else {
+        libraryToUse = "library.tsv";
+      }
+      cmd.add(libraryToUse);
       cmd.add("--threads");
       cmd.add(String.valueOf(nThreads));
       cmd.add("--verbose");
@@ -724,5 +752,23 @@ public class CmdDiann extends CmdBase {
       return false;
     }
     return true;
+  }
+
+  private static String getSpeclibExtension(String outputFormat) {
+    if (outputFormat == null) {
+      return null;
+    }
+    switch (outputFormat.toLowerCase()) {
+      case "speclib":
+        return ".speclib";
+      case "librarytsv":
+        return ".tsv";
+      case "parquet":
+        return ".parquet";
+      case "mgf":
+        return ".mgf";
+      default:
+        return null;
+    }
   }
 }

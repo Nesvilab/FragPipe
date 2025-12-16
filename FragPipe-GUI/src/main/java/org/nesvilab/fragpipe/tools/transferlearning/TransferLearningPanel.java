@@ -35,6 +35,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.nesvilab.fragpipe.api.Bus;
+import org.nesvilab.fragpipe.messages.NoteConfigTransferLearning;
 import org.nesvilab.utils.SwingUtils;
 import org.nesvilab.utils.swing.FileChooserUtils;
 import org.nesvilab.utils.swing.FileChooserUtils.FcMode;
@@ -109,10 +111,16 @@ public class TransferLearningPanel extends JPanelBase {
     };
     
     uiTextCredential.getDocument().addDocumentListener(textFieldListener);
-    
-    checkRun.addItemListener(e -> updateContentPanelEnablement());
-    
+
+    checkRun.addItemListener(e -> {
+      updateContentPanelEnablement();
+      postTransferLearningConfig();
+    });
+    checkRunPrediction.addItemListener(e -> postTransferLearningConfig());
+    uiComboPeptidesToPredict.addItemListener(e -> postTransferLearningConfig());
+
     updateContentPanelEnablement();
+    postTransferLearningConfig();
   }
   
   private void updateContentPanelEnablement() {
@@ -123,6 +131,14 @@ public class TransferLearningPanel extends JPanelBase {
     if (pContent != null) {
       updateEnabledStatus(pContent, shouldEnable);
     }
+  }
+
+  private void postTransferLearningConfig() {
+    boolean isRun = checkRun.isSelected();
+    boolean isRunPrediction = checkRunPrediction.isSelected();
+    int peptidesToPredict = uiComboPeptidesToPredict.getSelectedIndex();
+    NoteConfigTransferLearning config = new NoteConfigTransferLearning(isRun, isRunPrediction, peptidesToPredict);
+    Bus.postSticky(config);
   }
 
   @Override

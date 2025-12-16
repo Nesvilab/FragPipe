@@ -2331,7 +2331,11 @@ public class FragpipeRun {
             noteConfigDiann,
             cmdUmpire.isRun() && !sharedLcmsFiles.isEmpty(),
             diannPanel.getModTag(),
-            diannPanel.getSiteProb());
+            diannPanel.getSiteProb(),
+            transferLearningPanel.isRun(),
+            transferLearningPanel.isRunPrediction(),
+            transferLearningPanel.getPeptidesToPredict(),
+            transferLearningPanel.getOutputFormat());
       }
       return true;
     });
