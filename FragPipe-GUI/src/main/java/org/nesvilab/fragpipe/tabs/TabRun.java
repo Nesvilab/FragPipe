@@ -20,6 +20,8 @@ package org.nesvilab.fragpipe.tabs;
 import static org.nesvilab.fragpipe.Fragpipe.getStickyStrict;
 import static org.nesvilab.fragpipe.Version.PROGRAM_TITLE;
 import static org.nesvilab.fragpipe.cmd.CmdBase.constructClasspathString;
+import static org.nesvilab.fragpipe.tabs.TabWorkflow.loadCustomWorkflow;
+import static org.nesvilab.fragpipe.tabs.TabWorkflow.manifestLoad;
 
 import org.nesvilab.fragpipe.Fragpipe;
 import org.nesvilab.fragpipe.FragpipeLocations;
@@ -30,14 +32,8 @@ import org.nesvilab.fragpipe.api.FragpipeCacheUtils;
 import org.nesvilab.fragpipe.cmd.PbiBuilder;
 import org.nesvilab.fragpipe.cmd.ProcessBuilderInfo;
 import org.nesvilab.fragpipe.cmd.ToolingUtils;
-import org.nesvilab.fragpipe.messages.MessageClearConsole;
-import org.nesvilab.fragpipe.messages.MessageExportLog;
-import org.nesvilab.fragpipe.messages.MessageKillAll;
+import org.nesvilab.fragpipe.messages.*;
 import org.nesvilab.fragpipe.messages.MessageKillAll.REASON;
-import org.nesvilab.fragpipe.messages.MessagePrintToConsole;
-import org.nesvilab.fragpipe.messages.MessageRun;
-import org.nesvilab.fragpipe.messages.MessageRunButtonEnabled;
-import org.nesvilab.fragpipe.messages.MessageSaveLog;
 import org.nesvilab.fragpipe.process.ProcessResult;
 import org.nesvilab.fragpipe.tools.philosopher.ReportPanel;
 import org.nesvilab.fragpipe.util.BatchRun;
@@ -45,7 +41,7 @@ import org.nesvilab.fragpipe.util.SDRFtable;
 import org.nesvilab.utils.PathUtils;
 import org.nesvilab.utils.StringUtils;
 import org.nesvilab.utils.SwingUtils;
-import org.nesvilab.utils.swing.FileChooserUtils;
+import org.nesvilab.utils.swing.*;
 import org.nesvilab.utils.swing.FileChooserUtils.FcMode;
 
 import java.awt.Color;
@@ -81,15 +77,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.UIManager;
-import org.nesvilab.utils.swing.FormEntry;
-import org.nesvilab.utils.swing.JPanelWithEnablement;
-import org.nesvilab.utils.swing.MigUtils;
-import org.nesvilab.utils.swing.TextConsole;
-import org.nesvilab.utils.swing.UiCheck;
-import org.nesvilab.utils.swing.UiCombo;
-import org.nesvilab.utils.swing.UiSpinnerDouble;
-import org.nesvilab.utils.swing.UiText;
-import org.nesvilab.utils.swing.UiUtils;
+
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -271,6 +259,8 @@ public class TabRun extends JPanelWithEnablement {
         "The job can then be loaded on the Batch tab for batch processing.\n" +
         "The job is saved in the jobs directory.");
 
+    JButton btnLoadJob = UiUtils.createButton("Load previous job", this::actionLoadJob);
+
     btnOpenPdv = UiUtils.createButton("Open FragPipe-PDV viewer", e -> {
       String[] t = {ToolingUtils.BATMASS_IO_JAR};
       List<Path> pdvPath = FragpipeLocations.checkToolsMissing(Seq.of(PDV_NAME).concat(t));
@@ -451,11 +441,12 @@ public class TabRun extends JPanelWithEnablement {
     mu.add(p, btnOpenInFileManager).wrap();
 
     // line 1
-    mu.add(p, btnRun).split(5);
+    mu.add(p, btnRun).split(6);
     mu.add(p, btnStop);
     mu.add(p, uiCheckDryRun);
     mu.add(p, btnSaveJob);
-    mu.add(p, uiTextJobName).wrap();
+    mu.add(p, uiTextJobName);
+    mu.add(p, btnLoadJob).wrap();
 
     // line 2
     mu.add(p, imageLabel).split(5);
@@ -631,6 +622,55 @@ public class TabRun extends JPanelWithEnablement {
     tabBatch.addBatchRuns(jobs);
 
     SwingUtils.showInfoDialog(this, String.format("Saved job to %s and loaded it to the Batch table", savePath), "Job saved");
+  }
+
+  // load all settings from a previous saved job
+  private void actionLoadJob(ActionEvent e) {
+    // choose and load job file
+    FileNameEndingFilter filter = new FileNameEndingFilter("Job file (.job)", "job");
+    JFileChooser fc = FileChooserUtils.builder("Select the Job file to load").multi(false).mode(FcMode.FILES_ONLY).approveButton("Select Job").paths(Stream.of(FragpipeLocations.get().getDirJobs().toString())).create();
+    fc.setFileFilter(filter);
+    if (fc.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
+      log.debug("User cancelled job loading");
+      return;
+    }
+    Path jobPath = fc.getSelectedFile().toPath();
+    List<BatchRun> jobs = TabBatch.parseBatchTemplate(this, jobPath.toAbsolutePath().normalize().toString());
+    BatchRun job;
+    if (jobs.isEmpty()) {
+      SwingUtils.showErrorDialog(this, "No job found in file: " + jobPath, "Job loading error");
+      return;
+    } else if (jobs.size() > 1) {
+      SwingUtils.showWarningDialog(this, "Warning: Multiple jobs found in file: " + jobPath + ". The first job will be loaded.", "Multiple jobs in file");
+    }
+    job = jobs.get(0);
+
+    // load workflow
+    TabWorkflow tabWorkflow = Fragpipe.getStickyStrict(TabWorkflow.class);
+    loadCustomWorkflow(tabWorkflow, job.workflowPath, "Custom");
+
+    // load manifest
+    try {
+      Bus.post(new MessageLcmsClearFiles());
+      manifestLoad(tabWorkflow, job.manifestPath);
+    } catch (IOException ex) {
+      SwingUtils.showErrorDialog(this, "IO Error when trying to load manifest file " + job.manifestPath + ": " + ex.getMessage(), "Error Loading Manifest");
+      log.error("Error loading manifest file", ex);
+      return;
+    }
+
+    // load output dir
+    TabRun tabRun = getStickyStrict(TabRun.class);
+    tabRun.uiTextWorkdir.setText(job.outputPath.toAbsolutePath().normalize().toString());
+
+    // load fasta if provided
+    if (job.fastaPath != null) {
+      Bus.post(new MessageDbNewPath(job.fastaPath.toString()));
+    }
+
+    // load ram and threads
+    tabWorkflow.uiSpinnerRam.setValue(job.ram);
+    tabWorkflow.uiSpinnerThreads.setValue(job.threads);
   }
 
   private void exportLogToFile(TextConsole console, String savePathHint) {

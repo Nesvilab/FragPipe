@@ -163,8 +163,8 @@ public class TabWorkflow extends JPanelWithEnablement {
   private JButton btnManifestLoad;
   private HtmlStyledJEditorPane epWorkflowsInfo;
   private JLabel numSelectedFilesLabel;
-  private UiSpinnerInt uiSpinnerRam;
-  private UiSpinnerInt uiSpinnerThreads;
+  UiSpinnerInt uiSpinnerRam;
+  UiSpinnerInt uiSpinnerThreads;
   public Map<String, PropsFile> workflows;
   private UiCombo uiComboWorkflows;
   public static final String PROP_WORKFLOW_DESC = "workflow.description";
@@ -638,7 +638,6 @@ public class TabWorkflow extends JPanelWithEnablement {
 
     FormEntry feComboWorkflow = Fragpipe.feNoCache(uiComboWorkflows, "workflow-option").label("Select a workflow:").tooltip("Conveniently loads appropriate defaults for various standard workflows\n").create();
     JButton btnOpenInExplorer = SwingUtils.createButtonOpenInFileManager(this, "Open built-in folder", () -> FragpipeLocations.get().getDirWorkflows());
-    JButton btnLoadJob = UiUtils.createButton("Load previous job", this::actionLoadJob);
 
     mu.add(p, epWorkflowsInfo).growX().spanX().wrap();
     mu.add(p, feComboWorkflow.label()).split();
@@ -650,7 +649,6 @@ public class TabWorkflow extends JPanelWithEnablement {
       mu.add(p, UiUtils.createButton("Save Dev", e -> Bus.post(new MessageSaveAsWorkflow(false, true))));
     }
     mu.add(p, btnOpenInExplorer);
-    mu.add(p, btnLoadJob).wrap();
 
     mu.add(p, epWorkflowsDesc).growX().spanX().wrap();
 
@@ -1251,8 +1249,8 @@ public class TabWorkflow extends JPanelWithEnablement {
     FileUtils.write(path.toFile(), manifest, StandardCharsets.UTF_8, false);
   }
 
-  private void manifestLoad(Path manifestPath) throws IOException {
-    ArrayList<InputLcmsFile> inTable = tableModelRawFiles.dataCopy();
+  static void manifestLoad(TabWorkflow tabWorkflow, Path manifestPath) throws IOException {
+    ArrayList<InputLcmsFile> inTable = tabWorkflow.tableModelRawFiles.dataCopy();
     List<String> lines = Files.readAllLines(manifestPath, StandardCharsets.UTF_8);
     ConcurrentLinkedDeque<String> badLines = new ConcurrentLinkedDeque<>();
     List<InputLcmsFile> loaded = lines.stream()
@@ -1286,7 +1284,7 @@ public class TabWorkflow extends JPanelWithEnablement {
         .collect(Collectors.toList());
 
     if (!badLines.isEmpty()) {
-      SwingUtils.showWarningDialog(this,
+      SwingUtils.showWarningDialog(tabWorkflow,
           "Manifest file contained some badly formatted lines\n\n" +
           Seq.seq(badLines).toString("\n"), "Malformed manifest");
     }
@@ -1295,8 +1293,8 @@ public class TabWorkflow extends JPanelWithEnablement {
         .collect(Collectors.toList());
     Set<Path> inTablePaths = inTable.stream().map(InputLcmsFile::getPath).collect(Collectors.toSet());
     if (inTable.isEmpty()) {
-      showSkippedFiles(notExist);
-      tableModelRawFiles.dataAddAll(Seq.seq(loaded).filter(f -> !notExist.contains(f.getPath())).toList());
+      tabWorkflow.showSkippedFiles(notExist);
+      tabWorkflow.tableModelRawFiles.dataAddAll(Seq.seq(loaded).filter(f -> !notExist.contains(f.getPath())).toList());
     } else {
       Set<Path> addedPaths = loaded.stream().map(f -> f.getPath().getFileName()).collect(Collectors.toSet());
       boolean hasMatchingPaths = inTable.stream().map(f -> f.getPath().getFileName()).anyMatch(addedPaths::contains);
@@ -1305,19 +1303,19 @@ public class TabWorkflow extends JPanelWithEnablement {
         String message = "Looks like the manifest you're adding contains\n"
             + "file names matching files already in the list.\n\n"
             + "What would you like to do with entries from the manifest?";
-        int choice = SwingUtils.showChoiceDialog(this, "Action choice", message, choices, 0);
+        int choice = SwingUtils.showChoiceDialog(tabWorkflow, "Action choice", message, choices, 0);
         if (choice == 0) {
-          tableModelRawFiles.dataClear();
-          showSkippedFiles(notExist);
-          tableModelRawFiles.dataAddAll(Seq.seq(loaded).filter(f -> !notExist.contains(f.getPath())).toList());
+          tabWorkflow.tableModelRawFiles.dataClear();
+          tabWorkflow.showSkippedFiles(notExist);
+          tabWorkflow.tableModelRawFiles.dataAddAll(Seq.seq(loaded).filter(f -> !notExist.contains(f.getPath())).toList());
         } else if (choice == 1) {
-          showSkippedFiles(notExist);
-          tableModelRawFiles.dataAddAll(Seq.seq(loaded)
+          tabWorkflow.showSkippedFiles(notExist);
+          tabWorkflow.tableModelRawFiles.dataAddAll(Seq.seq(loaded)
               .filter(f -> !notExist.contains(f.getPath()))
               .filter(f -> !inTablePaths.contains(f.getPath()))
               .toList());
         } else {
-          tableModelRawFiles.dataClear();
+          tabWorkflow.tableModelRawFiles.dataClear();
           List<InputLcmsFile> updated = new ArrayList<>();
           for (InputLcmsFile existing : inTable) {
             InputLcmsFile toCopyFrom = loaded.stream()
@@ -1325,11 +1323,11 @@ public class TabWorkflow extends JPanelWithEnablement {
                 .findFirst().orElse(existing);
             updated.add(new InputLcmsFile(existing.getPath(), toCopyFrom.getExperiment(), toCopyFrom.getReplicate(), toCopyFrom.getDataType()));
           }
-          tableModelRawFiles.dataAddAll(updated);
+          tabWorkflow.tableModelRawFiles.dataAddAll(updated);
         }
       } else {
-        showSkippedFiles(notExist);
-        tableModelRawFiles.dataAddAll(Seq.seq(loaded)
+        tabWorkflow.showSkippedFiles(notExist);
+        tabWorkflow.tableModelRawFiles.dataAddAll(Seq.seq(loaded)
             .filter(f -> !notExist.contains(f.getPath()))
             .filter(f -> !inTablePaths.contains(f.getPath()))
             .toList());
@@ -1391,7 +1389,7 @@ public class TabWorkflow extends JPanelWithEnablement {
         return;
       try {
         propsVarSet(ThisAppProps.CONFIG_SAVE_LOCATION, f.getAbsoluteFile().getParent());
-        manifestLoad(f.toPath());
+        manifestLoad(this, f.toPath());
         adjustToolsBasedOnDataTypes();
       } catch (IOException e) {
         SwingUtils.showErrorDialogWithStacktrace(e, this);
@@ -1731,7 +1729,7 @@ public class TabWorkflow extends JPanelWithEnablement {
       }
 
       log.debug("Loading workflow/ui state: {}", workflow);
-      loadCustomWorkflow(fc.getSelectedFile().toPath(), workflow);
+      loadCustomWorkflow(this, fc.getSelectedFile().toPath(), workflow);
     } else {
       log.debug("Loading workflow/ui state: {}", workflow);
       PropsFile propsFile = workflows.get(workflow);
@@ -1755,10 +1753,10 @@ public class TabWorkflow extends JPanelWithEnablement {
     }
   }
 
-  private void loadCustomWorkflow(Path workflowPath, String workflowName) {
+  static void loadCustomWorkflow(TabWorkflow tabWorkflow, Path workflowPath, String workflowName) {
     PropsFile propsFile = FragpipeLocations.get().tryLoadSilently(workflowPath, "user");
     if (propsFile == null) {
-      SwingUtils.showErrorDialog(this, "Couldn't load workflow file: " + workflowName, "Workflow loading error");
+      SwingUtils.showErrorDialog(tabWorkflow, "Couldn't load workflow file: " + workflowName, "Workflow loading error");
       return;
     }
 
@@ -1771,58 +1769,10 @@ public class TabWorkflow extends JPanelWithEnablement {
     propsFile.remove(TabConfig.TAB_PREFIX + "bin-diann");
     propsFile.remove(TabConfig.TAB_PREFIX + "bin-python");
 
-    epWorkflowsDesc.setText(propsFile.getProperty(PROP_WORKFLOW_DESC, "Description not present"));
+    tabWorkflow.epWorkflowsDesc.setText(propsFile.getProperty(PROP_WORKFLOW_DESC, "Description not present"));
     propsVarSet(PROP_WORKFLOW_SAVEDIR, propsFile.getPath().toAbsolutePath().getParent().toString());
 
     Bus.post(new MessageLoadUi(propsFile, true, false));
-  }
-
-  // load all settings from a previous saved job
-  private void actionLoadJob(ActionEvent e) {
-    // choose and load job file
-    FileNameEndingFilter filter = new FileNameEndingFilter("Job file (.job)", "job");
-    JFileChooser fc = FileChooserUtils.builder("Select the Job file to load").multi(false).mode(FcMode.FILES_ONLY).approveButton("Select Job").paths(Stream.of(FragpipeLocations.get().getDirJobs().toString())).create();
-    fc.setFileFilter(filter);
-    if (fc.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
-      log.debug("User cancelled job loading");
-      return;
-    }
-    Path jobPath = fc.getSelectedFile().toPath();
-    List<BatchRun> jobs = TabBatch.parseBatchTemplate(this, jobPath.toAbsolutePath().normalize().toString());
-    BatchRun job;
-    if (jobs.isEmpty()) {
-      SwingUtils.showErrorDialog(this, "No job found in file: " + jobPath, "Job loading error");
-      return;
-    } else if (jobs.size() > 1) {
-      SwingUtils.showWarningDialog(this, "Warning: Multiple jobs found in file: " + jobPath + ". The first job will be loaded.", "Multiple jobs in file");
-    }
-    job = jobs.get(0);
-
-    // load workflow
-    loadCustomWorkflow(job.workflowPath, "Custom");
-
-    // load manifest
-    try {
-      Bus.post(new MessageLcmsClearFiles());
-      manifestLoad(job.manifestPath);
-    } catch (IOException ex) {
-        SwingUtils.showErrorDialog(this, "IO Error when trying to load manifest file " + job.manifestPath + ": " + ex.getMessage(), "Error Loading Manifest");
-        log.error("Error loading manifest file", ex);
-        return;
-    }
-
-    // load output dir
-    TabRun tabRun = getStickyStrict(TabRun.class);
-    tabRun.uiTextWorkdir.setText(job.outputPath.toAbsolutePath().normalize().toString());
-
-    // load fasta if provided
-    if (job.fastaPath != null) {
-      Bus.post(new MessageDbNewPath(job.fastaPath.toString()));
-    }
-
-    // load ram and threads
-    uiSpinnerRam.setValue(job.ram);
-    uiSpinnerThreads.setValue(job.threads);
   }
 
   public static class LcmsFileAddition {
