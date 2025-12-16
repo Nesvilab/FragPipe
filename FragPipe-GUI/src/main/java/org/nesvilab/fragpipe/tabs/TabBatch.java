@@ -349,6 +349,10 @@ public class TabBatch extends JPanelWithEnablement {
         JButton btnOpenJobsFolder = new JButton("Open jobs folder in file manager");
         btnOpenJobsFolder.addActionListener(e -> openJobsFolder());
 
+        JButton btnMoveUp = new JButton("Move selected up");
+        btnMoveUp.addActionListener(e -> btnMoveSelectedUp());
+        JButton btnMoveDown = new JButton("Move selected down");
+        btnMoveDown.addActionListener(e -> btnMoveSelectedDown());
         JButton btnRemoveSelected = new JButton("Remove selected");
         btnRemoveSelected.addActionListener(e -> btnRemoveSelected());
         JButton btnClearTable = new JButton("Clear table");
@@ -360,6 +364,8 @@ public class TabBatch extends JPanelWithEnablement {
         mu.add(pBatch, btnLoadBatchTemplate).split();
         mu.add(pBatch, btnSaveBatchTemplate).split();
         mu.add(pBatch, btnOpenJobsFolder).split().wrap();
+        mu.add(pBatch, btnMoveUp).split();
+        mu.add(pBatch, btnMoveDown).split();
         mu.add(pBatch, btnRemoveSelected).split();
         mu.add(pBatch, btnClearTable).split();
         mu.add(pBatch, btnCreateBatchScript).split().wrap();
@@ -606,6 +612,40 @@ public class TabBatch extends JPanelWithEnablement {
         }
         out.flush();
         out.close();
+    }
+
+    private void btnMoveSelectedUp() {
+        int[] selectedRows = batchTable.getSelectedRows();
+        HashSet<Integer> rowsToMove = Arrays.stream(selectedRows).boxed().collect(Collectors.toCollection(HashSet::new));
+        for (int i = 1; i < batchTable.model.getRowCount(); i++) {
+            if (rowsToMove.contains(i)) {
+                batchTable.model.moveRow(i, i, i - 1);
+            }
+        }
+        // restore selection
+        batchTable.clearSelection();
+        for (int row : selectedRows) {
+            if (row > 0) {
+                batchTable.addRowSelectionInterval(row - 1, row - 1);
+            }
+        }
+    }
+
+    private void btnMoveSelectedDown() {
+        int[] selectedRows = batchTable.getSelectedRows();
+        HashSet<Integer> rowsToMove = Arrays.stream(selectedRows).boxed().collect(Collectors.toCollection(HashSet::new));
+        for (int i = batchTable.model.getRowCount() - 2; i >= 0; i--) {
+            if (rowsToMove.contains(i)) {
+                batchTable.model.moveRow(i, i, i + 1);
+            }
+        }
+        // restore selection
+        batchTable.clearSelection();
+        for (int row : selectedRows) {
+            if (row < batchTable.model.getRowCount() - 1) {
+                batchTable.addRowSelectionInterval(row + 1, row + 1);
+            }
+        }
     }
 
     private void btnRemoveSelected() {
