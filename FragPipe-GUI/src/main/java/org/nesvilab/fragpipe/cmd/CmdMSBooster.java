@@ -48,7 +48,7 @@ public class CmdMSBooster extends CmdBase {
 
   private static final Logger log = LoggerFactory.getLogger(CmdMSBooster.class);
   public static String NAME = "MSBooster";
-  public static final String MSBOOSTER_VERSION = "1.4.9";
+  public static final String MSBOOSTER_VERSION = "1.4.11";
   public static final String JAR_MSBOOSTER_NAME = "MSBooster-" + MSBOOSTER_VERSION + ".jar";
   public static final String JAR_MSBOOSTER_MAIN_CLASS = "mainsteps.MainClass";
   public static final String[] JAR_DEPS = {BATMASS_IO_JAR};
