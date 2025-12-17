@@ -648,7 +648,7 @@ public class TabWorkflow extends JPanelWithEnablement {
     if (false && Version.isDevBuild()) {
       mu.add(p, UiUtils.createButton("Save Dev", e -> Bus.post(new MessageSaveAsWorkflow(false, true))));
     }
-    mu.add(p, btnOpenInExplorer);
+    mu.add(p, btnOpenInExplorer).wrap();
 
     mu.add(p, epWorkflowsDesc).growX().spanX().wrap();
 
