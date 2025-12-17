@@ -230,7 +230,7 @@ public class SkylinePanel extends JPanelBase {
     uiCheckGenerateSkylineQuantReport = UiUtils.createUiCheck("Build library, quantify, extract report", false);
     uiCheckGenerateSkylineQuantReport.setName("generate-skyline-quant-report");
 
-    JLabel noteLabel = new JLabel("<html><b>Note: Do not enable this panel if you just want to use Skyline to visualize the results.<br>With this panel enabled, Skyline will rebuild a library containing additional decoys and modify the traced peak boundaries.</b></html>");
+    JLabel noteLabel = new JLabel("<html><b>Note: Do not enable this panel if you just want to use Skyline to visualize the results.<br>With this panel enabled, Skyline will build a new library and modify the traced peak boundaries.</b></html>");
 
     JPanel panelQuantOptions = mu.newPanel(mu.lcFillX());
 
