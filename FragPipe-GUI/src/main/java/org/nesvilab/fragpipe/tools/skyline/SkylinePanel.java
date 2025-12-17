@@ -236,7 +236,7 @@ public class SkylinePanel extends JPanelBase {
     uiCheckSkipSkylineDocumentGeneration.setName("use-existing-skyline-document");
     uiCheckSkipSkylineDocumentGeneration.setToolTipText("If you already generated a Skyline document, you can skip the generation of a new one.");
 
-    uiSpinnerFdr = UiUtils.spinnerDouble(0.01, 0, 1, 0.01).setCols(5).setFormat("#.###").create();
+    uiSpinnerFdr = UiUtils.spinnerDouble(1, 0, 1, 0.01).setCols(5).setFormat("#.###").create();
     FormEntry feFdr = mu.feb(uiSpinnerFdr).name("fdr").label("FDR").tooltip("False discovery rate threshold").create();
 
     JPanel panelFragReporter = mu.newPanel(mu.lcFillX());
