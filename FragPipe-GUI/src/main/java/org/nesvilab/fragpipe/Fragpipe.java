@@ -573,7 +573,17 @@ public class Fragpipe extends JFrameHeadless {
       Rectangle screen = ScreenUtils.getScreenTotalArea(fp);
       fp.setSize(fp.getWidth(), Math.min((int)(screen.height * 0.8), fp.getHeight()));
       SwingUtils.centerFrame(fp);
+
+      // Export all workflows (for development use)
+      // devExportAllWorkflows("G:\\1");
     });
+  }
+
+  private static void devExportAllWorkflows(String outputDirStr) {
+    System.out.println("=== Starting workflow export ===");
+    Path outputDir = java.nio.file.Paths.get(outputDirStr);
+    int exported = WorkflowExporter.exportAllWorkflows(outputDir);
+    System.out.println("=== Workflow export complete: " + exported + " workflows ===");
   }
 
   private TextConsole createConsole() {
