@@ -165,7 +165,7 @@ public class MSBoosterPanel extends JPanelBase {
         .create();
 
     JButton jButtonLibrary = feLibrary.browseButton("Browse", "Select library file", () -> {
-      final FileNameExtensionFilter fileNameExtensionFilter = new FileNameExtensionFilter("Library files", "tsv", "mgf");
+      final FileNameExtensionFilter fileNameExtensionFilter = new FileNameExtensionFilter("Library files", "speclib", "tsv", "parquet", "mgf");
       JFileChooser fc = FileChooserUtils.create("Library file", "Select", false, FcMode.FILES_ONLY, true, fileNameExtensionFilter);
       fc.setFileFilter(fileNameExtensionFilter);
       FileChooserUtils.setPath(fc, Stream.of(uiTextLibrary.getNonGhostText()));
