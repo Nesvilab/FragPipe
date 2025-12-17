@@ -1,7 +1,5 @@
 # Workflow: Mass-Offset-CommonPTMs
 
-
-
 crystalc.run-crystalc=false
 database.decoy-tag=rev_
 diann.channel-normalization-strategy=0
@@ -22,7 +20,6 @@ diann.run-dia-nn=false
 diann.run-dia-plex=false
 diann.run-specific-protein-q-value=false
 diann.unrelated-runs=false
-diann.use-predicted-spectra=false
 diatracer.corr-threshold=0.3
 diatracer.delta-apex-im=0.01
 diatracer.delta-apex-rt=3
@@ -395,8 +392,8 @@ transfer-learning.max-charge=3
 transfer-learning.min-charge=2
 transfer-learning.model-path=
 transfer-learning.nce=30
-transfer-learning.output-format=librarytsv
-transfer-learning.peptides-to-predict=MSFragger search results
+transfer-learning.output-format=speclib
+transfer-learning.peptides-to-predict=Whole FASTA file
 transfer-learning.perform-transfer-learning=true
 transfer-learning.predict-im=true
 transfer-learning.predict-ms2=true
@@ -409,4 +406,4 @@ workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
 workflow.misc.save-sdrf=true
 workflow.misc.sdrf-type=Default
-workflow.saved-with-ver=24.0-build10
+workflow.saved-with-ver=24.0-build19
