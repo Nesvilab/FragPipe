@@ -3,7 +3,7 @@
 crystalc.run-crystalc=false
 database.decoy-tag=rev_
 diann.channel-normalization-strategy=0
-diann.cmd-opts=--mod UniMod\:2062,296.1844
+diann.cmd-opts=--mod UniMod\:2062,296.1848
 diann.generate-msstats=true
 diann.heavy=
 diann.library=
@@ -11,7 +11,7 @@ diann.light=
 diann.mbr=false
 diann.medium=
 diann.min-site-prob=0.75
-diann.mod-tag=C\:296.1844
+diann.mod-tag=C\:296.1848
 diann.q-value=0.01
 diann.quantification-strategy=3
 diann.quantification-strategy-2=2
@@ -200,7 +200,7 @@ msfragger.search_enzyme_nocut_2=
 msfragger.search_enzyme_sense_1=C
 msfragger.search_enzyme_sense_2=C
 msfragger.table.fix-mods=0.0,C-Term Peptide,true,-1; 0.0,N-Term Peptide,true,-1; 0.0,C-Term Protein,true,-1; 0.0,N-Term Protein,true,-1; 0.0,G (glycine),true,-1; 0.0,A (alanine),true,-1; 0.0,S (serine),true,-1; 0.0,P (proline),true,-1; 0.0,V (valine),true,-1; 0.0,T (threonine),true,-1; 57.02146,C (cysteine),false,-1; 0.0,L (leucine),true,-1; 0.0,I (isoleucine),true,-1; 0.0,N (asparagine),true,-1; 0.0,D (aspartic acid),true,-1; 0.0,Q (glutamine),true,-1; 0.0,K (lysine),true,-1; 0.0,E (glutamic acid),true,-1; 0.0,M (methionine),true,-1; 0.0,H (histidine),true,-1; 0.0,F (phenylalanine),true,-1; 0.0,R (arginine),true,-1; 0.0,Y (tyrosine),true,-1; 0.0,W (tryptophan),true,-1; 0.0,B ,true,-1; 0.0,J,true,-1; 0.0,O,true,-1; 0.0,U,true,-1; 0.0,X,true,-1; 0.0,Z,true,-1
-msfragger.table.var-mods=15.9949,M,true,1; 42.0106,[^,true,1; 79.96633,STY,false,3; -17.0265,nQnC,false,1; -18.0106,nE,false,1; 296.1844,C,true,2; 57.02146,C,true,2; 8.014199,K,false,2; 10.008269,R,false,2; 0.0,site_10,false,1; 0.0,site_11,false,1; 0.0,site_12,false,1; 0.0,site_13,false,1; 0.0,site_14,false,1; 0.0,site_15,false,1; 0.0,site_16,false,1
+msfragger.table.var-mods=15.9949,M,true,1; 42.0106,[^,true,1; 79.96633,STY,false,3; -17.0265,nQnC,false,1; -18.0106,nE,false,1; 296.1848,C,true,2; 57.02146,C,true,2; 8.014199,K,false,2; 10.008269,R,false,2; 0.0,site_10,false,1; 0.0,site_11,false,1; 0.0,site_12,false,1; 0.0,site_13,false,1; 0.0,site_14,false,1; 0.0,site_15,false,1; 0.0,site_16,false,1
 msfragger.track_zero_topN=0
 msfragger.use_all_mods_in_first_search=false
 msfragger.use_detailed_offsets=false
@@ -403,7 +403,7 @@ transfer-learning.predict-rt=true
 transfer-learning.predict-spectral-library=true
 transfer-learning.run-transfer-learning=false
 transfer-learning.spectral-library-path=
-workflow.description=<p class\="MsoNormal" style\="margin-bottom\: 0in; line-height\: normal">Workflow for cysteine activity-based protein profiling (IA-DTB) with diaPASEF-based label-free quantification, see e.g. Biggs J. et al, "Robust proteome profiling of cysteine-reactive fragments using label-free chemoproteomics", Nat Commun 16\:73 (2025).</p>\n<p style\="margin-top\: 0in">Peptide identification directly from DIA data using diaTracer and MSFragger. MSFragger search with +57.02146 (iodoacetamide alkylation) and +296.1844 (IA-DTB) specified on cysteine as variable modifications. In addition, Met oxidation and N-terminal Acetyl are specified as variable modifications. 10 ppm precursor tolerance, parameter optimization enabled. Fully tryptic search, up to 1 missed cleavages. Deep learning-based rescoring of MSFragger results with MSBooster, followed by PSM validation with Percolator. Protein inference is performed with ProteinProphet. The data is filtered to 1% protein FDR and additionally at 1% FDR at the peptide and PSM levels. Spectral library building with EasyPQP followed by quantification, using that library, from the DIA files using DIA-NN. Site level reports are generated using LFQ-SiteReporter (site localization probability 0.75).</p> NOTE\: diaTracer needs to be run only once. If .diatracer.mzML files already exist (located in the folder next to the original .d files), load them and annotate as 'DDA' type. Load the original diaPASEF .d files and annotate as 'DIA-Quant'. This will avoid redoing the conversion from .d to diatracer.mzML files.
+workflow.description=<p class\="MsoNormal" style\="margin-bottom\: 0in; line-height\: normal">Workflow for cysteine activity-based protein profiling (IA-DTB) with diaPASEF-based label-free quantification, see e.g. Biggs J. et al, "Robust proteome profiling of cysteine-reactive fragments using label-free chemoproteomics", Nat Commun 16\:73 (2025).</p>\n<p style\="margin-top\: 0in">Peptide identification directly from DIA data using diaTracer and MSFragger. MSFragger search with +57.02146 (iodoacetamide alkylation) and +296.1848 (IA-DTB) specified on cysteine as variable modifications. In addition, Met oxidation and N-terminal Acetyl are specified as variable modifications. 10 ppm precursor tolerance, parameter optimization enabled. Fully tryptic search, up to 1 missed cleavages. Deep learning-based rescoring of MSFragger results with MSBooster, followed by PSM validation with Percolator. Protein inference is performed with ProteinProphet. The data is filtered to 1% protein FDR and additionally at 1% FDR at the peptide and PSM levels. Spectral library building with EasyPQP followed by quantification, using that library, from the DIA files using DIA-NN. Site level reports are generated using LFQ-SiteReporter (site localization probability 0.75).</p> NOTE\: diaTracer needs to be run only once. If .diatracer.mzML files already exist (located in the folder next to the original .d files), load them and annotate as 'DDA' type. Load the original diaPASEF .d files and annotate as 'DIA-Quant'. This will avoid redoing the conversion from .d to diatracer.mzML files.
 workflow.input.data-type.im-ms=false
 workflow.input.data-type.regular-ms=true
 workflow.misc.save-sdrf=true
