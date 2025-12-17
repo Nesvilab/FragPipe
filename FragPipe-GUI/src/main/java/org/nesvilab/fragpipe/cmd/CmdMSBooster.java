@@ -180,6 +180,7 @@ public class CmdMSBooster extends CmdBase {
         if (!libraryPath.isEmpty()) {
           bufferedWriter.write("spectraPredFile = " + libraryPath + "\n");
           bufferedWriter.write("RTPredFile = " + libraryPath + "\n");
+          bufferedWriter.write("IMPredFile = " + libraryPath + "\n");
         }
         bufferedWriter.write("rtSearchModelsString = " + testRtModels + "\n");
         bufferedWriter.write("ms2SearchModelsString = " + testSpectraModels + "\n");
