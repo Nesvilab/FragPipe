@@ -2312,7 +2312,6 @@ public class FragpipeRun {
             ramGb,
             diannPanel.getDiannQuantificationStrategy(noteConfigDiann),
             diannPanel.getDiannChannelNormalizationStrategy(),
-            diannPanel.usePredict(),
             diannPanel.unrelatedRuns(),
             diannPanel.getDiannQvalue(),
             diannPanel.useRunSpecificProteinQvalue(),

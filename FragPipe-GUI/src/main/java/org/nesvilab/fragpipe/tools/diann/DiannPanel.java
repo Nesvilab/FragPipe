@@ -87,7 +87,6 @@ public class DiannPanel extends JPanelBase {
   private JPanel panelFragReporter;
   private UiText uiTextModTag;
   private UiSpinnerDouble uiSpinnerSiteProb;
-  private UiCheck uiCheckUsePredictedSpectra;
   private UiCheck uiCheckUseRunSpecificProteinQvalue;
   private UiCheck uiCheckUnrelatedRuns;
   private UiCheck uiCheckGenerateMsstats;
@@ -214,9 +213,6 @@ public class DiannPanel extends JPanelBase {
     uiComboQuantificationStrategy2.setSelectedIndex(2);
     labelQuantificationStrategy2 = feQuantificationStrategy2.label();
 
-    uiCheckUsePredictedSpectra = UiUtils.createUiCheck("Let DIA-NN predict fragment intensities", false);
-    FormEntry feUsePredictedSpectra = new FormEntry("use-predicted-spectra", "Let DIA-NN predict fragment intensities for the peptides in the library", uiCheckUsePredictedSpectra);
-
     uiCheckGenerateMsstats = UiUtils.createUiCheck("Generate MSstats input", true);
     FormEntry feGenerateMsstats = new FormEntry("generate-msstats", "Generate MSstats input", uiCheckGenerateMsstats, "Convert the DIA-NN output to MSstats format.");
 
@@ -229,17 +225,16 @@ public class DiannPanel extends JPanelBase {
     uiCheckRedoProteinInference = UiUtils.createUiCheck("Redo protein inference", false);
     FormEntry feRedoProteinInference = new FormEntry("redo-protein-inference", "Redo protein inference", uiCheckRedoProteinInference, "Let DIA-NN redo the protein inference.");
 
-    mu.add(panelBasic, feQvalue.label(), mu.ccL());
+    mu.add(panelBasic, feQvalue.label(), mu.ccL()).split(2);
     mu.add(panelBasic, feQvalue.comp).wrap();
     mu.add(panelBasic, feUseRunSpecificProteinQvalue.comp).wrap();
-    mu.add(panelBasic, labelQuantificationStrategy, mu.ccL());
+    mu.add(panelBasic, labelQuantificationStrategy, mu.ccL()).split(2);
     mu.add(panelBasic, feQuantificationStrategy.comp).wrap();
-    mu.add(panelBasic, labelQuantificationStrategy2, mu.ccL());
+    mu.add(panelBasic, labelQuantificationStrategy2, mu.ccL()).split(2);
     mu.add(panelBasic, feQuantificationStrategy2.comp).wrap();
     mu.add(panelBasic, feUnrelatedRuns.comp).wrap();
-    mu.add(panelBasic, feMbr.comp).wrap();
-    mu.add(panelBasic, feRedoProteinInference.comp).wrap();
-    mu.add(panelBasic, feUsePredictedSpectra.comp).wrap();
+    mu.add(panelBasic, feMbr.comp).split(3);
+    mu.add(panelBasic, feRedoProteinInference.comp);
     mu.add(panelBasic, feGenerateMsstats.comp).wrap();
 
     updateEnabledStatus(panelBasic, true);
@@ -457,10 +452,6 @@ public class DiannPanel extends JPanelBase {
       default:
         return "";
     }
-  }
-
-  public boolean usePredict() {
-    return isEnabledAndChecked(uiCheckUsePredictedSpectra);
   }
 
   public boolean unrelatedRuns() {

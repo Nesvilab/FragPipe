@@ -103,7 +103,6 @@ public class CmdDiann extends CmdBase {
       int ramGb,
       Set<String> quantificationStrategy,
       String channelNormalizationStrategy,
-      boolean usePredict,
       boolean unrelatedRuns,
       float qvalue,
       boolean useRunSpecificProteinQvalue,
@@ -365,14 +364,6 @@ public class CmdDiann extends CmdBase {
       if (unrelatedRuns) {
         cmd.add("--individual-mass-acc");
         cmd.add("--individual-windows");
-      }
-      if (usePredict) {
-        cmd.add("--predictor");
-        cmd.add("--dl-no-rt");
-        cmd.add("--dl-no-im");
-        if (noteConfigDiann.compareVersion("1.9") < 0) {
-          cmd.add("--strip-unknown-mods");
-        }
       }
       if (generateMsstats) {
         if (noteConfigDiann.compareVersion("2.0") < 0) {
