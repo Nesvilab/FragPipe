@@ -38,6 +38,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import org.nesvilab.fragpipe.api.Bus;
 import org.nesvilab.fragpipe.messages.NoteConfigTransferLearning;
 import org.nesvilab.utils.SwingUtils;
+import org.nesvilab.utils.swing.HtmlStyledJEditorPane;
 import org.nesvilab.utils.swing.FileChooserUtils;
 import org.nesvilab.utils.swing.FileChooserUtils.FcMode;
 import org.nesvilab.utils.swing.FormEntry;
@@ -181,6 +182,8 @@ public class TransferLearningPanel extends JPanelBase {
     checkRun.setName("run-transfer-learning");
 
     JLabel availabilityLabel = new JLabel("<html><b>Note: Currently available to selected collaborators only.</b></html>");
+    HtmlStyledJEditorPane documentationNote = SwingUtils.createClickableHtml(
+        "<b>Please read the <a href=\"https://fragpipe.nesvilab.org/docs/tutorial_transfer_learning.html\">documentation</a> carefully before proceeding.</b>");
 
     mu.add(p, checkRun).pushX().wrap();
     mu.add(p, feCredential.label()).split(3);
@@ -188,6 +191,7 @@ public class TransferLearningPanel extends JPanelBase {
     mu.add(p, jButtonCredential).wrap();
 
     mu.add(p, availabilityLabel).wrap();
+    mu.add(p, documentationNote).growX().wrap();
 
     return p;
   }
@@ -358,11 +362,6 @@ public class TransferLearningPanel extends JPanelBase {
     mu.add(panelPrediction, feMinCharge.comp);
     mu.add(panelPrediction, feMaxCharge.label());
     mu.add(panelPrediction, feMaxCharge.comp).wrap();
-
-
-    JLabel digestParamNote = new JLabel("<html><b>Note: For 'Whole FASTA file' prediction, digestion parameters (peptide length, missed cleavages, PTMs) can be customized<br>"
-        + "by enabling the MSFragger tab and checking 'Digestion only'. Recommended: length 7-30, 1 missed cleavage, minimal PTMs.</b></html>");
-    mu.add(panelPrediction, digestParamNote).spanX().wrap();
 
     updateEnabledStatus(panelPrediction, true);
 
