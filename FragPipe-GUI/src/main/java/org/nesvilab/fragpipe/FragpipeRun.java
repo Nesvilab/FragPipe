@@ -2286,7 +2286,6 @@ public class FragpipeRun {
           transferLearningPanel.isPredictIM(),
           transferLearningPanel.getOutputFormat(),
           transferLearningPanel.getPeptidesToPredict(),
-          transferLearningPanel.getCustomPeptideListPath(),
           transferLearningPanel.getMinCharge(),
           transferLearningPanel.getMaxCharge(),
           transferLearningPanel.getInstrument(),

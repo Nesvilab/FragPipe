@@ -72,7 +72,6 @@ public class TransferLearningPanel extends JPanelBase {
   private UiCheck uiCheckPredictIM;
   private UiCombo uiComboPeptidesToPredict;
   private UiCheck uiCheckKeepDecoys;
-  private UiText uiTextCustomPeptideList;
   private UiSpinnerInt uiSpinnerMinCharge;
   private UiSpinnerInt uiSpinnerMaxCharge;
   private UiCombo uiComboInstrument;
@@ -206,13 +205,13 @@ public class TransferLearningPanel extends JPanelBase {
     uiComboInstrument = UiUtils.createUiCombo(instrumentMap.keySet().toArray(new String[0]));
     FormEntry feInstrument = mu.feb("instrument", uiComboInstrument)
         .label("Instrument")
-        .tooltip("Instrument type when predicting spectral library. Available when 'Perform transfer learning', 'Whole FASTA file', or 'Custom peptide list' is selected.")
+        .tooltip("Instrument type when predicting spectral library. Available when 'Perform transfer learning' or 'Whole FASTA file' is selected.")
         .create();
 
     uiSpinnerNce = new UiSpinnerInt(30, 1, 100, 1);
     FormEntry feNce = mu.feb("nce", uiSpinnerNce)
         .label("NCE")
-        .tooltip("NCE when predicting spectral library. Available when 'Perform transfer learning', 'Whole FASTA file', or 'Custom peptide list' is selected.")
+        .tooltip("NCE when predicting spectral library. Available when 'Perform transfer learning' or 'Whole FASTA file' is selected.")
         .create();
 
     panelTraining = createPanelTraining();
@@ -297,51 +296,29 @@ public class TransferLearningPanel extends JPanelBase {
       uiTextModelPath.setText(path.toString());
     });
 
-    uiComboPeptidesToPredict = UiUtils.createUiCombo(new String[]{"MSFragger search results", "Whole FASTA file", "Custom peptide list"});
+    uiComboPeptidesToPredict = UiUtils.createUiCombo(new String[]{"MSFragger search results", "Whole FASTA file"});
     uiComboPeptidesToPredict.setSelectedIndex(1);
     FormEntry fePeptidesToPredict = mu.feb("peptides-to-predict", uiComboPeptidesToPredict)
         .label("Peptides to predict: ")
         .tooltip("MSFragger search results: use the peptides after MSFragger search to predict a spectral library.<br>"
-            + "Whole FASTA file: use the peptides digested from the whole FASTA file to predict a spectral library.<br>"
-            + "Custom peptide list: use a custom peptide list to predict a spectral library.")
+            + "Whole FASTA file: use the peptides digested from the whole FASTA file to predict a spectral library.")
         .create();
 
     uiCheckKeepDecoys = new UiCheck("Keep decoys", null, false);
     uiCheckKeepDecoys.setName("keep-decoys");
 
-    uiTextCustomPeptideList = new UiText("", "");
-    uiTextCustomPeptideList.setColumns(20);
-    FormEntry feCustomPeptideList = mu.feb("custom-peptide-list", uiTextCustomPeptideList)
-        .label("")
-        .tooltip("Use a custom peptide list to predict a spectral library. Available when 'Custom peptide list' is selected.")
-        .create();
-
-    JButton jButtonCustomPeptideList = feCustomPeptideList.browseButton("Browse", "Select custom peptide list file", () -> {
-      final FileNameExtensionFilter fileNameExtensionFilter = new FileNameExtensionFilter("Peptide list files", "csv");
-      JFileChooser fc = FileChooserUtils.create("Custom peptide list file", "Select", false, FcMode.FILES_ONLY, true, fileNameExtensionFilter);
-      fc.setFileFilter(fileNameExtensionFilter);
-      FileChooserUtils.setPath(fc, Stream.of(uiTextCustomPeptideList.getNonGhostText()));
-      return fc;
-    }, paths -> {
-      Path path = paths.get(0);
-      uiTextCustomPeptideList.setText(path.toString());
-    });
-
     uiSpinnerMinCharge = new UiSpinnerInt(2, 1, 7, 1);
     FormEntry feMinCharge = mu.feb("min-charge", uiSpinnerMinCharge)
         .label("Min precursor charge")
-        .tooltip("Min precursor charge when predicting spectral library. Available when 'Whole FASTA file' or 'Custom peptide list' is selected.")
+        .tooltip("Min precursor charge when predicting spectral library. Available when 'Whole FASTA file' is selected.")
         .create();
 
     uiSpinnerMaxCharge = new UiSpinnerInt(3, 1, 7, 1);
     FormEntry feMaxCharge = mu.feb("max-charge", uiSpinnerMaxCharge)
         .label("Max precursor charge")
-        .tooltip("Max precursor charge when predicting spectral library. Available when 'Whole FASTA file' or 'Custom peptide list' is selected.")
+        .tooltip("Max precursor charge when predicting spectral library. Available when 'Whole FASTA file' is selected.")
         .create();
 
-    updateEnabledStatus(feCustomPeptideList.label(), isRunPrediction() && getPeptidesToPredict() == 2);
-    updateEnabledStatus(feCustomPeptideList.comp, isRunPrediction() && getPeptidesToPredict() == 2);
-    updateEnabledStatus(jButtonCustomPeptideList, isRunPrediction() && getPeptidesToPredict() == 2);
     updateEnabledStatus(feMinCharge.label(), isRunPrediction() && getPeptidesToPredict() > 0);
     updateEnabledStatus(feMinCharge.comp, isRunPrediction() && getPeptidesToPredict() > 0);
     updateEnabledStatus(feMaxCharge.label(), isRunPrediction() && getPeptidesToPredict() > 0);
@@ -349,9 +326,6 @@ public class TransferLearningPanel extends JPanelBase {
     updateEnabledStatus(uiCheckKeepDecoys, isRunPrediction() && getPeptidesToPredict() != 2);
 
     checkRunPrediction.addItemListener(e -> {
-      updateEnabledStatus(feCustomPeptideList.label(), isRunPrediction() && getPeptidesToPredict() == 2);
-      updateEnabledStatus(feCustomPeptideList.comp, isRunPrediction() && getPeptidesToPredict() == 2);
-      updateEnabledStatus(jButtonCustomPeptideList, isRunPrediction() && getPeptidesToPredict() == 2);
       updateEnabledStatus(feMinCharge.label(), isRunPrediction() && getPeptidesToPredict() > 0);
       updateEnabledStatus(feMinCharge.comp, isRunPrediction() && getPeptidesToPredict() > 0);
       updateEnabledStatus(feMaxCharge.label(), isRunPrediction() && getPeptidesToPredict() > 0);
@@ -360,9 +334,6 @@ public class TransferLearningPanel extends JPanelBase {
     });
 
     uiComboPeptidesToPredict.addItemListener(e -> {
-      updateEnabledStatus(feCustomPeptideList.label(), getPeptidesToPredict() == 2);
-      updateEnabledStatus(feCustomPeptideList.comp, getPeptidesToPredict() == 2);
-      updateEnabledStatus(jButtonCustomPeptideList, getPeptidesToPredict() == 2);
       updateEnabledStatus(feMinCharge.label(), getPeptidesToPredict() > 0);
       updateEnabledStatus(feMinCharge.comp, getPeptidesToPredict() > 0);
       updateEnabledStatus(feMaxCharge.label(), getPeptidesToPredict() > 0);
@@ -380,17 +351,14 @@ public class TransferLearningPanel extends JPanelBase {
     mu.add(panelPrediction, feOutputFormat.label()).gapLeft("50");
     mu.add(panelPrediction, feOutputFormat.comp).wrap();
 
-    mu.add(panelPrediction, fePeptidesToPredict.label()).split(5);
-    mu.add(panelPrediction, fePeptidesToPredict.comp).growX().pushX();
-    mu.add(panelPrediction, feCustomPeptideList.label());
-    mu.add(panelPrediction, feCustomPeptideList.comp).growX().pushX();
-    mu.add(panelPrediction, jButtonCustomPeptideList).wrap();
-
-    mu.add(panelPrediction, feMinCharge.label()).split(5);
+    mu.add(panelPrediction, fePeptidesToPredict.label()).split(7);
+    mu.add(panelPrediction, fePeptidesToPredict.comp);
+    mu.add(panelPrediction, uiCheckKeepDecoys);
+    mu.add(panelPrediction, feMinCharge.label()).gapLeft("50");
     mu.add(panelPrediction, feMinCharge.comp);
     mu.add(panelPrediction, feMaxCharge.label());
-    mu.add(panelPrediction, feMaxCharge.comp);
-    mu.add(panelPrediction, uiCheckKeepDecoys).wrap();
+    mu.add(panelPrediction, feMaxCharge.comp).wrap();
+
 
     JLabel digestParamNote = new JLabel("<html><b>Note: For 'Whole FASTA file' prediction, digestion parameters (peptide length, missed cleavages, PTMs) can be customized<br>"
         + "by enabling the MSFragger tab and checking 'Digestion only'. Recommended: length 7-30, 1 missed cleavage, minimal PTMs.</b></html>");
@@ -453,10 +421,6 @@ public class TransferLearningPanel extends JPanelBase {
 
   public int getPeptidesToPredict() {
     return uiComboPeptidesToPredict.getSelectedIndex();
-  }
-
-  public String getCustomPeptideListPath() {
-    return uiTextCustomPeptideList.getNonGhostText();
   }
 
   public int getMinCharge() {

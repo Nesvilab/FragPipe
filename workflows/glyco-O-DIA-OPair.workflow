@@ -385,7 +385,6 @@ tmtintegrator.unique_gene=0
 tmtintegrator.unique_pep=false
 tmtintegrator.use_glycan_composition=true
 transfer-learning.credential=
-transfer-learning.custom-peptide-list=
 transfer-learning.instrument=Astral
 transfer-learning.keep-decoys=false
 transfer-learning.max-charge=3

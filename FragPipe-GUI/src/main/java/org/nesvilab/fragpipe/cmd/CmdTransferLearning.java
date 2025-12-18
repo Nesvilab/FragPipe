@@ -110,7 +110,6 @@ public class CmdTransferLearning extends CmdBase {
     boolean predictIM,
     String outputFormat,
     int peptidesToPredict,
-    String customPeptideListPath,
     int minCharge,
     int maxCharge,
     String instrument,
@@ -144,11 +143,6 @@ public class CmdTransferLearning extends CmdBase {
 
     if (apiKey == null || apiKey.isEmpty()) {
       SwingUtils.showErrorDialog(comp, "API key is required for transfer learning.", NAME + " error");
-      return false;
-    }
-
-    if (isRunPrediction && peptidesToPredict == 2 && (customPeptideListPath == null || customPeptideListPath.isEmpty())) {
-      SwingUtils.showErrorDialog(comp, "Custom peptide list path is empty.", NAME + " error");
       return false;
     }
 
@@ -269,8 +263,6 @@ public class CmdTransferLearning extends CmdBase {
         cmdPredict.add("--peptide-list-to-predict");
         if (peptidesToPredict == 1) {
           cmdPredict.add(wd.resolve("peptide_list.parquet").toAbsolutePath().normalize().toString());
-        } else if (peptidesToPredict == 2) {
-          cmdPredict.add(customPeptideListPath);
         }
       } else if (peptidesToPredict == 0) {
         cmdPredict.add("--keep-decoys");
