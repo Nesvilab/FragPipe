@@ -4,7 +4,7 @@ biopython==1.86
 click==8.3.1
 contourpy==1.3.2
 cycler==0.12.1
-fragpipe-speclib==0.1.57
+fragpipe-speclib==0.1.58
 fonttools==4.61.0
 joblib==1.5.2
 kaleido==0.2.1
