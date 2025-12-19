@@ -55,7 +55,7 @@ public class CmdTmtIntegrator extends CmdBase {
   private static final Logger log = LoggerFactory.getLogger(CmdTmtIntegrator.class);
 
   public static final String NAME = "TmtIntegrator";
-  public static final String TMT_INTEGRATOR_VERSION = "6.1.1";
+  public static final String TMT_INTEGRATOR_VERSION = "6.1.3";
   public static final String JAR_NAME = "TMT-Integrator-" + TMT_INTEGRATOR_VERSION + ".jar";
   public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML", "raw", "d");
   public static final String CONFIG_FN = "tmt-integrator-conf.yml";
