@@ -246,9 +246,9 @@ public class ToolingUtils {
           if (tt.length == 3) {
             try {
               int replicate = Integer.parseInt(tt[2]);
-              bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getPath().toAbsolutePath() + "\t" + tt[0] + "_" + tt[1] + "\t" + replicate + "\n");
+              bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getPath().toAbsolutePath() + "\t" + sampleName + "\t" + tt[0] + "_" + tt[1] + "\t" + replicate + "\n");
             } catch (Exception ex) {
-              bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getPath().toAbsolutePath() + "\t" + tt[1] + "_" + tt[2] + "\t1\n");
+              bufferedWriter.write(inputLcmsFile.getPath().toAbsolutePath() + "\t" + inputLcmsFile.getPath().toAbsolutePath() + "\t" + sampleName + "\t" + tt[1] + "_" + tt[2] + "\t1\n");
             }
           } else if (tt.length == 2) {
             try {
@@ -307,16 +307,16 @@ public class ToolingUtils {
           if (parts2.length == 3) {
             try {
               int replicate = Integer.parseInt(parts2[2]);
-              bufferedWriter.write(e.getKey().name + "\t" + parts[0].trim() + "\t" + parts[1].trim() + "\t" + parts2[0].trim() + "\t" + parts2[1].trim() + "\t" + replicate + "\n");
+              bufferedWriter.write(e.getKey().name + "\t" + parts[0].trim() + "\t" + parts[1].trim() + "\t" + parts[1].trim() + "\t" + parts2[1].trim() + "\t" + replicate + "\n");
             } catch (Exception ex) {
-              bufferedWriter.write(e.getKey().name + "\t" + parts[0].trim() + "\t" + parts[1].trim() + "\t" + parts2[0].trim() + "_" + parts2[1].trim() + "\t" + parts2[2].trim() + "\t1\n");
+              bufferedWriter.write(e.getKey().name + "\t" + parts[0].trim() + "\t" + parts[1].trim() + "\t" + parts[1].trim() + "\t" + parts2[2].trim() + "\t1\n");
             }
           } else if (parts2.length == 2) {
             try {
               int replicate = Integer.parseInt(parts2[1]);
-              bufferedWriter.write(e.getKey().name + "\t" + parts[0].trim() + "\t" + parts[1].trim() + "\t" + parts2[0].trim() + "\t" + parts2[0].trim() + "\t" + replicate + "\n");
+              bufferedWriter.write(e.getKey().name + "\t" + parts[0].trim() + "\t" + parts[1].trim() + "\t" + parts[1].trim() + "\t" + parts2[0].trim() + "\t" + replicate + "\n");
             } catch (NumberFormatException ex) {
-              bufferedWriter.write(e.getKey().name + "\t" + parts[0].trim() + "\t" + parts[1].trim() + "\t" + parts2[0].trim() + "\t" + parts2[1].trim() + "\t1\n");
+              bufferedWriter.write(e.getKey().name + "\t" + parts[0].trim() + "\t" + parts[1].trim() + "\t" + parts[1].trim() + "\t" + parts2[1].trim() + "\t1\n");
             }
           } else {
             bufferedWriter.write(e.getKey().name + "\t" + parts[0].trim() + "\t" + parts[1].trim() + "\t" + parts[1].trim() + "\t" + parts[1].trim() + "\t1\n");
