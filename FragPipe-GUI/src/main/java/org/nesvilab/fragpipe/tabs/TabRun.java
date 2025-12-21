@@ -343,6 +343,7 @@ public class TabRun extends JPanelWithEnablement {
           try {
             btnGenerateSummaryReport.setEnabled(false);
             ProcessBuilder pb = new ProcessBuilder(cmd);
+            pb.redirectErrorStream(true);
             ProcessBuilderInfo pbi = new PbiBuilder().setPb(pb).setName(pb.toString()).setFnStdOut(null).setFnStdErr(null).setParallelGroup(null).create();
             ProcessResult pr = new ProcessResult(pbi);
             generateReportProcess = pr.start();
@@ -355,19 +356,20 @@ public class TabRun extends JPanelWithEnablement {
               }
               Thread.sleep(100);
             }
-            
+
+            // Drain any remaining output after process ends
+            byte[] pollOut = pr.pollStdOut();
+            while (pollOut != null && pollOut.length > 0) {
+              String outStr = pr.appendOut(pollOut);
+              MessagePrintToConsole.toConsole(outStr, console);
+              pollOut = pr.pollStdOut();
+            }
+
             int exitCode = generateReportProcess.exitValue();
             if (exitCode == 0) {
-              final int exitValue = pr.getProcess().exitValue();
-              if (exitValue != 0) {
-                String errStr = pr.appendErr(pr.pollStdErr());
-                SwingUtils.showErrorDialog(this, "Process " + pb + " returned non zero value. Message:\n" + (errStr == null ? "" : errStr), "Error");
-                MessagePrintToConsole.toConsole("Process " + pb + " returned non zero value. Message:\n" + (errStr == null ? "" : errStr), console);
-              }
               MessagePrintToConsole.toConsole("Summary report exited with code " + exitCode, console);
             } else {
-              String errStr = pr.appendErr(pr.pollStdErr());
-              SwingUtils.showErrorDialog(this, "Process " + pb + " returned non zero value. Message:\n " + (errStr == null ? "" : errStr), "Error");
+              SwingUtils.showErrorDialog(this, "Process " + pb + " returned non zero value.", "Error");
               MessagePrintToConsole.toConsole("Summary report exited with code " + exitCode, console);
             }
                         
