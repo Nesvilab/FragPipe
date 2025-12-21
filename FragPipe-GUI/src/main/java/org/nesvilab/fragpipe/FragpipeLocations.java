@@ -62,7 +62,7 @@ public class FragpipeLocations {
     this.cache = cache;
     this.tools = tools;
     this.workflows = workflows;
-    this.databases = databases;
+    this.databases = databases.toAbsolutePath().normalize();
     this.longTermStorage = longTermStorage;
     this.jobs = jobs;
   }

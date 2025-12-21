@@ -669,7 +669,7 @@ public class FragpipeRun {
                 } else if (newPrecursorTrueTolerance != null && line.startsWith("msfragger.precursor_true_units")) {
                   line = "msfragger.precursor_true_units=1";
                 } else if (line.startsWith("database.db-path")) {
-                  line = "database.db-path=";
+                  line = "database.db-path=" + FragpipeLocations.get().getDirDatabases().toString().replace("\\", "\\\\");
                 } else if (line.startsWith("database.decoy-tag")) {
                   line = "database.decoy-tag=";
                 } else if (line.startsWith("workdir=")) {
