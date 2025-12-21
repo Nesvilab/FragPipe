@@ -583,9 +583,7 @@ public class CmdMsfragger extends CmdBase {
         }
 
         final TabRun tabRun = Bus.getStickyEvent(TabRun.class);
-        if (tabRun.isWriteSubMzml()) {
-          cmd.add("--no-ptm-score-in-pin");
-        }
+        boolean addNoPtmScoreInPin = tabRun.isWriteSubMzml();
 
         // check if the command length is ok so far
         sb.append(String.join(" ", cmd));
@@ -610,6 +608,25 @@ public class CmdMsfragger extends CmdBase {
           cmd.add(f.getPath().toString());
           addedLcmsFiles.add(f);
           fileIndex++;
+
+          // Check if this is a _sub.mzML file with a corresponding _percolator.weights file
+          if (!addNoPtmScoreInPin && f.getPath().getFileName().toString().endsWith("_sub.mzML")) {
+            String weightsFileName = f.getPath().getFileName().toString().replaceFirst("_sub\\.mzML$", "_percolator.weights");
+            try {
+              List<Path> weightsList = Files.walk(f.getPath().toAbsolutePath().getParent()).filter(p -> {
+                String s = p.getFileName().toString();
+                return s.endsWith("_percolator.weights") && s.contentEquals(weightsFileName);
+              }).collect(Collectors.toList());
+              if (!weightsList.isEmpty()) {
+                addNoPtmScoreInPin = true;
+              }
+            } catch (IOException ignored) {
+            }
+          }
+        }
+
+        if (addNoPtmScoreInPin) {
+          cmd.add("--no-ptm-score-in-pin");
         }
 
         ProcessBuilder pb = new ProcessBuilder(cmd);
