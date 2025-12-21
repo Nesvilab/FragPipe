@@ -343,6 +343,7 @@ public class TabRun extends JPanelWithEnablement {
           try {
             btnGenerateSummaryReport.setEnabled(false);
             ProcessBuilder pb = new ProcessBuilder(cmd);
+            pb.environment().put("PYTHONIOENCODING", "utf-8");
             pb.redirectErrorStream(true);
             ProcessBuilderInfo pbi = new PbiBuilder().setPb(pb).setName(pb.toString()).setFnStdOut(null).setFnStdErr(null).setParallelGroup(null).create();
             ProcessResult pr = new ProcessResult(pbi);
