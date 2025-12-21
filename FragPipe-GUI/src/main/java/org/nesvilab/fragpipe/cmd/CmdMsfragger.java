@@ -21,10 +21,12 @@ import static org.nesvilab.utils.PathUtils.testFilePath;
 
 import org.nesvilab.fragpipe.Fragpipe;
 import org.nesvilab.fragpipe.FragpipeLocations;
+import org.nesvilab.fragpipe.api.Bus;
 import org.nesvilab.fragpipe.api.InputLcmsFile;
 import org.nesvilab.fragpipe.api.PyInfo;
 import org.nesvilab.fragpipe.exceptions.NoStickyException;
 import org.nesvilab.fragpipe.messages.NoteConfigPython;
+import org.nesvilab.fragpipe.tabs.TabRun;
 import org.nesvilab.fragpipe.tools.dbsplit.DbSplit2;
 import org.nesvilab.fragpipe.tools.enums.FraggerOutputType;
 import org.nesvilab.fragpipe.tools.enums.MassTolUnits;
@@ -578,6 +580,11 @@ public class CmdMsfragger extends CmdBase {
         if (licensePath != null) {
           cmd.add("--license");
           cmd.add(licensePath.toAbsolutePath().normalize().toString());
+        }
+
+        final TabRun tabRun = Bus.getStickyEvent(TabRun.class);
+        if (tabRun.isWriteSubMzml()) {
+          cmd.add("--no-ptm-score-in-pin");
         }
 
         // check if the command length is ok so far
