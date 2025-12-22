@@ -122,10 +122,10 @@ public class DiannPanel extends JPanelBase {
 
   @Subscribe(sticky = true, threadMode = ThreadMode.POSTING)
   public void on(NoteConfigTransferLearning m) {
-    boolean useWholeFasta = m.isUsingWholeFastaPrediction();
+    boolean isRunPrediction = m.isRunPrediction();
     if (uiCheckMbr != null && uiCheckRedoProteinInference != null) {
-      uiCheckMbr.setSelected(useWholeFasta);
-      uiCheckRedoProteinInference.setSelected(useWholeFasta);
+      uiCheckMbr.setSelected(isRunPrediction && (m.peptidesToPredict == 1));
+      uiCheckRedoProteinInference.setSelected(isRunPrediction);
     }
   }
 

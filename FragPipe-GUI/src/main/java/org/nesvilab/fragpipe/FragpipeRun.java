@@ -2332,7 +2332,6 @@ public class FragpipeRun {
             diannPanel.getSiteProb(),
             transferLearningPanel.isRun(),
             transferLearningPanel.isRunPrediction(),
-            transferLearningPanel.getPeptidesToPredict(),
             transferLearningPanel.getOutputFormat());
       }
       return true;

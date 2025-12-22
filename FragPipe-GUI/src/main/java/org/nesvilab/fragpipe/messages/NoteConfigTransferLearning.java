@@ -29,7 +29,7 @@ public class NoteConfigTransferLearning {
     this.peptidesToPredict = peptidesToPredict;
   }
 
-  public boolean isUsingWholeFastaPrediction() {
-    return isRun && isRunPrediction && peptidesToPredict == 1;
+  public boolean isRunPrediction() {
+    return isRun && isRunPrediction;
   }
 }

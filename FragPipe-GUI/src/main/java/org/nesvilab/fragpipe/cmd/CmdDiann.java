@@ -124,7 +124,6 @@ public class CmdDiann extends CmdBase {
       float siteProb,
       boolean isTransferLearningRun,
       boolean isTransferLearningPrediction,
-      int transferLearningPeptidesToPredict,
       String transferLearningOutputFormat) {
     initPreConfig();
 
