@@ -2330,6 +2330,7 @@ public class FragpipeRun {
             cmdUmpire.isRun() && !sharedLcmsFiles.isEmpty(),
             diannPanel.getModTag(),
             diannPanel.getSiteProb(),
+            diannPanel.getReportLevels(),
             transferLearningPanel.isRun(),
             transferLearningPanel.isRunPrediction(),
             transferLearningPanel.getOutputFormat());

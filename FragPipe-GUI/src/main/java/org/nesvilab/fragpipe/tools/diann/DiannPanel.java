@@ -24,8 +24,6 @@ import static org.nesvilab.utils.SwingUtils.isEnabledAndChecked;
 import org.nesvilab.fragpipe.messages.NoteConfigDiann;
 import org.nesvilab.fragpipe.messages.NoteConfigTransferLearning;
 import org.nesvilab.utils.SwingUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.nesvilab.utils.swing.FileChooserUtils;
 import org.nesvilab.utils.swing.FileChooserUtils.FcMode;
 import org.nesvilab.utils.swing.FormEntry;
@@ -40,6 +38,8 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.ItemSelectable;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -95,6 +95,11 @@ public class DiannPanel extends JPanelBase {
   private UiText uiTextLight;
   private UiText uiTextMedium;
   private UiText uiTextHeavy;
+  private UiCheck uiCheckGeneLevel;
+  private UiCheck uiCheckProteinLevel;
+  private UiCheck uiCheckPeptideLevel;
+  private UiCheck uiCheckModifiedPeptideLevel;
+  private UiCheck uiCheckSiteLevel;
 
   @Override
   protected void initMore() {
@@ -345,7 +350,9 @@ public class DiannPanel extends JPanelBase {
   private JPanel createPanelFragReporter() {
     panelFragReporter = mu.newPanel(mu.lcFillX());
     mu.border(panelFragReporter, 1);
-    mu.border(panelFragReporter, "Site report (optional)");
+    mu.border(panelFragReporter, "Reports");
+
+    JLabel noteLabel = new JLabel("Run FragReporter to generate additional reports:");
 
     uiTextModTag = UiUtils.uiTextBuilder().cols(40).create();
     FormEntry feModTag = new FormEntry("mod-tag", "Mod tag", uiTextModTag, "<html>Modification tag for generating modification-specific reports <br/>\n"
@@ -355,10 +362,32 @@ public class DiannPanel extends JPanelBase {
     uiSpinnerSiteProb = UiUtils.spinnerDouble(0.75, 0, 1, 0.01).setCols(5).setFormat("#.###").create();
     FormEntry feSiteProb = mu.feb(uiSpinnerSiteProb).name("min-site-prob").label("Min site probability").tooltip("Site localization confidence threshold").create();
 
+    uiCheckGeneLevel = UiUtils.createUiCheck("Gene", false);
+    FormEntry feGeneLevel = new FormEntry("gene-level-report", "Gene", uiCheckGeneLevel, "Generate gene-level report");
+
+    uiCheckProteinLevel = UiUtils.createUiCheck("Protein", false);
+    FormEntry feProteinLevel = new FormEntry("protein-level-report", "Protein", uiCheckProteinLevel, "Generate protein-level report");
+
+    uiCheckPeptideLevel = UiUtils.createUiCheck("Peptide", true);
+    FormEntry fePeptideLevel = new FormEntry("peptide-level-report", "Peptide", uiCheckPeptideLevel, "Generate peptide-level report");
+
+    uiCheckModifiedPeptideLevel = UiUtils.createUiCheck("Modified peptide", true);
+    FormEntry feModifiedPeptideLevel = new FormEntry("modified-peptide-level-report", "Modified peptide", uiCheckModifiedPeptideLevel, "Generate modified peptide-level report");
+
+    uiCheckSiteLevel = UiUtils.createUiCheck("Site", false);
+    uiCheckSiteLevel.setEnabled(false);
+    FormEntry feSiteLevel = new FormEntry("site-level-report", "Site", uiCheckSiteLevel, "Generate site-level report (multi-site and single-site)");
+
+    mu.add(panelFragReporter, noteLabel).wrap();
+    mu.add(panelFragReporter, feGeneLevel.comp).split(5);
+    mu.add(panelFragReporter, feProteinLevel.comp);
+    mu.add(panelFragReporter, fePeptideLevel.comp);
+    mu.add(panelFragReporter, feModifiedPeptideLevel.comp);
+    mu.add(panelFragReporter, feSiteLevel.comp).wrap();
     mu.add(panelFragReporter, feModTag.label(), mu.ccL()).split(2);
     mu.add(panelFragReporter, feModTag.comp).growX();
     mu.add(panelFragReporter, feSiteProb.label()).split(2);
-    mu.add(panelFragReporter, feSiteProb.comp, mu.ccL());
+    mu.add(panelFragReporter, feSiteProb.comp, mu.ccL()).wrap();
 
     updateEnabledStatus(panelFragReporter, true);
     return panelFragReporter;
@@ -472,5 +501,46 @@ public class DiannPanel extends JPanelBase {
 
   public float getSiteProb() {
     return (float) uiSpinnerSiteProb.getActualValue();
+  }
+
+  public boolean isGeneLevelReport() {
+    return uiCheckGeneLevel.isSelected();
+  }
+
+  public boolean isProteinLevelReport() {
+    return uiCheckProteinLevel.isSelected();
+  }
+
+  public boolean isPeptideLevelReport() {
+    return uiCheckPeptideLevel.isSelected();
+  }
+
+  public boolean isModifiedPeptideLevelReport() {
+    return uiCheckModifiedPeptideLevel.isSelected();
+  }
+
+  public boolean isSiteLevelReport() {
+    return uiCheckSiteLevel.isSelected();
+  }
+
+  public String getReportLevels() {
+    List<String> levels = new ArrayList<>();
+    if (uiCheckGeneLevel.isSelected()) {
+      levels.add("gene");
+    }
+    if (uiCheckProteinLevel.isSelected()) {
+      levels.add("protein");
+    }
+    if (uiCheckPeptideLevel.isSelected()) {
+      levels.add("peptide");
+    }
+    if (uiCheckModifiedPeptideLevel.isSelected()) {
+      levels.add("modified-peptide");
+    }
+    if (uiCheckSiteLevel.isSelected() && !getModTag().isEmpty()) {
+      levels.add("multi-site");
+      levels.add("single-site");
+    }
+    return levels.isEmpty() ? "all" : String.join(";", levels);
   }
 }

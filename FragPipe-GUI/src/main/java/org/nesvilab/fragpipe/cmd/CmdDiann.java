@@ -122,6 +122,7 @@ public class CmdDiann extends CmdBase {
       boolean isDiaUmpireRun,
       String modTag,
       float siteProb,
+      String reportLevels,
       boolean isTransferLearningRun,
       boolean isTransferLearningPrediction,
       String transferLearningOutputFormat) {
@@ -531,6 +532,8 @@ public class CmdDiann extends CmdBase {
       cmd.add(modTag);
       cmd.add("--min-site-prob");
       cmd.add(String.valueOf(siteProb));
+      cmd.add("--level");
+      cmd.add(reportLevels);
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(wd.resolve("dia-quant-output").toFile());
       pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + " generate site reports").create());
