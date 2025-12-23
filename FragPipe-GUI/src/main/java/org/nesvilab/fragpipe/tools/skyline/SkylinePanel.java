@@ -243,7 +243,9 @@ public class SkylinePanel extends JPanelBase {
 
     JPanel panelFragReporter = mu.newPanel(mu.lcFillX());
     mu.border(panelFragReporter, 1);
-    mu.border(panelFragReporter, "Site report (optional)");
+    mu.border(panelFragReporter, "Reports");
+
+    JLabel noteLabel2 = new JLabel("Run FragReporter to generate additional reports:");
 
     uiTextModTag = UiUtils.uiTextBuilder().cols(40).create();
     FormEntry feModTag = new FormEntry("mod-tag", "Mod tag", uiTextModTag, "<html>Modification tag for generating modification-specific reports <br/>\n"
@@ -253,6 +255,7 @@ public class SkylinePanel extends JPanelBase {
     uiSpinnerSiteProb = UiUtils.spinnerDouble(0.75, 0, 1, 0.01).setCols(5).setFormat("#.###").create();
     FormEntry feSiteProb = mu.feb(uiSpinnerSiteProb).name("min-site-prob").label("Min site probability").tooltip("Site localization confidence threshold").create();
 
+    mu.add(panelFragReporter, noteLabel2).wrap();
     mu.add(panelFragReporter, feModTag.label(), mu.ccL()).split(2);
     mu.add(panelFragReporter, feModTag.comp).growX();
     mu.add(panelFragReporter, feSiteProb.label()).split(2);
