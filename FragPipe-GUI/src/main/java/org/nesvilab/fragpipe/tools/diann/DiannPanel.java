@@ -21,6 +21,7 @@ import static org.nesvilab.fragpipe.Version.PROGRAM_TITLE;
 import static org.nesvilab.utils.SwingUtils.createClickableHtml;
 import static org.nesvilab.utils.SwingUtils.isEnabledAndChecked;
 
+import org.nesvilab.fragpipe.api.Bus;
 import org.nesvilab.fragpipe.messages.NoteConfigDiann;
 import org.nesvilab.fragpipe.messages.NoteConfigTransferLearning;
 import org.nesvilab.utils.SwingUtils;
@@ -56,6 +57,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import net.miginfocom.layout.LC;
@@ -106,6 +108,12 @@ public class DiannPanel extends JPanelBase {
     super.initMore();
     SwingUtils.setEnablementUpdater(this, pContent, checkRun);
     SwingUtils.setEnablementUpdater(this, panelFragReporter, checkRun);
+    SwingUtilities.invokeLater(() -> SwingUtilities.invokeLater(() -> {
+      NoteConfigTransferLearning m = Bus.getStickyEvent(NoteConfigTransferLearning.class);
+      if (m != null && panelFragReporter != null) {
+        updateEnabledStatus(panelFragReporter, !m.isRunPrediction());
+      }
+    }));
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
@@ -131,6 +139,9 @@ public class DiannPanel extends JPanelBase {
     if (uiCheckMbr != null && uiCheckRedoProteinInference != null) {
       uiCheckMbr.setSelected(isRunPrediction && (m.peptidesToPredict == 1));
       uiCheckRedoProteinInference.setSelected(isRunPrediction);
+    }
+    if (panelFragReporter != null) {
+      updateEnabledStatus(panelFragReporter, !isRunPrediction);
     }
   }
 
