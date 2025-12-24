@@ -304,6 +304,7 @@ class FragPipeReport:
             self.features_weight[self.percolator_raw_file[i - 1]] = df
 
         times = re.findall(r'time="(\d{2}):(\d{2}):(\d{2})"', log_text)
+        times.extend(re.findall(r'\[\d{4}/\d{2}/\d{2} (\d{2}):(\d{2}):(\d{2})\]', log_text))
 
         # 2) convert to datetime.time objects
         td_list = [
@@ -314,7 +315,10 @@ class FragPipeReport:
         creation_timestamp = os.path.getctime(os.path.join(self.results_path, self.latest_log_file))
         creation_datetime = dt.datetime.fromtimestamp(creation_timestamp)
 
-        self.finish_time = dt.datetime.combine(creation_datetime.date(), dt.time()) + max(td_list)
+        if not td_list:
+            self.finish_time = None
+        else:
+            self.finish_time = dt.datetime.combine(creation_datetime.date(), dt.time()) + max(td_list)
 
     def get_running_time(self):
         self.runtime_dict = {}
@@ -381,16 +385,19 @@ class FragPipeReport:
         self.percolator_raw_file = []
         with open(os.path.join(self.results_path, self.latest_log_file), 'r') as f:
             log_lines = f.readlines()
+
+        mass_cal_part = 0
         for line in log_lines:
 
             if line.startswith("*********************MASS CALIBRATION AND PARAMETER OPTIMIZATION*******************") or \
                     line.startswith("*********************************MASS CALIBRATION**"):
                 mass_error_region = True
+                mass_cal_part += 1
             if mass_error_region:
                 line_stripped = line.strip()
                 # Match lines that start with one or more digits (like "001")
                 if re.match(r"^\d+", line_stripped):
-                    data_rows.append(line_stripped)
+                    data_rows.append(line_stripped + "|" + str(mass_cal_part))
             if line.startswith("Finding the optimal parameters:") or \
                     line.startswith("**************************MASS CALIBRATION DONE"):
                 mass_error_region = False
@@ -408,7 +415,7 @@ class FragPipeReport:
                 continue
 
             # The first column is the Run number.
-            run = int(parts[0].strip())
+            run = "Part " + parts[5].strip() + ": " + parts[0].strip()
 
             ms1_old = parts[1].strip().split()
             ms1_new = parts[2].strip().split()
@@ -830,7 +837,7 @@ class FragPipeReport:
 
     def _create_simple_duration_chart(self, title):
         """Fallback simple duration bar chart if no timeline available"""
-        fig, ax = plt.subplots(figsize=(12, max(6, len(self.runtime_dict) * 0.5)))
+        fig, ax = plt.subplots(figsize=(16, max(6, len(self.runtime_dict) * 0.5)))
 
         tasks = []
         for task_name, duration in self.runtime_dict.items():
