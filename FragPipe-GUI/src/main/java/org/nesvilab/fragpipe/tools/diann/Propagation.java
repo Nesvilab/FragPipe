@@ -208,9 +208,9 @@ public class Propagation {
         String[] ss = precursorProteinGeneMap.get(precursor.getSequence());
         if (ss == null) {
           precursorProteinGeneMap.put(precursor.getSequence(), new String[]{allMappedProteinsStr, allMappedGenesStr});
-        } else if (!ss[0].contentEquals(allMappedProteinsStr) || !ss[1].contentEquals(allMappedGenesStr)) {
-          System.err.println("Inconsistent protein or gene mapping for " + precursor + " in " + psm_path + ": " + ss[0] + " vs " + allMappedProteinsStr + ", " + ss[1] + " vs " + allMappedGenesStr);
-          System.exit(1);
+        // } else if (!ss[0].contentEquals(allMappedProteinsStr) || !ss[1].contentEquals(allMappedGenesStr)) {
+        //   System.err.println("Inconsistent protein or gene mapping for " + precursor + " in " + psm_path + ": " + ss[0] + " vs " + allMappedProteinsStr + ", " + ss[1] + " vs " + allMappedGenesStr);
+        //   System.exit(1);
         }
       }
     }
