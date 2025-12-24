@@ -285,6 +285,8 @@ public class DiannPanel extends JPanelBase {
     mu.add(panelBasic2, jButtonLibrary).wrap();
     mu.add(panelBasic2, feCmdOpts.label(), mu.ccL());
     mu.add(panelBasic2, feCmdOpts.comp).growX().pushX().wrap();
+    JLabel cmdOptsNote = new JLabel("<html><i>Note: Add --mod UniMod:&lt;id&gt;,&lt;mass&gt; for uncommon UniMod modifications, or --mod &lt;mass&gt;,&lt;mass&gt; for non-UniMod modifications.</i></html>");
+    mu.add(panelBasic2, cmdOptsNote).skip(1).growX().wrap();
 
     updateEnabledStatus(panelBasic2, true);
     return panelBasic2;
