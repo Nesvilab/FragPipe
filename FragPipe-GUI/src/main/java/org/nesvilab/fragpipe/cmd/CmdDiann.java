@@ -75,7 +75,7 @@ public class CmdDiann extends CmdBase {
   private static final String NAME = "DIA-Quant";
   private static final List<String> SUPPORTED_FORMATS_WIN = Arrays.asList("mzML", "d", "dia", "wiff", "raw");
   private static final List<String> SUPPORTED_FORMATS_LINUX = Arrays.asList("mzML", "d", "dia", "raw");
-  public static final String FRAG_REPORTER = "FragReporter-1.1.1.jar";
+  public static final String FRAG_REPORTER = "FragReporter-1.1.2.jar";
   public static final Pattern labelPattern = Pattern.compile("([A-Znc*]+)([\\d.+-]+)");
 
   private final String diannPath;
