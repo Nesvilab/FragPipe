@@ -408,6 +408,14 @@ public class CmdDiann extends CmdBase {
       }
       pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + " run DIA-NN").create());
 
+      List<Path> quantFilesToDelete = new ArrayList<>();
+      for (Path inputLcmsPath : inputLcmsPaths) {
+        Path quantFilePath = Paths.get(inputLcmsPath.toAbsolutePath().normalize() + ".quant");
+        quantFilesToDelete.add(quantFilePath);
+      }
+      List<ProcessBuilder> pbsDeleteQuant = ToolingUtils.pbsDeleteFiles(jarFragpipe, true, quantFilesToDelete);
+      pbis.addAll(PbiBuilder.from(pbsDeleteQuant, getCmdName() + " delete .quant file"));
+
       if (isWindows()) {
         // Plotting
         List<String> cmd2 = new ArrayList<>();

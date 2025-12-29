@@ -107,6 +107,13 @@ public class ToolingUtils {
     return pbsCopyMoveDeleteRenameFiles(jarFragpipe, Op.DELETE, null, false, files);
   }
 
+  /**
+   * @param jarFragpipe Use {@link JarUtils#getCurrentJarUri()} to get that from the current Jar.
+   */
+  public static List<ProcessBuilder> pbsDeleteFiles(Path jarFragpipe, boolean ignoreMissingFiles, List<Path> files) {
+    return pbsCopyMoveDeleteRenameFiles(jarFragpipe, Op.DELETE, null, ignoreMissingFiles, files);
+  }
+
   public static List<ProcessBuilder> pbsMoveFilesWithExtension(Path jarFragpipe, Path dest, Path originDir, String ext) {
     if (jarFragpipe == null) {
       throw new IllegalArgumentException("jar can't be null");
@@ -128,8 +135,7 @@ public class ToolingUtils {
     return pbs;
   }
 
-  private static List<ProcessBuilder> pbsCopyMoveDeleteRenameFiles(Path jarFragpipe, Op operation, Path dest,
-                                                                   boolean ignoreMissingFiles, List<Path> files) {
+  private static List<ProcessBuilder> pbsCopyMoveDeleteRenameFiles(Path jarFragpipe, Op operation, Path dest, boolean ignoreMissingFiles, List<Path> files) {
     if (jarFragpipe == null) {
       throw new IllegalArgumentException("jar can't be null");
     }
