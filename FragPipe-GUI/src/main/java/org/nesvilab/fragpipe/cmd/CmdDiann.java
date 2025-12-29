@@ -359,7 +359,6 @@ public class CmdDiann extends CmdBase {
         }
       }
       cmd.add("--smart-profiling");
-      cmd.add("--no-quant-files");
       cmd.addAll(quantificationStrategy);
       if (unrelatedRuns) {
         cmd.add("--individual-mass-acc");
