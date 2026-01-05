@@ -226,7 +226,8 @@ public class DiannToMsstats {
           if (startEnd == null) {
             bufferedReader.close();
             bufferedWriter.close();
-            throw new RuntimeException("Could not find the peptide in the PSM file: " + row[strippedSequenceColumn].trim());
+            System.out.println("Could not find the peptide in the PSM file: " + row[strippedSequenceColumn].trim() + ". Skip this peptide.");
+            continue;
           }
 
           for (int i = 0; i < fragmentInfoSplit.length; ++i) {
