@@ -107,13 +107,22 @@ public class DiannPanel extends JPanelBase {
   protected void initMore() {
     super.initMore();
     SwingUtils.setEnablementUpdater(this, pContent, checkRun);
-    SwingUtils.setEnablementUpdater(this, panelFragReporter, checkRun);
-    SwingUtilities.invokeLater(() -> SwingUtilities.invokeLater(() -> {
-      NoteConfigTransferLearning m = Bus.getStickyEvent(NoteConfigTransferLearning.class);
-      if (m != null && panelFragReporter != null) {
-        updateEnabledStatus(panelFragReporter, !m.isRunPrediction());
-      }
-    }));
+    // Handle panelFragReporter enablement manually to consider both checkRun and isRunPrediction
+    checkRun.addItemListener(e -> updatePanelFragReporterEnabledStatus());
+    // Synchronize initial panel state after settings are loaded
+    SwingUtilities.invokeLater(() -> {
+      updateEnabledStatus(pContent, checkRun.isSelected());
+      updatePanelFragReporterEnabledStatus();
+    });
+  }
+
+  private void updatePanelFragReporterEnabledStatus() {
+    if (panelFragReporter == null) {
+      return;
+    }
+    NoteConfigTransferLearning m = Bus.getStickyEvent(NoteConfigTransferLearning.class);
+    boolean isRunPrediction = m != null && m.isRunPrediction();
+    updateEnabledStatus(panelFragReporter, checkRun.isSelected() && !isRunPrediction);
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
@@ -140,9 +149,7 @@ public class DiannPanel extends JPanelBase {
       uiCheckMbr.setSelected(isRunPrediction && (m.peptidesToPredict == 1));
       uiCheckRedoProteinInference.setSelected(isRunPrediction);
     }
-    if (panelFragReporter != null) {
-      updateEnabledStatus(panelFragReporter, !isRunPrediction);
-    }
+    updatePanelFragReporterEnabledStatus();
   }
 
   @Override
