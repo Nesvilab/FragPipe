@@ -23,6 +23,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -34,11 +36,29 @@ public class FileDelete {
     // for simplicity of use of this class from command line as
     // `java -cp fragpipe.jar org.nesvilab.utils.FileDelete`
 
+    // Note: --no-err has no effect for delete operations since missing files are already silently ignored.
+    // This flag is supported for consistency with FileCopy and FileMove.
+    public static final String NO_ERR = "--no-err";
+
     public static void main(String[] args) throws IOException {
         Locale.setDefault(Locale.US);
-        if (args.length != 1)
-            throw new IllegalArgumentException("Must provide exactly one argument - the file or directory to delete.");
-        Path path = Paths.get(args[0]);
+        if (args.length != 1 && args.length != 2)
+            throw new IllegalArgumentException("Must provide one argument - the file or directory to delete, "
+                + "or optionally with --no-err to suppress file existence checks.");
+        boolean noErrors = false;
+        List<String> pathArgs = new ArrayList<>();
+        for (String arg : args) {
+            if (NO_ERR.equals(arg)) {
+                noErrors = true;
+            } else {
+                pathArgs.add(arg);
+            }
+        }
+        if (pathArgs.size() != 1) {
+            throw new IllegalArgumentException("Must provide exactly 1 path argument - the file or directory to delete.");
+        }
+
+        Path path = Paths.get(pathArgs.get(0));
         if (!Files.exists(path))
             return;
         deleteFileOrFolder(path);

@@ -16,13 +16,16 @@
  */
 package org.nesvilab.utils;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
-import org.apache.commons.io.FileUtils;
 
 /**
  * Usage: <code>java -cp path-to-jar org.nesvilab.utils.FileMove path-from path-to</code>.<br/>
@@ -41,15 +44,23 @@ public class FileMove {
         Locale.setDefault(Locale.US);
         if (args.length != 2 && args.length != 3) {
             throw new IllegalArgumentException("Input must be either 2 arguments: origin and destination "
-                + "or optionally prepended with --no-err ot suppress file existence checks.");
+                + "or optionally with --no-err to suppress file existence checks.");
         }
-        boolean noErrors = NO_ERR.equals(args[0]);
-        int ptr = 0;
-        if (noErrors)
-            ptr++;
+        boolean noErrors = false;
+        List<String> pathArgs = new ArrayList<>();
+        for (String arg : args) {
+            if (NO_ERR.equals(arg)) {
+                noErrors = true;
+            } else {
+                pathArgs.add(arg);
+            }
+        }
+        if (pathArgs.size() != 2) {
+            throw new IllegalArgumentException("Input must be exactly 2 path arguments: origin and destination.");
+        }
 
-        Path origin = Paths.get(args[ptr++]);
-        Path destination = Paths.get(args[ptr++]);
+        Path origin = Paths.get(pathArgs.get(0));
+        Path destination = Paths.get(pathArgs.get(1));
 
         if (!Files.exists(origin)) {
             if (noErrors) {
