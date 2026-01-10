@@ -4,7 +4,7 @@
 predictions from multiple machine and deep-learning models from the community. It can be tedious running each model 
 separately due to differences in supported peptides, string formatting, and accessibility. Koina combats this by 
 providing a central hub where all models can be queried in a similar fashion. 
-[MSBooster]([Koina](https://koina.proteomicsdb.org/)) uses the Koina API to gain
+[MSBooster](https://github.com/Nesvilab/MSBooster) uses the Koina API to gain
 access to these different models, some of which will outperform the FragPipe default of DIA-NN depending on the types of
 data they were trained on. Below we demonstrate two different ways to use Koina, either by explicitly choosing a model
 of your choice or by letting a heuristic best model search algorithm make that decision for you. 
