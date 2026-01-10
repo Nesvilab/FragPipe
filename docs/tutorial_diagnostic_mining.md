@@ -17,7 +17,7 @@ If you are new to MSFragger or FragPipe searches, please first consult the [Setu
 * [Using PTM fragmentation patterns in subsequent labile searches](https://fragpipe.nesvilab.org/docs/tutorial_diagnostic_mining.html#using-ptm-fragmentation-patterns-in-labile-searches)
 
 ### Diagnostic ion mining overview
-The diagnostic ion mining module is embedded within PTM-Shepherd. It allows you to identify fragmentation patterns for PTMs identified via open searches or mass offset searches. Three types of fragmentation patterns are looked for. Each of these corresponds to an ion type that can be used in [MSFragger Labile mode](https://github.com/Nesvilab/FragPipe/edit/gh-pages/docs/tutorial_labile.html).
+The diagnostic ion mining module is embedded within PTM-Shepherd. It allows you to identify fragmentation patterns for PTMs identified via open searches or mass offset searches. Three types of fragmentation patterns are looked for. Each of these corresponds to an ion type that can be used in [MSFragger Labile mode](https://fragpipe.nesvilab.org/docs/tutorial_labile.html).
 
 **Diagnostic ions** are ions that are found alone in the spectrum and have completely dissociated from the peptide. Examples of these are immonium ions derived from modified residues or oxonium ions from glycopeptides.
 
@@ -84,4 +84,4 @@ It's also common to see diagnostic ions corresponding to PTMs. One of the diagno
 <br>
 
 ### Using PTM fragmentation patterns in subsequent labile searches
-Now that we have some PTM fragmentaion information, we can use these patterns in the [MSFragger Labile mode](https://github.com/Nesvilab/FragPipe/edit/gh-pages/docs/tutorial_labile.html).
+Now that we have some PTM fragmentaion information, we can use these patterns in the [MSFragger Labile mode](https://fragpipe.nesvilab.org/docs/tutorial_labile.html).
