@@ -46,6 +46,9 @@ FragPipe is a comprehensive computational platform designed for the analysis of 
 * [Importing results into Skyline](https://fragpipe.nesvilab.org/docs/tutorial_skyline.html)
 * [Importing results into Perseus](https://fragpipe.nesvilab.org/docs/tutorial_perseus.html)
 
+#### Representative papers using FragPipe
+* [Chemoproteomics](https://fragpipe.nesvilab.org/docs/chemoproteomics_reference.html)
+
 
 
 #### Supported instruments and file formats  
