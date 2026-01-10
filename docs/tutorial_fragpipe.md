@@ -66,7 +66,7 @@ __Note: FragPipe requires Python 3.8 - 3.11__.
 
 In the 'Workflow' tab:
 
-1. Choose the [workflow](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html) you want to use from the dropdown menu and press 'Load'. Use the **Default** workflow for simple conventional (closed) searches. A number of common workflows (including [glyco](https://fragpipe.nesvilab.org/docs/tutorial_glyco-fragger.html) and [DIA](https://fragpipe.nesvilab.org/docs/tutorial_DIA.html)) are provided. We always recommend starting with one of the provided workflows and customizing it as needed. Customized workflows can be saved (with a unique name) for future use or sharing with other users (all workflows are stored in the FragPipe 'workflows' folder).
+1. Choose the [workflow](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html) you want to use from the dropdown menu and press 'Load'. Use the **Default** workflow for simple conventional (closed) searches. A number of common workflows (including [glyco](https://fragpipe.nesvilab.org/docs/tutorial_glyco.html) and [DIA](https://fragpipe.nesvilab.org/docs/tutorial_DIA.html)) are provided. We always recommend starting with one of the provided workflows and customizing it as needed. Customized workflows can be saved (with a unique name) for future use or sharing with other users (all workflows are stored in the FragPipe 'workflows' folder).
 
 2. Set the amount of memory & number of logical cores to use. A RAM setting of 0 will allow FragPipe to automatically detect available memory and allocate a safe amount.
 **Notes about HPC:** On some high performance computing configurations, RAM=0 may be interpreted literally, so users should manually specify an appropriate amount of memory.
