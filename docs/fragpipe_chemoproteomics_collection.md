@@ -15,7 +15,7 @@ Flagship FragPipe chemoproteomics study that established key concepts and workfl
 ---
 
 **Proteome-wide ligandability maps of drugs with diverse cysteine-reactive chemotypes**  
-*Nature Communications*. 2025.  
+Tian, C.; Sun, L.; Liu, K.; et al., *Nature Communications*. 2025.  
 [https://doi.org/10.1038/s41467-025-60068-x](https://doi.org/10.1038/s41467-025-60068-x)  
 
 Large-scale cysteine-reactive ligandability mapping across diverse drug-like electrophiles. FragPipe was used for mass-offset-based identification and localization of covalent adducts on cysteine residues, with IonQuant providing quantitative readouts of engagement. FragPipe enabled systematic comparison of chemotype selectivity and proteome-wide cysteine ligandability profiles.
