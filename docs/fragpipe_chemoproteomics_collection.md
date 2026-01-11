@@ -87,7 +87,7 @@ Near-infrared light-controlled proximity labeling chemistry applied in vitro and
 ---
 
 **Spatiotemporally resolved mapping of extracellular proteomes via in vivo-compatible TyroID**  
-*Nature Communications*. 2025.  
+Zhang, Z.; Wang, Y.; Lu, W.; et al., *Nature Communications*. 2025.  
 [https://doi.org/10.1038/s41467-025-57767-w](https://doi.org/10.1038/s41467-025-57767-w)  
 
 Tyrosine-based proximity labeling strategy for extracellular proteome mapping. FragPipe supported peptide identification and label-free quantification of TyroID-labeled proteins, enabling spatiotemporal comparison of extracellular proteomes in complex biological contexts.
