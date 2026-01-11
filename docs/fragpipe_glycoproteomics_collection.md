@@ -2,11 +2,11 @@
 
 ---
 
-**Comprehensive profiling of protein AMPylation reveals widespread glycosylation–AMPylation crosstalk**  
-Qin, X.; Liu, Y.; Wang, J.; Zhang, H.; Li, Y.; Zhao, Y.; et al., Molecular & Cellular Proteomics. 2025.  
-[https://doi.org/10.1016/j.mcpro.2025.100150](https://doi.org/10.1016/j.mcpro.2025.100150)  
+**The molecular basis of immunosuppression by soluble CD52 is defined by interactions of N-linked and O-linked glycans with HMGB1 box B**  
+DeBono, N.J.; D’Andrea, S.; Bandala-Sanchez, E.; Goddard-Borger, E.; Zenaidee, M.A.; Moh, E.S.X.; Fadda, E.; Harrison, L.C.; Packer, N.H.; *Journal of Biological Chemistry*. 2025.  
+[https://doi.org/10.1016/j.jbc.2025.108350](https://doi.org/10.1016/j.jbc.2025.108350)
 
-Proteome-wide AMPylation study intersecting with glycosylation pathways, generating composite and labile modification spectra. Most relevant FragPipe modes: open glyco for unbiased detection of unexpected glycan-linked or AMPylation-associated mass shifts, followed by mass-offset glyco to refine glycan-related masses and localize modification sites with peptide-level confidence.
+Structural glycoproteomics study defining how site-specific N- and O-glycosylation of soluble CD52 governs immunosuppressive activity via selective binding to the HMGB1 Box B domain. High-resolution LC–MS/MS with MSFragger/FragPipe glycoproteomics workflows enabled confident localization of a low-occupancy but functionally critical O-glycosylation site at Thr8 and detailed characterization of highly sialylated N-glycans. These experimentally defined glycoforms informed molecular dynamics simulations revealing atomistic glycan-mediated interactions underlying HMGB1 Box B specificity and downstream SIGLEC-10 engagement.
 
 ---
 
