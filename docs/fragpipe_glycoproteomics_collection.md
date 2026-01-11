@@ -1,4 +1,6 @@
-# Glycoproteomics / Glyco — FragPipe Applications and Workflows
+# Glycoproteomics Collection
+
+Curated collection of recent manuscripts (last 12 months; compiled in January 2026) that used the MSFragger/FragPipe computational platform for glycoproteomics and related applications.
 
 ---
 
