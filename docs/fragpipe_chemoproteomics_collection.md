@@ -79,7 +79,7 @@ Photoproximity labeling strategy for proteome-wide interactome mapping in live c
 ---
 
 **Silicon-rhodamine-enabled identification for near-infrared light-controlled proximity labeling in vitro and in vivo**  
-*Nature Communications*. 2025.  
+Wang, W.; Guo, H.; Yan, X.; et al., *Nature Communications*. 2025.  
 [https://doi.org/10.1038/s41467-025-63496-x](https://doi.org/10.1038/s41467-025-63496-x)  
 
 Near-infrared light-controlled proximity labeling chemistry applied in vitro and in vivo. FragPipe was used for mass-offset-based identification and quantification of probe-derived modifications, enabling localization and comparison of proximity-labeled proteins across experimental conditions.
