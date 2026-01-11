@@ -49,7 +49,7 @@ FragPipe is a comprehensive computational platform designed for the analysis of 
 #### Representative papers using FragPipe
 * [Chemoproteomics](https://fragpipe.nesvilab.org/docs/fragpipe_chemoproteomics_collection.html)
 * [Immunopeptidomics](https://fragpipe.nesvilab.org/docs/fragpipe_immunopeptidomics_collection.html)
-
+* [Glycoproteomics](https://fragpipe.nesvilab.org/docs/fragpipe_glycoproteomics_collection.html)
 
 
 #### Supported instruments and file formats  
