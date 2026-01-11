@@ -1,103 +1,157 @@
 # FragPipe in Immunopeptidomics — Annotated Literature
 
-## Core Immunopeptidomics (HLA-IP–based discovery)
+---
+
+## Core Immunopeptidomics (HLA-IP–Based Discovery)
+
+---
 
 **Immunogenic cryptic peptides dominate the antigenic landscape of ovarian cancer**  
 Raja, R.; Walchli, S.; Neri, D.; Bassani-Sternberg, M.; et al., *Science Advances*. 2025.  
-https://doi.org/10.1126/sciadv.ads7405  
+[https://doi.org/10.1126/sciadv.ads7405](https://doi.org/10.1126/sciadv.ads7405)  
 
-Comprehensive HLA class I immunopeptidomics analysis of ovarian cancer samples focused on identifying cryptic and non-canonical tumor antigens. **MSFragger (via FragPipe)** was used for non-enzymatic peptide identification with immunopeptidomics-specific peptide length constraints and peptide-level FDR control, alongside other search engines evaluated in parallel.
+Comprehensive HLA class I immunopeptidomics study of ovarian cancer samples focused on cryptic and non-canonical antigens. FragPipe with MSFragger was used for non-enzymatic peptide identification under immunopeptidomics-specific length constraints, with peptide-level FDR control applied to define high-confidence HLA ligands.
 
 ---
 
 **HLA-Shuttle: A system for enhancing antigen presentation in immunologically cold tumors**  
 Kwon, D.; Park, J.; Lee, S.; Kim, H.; Zhao, Y.; et al., *Science Advances*. 2026.  
-https://doi.org/10.1126/sciadv.aeb0821  
+[https://doi.org/10.1126/sciadv.aeb0821](https://doi.org/10.1126/sciadv.aeb0821)  
 
-Development and evaluation of an engineered antigen-delivery system designed to enhance surface HLA presentation in poorly immunogenic tumors. **MSFragger within the FragPipe platform** was used for non-enzymatic database searching and FDR-controlled identification of HLA-presented peptides, enabling quantitative comparison of immunopeptidomes across experimental conditions.
+Engineering of a modular antigen-delivery system to enhance surface HLA presentation in poorly immunogenic tumors. HLA class I immunopeptidomics data were analyzed using FragPipe with MSFragger in non-enzymatic search mode to identify and compare HLA-presented peptides across experimental conditions.
 
 ---
 
 **Comprehensive profiling of the immunopeptidome reveals context-dependent antigen presentation**  
 Chong, C.; Müller, M.; Pak, H.S.; Bassani-Sternberg, M.; et al., *Nature Communications*. 2025.  
-https://doi.org/10.1038/s41467-025-56543-0  
+[https://doi.org/10.1038/s41467-025-56543-0](https://doi.org/10.1038/s41467-025-56543-0)  
 
-Systematic profiling of HLA class I immunopeptidomes across multiple cellular contexts. **FragPipe/MSFragger-compatible non-enzymatic search strategies** with stringent peptide-level FDR filtering were used to identify context-dependent HLA ligands across experimental conditions.
+Systematic profiling of HLA class I immunopeptidomes across multiple cellular contexts. FragPipe/MSFragger-compatible non-enzymatic search strategies with stringent peptide-level FDR filtering were applied to identify context-dependent HLA ligands.
 
 ---
 
 **Systematic analysis of HLA-presented peptides across cellular states**  
 Phulphagar, K.M.; Gravel, N.H.; Meier, F.; et al., *Molecular & Cellular Proteomics*. 2025.  
-https://doi.org/10.1016/j.mcpro.2025.100563  
+[https://doi.org/10.1016/j.mcpro.2025.100563](https://doi.org/10.1016/j.mcpro.2025.100563)  
 
-Quantitative comparison of HLA class I immunopeptidomes across perturbed cellular states using DDA-based immunopeptidomics. **FragPipe/MSFragger-style unspecific peptide searches** with strict peptide-level FDR control were used to support reproducible identification and relative quantification of condition-specific HLA ligands.
+Quantitative comparison of HLA class I immunopeptidomes across perturbed cellular states. FragPipe with MSFragger-style unspecific peptide searches and strict peptide-level FDR control were used to support reproducible identification of condition-specific HLA ligands.
 
 ---
 
 **Increased EThcD efficiency extends depth and coverage of HLA class I immunopeptidomes**  
 Kessler, A.L.; et al., *Molecular & Cellular Proteomics*. 2025.  
-https://doi.org/10.1016/j.mcpro.2025.101049  
+[https://doi.org/10.1016/j.mcpro.2025.101049](https://doi.org/10.1016/j.mcpro.2025.101049)  
 
-Evaluation of EThcD fragmentation on the Orbitrap Excedion Pro for deep HLA-I immunopeptidomics. **FragPipe/MSFragger-compatible non-enzymatic identification workflows** were used to analyze enriched immunopeptidomics data and assess gains in peptide identification depth and sequence coverage.
+Evaluation of EThcD fragmentation on the Orbitrap Excedion Pro for deep HLA-I immunopeptidomics. FragPipe with MSFragger was used for non-enzymatic identification of HLA peptides to assess gains in peptide identification depth and coverage.
+
+---
+
+**Deleterious knockouts in the HLA class I antigen-processing machinery reshape the immunopeptidome**  
+Shapiro, R.; et al., *Molecular & Cellular Proteomics*. 2025.  
+[https://doi.org/10.1016/j.mcpro.2025.100951](https://doi.org/10.1016/j.mcpro.2025.100951)  
+
+Mechanistic immunopeptidomics study interrogating antigen-processing machinery perturbations. HLA-I peptides were identified using non-enzymatic database search workflows consistent with FragPipe/MSFragger, enabling peptide-centric comparisons across genetic knockouts.
+
+---
+
+**Sensitive neoantigen discovery by real-time mutanome-guided immunopeptidomics**  
+Shapiro, R.; et al., *Nature Communications*. 2025.  
+[https://doi.org/10.1038/s41467-025-62647-4](https://doi.org/10.1038/s41467-025-62647-4)  
+
+Clinical-scale HLA-I immunopeptidomics for neoantigen discovery guided by tumor sequencing. MS-based peptide identification employed FragPipe/MSFragger-compatible non-tryptic searches on personalized sequence databases.
+
+---
+
+**MHC1-TIP enables single-tube multimodal immunopeptidome profiling**  
+Bathini, S.; et al., *bioRxiv*. 2025.  
+[https://doi.org/10.1101/2025.07.17.664894](https://doi.org/10.1101/2025.07.17.664894)  
+
+Development of a streamlined workflow for integrated HLA-I immunopeptidomics. FragPipe with MSFragger was used for non-enzymatic identification of immunopeptides in a single-tube multimodal workflow.
+
+---
+
+**MHC class II presentation of FVIII–Annexin A5 fusion proteins**  
+Miranda, M.; et al., *Frontiers in Immunology*. 2025.  
+[https://doi.org/10.3389/fimmu.2025.1668397](https://doi.org/10.3389/fimmu.2025.1668397)  
+
+HLA class II immunopeptidomics study of therapeutic fusion proteins. FragPipe/MSFragger-compatible non-enzymatic search strategies were used to identify and characterize presented HLA-II ligands.
 
 ---
 
 ## Benchmarking and Software Evaluation in Immunopeptidomics
 
-**Benchmarking software for DDA-PASEF immunopeptidomics**  
-Chen, Y.; Preikschat, A.; Arnold, A.; Pecori, R.; Gomez-Zepeda, D.; Tenzer, S., *Molecular & Cellular Proteomics*. 2026.  
-https://doi.org/10.1016/j.mcpro.2025.101492  
+---
 
-Systematic benchmarking of immunopeptidomics software for HLA class I and II data acquired using (Thunder)-DDA-PASEF. **FragPipe (MSFragger with MSBooster)** was evaluated alongside PEAKS, MaxQuant, and MHCquant using standardized non-enzymatic search settings and FDR control, including comparisons across expanded and transcriptome-augmented databases.
+**Benchmarking software for DDA-PASEF immunopeptidomics**  
+Chen, Y.; Preikschat, A.; Arnold, A.; Pecori, R.; Gomez-Zepeda, D.; Tenzer, S.; *Molecular & Cellular Proteomics*. 2026.  
+[https://doi.org/10.1016/j.mcpro.2025.101492](https://doi.org/10.1016/j.mcpro.2025.101492)  
+
+Systematic benchmarking of immunopeptidomics software for HLA class I and II data acquired using (Thunder)-DDA-PASEF. FragPipe (MSFragger with MSBooster) was evaluated alongside PEAKS, MaxQuant, and MHCquant under standardized non-enzymatic search conditions.
 
 ---
 
 **PEPSeek-mediated identification of pathogen-derived epitopes and host immunopeptidomes**  
 Cormican, J.A.; et al., *Molecular & Cellular Proteomics*. 2025.  
-https://doi.org/10.1016/j.mcpro.2025.100937  
+[https://doi.org/10.1016/j.mcpro.2025.100937](https://doi.org/10.1016/j.mcpro.2025.100937)  
 
-Identification of pathogen-derived epitopes and host immunopeptidomes using the PEPSeek framework. **MSFragger was used as a standalone search engine** (outside the full FragPipe workflow), with Percolator-based rescoring applied to database search results.
+Identification of pathogen-derived epitopes and host immunopeptidomes using the PEPSeek framework. MSFragger was used as a standalone search engine with Percolator-based rescoring, outside the full FragPipe workflow.
 
 ---
 
-## Immunopeptidomics and Microproteins / Non-canonical Translation
+## Immunopeptidomics and Non-canonical / Microprotein-Derived Antigens
+
+---
 
 **Translation dysregulation in cancer as a source of targetable antigens**  
 Weller, M.; et al., *Cancer Cell*. 2025.  
-https://doi.org/10.1016/j.ccell.2025.03.003  
+[https://doi.org/10.1016/j.ccell.2025.03.003](https://doi.org/10.1016/j.ccell.2025.03.003)  
 
-Integrated ribosome profiling and immunopeptidomics analysis of aberrant translation-derived peptides in cancer. **FragPipe was used for group-specific identification of canonical, nuORF-derived, and out-of-frame peptides** using custom reference databases generated by unrestricted in-silico translation, with group-specific 1% FDR control and additional score-based filtering.
+Integrated ribosome profiling and immunopeptidomics analysis of aberrant translation-derived peptides. FragPipe was used for group-specific identification of canonical, nuORF-derived, and out-of-frame peptides using custom in-silico-translated databases with group-specific FDR control.
 
 ---
 
 **Adoptive T-cell therapy targeting an inducible and broadly shared product of aberrant mRNA translation**  
 Champagne, J.; Nielsen, M.M.; Feng, X.; Montenegro Navarro, J.; Pataskar, A.; Voogd, R.; et al., *Immunity*. 2025.  
-https://doi.org/10.1016/j.immuni.2024.12.004  
+[https://doi.org/10.1016/j.immuni.2024.12.004](https://doi.org/10.1016/j.immuni.2024.12.004)  
 
-MHC class I immunopeptidomics study of inducible neoepitopes generated by aberrant mRNA translation. **HLA-MS data were searched using FragPipe** against concatenated target–decoy databases containing canonical and W>F-substitutant sequences to identify shared inducible neoepitopes.
+HLA-I immunopeptidomics study of inducible W>F substitutant neoepitopes. HLA-MS data were searched using FragPipe against concatenated canonical and substitutant target–decoy databases.
 
 ---
 
 **Widespread presentation of non-canonical peptides derived from small ORFs**  
 Slavoff, S.A.; Mitchell, A.J.; Schwaid, A.G.; et al., *Science Advances*. 2025.  
-https://doi.org/10.1126/sciadv.ads7405  
+[https://doi.org/10.1126/sciadv.ads7405](https://doi.org/10.1126/sciadv.ads7405)  
 
-Characterization of small-ORF-encoded peptides contributing to the immunopeptidome. **FragPipe/MSFragger-compatible non-enzymatic searches** were used to detect short, non-canonical peptides derived from expanded sequence databases.
+Characterization of small-ORF-encoded peptides contributing to the immunopeptidome. FragPipe/MSFragger-compatible non-enzymatic searches enabled detection of short, non-canonical peptides from expanded sequence databases.
+
+---
+
+## Contextual: Proteasome-Derived Peptide Biology
+
+---
+
+**Cell-autonomous innate immunity by proteasome-derived defence peptides**  
+Goldberg, A.L.; et al., *Nature*. 2025.  
+[https://doi.org/10.1038/s41586-025-08615-w](https://doi.org/10.1038/s41586-025-08615-w)  
+
+Peptidomics study of proteasome-generated defence peptides involved in innate immunity. FragPipe with MSFragger was used for non-enzymatic identification of short, non-tryptic peptides generated by proteasomal processing, providing contextual insight into peptide sources upstream of antigen presentation.
 
 ---
 
 ## Related Proteomics Methodology (Contextual)
 
+---
+
 **Detection and quantitation of small proteins using mass spectrometry**  
 Franco, P.H.C.; et al., *Molecular & Cellular Proteomics*. 2025.  
-https://doi.org/10.1016/j.mcpro.2025.101052  
+[https://doi.org/10.1016/j.mcpro.2025.101052](https://doi.org/10.1016/j.mcpro.2025.101052)  
 
-Methodological framework for discovery and quantification of small proteins and peptides. **FragPipe with MSFragger** was used for identification and quantification of short proteins using non-enzymatic and length-tolerant search settings.
+Methodological framework for discovery and quantification of small proteins. FragPipe with MSFragger was used for identification and quantification of short proteins using non-enzymatic and length-tolerant search settings.
 
 ---
 
 **Advanced peptidomics workflows for small and atypical peptides**  
 Li, Y.; Chen, X.; Wang, J.; Zhao, L.; Zhang, Q.; et al., *Analytical Biochemistry*. 2025.  
-https://doi.org/10.1016/j.ab.2025.115837  
+[https://doi.org/10.1016/j.ab.2025.115837](https://doi.org/10.1016/j.ab.2025.115837)  
 
-Development of peptidomics workflows targeting atypical and short peptides outside standard tryptic constraints. **FragPipe/MSFragger were used in non-specific digestion mode** to support detection and identification of short peptide species.
+Development of peptidomics workflows targeting atypical and short peptides outside standard tryptic constraints. FragPipe/MSFragger were used in non-specific digestion mode to support detection and identification of short peptide species.
