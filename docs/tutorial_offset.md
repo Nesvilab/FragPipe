@@ -1,8 +1,8 @@
 ## Contents
-* [Offset search for PTMs with FragPipe](https://fragpipe.nesvilab.org/docs/tutorial_offset.html#Offset-search-for-PTMs-with-FragPipe)
-* [Types of Mass Offset Searches](https://fragpipe.nesvilab.org/docs/tutorial_offset.html#Types-of-Mass-Offset-Searches)
-* [Options for Reporting Mass Offsets](https://fragpipe.nesvilab.org/docs/tutorial_offset.html#Options-for-Reporting-Mass-Offsets)
-* [Example Mass Offset Search Tutorial (tubulin search)](https://fragpipe.nesvilab.org/docs/tutorial_offset.html#Example-Mass-Offset-Search-Tutorial)
+* [Offset search for PTMs with FragPipe](https://fragpipe.nesvilab.org/docs/tutorial_offset.html#offset-search-for-ptms-with-fragpipe)
+* [Types of Mass Offset Searches](https://fragpipe.nesvilab.org/docs/tutorial_offset.html#types-of-mass-offset-searches)
+* [Options for Reporting Mass Offsets](https://fragpipe.nesvilab.org/docs/tutorial_offset.html#options-for-reporting-mass-offsets)
+* [Example Mass Offset Search Tutorial (tubulin search)](https://fragpipe.nesvilab.org/docs/tutorial_offset.html#example-mass-offset-search-tutorial)
 * [Histone Detailed Mass Offset (DMO) Search using the HiP-Frag method](https://fragpipe.nesvilab.org/docs/tutorial_DMO_histones_example.html)
 
 ### Offset search for PTMs with FragPipe
@@ -61,7 +61,6 @@ The samples we will use for this tutorial are purified tubulin treated with eith
 
 ### Example contents
 * [Add the data](https://fragpipe.nesvilab.org/docs/tutorial_offset.html#add-the-data)
-* [Load the offset workflow](https://fragpipe.nesvilab.org/docs/tutorial_offset.html#load-the-offset-workflow)
 * [Fetch a sequence database](https://fragpipe.nesvilab.org/docs/tutorial_offset.html#fetch-a-sequence-database)
 * [Customize the search settings](https://fragpipe.nesvilab.org/docs/tutorial_offset.html#customize-the-search-settings)
 * [Set the output location and run](https://fragpipe.nesvilab.org/docs/tutorial_offset.html#set-the-output-location-and-run)
