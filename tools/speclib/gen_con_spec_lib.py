@@ -294,7 +294,7 @@ def pairing_pepxml_spectra_v3(spectras: List[pathlib.PurePath], pep_xmls: List[p
 
 
 def easypqp_library_cmd(params: easyPQPparams, use_irt: bool, use_im: bool) -> list[str]:
-	return [sys.executable, *(["-I"] if sys.platform == 'win32' else []), resolve_mapped(params.easypqp), 'library',
+	return [*([sys.executable, "-I"] if sys.platform == 'win32' else []), resolve_mapped(params.easypqp), 'library',
 			'--psmtsv', resolve_mapped(params.psm_tsv_file), '--peptidetsv', resolve_mapped(params.peptide_tsv_file), ] + \
 		   (['--rt_reference', resolve_mapped(params.irt_file)] if use_irt else []) + \
 		   (['--im_reference', resolve_mapped(params.im_file)] if use_im else []) + \
@@ -320,7 +320,7 @@ def main_easypqp(params, irt_df, allcmds, easypqp_convert_cmds) -> None:
 	print(f'''Spectral library building\nCommands to execute:\n{allcmds}\n{'~' * 69}''', flush=True)
 
 	(output_directory / 'cmds.txt').write_text(allcmds)
-	subprocess.run([sys.executable, *(["-I"] if sys.platform == 'win32' else []), os.fspath(params.easypqp), '--version'], check=True)
+	subprocess.run([*([sys.executable, "-I"] if sys.platform == 'win32' else []), os.fspath(params.easypqp), '--version'], check=True)
 	procs = []
 	for i, e in enumerate(easypqp_convert_cmds):
 		print('Executing "' + ' '.join(e) + '"')
@@ -532,7 +532,7 @@ def main():
 																		   key=lambda e: (e[0], e[2])))
 		convert_outs = [f'{basename}{rank}' for basename, rank, _, _ in runname_rank_spectra_pepxml_collapse_rank]
 		easypqp_convert_cmds = [
-			[sys.executable, *(["-I"] if sys.platform == 'win32' else []), resolve_mapped(params.easypqp), 'convert', *params.easypqp_convert_extra_args, '--enable_unannotated', '--pepxml',
+			[*([sys.executable, "-I"] if sys.platform == 'win32' else []), resolve_mapped(params.easypqp), 'convert', *params.easypqp_convert_extra_args, '--enable_unannotated', '--pepxml',
 			 repr([resolve_mapped(pep_xml).replace("'", "\\'") for pep_xml in pep_xmls]), '--spectra',
 			 resolve_mapped(spectra), '--exclude-range', '-1.5,3.5',
 			 '--psms', f'{outfiles}.psmpkl', '--peaks', f'{outfiles}.peakpkl']
@@ -549,7 +549,7 @@ def main():
 		convert_outs = spectra_files_basename
 
 		easypqp_convert_cmds = [
-			[sys.executable, *(["-I"] if sys.platform == 'win32' else []), resolve_mapped(params.easypqp), 'convertpsm', *params.easypqp_convert_extra_args, '--enable_unannotated',
+			[*([sys.executable, "-I"] if sys.platform == 'win32' else []), resolve_mapped(params.easypqp), 'convertpsm', *params.easypqp_convert_extra_args, '--enable_unannotated',
 			 '--psm', resolve_mapped(temp_psm).replace("'", "\\'"),
 			 '--spectra', resolve_mapped(spectra_file), '--exclude-range', '-1.5,3.5',
 			 '--psms', f'{outfile}.psmpkl', '--peaks', f'{outfile}.peakpkl']
