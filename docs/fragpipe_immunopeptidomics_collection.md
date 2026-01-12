@@ -1,6 +1,6 @@
 # Immunopeptidomics Collection
 
-Curated collection of represantative recent manuscripts (last 12 months; compiled in January 2026) that used the MSFragger/FragPipe computational platform for immunopeptidomics.
+Curated collection of representative recent manuscripts (last 12 months; compiled in January 2026) that used the MSFragger/FragPipe computational platform for immunopeptidomics.
 
 ---
 
