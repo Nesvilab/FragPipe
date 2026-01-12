@@ -133,11 +133,19 @@ class easyPQPparams(object):
 		if self.spectra_files == [pathlib.Path('unused')] and len(sys.argv) >= 14:
 			self.spectra_files = [pathlib.Path(e) for e in sys.argv[13:]]
 			if len(self.spectra_files) >= 1 and self.spectra_files[0].name.endswith('.txt'):  # check if file is a file list
-				filelist_str = pathlib.Path(self.spectra_files[0]).read_text('utf-8').splitlines()
+				filelist_path = self.spectra_files[0]
+				filelist_str = pathlib.Path(filelist_path).read_text('utf-8').splitlines()
 				filelist = list(map(pathlib.Path, filelist_str))
 				if all(e.exists() for e in filelist):
-					print("File list provided")
+					print(f"File list provided: {len(filelist)} spectra files")
 					self.spectra_files = filelist
+				else:
+					missing = [e for e in filelist if not e.exists()]
+					print(f"ERROR: {len(missing)} of {len(filelist)} files in the file list do not exist!", file=sys.stderr)
+					print(f"  File list: {filelist_path}", file=sys.stderr)
+					print(f"  Missing files (first 3): {[str(e) for e in missing[:3]]}", file=sys.stderr)
+					raise FileNotFoundError(f"Spectra files listed in {filelist_path} do not exist. "
+						f"Please check if the paths are correct for this system.")
 
 		get_bin_path = get_bin_path_pip_CLI
 
@@ -290,6 +298,12 @@ def pairing_pepxml_spectra_v3(spectras: List[pathlib.PurePath], pep_xmls: List[p
 		return '' if mo is None else mo[0]
 
 	l2 = [(basename, get_rank(p), s, p) for basename, s, ps in zip(spectra_files_basename, spectras, l) for p in ps]
+	if not l2:
+		print(f"ERROR: No spectra-pepxml matches found!", file=sys.stderr)
+		print(f"  Spectra basenames: {spectra_files_basename[:5]}{'...' if len(spectra_files_basename) > 5 else ''}", file=sys.stderr)
+		print(f"  PepXML basenames: {pepxml_basename[:5]}{'...' if len(pepxml_basename) > 5 else ''}", file=sys.stderr)
+		raise ValueError("No spectra files could be matched to pepxml files. "
+			"Please check that the spectra file names match the pepxml file names.")
 	return l2
 
 
