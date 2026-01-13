@@ -272,7 +272,7 @@ public class Skyline {
 
       writer.write("--import-search-exclude-library-sources ");
 
-      if (runSkylineQuant) {
+      if (runSkylineQuant && dataType.contentEquals("DIA")) {
         writer.write("--decoys-add=reverse ");
       }
 
@@ -283,9 +283,11 @@ public class Skyline {
       if (runSkylineQuant) {
         writer.write("\n");
         writer.write("--in=" + skylineFilesDir.resolve("fragpipe.sky").toAbsolutePath() + " ");
-        writer.write("--reintegrate-model-name=\"mProphet\" ");
-        writer.write("--reintegrate-create-model ");
-        writer.write("--reintegrate-overwrite-peaks ");
+        if (dataType.contentEquals("DIA")) {
+          writer.write("--reintegrate-model-name=\"mProphet\" ");
+          writer.write("--reintegrate-create-model ");
+          writer.write("--reintegrate-overwrite-peaks ");
+        }
         writer.write("--save");
       }
 
