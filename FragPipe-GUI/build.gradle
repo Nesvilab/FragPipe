@@ -129,6 +129,7 @@ dependencies {
 
     implementation 'net.java.balloontip:balloontip:1.2.4.1'
     implementation group: 'org.netbeans.api', name: 'org-netbeans-swing-outline', version: 'RELEASE250'
+    implementation 'io.github.bweng20:jSVGIcon:1.6'  // Provides SVGLoader for NetBeans swing-outline SVG icons
     implementation 'commons-io:commons-io:2.18.0'
 
     implementation 'ch.qos.logback:logback-classic:1.5.18'
