@@ -343,11 +343,11 @@ public class CmdMsfragger extends CmdBase {
       }
 
       boolean bad = false;
-      if ((isRunDiaU || isRunDiaTracer) && outputReportTopNDda > 1) {
-        bad = true;
-      } else if ((hasDia || hasGpfDia || hasDiaLib) && outputReportTopNDia1 > 1) {
+      if ((hasDia || hasGpfDia || hasDiaLib) && !isRunDiaU && !isRunDiaTracer && outputReportTopNDia1 > 1) {
         bad = true;
       } else if (hasDdaPlus && outputReportTopNDdaPlus > 1) {
+        bad = true;
+      } else if (outputReportTopNDda > 1) {
         bad = true;
       }
 
