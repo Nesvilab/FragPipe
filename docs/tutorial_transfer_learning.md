@@ -82,11 +82,13 @@ Libraries and weights not generated in FragPipe can be used if they follow the a
 ## Outputs
 Transfer learning will return a zip file with all model weights and a subfolder containing quality control metrics. There
 is no need to unzip the zip folder in our workflows, as the prediction script automatically unzips it.
+
 ![model weights zip](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/model_weights_zip.png)
 
 The prediction step supports many output format: speclib (DIA-NN specific format), library.tsv, parquet, and mgf. The
 parquet follows the standard library.tsv format. Library.tsv is the current default for our workflows, and we are actively
 testing the suitability of the speclib format for our workflows.
+
 ![pred output formats](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/pred_output_formats.png)
 
 ---
@@ -230,13 +232,13 @@ more peptides for training a second model.
 You can specify your instrument and normalized collision energy in the transfer learning tab. Training most likely will
 still converge to accurate results even if you leave it at the default values, but the training may converge quicker and
 be more accurate if they are defined properly.
+
 ![instrument nce](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/instrument_nce.png)
 
 ---
 
 ## Citations
+- Yang, K.L., Yu, F., Teo, G.C. et al. MSBooster: improving peptide identification rates using deep learning-based features.
+  Nat Commun 14, 4539 (2023). https://doi.org/10.1038/s41467-023-40129-9
 - Zeng, WF., Zhou, XX., Willems, S. et al. AlphaPeptDeep: a modular deep learning framework to predict peptide properties 
 for proteomics. Nat Commun 13, 7238 (2022). https://doi.org/10.1038/s41467-022-34904-3
-- Yang, K.L., Yu, F., Teo, G.C. et al. MSBooster: improving peptide identification rates using deep learning-based features.
-Nat Commun 14, 4539 (2023). https://doi.org/10.1038/s41467-023-40129-9
-
