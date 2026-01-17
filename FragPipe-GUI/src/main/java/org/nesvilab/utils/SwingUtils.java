@@ -78,6 +78,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
+import com.formdev.flatlaf.FlatLightLaf;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
@@ -185,42 +186,16 @@ public class SwingUtils {
   }
 
   public static void setLaf() {
-    /* Set the Nimbus look and feel */
-    //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-    /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-     */
     try {
-      if (OsUtils.isWindows()) {
-        // native look on windows
-        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-      } else {
-        // nimbus otherwise
-        for (UIManager.LookAndFeelInfo info : UIManager
-            .getInstalledLookAndFeels()) {
-          if ("Nimbus".equals(info.getName())) {
-            UIManager.setLookAndFeel(info.getClassName());
-            break;
-          }
-        }
-      }
-    } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e1) {
-      java.util.logging.Logger.getLogger(Fragpipe.class.getName())
-          .log(java.util.logging.Level.SEVERE, null, e1);
-      log.error("Error setting LAF", e1);
+      FlatLightLaf.setup();
+    } catch (Exception e) {
+      log.error("Error setting FlatLaf, falling back to system LAF", e);
       try {
-        for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-          if ("Nimbus".equals(info.getName())) {
-            UIManager.setLookAndFeel(info.getClassName());
-            break;
-          }
-        }
-      } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e2) {
-        java.util.logging.Logger.getLogger(Fragpipe.class.getName())
-            .log(java.util.logging.Level.SEVERE, null, e2);
-        log.error("Error setting LAF", e2);
+        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+      } catch (Exception e2) {
+        log.error("Error setting system LAF", e2);
       }
     }
-    //</editor-fold>
   }
 
   public static class DialogAndThread {

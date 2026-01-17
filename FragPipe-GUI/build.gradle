@@ -135,6 +135,8 @@ dependencies {
     implementation 'ch.qos.logback:logback-classic:1.5.18'
     implementation 'ch.qos.logback:logback-core:1.5.18'
 
+    implementation 'com.formdev:flatlaf:3.7'
+
     implementation 'org.apache.parquet:parquet-hadoop:1.15.1'
     implementation 'org.apache.hadoop:hadoop-common:3.4.1'
     implementation 'org.apache.hadoop:hadoop-mapreduce-client-core:3.4.1'
