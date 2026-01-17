@@ -675,7 +675,7 @@ public class Fragpipe extends JFrameHeadless {
 
   private JTabbedPane createTabs(TextConsole console) {
     log.debug("Start createTabs()");
-    final JTabbedPane tp = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
+    final JTabbedPane tp = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
 
     TabConfig tabConfig = new TabConfig(console);
     TabWorkflow tabWorkflow = new TabWorkflow();
