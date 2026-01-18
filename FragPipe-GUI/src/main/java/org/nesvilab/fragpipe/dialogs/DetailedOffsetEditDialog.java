@@ -27,8 +27,6 @@ import org.nesvilab.utils.swing.renderers.TableCellDoubleRenderer;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
@@ -41,17 +39,13 @@ import java.util.List;
 import static org.nesvilab.fragpipe.tabs.TabMsfragger.TABLE_OFFSET_COL_NAMES;
 
 public class DetailedOffsetEditDialog extends javax.swing.JDialog {
-    private static final Logger log = LoggerFactory.getLogger(DetailedOffsetEditDialog.class);
-    private List<MassOffsetUtils.MassOffset> offsets;
-
-    private JPanel p;
-    private JButton buttonOK;
-    private JButton buttonCancel;
-    private OffsetsTableModel model;
-    public OffsetsTable table;
-    private Frame parent;
-    private int dialogResult = JOptionPane.CLOSED_OPTION;
     private static final MassOffsetUtils.MassOffset zeroOffset = new MassOffsetUtils.MassOffset(0.0f, new String[0], new float[0], new float[0], new float[0]);
+
+    private final List<MassOffsetUtils.MassOffset> offsets;
+    private final Frame parent;
+    private OffsetsTableModel model;
+    private OffsetsTable table;
+    private int dialogResult = JOptionPane.CLOSED_OPTION;
 
     public DetailedOffsetEditDialog(java.awt.Frame parent, List<MassOffsetUtils.MassOffset> offsets) {
         super(parent);
@@ -65,13 +59,11 @@ public class DetailedOffsetEditDialog extends javax.swing.JDialog {
         return model;
     }
 
-    @Override
-    public void dispose() {
-        super.dispose();
+    public OffsetsTable getTable() {
+        return table;
     }
 
     private void postInit() {
-        this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         this.setLocationRelativeTo(parent);
         pack();
     }
@@ -79,14 +71,12 @@ public class DetailedOffsetEditDialog extends javax.swing.JDialog {
     private void init() {
         Dimension dim = new Dimension(500, 600);
         this.setPreferredSize(dim);
-        this.setLayout(new BorderLayout());
 
-        p = new JPanel();
+        JPanel p = new JPanel();
         JScrollPane scroll = new JScrollPane(p, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        this.setContentPane(scroll);
 
-        buttonOK = new JButton("Save offsets");
-        buttonCancel = new JButton("Cancel");
+        JButton buttonOK = new JButton("Save");
+        JButton buttonCancel = new JButton("Cancel");
         table = createTableOffsets();
 
         JButton buttonAddRow = new JButton("Add row");
@@ -101,9 +91,12 @@ public class DetailedOffsetEditDialog extends javax.swing.JDialog {
         });
         JButton buttonRemoveRow = new JButton("Remove row");
         buttonRemoveRow.addActionListener(e -> {
-            int selectedRow = table.getSelectedRow();
-            if (selectedRow != -1) {
-                model.removeRow(selectedRow);
+            int[] selectedRows = table.getSelectedRows();
+            if (selectedRows.length > 0) {
+                // Remove rows in reverse order to avoid index shifting issues
+                for (int i = selectedRows.length - 1; i >= 0; i--) {
+                    model.removeRow(selectedRows[i]);
+                }
             } else {
                 // if no row is selected, remove the last row
                 int rowCount = model.getRowCount();

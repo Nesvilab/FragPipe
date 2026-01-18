@@ -2076,7 +2076,7 @@ public class TabMsfragger extends JPanelBase {
     }
 
     // get new data
-    stopJTableEditing(tableDialog.table);
+    stopJTableEditing(tableDialog.getTable());
     List<MassOffsetUtils.MassOffset> updatedOffsets = tableDialog.getModel().getOffsets();
 
     // save new offsets to parameters and GUI text field
