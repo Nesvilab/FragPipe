@@ -382,7 +382,24 @@ def easypqp_lib_export(lib_type: str, params: easyPQPparams):
 
 	rt = easypqp_lib['NormalizedRetentionTime'].squeeze()
 	align_files = list(pathlib.Path().glob('easypqp_rt_alignment_*.alignment_pkl'))
-	avg_experimental_rt0 = np.nanmean([interp(pd.read_pickle(f))(rt) for f in align_files], axis=0)
+
+	## reduced memory usage for:
+	## avg_experimental_rt0 = np.nanmean([interp(pd.read_pickle(f))(rt) for f in align_files], axis=0)
+	count = None
+	total = None
+	for f in align_files:
+		arr = interp(pd.read_pickle(f))(rt)
+		mask = ~np.isnan(arr)
+		if total is None:
+			total = np.zeros_like(arr, dtype=np.float64)
+			count = np.zeros_like(arr, dtype=np.int64)
+		total[mask] += arr[mask]
+		count[mask] += 1
+	mean = np.full_like(total, np.nan, dtype=np.float64)
+	valid = count > 0
+	np.divide(total, count, out=mean, where=valid)
+	avg_experimental_rt0 = mean
+
 	for e in align_files:
 		e.unlink()
 	avg_experimental_rt = pd.Series(avg_experimental_rt0, name='AverageExperimentalRetentionTime')
