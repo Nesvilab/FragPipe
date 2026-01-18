@@ -4,12 +4,12 @@
 This tutorial will use 'XRNAX-MassOffset' workflow to search a single .mzML spectral file of RNA-crosslinked tryptic peptides from an MCF7 cell line, acquired on a QExactive HF. Original publication: Trendel, Jakob, et al. "The human RNA-binding proteome and its dynamics during translational arrest." Cell 176.1-2 (2019): 391-403. The `20160530_QE1_JT_XRNAXpep_Trp_hydro.mzML` you will need for this tutorial can be found from [PRIDE](https://www.ebi.ac.uk/pride/archive/projects/PXD010520).
 
 ##### Tutorial contents
-* [Load a custom workflow](https://fragpipe.nesvilab.org/docs/tutorial_offset.html#load-a-custom-workflow)
-* [Inspect the search parameters](https://fragpipe.nesvilab.org/docs/tutorial_offset.html#inspect-the-search-parameters)
-* [Get a sequence database](https://fragpipe.nesvilab.org/docs/tutorial_offset.html#get-a-sequence-database)
-* [Set the custom annotation file](https://fragpipe.nesvilab.org/docs/tutorial_offset.html#set-the-custom-annotation-file)
-* [Pick an output location and run](https://fragpipe.nesvilab.org/docs/tutorial_offset.html#pick-an-output-location-and-run)
-* [Examine the results](https://fragpipe.nesvilab.org/docs/tutorial_offset.html#examine-the-results)
+* [Load a custom workflow](https://fragpipe.nesvilab.org/docs/tutorial_custom_mass_offset.html#load-a-custom-workflow)
+* [Inspect the search parameters](https://fragpipe.nesvilab.org/docs/tutorial_custom_mass_offset.html#inspect-the-search-parameters)
+* [Get a sequence database](https://fragpipe.nesvilab.org/docs/tutorial_custom_mass_offset.html#get-a-sequence-database)
+* [Set the custom annotation file](https://fragpipe.nesvilab.org/docs/tutorial_custom_mass_offset.html#set-the-custom-annotation-file)
+* [Pick an output location and run](https://fragpipe.nesvilab.org/docs/tutorial_custom_mass_offset.html#pick-an-output-location-and-run)
+* [Examine the results](https://fragpipe.nesvilab.org/docs/tutorial_custom_mass_offset.html#examine-the-results)
 
 
 
