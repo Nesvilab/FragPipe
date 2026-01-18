@@ -395,8 +395,9 @@ def easypqp_lib_export(lib_type: str, params: easyPQPparams):
 			count = np.zeros_like(arr, dtype=np.int64)
 		total[mask] += arr[mask]
 		count[mask] += 1
-	mean = total / count
-	mean[count == 0] = np.nan
+	mean = np.full_like(total, np.nan, dtype=np.float64)
+	valid = count > 0
+	np.divide(total, count, out=mean, where=valid)
 	avg_experimental_rt0 = mean
 
 	for e in align_files:
