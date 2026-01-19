@@ -1478,15 +1478,6 @@ public class TabWorkflow extends JPanelWithEnablement {
 
     if (hasDataType("DIA") || hasDataType("DIA-Lib") || hasDataType("GPF-DIA")) {
       Bus.post(new NoteConfigUmpire(true));
-      UmpirePanel umpirePanel = getStickyStrict(UmpirePanel.class);
-      DiaTracerPanel diaTracerPanel = getStickyStrict(DiaTracerPanel.class);
-      if (umpirePanel.isRun() || diaTracerPanel.isRun()) {
-        Bus.post(new NoteConfigCrystalC(true));
-        Bus.post(new NoteConfigPeptideProphet(true));
-      } else {
-        Bus.post(new NoteConfigCrystalC(false));
-        Bus.post(new NoteConfigPeptideProphet(false));
-      }
       Bus.post(new NoteConfigTmtI(false));
       if (hasDataType("DIA")) {
         Bus.post(new NoteConfigDiann(noteConfigDiann, true));
@@ -1495,14 +1486,10 @@ public class TabWorkflow extends JPanelWithEnablement {
       }
     } else if (hasDataType("DDA+")) {
       Bus.post(new NoteConfigUmpire(false));
-      Bus.post(new NoteConfigCrystalC(false));
-      Bus.post(new NoteConfigPeptideProphet(false));
       Bus.post(new NoteConfigTmtI(false));
       Bus.post(new NoteConfigDiann(noteConfigDiann, false));
     } else {
       Bus.post(new NoteConfigUmpire(false));
-      Bus.post(new NoteConfigCrystalC(true));
-      Bus.post(new NoteConfigPeptideProphet(true));
       Bus.post(new NoteConfigTmtI(true));
       Bus.post(new NoteConfigDiann(noteConfigDiann, false));
     }

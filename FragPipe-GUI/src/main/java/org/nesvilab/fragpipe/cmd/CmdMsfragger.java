@@ -709,9 +709,6 @@ public class CmdMsfragger extends CmdBase {
 
   private void adjustMSFraggerParams(MsfraggerParams params, MsfraggerParams paramsNew, String dataType) {
     paramsNew.setReportAlternativeProteins(true);
-    paramsNew.setShiftedIons(false);
-    paramsNew.setLabileSearchMode("off");
-    paramsNew.setDeltamassAllowedResidues("all");
     paramsNew.setIsotopeError("0");
     paramsNew.setIntensityTransform(1);
     paramsNew.setRemovePrecursorPeak(1);
@@ -737,6 +734,9 @@ public class CmdMsfragger extends CmdBase {
     } else if (dataType.contentEquals("DDA+")) {
       paramsNew.setDataType(3);
       paramsNew.setOutputReportTopN(outputReportTopNDdaPlus);
+      paramsNew.setShiftedIons(false);
+      paramsNew.setLabileSearchMode("off");
+      paramsNew.setDeltamassAllowedResidues("all");
     }
   }
 
