@@ -6,7 +6,7 @@ Complete workflows are available for a variety of experiment types, we recommend
 
 For partial processing (e.g. to save time upon re-analysis), steps can be skipped by unchecking the corresponding boxes. This tutorial walks through each tab in some detail, but once FragPipe is [configured](https://fragpipe.nesvilab.org/docs/tutorial_setup_fragpipe.html), analysis can be as simple as choosing spectral files, a database, and a workflow to run. Find a guide to output files [here](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_outputs.html).
 
-Before you get started, make sure your LC-MS file format is compatible with the workflows you want to perform. For Thermo data (with or without FAIMS), we recommend [converting .raw files to mzML with peak picking](https://fragpipe.nesvilab.org/docs/tutorial_convert.html). DIA data acquired with overlapping/staggered windows must be [converted to mzML with demultiplexing](https://fragpipe.nesvilab.org/docs/tutorial_convert.html#convert-thermo-dia-raw-files-with-overlappingstaggered-windows).
+Before you get started, make sure your LC-MS file format is compatible with the workflows you want to perform. For Thermo data (with or without FAIMS), we recommend [converting .raw files to mzML with peak picking](https://fragpipe.nesvilab.org/docs/tutorial_convert.html). DIA data acquired with overlapping/staggered windows must be [converted to mzML with demultiplexing](https://fragpipe.nesvilab.org/docs/tutorial_convert.html#convert-thermo-dia-raw-files-with-staggered-windows).
 
 Linux users: please note that [Mono](https://www.mono-project.com/download/stable/#download-lin) must be installed to directly read Thermo .raw files.
 
