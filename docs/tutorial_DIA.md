@@ -11,7 +11,7 @@ FragPipe currently offers two workflows for DIA data:
 
 Please note:
 
-* DIA data acquired with overlapping/staggered windows must be converted to mzML using the 'Demultiplex' filter, see [this page](https://fragpipe.nesvilab.org/docs/tutorial_convert.html#convert-thermo-dia-raw-files-with-overlappingstaggered-windows). 
+* DIA data acquired with overlapping/staggered windows must be converted to mzML using the 'Demultiplex' filter, see [this page](https://fragpipe.nesvilab.org/docs/tutorial_convert.html#convert-thermo-dia-raw-files-with-staggered-windows). 
 * To quantify from .raw files, Thermo MS File Reader must be installed, see the [DIA-NN documentation](https://github.com/vdemichev/DiaNN#raw-data-formats) for details.
 * Any pseudo-MS/MS files from DIA-Umpire (`*_Q1.mzML`, `*_Q2.mzML`, `*_Q3.mzML`) should be designated DDA data type on the Workflow tab.
 * If you already have a spectral library and want to quantify only, uncheck all steps except 'Quantify with DIA-NN' on the 'Quant (DIA)' tab, set the path to the spectral library, and run.
