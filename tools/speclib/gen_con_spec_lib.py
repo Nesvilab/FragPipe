@@ -377,9 +377,6 @@ def easypqp_lib_export(lib_type: str, params: easyPQPparams):
 	frag_df.columns = 'FragmentType', 'FragmentSeriesNumber', 'FragmentLossType', 'FragmentCharge'
 	frag_df = frag_df.reindex(columns=['FragmentType', 'FragmentCharge', 'FragmentSeriesNumber', 'FragmentLossType'], copy=False)
 
-	def interp(t):
-		return scipy.interpolate.interp1d(t.iloc[:, 1], t.iloc[:, 0], bounds_error=False)
-
 	rt = easypqp_lib['NormalizedRetentionTime'].squeeze()
 	align_files = list(pathlib.Path().glob('easypqp_rt_alignment_*.alignment_pkl'))
 
@@ -388,7 +385,8 @@ def easypqp_lib_export(lib_type: str, params: easyPQPparams):
 	count = None
 	total = None
 	for f in align_files:
-		arr = interp(pd.read_pickle(f))(rt)
+		t = pd.read_pickle(f)
+		arr = np.interp(rt, t.iloc[:, 1], t.iloc[:, 0], left=np.nan, right=np.nan)
 		mask = ~np.isnan(arr)
 		if total is None:
 			total = np.zeros_like(arr, dtype=np.float64)
