@@ -34,7 +34,7 @@ RUN apt-get -y install \
 
 # install python packages
 RUN pip uninstall --break-system-packages easypqp \
-    && pip install --break-system-packages git+https://github.com/Nesvilab/easypqp.git@master \
+    && pip install --break-system-packages git+https://github.com/Nesvilab/FragPipe-SpecLib@master \
     && pip install --break-system-packages lxml \
     && pip install --break-system-packages plotly \
     && pip install --break-system-packages kaleido \
@@ -52,8 +52,8 @@ RUN mkdir tmp
 RUN chmod 777 tmp
 
 # download and install fragPipe
-RUN wget https://github.com/Nesvilab/FragPipe/releases/download/23.1/FragPipe-23.1-linux.zip -P fragpipe-23.1
-RUN unzip fragpipe-23.1/FragPipe-23.1-linux.zip -d fragpipe-23.1
+RUN wget https://github.com/Nesvilab/FragPipe/releases/download/24.0/FragPipe-24.0-linux.zip -P fragpipe-24.0
+RUN unzip fragpipe-24.0/FragPipe-24.0-linux.zip -d fragpipe-24.0
 RUN chmod -R 777 /fragpipe_bin
 
 # set environment variables
