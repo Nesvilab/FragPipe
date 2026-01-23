@@ -46,6 +46,10 @@ FragPipe is a comprehensive computational platform designed for the analysis of 
 * [Importing results into Skyline](https://fragpipe.nesvilab.org/docs/tutorial_skyline.html)
 * [Importing results into Perseus](https://fragpipe.nesvilab.org/docs/tutorial_perseus.html)
 
+#### Representative papers using FragPipe
+* [Chemoproteomics](https://fragpipe.nesvilab.org/docs/fragpipe_chemoproteomics_collection.html)
+* [Immunopeptidomics](https://fragpipe.nesvilab.org/docs/fragpipe_immunopeptidomics_collection.html)
+* [Glycoproteomics](https://fragpipe.nesvilab.org/docs/fragpipe_glycoproteomics_collection.html)
 
 
 #### Supported instruments and file formats  
@@ -68,7 +72,7 @@ _Bruker .d indicates ddaPASEF files from timsTOF, other Bruker .d files should b
 | Spectral library generation        | ✔     | ✔             | ✔           | ✔     | 
 | DIA-NN quantification              | ✔     | ✔*            | ✔           |       | 
 
-_DIA data acquired with overlapping/staggered windows must be [converted to mzML with demultiplexing](https://fragpipe.nesvilab.org/docs/tutorial_convert.html#convert-thermo-dia-raw-files-with-overlappingstaggered-windows)._
+_DIA data acquired with overlapping/staggered windows must be [converted to mzML with demultiplexing](https://fragpipe.nesvilab.org/docs/tutorial_convert.html#convert-thermo-dia-raw-files-with-staggered-windows)._
 _Quantification from Thermo .raw files with DIA-NN requires installation of Thermo MS File Reader, see the [DIA-NN documentation](https://github.com/vdemichev/DiaNN#raw-data-formats) for details._
 
 
