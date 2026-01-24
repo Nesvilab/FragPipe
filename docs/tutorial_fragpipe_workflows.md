@@ -66,7 +66,7 @@ Listed below are the analysis workflows provided with FragPipe. Workflows can be
 
 #### Labile PTM Searches
 * [Labile_phospho](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#labile_phospho)
-* [Labile_ADP-ribosylation](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#labile_adp_ribosylation)
+* [Labile_ADP-ribosylation](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#labile_adp-ribosylation)
 
 #### Glyco
 * [glyco-N-HCD](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_workflows.html#glyco-n-hcd)
