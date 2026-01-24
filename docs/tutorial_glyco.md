@@ -48,7 +48,7 @@ Select the appropriate glyco workflow from the dropdown menu and click 'Load'.
 There are pre-built workflows for N- and O-glycopeptide analyses with a variety of fragmentation 
 and quantitation methods. See below for more details on the best workflow to choose. Loading a 
 workflow sets the parameters to good base settings, but individual parameters may need to be 
-updated for your analysis (described in [this section](https://fragpipe.nesvilab.org/docs/tutorial_glyco.html#customize-the-search-settings-in-msfragger-and-philosopher)).
+updated for your analysis (described in [this section](https://fragpipe.nesvilab.org/docs/tutorial_glyco.html#customize-the-search-settings)).
 **Please note: workflows come with a default set of human glycans. Don't forget to load a glycan database that is appropriate for your analysis!**
 
 Workflows (organized by category):  
