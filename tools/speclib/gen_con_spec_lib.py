@@ -312,7 +312,7 @@ def easypqp_library_cmd(params: easyPQPparams, use_irt: bool, use_im: bool) -> l
 			'--psmtsv', resolve_mapped(params.psm_tsv_file), '--peptidetsv', resolve_mapped(params.peptide_tsv_file), ] + \
 		   (['--rt_reference', resolve_mapped(params.irt_file)] if use_irt else []) + \
 		   (['--im_reference', resolve_mapped(params.im_file)] if use_im else []) + \
-		   ['--out', 'easypqp_lib_openswath.tsv'] + params.easypqp_library_extra_args + params.filelist_arg
+		   ['--out', 'easypqp_lib_openswath.pkl'] + params.easypqp_library_extra_args + params.filelist_arg
 
 
 def main_easypqp(params, irt_df, allcmds, easypqp_convert_cmds) -> None:
@@ -371,7 +371,7 @@ Please try using other options for alignment (e.g. ciRT if used other options)''
 def easypqp_lib_export(lib_type: str, params: easyPQPparams):
 	import pandas as pd
 
-	easypqp_lib = pd.read_csv('easypqp_lib_openswath.tsv', sep='\t')
+	easypqp_lib = pd.read_pickle('easypqp_lib_openswath.pkl')
 
 	frag_df = easypqp_lib['Annotation'].str.extract(r'^([abcxyz])(\d{1,2})(?:-(.*))?\^(\d+)$')
 	frag_df.columns = 'FragmentType', 'FragmentSeriesNumber', 'FragmentLossType', 'FragmentCharge'
@@ -588,7 +588,7 @@ def main():
 							  [params.workdir / (e + '.peakpkl') for e in convert_outs]
 	easyPQP_tempfiles = easypqp_library_infiles + \
 						[params.workdir / (e + '_run_peaks.tsv') for e in convert_outs] + \
-						[params.workdir / 'easypqp_lib_openswath.tsv']
+						[params.workdir / 'easypqp_lib_openswath.pkl']
 	filelist_easypqp_library = params.workdir / 'filelist_easypqp_library.txt'
 	filelist_easypqp_library.write_text('\n'.join(map(os.fspath, easypqp_library_infiles)))
 	use_iRT = params.irt_choice is not Irt_choice.no_iRT
