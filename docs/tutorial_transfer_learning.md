@@ -1,4 +1,4 @@
-Last update: Jan 14, 2026
+Last update: Jan 26, 2026
 
 # Transfer Learning: peptide candidates, spec lib usage, and decoy handling
 A variety of peptide property prediction models ae available in FragPipe, namely DIA-NN and those on the
@@ -40,6 +40,7 @@ Transfer learning requires a **training spectral library** (typically generated 
 - **Workflows A–C below assume this training library already exists**
 - **Workflow D** describes the full end-to-end case starting directly from raw MS data
 
+![example workflows](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/example_workflows.png)
 ---
 
 ## Peptide candidate sources
@@ -114,10 +115,11 @@ testing the suitability of the speclib format for our workflows.
 This can also be use for DIA data, if the goal is not quantification but only identification
 
 **Execution steps:**
+
 0.  Load your training library. An externally generated training library can be provided in the "Load custom spectral 
 library for training (optional)" box in the **Transfer Learning** tab. If you are picking up from the end of a FragPipe 
 workflow with **Spec Lib** generation enabled, a `library.tsv` should already be in your output directory and you can
-leave the box blank.
+leave the box blank. If diaTracer was used, replace the .d files with _diatracer.mzml files in the Workflow tab.
 1. Run **Transfer Learning** and **prediction** to predict a spectral library
 2. Reload (or duplicate) the DDA search workflow
     - Load the predicted library into **MSBooster** "Spectral library (optional, experimental) box"
@@ -135,6 +137,7 @@ leave the box blank.
 - MSFragger: OFF
 - Validation: ON
 - Spec Lib: OFF
+- Transfer learning: OFF
 
 ![lib upload](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/msbooster_library_upload.png)
 ---
@@ -144,6 +147,7 @@ leave the box blank.
 **Goal:** Generate a predicted spectral library for DIA analysis in DIA-NN  
 
 **Execution steps:**
+
 0. Load your training library. An externally generated training library can be provided in the "Load custom spectral
     library for training (optional)" box in the **Transfer Learning** tab. If you are picking up from the end of a FragPipe
     workflow with **Spec Lib** generation enabled, a `library.tsv` should already be in your output directory and you can
@@ -155,6 +159,7 @@ box
 ![diann quant](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/diann_quant_tl.png)
 
 **Settings for transfer learning and prediction (step 1)**
+- DIA Pseudo MS2 OFF (if DIA-Umpire or diaTracer were used)
 - MSFragger: OFF
 - Validation: OFF
 - Spec Lib: OFF
@@ -174,18 +179,20 @@ transfer learning
 **Goal:** Improve IDs via MSBooster and regenerate a refined predicted library
 
 **Execution steps:**
+
 0. Load your training library. An externally generated training library can be provided in the "Load custom spectral
    library for training (optional)" box in the **Transfer Learning** tab. If you are picking up from the end of a FragPipe
    workflow with **Spec Lib** generation enabled, a `library.tsv` should already be in your output directory and you can
-   leave the box blank.
+   leave the box blank. If diaTracer was used, replace the .d files with _diatracer.zml files in the Workflow tab.
 1. Run **Transfer Learning** and **prediction** to predict your **initial spectral library**
 2. Reload workflow and rerun search from **MSBooster** using the predicted library. Steps up through the second transfer
 learning step can be rerun in one go, generating a second, improved predicted library 
     - Load the predicted library into **MSBooster** "Spectral library (optional, experimental) box"
 3. Run DIA quantification with the **Quant (DIA)** tab, specifying your new library in the "Spectral library (optional)"
-   box
+   box. If diaTracer was used, replace the _diatracer.mzml files with .d files in the Workflow tab.
 
 **Settings for transfer learning and prediction (step 1)**
+- DIA Pseudo MS2 OFF (if DIA-Umpire or diaTracer were used)
 - MSFragger: OFF
 - Validation: OFF
 - Spec Lib: OFF
@@ -193,10 +200,12 @@ learning step can be rerun in one go, generating a second, improved predicted li
 - Keep decoys: **ON**
 
 **Settings for rescoring and second transfer learning and prediction (step 2)**
+- DIA Pseudo MS2 OFF (if DIA-Umpire or diaTracer were used)
 - MSFragger: OFF
 - Validation: ON
 - Spec Lib: ON
 - Transfer Learning: ON
+  - Peptides to predict: Whole FASTA or MSFragger search results
 
 ---
 
@@ -221,12 +230,20 @@ of the previous workflows.
 ## Suggestions
 ### Using MSBooster for the first search
 If you believe default prediction models may negatively impact your training library (e.g. chemically very
-different PTMs not included in DIA-NN training set), you can try turning off MSBooster in the Validation
+different PTMs not included in DIA-NN training set of n-term acetylation, methionine oxidation, cysteine carbamidomethylation,
+phosphorylation, ubiquitinylation, and TMT), you can try turning off MSBooster in the Validation
 tab when you generate your library. Enabling MSBooster may promote modified peptides that behave similarly
 to their unmodified counterparts and penalize those with meaningful changes in spectra/retention time/ion
 mobility. Once you have a model trained on non-MSBooster rescored candidates, you can upload the predictions into
 MSBooster for improved rescoring. It is likely that more peptides will pass FDR in this second search, resulting in
 more peptides for training a second model.
+
+This suggestion always applies for MS2 spectral rescoring. If your data is enriched for the PTM of interest, then RT/IM
+alignment will automatically be tuned for the modified peptides, so it is okay to turn on RT/IM rescoring. If the PTM
+represents a small portion of the total PSMs, RT/IM alignment will focus on unmodified peptides, so one can consider 
+skipping MSBooster entirely.
+
+![msbooster options](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/msbooster_options_tl.png)
 
 ### Instrument and NCE
 You can specify your instrument and normalized collision energy in the transfer learning tab. Training most likely will
