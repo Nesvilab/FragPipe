@@ -652,7 +652,7 @@ public class TabBatch extends JPanelWithEnablement {
         int[] removeRows = batchTable.getSelectedRows();
         HashSet<Integer> rowsToRemove = Arrays.stream(removeRows).boxed().collect(Collectors.toCollection(HashSet::new));
         // remove in reverse order to avoid index shifting errors
-        for (int i = batchTable.model.getRowCount(); i >= 0; i--) {
+        for (int i = batchTable.model.getRowCount() - 1; i >= 0; i--) {
             if (rowsToRemove.contains(i)) {
                 batchTable.model.removeRow(i);
             }
