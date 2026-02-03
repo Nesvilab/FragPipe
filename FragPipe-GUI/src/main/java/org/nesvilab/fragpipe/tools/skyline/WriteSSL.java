@@ -40,6 +40,8 @@ public class WriteSSL {
             if (isDia) {
                 if (lcmsFile.endsWith(".d")) {
                     lcmsFileNames.put(fileName.substring(0, dotIndex) + "_diatracer", lcmsFile.replace("\\", "/").replaceFirst("\\.d$", "_diatracer.mzML"));
+                } else {
+                    lcmsFileNames.put(fileName.substring(0, dotIndex), lcmsFile.replace("\\", "/"));
                 }
             } else {
                 lcmsFileNames.put(fileName.substring(0, dotIndex), lcmsFile.replace("\\", "/").replaceFirst("\\.d$", "_uncalibrated.mzML"));
