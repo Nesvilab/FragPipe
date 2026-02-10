@@ -99,9 +99,7 @@ For other tools developed by Nesvizhskii lab, visit our website
   - Install FragPipe by double-clicking the `FragPipe-x.x-Installer.exe`
   - Double click the `FragPipe-x.x.exe` at the Desktop
 - **Linux**:
-  - Run the `fragpipe` shell script (can double-click to run)  
-- **Mac OS** (command line interface only):
-  - Read [Pulling and running FragPipe using Docker](https://fragpipe.nesvilab.org/docs/tutorial_docker.html)
+  - Run the `fragpipe` shell script (can double-click to run)
 
  
 #### Integration
