@@ -1132,6 +1132,27 @@ public class TabWorkflow extends JPanelWithEnablement {
           Seq.seq(badLines).toString("\n"), "Malformed manifest");
     }
 
+    // Validate file and directory names for disallowed characters
+    List<String> badPaths = new ArrayList<>();
+    for (InputLcmsFile f : loaded) {
+      Path p = f.getPath();
+      Set<String> dirReasons = InputLcmsFile.validatePath(p.toAbsolutePath().getParent().toString());
+      Set<String> fnReasons = InputLcmsFile.validateFilename(p.getFileName().toString());
+      if (!dirReasons.isEmpty() || !fnReasons.isEmpty()) {
+        badPaths.add(p + " (" + String.join(", ", dirReasons) + (dirReasons.isEmpty() || fnReasons.isEmpty() ? "" : ", ") + String.join(", ", fnReasons) + ")");
+      }
+    }
+
+    if (!badPaths.isEmpty()) {
+      String message = "The following files have disallowed characters in their file or directory names:\n" + String.join("\n", badPaths);
+      SwingUtils.showWarningDialog(tabWorkflow, message, "Cannot load files with bad paths");
+      if (headless) {
+        System.exit(1);
+      } else {
+        return;
+      }
+    }
+
     List<Path> notExist = loaded.stream().map(InputLcmsFile::getPath).filter(p -> !Files.exists(p))
         .collect(Collectors.toList());
     Set<Path> inTablePaths = inTable.stream().map(InputLcmsFile::getPath).collect(Collectors.toSet());
