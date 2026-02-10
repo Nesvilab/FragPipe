@@ -17,66 +17,6 @@
 
 package org.nesvilab.fragpipe.tabs;
 
-import static org.nesvilab.fragpipe.Fragpipe.PROP_NOCACHE;
-import static org.nesvilab.fragpipe.Fragpipe.getStickyStrict;
-import static org.nesvilab.fragpipe.Fragpipe.propsVarGet;
-import static org.nesvilab.fragpipe.Fragpipe.propsVarSet;
-import static org.nesvilab.fragpipe.Version.PROGRAM_TITLE;
-
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import javax.swing.Box;
-import javax.swing.ButtonGroup;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.SwingUtilities;
-import javax.swing.border.LineBorder;
-import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.DefaultTableModel;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.io.FileUtils;
@@ -87,46 +27,48 @@ import org.jooq.lambda.Unchecked;
 import org.nesvilab.fragpipe.Fragpipe;
 import org.nesvilab.fragpipe.FragpipeLocations;
 import org.nesvilab.fragpipe.Version;
-import org.nesvilab.fragpipe.api.Bus;
-import org.nesvilab.fragpipe.api.FragpipeCacheUtils;
-import org.nesvilab.fragpipe.api.InputLcmsFile;
-import org.nesvilab.fragpipe.api.LcmsFileGroup;
-import org.nesvilab.fragpipe.api.LcmsInputFileTable;
-import org.nesvilab.fragpipe.api.PropsFile;
-import org.nesvilab.fragpipe.api.SimpleETable;
-import org.nesvilab.fragpipe.api.TableModelColumn;
-import org.nesvilab.fragpipe.api.UniqueLcmsFilesTableModel;
+import org.nesvilab.fragpipe.api.*;
 import org.nesvilab.fragpipe.cmd.CmdMsfragger;
 import org.nesvilab.fragpipe.dialogs.SetExpDialog;
 import org.nesvilab.fragpipe.dialogs.SetRepDialog;
 import org.nesvilab.fragpipe.messages.*;
 import org.nesvilab.fragpipe.messages.MessageLcmsGroupAction.Type;
 import org.nesvilab.fragpipe.params.ThisAppProps;
-import org.nesvilab.fragpipe.tools.diatracer.DiaTracerPanel;
 import org.nesvilab.fragpipe.tools.tmtintegrator.QuantLabel;
-import org.nesvilab.fragpipe.tools.umpire.UmpirePanel;
-import org.nesvilab.fragpipe.util.BatchRun;
 import org.nesvilab.fragpipe.util.SDRFtable;
-import org.nesvilab.utils.FileDrop;
-import org.nesvilab.utils.MapUtils;
-import org.nesvilab.utils.OsUtils;
-import org.nesvilab.utils.PathUtils;
-import org.nesvilab.utils.PropertiesUtils;
-import org.nesvilab.utils.StringUtils;
-import org.nesvilab.utils.SwingUtils;
-import org.nesvilab.utils.swing.FileChooserUtils;
+import org.nesvilab.utils.*;
+import org.nesvilab.utils.swing.*;
 import org.nesvilab.utils.swing.FileChooserUtils.FcMode;
-import org.nesvilab.utils.swing.FileNameEndingFilter;
-import org.nesvilab.utils.swing.FormEntry;
-import org.nesvilab.utils.swing.HtmlStyledJEditorPane;
-import org.nesvilab.utils.swing.JPanelWithEnablement;
-import org.nesvilab.utils.swing.MigUtils;
-import org.nesvilab.utils.swing.UiCombo;
-import org.nesvilab.utils.swing.UiSpinnerInt;
-import org.nesvilab.utils.swing.UiText;
-import org.nesvilab.utils.swing.UiUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.swing.*;
+import javax.swing.border.LineBorder;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.function.BiFunction;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.nesvilab.fragpipe.Fragpipe.*;
+import static org.nesvilab.fragpipe.Version.PROGRAM_TITLE;
 
 public class TabWorkflow extends JPanelWithEnablement {
 
@@ -369,107 +311,8 @@ public class TabWorkflow extends JPanelWithEnablement {
       panel.add(new JScrollPane(table), BorderLayout.CENTER);
       SwingUtils.makeDialogResizable(panel);
 
-      String[] options = new String[]{"Cancel", "Only add well-behaved files", "Try to rename files"};
-      if (!reasonsDir.isEmpty()) { // Can not rename directory names.
-        options = new String[]{"Cancel", "Only add well-behaved files"};
-      }
-
-      int confirmation = JOptionPane
-          .showOptionDialog(parent, panel, "Add these files?",
-              JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[0]);
-
-      switch (confirmation) {
-        case 0:
-          files.toAdd.clear();
-          break;
-        case 1:
-          files.toAdd = files.toAdd.stream().filter(path -> !path2reasons.containsKey(path)).collect(Collectors.toList());
-          break;
-        case 2: // rename files
-          int confirm1 = SwingUtils.showConfirmDialog(parent, new JLabel(
-              "<html>Attempt to rename files without moving them.<br/>\n" +
-                  "This is a non-reversible operation.<br/><br/>\n" +
-                  "We'll show you a preview before proceeding with the renaming.<br/>\n" +
-                  "Do you want to continue?"));
-          if (JOptionPane.YES_OPTION != confirm1) {
-            return;
-          }
-          final Map<Path, Path> toRename = reasonsFn.keySet().stream()
-              .collect(Collectors.toMap(Function.identity(), InputLcmsFile::renameBadFile));
-          Set<Path> uniqueRenamed = new HashSet<>(toRename.values());
-          if (uniqueRenamed.size() != reasonsFn.size()) {
-            SwingUtils.showDialog(parent, new JLabel(
-                    "<html>Renaming given files according to our scheme would result<br/>\n" +
-                        "in clashing file paths. Renaming cancelled. Consider renaming manually.<br/>\n" +
-                        "It is preferable to not have spaces in file names, not have more than one dot<br/>\n" +
-                        "and to not use non-latin characters."),
-                "Not safe to rename files", JOptionPane.WARNING_MESSAGE);
-            return;
-          }
-
-          final Map<Path, Path> existingRenames = new HashMap<>();
-          for (Entry<Path, Path> kv : toRename.entrySet()) {
-            if (Files.exists(kv.getValue())) {
-              existingRenames.put(kv.getKey(), kv.getValue());
-            }
-          }
-          if (!existingRenames.isEmpty()) {
-            JPanel pane = new JPanel(new BorderLayout());
-            pane.add(new JLabel("<html>Renaming given files according to our scheme would result<br/>\n" +
-                "in file paths that already exist on your computer.<br/>\n" +
-                "Renaming cancelled."), BorderLayout.NORTH);
-
-            pane.add(new JScrollPane(SwingUtils.tableFromTwoSiblingFiles(existingRenames)));
-            SwingUtils.showDialog(parent, pane, "Not safe to rename files", JOptionPane.WARNING_MESSAGE);
-            return;
-          }
-
-        {
-          JPanel pane = new JPanel(new BorderLayout());
-          pane.add(new JLabel("<html>Proposed renaming scheme, do you want to proceed?<br/>\n"));
-          pane.add(new JScrollPane(SwingUtils.tableFromTwoSiblingFiles(toRename)));
-          int confirm2 = SwingUtils.showConfirmDialog(parent, pane);
-          if (JOptionPane.YES_OPTION != confirm2) {
-            return;
-          }
-        }
-
-        final Map<Path, Path> couldNotRename = new HashMap<>();
-        final Map<Path, Path> renamedOk = new HashMap<>();
-        Runnable runnable = () -> {
-          for (Entry<Path, Path> kv : toRename.entrySet()) {
-            try {
-              Files.move(kv.getKey(), kv.getValue());
-              renamedOk.put(kv.getKey(), kv.getValue());
-            } catch (Exception e) {
-              log.error(String.format("From '%s' to '%s' at '%s'",
-                  kv.getKey().getFileName(), kv.getValue().getFileName(), kv.getKey().toAbsolutePath().getParent()));
-              couldNotRename.put(kv.getKey(), kv.getValue());
-            }
-          }
-        };
-
-        SwingUtils.DialogAndThread dat = SwingUtils.runThreadWithProgressBar("Renaming files", parent, runnable);
-        dat.thread.start();
-        dat.dialog.setVisible(true);
-        try {
-          dat.thread.join();
-        } catch (InterruptedException e) {
-          throw new RuntimeException(e);
-        }
-        if (!couldNotRename.isEmpty()) {
-          JPanel pane = new JPanel(new BorderLayout());
-          pane.add(new JLabel("<html>Could not rename some of the files:<br/>"), BorderLayout.NORTH);
-          pane.add(new JScrollPane(SwingUtils.tableFromTwoSiblingFiles(couldNotRename)), BorderLayout.CENTER);
-          SwingUtils.showDialog(parent, pane, "Renaming failed", JOptionPane.WARNING_MESSAGE);
-          return;
-        }
-
-        // renaming succeeded, change paths to renamed ones
-        files.toAdd = files.toAdd.stream().map(path -> renamedOk.getOrDefault(path, path)).collect(Collectors.toList());
-
-        break;
-      }
+      JOptionPane.showMessageDialog(parent, panel, "Cannot add these files", JOptionPane.WARNING_MESSAGE);
+      files.toAdd.clear();
     }
   }
 

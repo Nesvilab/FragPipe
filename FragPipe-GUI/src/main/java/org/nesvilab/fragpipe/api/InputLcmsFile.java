@@ -17,12 +17,6 @@
 
 package org.nesvilab.fragpipe.api;
 
-import java.nio.file.Path;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.regex.Pattern;
 import org.jetbrains.annotations.NotNull;
 import org.nesvilab.fragpipe.Fragpipe;
 import org.nesvilab.fragpipe.params.ThisAppProps;
@@ -30,20 +24,24 @@ import org.nesvilab.fragpipe.tools.diann.DiannPanel;
 import org.nesvilab.fragpipe.tools.speclibgen.SpeclibPanel;
 import org.nesvilab.utils.StringUtils;
 
+import java.nio.file.Path;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.regex.Pattern;
+
 public class InputLcmsFile implements Comparable<InputLcmsFile> {
     private final Path path;
     private final String experiment;
     private final Integer replicate;
     private final String dataType;
 
-    public static final String REASON_NON_ASCII = "has non-ASCII chars";
-    public static final String REASON_DOTS = "has dots";
     public static final String REASON_MULTIPLE_DOTS = "has multiple dots";
-    public static final String REASON_SPACES = "has spaces";
-    public static final String disallowedChars = "[^A-Za-z0-9-_ +.\\[\\]()]";
+    public static final String disallowedChars = "[^A-Za-z0-9_.\\[\\]()+\\-]";
     public static final Pattern disallowedExperimentPattern = Pattern.compile("[^A-Za-z0-9_]");
     public static final String REASON_DISALLOWED_CHARS = "has disallowed characters";
-    public static final String dirDisallowedChars = "[&.]";
+    public static final String dirDisallowedChars = "[^A-Za-z0-9_.\\[\\]()+\\-/\\\\:]";
 
     public InputLcmsFile(Path path, String experiment, Integer replicate, String dataType) {
         this.path = path;
@@ -179,30 +177,15 @@ public class InputLcmsFile implements Comparable<InputLcmsFile> {
 
     public static Set<String> validatePath(String dir) {
         Set<String> reasons = new HashSet<>();
-        addNonNull(reasons, testIsNotAscii(dir));
-        addNonNull(reasons, testHasSpaces(dir));
         addNonNull(reasons, testDirHasNonAllowedChars(dir));
         return reasons;
     }
 
     public static Set<String> validateFilename(String fn) {
         Set<String> reasons = new HashSet<>();
-        addNonNull(reasons, testHasSpaces(fn));
         addNonNull(reasons, testHasMoreThanOneDot(fn));
         addNonNull(reasons, testHasNonAllowedChars(fn));
         return reasons;
-    }
-
-    private static String testIsNotAscii(String s) {
-        return (s != null && !StringUtils.isPureAscii(s)) ? REASON_NON_ASCII : null;
-    }
-
-    private static String testHasSpaces(String s) {
-        return (s != null && s.contains(" ")) ? REASON_SPACES : null;
-    }
-
-    private static String testHasDots(String s) {
-        return (s != null && s.contains(".")) ? REASON_DOTS : null;
     }
 
     private static String testHasMoreThanOneDot(String s) {
@@ -223,14 +206,4 @@ public class InputLcmsFile implements Comparable<InputLcmsFile> {
         return Pattern.compile(dirDisallowedChars).matcher(s).find() ? REASON_DISALLOWED_CHARS : null;
     }
 
-    public static Path renameBadFile(Path p) {
-        String oldFn = p.getFileName().toString();
-        final String replacement = "_";
-        String newFn = oldFn.replaceAll(" ", replacement);
-        if (testHasDots(newFn) != null) {
-            newFn = StringUtils.upToLastDot(newFn).replaceAll("\\.", replacement) + "." + StringUtils.afterLastDot(newFn);
-        }
-        newFn = newFn.replaceAll(disallowedChars, replacement);
-        return p.resolveSibling(newFn);
-    }
 }
