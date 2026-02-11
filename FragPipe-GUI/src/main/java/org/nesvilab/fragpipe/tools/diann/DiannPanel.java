@@ -125,6 +125,17 @@ public class DiannPanel extends JPanelBase {
     updateEnabledStatus(panelFragReporter, checkRun.isSelected() && !isRunPrediction);
   }
 
+  private void updateMsstatsVisibility() {
+    if (uiCheckGenerateMsstats == null) {
+      return;
+    }
+    NoteConfigDiann diannConfig = Bus.getStickyEvent(NoteConfigDiann.class);
+    boolean isOldVersion = diannConfig != null && diannConfig.isValid() && diannConfig.compareVersion("2.0") < 0;
+    NoteConfigTransferLearning transferConfig = Bus.getStickyEvent(NoteConfigTransferLearning.class);
+    boolean isRunPrediction = transferConfig != null && transferConfig.isRunPrediction();
+    uiCheckGenerateMsstats.setVisible(isOldVersion && !isRunPrediction);
+  }
+
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteConfigDiann m) {
     if (m.isValid()) {
@@ -136,7 +147,7 @@ public class DiannPanel extends JPanelBase {
       labelQuantificationStrategy2.setVisible(isNewVersion);
       uiComboChannelNormalizationStrategy.setVisible(isNewVersion);
       labelChannelNormalizationStrategy.setVisible(isNewVersion);
-      uiCheckGenerateMsstats.setVisible(m.compareVersion("2.0") < 0);
+      updateMsstatsVisibility();
     } else {
       updateEnabledStatus(this, false);
     }
@@ -150,6 +161,7 @@ public class DiannPanel extends JPanelBase {
       uiCheckRedoProteinInference.setSelected(isRunPrediction);
     }
     updatePanelFragReporterEnabledStatus();
+    updateMsstatsVisibility();
   }
 
   @Override
