@@ -106,6 +106,7 @@ public class Propagation {
   public void propagate(Path psm_path, Path diann_directory) throws Exception {
     TreeBasedTable<Precursor, String, LocalizedPeptide> precursorModificationLocalizationTable = TreeBasedTable.create();
     Map<String, String[]> precursorProteinGeneMap = new HashMap<>();
+    Map<String, String[]> proteinIdEntryDescMap = new HashMap<>();
 
     int scanNameColumnIdx = -1;
     int peptideColumnIdx = -1;
@@ -117,6 +118,7 @@ public class Propagation {
     int mappedGenesColumnIdx = -1;
     int entryNameColumnIdx = -1;
     int proteinDescriptionColumnIdx = -1;
+    int proteinIdColumnIdx = -1;
     Map<String, Integer> modificationColumnIdxMap = new TreeMap<>();
 
     String line;
@@ -150,6 +152,8 @@ public class Propagation {
             entryNameColumnIdx = i;
           } else if (parts[i].trim().contentEquals("Protein Description")) {
             proteinDescriptionColumnIdx = i;
+          } else if (parts[i].trim().contentEquals("Protein ID")) {
+            proteinIdColumnIdx = i;
           } else {
             Matcher matcher = pattern.matcher(parts[i].trim());
             if (matcher.matches()) {
@@ -215,20 +219,28 @@ public class Propagation {
           proteinDescription = parts[proteinDescriptionColumnIdx].trim();
         }
 
+        if (proteinIdColumnIdx >= 0) {
+          String proteinId = parts[proteinIdColumnIdx].trim();
+          String[] existing = proteinIdEntryDescMap.get(proteinId);
+          if (existing == null) {
+            proteinIdEntryDescMap.put(proteinId, new String[]{entryName, proteinDescription});
+          } else {
+            if (!existing[0].contentEquals(entryName)) {
+              System.err.println("Inconsistent Entry Name for protein " + proteinId + " in " + psm_path + ": " + existing[0] + " vs " + entryName);
+            }
+            if (!existing[1].contentEquals(proteinDescription)) {
+              System.err.println("Inconsistent Protein Description for protein " + proteinId + " in " + psm_path + ": " + existing[1] + " vs " + proteinDescription);
+            }
+          }
+        }
+
         String[] ss = precursorProteinGeneMap.get(precursor.getSequence());
         if (ss == null) {
-          precursorProteinGeneMap.put(precursor.getSequence(), new String[]{allMappedProteinsStr, allMappedGenesStr, entryName, proteinDescription});
+          precursorProteinGeneMap.put(precursor.getSequence(), new String[]{allMappedProteinsStr, allMappedGenesStr});
         } else {
-          if (!ss[0].contentEquals(allMappedProteinsStr) ||
-                  !ss[1].contentEquals(allMappedGenesStr) ||
-                  !ss[2].contentEquals(entryName) ||
-                  !ss[3].contentEquals(proteinDescription)) {
-            System.err.println("Inconsistent protein and gene mapping for sequence " +
-                    precursor.getSequence() + " in " + psm_path + ": " +
-                    ss[0] + " vs " + allMappedProteinsStr + ", " +
-                    ss[1] + " vs " + allMappedGenesStr + ", " +
-                    ss[2] + " vs " + entryName + ", " +
-                    ss[3] + " vs " + proteinDescription);
+          if (!ss[0].contentEquals(allMappedProteinsStr) || !ss[1].contentEquals(allMappedGenesStr)) {
+            System.err.println("Inconsistent protein or gene mapping for sequence " + precursor.getSequence() + " in " + psm_path + ": " +
+                    ss[0] + " vs " + allMappedProteinsStr + ", " + ss[1] + " vs " + allMappedGenesStr);
           }
         }
       }
@@ -242,16 +254,21 @@ public class Propagation {
 
     Path p = diann_directory.resolve("report.tsv");
     if (Files.exists(p) && Files.isReadable(p)) {
-      editReport(p, precursorModificationLocalizationTable, modificationArray, precursorProteinGeneMap, 1);
+      editReport(p, precursorModificationLocalizationTable, modificationArray, precursorProteinGeneMap, proteinIdEntryDescMap, 1);
     }
 
     p = diann_directory.resolve("report.pr_matrix.tsv");
     if (Files.exists(p) && Files.isReadable(p)) {
-      editReport(p, precursorModificationLocalizationTable, modificationArray, precursorProteinGeneMap, 2);
+      editReport(p, precursorModificationLocalizationTable, modificationArray, precursorProteinGeneMap, proteinIdEntryDescMap, 2);
+    }
+
+    p = diann_directory.resolve("report.pg_matrix.tsv");
+    if (Files.exists(p) && Files.isReadable(p)) {
+      editPgMatrix(p, proteinIdEntryDescMap);
     }
   }
 
-  private void editReport(Path p, Table<Precursor, String, LocalizedPeptide> precursorModificationLocalizationTable, String[] modificationArray, Map<String, String[]> precursorProteinGeneMap, int type) throws Exception {
+  private void editReport(Path p, Table<Precursor, String, LocalizedPeptide> precursorModificationLocalizationTable, String[] modificationArray, Map<String, String[]> precursorProteinGeneMap, Map<String, String[]> proteinIdEntryDescMap, int type) throws Exception {
     String s = "";
     if (type == 1) {
       s = "report2.tsv";
@@ -263,6 +280,7 @@ public class Propagation {
     int strippedSequenceColumnIdx = -1;
     int modifiedSequenceColumnIdx = -1;
     int chargeColumnIdx = -1;
+    int proteinIdsColumnIdx = -1;
     int proteinNamesColumnIdx = -1;
     int firstProteinDescriptionColumnIdx = -1;
 
@@ -285,6 +303,8 @@ public class Propagation {
             modifiedSequenceColumnIdx = i;
           } else if (parts[i].trim().contentEquals("Precursor.Charge")) {
             chargeColumnIdx = i;
+          } else if (parts[i].trim().contentEquals("Protein.Ids")) {
+            proteinIdsColumnIdx = i;
           } else if (parts[i].trim().contentEquals("Protein.Names")) {
             proteinNamesColumnIdx = i;
           } else if (parts[i].trim().contentEquals("First.Protein.Description")) {
@@ -335,12 +355,18 @@ public class Propagation {
 
         String[] ss = precursorProteinGeneMap.get(precursor.getSequence());
 
-        if (ss != null) {
-          if (proteinNamesColumnIdx >= 0 && !ss[2].isEmpty()) {
-            columnArray[proteinNamesColumnIdx] = ss[2];
-          }
-          if (firstProteinDescriptionColumnIdx >= 0 && !ss[3].isEmpty()) {
-            columnArray[firstProteinDescriptionColumnIdx] = ss[3];
+        if (proteinIdsColumnIdx >= 0) {
+          String proteinId = columnArray[proteinIdsColumnIdx].trim();
+          if (!proteinId.isEmpty()) {
+            String[] ed = proteinIdEntryDescMap.get(proteinId);
+            if (ed != null) {
+              if (proteinNamesColumnIdx >= 0 && !ed[0].isEmpty()) {
+                columnArray[proteinNamesColumnIdx] = ed[0];
+              }
+              if (firstProteinDescriptionColumnIdx >= 0 && !ed[1].isEmpty()) {
+                columnArray[firstProteinDescriptionColumnIdx] = ed[1];
+              }
+            }
           }
         }
 
@@ -378,6 +404,71 @@ public class Propagation {
           }
         }
 
+        writer.write("\n");
+      }
+    }
+
+    reader.close();
+    writer.close();
+
+    Files.move(p2, p, StandardCopyOption.REPLACE_EXISTING);
+  }
+
+  private void editPgMatrix(Path p, Map<String, String[]> proteinIdEntryDescMap) throws Exception {
+    Path p2 = p.toAbsolutePath().getParent().resolve("report.pg_matrix2.tsv");
+
+    int proteinIdsColumnIdx = -1;
+    int proteinNamesColumnIdx = -1;
+    int firstProteinDescriptionColumnIdx = -1;
+
+    String line;
+    String[] columnArray = null;
+    BufferedWriter writer = Files.newBufferedWriter(p2);
+    BufferedReader reader = Files.newBufferedReader(p);
+    while ((line = reader.readLine()) != null) {
+      line = line.trim();
+      if (line.isEmpty()) {
+        continue;
+      }
+
+      String[] parts = line.split("\t");
+      if (line.startsWith("Protein.Group\t")) {
+        for (int i = 0; i < parts.length; ++i) {
+          if (parts[i].trim().contentEquals("Protein.Ids")) {
+            proteinIdsColumnIdx = i;
+          } else if (parts[i].trim().contentEquals("Protein.Names")) {
+            proteinNamesColumnIdx = i;
+          } else if (parts[i].trim().contentEquals("First.Protein.Description")) {
+            firstProteinDescriptionColumnIdx = i;
+          }
+        }
+
+        columnArray = new String[parts.length];
+        System.arraycopy(parts, 0, columnArray, 0, parts.length);
+
+        writer.write(line);
+        writer.write("\n");
+      } else {
+        if (proteinIdsColumnIdx < 0) {
+          System.err.printf("Missing %s in %s.%n", "Protein.Ids", p);
+          System.exit(1);
+        }
+
+        Arrays.fill(columnArray, "");
+        System.arraycopy(parts, 0, columnArray, 0, parts.length);
+
+        String proteinId = parts[proteinIdsColumnIdx].trim();
+        String[] ed = proteinIdEntryDescMap.get(proteinId);
+        if (ed != null) {
+          if (proteinNamesColumnIdx >= 0 && !ed[0].isEmpty()) {
+            columnArray[proteinNamesColumnIdx] = ed[0];
+          }
+          if (firstProteinDescriptionColumnIdx >= 0 && !ed[1].isEmpty()) {
+            columnArray[firstProteinDescriptionColumnIdx] = ed[1];
+          }
+        }
+
+        writer.write(String.join("\t", columnArray));
         writer.write("\n");
       }
     }
