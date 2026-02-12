@@ -17,31 +17,25 @@
 
 package org.nesvilab.fragpipe.tools.diann;
 
-import static org.nesvilab.fragpipe.cmd.CmdDiann.labelPattern;
-import static org.nesvilab.fragpipe.cmd.ToolingUtils.UNIMOD_OBO;
-import static org.nesvilab.fragpipe.cmd.ToolingUtils.getUnimodOboPath;
-
 import com.google.common.collect.Table;
 import com.google.common.collect.TreeBasedTable;
+import umich.ms.fileio.filetypes.unimod.UnimodOboReader;
+import umich.ms.fileio.filetypes.unimod.UnimodOboReader.Precursor;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import umich.ms.fileio.filetypes.unimod.UnimodOboReader;
-import umich.ms.fileio.filetypes.unimod.UnimodOboReader.Precursor;
+
+import static org.nesvilab.fragpipe.cmd.CmdDiann.labelPattern;
+import static org.nesvilab.fragpipe.cmd.ToolingUtils.UNIMOD_OBO;
+import static org.nesvilab.fragpipe.cmd.ToolingUtils.getUnimodOboPath;
 
 public class Propagation {
 
@@ -121,6 +115,8 @@ public class Propagation {
     int geneColumnIdx = -1;
     int mappedProteinsColumnIdx = -1;
     int mappedGenesColumnIdx = -1;
+    int entryNameColumnIdx = -1;
+    int proteinDescriptionColumnIdx = -1;
     Map<String, Integer> modificationColumnIdxMap = new TreeMap<>();
 
     String line;
@@ -150,6 +146,10 @@ public class Propagation {
             mappedProteinsColumnIdx = i;
           } else if (parts[i].trim().contentEquals("Mapped Genes")) {
             mappedGenesColumnIdx = i;
+          } else if (parts[i].trim().contentEquals("Entry Name")) {
+            entryNameColumnIdx = i;
+          } else if (parts[i].trim().contentEquals("Protein Description")) {
+            proteinDescriptionColumnIdx = i;
           } else {
             Matcher matcher = pattern.matcher(parts[i].trim());
             if (matcher.matches()) {
@@ -205,12 +205,31 @@ public class Propagation {
         }
         String allMappedGenesStr = String.join(",", allMappedGenes);
 
+        String entryName = "";
+        if (entryNameColumnIdx >= 0 && parts.length > entryNameColumnIdx && !parts[entryNameColumnIdx].trim().isEmpty()) {
+          entryName = parts[entryNameColumnIdx].trim();
+        }
+
+        String proteinDescription = "";
+        if (proteinDescriptionColumnIdx >= 0 && parts.length > proteinDescriptionColumnIdx && !parts[proteinDescriptionColumnIdx].trim().isEmpty()) {
+          proteinDescription = parts[proteinDescriptionColumnIdx].trim();
+        }
+
         String[] ss = precursorProteinGeneMap.get(precursor.getSequence());
         if (ss == null) {
-          precursorProteinGeneMap.put(precursor.getSequence(), new String[]{allMappedProteinsStr, allMappedGenesStr});
-        // } else if (!ss[0].contentEquals(allMappedProteinsStr) || !ss[1].contentEquals(allMappedGenesStr)) {
-        //   System.err.println("Inconsistent protein or gene mapping for " + precursor + " in " + psm_path + ": " + ss[0] + " vs " + allMappedProteinsStr + ", " + ss[1] + " vs " + allMappedGenesStr);
-        //   System.exit(1);
+          precursorProteinGeneMap.put(precursor.getSequence(), new String[]{allMappedProteinsStr, allMappedGenesStr, entryName, proteinDescription});
+        } else {
+          if (!ss[0].contentEquals(allMappedProteinsStr) ||
+                  !ss[1].contentEquals(allMappedGenesStr) ||
+                  !ss[2].contentEquals(entryName) ||
+                  !ss[3].contentEquals(proteinDescription)) {
+            System.err.println("Inconsistent protein and gene mapping for sequence " +
+                    precursor.getSequence() + " in " + psm_path + ": " +
+                    ss[0] + " vs " + allMappedProteinsStr + ", " +
+                    ss[1] + " vs " + allMappedGenesStr + ", " +
+                    ss[2] + " vs " + entryName + ", " +
+                    ss[3] + " vs " + proteinDescription);
+          }
         }
       }
     }
@@ -244,6 +263,8 @@ public class Propagation {
     int strippedSequenceColumnIdx = -1;
     int modifiedSequenceColumnIdx = -1;
     int chargeColumnIdx = -1;
+    int proteinNamesColumnIdx = -1;
+    int firstProteinDescriptionColumnIdx = -1;
 
     String line;
     String[] columnArray = null;
@@ -264,6 +285,10 @@ public class Propagation {
             modifiedSequenceColumnIdx = i;
           } else if (parts[i].trim().contentEquals("Precursor.Charge")) {
             chargeColumnIdx = i;
+          } else if (parts[i].trim().contentEquals("Protein.Names")) {
+            proteinNamesColumnIdx = i;
+          } else if (parts[i].trim().contentEquals("First.Protein.Description")) {
+            firstProteinDescriptionColumnIdx = i;
           }
         }
 
@@ -294,7 +319,6 @@ public class Propagation {
         // Make sure that all rows have the same number of columns.
         Arrays.fill(columnArray, "");
         System.arraycopy(parts, 0, columnArray, 0, parts.length);
-        writer.write(String.join("\t", columnArray));
 
         Precursor precursor = null;
         try {
@@ -310,6 +334,18 @@ public class Propagation {
         }
 
         String[] ss = precursorProteinGeneMap.get(precursor.getSequence());
+
+        if (ss != null) {
+          if (proteinNamesColumnIdx >= 0 && !ss[2].isEmpty()) {
+            columnArray[proteinNamesColumnIdx] = ss[2];
+          }
+          if (firstProteinDescriptionColumnIdx >= 0 && !ss[3].isEmpty()) {
+            columnArray[firstProteinDescriptionColumnIdx] = ss[3];
+          }
+        }
+
+        writer.write(String.join("\t", columnArray));
+
         if (ss == null) {
           writer.write("\t\t");
         } else {
