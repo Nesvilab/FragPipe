@@ -107,7 +107,7 @@ public class DiannPanel extends JPanelBase {
   protected void initMore() {
     super.initMore();
     SwingUtils.setEnablementUpdater(this, pContent, checkRun);
-    // Handle panelFragReporter enablement manually to consider both checkRun and isRunPrediction
+    // Handle panelFragReporter enablement based on checkRun
     checkRun.addItemListener(e -> updatePanelFragReporterEnabledStatus());
     // Synchronize initial panel state after settings are loaded
     SwingUtilities.invokeLater(() -> {
@@ -120,9 +120,7 @@ public class DiannPanel extends JPanelBase {
     if (panelFragReporter == null) {
       return;
     }
-    NoteConfigTransferLearning m = Bus.getStickyEvent(NoteConfigTransferLearning.class);
-    boolean isRunPrediction = m != null && m.isRunPrediction();
-    updateEnabledStatus(panelFragReporter, checkRun.isSelected() && !isRunPrediction);
+    updateEnabledStatus(panelFragReporter, checkRun.isSelected());
   }
 
   private void updateMsstatsVisibility() {
@@ -160,7 +158,6 @@ public class DiannPanel extends JPanelBase {
       uiCheckMbr.setSelected(isRunPrediction && (m.peptidesToPredict == 1));
       uiCheckRedoProteinInference.setSelected(isRunPrediction);
     }
-    updatePanelFragReporterEnabledStatus();
     updateMsstatsVisibility();
   }
 

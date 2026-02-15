@@ -523,7 +523,7 @@ public class CmdDiann extends CmdBase {
     List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Stream.of(FRAG_REPORTER));
     if (classpathJars == null) {
       System.err.println("Could not find " + FRAG_REPORTER);
-    } else if (!isTransferLearningRun || !isTransferLearningPrediction) {
+    } else {
       List<String> cmd = new ArrayList<>();
       cmd.add(Fragpipe.getBinJava());
       cmd.add("-Xmx" + ramGb + "G");
