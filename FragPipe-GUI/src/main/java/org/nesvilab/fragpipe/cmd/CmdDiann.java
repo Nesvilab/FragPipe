@@ -457,7 +457,7 @@ public class CmdDiann extends CmdBase {
       pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + " convert Parquet to Tsv").create());
     }
 
-    if (!isRunPlex) {
+    if (!isRunPlex && predictedSpeclibPath == null) {
       Path root = FragpipeLocations.get().getDirFragpipeRoot();
       String libsDir = root.resolve("lib").toAbsolutePath().normalize() + "/*";
       if (Files.isDirectory(jarFragpipe)) {
