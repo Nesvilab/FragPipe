@@ -2340,7 +2340,8 @@ public class FragpipeRun {
             diannPanel.getReportLevels(),
             transferLearningPanel.isRun(),
             transferLearningPanel.isRunPrediction(),
-            transferLearningPanel.getOutputFormat());
+            transferLearningPanel.getOutputFormat(),
+            decoyTag);
       }
       return true;
     });

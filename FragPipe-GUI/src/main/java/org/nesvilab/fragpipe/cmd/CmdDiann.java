@@ -17,39 +17,6 @@
 
 package org.nesvilab.fragpipe.cmd;
 
-import static org.nesvilab.fragpipe.Version.PROGRAM_TITLE;
-import static org.nesvilab.fragpipe.cmd.ToolingUtils.BATMASS_IO_JAR;
-import static org.nesvilab.fragpipe.cmd.ToolingUtils.generateLFQExperimentAnnotation;
-import static org.nesvilab.fragpipe.tabs.TabWorkflow.manifestExt;
-import static org.nesvilab.utils.OsUtils.isUnix;
-import static org.nesvilab.utils.OsUtils.isWindows;
-import static org.nesvilab.utils.SwingUtils.createClickableHtml;
-import static org.nesvilab.utils.SwingUtils.showErrorDialogWithStacktrace;
-
-import java.awt.Component;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.swing.JOptionPane;
-
 import org.jooq.lambda.Seq;
 import org.nesvilab.fragpipe.Fragpipe;
 import org.nesvilab.fragpipe.FragpipeLocations;
@@ -58,16 +25,37 @@ import org.nesvilab.fragpipe.api.Bus;
 import org.nesvilab.fragpipe.api.InputLcmsFile;
 import org.nesvilab.fragpipe.api.LcmsFileGroup;
 import org.nesvilab.fragpipe.messages.NoteConfigDiann;
-import org.nesvilab.fragpipe.tools.diann.Diann;
-import org.nesvilab.fragpipe.tools.diann.DiannToMsstats;
-import org.nesvilab.fragpipe.tools.diann.ParquetToTsv;
-import org.nesvilab.fragpipe.tools.diann.PlexDiaHelper;
-import org.nesvilab.fragpipe.tools.diann.Propagation;
+import org.nesvilab.fragpipe.tools.diann.*;
 import org.nesvilab.utils.OsUtils;
 import org.nesvilab.utils.StringUtils;
 import org.nesvilab.utils.SwingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.swing.*;
+import java.awt.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.nesvilab.fragpipe.Version.PROGRAM_TITLE;
+import static org.nesvilab.fragpipe.cmd.ToolingUtils.BATMASS_IO_JAR;
+import static org.nesvilab.fragpipe.cmd.ToolingUtils.generateLFQExperimentAnnotation;
+import static org.nesvilab.fragpipe.tabs.TabWorkflow.manifestExt;
+import static org.nesvilab.utils.OsUtils.isUnix;
+import static org.nesvilab.utils.OsUtils.isWindows;
+import static org.nesvilab.utils.SwingUtils.createClickableHtml;
+import static org.nesvilab.utils.SwingUtils.showErrorDialogWithStacktrace;
 
 public class CmdDiann extends CmdBase {
 
@@ -125,7 +113,8 @@ public class CmdDiann extends CmdBase {
       String reportLevels,
       boolean isTransferLearningRun,
       boolean isTransferLearningPrediction,
-      String transferLearningOutputFormat) {
+      String transferLearningOutputFormat,
+      String decoyTag) {
     initPreConfig();
 
     String predictedSpeclibPath = null;
@@ -224,6 +213,29 @@ public class CmdDiann extends CmdBase {
         }
         lcmsFileGroups2.add(new LcmsFileGroup(group.name, lcmsFiles2));
       }
+    }
+
+    String fastaForDiann = fastaFile;
+    if (redoProteinInference) {
+      fastaForDiann = wd.resolve("edited.fasta").toAbsolutePath().normalize().toString();
+
+      Path root = FragpipeLocations.get().getDirFragpipeRoot();
+      String libsDir = root.resolve("lib").toAbsolutePath().normalize() + "/*";
+      if (Files.isDirectory(jarFragpipe)) {
+        libsDir = jarFragpipe.toAbsolutePath().getParent().getParent().getParent().getParent().resolve("build/install/fragpipe-" + Version.version() + "/lib").toAbsolutePath().normalize() + "/*";
+      }
+
+      List<String> editFastaCmd = new ArrayList<>();
+      editFastaCmd.add(Fragpipe.getBinJava());
+      editFastaCmd.add("-cp");
+      editFastaCmd.add(libsDir);
+      editFastaCmd.add(EditFastaForDiann.class.getCanonicalName());
+      editFastaCmd.add(fastaFile);
+      editFastaCmd.add(fastaForDiann);
+      editFastaCmd.add(decoyTag);
+      ProcessBuilder pbEditFasta = new ProcessBuilder(editFastaCmd);
+      pbEditFasta.directory(wd.toFile());
+      pbis.add(new PbiBuilder().setPb(pbEditFasta).setName(getCmdName() + " edit FASTA for DIA-NN").create());
     }
 
     for (LcmsFileGroup group : lcmsFileGroups2) {
@@ -346,14 +358,14 @@ public class CmdDiann extends CmdBase {
         if (redoProteinInference) {
           cmd.add("--relaxed-prot-inf");
           cmd.add("--fasta");
-          cmd.add(fastaFile);
+          cmd.add(fastaForDiann);
         } else {
           cmd.add("--no-prot-inf");
         }
       } else {
         if (redoProteinInference) {
           cmd.add("--fasta");
-          cmd.add(fastaFile);
+          cmd.add(fastaForDiann);
         } else {
           cmd.add("--no-prot-inf");
         }
