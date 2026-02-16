@@ -1421,6 +1421,13 @@ public class FragpipeRun {
         List<InputLcmsFile> outputs = cmdDiaTracer.outputs(sharedLcmsFiles);
         sharedLcmsFiles.clear();
         sharedLcmsFiles.addAll(outputs);
+      } else {
+        for (InputLcmsFile inputLcmsFile : sharedLcmsFiles) {
+          if (inputLcmsFile.getDataType().equals("DIA") && inputLcmsFile.getPath().toString().toLowerCase().endsWith(".d")) {
+            SwingUtils.showErrorDialog(parent, "There are DIA timsTOF (.d) files but <b>diaTracer</b> is not enabled. Please enable diaTracer or check your input files.", "Invalid configurations");
+            return false;
+          }
+        }
       }
       return true;
     });

@@ -34,6 +34,7 @@ import org.nesvilab.fragpipe.dialogs.SetRepDialog;
 import org.nesvilab.fragpipe.messages.*;
 import org.nesvilab.fragpipe.messages.MessageLcmsGroupAction.Type;
 import org.nesvilab.fragpipe.params.ThisAppProps;
+import org.nesvilab.fragpipe.tools.diatracer.DiaTracerPanel;
 import org.nesvilab.fragpipe.tools.tmtintegrator.QuantLabel;
 import org.nesvilab.fragpipe.util.SDRFtable;
 import org.nesvilab.utils.*;
@@ -1361,6 +1362,11 @@ public class TabWorkflow extends JPanelWithEnablement {
     if (hasDataType("DIA-Quant")) {
       Bus.post(new NoteConfigDiann(noteConfigDiann, true));
     }
+
+    if (hasDiaDotDFile()) {
+      DiaTracerPanel diaTracerPanel = Fragpipe.getStickyStrict(DiaTracerPanel.class);
+      diaTracerPanel.checkRunDiaTracer.setSelected(true);
+    }
   }
 
   private void actionClearGroupsExperiment() {
@@ -1525,6 +1531,16 @@ public class TabWorkflow extends JPanelWithEnablement {
   public boolean hasDataType(String dataType) {
     for (InputLcmsFile inputLcmsFile : tableModelRawFiles.dataCopy()) {
       if (inputLcmsFile.getDataType().contentEquals(dataType)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private boolean hasDiaDotDFile() {
+    for (InputLcmsFile inputLcmsFile : tableModelRawFiles.dataCopy()) {
+      if (inputLcmsFile.getDataType().contentEquals("DIA")
+          && inputLcmsFile.getPath().getFileName().toString().toLowerCase().endsWith(".d")) {
         return true;
       }
     }
