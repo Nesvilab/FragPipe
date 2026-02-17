@@ -17,10 +17,7 @@
 
 package org.nesvilab.fragpipe.cmd;
 
-import static org.nesvilab.fragpipe.cmd.ToolingUtils.BATMASS_IO_JAR;
-import static org.nesvilab.fragpipe.cmd.ToolingUtils.UNIMOD_OBO;
-import static org.nesvilab.fragpipe.cmd.ToolingUtils.getUnimodOboPath;
-
+import org.jooq.lambda.Seq;
 import org.nesvilab.fragpipe.Fragpipe;
 import org.nesvilab.fragpipe.FragpipeLocations;
 import org.nesvilab.fragpipe.api.Bus;
@@ -28,27 +25,26 @@ import org.nesvilab.fragpipe.api.InputLcmsFile;
 import org.nesvilab.fragpipe.messages.NoteConfigDiann;
 import org.nesvilab.fragpipe.tools.diann.Diann;
 import org.nesvilab.utils.SwingUtils;
-import java.awt.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.awt.*;
 import java.io.BufferedWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.jooq.lambda.Seq;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import static org.nesvilab.fragpipe.cmd.ToolingUtils.*;
 
 public class CmdMSBooster extends CmdBase {
 
   private static final Logger log = LoggerFactory.getLogger(CmdMSBooster.class);
   public static String NAME = "MSBooster";
-  public static final String MSBOOSTER_VERSION = "1.4.21";
+  public static final String MSBOOSTER_VERSION = "1.4.25";
   public static final String JAR_MSBOOSTER_NAME = "MSBooster-" + MSBOOSTER_VERSION + ".jar";
   public static final String JAR_MSBOOSTER_MAIN_CLASS = "mainsteps.MainClass";
   public static final String[] JAR_DEPS = {BATMASS_IO_JAR};
