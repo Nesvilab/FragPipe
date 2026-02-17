@@ -17,28 +17,6 @@
 
 package org.nesvilab.fragpipe.cmd;
 
-import static org.apache.commons.lang3.StringUtils.getCommonPrefix;
-import static org.nesvilab.utils.PathUtils.testBinaryPath;
-
-import java.awt.Component;
-import java.awt.Image;
-import java.awt.Toolkit;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import javax.swing.JOptionPane;
 import org.apache.commons.io.FilenameUtils;
 import org.jooq.lambda.Seq;
 import org.nesvilab.fragpipe.Fragpipe;
@@ -47,19 +25,25 @@ import org.nesvilab.fragpipe.api.Bus;
 import org.nesvilab.fragpipe.api.InputLcmsFile;
 import org.nesvilab.fragpipe.api.LcmsFileGroup;
 import org.nesvilab.fragpipe.tabs.TabWorkflow;
-import org.nesvilab.utils.FileCopy;
-import org.nesvilab.utils.FileDelete;
-import org.nesvilab.utils.FileMove;
-import org.nesvilab.utils.FileMoveWithExtension;
-import org.nesvilab.utils.JarUtils;
+import org.nesvilab.utils.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.swing.*;
+import java.awt.*;
+import java.io.*;
+import java.nio.file.Path;
+import java.util.*;
+import java.util.List;
+
+import static org.apache.commons.lang3.StringUtils.getCommonPrefix;
+import static org.nesvilab.utils.PathUtils.testBinaryPath;
 
 public class ToolingUtils {
   private static final Logger log = LoggerFactory.getLogger(ToolingUtils.class);
   private ToolingUtils() {}
 
-  public static final String BATMASS_IO_JAR = "batmass-io-1.36.6.jar";
+  public static final String BATMASS_IO_JAR = "batmass-io-1.36.7.jar";
   public static final String JFREECHART_JAR = "jfreechart-1.5.3.jar";
   public static final String UNIMOD_OBO = "unimod.obo";
 

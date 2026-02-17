@@ -17,46 +17,27 @@
 
 package org.nesvilab.fragpipe.tools.diann;
 
-import static org.nesvilab.fragpipe.cmd.ToolingUtils.UNIMOD_OBO;
-import static org.nesvilab.fragpipe.cmd.ToolingUtils.getUnimodOboPath;
-import static umich.ms.fileio.filetypes.library.Utils.correctModMass;
-import static umich.ms.fileio.filetypes.library.Utils.removeClosedModifications;
-import static umich.ms.fileio.filetypes.library.Utils.threshold;
-
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Table;
-import com.google.common.collect.Tables;
-import com.google.common.collect.TreeBasedTable;
+import com.google.common.collect.*;
 import com.google.common.primitives.Floats;
+import umich.ms.fileio.filetypes.library.Fragment;
+import umich.ms.fileio.filetypes.library.LibraryTsv;
+import umich.ms.fileio.filetypes.library.Peptide;
+import umich.ms.fileio.filetypes.library.Transition;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import umich.ms.fileio.filetypes.library.Fragment;
-import umich.ms.fileio.filetypes.library.LibraryTsv;
-import umich.ms.fileio.filetypes.library.Peptide;
-import umich.ms.fileio.filetypes.library.Transition;
+
+import static org.nesvilab.fragpipe.cmd.ToolingUtils.UNIMOD_OBO;
+import static org.nesvilab.fragpipe.cmd.ToolingUtils.getUnimodOboPath;
+import static umich.ms.fileio.filetypes.library.Utils.*;
 
 public class PlexDiaHelper {
 
@@ -176,7 +157,7 @@ public class PlexDiaHelper {
     this.mediumAaMassMap = mediumAaMassMap;
     this.heavyAaMassMap = heavyAaMassMap;
 
-    libraryTsv = new LibraryTsv(nThreads, getUnimodOboPath(UNIMOD_OBO).toString());
+    libraryTsv = new LibraryTsv(getUnimodOboPath(UNIMOD_OBO).toString());
     unimodMassMap = libraryTsv.unimodMassMap;
     massSiteUnimodTable = libraryTsv.massSiteUnimodTable;
   }
