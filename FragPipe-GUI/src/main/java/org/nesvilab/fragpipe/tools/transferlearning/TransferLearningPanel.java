@@ -17,40 +17,24 @@
 
 package org.nesvilab.fragpipe.tools.transferlearning;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.ItemSelectable;
-import java.nio.file.Path;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.stream.Stream;
+import net.miginfocom.layout.LC;
+import net.miginfocom.swing.MigLayout;
+import org.nesvilab.fragpipe.api.Bus;
+import org.nesvilab.fragpipe.messages.NoteConfigTransferLearning;
+import org.nesvilab.utils.SwingUtils;
+import org.nesvilab.utils.swing.*;
+import org.nesvilab.utils.swing.FileChooserUtils.FcMode;
 
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
-
-import org.nesvilab.fragpipe.api.Bus;
-import org.nesvilab.fragpipe.messages.NoteConfigTransferLearning;
-import org.nesvilab.utils.SwingUtils;
-import org.nesvilab.utils.swing.HtmlStyledJEditorPane;
-import org.nesvilab.utils.swing.FileChooserUtils;
-import org.nesvilab.utils.swing.FileChooserUtils.FcMode;
-import org.nesvilab.utils.swing.FormEntry;
-import org.nesvilab.utils.swing.JPanelBase;
-import org.nesvilab.utils.swing.UiCheck;
-import org.nesvilab.utils.swing.UiCombo;
-import org.nesvilab.utils.swing.UiSpinnerInt;
-import org.nesvilab.utils.swing.UiText;
-import org.nesvilab.utils.swing.UiUtils;
-
-import net.miginfocom.layout.LC;
-import net.miginfocom.swing.MigLayout;
+import java.awt.*;
+import java.nio.file.Path;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.Stream;
 
 
 public class TransferLearningPanel extends JPanelBase {
@@ -77,6 +61,7 @@ public class TransferLearningPanel extends JPanelBase {
   private UiSpinnerInt uiSpinnerMaxCharge;
   private UiCombo uiComboInstrument;
   private UiSpinnerInt uiSpinnerNce;
+  private UiText uiTextCustomMods;
   private UiCombo uiComboOutputFormat;
 
   static {
@@ -218,6 +203,19 @@ public class TransferLearningPanel extends JPanelBase {
         .tooltip("NCE when predicting spectral library. Available when 'Perform transfer learning' or 'Whole FASTA file' is selected.")
         .create();
 
+    uiTextCustomMods = new UiText("", "");
+    uiTextCustomMods.setColumns(40);
+    FormEntry feCustomMods = mu.feb("custom-mods", uiTextCustomMods)
+        .label("Custom modifications")
+        .tooltip("<html>Define non-Unimod modifications. Format: <b>mod_name,composition,mod_loss_composition,mod_mass</b><br>"
+            + "Example: <b>Glycan@N,C(88)H(146)N(2)O(70),,2026.68700;MyPTM@A,H(2)O(2)S(2),H(1)O(1),97.94962,</b><br>"
+            + "The columns are: mod name, composition, mod loss composition (can be blank), and mod mass.<br>"
+            + "Separate multiple modifications with semicolons.</html>")
+        .create();
+
+    JLabel customModsNote = new JLabel("<html><i>Format: mod_name,composition,mod_loss_composition (can be blank),mod_mass. "
+        + "E.g., Glycan@N,C(88)H(146)N(2)O(70),,2026.68700. Separate multiple mods with semicolons.</i></html>");
+
     panelTraining = createPanelTraining();
     panelPrediction = createPanelPrediction();
 
@@ -225,6 +223,9 @@ public class TransferLearningPanel extends JPanelBase {
     mu.add(p, feInstrument.comp);
     mu.add(p, feNce.label());
     mu.add(p, feNce.comp).wrap();
+    mu.add(p, feCustomMods.label()).split(2);
+    mu.add(p, feCustomMods.comp).growX().pushX().wrap();
+    mu.add(p, customModsNote).growX().gapBottom("10").wrap();
     mu.add(p, checkRunTraining).wrap();
     mu.add(p, panelTraining).growX().wrap();
     mu.add(p, checkRunPrediction).wrap();
@@ -436,6 +437,10 @@ public class TransferLearningPanel extends JPanelBase {
 
   public int getNce() {
     return uiSpinnerNce.getActualValue();
+  }
+
+  public String getCustomMods() {
+    return uiTextCustomMods.getNonGhostText();
   }
 
   public String getOutputFormat() {

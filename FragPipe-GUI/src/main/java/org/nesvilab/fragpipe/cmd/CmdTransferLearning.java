@@ -114,6 +114,7 @@ public class CmdTransferLearning extends CmdBase {
     int maxCharge,
     String instrument,
     int nce,
+    String customMods,
     boolean keepDecoys,
     String fastaPath,
     String decoyTag) {
@@ -184,6 +185,10 @@ public class CmdTransferLearning extends CmdBase {
       cmdTrain.add(instrument);
       cmdTrain.add("--nce");
       cmdTrain.add(String.valueOf(nce));
+      if (customMods != null && !customMods.trim().isEmpty()) {
+        cmdTrain.add("--custom-mods");
+        cmdTrain.add(customMods.trim());
+      }
 
       ProcessBuilder pbTrain = new ProcessBuilder(cmdTrain);
       pbTrain.directory(wd.toFile());
@@ -274,6 +279,10 @@ public class CmdTransferLearning extends CmdBase {
       cmdPredict.add("fragpipe-predicted-speclib");
       cmdPredict.add("--fasta");
       cmdPredict.add(fastaPath);
+      if (customMods != null && !customMods.trim().isEmpty()) {
+        cmdPredict.add("--custom-mods");
+        cmdPredict.add(customMods.trim());
+      }
 
       ProcessBuilder pbPredict = new ProcessBuilder(cmdPredict);
       pbPredict.directory(wd.toFile());

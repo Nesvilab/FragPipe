@@ -2297,6 +2297,7 @@ public class FragpipeRun {
           transferLearningPanel.getMaxCharge(),
           transferLearningPanel.getInstrument(),
           transferLearningPanel.getNce(),
+          transferLearningPanel.getCustomMods(),
           transferLearningPanel.isKeepDecoys(),
           fastaFile,
           decoyTag);
