@@ -131,6 +131,7 @@ public class DiannPanel extends JPanelBase {
     boolean isOldVersion = diannConfig != null && diannConfig.isValid() && diannConfig.compareVersion("2.0") < 0;
     NoteConfigTransferLearning transferConfig = Bus.getStickyEvent(NoteConfigTransferLearning.class);
     boolean isRunPrediction = transferConfig != null && transferConfig.isRunPrediction();
+    updateEnabledStatus(uiCheckGenerateMsstats, isOldVersion && !isRunPrediction);
     uiCheckGenerateMsstats.setVisible(isOldVersion && !isRunPrediction);
   }
 
