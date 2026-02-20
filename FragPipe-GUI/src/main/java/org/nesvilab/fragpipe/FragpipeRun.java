@@ -2339,6 +2339,7 @@ public class FragpipeRun {
             diannPanel.getModTag(),
             diannPanel.getSiteProb(),
             diannPanel.getReportLevels(),
+            diannPanel.getFragReporterCmdOpts(),
             transferLearningPanel.isRun(),
             transferLearningPanel.isRunPrediction(),
             transferLearningPanel.getOutputFormat(),

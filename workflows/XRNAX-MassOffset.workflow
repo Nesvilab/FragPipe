@@ -4,6 +4,7 @@ crystalc.run-crystalc=true
 database.decoy-tag=rev_
 diann.channel-normalization-strategy=0
 diann.cmd-opts=
+diann.fragreporter-cmd-opts=
 diann.gene-level-report=false
 diann.generate-msstats=true
 diann.heavy=

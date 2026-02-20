@@ -111,6 +111,7 @@ public class CmdDiann extends CmdBase {
       String modTag,
       float siteProb,
       String reportLevels,
+      String fragReporterCmdOpts,
       boolean isTransferLearningRun,
       boolean isTransferLearningPrediction,
       String transferLearningOutputFormat,
@@ -553,6 +554,9 @@ public class CmdDiann extends CmdBase {
       cmd.add(String.valueOf(siteProb));
       cmd.add("--level");
       cmd.add(reportLevels);
+      if (fragReporterCmdOpts != null && !fragReporterCmdOpts.isEmpty()) {
+        cmd.add(fragReporterCmdOpts);
+      }
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(wd.resolve("dia-quant-output").toFile());
       pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + " generate site reports").create());

@@ -17,53 +17,32 @@
 
 package org.nesvilab.fragpipe.tools.diann;
 
-import static org.nesvilab.fragpipe.Version.PROGRAM_TITLE;
-import static org.nesvilab.utils.SwingUtils.createClickableHtml;
-import static org.nesvilab.utils.SwingUtils.isEnabledAndChecked;
-
-import org.nesvilab.fragpipe.api.Bus;
-import org.nesvilab.fragpipe.messages.NoteConfigDiann;
-import org.nesvilab.fragpipe.messages.NoteConfigTransferLearning;
-import org.nesvilab.utils.SwingUtils;
-import org.nesvilab.utils.swing.FileChooserUtils;
-import org.nesvilab.utils.swing.FileChooserUtils.FcMode;
-import org.nesvilab.utils.swing.FormEntry;
-import org.nesvilab.utils.swing.HtmlStyledJEditorPane;
-import org.nesvilab.utils.swing.JPanelBase;
-import org.nesvilab.utils.swing.UiCheck;
-import org.nesvilab.utils.swing.UiCombo;
-import org.nesvilab.utils.swing.UiSpinnerDouble;
-import org.nesvilab.utils.swing.UiText;
-import org.nesvilab.utils.swing.UiUtils;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.ItemSelectable;
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.List;
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import javax.imageio.ImageIO;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-import javax.swing.border.TitledBorder;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.nesvilab.fragpipe.api.Bus;
+import org.nesvilab.fragpipe.messages.NoteConfigDiann;
+import org.nesvilab.fragpipe.messages.NoteConfigTransferLearning;
+import org.nesvilab.utils.SwingUtils;
+import org.nesvilab.utils.swing.*;
+import org.nesvilab.utils.swing.FileChooserUtils.FcMode;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.nio.file.Path;
+import java.util.*;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.nesvilab.fragpipe.Version.PROGRAM_TITLE;
+import static org.nesvilab.utils.SwingUtils.createClickableHtml;
+import static org.nesvilab.utils.SwingUtils.isEnabledAndChecked;
 
 
 public class DiannPanel extends JPanelBase {
@@ -102,6 +81,7 @@ public class DiannPanel extends JPanelBase {
   private UiCheck uiCheckPeptideLevel;
   private UiCheck uiCheckModifiedPeptideLevel;
   private UiCheck uiCheckSiteLevel;
+  private UiText uiTextFragReporterCmdOpts;
 
   @Override
   protected void initMore() {
@@ -408,6 +388,20 @@ public class DiannPanel extends JPanelBase {
     uiCheckSiteLevel.setEnabled(false);
     FormEntry feSiteLevel = new FormEntry("site-level-report", "Site", uiCheckSiteLevel, "Generate site-level report (multi-site and single-site)");
 
+    uiTextFragReporterCmdOpts = UiUtils.uiTextBuilder().cols(20).text("").create();
+    FormEntry feFragReporterCmdOpts = new FormEntry("fragreporter-cmd-opts", "Cmd line opts", uiTextFragReporterCmdOpts, "--pr: Precursor report (DIA-NN report.tsv or Skyline .csv file)\n" +
+            "--exp-ann: The fragpipe-files.fp-manifest file\n" +
+            "--out-dir: Output directory\n" +
+            "--mod-tag: Modification tag, eg. STY:79.96633\n" +
+            "--qvalue: Qvalue threshold for run-specific precursor filtering\n" +
+            "--global-qvalue: Minimum global QValue allowed for precursor filtration (default: 1.0)\n" +
+            "--global-pg-qvalue: Minimum global protein group (PG) QValue allowed for precursor filtration (default: 1.0)\n" +
+            "--recalculate: Recalculate global Q-values and global PG Q-values using decoys from report.tsv: 0 = disabled, 1 = enabled (default: 0)\n" +
+            "--min-site-prob: Minimum site probability allowed for PTM localization (default: 0.75)\n" +
+            "--agg-method: Aggregation method (default: 'best'; alternative: 'sum')\n" +
+            "--topN: Number of top precursors for aggregation (default: 3 for 'sum' aggregation)\n" +
+            "--level: Specify the report level (options: gene, protein, peptide, modified-peptide, multi-site, single-site, or all; use semicolon to specify multiple levels, e.g., 'multi-site;single-site'; default is all)");
+
     mu.add(panelFragReporter, noteLabel).wrap();
     mu.add(panelFragReporter, feGeneLevel.comp).split(5);
     mu.add(panelFragReporter, feProteinLevel.comp);
@@ -418,6 +412,8 @@ public class DiannPanel extends JPanelBase {
     mu.add(panelFragReporter, feModTag.comp).growX();
     mu.add(panelFragReporter, feSiteProb.label()).split(2);
     mu.add(panelFragReporter, feSiteProb.comp, mu.ccL()).wrap();
+    mu.add(panelFragReporter, feFragReporterCmdOpts.label(), mu.ccL()).split(2);
+    mu.add(panelFragReporter, feFragReporterCmdOpts.comp).growX().wrap();
 
     updateEnabledStatus(panelFragReporter, true);
     return panelFragReporter;
@@ -551,6 +547,10 @@ public class DiannPanel extends JPanelBase {
 
   public boolean isSiteLevelReport() {
     return uiCheckSiteLevel.isSelected();
+  }
+
+  public String getFragReporterCmdOpts() {
+    return uiTextFragReporterCmdOpts.getNonGhostText().trim();
   }
 
   public String getReportLevels() {
