@@ -33,8 +33,8 @@ RUN apt-get -y install \
     dotnet-runtime-6.0
 
 # install python packages
-RUN pip uninstall --break-system-packages easypqp \
-    && pip install --break-system-packages git+https://github.com/Nesvilab/FragPipe-SpecLib@master \
+RUN pip uninstall --break-system-packages fragpipe-speclib \
+    && pip install --break-system-packages git+https://github.com/Nesvilab/FragPipe-SpecLib.git@master \
     && pip install --break-system-packages lxml \
     && pip install --break-system-packages plotly \
     && pip install --break-system-packages kaleido \
