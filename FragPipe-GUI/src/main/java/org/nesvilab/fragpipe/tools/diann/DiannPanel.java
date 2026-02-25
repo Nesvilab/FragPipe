@@ -82,25 +82,27 @@ public class DiannPanel extends JPanelBase {
   private UiCheck uiCheckModifiedPeptideLevel;
   private UiCheck uiCheckSiteLevel;
   private UiText uiTextFragReporterCmdOpts;
+  private JCheckBox checkSkipQuant;
 
   @Override
   protected void initMore() {
     super.initMore();
     SwingUtils.setEnablementUpdater(this, pContent, checkRun);
     // Handle panelFragReporter enablement based on checkRun
-    checkRun.addItemListener(e -> updatePanelFragReporterEnabledStatus());
+    checkRun.addItemListener(e -> updatePanelEnabledStatuses());
+    checkSkipQuant.addItemListener(e -> updatePanelEnabledStatuses());
     // Synchronize initial panel state after settings are loaded
-    SwingUtilities.invokeLater(() -> {
-      updateEnabledStatus(pContent, checkRun.isSelected());
-      updatePanelFragReporterEnabledStatus();
-    });
+    SwingUtilities.invokeLater(this::updatePanelEnabledStatuses);
   }
 
-  private void updatePanelFragReporterEnabledStatus() {
-    if (panelFragReporter == null) {
-      return;
+  private void updatePanelEnabledStatuses() {
+    boolean run = checkRun.isSelected();
+    boolean skipQuant = checkSkipQuant.isSelected();
+    checkSkipQuant.setEnabled(run);
+    updateEnabledStatus(pContent, run && !skipQuant);
+    if (panelFragReporter != null) {
+      updateEnabledStatus(panelFragReporter, run);
     }
-    updateEnabledStatus(panelFragReporter, checkRun.isSelected());
   }
 
   private void updateMsstatsVisibility() {
@@ -165,6 +167,9 @@ public class DiannPanel extends JPanelBase {
     checkRun = new UiCheck("Quantify with DIA-NN", null, false);
     checkRun.setName("run-dia-nn");
 
+    checkSkipQuant = new UiCheck("Skip Quant, run FragReporter only", null, false);
+    checkSkipQuant.setName("diann.skip-quant");
+
     String message = "The stand-alone DIA-NN program (with full functionality) can be downloaded from the <a href=\"https://github.com/vdemichev/DiaNN/releases\">DIA-NN GitHub repository</a>. <a href=\"https://doi.org/10.1038/s41592-019-0638-x\">Reference</a><br/>";
 
     HtmlStyledJEditorPane messagePane = createClickableHtml(message);
@@ -179,6 +184,7 @@ public class DiannPanel extends JPanelBase {
 
     mu.add(p, checkRun);
     mu.add(p, imageLabel).gapRight("50").wrap();
+    mu.add(p, checkSkipQuant).wrap();
     mu.add(p, messagePane).pushX();
 
     return p;
@@ -440,6 +446,10 @@ public class DiannPanel extends JPanelBase {
 
   public boolean isRunPlex() {
     return SwingUtils.isEnabledAndChecked(checkRunPlex);
+  }
+
+  public boolean isSkipQuant() {
+    return SwingUtils.isEnabledAndChecked(checkSkipQuant);
   }
 
   public String getLight() {

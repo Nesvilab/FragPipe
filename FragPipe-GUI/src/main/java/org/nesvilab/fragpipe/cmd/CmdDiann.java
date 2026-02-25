@@ -115,8 +115,15 @@ public class CmdDiann extends CmdBase {
       boolean isTransferLearningRun,
       boolean isTransferLearningPrediction,
       String transferLearningOutputFormat,
-      String decoyTag) {
+      String decoyTag,
+      boolean skipQuant) {
     initPreConfig();
+
+    if (skipQuant) {
+      configureFragReporter(ramGb, modTag, siteProb, reportLevels, fragReporterCmdOpts);
+      isConfigured = true;
+      return true;
+    }
 
     String predictedSpeclibPath = null;
     if (isTransferLearningRun && isTransferLearningPrediction) {
@@ -533,34 +540,7 @@ public class CmdDiann extends CmdBase {
       pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + " convert DIA-NN output to MSstats.csv").create());
     }
 
-    List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Stream.of(FRAG_REPORTER));
-    if (classpathJars == null) {
-      System.err.println("Could not find " + FRAG_REPORTER);
-    } else {
-      List<String> cmd = new ArrayList<>();
-      cmd.add(Fragpipe.getBinJava());
-      cmd.add("-Xmx" + ramGb + "G");
-      cmd.add("-jar");
-      cmd.add(constructClasspathString(classpathJars));
-      cmd.add("--pr");
-      cmd.add(wd.resolve("dia-quant-output").resolve("report.tsv").toAbsolutePath().normalize().toString());
-      cmd.add("--exp-ann");
-      cmd.add(wd.resolve("fragpipe-files" + manifestExt).toAbsolutePath().normalize().toString());
-      cmd.add("--out-dir");
-      cmd.add(wd.resolve("dia-quant-output").toAbsolutePath().normalize().toString());
-      cmd.add("--mod-tag");
-      cmd.add(modTag);
-      cmd.add("--min-site-prob");
-      cmd.add(String.valueOf(siteProb));
-      cmd.add("--level");
-      cmd.add(reportLevels);
-      if (fragReporterCmdOpts != null && !fragReporterCmdOpts.isEmpty()) {
-        cmd.add(fragReporterCmdOpts);
-      }
-      ProcessBuilder pb = new ProcessBuilder(cmd);
-      pb.directory(wd.resolve("dia-quant-output").toFile());
-      pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + " generate site reports").create());
-    }
+    configureFragReporter(ramGb, modTag, siteProb, reportLevels, fragReporterCmdOpts);
 
 //    if (isRunPlex) {
 //      final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(BATMASS_IO_JAR));
@@ -634,6 +614,37 @@ public class CmdDiann extends CmdBase {
 
     isConfigured = true;
     return true;
+  }
+
+  private void configureFragReporter(int ramGb, String modTag, float siteProb, String reportLevels, String fragReporterCmdOpts) {
+    List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Stream.of(FRAG_REPORTER));
+    if (classpathJars == null) {
+      System.err.println("Could not find " + FRAG_REPORTER);
+    } else {
+      List<String> cmd = new ArrayList<>();
+      cmd.add(Fragpipe.getBinJava());
+      cmd.add("-Xmx" + ramGb + "G");
+      cmd.add("-jar");
+      cmd.add(constructClasspathString(classpathJars));
+      cmd.add("--pr");
+      cmd.add(wd.resolve("dia-quant-output").resolve("report.tsv").toAbsolutePath().normalize().toString());
+      cmd.add("--exp-ann");
+      cmd.add(wd.resolve("fragpipe-files" + manifestExt).toAbsolutePath().normalize().toString());
+      cmd.add("--out-dir");
+      cmd.add(wd.resolve("dia-quant-output").toAbsolutePath().normalize().toString());
+      cmd.add("--mod-tag");
+      cmd.add(modTag);
+      cmd.add("--min-site-prob");
+      cmd.add(String.valueOf(siteProb));
+      cmd.add("--level");
+      cmd.add(reportLevels);
+      if (fragReporterCmdOpts != null && !fragReporterCmdOpts.isEmpty()) {
+        cmd.add(fragReporterCmdOpts);
+      }
+      ProcessBuilder pb = new ProcessBuilder(cmd);
+      pb.directory(wd.resolve("dia-quant-output").toFile());
+      pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + " generate site reports").create());
+    }
   }
 
   private static List<String> getPlexDiannFlags(String lightString, String mediumString, String heavyString) throws Exception {

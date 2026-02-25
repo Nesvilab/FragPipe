@@ -2343,7 +2343,8 @@ public class FragpipeRun {
             transferLearningPanel.isRun(),
             transferLearningPanel.isRunPrediction(),
             transferLearningPanel.getOutputFormat(),
-            decoyTag);
+            decoyTag,
+            diannPanel.isSkipQuant());
       }
       return true;
     });
