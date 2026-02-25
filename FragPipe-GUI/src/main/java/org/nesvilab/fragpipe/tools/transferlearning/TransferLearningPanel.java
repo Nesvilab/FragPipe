@@ -208,7 +208,7 @@ public class TransferLearningPanel extends JPanelBase {
     FormEntry feCustomMods = mu.feb("custom-mods", uiTextCustomMods)
         .label("Custom modifications")
         .tooltip("<html>Define non-Unimod modifications. Format: <b>mod_name,composition,mod_loss_composition,mod_mass</b><br>"
-            + "Example: <b>Glycan@N,C(88)H(146)N(2)O(70),,2026.68700;MyPTM@A,H(2)O(2)S(2),H(1)O(1),97.94962,</b><br>"
+            + "Example: <b>Glycan@N,C(88)H(146)N(2)O(70),,2026.68700;D_to_pyrogluE@n,C(1)O(-1),,-3.9949;MyPTM@A,H(2)O(2)S(2),H(1)O(1),97.94962,</b><br>"
             + "The columns are: mod name, composition, mod loss composition (can be blank), and mod mass.<br>"
             + "Separate multiple modifications with semicolons.</html>")
         .create();
