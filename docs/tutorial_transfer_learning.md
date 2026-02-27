@@ -1,4 +1,4 @@
-Last update: Jan 26, 2026
+Last update: Feb 27, 2026
 
 # Transfer Learning: peptide candidates, spec lib usage, and decoy handling
 A variety of peptide property prediction models ae available in FragPipe, namely DIA-NN and those on the
@@ -7,40 +7,29 @@ models may not know the nuances of your machine or PTMs of interest. Transfer le
 the general rules of peptide fragmentation, liquid chromotography, and ion mobility and adapts it on a new dataset. This
 has the potential to improve DDA identifications and DIA quantification, the latter of which was limited in previous 
 FragPipe editions to only quantifying FDR-filtered peptide candidates from empirically generated libraries. Our transfer
-learning relies upon the AlphaPeptDeep transfer learning module
+learning relies upon the [AlphaPeptDeep transfer learning module](https://github.com/MannLabs/alphapeptdeep).
 
 ---
 
 ## First steps
-Before running transfer learning, the server must be set up. Refer to [this tutorial page](https://github.com/Nesvilab/FragPipe_transfer_learn/tree/main)
-for instructions on setting it up.
+There are two options for running FragPipe transfer learning: using our FragPipe public server or setting up a private server.
+**An AWS server is also in development.** Please direct all requests for access to the public/private servers to nesvi[AT]med.umich.edu
+if you are an academic user or nesvi[AT]fragmatics.com if you are a commercial user.
 
-A credential file must be provided to FragPipe ending with the ".key" extension. It has two lines, the server 
-URL and API key. The API key can be generated via [HTTP request](https://github.com/Nesvilab/FragPipe_transfer_learn/tree/main?tab=readme-ov-file#generate-api-keys).
-Below is an example.
+### Public server
+Please contact us to generate an API key for you.
+
+### Private server
+Please contact us for access to [this tutorial page](https://github.com/Nesvilab/FragPipe_transfer_learn/tree/main)
+for instructions on setting up your own Docker instance. Once the server is up, you must generate your own credential file.
+This file, ending with the ".key" extension, has two lines, the server URL and API key. The API key can be generated via 
+cURL request. Below is an example credential key file.
 
 ```
 http://localhost:8000
 apikey-123
 ```
 ![credential file](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/credentials_key.png)
----
-
-## Overview and assumptions
-Transfer learning in FragPipe can be run **with or without a full MSFragger search**, depending on:
-
-- whether a **training spectral library already exists**
-- how peptide candidates for prediction are defined
-- how the predicted library will be used downstream (MSBooster, DIA-NN, etc.)
-
-**Important assumptions**
-
-Transfer learning requires a **training spectral library** (typically generated via **MSFragger → Validation → Spec Lib / EasyPQP**).
-
-- **Workflows A–C below assume this training library already exists**
-- **Workflow D** describes the full end-to-end case starting directly from raw MS data
-
-![example workflows](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/example_workflows.png)
 ---
 
 ## Peptide candidate sources
@@ -81,14 +70,16 @@ Libraries and weights not generated in FragPipe can be used if they follow the a
 ![custom lib](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/custom_tl_library.png)
 
 ## Outputs
-Transfer learning will return a zip file with all model weights and a subfolder containing quality control metrics. There
-is no need to unzip the zip folder in our workflows, as the prediction script automatically unzips it.
+Transfer learning will return a zip file with all model weights and a subfolder containing 
+[quality control metrics](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/docs/transfer_learning_QC_figures.md). 
+There is no need to unzip the zip folder in our workflows, as the prediction script automatically unzips it.
 
 ![model weights zip](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/model_weights_zip.png)
 
 The prediction step supports many output format: speclib (DIA-NN specific format), library.tsv, parquet, and mgf. The
 parquet follows the standard library.tsv format. Library.tsv is the current default for our workflows, and we are actively
-testing the suitability of the speclib format for our workflows.
+testing the suitability of the speclib format for our workflows. **We highly recommend using library.tsv format if uploading
+to DIA-NN.** Other formats may produce unexpected results in DIA-NN.
 
 ![pred output formats](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/pred_output_formats.png)
 
@@ -106,7 +97,54 @@ testing the suitability of the speclib format for our workflows.
       ![keep decoys](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/keep_decoys.png)
 ---
 
+## Custom modifications
+
+Modifications not in UniMod will need to be specified via a comma-separated string in FragPipe for both transfer learning 
+and prediction. Each modification entry will be in the form <mod_name@AA,composition,modloss_composition,mod_mass>.
+"(modloss_)composition" is the atomic composition in the form AA(# of atoms) and "mod_mass" is monoisotopic.
+**Modification losses will be supported soon.**
+
+`Custom1@N,C(88)H(146)N(2)O(70),,2026.687`
+
+If a modification is localized to multiple amino acids in the training library or prediction file, a separate entry 
+must be specified for each. Multiple entries, whether from different modifications or different localizations, must be
+separated with semicolons.
+
+`Custom1@N,C(88)H(146)N(2)O(70),,2026.687;Custom1@A,C(88)H(146)N(2)O(70),,2026.687`
+
+Note: N-terminal mods are `@n`, C-terminal `@c`
+
+`Custom2@n,C(1)O(-1),,-3.9949`
+
+Note: Non-isobaric labels with the same atomic composition (e.g. mTRAQ) are a special case:
+specify the masses of the labels in the same entry separated by underscores. The atomic composition does not consider
+different isotopes
+
+`Custom3@K,H(12)C(7)N(2)O(1),,140.09`
+
+___
+
 ## Common transfer learning workflows
+
+### Overview and assumptions
+Transfer learning in FragPipe can be run **with or without a full MSFragger search**, depending on:
+
+- whether a **training spectral library already exists**
+- how peptide candidates for prediction are defined
+- how the predicted library will be used downstream (MSBooster, DIA-NN, etc.)
+
+**Important assumptions**
+
+Transfer learning requires a **training spectral library** (typically generated via **MSFragger → Validation → Spec Lib / EasyPQP**).
+We present a few workflows that can server as templates for your use case.
+
+- **Workflows A–C below assume this training library already exists**
+- **Workflow D** describes the full end-to-end case starting directly from raw MS data
+
+The below image summarizes how transfer learning fits into our pipeline. Subsequent workflow sections will show adapted
+images.
+
+![example workflows](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/example_workflows.png)
 
 ### Workflow A — DDA-only MSBooster rescoring
 
@@ -114,13 +152,15 @@ testing the suitability of the speclib format for our workflows.
 
 This can also be use for DIA data, if the goal is not quantification but only identification
 
+![example workflows A](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/example_workflows_A.png)
+
 **Execution steps:**
 
 0.  Load your training library. An externally generated training library can be provided in the "Load custom spectral 
 library for training (optional)" box in the **Transfer Learning** tab. If you are picking up from the end of a FragPipe 
 workflow with **Spec Lib** generation enabled, a `library.tsv` should already be in your output directory and you can
 leave the box blank. If diaTracer was used, replace the .d files with _diatracer.mzml files in the Workflow tab.
-1. Run **Transfer Learning** and **prediction** to predict a spectral library
+1. Run **Transfer Learning** and **prediction** to predict a spectral library. Set "Output format" to speclib or tsv
 2. Reload (or duplicate) the DDA search workflow
     - Load the predicted library into **MSBooster** "Spectral library (optional, experimental) box"
     - **MSFragger: OFF**
@@ -146,15 +186,18 @@ leave the box blank. If diaTracer was used, replace the .d files with _diatracer
 
 **Goal:** Generate a predicted spectral library for DIA analysis in DIA-NN  
 
+![example workflows B](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/example_workflows_B.png)
+
 **Execution steps:**
 
 0. Load your training library. An externally generated training library can be provided in the "Load custom spectral
     library for training (optional)" box in the **Transfer Learning** tab. If you are picking up from the end of a FragPipe
     workflow with **Spec Lib** generation enabled, a `library.tsv` should already be in your output directory and you can
     leave the box blank.
-1. Run **Transfer Learning** and **prediction** to predict a spectral library
+1. Run **Transfer Learning** and **prediction** to predict a spectral library. Set "Output format" to tsv
 2. Run DIA quantification with the **Quant (DIA)** tab, specifying your new library in the "Spectral library (optional)"
-box
+box. Note that the DIA-NN tab can be checkmarked and run together with transfer learning in one go. It is described in 
+this separate step for sake of clarity
 
 ![diann quant](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/diann_quant_tl.png)
 
@@ -178,18 +221,22 @@ transfer learning
 
 **Goal:** Improve IDs via MSBooster and regenerate a refined predicted library
 
+![example workflows C](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/example_workflows_C.png)
+
 **Execution steps:**
 
 0. Load your training library. An externally generated training library can be provided in the "Load custom spectral
    library for training (optional)" box in the **Transfer Learning** tab. If you are picking up from the end of a FragPipe
    workflow with **Spec Lib** generation enabled, a `library.tsv` should already be in your output directory and you can
    leave the box blank. If diaTracer was used, replace the .d files with _diatracer.zml files in the Workflow tab.
-1. Run **Transfer Learning** and **prediction** to predict your **initial spectral library**
+1. Run **Transfer Learning** and **prediction** to predict your **initial spectral library**. Set "Output format" to speclib or tsv
 2. Reload workflow and rerun search from **MSBooster** using the predicted library. Steps up through the second transfer
-learning step can be rerun in one go, generating a second, improved predicted library 
+learning step can be rerun in one go, generating a second, improved predicted library. When predicting the second library, 
+set "Output format" to tsv
     - Load the predicted library into **MSBooster** "Spectral library (optional, experimental) box"
 3. Run DIA quantification with the **Quant (DIA)** tab, specifying your new library in the "Spectral library (optional)"
-   box. If diaTracer was used, replace the _diatracer.mzml files with .d files in the Workflow tab.
+   box. If diaTracer was used, replace the _diatracer.mzml files with .d files in the Workflow tab. Note that the DIA-NN 
+   tab can be checkmarked and run together with the previous tools in one go. It is described in this separate step for sake of clarity
 
 **Settings for transfer learning and prediction (step 1)**
 - DIA Pseudo MS2 OFF (if DIA-Umpire or diaTracer were used)
@@ -216,6 +263,8 @@ This is the generic use case. The ideas here about generating a training library
 of the previous workflows.
 
 **Goal:** Train transfer learning weights and generate a predicted library starting from raw MS files
+
+![example workflows D](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/example_workflows_D.png)
 
 **Typical settings:**
 - MSFragger: ON
