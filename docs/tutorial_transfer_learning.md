@@ -1,4 +1,4 @@
-Last update: Feb 27, 2026
+Last update: Mar 2, 2026
 
 # Transfer Learning: peptide candidates, spec lib usage, and decoy handling
 A variety of peptide property prediction models ae available in FragPipe, namely DIA-NN and those on the
@@ -112,15 +112,14 @@ separated with semicolons.
 
 `Custom1@N,C(88)H(146)N(2)O(70),,2026.687;Custom1@A,C(88)H(146)N(2)O(70),,2026.687`
 
-Note: N-terminal mods are `@n`, C-terminal `@c`
+N-terminal mods are `@n`, C-terminal `@c`
 
 `Custom2@n,C(1)O(-1),,-3.9949`
 
-Note: Non-isobaric labels with the same atomic composition (e.g. mTRAQ) are a special case:
-specify the masses of the labels in the same entry separated by underscores. The atomic composition does not consider
-different isotopes
+The atomic composition does not consider different isotopes. As an example, light and medium 
+(H(12)C(4)13C(3)N(1)15N(1)O(1)) mTRAQ labels would share the same atomic composition here:
 
-`Custom3@K,H(12)C(7)N(2)O(1),,140.09`
+`Custom3_light@K,H(12)C(7)N(2)O(1),,140.09;Custom3_medium@K,H(12)C(7)N(2)O(1),,144.10`
 
 ___
 
