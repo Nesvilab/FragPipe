@@ -17,20 +17,20 @@
 
 package org.nesvilab.fragpipe.cmd;
 
-import java.awt.Component;
+import org.nesvilab.fragpipe.Fragpipe;
+import org.nesvilab.fragpipe.FragpipeLocations;
+import org.nesvilab.utils.StringUtils;
+
+import java.awt.*;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.nesvilab.fragpipe.Fragpipe;
-import org.nesvilab.fragpipe.FragpipeLocations;
-import org.nesvilab.utils.StringUtils;
-
 public class CmdMetaproteomics extends CmdBase {
 
   public static String NAME = "Metaproteomics";
-  public static String VERSION = "1.0.7";
+  public static String VERSION = "1.0.8";
   public static String JAR_NAME = "FP-Meta-" + VERSION + ".jar";
   private String taxonNameFile;
   private String taxonNodeFile;
