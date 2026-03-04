@@ -132,23 +132,23 @@ public class Msfragger {
               isValid = false;
             } else {
               isValid = true;
-              Matcher m1 = patternExpiryDate.matcher(line);
-              Matcher m2 = patternCustomer.matcher(line);
-              Matcher m3 = patternMode.matcher(line);
-              if (m1.find()) {
-                expiryDate = m1.group(1);
-              }
-              if (m2.find()) {
-                customer = m2.group(1);
-              }
-              if (m3.find()) {
-                mode = m3.group(1);
-              }
+            }
+            Matcher m1 = patternExpiryDate.matcher(line);
+            Matcher m2 = patternCustomer.matcher(line);
+            Matcher m3 = patternMode.matcher(line);
+            if (m1.find()) {
+              expiryDate = m1.group(1);
+            }
+            if (m2.find()) {
+              customer = m2.group(1);
+            }
+            if (m3.find()) {
+              mode = m3.group(1);
             }
           } else if (line.startsWith("No license file found.")) {
             isValid = false;
           }
-         
+
           Matcher m = MsfraggerVerCmp.regex2.matcher(line);
           if (m.find()) {
             isVersionParsed = true;
