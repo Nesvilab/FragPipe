@@ -154,7 +154,6 @@ public class TabConfig extends JPanelWithEnablement {
   private JButton btnFinishPythonInstall;
   private TextConsole pythonTextConsole;
   private JScrollPane pythonTextScroll;
-  private boolean dbsplitEnabled = false, easyPQPEnabled = false;
   private JButton btnAbout;
 
   public static final String TIP_MSFRAGGER_BIN = "tip.msfragger.bin";
@@ -885,25 +884,62 @@ public class TabConfig extends JPanelWithEnablement {
     }
   }
 
-  private String textDbsplitEnabled(boolean isEnabled) {
-    return "Database splitting: <b>" + (isEnabled ? "Available" : "Not available") + "</b>.&emsp;"
+  private String textDbsplitEnabled(boolean isEnabled, String reason) {
+    String status = "Database splitting: <b>" + (isEnabled ? "Available" : "Not available") + "</b>.&emsp;"
         + "Used for searching very large databases by splitting into smaller chunks.";
+    if (!isEnabled && reason != null && !reason.isEmpty()) {
+      status += "<br>" + reason;
+    }
+    return status;
+  }
+
+  /**
+   * Determine if the "Finish Python install" button should be visible.
+   * Show when Python is not configured or any required Python packages are missing.
+   * Hide only when Python is fully configured and both dbsplit and easyPQP packages are installed.
+   */
+  private void updatePythonInstallButtonVisibility() {
+    boolean pythonNeedsWork = true;
+    try {
+      NoteConfigPython pythonNote = Fragpipe.getSticky(NoteConfigPython.class);
+      if (pythonNote != null && pythonNote.pi != null && pythonNote.ex == null) {
+        // Python binary is OK, check if all required packages are installed
+        NoteConfigSpeclibgen speclibNote = Bus.getStickyEvent(NoteConfigSpeclibgen.class);
+        boolean speclibOk = speclibNote != null && speclibNote.isValid();
+
+        NoteConfigDbsplit dbsplitNote = Bus.getStickyEvent(NoteConfigDbsplit.class);
+        boolean dbsplitPythonOk;
+        if (dbsplitNote != null && dbsplitNote.isValid()) {
+          dbsplitPythonOk = true;
+        } else if (dbsplitNote != null && dbsplitNote.ex != null) {
+          // dbsplit may fail due to MSFragger, not Python. Check the error message.
+          String msg = dbsplitNote.ex.getMessage();
+          dbsplitPythonOk = msg != null && msg.contains("MSFragger") && !msg.contains("Python");
+        } else {
+          dbsplitPythonOk = false;
+        }
+
+        pythonNeedsWork = !speclibOk || !dbsplitPythonOk;
+      }
+    } catch (Throwable ignore) {
+    }
+    btnFinishPythonInstall.setVisible(pythonNeedsWork);
+    pythonTextScroll.setVisible(pythonNeedsWork);
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteConfigDbsplit m) {
     if (m.ex != null) {
-      epDbsplitText.setText(textDbsplitEnabled(false));
+      epDbsplitText.setText(textDbsplitEnabled(false, m.ex.getMessage()));
+      updatePythonInstallButtonVisibility();
       this.revalidate();
       return;
     }
     if (m.instance == null) {
       throw new IllegalStateException("If no exception is reported from DBSplit init, instance should not be null");
     }
-    epDbsplitText.setText(textDbsplitEnabled(true));
-    dbsplitEnabled = true;
-    btnFinishPythonInstall.setVisible(!easyPQPEnabled);
-    pythonTextScroll.setVisible(!easyPQPEnabled);
+    epDbsplitText.setText(textDbsplitEnabled(true, null));
+    updatePythonInstallButtonVisibility();
     this.revalidate();
   }
 
@@ -911,14 +947,11 @@ public class TabConfig extends JPanelWithEnablement {
     StringBuilder sb = new StringBuilder();
     if (enableEasypqp && !easypqpLocalVersion.contentEquals("N/A")) {
       sb.append("FragPipe-SpecLib: <b>Available</b>. Version: " + easypqpLocalVersion + ". Used for spectral library building.<br><br>");
-      easyPQPEnabled = true;
-      btnFinishPythonInstall.setVisible(!dbsplitEnabled);
-      pythonTextScroll.setVisible(!dbsplitEnabled);
     } else {
       if (errMsg.isEmpty()) {
-        sb.append("FragPipe-SpecLib: <b>Not available</b>. Used for spectral library building.<br>Please check Python, FragPipe-SpecLib, and MSFragger configurations.<br><br>");
+        sb.append("FragPipe-SpecLib: <b>Not available</b>. Used for spectral library building.<br>Please check Python and FragPipe-SpecLib configurations.<br><br>");
       } else {
-        sb.append("FragPipe-SpecLib: <b>Not available</b>. Used for spectral library building.<br>Please check Python, FragPipe-SpecLib, and MSFragger configurations.<br><br>").append(errMsg);
+        sb.append("FragPipe-SpecLib: <b>Not available</b>. Used for spectral library building.<br>Please check Python and FragPipe-SpecLib configurations.<br><br>").append(errMsg);
       }
     }
     return sb.toString();
@@ -930,6 +963,7 @@ public class TabConfig extends JPanelWithEnablement {
     if (m.ex != null) {
       log.debug("Got NoteConfigSpeclibgen with exception set");
       epEasyPQPText.setText(textEasyPQP("N/A", false, m.ex.getMessage()));
+      updatePythonInstallButtonVisibility();
       showConfigError(m.ex, TIP_SPECLIBGEN, epEasyPQPText, false);
       this.revalidate();
       return;
@@ -985,6 +1019,7 @@ public class TabConfig extends JPanelWithEnablement {
     }
 
     epEasyPQPText.setText(textEasyPQP(m.easypqpLocalVersion, true, ""));
+    updatePythonInstallButtonVisibility();
 
     this.revalidate();
   }
@@ -1083,7 +1118,7 @@ public class TabConfig extends JPanelWithEnablement {
     }
 
     epPythonVer = new HtmlStyledJEditorPane("Python version: N/A");
-    epDbsplitText = new HtmlStyledJEditorPane(textDbsplitEnabled(false));
+    epDbsplitText = new HtmlStyledJEditorPane(textDbsplitEnabled(false, null));
     epEasyPQPText = new HtmlStyledJEditorPane(textEasyPQP("N/A", false, ""));
 
     btnFinishPythonInstall = UiUtils.createButton("Finish Python install", e -> Bus.post(new MessageInstallEasyPQP(console)));

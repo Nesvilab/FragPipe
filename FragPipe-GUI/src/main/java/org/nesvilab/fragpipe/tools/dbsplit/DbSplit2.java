@@ -112,8 +112,14 @@ public class DbSplit2 {
 
   private void init(NoteConfigPython python, NoteConfigMsfragger fragger) throws ValidationException {
     synchronized (initLock) {
-      if (python == null || python.pi == null || fragger == null || fragger.version == null)
-        throw new ValidationException("Both Python and MSFragger need to be configured first.");
+      if (python == null || python.pi == null) {
+        if (fragger == null || fragger.version == null) {
+          throw new ValidationException("Please configure both Python and MSFragger first.");
+        }
+        throw new ValidationException("Please configure Python first.");
+      }
+      if (fragger == null || fragger.version == null)
+        throw new ValidationException("Please configure MSFragger first.");
       isInitialized = false;
 
       checkPython(python);
@@ -181,7 +187,7 @@ public class DbSplit2 {
 
   private void checkFragger(NoteConfigMsfragger m) throws ValidationException {
     if (!m.isValid()) {
-      throw new ValidationException("Require valid MSFragger");
+      throw new ValidationException("Please configure MSFragger first.");
     }
   }
 }
