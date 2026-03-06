@@ -112,6 +112,8 @@ public class CmdDiann extends CmdBase {
       float siteProb,
       String reportLevels,
       String fragReporterCmdOpts,
+      float matrixQvalue,
+      boolean recalculateQvalue,
       boolean isTransferLearningRun,
       boolean isTransferLearningPrediction,
       String transferLearningOutputFormat,
@@ -120,7 +122,7 @@ public class CmdDiann extends CmdBase {
     initPreConfig();
 
     if (skipQuant) {
-      configureFragReporter(ramGb, modTag, siteProb, reportLevels, fragReporterCmdOpts);
+      configureFragReporter(ramGb, modTag, siteProb, reportLevels, fragReporterCmdOpts, matrixQvalue, recalculateQvalue);
       isConfigured = true;
       return true;
     }
@@ -540,7 +542,7 @@ public class CmdDiann extends CmdBase {
       pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + " convert DIA-NN output to MSstats.csv").create());
     }
 
-    configureFragReporter(ramGb, modTag, siteProb, reportLevels, fragReporterCmdOpts);
+    configureFragReporter(ramGb, modTag, siteProb, reportLevels, fragReporterCmdOpts, matrixQvalue, recalculateQvalue);
 
 //    if (isRunPlex) {
 //      final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(BATMASS_IO_JAR));
@@ -616,7 +618,7 @@ public class CmdDiann extends CmdBase {
     return true;
   }
 
-  private void configureFragReporter(int ramGb, String modTag, float siteProb, String reportLevels, String fragReporterCmdOpts) {
+  private void configureFragReporter(int ramGb, String modTag, float siteProb, String reportLevels, String fragReporterCmdOpts, float matrixQvalue, boolean recalculateQvalue) {
     List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Stream.of(FRAG_REPORTER));
     if (classpathJars == null) {
       System.err.println("Could not find " + FRAG_REPORTER);
@@ -638,6 +640,12 @@ public class CmdDiann extends CmdBase {
       cmd.add(String.valueOf(siteProb));
       cmd.add("--level");
       cmd.add(reportLevels);
+      cmd.add("--matrix-qvalue");
+      cmd.add(String.valueOf(matrixQvalue));
+      if (recalculateQvalue) {
+        cmd.add("--recalculate");
+        cmd.add("1");
+      }
       if (fragReporterCmdOpts != null && !fragReporterCmdOpts.isEmpty()) {
         cmd.add(fragReporterCmdOpts);
       }

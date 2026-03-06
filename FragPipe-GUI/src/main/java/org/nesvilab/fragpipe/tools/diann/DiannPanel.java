@@ -82,6 +82,8 @@ public class DiannPanel extends JPanelBase {
   private UiCheck uiCheckModifiedPeptideLevel;
   private UiCheck uiCheckSiteLevel;
   private UiText uiTextFragReporterCmdOpts;
+  private UiSpinnerDouble uiSpinnerMatrixQvalue;
+  private UiCheck uiCheckRecalculateQvalue;
   private JCheckBox checkSkipQuant;
 
   @Override
@@ -394,6 +396,12 @@ public class DiannPanel extends JPanelBase {
     uiCheckSiteLevel.setEnabled(false);
     FormEntry feSiteLevel = new FormEntry("site-level-report", "Site", uiCheckSiteLevel, "Generate site-level report (multi-site and single-site)");
 
+    uiSpinnerMatrixQvalue = UiUtils.spinnerDouble(0.01, 0.001, 1.0, 0.01).setCols(5).setFormat("#.###").create();
+    FormEntry feMatrixQvalue = mu.feb(uiSpinnerMatrixQvalue).name("fragreporter-qvalue").label("Q-value").tooltip("Q-value threshold for FragReporter filtering").create();
+
+    uiCheckRecalculateQvalue = UiUtils.createUiCheck("Re-calculate q-values (if the results have decoys)", false);
+    FormEntry feRecalculateQvalue = new FormEntry("recalculate-qvalues", "Re-calculate q-values (if the results have decoys)", uiCheckRecalculateQvalue, "Recalculate Q-values using decoys from report.tsv. Only apply if the results have decoys.");
+
     uiTextFragReporterCmdOpts = UiUtils.uiTextBuilder().cols(20).text("").create();
     FormEntry feFragReporterCmdOpts = new FormEntry("fragreporter-cmd-opts", "Cmd line opts", uiTextFragReporterCmdOpts, "--pr: Precursor report (DIA-NN report.tsv or Skyline .csv file)\n" +
             "--exp-ann: The fragpipe-files.fp-manifest file\n" +
@@ -418,6 +426,9 @@ public class DiannPanel extends JPanelBase {
     mu.add(panelFragReporter, feModTag.comp).growX();
     mu.add(panelFragReporter, feSiteProb.label()).split(2);
     mu.add(panelFragReporter, feSiteProb.comp, mu.ccL()).wrap();
+    mu.add(panelFragReporter, feMatrixQvalue.label(), mu.ccL()).split(3);
+    mu.add(panelFragReporter, feMatrixQvalue.comp);
+    mu.add(panelFragReporter, feRecalculateQvalue.comp).wrap();
     mu.add(panelFragReporter, feFragReporterCmdOpts.label(), mu.ccL()).split(2);
     mu.add(panelFragReporter, feFragReporterCmdOpts.comp).growX().wrap();
 
@@ -557,6 +568,14 @@ public class DiannPanel extends JPanelBase {
 
   public boolean isSiteLevelReport() {
     return uiCheckSiteLevel.isSelected();
+  }
+
+  public float getMatrixQvalue() {
+    return (float) uiSpinnerMatrixQvalue.getActualValue();
+  }
+
+  public boolean isRecalculateQvalue() {
+    return uiCheckRecalculateQvalue.isSelected();
   }
 
   public String getFragReporterCmdOpts() {
