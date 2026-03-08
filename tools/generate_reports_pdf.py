@@ -253,11 +253,96 @@ class FragPipeReport:
         self.manifest_data.columns = ["Spectrum File", "Experiment", "Bioreplicate", "Data Type"]
         self.manifest_data.insert(0, 'Run', range(1, len(self.manifest_data) + 1))
 
+        self._read_msbooster_plots()
+
         self.id_nums = pd.DataFrame(columns=["Experiment", "PSM", "Peptides", "Proteins"])
-        # Combine psm, peptide, protein ids dataframe to one
-        self.id_nums = pd.concat([self.id_nums, self.read_psm()], ignore_index=True)
-        self.id_nums = pd.concat([self.id_nums, self.read_peptides()], ignore_index=True)
-        self.id_nums = pd.concat([self.id_nums, self.read_proteins()], ignore_index=True)
+        if self.run_spec_lib and self._has_dia_data():
+            # DIA speclib workflow: split counts per run from single psm.tsv
+            self._read_ids_per_run_from_psm()
+        else:
+            # Combine psm, peptide, protein ids dataframe to one
+            self.id_nums = pd.concat([self.id_nums, self.read_psm()], ignore_index=True)
+            self.id_nums = pd.concat([self.id_nums, self.read_peptides()], ignore_index=True)
+            self.id_nums = pd.concat([self.id_nums, self.read_proteins()], ignore_index=True)
+
+    def _has_dia_data(self):
+        """Check if manifest contains DIA files (Data Type == '1' or contains 'DIA')"""
+        if self.manifest_data is not None and 'Data Type' in self.manifest_data.columns:
+            dt = self.manifest_data['Data Type'].astype(str).str.strip()
+            return (dt == '1').any() or dt.str.contains('DIA', case=False, na=False).any()
+        return False
+
+    def _read_msbooster_plots(self):
+        """Read MSBooster plot images if available"""
+        msbooster_dir = os.path.join(self.results_path, "MSBooster", "MSBooster_plots")
+        if not os.path.exists(msbooster_dir):
+            return
+        for one_folder in os.listdir(msbooster_dir):
+            folder_path = os.path.join(msbooster_dir, one_folder)
+            if not os.path.isdir(folder_path):
+                continue
+            for file in os.listdir(folder_path):
+                if file.endswith(".png"):
+                    if "edited" in file:
+                        run_name = file.split("_edited")[0]
+                    else:
+                        run_name = file.split(".png")[0]
+                    if run_name not in self.msbooster_plots:
+                        self.msbooster_plots[run_name] = []
+                    if one_folder == "RT_calibration_curves":
+                        self.msbooster_plots[run_name].append(
+                            Image.open(os.path.join(folder_path, file)))
+                    if "delta_RT_loess" in file or "pred_RT_real_units" in file or "unweighted_spectral_entropy" in file:
+                        self.msbooster_plots[run_name].append(
+                            Image.open(os.path.join(folder_path, file)))
+
+    def _read_ids_per_run_from_psm(self):
+        """Read single psm.tsv and compute per-run PSM/peptide/protein counts for DIA speclib workflows."""
+        psm_file = os.path.join(self.results_path, "psm.tsv")
+        psm_df = pd.read_csv(psm_file, sep="\t", on_bad_lines="skip", engine="pyarrow")
+
+        psm_df["raw_file"] = psm_df["Spectrum"].apply(
+            lambda x: os.path.basename(x).split(".")[0])
+
+        # Map raw files to experiment names from manifest
+        run_to_exp = {}
+        for _, row in self.manifest_data.iterrows():
+            spectrum_file = row['Spectrum File']
+            basename = os.path.splitext(os.path.basename(spectrum_file))[0]
+            exp = row.get('Experiment')
+            if pd.isna(exp) or str(exp).strip() == '':
+                exp = basename
+            run_to_exp[basename] = str(exp)
+
+        psm_df["Exp"] = psm_df["raw_file"].map(run_to_exp).fillna(psm_df["raw_file"])
+
+        # PSM counts per experiment
+        psm_counts = psm_df.groupby("Exp").size().reset_index()
+        psm_counts.columns = ["Experiment", "PSM"]
+
+        # Peptide counts (distinct modified peptides per experiment)
+        if "Modified Peptide" in psm_df.columns:
+            pep_counts = psm_df.groupby("Exp")["Modified Peptide"].nunique().reset_index()
+            pep_counts.columns = ["Experiment", "Peptides"]
+        else:
+            pep_counts = pd.DataFrame(columns=["Experiment", "Peptides"])
+
+        # Protein counts (distinct proteins per experiment)
+        if "Protein" in psm_df.columns:
+            prot_counts = psm_df.groupby("Exp")["Protein"].nunique().reset_index()
+            prot_counts.columns = ["Experiment", "Proteins"]
+        else:
+            prot_counts = pd.DataFrame(columns=["Experiment", "Proteins"])
+
+        # Merge into id_nums
+        self.id_nums = psm_counts.merge(pep_counts, on="Experiment", how="outer")
+        self.id_nums = self.id_nums.merge(prot_counts, on="Experiment", how="outer")
+
+        # Distribution data per experiment
+        distinct_rows = psm_df.drop_duplicates(
+            subset=['Spectrum', 'Modified Peptide', 'Peptide Length', 'Charge', 'Number of Missed Cleavages'])
+        dist_data = distinct_rows[['Peptide Length', 'Charge', 'Number of Missed Cleavages', 'Exp']].copy()
+        self.distribution_data = pd.concat([self.distribution_data, dist_data], ignore_index=True)
 
     def get_percolator_features(self):
         with open(os.path.join(self.results_path, self.latest_log_file), "r") as f:
@@ -470,30 +555,6 @@ class FragPipeReport:
 
     def read_psm(self):
         # Read the PSM data
-
-        if os.path.exists(os.path.join(self.results_path, "MSBooster", "MSBooster_plots")):
-            msbooster_files = os.listdir(os.path.join(self.results_path, "MSBooster", "MSBooster_plots"))
-            for one_folder in msbooster_files:
-                # check if the folder is a directory
-                if not os.path.isdir(os.path.join(self.results_path, "MSBooster", "MSBooster_plots", one_folder)):
-                    continue
-                for file in os.listdir(os.path.join(self.results_path, "MSBooster", "MSBooster_plots", one_folder)):
-                    if file.endswith(".png"):
-                        if "edited" in file:
-                            run_name = file.split("_edited")[0]
-                        else:
-                            run_name = file.split(".png")[0]
-                        if run_name not in self.msbooster_plots:
-                            self.msbooster_plots[run_name] = []
-                        if one_folder == "RT_calibration_curves":
-                            self.msbooster_plots[run_name].append(
-                                Image.open(
-                                    os.path.join(self.results_path, "MSBooster", "MSBooster_plots", one_folder, file)))
-                        if "delta_RT_loess" in file or "pred_RT_real_units" in file or "unweighted_spectral_entropy" in file:
-                            self.msbooster_plots[run_name].append(
-                                Image.open(
-                                    os.path.join(self.results_path, "MSBooster", "MSBooster_plots", one_folder, file)))
-
         psm_ids = pd.DataFrame(columns=["Experiment", "PSM"])
         if (self.manifest_data["Experiment"].isnull().any() and self.manifest_data["Bioreplicate"].isnull().any()) or self.run_spec_lib:
             psm_file = os.path.join(self.results_path, "psm.tsv")
