@@ -862,9 +862,10 @@ public class FragpipeRun {
       testWdPath = Paths.get(workingDir);
     } catch (InvalidPathException e) {
       if (Fragpipe.headless){
-        log.error("Output directory path is not a valid path.");
+        log.error("Output directory path is not a valid path: {}", workingDir);
       } else {
-        JOptionPane.showMessageDialog(parent, "Output directory path is not a valid path.\n"
+        JOptionPane.showMessageDialog(parent, "Output directory path is not a valid path:\n"
+                + workingDir + "\n"
                 + "Please select a directory for the output.", "Bad output directory path",
             JOptionPane.WARNING_MESSAGE);
       }
@@ -873,10 +874,11 @@ public class FragpipeRun {
     Pattern reWhitespace = Pattern.compile("\\s");
     if (reWhitespace.matcher(testWdPath.toString()).find()) {
       if (Fragpipe.headless) {
-        log.error("Output directory path contains whitespace characters. Some programs in the pipeline might not work properly in this case. Please change output directory to one without spaces.");
+        log.error("Output directory path contains whitespace characters. Some programs in the pipeline might not work properly in this case. Please change output directory to one without spaces. Path: {}", testWdPath);
       } else {
         JOptionPane.showMessageDialog(parent,
             "Output directory path contains whitespace characters.\n"
+                + "Path: " + testWdPath + "\n"
                 + "Some programs in the pipeline might not work properly in this case.\n\n"
                 + "Please change output directory to one without spaces.",
             "Bad output directory path", JOptionPane.ERROR_MESSAGE);
