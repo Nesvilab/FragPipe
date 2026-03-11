@@ -92,8 +92,6 @@ public class CmdDiann extends CmdBase {
       Set<String> quantificationStrategy,
       String channelNormalizationStrategy,
       boolean unrelatedRuns,
-      float qvalue,
-      boolean useRunSpecificProteinQvalue,
       boolean useMbr,
       boolean redoProteinInference,
       String fastaFile,
@@ -112,8 +110,13 @@ public class CmdDiann extends CmdBase {
       float siteProb,
       String reportLevels,
       String fragReporterCmdOpts,
-      float matrixQvalue,
+      boolean normalizeIntensity,
+      boolean useMaxLFQ,
       boolean recalculateQvalue,
+      float runSpecificPrecursorQvalue,
+      float globalPrecursorQvalue,
+      float runSpecificProteinQvalue,
+      float globalProteinQvalue,
       boolean isTransferLearningRun,
       boolean isTransferLearningPrediction,
       String transferLearningOutputFormat,
@@ -122,7 +125,7 @@ public class CmdDiann extends CmdBase {
     initPreConfig();
 
     if (skipQuant) {
-      configureFragReporter(ramGb, modTag, siteProb, reportLevels, fragReporterCmdOpts, matrixQvalue, recalculateQvalue, decoyTag);
+      configureFragReporter(ramGb, modTag, siteProb, reportLevels, fragReporterCmdOpts, normalizeIntensity, useMaxLFQ, recalculateQvalue, runSpecificPrecursorQvalue, globalPrecursorQvalue, runSpecificProteinQvalue, globalProteinQvalue, decoyTag);
       isConfigured = true;
       return true;
     }
@@ -353,16 +356,14 @@ public class CmdDiann extends CmdBase {
       cmd.add("--out");
       cmd.add("dia-quant-output" + File.separator + "report.tsv");
       cmd.add("--qvalue");
-      cmd.add(String.valueOf(qvalue));
+      cmd.add(String.valueOf(runSpecificPrecursorQvalue));
       if (useMbr) {
         cmd.add("--reanalyse");
       }
-      if (useRunSpecificProteinQvalue) {
-        cmd.add("--matrix-spec-q");
-        cmd.add(String.valueOf(qvalue));
-      }
+      cmd.add("--matrix-spec-q");
+      cmd.add(String.valueOf(runSpecificProteinQvalue));
       cmd.add("--matrix-qvalue");
-      cmd.add(String.valueOf(qvalue));
+      cmd.add(String.valueOf(runSpecificPrecursorQvalue));
       cmd.add("--matrices");
       if (noteConfigDiann.compareVersion("2.0") < 0) {
         if (redoProteinInference) {
@@ -528,21 +529,17 @@ public class CmdDiann extends CmdBase {
       cmd.add("report.tsv");
       cmd.add("./");
       cmd.add(wd.resolve("psm.tsv").toAbsolutePath().normalize().toString());
-      cmd.add(String.valueOf(qvalue));
-      if (useRunSpecificProteinQvalue) {
-        cmd.add(String.valueOf(qvalue));
-      } else {
-        cmd.add("1");
-      }
-      cmd.add(String.valueOf(qvalue));
-      cmd.add(String.valueOf(qvalue));
+      cmd.add(String.valueOf(globalProteinQvalue));
+      cmd.add(String.valueOf(runSpecificProteinQvalue));
+      cmd.add(String.valueOf(globalPrecursorQvalue));
+      cmd.add(String.valueOf(runSpecificPrecursorQvalue));
       cmd.add(wd.resolve("fragpipe-files" + manifestExt).toAbsolutePath().normalize().toString());
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(wd.resolve("dia-quant-output").toFile());
       pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + " convert DIA-NN output to MSstats.csv").create());
     }
 
-    configureFragReporter(ramGb, modTag, siteProb, reportLevels, fragReporterCmdOpts, matrixQvalue, recalculateQvalue, decoyTag);
+    configureFragReporter(ramGb, modTag, siteProb, reportLevels, fragReporterCmdOpts, normalizeIntensity, useMaxLFQ, recalculateQvalue, runSpecificPrecursorQvalue, globalPrecursorQvalue, runSpecificProteinQvalue, globalProteinQvalue, decoyTag);
 
 //    if (isRunPlex) {
 //      final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(BATMASS_IO_JAR));
@@ -618,7 +615,7 @@ public class CmdDiann extends CmdBase {
     return true;
   }
 
-  private void configureFragReporter(int ramGb, String modTag, float siteProb, String reportLevels, String fragReporterCmdOpts, float matrixQvalue, boolean recalculateQvalue, String decoyTag) {
+  private void configureFragReporter(int ramGb, String modTag, float siteProb, String reportLevels, String fragReporterCmdOpts, boolean normalizeIntensity, boolean useMaxLFQ, boolean recalculateQvalue, float runSpecificPrecursorQvalue, float globalPrecursorQvalue, float runSpecificProteinQvalue, float globalProteinQvalue, String decoyTag) {
     List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Stream.of(FRAG_REPORTER));
     if (classpathJars == null) {
       System.err.println("Could not find " + FRAG_REPORTER);
@@ -640,11 +637,23 @@ public class CmdDiann extends CmdBase {
       cmd.add(String.valueOf(siteProb));
       cmd.add("--level");
       cmd.add(reportLevels);
-      cmd.add("--matrix-qvalue");
-      cmd.add(String.valueOf(matrixQvalue));
+      cmd.add("--qvalue");
+      cmd.add(String.valueOf(runSpecificPrecursorQvalue));
+      cmd.add("--global-qvalue");
+      cmd.add(String.valueOf(globalPrecursorQvalue));
+      cmd.add("--pg-qvalue");
+      cmd.add(String.valueOf(runSpecificProteinQvalue));
+      cmd.add("--global-pg-qvalue");
+      cmd.add(String.valueOf(globalProteinQvalue));
       if (decoyTag != null && !decoyTag.isEmpty()) {
         cmd.add("--decoy-tag");
         cmd.add(decoyTag);
+      }
+      cmd.add("--cross-run-norm");
+      cmd.add(normalizeIntensity ? "1" : "0");
+      if (useMaxLFQ) {
+        cmd.add("--agg-method");
+        cmd.add("maxlfq");
       }
       if (recalculateQvalue) {
         cmd.add("--recalculate");

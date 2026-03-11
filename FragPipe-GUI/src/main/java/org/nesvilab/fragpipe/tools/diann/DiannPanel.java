@@ -60,7 +60,6 @@ public class DiannPanel extends JPanelBase {
   private UiCombo uiComboChannelNormalizationStrategy;
   private JLabel labelChannelNormalizationStrategy;
   private UiText uiTextCmdOpts;
-  private UiSpinnerDouble uiSpinnerQvalue;
   private UiText uiTextLibrary;
   private JPanel panelBasic;
   private JPanel panelBasic2;
@@ -68,7 +67,6 @@ public class DiannPanel extends JPanelBase {
   private JPanel panelFragReporter;
   private UiText uiTextModTag;
   private UiSpinnerDouble uiSpinnerSiteProb;
-  private UiCheck uiCheckUseRunSpecificProteinQvalue;
   private UiCheck uiCheckUnrelatedRuns;
   private UiCheck uiCheckGenerateMsstats;
   private UiCheck uiCheckMbr;
@@ -82,8 +80,13 @@ public class DiannPanel extends JPanelBase {
   private UiCheck uiCheckModifiedPeptideLevel;
   private UiCheck uiCheckSiteLevel;
   private UiText uiTextFragReporterCmdOpts;
-  private UiSpinnerDouble uiSpinnerMatrixQvalue;
   private UiCheck uiCheckRecalculateQvalue;
+  private UiCheck uiCheckNormalizeIntensity;
+  private UiCheck uiCheckUseMaxLFQ;
+  private UiSpinnerDouble uiSpinnerRunSpecificPrecursorQvalue;
+  private UiSpinnerDouble uiSpinnerGlobalPrecursorQvalue;
+  private UiSpinnerDouble uiSpinnerRunSpecificProteinQvalue;
+  private UiSpinnerDouble uiSpinnerGlobalProteinQvalue;
   private JCheckBox checkSkipQuant;
 
   @Override
@@ -218,12 +221,6 @@ public class DiannPanel extends JPanelBase {
     panelBasic = mu.newPanel(mu.lcFillX());
     mu.border(panelBasic, 1);
 
-    uiSpinnerQvalue = UiUtils.spinnerDouble(0.01, 0.001, 0.05, 0.01).setCols(5).setFormat("#.###").create();
-    FormEntry feQvalue = mu.feb(uiSpinnerQvalue).name("q-value").label("FDR").tooltip("Control the global protein group FDR, global precursor FDR, and run-specific precursor FDR.").create();
-
-    uiCheckUseRunSpecificProteinQvalue = UiUtils.createUiCheck("Apply run-specific protein FDR", false);
-    FormEntry feUseRunSpecificProteinQvalue = mu.feb(uiCheckUseRunSpecificProteinQvalue).name("run-specific-protein-q-value").label("Apply run-specific protein FDR").tooltip("By default, the output matrices are filtered with 1% global protein group FDR, 1% global precursor FDR, and 1% run-specific precursor FDR.\nApply run specific protein FDR to have a more stringent filtering.").create();
-
     uiComboQuantificationStrategy = UiUtils.createUiCombo(Arrays.asList("Any LC (high accuracy)", "Any LC (high precision)", "Robust LC (high accuracy)", "Robust LC (high precision)"));
     FormEntry feQuantificationStrategy = new FormEntry("quantification-strategy", "Quantification strategy", uiComboQuantificationStrategy);
     uiComboQuantificationStrategy.setSelectedIndex(3);
@@ -246,9 +243,6 @@ public class DiannPanel extends JPanelBase {
     uiCheckRedoProteinInference = UiUtils.createUiCheck("Redo protein inference", false);
     FormEntry feRedoProteinInference = new FormEntry("redo-protein-inference", "Redo protein inference", uiCheckRedoProteinInference, "Let DIA-NN redo the protein inference.");
 
-    mu.add(panelBasic, feQvalue.label(), mu.ccL()).split(2);
-    mu.add(panelBasic, feQvalue.comp).wrap();
-    mu.add(panelBasic, feUseRunSpecificProteinQvalue.comp).wrap();
     mu.add(panelBasic, labelQuantificationStrategy, mu.ccL()).split(2);
     mu.add(panelBasic, feQuantificationStrategy.comp).wrap();
     mu.add(panelBasic, labelQuantificationStrategy2, mu.ccL()).split(2);
@@ -396,11 +390,26 @@ public class DiannPanel extends JPanelBase {
     uiCheckSiteLevel.setEnabled(false);
     FormEntry feSiteLevel = new FormEntry("site-level-report", "Site", uiCheckSiteLevel, "Generate site-level report (multi-site and single-site)");
 
-    uiSpinnerMatrixQvalue = UiUtils.spinnerDouble(0.01, 0.001, 1.0, 0.01).setCols(5).setFormat("#.###").create();
-    FormEntry feMatrixQvalue = mu.feb(uiSpinnerMatrixQvalue).name("fragreporter-qvalue").label("Q-value").tooltip("Q-value threshold for FragReporter filtering").create();
+    uiCheckNormalizeIntensity = UiUtils.createUiCheck("Normalize intensity across runs", true);
+    FormEntry feNormalizeIntensity = new FormEntry("normalize-intensity", "Normalize intensity across runs", uiCheckNormalizeIntensity);
+
+    uiCheckUseMaxLFQ = UiUtils.createUiCheck("Use MaxLFQ", true);
+    FormEntry feUseMaxLFQ = new FormEntry("use-maxlfq", "Use MaxLFQ", uiCheckUseMaxLFQ, "Use MaxLFQ");
 
     uiCheckRecalculateQvalue = UiUtils.createUiCheck("Re-calculate q-values (if the results have decoys)", false);
     FormEntry feRecalculateQvalue = new FormEntry("recalculate-qvalues", "Re-calculate q-values (if the results have decoys)", uiCheckRecalculateQvalue, "Recalculate Q-values using decoys from report.tsv. Only apply if the results have decoys.");
+
+    uiSpinnerRunSpecificPrecursorQvalue = UiUtils.spinnerDouble(0.01, 0.001, 1.0, 0.01).setCols(5).setFormat("#.###").create();
+    FormEntry feRunSpecificPrecursorQvalue = mu.feb(uiSpinnerRunSpecificPrecursorQvalue).name("run-specific-precursor-qvalue").label("Run-specific precursor").tooltip("Q-value threshold for run-specific precursor filtering").create();
+
+    uiSpinnerGlobalPrecursorQvalue = UiUtils.spinnerDouble(1.0, 0.001, 1.0, 0.01).setCols(5).setFormat("#.###").create();
+    FormEntry feGlobalPrecursorQvalue = mu.feb(uiSpinnerGlobalPrecursorQvalue).name("global-precursor-qvalue").label("Global precursor").tooltip("Minimum global Q-value allowed for precursor filtration").create();
+
+    uiSpinnerRunSpecificProteinQvalue = UiUtils.spinnerDouble(1.0, 0.001, 1.0, 0.01).setCols(5).setFormat("#.###").create();
+    FormEntry feRunSpecificProteinQvalue = mu.feb(uiSpinnerRunSpecificProteinQvalue).name("run-specific-protein-qvalue").label("Run-specific protein").tooltip("Q-value threshold for run-specific protein filtering").create();
+
+    uiSpinnerGlobalProteinQvalue = UiUtils.spinnerDouble(0.01, 0.001, 1.0, 0.01).setCols(5).setFormat("#.###").create();
+    FormEntry feGlobalProteinQvalue = mu.feb(uiSpinnerGlobalProteinQvalue).name("global-protein-qvalue").label("Global protein").tooltip("Minimum global protein group Q-value allowed for precursor filtration").create();
 
     uiTextFragReporterCmdOpts = UiUtils.uiTextBuilder().cols(20).text("").create();
     FormEntry feFragReporterCmdOpts = new FormEntry("fragreporter-cmd-opts", "Cmd line opts", uiTextFragReporterCmdOpts, "--pr: Precursor report (DIA-NN report.tsv or Skyline .csv file)\n" +
@@ -422,13 +431,27 @@ public class DiannPanel extends JPanelBase {
     mu.add(panelFragReporter, fePeptideLevel.comp);
     mu.add(panelFragReporter, feModifiedPeptideLevel.comp);
     mu.add(panelFragReporter, feSiteLevel.comp).wrap();
+    mu.add(panelFragReporter, feNormalizeIntensity.comp).split(2);
+    mu.add(panelFragReporter, feUseMaxLFQ.comp).wrap();
     mu.add(panelFragReporter, feModTag.label(), mu.ccL()).split(2);
     mu.add(panelFragReporter, feModTag.comp).growX();
     mu.add(panelFragReporter, feSiteProb.label()).split(2);
     mu.add(panelFragReporter, feSiteProb.comp, mu.ccL()).wrap();
-    mu.add(panelFragReporter, feMatrixQvalue.label(), mu.ccL()).split(3);
-    mu.add(panelFragReporter, feMatrixQvalue.comp);
+    JLabel qvalueFiltersLabel = new JLabel("Q-value filters");
+    mu.add(panelFragReporter, qvalueFiltersLabel, mu.ccL()).split(3);
+    mu.add(panelFragReporter, new JLabel("        "));
     mu.add(panelFragReporter, feRecalculateQvalue.comp).wrap();
+    mu.add(panelFragReporter, feRunSpecificPrecursorQvalue.label(), mu.ccL()).split(12);
+    mu.add(panelFragReporter, feRunSpecificPrecursorQvalue.comp);
+    mu.add(panelFragReporter, new JLabel("        "));
+    mu.add(panelFragReporter, feGlobalPrecursorQvalue.label(), mu.ccL());
+    mu.add(panelFragReporter, feGlobalPrecursorQvalue.comp);
+    mu.add(panelFragReporter, new JLabel("        "));
+    mu.add(panelFragReporter, feRunSpecificProteinQvalue.label(), mu.ccL());
+    mu.add(panelFragReporter, feRunSpecificProteinQvalue.comp);
+    mu.add(panelFragReporter, new JLabel("        "));
+    mu.add(panelFragReporter, feGlobalProteinQvalue.label(), mu.ccL());
+    mu.add(panelFragReporter, feGlobalProteinQvalue.comp).wrap();
     mu.add(panelFragReporter, feFragReporterCmdOpts.label(), mu.ccL()).split(2);
     mu.add(panelFragReporter, feFragReporterCmdOpts.comp).growX().wrap();
 
@@ -473,14 +496,6 @@ public class DiannPanel extends JPanelBase {
 
   public String getHeavy() {
     return uiTextHeavy.getNonGhostText().trim();
-  }
-
-  public float getDiannQvalue() {
-    return (float) uiSpinnerQvalue.getActualValue();
-  }
-
-  public boolean useRunSpecificProteinQvalue() {
-    return uiCheckUseRunSpecificProteinQvalue.isSelected();
   }
 
   public boolean generateMsstats() {
@@ -570,12 +585,32 @@ public class DiannPanel extends JPanelBase {
     return uiCheckSiteLevel.isSelected();
   }
 
-  public float getMatrixQvalue() {
-    return (float) uiSpinnerMatrixQvalue.getActualValue();
+  public boolean isNormalizeIntensity() {
+    return uiCheckNormalizeIntensity.isSelected();
+  }
+
+  public boolean isUseMaxLFQ() {
+    return uiCheckUseMaxLFQ.isSelected();
   }
 
   public boolean isRecalculateQvalue() {
     return uiCheckRecalculateQvalue.isSelected();
+  }
+
+  public float getRunSpecificPrecursorQvalue() {
+    return (float) uiSpinnerRunSpecificPrecursorQvalue.getActualValue();
+  }
+
+  public float getGlobalPrecursorQvalue() {
+    return (float) uiSpinnerGlobalPrecursorQvalue.getActualValue();
+  }
+
+  public float getRunSpecificProteinQvalue() {
+    return (float) uiSpinnerRunSpecificProteinQvalue.getActualValue();
+  }
+
+  public float getGlobalProteinQvalue() {
+    return (float) uiSpinnerGlobalProteinQvalue.getActualValue();
   }
 
   public String getFragReporterCmdOpts() {
