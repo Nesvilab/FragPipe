@@ -17,51 +17,8 @@
 
 package org.nesvilab.fragpipe;
 
-import static org.nesvilab.fragpipe.FragPipeMain.PHILOSOPHER_VERSION;
-import static org.nesvilab.fragpipe.Fragpipe.philosopherBinPath;
-import static org.nesvilab.fragpipe.Version.PROGRAM_TITLE;
-import static org.nesvilab.fragpipe.messages.MessagePrintToConsole.toConsole;
-import static org.nesvilab.fragpipe.tabs.TabDatabase.databaseSizeLimit;
-import static org.nesvilab.fragpipe.tabs.TabWorkflow.manifestExt;
-import static org.nesvilab.fragpipe.tabs.TabWorkflow.workflowExt;
-import static org.nesvilab.utils.FileDelete.deleteFileOrFolder;
-import static org.nesvilab.utils.SwingUtils.wrapInScrollForDialog;
-
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-
+import com.google.common.collect.Table;
+import com.google.common.collect.TreeBasedTable;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
@@ -77,77 +34,16 @@ import org.nesvilab.fragpipe.api.Bus;
 import org.nesvilab.fragpipe.api.IConfig;
 import org.nesvilab.fragpipe.api.InputLcmsFile;
 import org.nesvilab.fragpipe.api.LcmsFileGroup;
-import org.nesvilab.fragpipe.cmd.CmdAppendFile;
-import org.nesvilab.fragpipe.cmd.CmdBase;
-import org.nesvilab.fragpipe.cmd.CmdCheckCentroid;
-import org.nesvilab.fragpipe.cmd.CmdCrystalc;
-import org.nesvilab.fragpipe.cmd.CmdDiaTracer;
-import org.nesvilab.fragpipe.cmd.CmdDiann;
-import org.nesvilab.fragpipe.cmd.CmdExportMatchedFragments;
-import org.nesvilab.fragpipe.cmd.CmdFPOPcoadaptr;
-import org.nesvilab.fragpipe.cmd.CmdFpopQuant;
-import org.nesvilab.fragpipe.cmd.CmdFreequant;
-import org.nesvilab.fragpipe.cmd.CmdIonquant;
-import org.nesvilab.fragpipe.cmd.CmdIprophet;
-import org.nesvilab.fragpipe.cmd.CmdLabelquant;
-import org.nesvilab.fragpipe.cmd.CmdMBGMatch;
-import org.nesvilab.fragpipe.cmd.CmdMSBooster;
-import org.nesvilab.fragpipe.cmd.CmdMetaproteomics;
-import org.nesvilab.fragpipe.cmd.CmdMsfragger;
-import org.nesvilab.fragpipe.cmd.CmdMsfraggerDigest;
-import org.nesvilab.fragpipe.cmd.CmdOPair;
-import org.nesvilab.fragpipe.cmd.CmdPairScans;
-import org.nesvilab.fragpipe.cmd.CmdPeptideProphet;
-import org.nesvilab.fragpipe.cmd.CmdPercolator;
-import org.nesvilab.fragpipe.cmd.CmdPhilosopherAbacus;
-import org.nesvilab.fragpipe.cmd.CmdPhilosopherDbAnnotate;
-import org.nesvilab.fragpipe.cmd.CmdPhilosopherFilter;
-import org.nesvilab.fragpipe.cmd.CmdPhilosopherReport;
-import org.nesvilab.fragpipe.cmd.CmdPhilosopherWorkspaceClean;
-import org.nesvilab.fragpipe.cmd.CmdPhilosopherWorkspaceCleanInit;
-import org.nesvilab.fragpipe.cmd.CmdProteinProphet;
-import org.nesvilab.fragpipe.cmd.CmdPtmProphet;
-import org.nesvilab.fragpipe.cmd.CmdPtmshepherd;
-import org.nesvilab.fragpipe.cmd.CmdSkyline;
-import org.nesvilab.fragpipe.cmd.CmdSpecLibGen;
-import org.nesvilab.fragpipe.cmd.CmdStart;
-import org.nesvilab.fragpipe.cmd.CmdTmtIntegrator;
-import org.nesvilab.fragpipe.cmd.CmdTransferLearning;
-import org.nesvilab.fragpipe.cmd.CmdUmpireSe;
-import org.nesvilab.fragpipe.cmd.CmdWriteSubMzml;
-import org.nesvilab.fragpipe.cmd.PbiBuilder;
-import org.nesvilab.fragpipe.cmd.ProcessBuilderInfo;
-import org.nesvilab.fragpipe.cmd.ProcessBuildersDescriptor;
+import org.nesvilab.fragpipe.cmd.*;
 import org.nesvilab.fragpipe.exceptions.NoStickyException;
 import org.nesvilab.fragpipe.internal.DefEdge;
-import org.nesvilab.fragpipe.messages.MessageClearConsole;
-import org.nesvilab.fragpipe.messages.MessageManifestSave;
-import org.nesvilab.fragpipe.messages.MessageRun;
-import org.nesvilab.fragpipe.messages.MessageRunButtonEnabled;
-import org.nesvilab.fragpipe.messages.MessageSDRFsave;
-import org.nesvilab.fragpipe.messages.MessageSaveCache;
-import org.nesvilab.fragpipe.messages.MessageSaveLog;
-import org.nesvilab.fragpipe.messages.MessageSaveUiState;
-import org.nesvilab.fragpipe.messages.MessageStartProcesses;
-import org.nesvilab.fragpipe.messages.NoteConfigDatabase;
-import org.nesvilab.fragpipe.messages.NoteConfigDiaTracer;
-import org.nesvilab.fragpipe.messages.NoteConfigDiann;
-import org.nesvilab.fragpipe.messages.NoteConfigIonQuant;
-import org.nesvilab.fragpipe.messages.NoteConfigMsfragger;
-import org.nesvilab.fragpipe.messages.NoteConfigSpeclibgen;
+import org.nesvilab.fragpipe.messages.*;
 import org.nesvilab.fragpipe.params.ThisAppProps;
 import org.nesvilab.fragpipe.process.ProcessDescription;
 import org.nesvilab.fragpipe.process.ProcessDescription.Builder;
 import org.nesvilab.fragpipe.process.ProcessManager;
 import org.nesvilab.fragpipe.process.RunnableDescription;
-import org.nesvilab.fragpipe.tabs.TabBatch;
-import org.nesvilab.fragpipe.tabs.TabConfig;
-import org.nesvilab.fragpipe.tabs.TabDatabase;
-import org.nesvilab.fragpipe.tabs.TabDownstream;
-import org.nesvilab.fragpipe.tabs.TabGlyco;
-import org.nesvilab.fragpipe.tabs.TabMsfragger;
-import org.nesvilab.fragpipe.tabs.TabRun;
-import org.nesvilab.fragpipe.tabs.TabWorkflow;
+import org.nesvilab.fragpipe.tabs.*;
 import org.nesvilab.fragpipe.tabs.TabWorkflow.InputDataType;
 import org.nesvilab.fragpipe.tools.crystalc.CrystalcPanel;
 import org.nesvilab.fragpipe.tools.crystalc.CrystalcParams;
@@ -177,18 +73,38 @@ import org.nesvilab.fragpipe.tools.transferlearning.TransferLearningPanel;
 import org.nesvilab.fragpipe.tools.umpire.UmpirePanel;
 import org.nesvilab.fragpipe.tools.umpire.UmpireParams;
 import org.nesvilab.fragpipe.util.BatchRun;
-import org.nesvilab.utils.MapUtils;
-import org.nesvilab.utils.OsUtils;
-import org.nesvilab.utils.PathUtils;
-import org.nesvilab.utils.StringUtils;
-import org.nesvilab.utils.SwingUtils;
-import org.nesvilab.utils.UsageTrigger;
+import org.nesvilab.utils.*;
 import org.nesvilab.utils.swing.TextConsole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Table;
-import com.google.common.collect.TreeBasedTable;
+import javax.swing.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.DecimalFormat;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.nesvilab.fragpipe.FragPipeMain.PHILOSOPHER_VERSION;
+import static org.nesvilab.fragpipe.Fragpipe.philosopherBinPath;
+import static org.nesvilab.fragpipe.Version.PROGRAM_TITLE;
+import static org.nesvilab.fragpipe.messages.MessagePrintToConsole.toConsole;
+import static org.nesvilab.fragpipe.tabs.TabDatabase.databaseSizeLimit;
+import static org.nesvilab.fragpipe.tabs.TabWorkflow.manifestExt;
+import static org.nesvilab.fragpipe.tabs.TabWorkflow.workflowExt;
+import static org.nesvilab.utils.FileDelete.deleteFileOrFolder;
+import static org.nesvilab.utils.SwingUtils.wrapInScrollForDialog;
 
 public class FragpipeRun {
 
@@ -337,6 +253,44 @@ public class FragpipeRun {
           JOptionPane.showMessageDialog(tabRun, "Number of split database is larger than total proteins.", "Errors", JOptionPane.ERROR_MESSAGE);
         }
         return 1;
+      }
+
+      // Check MBR and redo protein inference settings when using a user-specified or predicted library
+      final DiannPanel diannPanel = Bus.getStickyEvent(DiannPanel.class);
+      if (diannPanel != null && diannPanel.isRun() && !diannPanel.isSkipQuant()) {
+        final String libraryPath = diannPanel.getLibraryPath();
+        final TransferLearningPanel transferLearningPanel = Bus.getStickyEvent(TransferLearningPanel.class);
+        final boolean hasUserLibrary = libraryPath != null && !libraryPath.isEmpty();
+        final boolean hasPredictedLibrary = transferLearningPanel != null && transferLearningPanel.isRun() && transferLearningPanel.isRunPrediction();
+
+        if (hasUserLibrary || hasPredictedLibrary) {
+          final boolean mbrChecked = diannPanel.useMbr();
+          final boolean redoProteinInferenceChecked = diannPanel.redoProteinInference();
+
+          if (!mbrChecked || !redoProteinInferenceChecked) {
+            final String librarySource = hasUserLibrary ? "a user-specified spectral library" : "a spectral library from transfer-learning prediction";
+            final List<String> uncheckedOptions = new ArrayList<>();
+            if (!mbrChecked) {
+              uncheckedOptions.add("MBR");
+            }
+            if (!redoProteinInferenceChecked) {
+              uncheckedOptions.add("Redo protein inference");
+            }
+            final String warningMessage = "You are using " + librarySource + ", but " + String.join(" and ", uncheckedOptions)
+                + " in the Quant (DIA) tab " + (uncheckedOptions.size() == 1 ? "is" : "are") + " not enabled.\n\n"
+                + "It is recommended to enable " + (uncheckedOptions.size() == 1 ? "it" : "them") + " for better results.\n\n"
+                + "Do you want to continue anyway?";
+
+            if (Fragpipe.headless) {
+              log.warn(warningMessage.replace("\n", " "));
+            } else {
+              int confirm = JOptionPane.showConfirmDialog(tabRun, warningMessage, "Quant (DIA) settings check", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+              if (confirm != JOptionPane.YES_OPTION) {
+                return 1;
+              }
+            }
+          }
+        }
       }
 
       final Graph<CmdBase, DefEdge> dag = new DirectedAcyclicGraph<>(DefEdge.class);
