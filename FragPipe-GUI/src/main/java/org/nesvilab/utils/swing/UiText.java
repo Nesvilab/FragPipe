@@ -72,6 +72,6 @@ public class UiText extends JTextField implements StringRepresentable, GhostedTe
   @Override
   public String getNonGhostText() {
     final String t = getText().trim();
-    return Objects.equals(ghostText, t) ? "" : t;
+    return t.replace(ghostText, "");    // occasionally, ghost text gets prepended to non-ghost text in headless runs. Remove it if present when getting non-ghost text
   }
 }
