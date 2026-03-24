@@ -17,9 +17,8 @@
 
 package org.nesvilab.utils.swing;
 
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.text.Document;
-import java.util.Objects;
 
 public class UiText extends JTextField implements StringRepresentable, GhostedTextComponent {
   private String ghostText = null;
@@ -51,7 +50,7 @@ public class UiText extends JTextField implements StringRepresentable, GhostedTe
 
   @Override
   public String asString() {
-    return getNonGhostText().trim();
+    return getNonGhostText();
   }
 
   @Override
@@ -72,6 +71,6 @@ public class UiText extends JTextField implements StringRepresentable, GhostedTe
   @Override
   public String getNonGhostText() {
     final String t = getText().trim();
-    return t.replace(ghostText, "");    // occasionally, ghost text gets prepended to non-ghost text in headless runs. Remove it if present when getting non-ghost text
+    return ghostText == null ? t : t.replace(ghostText, "");
   }
 }

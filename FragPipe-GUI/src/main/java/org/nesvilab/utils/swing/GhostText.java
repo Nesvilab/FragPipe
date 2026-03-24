@@ -59,7 +59,7 @@ public class GhostText implements FocusListener, DocumentListener, PropertyChang
         return;
     textfield.addFocusListener(this);
     registerListeners();
-    if (!this.textfield.hasFocus()) {
+    if (!java.awt.GraphicsEnvironment.isHeadless() && !this.textfield.hasFocus()) {
       focusLost(null);
     }
   }
@@ -97,6 +97,9 @@ public class GhostText implements FocusListener, DocumentListener, PropertyChang
 
   @Override
   public void focusGained(FocusEvent e) {
+    if (java.awt.GraphicsEnvironment.isHeadless()) {
+      return;
+    }
     synchronized (lock) {
       if (isEmpty()) {
         unregisterListeners();
@@ -108,6 +111,9 @@ public class GhostText implements FocusListener, DocumentListener, PropertyChang
 
   @Override
   public void focusLost(FocusEvent e) {
+    if (java.awt.GraphicsEnvironment.isHeadless()) {
+      return;  // ghost text is purely visual — skip in headless mode
+    }
     synchronized (lock) {
       if (isEmpty()) {
         unregisterListeners();
