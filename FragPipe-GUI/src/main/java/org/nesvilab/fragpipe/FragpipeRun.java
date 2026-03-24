@@ -2416,7 +2416,7 @@ public class FragpipeRun {
     final CmdExportMatchedFragments cmdExportMatchedFragments = new CmdExportMatchedFragments(tabRun.isExportMatchedFragments(), wd);
     addConfig.accept(cmdExportMatchedFragments, () -> {
       if (cmdExportMatchedFragments.isRun()) {
-        return cmdExportMatchedFragments.configure(parent, wd, threads);
+        return cmdExportMatchedFragments.configure(parent, wd, threads, tabRun.getFragmentTypesArg());
       }
       return true;
     });
@@ -2493,7 +2493,7 @@ public class FragpipeRun {
     addToGraph(graphOrder, cmdFPOPcoadaptr, DIRECTION.IN, cmdPhilosopherReport, cmdIonquant, cmdTmt, cmdDiann);
     addToGraph(graphOrder, cmdSkyline, DIRECTION.IN, cmdDiann, cmdSpecLibGen, cmdPhilosopherReport);
     addToGraph(graphOrder, cmdWriteSubMzml, DIRECTION.IN, cmdPhilosopherReport);
-    addToGraph(graphOrder, cmdExportMatchedFragments, DIRECTION.IN, cmdPhilosopherReport);
+    addToGraph(graphOrder, cmdExportMatchedFragments, DIRECTION.IN, cmdPhilosopherReport, cmdOPair, cmdPtmshepherd, cmdMBGMatch);
 
     // compose graph of required dependencies
     final Graph<CmdBase, DefEdge> graphDeps = new DirectedAcyclicGraph<>(DefEdge.class);

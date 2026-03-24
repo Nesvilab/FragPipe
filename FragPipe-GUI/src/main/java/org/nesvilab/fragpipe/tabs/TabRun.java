@@ -69,6 +69,7 @@ import java.util.stream.Stream;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
@@ -97,6 +98,14 @@ public class TabRun extends JPanelWithEnablement {
   public static final String GENERATE_REPORTS_NAME = "fragsummarizer-1.0.0.jar";
   private static final String FRAGPIPE_ANALYST_URL = Fragpipe.propsFix().getProperty("fragpipe-analyst-url", "http://fragpipe-analyst.nesvilab.org/");
 
+  // Fragment type dialog options: {display name, command key}
+  private static final String[][] FRAGMENT_TYPE_OPTIONS = {
+      {"a", "a"}, {"b", "b"}, {"c", "c"},
+      {"x", "x"}, {"y", "y"}, {"z", "z"},
+      {"Neutral losses", "neu"}, {"O-glyco", "ogly"}, {"N-glyco", "ngly"}
+  };
+  private static final String DEFAULT_FRAGMENT_TYPES_ARG = "b_y";
+
   public final TextConsole console;
   Color defTextColor;
   public UiText uiTextWorkdir;
@@ -110,6 +119,8 @@ public class TabRun extends JPanelWithEnablement {
   private JButton btnOpenFragPipeAnalyst;
   private JButton btnGenerateSummaryReport;
   private UiCheck uiCheckExportMatchedFragments;
+  private JButton btnChooseFragmentTypes;
+  private String fragmentTypesSelection = DEFAULT_FRAGMENT_TYPES_ARG;
   private Thread pdvThread = null;
   private Thread generateReportThread = null;
   private JPanel pTop;
@@ -221,11 +232,16 @@ public class TabRun extends JPanelWithEnablement {
     FormEntry feWriteSubMzml = mu.feb(uiCheckWriteSubMzml).name(TAB_PREFIX + "write_sub_mzml").label("Write sub mzML").tooltip("Write unidentified scans to mzML files. Need to run MSFragger.").create();
 
     uiCheckExportMatchedFragments = UiUtils.createUiCheck("Export matched fragments", false);
-    FormEntry feExportMatchedFragments = mu.feb(uiCheckExportMatchedFragments)
+    mu.feb(uiCheckExportMatchedFragments)
         .name(TAB_PREFIX + "export_matched_fragments")
         .label("Export matched fragments")
         .tooltip("Export each PSM's matched fragments to the psm.tsv file.")
         .create();
+
+    btnChooseFragmentTypes = UiUtils.createButton("Choose fragment types", e -> showFragmentTypeDialog());
+    btnChooseFragmentTypes.setEnabled(false);
+    uiCheckExportMatchedFragments.addItemListener(e ->
+        btnChooseFragmentTypes.setEnabled(uiCheckExportMatchedFragments.isSelected()));
 
     uiSpinnerProbThreshold = UiUtils.spinnerDouble(0.5, 0.0, 1.0, 0.01).setCols(4).setFormat("#.##").create();
     FormEntry feProbThreshold = mu.feb(uiSpinnerProbThreshold).name(TAB_PREFIX + "sub_mzml_prob_threshold").label("Probability threshold").tooltip(
@@ -460,8 +476,9 @@ public class TabRun extends JPanelWithEnablement {
     mu.add(p, feComboSDRFtype.comp).wrap();
 
     // line 3
-    mu.add(p, uiCheckWordWrap, mu.ccR()).split().spanX();
-    mu.add(p, feExportMatchedFragments.comp, mu.ccR());
+    mu.add(p, uiCheckExportMatchedFragments).split(2);
+    mu.add(p, btnChooseFragmentTypes).push();
+    mu.add(p, uiCheckWordWrap, mu.ccR()).split(5);
     mu.add(p, uiCheckDeleteTempFiles, mu.ccR());
     mu.add(p, feWriteSubMzml.comp, mu.ccR());
     mu.add(p, feProbThreshold.label(), mu.ccR());
@@ -484,6 +501,56 @@ public class TabRun extends JPanelWithEnablement {
 
   public boolean isExportMatchedFragments() {
     return SwingUtils.isEnabledAndChecked(uiCheckExportMatchedFragments);
+  }
+
+  /**
+   * Returns null if the selection is the default (b and y only), otherwise returns the
+   * underscore-joined command-line argument string for the selected fragment types.
+   */
+  public String getFragmentTypesArg() {
+    if (DEFAULT_FRAGMENT_TYPES_ARG.equals(fragmentTypesSelection)) {
+      return null;
+    }
+    return fragmentTypesSelection;
+  }
+
+  private void showFragmentTypeDialog() {
+    // Parse current selection into a set of command keys
+    Set<String> selected = new HashSet<>(Arrays.asList(fragmentTypesSelection.split("_")));
+
+    // Build checkboxes
+    JCheckBox[] checkBoxes = new JCheckBox[FRAGMENT_TYPE_OPTIONS.length];
+    for (int i = 0; i < FRAGMENT_TYPE_OPTIONS.length; i++) {
+      String displayName = FRAGMENT_TYPE_OPTIONS[i][0];
+      String cmdKey = FRAGMENT_TYPE_OPTIONS[i][1];
+      checkBoxes[i] = new JCheckBox(displayName, selected.contains(cmdKey));
+    }
+
+    JPanel panel = mu.newPanel(null, true);
+    for (JCheckBox cb : checkBoxes) {
+      mu.add(panel, cb).wrap();
+    }
+
+    int result = JOptionPane.showConfirmDialog(
+        SwingUtils.findParentFrameForDialog(this),
+        panel,
+        "Choose fragment types",
+        JOptionPane.OK_CANCEL_OPTION,
+        JOptionPane.PLAIN_MESSAGE);
+
+    if (result == JOptionPane.OK_OPTION) {
+      List<String> selectedKeys = new ArrayList<>();
+      for (int i = 0; i < FRAGMENT_TYPE_OPTIONS.length; i++) {
+        if (checkBoxes[i].isSelected()) {
+          selectedKeys.add(FRAGMENT_TYPE_OPTIONS[i][1]);
+        }
+      }
+      if (selectedKeys.isEmpty()) {
+        fragmentTypesSelection = DEFAULT_FRAGMENT_TYPES_ARG;
+      } else {
+        fragmentTypesSelection = String.join("_", selectedKeys);
+      }
+    }
   }
 
   public float getSubMzmlProbThreshold() {

@@ -43,7 +43,7 @@ public class CmdExportMatchedFragments extends CmdBase {
     return NAME;
   }
 
-  public boolean configure(Component comp, Path workDir, int nThreads) {
+  public boolean configure(Component comp, Path workDir, int nThreads, String fragmentTypesArg) {
     initPreConfig();
 
     final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(TabRun.FRAG_ANNOTATOR).concat(JAR_DEPS));
@@ -59,7 +59,11 @@ public class CmdExportMatchedFragments extends CmdBase {
     cmd.add("FragmentsExportMainClass");
     cmd.add(workDir.toAbsolutePath().normalize().toString());
     cmd.add(nThreads + "");
-    cmd.add("r");
+    if (fragmentTypesArg != null) {
+      cmd.add(fragmentTypesArg);
+    } else {
+      cmd.add("r");
+    }
 
     ProcessBuilder pb = new ProcessBuilder(cmd);
     pb.directory(workDir.toFile());
