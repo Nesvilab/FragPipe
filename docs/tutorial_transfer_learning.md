@@ -71,7 +71,7 @@ Libraries and weights not generated in FragPipe can be used if they follow the a
 
 ## Outputs
 Transfer learning will return a zip file with all model weights and a subfolder containing 
-[quality control metrics](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/docs/transfer_learning_QC_figures.md). 
+[quality control metrics](https://fragpipe.nesvilab.org/docs/transfer_learning_QCfigures.html). 
 There is no need to unzip the zip folder in our workflows, as the prediction script automatically unzips it.
 
 ![model weights zip](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/model_weights_zip.png)
