@@ -17,21 +17,6 @@
 
 package org.nesvilab.fragpipe.cmd;
 
-import java.awt.Component;
-import java.io.BufferedWriter;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.jooq.lambda.Seq;
 import org.nesvilab.fragpipe.Fragpipe;
 import org.nesvilab.fragpipe.FragpipeLocations;
@@ -39,6 +24,17 @@ import org.nesvilab.fragpipe.api.InputLcmsFile;
 import org.nesvilab.utils.SwingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.awt.*;
+import java.io.BufferedWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CmdTransferLearning extends CmdBase {
 
@@ -151,7 +147,7 @@ public class CmdTransferLearning extends CmdBase {
       libraryPath = wd.resolve("library.tsv").toAbsolutePath().normalize().toString();
     }
 
-    if (isRunPrediction && (modelPath == null || modelPath.isEmpty())) {
+    if (isRunPrediction && isRunTraining && (modelPath == null || modelPath.isEmpty())) {
       modelPath = wd.resolve("fragpipe-transfer-learning-model.zip").toAbsolutePath().normalize().toString();
     }
 
@@ -246,8 +242,10 @@ public class CmdTransferLearning extends CmdBase {
       cmdPredict.add(url);
       cmdPredict.add("--api-key");
       cmdPredict.add(apiKey);
-      cmdPredict.add("--model");
-      cmdPredict.add(modelPath);
+      if (modelPath != null && !modelPath.trim().isEmpty()) {
+        cmdPredict.add("--model");
+        cmdPredict.add(modelPath);
+      }
       cmdPredict.add("--ms2");
       cmdPredict.add(String.valueOf(predictMS2));
       cmdPredict.add("--rt");
