@@ -322,6 +322,12 @@ public class TabWorkflow extends JPanelWithEnablement {
     tableRawFilesFileDrop = makeFileDrop(); // file drop is registered after all components are created
     Bus.register(this);
     Bus.postSticky(this);
+
+    // Load the selected workflow (Basic-Search by default) after all initialization is complete.
+    // Using invokeLater so this runs after Fragpipe.initMore() registers the MessageLoadUi handler.
+    javax.swing.SwingUtilities.invokeLater(() ->
+        actionLoadSelectedWorkflow(new java.awt.event.ActionEvent(uiComboWorkflows, java.awt.event.ActionEvent.ACTION_PERFORMED, "comboBoxChanged"))
+    );
   }
 
   private void init() {

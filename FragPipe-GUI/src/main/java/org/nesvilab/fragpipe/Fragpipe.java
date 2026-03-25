@@ -799,23 +799,6 @@ public class Fragpipe extends JFrameHeadless {
     SpecLibGen2.initClass();
     FpopScript.initClass();
 
-    if (!headless) {
-      try {
-        TabWorkflow tabWorkflow = Bus.getStickyEvent(TabWorkflow.class);
-        if (tabWorkflow != null) {
-          PropsFile propsFile = tabWorkflow.workflows.get("Default");
-          if (propsFile != null) {
-            propsFile.load();
-            if (propsFile.containsKey("workflow.workflow-option")) {
-              propsFile.setProperty("workflow.workflow-option", "Default");
-            }
-            Bus.post(new MessageLoadUi(propsFile, true, false));
-          }
-        }
-      } catch (Exception e) {
-        log.debug("Error loading default workflow", e);
-      }
-    }
   }
 
   @Subscribe(threadMode = ThreadMode.ASYNC)
