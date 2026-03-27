@@ -347,6 +347,12 @@ public class Propagation {
               Integer.parseInt(parts[chargeColumnIdx]),
               unimodOboReader.unimodMassMap,
               diannLabelMassMap);
+        } catch (NumberFormatException e) {
+          System.out.println("Skipping propagation.");
+          reader.close();
+          writer.close();
+          Files.deleteIfExists(p2);
+          return;
         } catch (Exception e) {
           System.err.println("Something was wrong with the file " + p.toAbsolutePath() + "; line: " + line);
           e.printStackTrace();
