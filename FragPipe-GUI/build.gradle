@@ -19,10 +19,10 @@ plugins {
     id 'java'
     id 'application'
     id 'idea'
-    id 'edu.sc.seis.launch4j' version '3.0.5'
-    id "com.github.johnrengelman.shadow" version "8.1.1"
-    id "com.github.ben-manes.versions" version "0.51.0"
-    id 'nebula.lint' version '19.0.1'
+    id 'edu.sc.seis.launch4j' version '4.0.0'
+    id "com.gradleup.shadow" version "8.3.6"
+    id "com.github.ben-manes.versions" version "0.53.0"
+    id 'nebula.lint' version '20.6.2'
 }
 
 group = 'org.nesvilab'
@@ -106,40 +106,40 @@ distributions {
 dependencies {
     implementation 'com.github.albfernandez:juniversalchardet:2.5.0'
     implementation files("../tools/batmass-io-1.36.7.jar")
-    implementation 'com.google.code.gson:gson:2.12.1'
+    implementation 'com.google.code.gson:gson:2.13.1'
     implementation 'one.util:streamex:0.8.3'
     implementation 'org.jooq:jool-java-8:0.9.15'
-    implementation 'org.apache.maven:maven-artifact:3.9.9'
+    implementation 'org.apache.maven:maven-artifact:3.9.14'
     implementation 'org.jgrapht:jgrapht-core:1.5.2'
     implementation 'com.github.vlsi.mxgraph:jgraphx:4.2.2'
 
-    implementation group: 'org.apache.commons', name: 'commons-compress', version: '1.27.1'
+    implementation group: 'org.apache.commons', name: 'commons-compress', version: '1.28.0'
 
-    implementation 'org.apache.commons:commons-lang3:3.17.0'
+    implementation 'org.apache.commons:commons-lang3:3.20.0'
     implementation 'com.miglayout:miglayout-swing:11.4.2'
-    implementation 'org.apache.commons:commons-text:1.13.0'
+    implementation 'org.apache.commons:commons-text:1.15.0'
 
     implementation 'io.reactivex.rxjava3:rxjava:3.1.10'
 
     implementation 'org.greenrobot:eventbus-java:3.3.1'
     implementation 'org.greenrobot:essentials:3.1.0'
-    implementation 'org.jsoup:jsoup:1.19.1'
-    implementation 'com.squareup.okio:okio:3.10.2'
-        implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    implementation 'org.jsoup:jsoup:1.21.1'
+    implementation 'com.squareup.okio:okio:3.12.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
 
     implementation 'net.java.balloontip:balloontip:1.2.4.1'
     implementation group: 'org.netbeans.api', name: 'org-netbeans-swing-outline', version: 'RELEASE250'
     implementation 'io.github.bweng20:jSVGIcon:1.6'  // Provides SVGLoader for NetBeans swing-outline SVG icons
-    implementation 'commons-io:commons-io:2.18.0'
+    implementation 'commons-io:commons-io:2.21.0'
 
-    implementation 'ch.qos.logback:logback-classic:1.5.18'
-    implementation 'ch.qos.logback:logback-core:1.5.18'
+    implementation 'ch.qos.logback:logback-classic:1.5.32'
+    implementation 'ch.qos.logback:logback-core:1.5.32'
 
     implementation 'com.formdev:flatlaf:3.7'
 
-    implementation 'org.apache.parquet:parquet-hadoop:1.15.1'
-    implementation 'org.apache.hadoop:hadoop-common:3.4.1'
-    implementation 'org.apache.hadoop:hadoop-mapreduce-client-core:3.4.1'
+    implementation 'org.apache.parquet:parquet-hadoop:1.17.0'
+    implementation 'org.apache.hadoop:hadoop-common:3.4.3'
+    implementation 'org.apache.hadoop:hadoop-mapreduce-client-core:3.4.3'
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.13.2'
