@@ -17,23 +17,7 @@
 
 package org.nesvilab.fragpipe.tabs;
 
-import static org.nesvilab.fragpipe.tools.fragger.MsfraggerParams.ACTIVATION_TYPES;
-import static org.nesvilab.fragpipe.tools.fragger.MsfraggerParams.ACTIVATION_TYPE_ALL;
-import static org.nesvilab.fragpipe.tools.fragger.MsfraggerParams.ACTIVATION_TYPE_CID;
-import static org.nesvilab.fragpipe.tools.fragger.MsfraggerParams.ACTIVATION_TYPE_ECD;
-import static org.nesvilab.fragpipe.tools.fragger.MsfraggerParams.ACTIVATION_TYPE_ETD;
-import static org.nesvilab.fragpipe.tools.fragger.MsfraggerParams.ACTIVATION_TYPE_HCD;
-import static org.nesvilab.fragpipe.tools.fragger.MsfraggerParams.ANALYZER_TYPES;
-import static org.nesvilab.fragpipe.tools.fragger.MsfraggerParams.ANALYZER_TYPE_ALL;
-import static org.nesvilab.fragpipe.tools.fragger.MsfraggerParams.ANALYZER_TYPE_ASTMS;
-import static org.nesvilab.fragpipe.tools.fragger.MsfraggerParams.ANALYZER_TYPE_FTMS;
-import static org.nesvilab.fragpipe.tools.fragger.MsfraggerParams.ANALYZER_TYPE_ITMS;
-import static org.nesvilab.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTIONS;
-import static org.nesvilab.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTION_labile;
-import static org.nesvilab.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTION_nglycan;
-import static org.nesvilab.fragpipe.tools.fragger.MsfraggerParams.GLYCO_OPTION_off;
-import static org.nesvilab.fragpipe.tools.fragger.MsfraggerParams.PROP_group_variable;
-import static org.nesvilab.fragpipe.tools.fragger.MsfraggerParams.PROP_mass_offsets_detailed;
+import static org.nesvilab.fragpipe.tools.fragger.MsfraggerParams.*;
 import static org.nesvilab.fragpipe.util.MassOffsetUtils.floatArrToString;
 
 import java.awt.Color;
@@ -47,6 +31,8 @@ import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
 import java.awt.event.ItemEvent;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Path;
@@ -96,6 +82,7 @@ import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.ArrayUtils;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.lambda.Seq;
 import org.nesvilab.fragpipe.Fragpipe;
 import org.nesvilab.fragpipe.api.Bus;
@@ -307,6 +294,13 @@ public class TabMsfragger extends JPanelBase {
         return s;
       }
     });
+    CONVERT_TO_FILE.put(MsfraggerParams.PROP_extended_aas, s -> {
+      if (s == null || s.trim().isEmpty()) {
+        return "";
+      } else {
+        return s;
+      }
+    });
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_use_detailed_offsets, s -> itos(Boolean.parseBoolean(s) ? 1 : 0));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_Y_type_masses, s -> s.replaceAll("[\\s]+", "/"));
     CONVERT_TO_FILE.put(MsfraggerParams.PROP_diagnostic_fragments, s -> s.replaceAll("[\\s]+", "/"));
@@ -356,6 +350,13 @@ public class TabMsfragger extends JPanelBase {
       return String.join(" ", text.trim().split("/"));
     });
     CONVERT_TO_GUI.put(MsfraggerParams.PROP_mass_offsets_detailed, text -> {
+      if (text == null || text.trim().isEmpty()) {
+        return "";
+      } else {
+        return text;
+      }
+    });
+    CONVERT_TO_GUI.put(MsfraggerParams.PROP_extended_aas, text -> {
       if (text == null || text.trim().isEmpty()) {
         return "";
       } else {
@@ -423,6 +424,7 @@ public class TabMsfragger extends JPanelBase {
   private UiText epMassOffsets;
   private UiText epDetailedMassOffsets;
   private UiText uiTextRestrictDeltamassTo;
+  private UiText epExtendedAAs;
   private JPanel pOffsetRegular;
   private JPanel pOffsetDetailed;
   private JPanel pTop;
@@ -1222,6 +1224,7 @@ public class TabMsfragger extends JPanelBase {
     mu.add(p, createPanelAdvancedOpenSearch()).growX().wrap();
     mu.add(p, createPanelAdvancedOutput()).growX().wrap();
     mu.add(p, createPanelAdvancedPeakMatch()).growX().wrap();
+    mu.add(p, createPanelExtendedAAs()).growX().wrap();
 
     return p;
   }
@@ -1293,6 +1296,31 @@ public class TabMsfragger extends JPanelBase {
     mu.add(p, pOffsetRegular).growX().wrap();
     mu.add(p, feCheckMassOffsetFile.comp).split();
     mu.add(p, pOffsetDetailed).growX().wrap();
+
+    return p;
+  }
+
+  private JPanel createPanelExtendedAAs() {
+    JPanel p = mu.newPanel("Non-natural Amino Acids", true);
+
+    epExtendedAAs = new UiText();
+    epExtendedAAs.setPreferredSize(new Dimension(100, 25));
+    epExtendedAAs.setBorder(new LineBorder(Color.LIGHT_GRAY, 1));
+
+    String epExtendedAAsToolip = "Define extended (non-canonical) amino acids in the format name:mass, name2:mass2, etc. Name can be anything, but MUST match the name used in the fasta file.";
+    FormEntry feExtendedAAs = mu.feb(MsfraggerParams.PROP_extended_aas, epExtendedAAs)
+            .label("Extended amino acids definition")
+            .tooltip(epExtendedAAsToolip).create();
+
+    JButton btnLoadExtAAsFile = new JButton("Load AA Defintions");
+    btnLoadExtAAsFile.addActionListener(this::actionBtnLoadExtendedAAFile);
+    JButton btnSaveExtAAsFile = new JButton("Save AA Defintions");
+    btnSaveExtAAsFile.addActionListener(this::actionButtonSaveExtendedAAs);
+
+    mu.add(p, feExtendedAAs.label()).split();
+    mu.add(p, feExtendedAAs.comp).split().wrap();
+    mu.add(p, btnLoadExtAAsFile).split();
+    mu.add(p, btnSaveExtAAsFile).split().wrap();
 
     return p;
   }
@@ -1750,6 +1778,33 @@ public class TabMsfragger extends JPanelBase {
     return outputSet;
   }
 
+  public Set<Float> getExtendedAAMassSet() {
+    Set<Float> outputSet = new TreeSet<>();
+    if (!uiCheckUseExtendedAAs.isSelected()) {
+      return outputSet;
+    }
+
+    String extAAstr = epExtendedAAs.getNonGhostText().trim();
+    if (extAAstr.isEmpty()) {
+      return outputSet;
+    }
+    String[] entries = extAAstr.split(",\\s*");
+    for (String entry : entries) {
+      String[] parts = entry.split(":");
+      if (parts.length >= 2) {
+        try {
+          float mass = Float.parseFloat(parts[1].trim());
+          if (Math.abs(mass) > 0.01f) {
+            outputSet.add(mass);
+          }
+        } catch (NumberFormatException e) {
+          // skip invalid entries
+        }
+      }
+    }
+    return outputSet;
+  }
+
   public ArrayList<MassOffsetUtils.MassOffset> getDetailedOffsets() {
     String offsetStr = epDetailedMassOffsets.getNonGhostText();
     ArrayList<MassOffsetUtils.MassOffset> offsets = new ArrayList<>();
@@ -2095,7 +2150,90 @@ public class TabMsfragger extends JPanelBase {
     uiSpinnerDbsplit.setValue(1);
   }
 
+  private void actionBtnLoadExtendedAAFile(ActionEvent event) {
+    List<FileFilter> tsvFilters = new ArrayList<>();
+    FileFilter filter = new FileNameExtensionFilter("Text files (.tsv or .txt)", "tsv", "txt");
+    tsvFilters.add(filter);
+
+    String loc = Fragpipe.propsVarGet(PROP_FILECHOOSER_LAST_PATH);
+    JFileChooser fc = FileChooserUtils.builder("Select the Extended AA definitions file to load")
+            .approveButton("Select")
+            .mode(FileChooserUtils.FcMode.FILES_ONLY)
+            .acceptAll(false)
+            .multi(false)
+            .filters(tsvFilters)
+            .paths(Stream.of(loc))
+            .create();
+
+    int userSelection = fc.showOpenDialog(SwingUtils.findParentFrameForDialog(this));
+    if (JFileChooser.APPROVE_OPTION == userSelection) {
+      String selectedPath = fc.getSelectedFile().toString();
+      try {
+        Fragpipe.propsVarSet(PROP_FILECHOOSER_LAST_PATH, selectedPath);
+        String extAAstr = parseExtendedAAsFile(selectedPath);
+        epExtendedAAs.setText(extAAstr);
+        Fragpipe.propsVarSet(PROP_extended_aas, extAAstr);
+      } catch (IOException ex) {
+        log.error("Failed to load AA defintions from file {}", selectedPath);
+        SwingUtils.showErrorDialogWithStacktrace(ex, this);
+      }
+    }
+  }
+
   /**
+   * Parse extended AAs from file. File format:
+   * # comments
+   * name1\tmass1\n
+   * name2\tmass2\n
+   * ...
+   */
+  private static String parseExtendedAAsFile(String filePath) throws IOException {
+    ArrayList<String> inputs = new ArrayList<>();
+    BufferedReader in = new BufferedReader(new FileReader(filePath));
+    String line;
+    while ((line = in.readLine()) != null) {
+      if (line.isEmpty() || line.startsWith("#")) {
+        continue;
+      }
+      String[] parts = line.replace("\n", "").split("\t");
+      inputs.add(String.join(":", parts));
+    }
+    return String.join(", ", inputs);
+  }
+
+  private void actionButtonSaveExtendedAAs(ActionEvent event) {
+    // get file path to save
+    FileNameEndingFilter filter = new FileNameEndingFilter("Text files (.tsv)", "tsv");
+    Path savePath = TabWorkflow.getSaveFilePath(null, PROP_FILECHOOSER_LAST_PATH, filter, ".tsv", false, null);
+
+    if (savePath == null) {
+      // user cancelled action
+      return;
+    }
+
+    // parse extended AAs string
+    String extAAstr = epExtendedAAs.getNonGhostText();
+    String[] entries = extAAstr.split(",\\s*");
+
+    // save to file
+    try {
+      PrintWriter out = new PrintWriter(savePath.toFile());
+      out.print("# Name\tMass\n");
+      for (String entry : entries) {
+        String[] parts = entry.split(":");
+        if (parts.length >= 2) {
+          out.print(parts[0] + "\t" + parts[1] + "\n");
+        }
+      }
+      out.flush();
+      out.close();
+    } catch (IOException ex) {
+      log.error("Could not save extended AAs to file {}", savePath);
+      SwingUtils.showErrorDialogWithStacktrace(ex, null);
+    }
+  }
+
+    /**
    * @return False if user's confirmation was required, but they cancelled the operation. True
    *         otherwise.
    */
