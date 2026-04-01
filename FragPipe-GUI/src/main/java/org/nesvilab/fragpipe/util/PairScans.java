@@ -21,8 +21,6 @@ import java.util.Locale;
 import org.nesvilab.fragpipe.tools.enums.ActivationTypes;
 import org.nesvilab.utils.StringUtils;
 import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,9 +38,10 @@ import umich.ms.fileio.filetypes.thermo.ThermoRawFile;
 
 public class PairScans {
 
-    private List<String> pairedScans;
-    private Map<Double, Integer> unpairedPrecursorMap;
-    private Map<Double, Integer> multipairedPrecursorMap;
+    private final List<String> pairedScans;
+    private final Map<Integer, Integer> unpairedPrecursorMap;
+    private final Map<Integer, Integer> multipairedPrecursorMap;
+    private static final double MZ_TOLERANCE_FACTOR = 1000.0;    // multiply then round to int for matching
 
     public PairScans() {
         pairedScans = new ArrayList<>();
@@ -135,16 +134,17 @@ public class PairScans {
                     // only check against the primary (first) activation type in the scan, so always take filterSplits[1] and not any additional if present
                     String activationStr = filterSplits[1].substring(0, 3);
                     double precursorMZ = scan.getPrecursor().getMzTarget();
+                    int roundedPrecMz = (int) Math.round(precursorMZ * MZ_TOLERANCE_FACTOR);
                     String actualFirstActivation = reverseOrder ? secondActivation.getText() : firstActivation.getText();
                     String actualSecondActivation = reverseOrder ? firstActivation.getText() : secondActivation.getText();
 
                     if (activationStr.equalsIgnoreCase(actualFirstActivation)) {
                         // first activation - record precursor to look for follow-up scans
-                        unpairedPrecursorMap.put(precursorMZ, scanNum);
-                        multipairedPrecursorMap.put(precursorMZ, scanNum);
+                        unpairedPrecursorMap.put(roundedPrecMz, scanNum);
+                        multipairedPrecursorMap.put(roundedPrecMz, scanNum);
                     } else if (activationStr.equalsIgnoreCase(actualSecondActivation)) {
                         // second activation - find paired precursor and record the pairing, remove precursor from unpaired
-                        scanPairingHelper(scanNum, precursorMZ, reverseOrder);
+                        scanPairingHelper(scanNum, roundedPrecMz, reverseOrder);
                     } else {
                         // unexpected activation - ignore
                         System.out.printf("Unspecified activation %s in scan %d\n", activationStr, scanNum);
@@ -168,30 +168,30 @@ public class PairScans {
      * Save the scan pair information. Should be called once we expect the paired scan to be present in
      * unpairedPrecursorMap.
      * @param scanNum scan number of the 2nd scan (to be paired)
-     * @param precursorMZ precursor m/z used to find the corresponding 1st scan
+     * @param roundedPrecMz precursor m/z used to find the corresponding 1st scan
      * @param reverseOrder reverse the order when recording because the "child" scan actually comes 1st (e.g., ETD-HCD data)
      */
-    private void scanPairingHelper(int scanNum, double precursorMZ, boolean reverseOrder) {
+    private void scanPairingHelper(int scanNum, int roundedPrecMz, boolean reverseOrder) {
         // second activation - find paired precursor and record the pairing, remove precursor from unpaired
-        if (unpairedPrecursorMap.containsKey(precursorMZ)) {
+        if (unpairedPrecursorMap.containsKey(roundedPrecMz)) {
             // pair found, record first activation scan #, second activation scan #
             if (reverseOrder) {
-                pairedScans.add(String.format("%d\t%d\n", scanNum, unpairedPrecursorMap.get(precursorMZ)));
+                pairedScans.add(String.format("%d\t%d\n", scanNum, unpairedPrecursorMap.get(roundedPrecMz)));
             } else {
-                pairedScans.add(String.format("%d\t%d\n", unpairedPrecursorMap.get(precursorMZ), scanNum));
+                pairedScans.add(String.format("%d\t%d\n", unpairedPrecursorMap.get(roundedPrecMz), scanNum));
             }
-            unpairedPrecursorMap.remove(precursorMZ);
+            unpairedPrecursorMap.remove(roundedPrecMz);
         } else {
             // check for multi-paired scans
-            if (multipairedPrecursorMap.containsKey(precursorMZ)) {
+            if (multipairedPrecursorMap.containsKey(roundedPrecMz)) {
                 if (reverseOrder) {
-                    pairedScans.add(String.format("%d\t%d\n", scanNum, multipairedPrecursorMap.get(precursorMZ)));
+                    pairedScans.add(String.format("%d\t%d\n", scanNum, multipairedPrecursorMap.get(roundedPrecMz)));
                 } else {
-                    pairedScans.add(String.format("%d\t%d\n", multipairedPrecursorMap.get(precursorMZ), scanNum));
+                    pairedScans.add(String.format("%d\t%d\n", multipairedPrecursorMap.get(roundedPrecMz), scanNum));
                 }
             } else {
                 // unexpected second activation without first
-                System.out.printf("Unpaired precursor %.4f in scan %d\n", precursorMZ, scanNum);
+                System.out.printf("Unpaired precursor %.4f in scan %d\n", roundedPrecMz / MZ_TOLERANCE_FACTOR, scanNum);
             }
         }
     }
