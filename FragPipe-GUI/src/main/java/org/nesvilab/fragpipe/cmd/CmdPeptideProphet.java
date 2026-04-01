@@ -183,7 +183,7 @@ public class CmdPeptideProphet extends CmdBase {
    */
   public boolean configure(Component comp, UsageTrigger phi, Path jarFragpipe, boolean isDryRun,
       String fastaPath, String decoyTag, String textPepProphCmd, boolean combine, String enzymeName,
-      Map<InputLcmsFile, List<Path>> pepxmlFiles, boolean hasCalibratedMzml, int threads) {
+      Map<InputLcmsFile, List<Path>> pepxmlFiles, boolean hasCalibratedMzml, int threads, String updatedFastaPath) {
 
     initPreConfig();
 
@@ -348,7 +348,7 @@ public class CmdPeptideProphet extends CmdBase {
 
     for (Entry<Path, List<InputLcmsFile>> kv : pepxmlToLcms.entrySet()) {
       List<Path> lcmsPaths = Seq.seq(kv.getValue()).map(InputLcmsFile::getPath).distinct().toList();
-      ProcessBuilder pbRewrite = pbRewritePepxml(jarFragpipe, kv.getKey(), lcmsPaths, hasCalibratedMzml);
+      ProcessBuilder pbRewrite = pbRewritePepxml(jarFragpipe, kv.getKey(), lcmsPaths, hasCalibratedMzml, updatedFastaPath);
       pbRewrite.directory(kv.getValue().get(0).outputDir(wd).toFile());
       pbis.add(new PbiBuilder().setName("Rewrite pepxml")
           .setPb(pbRewrite).setParallelGroup(ProcessBuilderInfo.GROUP_SEQUENTIAL).create());
@@ -423,7 +423,7 @@ public class CmdPeptideProphet extends CmdBase {
     return true;
   }
 
-  private static ProcessBuilder pbRewritePepxml(Path jarFragpipe, Path pepxml, List<Path> lcmsPaths, boolean hasCalibratedMzml) {
+  private static ProcessBuilder pbRewritePepxml(Path jarFragpipe, Path pepxml, List<Path> lcmsPaths, boolean hasCalibratedMzml, String updatedFastaPath) {
     if (jarFragpipe == null) {
       throw new IllegalArgumentException("jar can't be null");
     }
@@ -446,6 +446,9 @@ public class CmdPeptideProphet extends CmdBase {
         lcmsPath = StringUtils.upToLastDot(lcmsPath) + "_uncalibrated.mzML";
       }
       cmd.add(lcmsPath);
+    }
+    if (updatedFastaPath != null && !updatedFastaPath.isEmpty()) {
+      cmd.add(RewritePepxml.FASTA_FLAG_PREFIX + updatedFastaPath);
     }
     return new ProcessBuilder(cmd);
   }

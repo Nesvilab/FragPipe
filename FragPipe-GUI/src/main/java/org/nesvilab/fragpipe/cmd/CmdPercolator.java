@@ -113,7 +113,7 @@ public class CmdPercolator extends CmdBase {
     return s;
   }
 
-  public boolean configure(Component comp, Path jarFragpipe, String percolatorCmd, boolean combine, Map<InputLcmsFile, List<Path>> pepxmlFiles, boolean hasCrystalC, double minProb, String decoyTag, boolean hasCalibratedMzml, boolean writeSubMzml, boolean isRunMetaproteomics) {
+  public boolean configure(Component comp, Path jarFragpipe, String percolatorCmd, boolean combine, Map<InputLcmsFile, List<Path>> pepxmlFiles, boolean hasCrystalC, double minProb, String decoyTag, boolean hasCalibratedMzml, boolean writeSubMzml, boolean isRunMetaproteomics, String updatedFastaPath) {
     PeptideProphetParams percolatorParams = new PeptideProphetParams();
     percolatorParams.setCmdLineParams(percolatorCmd);
 
@@ -224,7 +224,7 @@ public class CmdPercolator extends CmdBase {
         }
 
         // convert the percolator output tsv to PeptideProphet's pep.xml format
-        ProcessBuilder pbRewrite = pbConvertToPepxml(jarFragpipe, "interact-" + basename, strippedBaseName, basename, e.getKey().getDataType().contentEquals("DDA"), minProb, lcmsPath);
+        ProcessBuilder pbRewrite = pbConvertToPepxml(jarFragpipe, "interact-" + basename, strippedBaseName, basename, e.getKey().getDataType().contentEquals("DDA"), minProb, lcmsPath, updatedFastaPath);
         pbRewrite.directory(pepxmlPath.toAbsolutePath().getParent().toFile());
         pbisPostParallel.add(new PbiBuilder().setName("Percolator: Convert to pepxml").setPb(pbRewrite).setParallelGroup(ProcessBuilderInfo.GROUP_SEQUENTIAL).create());
 
@@ -275,7 +275,7 @@ public class CmdPercolator extends CmdBase {
     return b;
   }
 
-  private static ProcessBuilder pbConvertToPepxml(Path jarFragpipe, String outBaseName, String stripedBasename, String basename, boolean isDDA, double minProb, String lcmsPath) {
+  private static ProcessBuilder pbConvertToPepxml(Path jarFragpipe, String outBaseName, String stripedBasename, String basename, boolean isDDA, double minProb, String lcmsPath, String updatedFastaPath) {
     if (jarFragpipe == null) {
       throw new IllegalArgumentException("jar can't be null");
     }
@@ -297,6 +297,9 @@ public class CmdPercolator extends CmdBase {
     cmd.add(isDDA ? "DDA" : "DIA");
     cmd.add(minProb + "");
     cmd.add(lcmsPath);
+    if (updatedFastaPath != null && !updatedFastaPath.isEmpty()) {
+      cmd.add(updatedFastaPath);
+    }
     return new ProcessBuilder(cmd);
   }
 

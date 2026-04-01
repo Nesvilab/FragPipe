@@ -161,6 +161,7 @@ public class TabMsfragger extends JPanelBase {
   private static final String PROP_misc_fragger_precursor_charge_hi = "misc.fragger.precursor-charge-hi";
   public static final String PROP_misc_fragger_enzyme_dropdown_1 = "misc.fragger.enzyme-dropdown-1";
   public static final String PROP_misc_fragger_enzyme_dropdown_2 = "misc.fragger.enzyme-dropdown-2";
+  public static final String PROP_misc_fragger_use_extended_aas = "misc.fragger.use-extended-aas";
   public static final String TAB_PREFIX = "msfragger.";
   private static final Set<String> PROPS_MISC_NAMES;
   private static final Map<String, Function<String, String>> CONVERT_TO_FILE;
@@ -425,6 +426,8 @@ public class TabMsfragger extends JPanelBase {
   private UiText epDetailedMassOffsets;
   private UiText uiTextRestrictDeltamassTo;
   private UiText epExtendedAAs;
+  public UiCheck uiCheckUseExtendedAAs;
+  private JPanel pExtendedAAsContent;
   private JPanel pOffsetRegular;
   private JPanel pOffsetDetailed;
   private JPanel pTop;
@@ -487,6 +490,10 @@ public class TabMsfragger extends JPanelBase {
     return SwingUtils.isEnabledAndChecked(uiCheckLocalizeDeltaMass);
   }
 
+  public boolean isUseExtendedAAs() {
+    return SwingUtils.isEnabledAndChecked(uiCheckUseExtendedAAs);
+  }
+
   private static void actionChangeMassMode(ItemEvent e) {
     if (e.getStateChange() == ItemEvent.SELECTED) {
 
@@ -546,6 +553,9 @@ public class TabMsfragger extends JPanelBase {
     // enable/disable the mass offset file UI
     SwingUtils.setDisablementUpdater(this, pOffsetRegular, uiCheckMassOffsetFile);
     SwingUtils.setEnablementUpdater(this, pOffsetDetailed, uiCheckMassOffsetFile);
+
+    // enable/disable the extended AAs content panel
+    SwingUtils.setEnablementUpdater(this, pExtendedAAsContent, uiCheckUseExtendedAAs);
   }
 
   @Override
@@ -1303,6 +1313,14 @@ public class TabMsfragger extends JPanelBase {
   private JPanel createPanelExtendedAAs() {
     JPanel p = mu.newPanel("Non-natural Amino Acids", true);
 
+    uiCheckUseExtendedAAs = UiUtils.createUiCheck("Use Extended AA Definitions", false);
+    String checkTip = "<html>If checked, uses extended (non-canonical) amino acid definitions in MSFragger and generates<br>"
+        + "an edited FASTA file (replacing extended AA names with X) for downstream tools.";
+    FormEntry feCheckUseExtendedAAs = mu.feb(PROP_misc_fragger_use_extended_aas, uiCheckUseExtendedAAs)
+        .tooltip(checkTip).create();
+
+    pExtendedAAsContent = mu.newPanel(null, mu.lcFillXNoInsetsTopBottom());
+
     epExtendedAAs = new UiText();
     epExtendedAAs.setPreferredSize(new Dimension(100, 25));
     epExtendedAAs.setBorder(new LineBorder(Color.LIGHT_GRAY, 1));
@@ -1317,10 +1335,13 @@ public class TabMsfragger extends JPanelBase {
     JButton btnSaveExtAAsFile = new JButton("Save AA Defintions");
     btnSaveExtAAsFile.addActionListener(this::actionButtonSaveExtendedAAs);
 
-    mu.add(p, feExtendedAAs.label()).split();
-    mu.add(p, feExtendedAAs.comp).split().wrap();
-    mu.add(p, btnLoadExtAAsFile).split();
-    mu.add(p, btnSaveExtAAsFile).split().wrap();
+    mu.add(pExtendedAAsContent, feExtendedAAs.label()).split();
+    mu.add(pExtendedAAsContent, feExtendedAAs.comp).split().wrap();
+    mu.add(pExtendedAAsContent, btnLoadExtAAsFile).split();
+    mu.add(pExtendedAAsContent, btnSaveExtAAsFile).split().wrap();
+
+    mu.add(p, feCheckUseExtendedAAs.comp).split().wrap();
+    mu.add(p, pExtendedAAsContent).growX().wrap();
 
     return p;
   }
