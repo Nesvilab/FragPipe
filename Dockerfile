@@ -33,14 +33,15 @@ RUN apt-get -y install \
     dotnet-runtime-6.0
 
 # install python packages
-RUN pip uninstall --break-system-packages fragpipe-speclib \
-    && pip install --break-system-packages git+https://github.com/Nesvilab/FragPipe-SpecLib.git@master \
-    && pip install --break-system-packages lxml \
-    && pip install --break-system-packages plotly \
-    && pip install --break-system-packages kaleido \
-    && pip install --break-system-packages narwhals \
-    && pip install --break-system-packages pyarrow \
-    && pip install --break-system-packages pypdf2
+RUN python3.11 -m pip install --break-system-packages -U setuptools
+RUN python3.11 -m pip uninstall --break-system-packages fragpipe-speclib \
+    && python3.11 -m pip install --break-system-packages git+https://github.com/Nesvilab/FragPipe-SpecLib.git@master \
+    && python3.11 -m pip install --break-system-packages lxml \
+    && python3.11 -m pip install --break-system-packages plotly \
+    && python3.11 -m pip install --break-system-packages kaleido \
+    && python3.11 -m pip install --break-system-packages narwhals \
+    && python3.11 -m pip install --break-system-packages pyarrow \
+    && python3.11 -m pip install --break-system-packages pypdf2
 
 # create a directory with 777 permission and set it to the work directory
 RUN mkdir /fragpipe_bin
@@ -57,5 +58,5 @@ RUN unzip fragpipe-24.0/FragPipe-24.0-linux.zip -d fragpipe-24.0
 RUN chmod -R 777 /fragpipe_bin
 
 # set environment variables
-ENV JAVA_HOME /usr/lib/jvm/java-17-openjdk-amd64/
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64/
 RUN export JAVA_HOME
