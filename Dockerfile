@@ -43,6 +43,10 @@ RUN python3.11 -m pip uninstall --break-system-packages fragpipe-speclib \
     && python3.11 -m pip install --break-system-packages pyarrow \
     && python3.11 -m pip install --break-system-packages pypdf2
 
+# set python3.11 as the default python version
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1
+RUN update-alternatives --set python3 /usr/bin/python3.11
+
 # create a directory with 777 permission and set it to the work directory
 RUN mkdir /fragpipe_bin
 RUN chmod 777 /fragpipe_bin
