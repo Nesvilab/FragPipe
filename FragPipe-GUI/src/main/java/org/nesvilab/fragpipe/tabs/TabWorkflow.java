@@ -325,9 +325,14 @@ public class TabWorkflow extends JPanelWithEnablement {
 
     // Load the selected workflow (Basic-Search by default) after all initialization is complete.
     // Using invokeLater so this runs after Fragpipe.initMore() registers the MessageLoadUi handler.
-    javax.swing.SwingUtilities.invokeLater(() ->
-        actionLoadSelectedWorkflow(new java.awt.event.ActionEvent(uiComboWorkflows, java.awt.event.ActionEvent.ACTION_PERFORMED, "comboBoxChanged"))
-    );
+    // Skip in headless mode: the user's workflow is loaded explicitly via --workflow flag,
+    // and firing this on the EDT concurrently with the main thread's MessageLoadUi processing
+    // causes race conditions that can corrupt parameter values in the saved fragpipe.workflow file.
+    if (!Fragpipe.headless) {
+      javax.swing.SwingUtilities.invokeLater(() ->
+          actionLoadSelectedWorkflow(new java.awt.event.ActionEvent(uiComboWorkflows, java.awt.event.ActionEvent.ACTION_PERFORMED, "comboBoxChanged"))
+      );
+    }
   }
 
   private void init() {
