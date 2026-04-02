@@ -33,10 +33,12 @@ import org.nesvilab.fragpipe.messages.MessageBatchCrashed;
 import org.nesvilab.fragpipe.messages.MessageKillAll;
 import org.nesvilab.fragpipe.messages.MessageKillAll.REASON;
 import org.nesvilab.fragpipe.messages.MessageSaveLog;
+import org.nesvilab.fragpipe.messages.MessageFragNovoJobInfo;
 import org.nesvilab.fragpipe.messages.MessageTransferLearningJobInfo;
 import org.nesvilab.fragpipe.messages.MessageTransferLearningJobInfo.JobType;
 import org.nesvilab.fragpipe.process.ProcessResult;
 import org.nesvilab.fragpipe.tabs.TabRun;
+import org.nesvilab.fragpipe.tools.denovo.DeNovoPanel;
 import org.nesvilab.fragpipe.tools.transferlearning.TransferLearningPanel;
 import org.nesvilab.utils.swing.TextConsole;
 import org.slf4j.Logger;
@@ -48,6 +50,8 @@ public class ProcessBuilderInfo {
 
   private static final Logger log = LoggerFactory.getLogger(ProcessBuilderInfo.class);
   private static final Pattern JOB_ID_PATTERN = Pattern.compile("(?i)Job ID:\\s*([a-f0-9-]+)");
+  private static final Pattern UUID_LINE_PATTERN = Pattern.compile("^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$");
+  private static final Pattern JOB_SUBMITTED_PATTERN = Pattern.compile("(?i)Job\\s+([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\\s+submitted");
   
   public final ProcessBuilder pb;
   public final String name;
@@ -117,6 +121,58 @@ public class ProcessBuilderInfo {
     }
   }
 
+  private static void parseAndStoreFragNovoJobId(String output, MessageFragNovoJobInfo.JobType jobType) {
+    if (output == null || output.isEmpty()) {
+      return;
+    }
+
+    // FragNovo output contains job IDs either as bare UUID lines or "Job <uuid> submitted"
+    List<String> jobIds = new ArrayList<>();
+    for (String line : output.split("\\r?\\n")) {
+      String trimmed = line.trim();
+      Matcher matcher = UUID_LINE_PATTERN.matcher(trimmed);
+      if (matcher.matches()) {
+        jobIds.add(matcher.group(1));
+        continue;
+      }
+      Matcher submittedMatcher = JOB_SUBMITTED_PATTERN.matcher(trimmed);
+      if (submittedMatcher.find()) {
+        jobIds.add(submittedMatcher.group(1));
+      }
+    }
+
+    if (jobIds.isEmpty()) {
+      return;
+    }
+
+    String url = null;
+    String apiKey = null;
+    try {
+      DeNovoPanel panel = Bus.getStickyEvent(DeNovoPanel.class);
+      if (panel != null) {
+        String credentialPath = panel.getCredentialPath();
+        if (credentialPath != null && !credentialPath.isEmpty()) {
+          CmdTransferLearning.Credential credential = CmdTransferLearning.parseCredential(credentialPath);
+          url = credential.url;
+          apiKey = credential.apiKey;
+        }
+      }
+    } catch (Exception e) {
+      log.warn("Failed to read the credential file for FragNovo job tracking: " + e.getMessage());
+    }
+
+    if (url != null && !url.trim().isEmpty()) {
+      Bus.postSticky(new MessageFragNovoJobInfo(jobType, url, apiKey, jobIds, true));
+    }
+  }
+
+  private static void markFragNovoJobAsNotRunning(MessageFragNovoJobInfo.JobType jobType) {
+    MessageFragNovoJobInfo jobInfo = Bus.getStickyEvent(MessageFragNovoJobInfo.class);
+    if (jobInfo != null && jobInfo.jobType == jobType && jobInfo.isRunning) {
+      Bus.postSticky(new MessageFragNovoJobInfo(jobType, null, null, null, false));
+    }
+  }
+
   public static Runnable toRunnable(final ProcessBuilderInfo pbi, final Path wdPath, BiConsumer<ProcessBuilderInfo, TextConsole> pbiPrinter, TextConsole console, boolean isDownstream) {
     return () -> {
       final ProcessResult pr = new ProcessResult(pbi);
@@ -181,6 +237,12 @@ public class ProcessBuilderInfo {
                 } else if (nameLower.contains("training")) {
                   parseAndStoreJobId(outStr, JobType.TRAINING);
                 }
+              } else if (nameLower.contains("fragnovo")) {
+                if (nameLower.contains("fine-tuning")) {
+                  parseAndStoreFragNovoJobId(outStr, MessageFragNovoJobInfo.JobType.FINE_TUNING);
+                } else if (nameLower.contains("prediction")) {
+                  parseAndStoreFragNovoJobId(outStr, MessageFragNovoJobInfo.JobType.PREDICTION);
+                }
               }
             }
           }
@@ -235,6 +297,12 @@ public class ProcessBuilderInfo {
             markJobAsNotRunning(JobType.PREDICTION);
           } else if (nameLower.contains("training")) {
             markJobAsNotRunning(JobType.TRAINING);
+          }
+        } else if (nameLower.contains("fragnovo")) {
+          if (nameLower.contains("fine-tuning")) {
+            markFragNovoJobAsNotRunning(MessageFragNovoJobInfo.JobType.FINE_TUNING);
+          } else if (nameLower.contains("prediction")) {
+            markFragNovoJobAsNotRunning(MessageFragNovoJobInfo.JobType.PREDICTION);
           }
         }
         

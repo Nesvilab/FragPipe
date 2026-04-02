@@ -69,6 +69,7 @@ import org.nesvilab.fragpipe.tools.speclibgen.SpecLibGen2;
 import org.nesvilab.fragpipe.tools.speclibgen.SpeclibPanel;
 import org.nesvilab.fragpipe.tools.tmtintegrator.QuantLabel;
 import org.nesvilab.fragpipe.tools.tmtintegrator.TmtiPanel;
+import org.nesvilab.fragpipe.tools.denovo.DeNovoPanel;
 import org.nesvilab.fragpipe.tools.transferlearning.TransferLearningPanel;
 import org.nesvilab.fragpipe.tools.umpire.UmpirePanel;
 import org.nesvilab.fragpipe.tools.umpire.UmpireParams;
@@ -1257,6 +1258,7 @@ public class FragpipeRun {
     final TmtiPanel tmtiPanel = Fragpipe.getStickyStrict(TmtiPanel.class);
     final SpeclibPanel speclibPanel = Fragpipe.getStickyStrict(SpeclibPanel.class);
     final TransferLearningPanel transferLearningPanel = Fragpipe.getStickyStrict(TransferLearningPanel.class);
+    final DeNovoPanel deNovoPanel = Fragpipe.getStickyStrict(DeNovoPanel.class);
     final DiannPanel diannPanel = Fragpipe.getStickyStrict(DiannPanel.class);
     final SkylinePanel skylinePanel = Fragpipe.getStickyStrict(SkylinePanel.class);
 
@@ -2261,6 +2263,23 @@ public class FragpipeRun {
       return true;
     });
 
+    // run de novo sequencing
+    final CmdDeNovo cmdDeNovo = new CmdDeNovo(deNovoPanel.isRun(), wd);
+    addConfig.accept(cmdDeNovo, () -> {
+      if (cmdDeNovo.isRun()) {
+        return cmdDeNovo.configure(parent, deNovoPanel.getCredentialPath(), sharedLcmsFilesAll,
+            sharedLcmsFileGroupsAll,
+            deNovoPanel.isRunFineTuning(), deNovoPanel.isRunPrediction(),
+            deNovoPanel.isRunLoraPrediction(),
+            deNovoPanel.getPrecursorMassTol(),
+            deNovoPanel.getIsotopeErrorMin(), deNovoPanel.getIsotopeErrorMax(),
+            deNovoPanel.isUseIrt(), deNovoPanel.getNewTokens(),
+            deNovoPanel.getLoraWeightsPath(), deNovoPanel.getCalFilePath(),
+            deNovoPanel.getModelName(), deNovoPanel.getTimeout());
+      }
+      return true;
+    });
+
 
     // run DIA-NN
     NoteConfigDiann noteConfigDiann = Fragpipe.getStickyStrict(NoteConfigDiann.class);
@@ -2423,6 +2442,7 @@ public class FragpipeRun {
     addToGraph(graphOrder, cmdMsfragger, DIRECTION.IN, cmdCheckCentroid, cmdUmpire);
     addToGraph(graphOrder, cmdMsfragger, DIRECTION.IN, cmdCheckCentroid, cmdDiaTracer);
 
+    addToGraph(graphOrder, cmdDeNovo, DIRECTION.IN, cmdPhilosopherReport);
     addToGraph(graphOrder, cmdCrystalc, DIRECTION.IN, cmdMsfragger);
     addToGraph(graphOrder, cmdMSBooster, DIRECTION.IN, cmdMsfragger);
     addToGraph(graphOrder, cmdPeptideProphet, DIRECTION.IN, cmdMsfragger, cmdCrystalc);

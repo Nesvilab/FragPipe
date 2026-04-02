@@ -119,6 +119,7 @@ import org.nesvilab.fragpipe.tabs.TabQuantificationLfq;
 import org.nesvilab.fragpipe.tabs.TabRun;
 import org.nesvilab.fragpipe.tabs.TabSkyline;
 import org.nesvilab.fragpipe.tabs.TabSpecLib;
+import org.nesvilab.fragpipe.tabs.TabDeNovo;
 import org.nesvilab.fragpipe.tabs.TabTransferLearning;
 import org.nesvilab.fragpipe.tabs.TabValidation;
 import org.nesvilab.fragpipe.tabs.TabWorkflow;
@@ -220,6 +221,7 @@ public class Fragpipe extends JFrameHeadless {
   private UiTab uiTabDiann;
   private UiTab uiTabSkyline;
   private UiTab uiTabTransferLearning;
+  private UiTab uiTabDeNovo;
   private UiTab uiTabRun;
   private UiTab uiTabBatch;
   private UiTab uiTabDownstream;
@@ -688,6 +690,7 @@ public class Fragpipe extends JFrameHeadless {
     TabPtms tabPtms = new TabPtms();
     TabGlyco tabGlyco = new TabGlyco();
     TabSpecLib tabSpecLib = new TabSpecLib();
+    TabDeNovo tabDeNovo = new TabDeNovo();
     TabTransferLearning tabTransferLearning = new TabTransferLearning();
     TabDiann tabDiann = new TabDiann();
     TabSkyline tabSkyline = new TabSkyline();
@@ -714,6 +717,7 @@ public class Fragpipe extends JFrameHeadless {
       "/org/nesvilab/fragpipe/icons/icon-scales-balance-color-2-16.png", null, true);
     uiTabSpecLib = new UiTab("Spec Lib", tabSpecLib,
       "/org/nesvilab/fragpipe/icons/icon-library-16.png", null, true);
+    uiTabDeNovo = new UiTab("De Novo", tabDeNovo, "/org/nesvilab/fragpipe/icons/bolt-outlined-16.png", null, true);
     uiTabTransferLearning = new UiTab("Transfer Learning", tabTransferLearning, "/org/nesvilab/fragpipe/icons/icon-msbooster-16.png", null, true);
     uiTabDiann = new UiTab("Quant (DIA)", tabDiann,
       "/org/nesvilab/fragpipe/icons/icon-diann-16.png", null, true);
@@ -728,6 +732,7 @@ public class Fragpipe extends JFrameHeadless {
     addTab(tp, uiTabDb);
     addTab(tp, uiTabFragger);
     addTab(tp, uiTabValidation);
+    addTab(tp, uiTabDeNovo);
     addTab(tp, uiTabPtms);
     addTab(tp, uiTabGlyco);
     addTab(tp, uiTabQuantLfq);

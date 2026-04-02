@@ -17,10 +17,8 @@
 
 package org.nesvilab.fragpipe.process;
 
-import static org.nesvilab.fragpipe.messages.MessagePrintToConsole.toConsole;
-import static org.nesvilab.fragpipe.tabs.TabWorkflow.maxProcessors;
-import static org.apache.commons.text.StringEscapeUtils.escapeJava;
-
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.nesvilab.fragpipe.Fragpipe;
 import org.nesvilab.fragpipe.api.Bus;
 import org.nesvilab.fragpipe.cmd.ProcessBuilderInfo;
@@ -28,6 +26,8 @@ import org.nesvilab.fragpipe.messages.*;
 import org.nesvilab.fragpipe.messages.MessageTransferLearningJobInfo.JobType;
 import org.nesvilab.utils.FileDelete;
 import org.nesvilab.utils.swing.TextConsole;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -38,27 +38,15 @@ import java.net.URL;
 import java.nio.file.FileSystemException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import static org.apache.commons.text.StringEscapeUtils.escapeJava;
+import static org.nesvilab.fragpipe.messages.MessagePrintToConsole.toConsole;
+import static org.nesvilab.fragpipe.tabs.TabWorkflow.maxProcessors;
 
 public class ProcessManager {
   private static final Logger log = LoggerFactory.getLogger(ProcessManager.class);
@@ -323,7 +311,7 @@ public class ProcessManager {
     group.clear();
   }
 
-  private void cancelJob(String url, String jobId, String jobType, String urlPath, TextConsole console, Runnable clearStickyEvent) {
+  private void cancelJob(String url, String jobId, String jobType, String urlPath, String apiKey, TextConsole console, Runnable clearStickyEvent) {
     Thread cancelThread = new Thread(() -> {
       HttpURLConnection connection = null;
       try {
@@ -333,6 +321,9 @@ public class ProcessManager {
 
         connection = (HttpURLConnection) cancelUrl.openConnection();
         connection.setRequestMethod("GET");
+        if (apiKey != null && !apiKey.isEmpty()) {
+          connection.setRequestProperty("X-API-Key", apiKey);
+        }
         connection.setConnectTimeout(5000);
         connection.setReadTimeout(5000);
         connection.connect();
@@ -341,18 +332,21 @@ public class ProcessManager {
         if (responseCode >= 200 && responseCode < 300) {
           toConsole(Fragpipe.COLOR_BLACK, jobType + " job cancelled successfully (response code: " + responseCode + ")", true, console);
         } else {
-          toConsole(Fragpipe.COLOR_BLACK, jobType + " job cancellation returned code: " + responseCode, true, console);
+          toConsole(Fragpipe.COLOR_RED, jobType + " job cancellation returned code: " + responseCode, true, console);
         }
 
-        try (InputStream responseStream = connection.getInputStream();
-             BufferedReader in = new BufferedReader(new InputStreamReader(responseStream))) {
-          String line;
-          while ((line = in.readLine()) != null) {
-            toConsole(Fragpipe.COLOR_BLACK, line, true, console);
+        InputStream responseStream = (responseCode >= 200 && responseCode < 300)
+            ? connection.getInputStream() : connection.getErrorStream();
+        if (responseStream != null) {
+          try (BufferedReader in = new BufferedReader(new InputStreamReader(responseStream))) {
+            String line;
+            while ((line = in.readLine()) != null) {
+              toConsole(Fragpipe.COLOR_BLACK, "  " + jobType + " cancel response: " + line, true, console);
+            }
           }
         }
       } catch (Exception e) {
-        toConsole(Fragpipe.COLOR_RED_DARKEST, "Error cancelling " + jobType + " job: " + e.getMessage(), true, console);
+        toConsole(Fragpipe.COLOR_RED, "Error cancelling " + jobType + " job: " + e.getMessage(), true, console);
       } finally {
         if (connection != null) {
           connection.disconnect();
@@ -374,21 +368,51 @@ public class ProcessManager {
       return;
     }
 
-    cancelJob(jobInfo.url, jobInfo.jobId, "Prediction", "/predict/cancel/", console,
+    cancelJob(jobInfo.url, jobInfo.jobId, "Prediction", "/predict/cancel/", null, console,
         () -> Bus.postSticky(new MessageTransferLearningJobInfo(JobType.PREDICTION, null, null, false)));
   }
 
   private void cancelTrainingJob(TextConsole console) {
     MessageTransferLearningJobInfo jobInfo = Bus.getStickyEvent(MessageTransferLearningJobInfo.class);
-    
-    if (jobInfo == null || jobInfo.jobType != JobType.TRAINING || 
-        !jobInfo.isRunning || jobInfo.url == null || jobInfo.jobId == null || 
+
+    if (jobInfo == null || jobInfo.jobType != JobType.TRAINING ||
+        !jobInfo.isRunning || jobInfo.url == null || jobInfo.jobId == null ||
         jobInfo.url.trim().isEmpty() || jobInfo.jobId.trim().isEmpty()) {
       return;
     }
 
-    cancelJob(jobInfo.url, jobInfo.jobId, "Training", "/train/cancel/", console,
+    cancelJob(jobInfo.url, jobInfo.jobId, "Training", "/train/cancel/", null, console,
         () -> Bus.postSticky(new MessageTransferLearningJobInfo(JobType.TRAINING, null, null, false)));
+  }
+
+  private void cancelFragNovoJobs(TextConsole console) {
+    MessageFragNovoJobInfo jobInfo = Bus.getStickyEvent(MessageFragNovoJobInfo.class);
+    if (jobInfo == null) {
+      toConsole(Fragpipe.COLOR_RED, "FragNovo cancel: no job info found (sticky event is null), skipping.", true, console);
+      return;
+    }
+    if (!jobInfo.isRunning) {
+      toConsole(Fragpipe.COLOR_RED, "FragNovo cancel: job is not marked as running, skipping.", true, console);
+      return;
+    }
+    if (jobInfo.url == null || jobInfo.url.trim().isEmpty()) {
+      toConsole(Fragpipe.COLOR_RED, "FragNovo cancel: job URL is null or empty, skipping.", true, console);
+      return;
+    }
+    if (jobInfo.jobIds.isEmpty()) {
+      toConsole(Fragpipe.COLOR_RED, "FragNovo cancel: no job IDs found, skipping.", true, console);
+      return;
+    }
+
+    String cancelPath = jobInfo.jobType == MessageFragNovoJobInfo.JobType.FINE_TUNING
+        ? "/train/cancel/" : "/predict/cancel/";
+    String typeName = jobInfo.jobType == MessageFragNovoJobInfo.JobType.FINE_TUNING
+        ? "FragNovo fine-tuning" : "FragNovo prediction";
+
+    for (String jobId : jobInfo.jobIds) {
+      cancelJob(jobInfo.url, jobId, typeName, cancelPath, jobInfo.apiKey, console, () -> {});
+    }
+    Bus.postSticky(new MessageFragNovoJobInfo(jobInfo.jobType, null, null, null, false));
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
@@ -400,6 +424,7 @@ public class ProcessManager {
     try {
       cancelPredictionJob(m.console);
       cancelTrainingJob(m.console);
+      cancelFragNovoJobs(m.console);
       stop();
       deleteTempFiles(); // try deleting old temp files
     } finally {
