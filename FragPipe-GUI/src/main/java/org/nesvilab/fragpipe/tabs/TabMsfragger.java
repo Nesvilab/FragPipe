@@ -1330,9 +1330,9 @@ public class TabMsfragger extends JPanelBase {
             .label("Extended amino acids definition")
             .tooltip(epExtendedAAsToolip).create();
 
-    JButton btnLoadExtAAsFile = new JButton("Load AA Defintions");
+    JButton btnLoadExtAAsFile = new JButton("Load AA Definitions");
     btnLoadExtAAsFile.addActionListener(this::actionBtnLoadExtendedAAFile);
-    JButton btnSaveExtAAsFile = new JButton("Save AA Defintions");
+    JButton btnSaveExtAAsFile = new JButton("Save AA Definitions");
     btnSaveExtAAsFile.addActionListener(this::actionButtonSaveExtendedAAs);
 
     mu.add(pExtendedAAsContent, feExtendedAAs.label()).split();
