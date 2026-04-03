@@ -2210,14 +2210,27 @@ public class TabMsfragger extends JPanelBase {
    */
   private static String parseExtendedAAsFile(String filePath) throws IOException {
     ArrayList<String> inputs = new ArrayList<>();
-    BufferedReader in = new BufferedReader(new FileReader(filePath));
-    String line;
-    while ((line = in.readLine()) != null) {
-      if (line.isEmpty() || line.startsWith("#")) {
-        continue;
+    try (BufferedReader in = new BufferedReader(new FileReader(filePath))) {
+      String line;
+      int lineNumber = 0;
+      while ((line = in.readLine()) != null) {
+        lineNumber++;
+        if (line.isEmpty() || line.startsWith("#")) {
+          continue;
+        }
+        String[] parts = line.split("\t");
+        if (parts.length < 2) {
+          throw new IOException("Invalid extended AA definition at line " + lineNumber
+              + ": expected at least 2 tab-separated columns");
+        }
+        String name = parts[0].trim();
+        String mass = parts[1].trim();
+        if (name.isEmpty() || mass.isEmpty()) {
+          throw new IOException("Invalid extended AA definition at line " + lineNumber
+              + ": name and mass must be non-empty");
+        }
+        inputs.add(name + ":" + mass);
       }
-      String[] parts = line.replace("\n", "").split("\t");
-      inputs.add(String.join(":", parts));
     }
     return String.join(", ", inputs);
   }
