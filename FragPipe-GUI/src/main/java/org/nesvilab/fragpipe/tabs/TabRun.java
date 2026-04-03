@@ -94,7 +94,7 @@ public class TabRun extends JPanelWithEnablement {
   private static final String PROP_FILECHOOSER_LAST_PATH = TAB_PREFIX + "filechooser.last-path";
   public static final String PDV_NAME = "/FP-PDV/FP-PDV-1.5.6.jar";
   public static final String FRAG_ANNOTATOR = "/FP-PDV/FragAnnotator-1.1.0.jar";
-  public static final String GENERATE_REPORTS_NAME = "generate_reports_pdf.py";
+  public static final String GENERATE_REPORTS_NAME = "fragsummarizer-1.0.0.jar";
   private static final String FRAGPIPE_ANALYST_URL = Fragpipe.propsFix().getProperty("fragpipe-analyst-url", "http://fragpipe-analyst.nesvilab.org/");
 
   public final TextConsole console;
@@ -321,18 +321,13 @@ public class TabRun extends JPanelWithEnablement {
     });
 
     btnGenerateSummaryReport = UiUtils.createButton("Generate summary report", e -> {
-      String binPython = Fragpipe.getBinPython();
-      if (binPython == null || binPython.isEmpty()) {
-        SwingUtils.showErrorDialog(this, "Cannot find the python executable file.", "No python executable");
-        return;
-      }
-
       List<Path> generateReportPath = FragpipeLocations.checkToolsMissing(Seq.of(GENERATE_REPORTS_NAME));
       if (generateReportPath == null || generateReportPath.isEmpty()) {
         SwingUtils.showErrorDialog(this, "Cannot find the " + GENERATE_REPORTS_NAME + " file.", "No " + GENERATE_REPORTS_NAME + " file");
       } else {
         List<String> cmd = new ArrayList<>();
-        cmd.add(binPython);
+        cmd.add(Fragpipe.getBinJava());
+        cmd.add("-jar");
         cmd.add(constructClasspathString(generateReportPath));
         cmd.add("-r");
         cmd.add(uiTextWorkdir.getNonGhostText());
@@ -343,7 +338,6 @@ public class TabRun extends JPanelWithEnablement {
           try {
             btnGenerateSummaryReport.setEnabled(false);
             ProcessBuilder pb = new ProcessBuilder(cmd);
-            pb.environment().put("PYTHONIOENCODING", "utf-8");
             pb.redirectErrorStream(true);
             ProcessBuilderInfo pbi = new PbiBuilder().setPb(pb).setName(pb.toString()).setFnStdOut(null).setFnStdErr(null).setParallelGroup(null).create();
             ProcessResult pr = new ProcessResult(pbi);
@@ -373,7 +367,7 @@ public class TabRun extends JPanelWithEnablement {
               SwingUtils.showErrorDialog(this, "Process " + pb + " returned non zero value.", "Error");
               MessagePrintToConsole.toConsole("Summary report exited with code " + exitCode, console);
             }
-                        
+
             pr.close();
           } catch (Exception ex) {
             SwingUtils.showErrorDialogWithStacktrace(ex, this);

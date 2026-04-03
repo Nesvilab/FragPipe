@@ -36,12 +36,7 @@ RUN apt-get -y install \
 RUN python3.11 -m pip install --break-system-packages -U setuptools
 RUN python3.11 -m pip uninstall --break-system-packages fragpipe-speclib \
     && python3.11 -m pip install --break-system-packages git+https://github.com/Nesvilab/FragPipe-SpecLib.git@master \
-    && python3.11 -m pip install --break-system-packages lxml \
-    && python3.11 -m pip install --break-system-packages plotly \
-    && python3.11 -m pip install --break-system-packages kaleido \
-    && python3.11 -m pip install --break-system-packages narwhals \
-    && python3.11 -m pip install --break-system-packages pyarrow \
-    && python3.11 -m pip install --break-system-packages pypdf2
+    && python3.11 -m pip install --break-system-packages lxml
 
 # set python3.11 as the default python version
 RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1

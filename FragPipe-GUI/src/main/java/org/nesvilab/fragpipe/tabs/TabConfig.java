@@ -1186,7 +1186,7 @@ public class TabConfig extends JPanelWithEnablement {
           pythonPipOutputNew += ex.toString();
           ok = false;
         }
-        pb2 = new ProcessBuilder(binPython, "-m", "pip", "install", "fragpipe-speclib", "lxml", "plotly", "kaleido", "narwhals", "pyarrow", "pypdf2");
+        pb2 = new ProcessBuilder(binPython, "-m", "pip", "install", "fragpipe-speclib", "lxml");
       } else {
         throw new RuntimeException(PROGRAM_TITLE +" only works in Windows and Linux. " + PROGRAM_TITLE + " not supported in this OS");
       }
