@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
 public class MassOffsetUtils {
 
     private static final Pattern sitesPattern = Pattern.compile("\\(aa=([\\w()\\-\\[\\]^*]+)?[)_]");
-    private static final Pattern massPattern = Pattern.compile("([\\d.-]+)\\(");
+    private static final Pattern massPattern = Pattern.compile("^([\\d.-]+)");
     private static final Pattern diagPattern = Pattern.compile("d=([\\d.\\-,\\s]+)");
     private static final Pattern fragRemPattern = Pattern.compile("f=([\\d.\\-,\\s]+)");
     private static final Pattern pepRemPattern = Pattern.compile("p=([\\d.\\-,\\s]+)");
