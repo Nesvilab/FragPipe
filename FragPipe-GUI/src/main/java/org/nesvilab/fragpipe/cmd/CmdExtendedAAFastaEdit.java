@@ -61,13 +61,6 @@ public class CmdExtendedAAFastaEdit extends CmdBase {
     public boolean configure(Component component, Path jarFragpipe, String fastaPath) {
         initPreConfig();
 
-        Path outputFasta = Paths.get(ExtendedAAFastaEdit.getOutputPath(fastaPath));
-        if (Files.exists(outputFasta)) {
-            log.info("Skipping ExtendedAAFastaEdit: output file already exists at {}", outputFasta);
-            isConfigured = true;
-            return true;
-        }
-
         List<String> cmd = new ArrayList<>();
         cmd.add(Fragpipe.getBinJava());
         cmd.add("-cp");
