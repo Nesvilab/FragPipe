@@ -1923,6 +1923,12 @@ public class TabMsfragger extends JPanelBase {
         }
       }
     }
+    // If "Use Extended AA Definitions" is unchecked, clear extended_amino_acids so MSFragger
+    // never receives the value while downstream FASTA rewriting is also disabled.
+    if (!"true".equals(map.get(PROP_misc_fragger_use_extended_aas))) {
+      p.getProps().setProp(MsfraggerParams.PROP_extended_aas, "");
+    }
+
     p.setClearMzRange(clearMzRange);
     p.setDigestMassRange(digestMassRange);
     p.setPrecursorCharge(precursorChargeRange);
