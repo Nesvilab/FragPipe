@@ -1324,7 +1324,7 @@ public class TabMsfragger extends JPanelBase {
     epExtendedAAs.setPreferredSize(new Dimension(100, 25));
     epExtendedAAs.setBorder(new LineBorder(Color.LIGHT_GRAY, 1));
 
-    String epExtendedAAsToolip = "Define extended (non-canonical) amino acids in the format name:mass, name2:mass2, etc. Name can be anything, but MUST match the name used in the fasta file.";
+    String epExtendedAAsToolip = "Define extended (non-canonical) amino acids in the format name:mass, name2:mass2, etc. Names must match the FASTA file and may contain only letters, digits, and underscores (no commas or colons).";
     FormEntry feExtendedAAs = mu.feb(MsfraggerParams.PROP_extended_aas, epExtendedAAs)
             .label("Extended amino acids definition")
             .tooltip(epExtendedAAsToolip).create();
