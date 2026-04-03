@@ -398,8 +398,8 @@ def easypqp_lib_export(lib_type: str, params: easyPQPparams):
 	avg_experimental_rt = pd.Series(avg_experimental_rt0, name='AverageExperimentalRetentionTime')
 
 	#removed so that c-term modifications appear distinct from mod on last amino acid
-	#if lib_type == 'Spectronaut':
-	#	easypqp_lib['ModifiedPeptideSequence'] = easypqp_lib['ModifiedPeptideSequence'].str.replace('.(UniMod:', '(UniMod:', regex=False)
+	if lib_type == 'Spectronaut':
+		easypqp_lib['ModifiedPeptideSequence'] = easypqp_lib['ModifiedPeptideSequence'].str.replace('.(UniMod:', '_(UniMod:', regex=False)
 	
 	easypqp_lib['ModifiedPeptideSequence'] = easypqp_lib['ModifiedPeptideSequence'].str.replace('+', '', regex=False)
 
