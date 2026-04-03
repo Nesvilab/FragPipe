@@ -164,6 +164,7 @@ msfragger.diagnostic_intensity_filter=0
 msfragger.digest-only=false
 msfragger.digest_max_length=40
 msfragger.digest_min_length=7
+msfragger.extended_amino_acids=
 msfragger.fragment_ion_series=b,y
 msfragger.fragment_mass_tolerance=20
 msfragger.fragment_mass_units=1
