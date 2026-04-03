@@ -82,7 +82,6 @@ import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.ArrayUtils;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import org.jetbrains.annotations.NotNull;
 import org.jooq.lambda.Seq;
 import org.nesvilab.fragpipe.Fragpipe;
 import org.nesvilab.fragpipe.api.Bus;
