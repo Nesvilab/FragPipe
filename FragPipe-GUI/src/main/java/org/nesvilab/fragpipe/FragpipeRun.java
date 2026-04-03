@@ -2295,6 +2295,7 @@ public class FragpipeRun {
             diannPanel.getDiannQuantificationStrategy(noteConfigDiann),
             diannPanel.getDiannChannelNormalizationStrategy(),
             diannPanel.unrelatedRuns(),
+            diannPanel.isDiannNormalizeIntensity(),
             diannPanel.useMbr(),
             diannPanel.redoProteinInference(),
             fastaFile,

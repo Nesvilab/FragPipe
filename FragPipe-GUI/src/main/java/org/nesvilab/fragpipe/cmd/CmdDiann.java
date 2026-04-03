@@ -92,6 +92,7 @@ public class CmdDiann extends CmdBase {
       Set<String> quantificationStrategy,
       String channelNormalizationStrategy,
       boolean unrelatedRuns,
+      boolean diannNormalizeIntensity,
       boolean useMbr,
       boolean redoProteinInference,
       String fastaFile,
@@ -386,6 +387,9 @@ public class CmdDiann extends CmdBase {
       if (unrelatedRuns) {
         cmd.add("--individual-mass-acc");
         cmd.add("--individual-windows");
+      }
+      if (!diannNormalizeIntensity) {
+        cmd.add("--no-norm");
       }
       if (generateMsstats) {
         if (noteConfigDiann.compareVersion("2.0") < 0) {

@@ -68,6 +68,7 @@ public class DiannPanel extends JPanelBase {
   private UiText uiTextModTag;
   private UiSpinnerDouble uiSpinnerSiteProb;
   private UiCheck uiCheckUnrelatedRuns;
+  private UiCheck uiCheckDiannNormalizeIntensity;
   private UiCheck uiCheckGenerateMsstats;
   private UiCheck uiCheckMbr;
   private UiCheck uiCheckRedoProteinInference;
@@ -237,6 +238,9 @@ public class DiannPanel extends JPanelBase {
     uiCheckUnrelatedRuns = UiUtils.createUiCheck("Unrelated runs", false);
     FormEntry feUnrelatedRuns = new FormEntry("unrelated-runs", "Unrelated runs", uiCheckUnrelatedRuns, "Different runs will be treated as unrelated, i.e. mass accuracy (when automatic) will be determined separately, as well as the retention time scan window.");
 
+    uiCheckDiannNormalizeIntensity = UiUtils.createUiCheck("Normalize intensity across runs", true);
+    FormEntry feDiannNormalizeIntensity = new FormEntry("diann-normalize-intensity", "Normalize intensity across runs", uiCheckDiannNormalizeIntensity, "");
+
     uiCheckMbr = UiUtils.createUiCheck("MBR", false);
     FormEntry feMbr = new FormEntry("mbr", "MBR", uiCheckMbr, "Enable DIA-NN's MBR functionality. Only used when the input spectral library is from prediction of whole proteome.");
 
@@ -247,7 +251,8 @@ public class DiannPanel extends JPanelBase {
     mu.add(panelBasic, feQuantificationStrategy.comp).wrap();
     mu.add(panelBasic, labelQuantificationStrategy2, mu.ccL()).split(2);
     mu.add(panelBasic, feQuantificationStrategy2.comp).wrap();
-    mu.add(panelBasic, feUnrelatedRuns.comp).wrap();
+    mu.add(panelBasic, feUnrelatedRuns.comp).split(2);
+    mu.add(panelBasic, feDiannNormalizeIntensity.comp).wrap();
     mu.add(panelBasic, feMbr.comp).split(3);
     mu.add(panelBasic, feRedoProteinInference.comp);
     mu.add(panelBasic, feGenerateMsstats.comp).wrap();
@@ -547,6 +552,10 @@ public class DiannPanel extends JPanelBase {
 
   public boolean unrelatedRuns() {
     return isEnabledAndChecked(uiCheckUnrelatedRuns);
+  }
+
+  public boolean isDiannNormalizeIntensity() {
+    return isEnabledAndChecked(uiCheckDiannNormalizeIntensity);
   }
 
   public boolean useMbr() {
