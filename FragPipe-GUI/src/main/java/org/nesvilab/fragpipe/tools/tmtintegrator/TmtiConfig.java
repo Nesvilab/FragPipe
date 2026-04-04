@@ -38,9 +38,6 @@ public class TmtiConfig {
 
   public static class Props {
 
-    private String path;
-    private int memory;
-    private String protein_database;
     private String output;
     private int channel_num;
     private String ref_tag;
@@ -102,30 +99,6 @@ public class TmtiConfig {
 
     public void setAggregation_method(int aggregation_method) {
       this.aggregation_method = aggregation_method;
-    }
-
-    public String getPath() {
-      return path;
-    }
-
-    public void setPath(String path) {
-      this.path = path;
-    }
-
-    public int getMemory() {
-      return memory;
-    }
-
-    public void setMemory(int memory) {
-      this.memory = memory;
-    }
-
-    public String getProtein_database() {
-      return protein_database;
-    }
-
-    public void setProtein_database(String protein_database) {
-      this.protein_database = protein_database;
     }
 
     public String getOutput() {

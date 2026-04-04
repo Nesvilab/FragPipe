@@ -22,8 +22,6 @@ import java.util.List;
 
 public class TmtiConfProps {
 
-  public static final String PROP_path = "path";
-  public static final String PROP_memory = "memory";
   public static final String PROP_output = "output";
   public static final String PROP_channel_num = "channel_num";
   public static final String PROP_ref_tag = "ref_tag";
@@ -58,7 +56,7 @@ public class TmtiConfProps {
   public static final String PROP_label_masses = "label_masses";
 
   public static final List<String> PROPS = Arrays
-      .asList(PROP_path, PROP_memory, PROP_output, PROP_channel_num, PROP_label_masses,
+      .asList(PROP_output, PROP_channel_num, PROP_label_masses,
           PROP_ref_tag, PROP_ref_d_tag, PROP_min_pep_prob, PROP_min_purity, PROP_min_percent, PROP_min_resolution, PROP_min_snr, PROP_min_ntt, PROP_min_site_prob,
           PROP_unique_gene, PROP_prot_exclude, PROP_mod_tag, PROP_groupby, PROP_prot_norm,
           PROP_add_Ref, PROP_psm_norm, PROP_unique_pep, PROP_outlier_removal, PROP_best_psm,
