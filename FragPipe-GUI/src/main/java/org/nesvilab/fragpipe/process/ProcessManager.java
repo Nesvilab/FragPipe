@@ -388,7 +388,6 @@ public class ProcessManager {
   private void cancelFragNovoJobs(TextConsole console) {
     MessageFragNovoJobInfo jobInfo = Bus.getStickyEvent(MessageFragNovoJobInfo.class);
     if (jobInfo == null) {
-      toConsole(Fragpipe.COLOR_RED, "FragNovo cancel: no job info found (sticky event is null), skipping.", true, console);
       return;
     }
     if (!jobInfo.isRunning) {
