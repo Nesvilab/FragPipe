@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -302,10 +304,34 @@ public class TmtiConfig {
     }
   }
 
+  private static final Set<String> KEYS_REPLACED_BY_SUBPLEXES = Set.of("ref_tag", "ref_d_tag", "is_tmt_35", "channel_num");
+
   public static void write(Map<String, String> map, Writer w) throws IOException {
     final String space = "  ";
     w.write("tmtintegrator:\n");
+
+    // Build subplexes from channel_num + ref_tag + ref_d_tag
+    boolean isTmt35 = Boolean.parseBoolean(map.getOrDefault("is_tmt_35", "false"));
+    String refTag = map.getOrDefault("ref_tag", "");
+    String channelNum = map.getOrDefault("channel_num", "0");
+    String subplexes;
+    if (isTmt35) {
+      String refDTag = map.getOrDefault("ref_d_tag", "");
+      subplexes = "18:" + refTag + ",17:" + refDTag;
+    } else {
+      subplexes = channelNum + ":" + refTag;
+    }
+
+    // Collect all entries, replacing old keys with subplexes, and sort alphabetically
+    TreeMap<String, String> sorted = new TreeMap<>();
     for (Entry<String, String> e : map.entrySet()) {
+      if (!KEYS_REPLACED_BY_SUBPLEXES.contains(e.getKey())) {
+        sorted.put(e.getKey(), e.getValue());
+      }
+    }
+    sorted.put("subplexes", subplexes);
+
+    for (Entry<String, String> e : sorted.entrySet()) {
       w.write(String.format("%s%s: %s\n", space, e.getKey(), e.getValue()));
     }
   }
