@@ -761,7 +761,7 @@ public class Fragpipe extends JFrameHeadless {
       fp.setTitle(PROGRAM_TITLE + " (v" + Version.version() + ")");
       fp.setLocale(Locale.ROOT);
       fp.setMinimumSize(new Dimension(1300, 480));
-      fp.setPreferredSize(new Dimension(1500, 1300));
+      fp.setPreferredSize(new Dimension(1700, 1300));
       fp.setLayout(new MigLayout(new LC().fill()));
     }
     defFont = new JLabel("dummy label to get default font from");
