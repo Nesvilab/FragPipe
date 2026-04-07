@@ -19,6 +19,7 @@ package org.nesvilab.fragpipe.dialogs;
 
 import java.util.Locale;
 import org.nesvilab.utils.swing.MigUtils;
+import org.nesvilab.utils.swing.UiCheck;
 import org.nesvilab.utils.swing.UiCombo;
 import org.nesvilab.utils.swing.UiUtils;
 import java.awt.BorderLayout;
@@ -59,12 +60,17 @@ public class QuantLabelAnnotationDialog extends javax.swing.JDialog {
   private String initLabelName;
   private List<QuantLabelAnnotation> initAnnotations;
 
+  private static final String[] HYPERPLEX_LABELS = {"light", "medium", "heavy"};
+
   private JPanel p;
   private JButton buttonOK;
   private JButton buttonCancel;
   private JButton buttonLoad;
   private SimpleETable table;
   private UiCombo comboLabelName;
+  private UiCheck checkLight;
+  private UiCheck checkMedium;
+  private UiCheck checkHeavy;
   private SimpleTableModel<QuantLabelAnnotation> model;
   private Frame parent;
   private int dialogResult = JOptionPane.CLOSED_OPTION;
@@ -112,6 +118,10 @@ public class QuantLabelAnnotationDialog extends javax.swing.JDialog {
     model.dataAddAll(initAnnotations);
 
     JLabel labelLoad = new JLabel("Load annotation stubs for:");
+    checkLight = new UiCheck("Light", null, false);
+    checkMedium = new UiCheck("Medium", null, false);
+    checkHeavy = new UiCheck("Heavy", null, false);
+
     buttonLoad = new JButton("Load into table");
     buttonLoad.addActionListener(e -> {
       String labelName = (String) comboLabelName.getSelectedItem();
@@ -120,11 +130,25 @@ public class QuantLabelAnnotationDialog extends javax.swing.JDialog {
       if (!label.isPresent()) {
         throw new IllegalStateException("Label from dropdown menu not present: " + labelName);
       }
+
+      List<String> activeLabels = new ArrayList<>();
+      if (checkLight.isSelected()) activeLabels.add("light");
+      if (checkMedium.isSelected()) activeLabels.add("medium");
+      if (checkHeavy.isSelected()) activeLabels.add("heavy");
+
       model.dataClear();
-      for (String s : label.get().getReagentNames()) {
-        QuantLabelAnnotation annotation = new QuantLabelAnnotation(s,
-            String.format("%s_%s", expNameToFilePathRow.expName, s));
-        model.dataAdd(annotation);
+      if (activeLabels.isEmpty()) {
+        for (String s : label.get().getReagentNames()) {
+          model.dataAdd(new QuantLabelAnnotation(s,
+              String.format("%s_%s", expNameToFilePathRow.expName, s)));
+        }
+      } else {
+        for (String prefix : activeLabels) {
+          for (String s : label.get().getReagentNames()) {
+            model.dataAdd(new QuantLabelAnnotation(prefix + "_" + s,
+                String.format("%s_%s_%s", prefix, expNameToFilePathRow.expName, s)));
+          }
+        }
       }
     });
     comboLabelName = UiUtils.createUiCombo(QuantLabel.LABELS.stream().map(QuantLabel::getName)
@@ -138,6 +162,9 @@ public class QuantLabelAnnotationDialog extends javax.swing.JDialog {
 
     p.add(labelLoad, MigUtils.get().ccL().split());
     p.add(comboLabelName, MigUtils.get().ccL());
+    p.add(checkLight, MigUtils.get().ccL());
+    p.add(checkMedium, MigUtils.get().ccL());
+    p.add(checkHeavy, MigUtils.get().ccL());
     p.add(buttonLoad, MigUtils.get().ccL().wrap());
 
     p.add(new JScrollPane(table), new CC().grow().spanX().wrap());

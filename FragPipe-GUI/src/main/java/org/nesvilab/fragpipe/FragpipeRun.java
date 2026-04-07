@@ -1883,10 +1883,20 @@ public class FragpipeRun {
         if (annotations.isEmpty()) {
           return false;
         }
-        return cmdTmt.configure(tmtiPanel, isDryRun, ramGb, sharedMapGroupsToProtxml, philosopherGenerateMSstats, annotations, false, tmtiPanel.getNumChannels());
+        int hyperCount = tmtiPanel.getHyperplexLabelCount();
+        if (hyperCount == 1) {
+          SwingUtils.showErrorDialog(parent, "Hyperplexing requires at least two labels (light, medium, heavy).\nPlease fill in at least two fields or leave all empty for non-hyperplexing mode.", "Hyperplexing error");
+          return false;
+        }
+        return cmdTmt.configure(tmtiPanel, isDryRun, ramGb, sharedMapGroupsToProtxml, philosopherGenerateMSstats, annotations, false, tmtiPanel.getNumChannels(), tmtiPanel.isHyperplexing());
       }
       return true;
     });
+
+    final boolean isHyperplexing = tmtiPanel.isHyperplexing();
+    final String hyperLight = isHyperplexing ? tmtiPanel.getHyperLight() : null;
+    final String hyperMedium = isHyperplexing ? tmtiPanel.getHyperMedium() : null;
+    final String hyperHeavy = isHyperplexing ? tmtiPanel.getHyperHeavy() : null;
 
     final CmdIonquant cmdTmtIonquant = new CmdIonquant(tmtiPanel.isRun() && tmtiPanel.getIntensityExtractionTool() == 0, wd);
     cmdTmtIonquant.setTitle(CmdIonquant.NAME + " MS1 (TMT)");
@@ -1990,7 +2000,10 @@ public class FragpipeRun {
                 quantLevel,
                 label.getName(),
                 annotations,
-                true);
+                true,
+                hyperLight,
+                hyperMedium,
+                hyperHeavy);
           }
           return true;
         });
@@ -2171,7 +2184,7 @@ public class FragpipeRun {
         if (annotations.isEmpty()) {
           return false;
         }
-        return cmdTmtFpop.configure(tmtiPanel, isDryRun, ramGb, sharedMapGroupsToProtxml, philosopherGenerateMSstats, annotations, true, tmtiPanel.getNumChannels());
+        return cmdTmtFpop.configure(tmtiPanel, isDryRun, ramGb, sharedMapGroupsToProtxml, philosopherGenerateMSstats, annotations, true, tmtiPanel.getNumChannels(), false);
       });
     }
 

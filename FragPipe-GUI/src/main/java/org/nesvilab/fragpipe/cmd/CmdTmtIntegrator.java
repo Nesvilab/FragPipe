@@ -43,10 +43,10 @@ import org.nesvilab.fragpipe.FragpipeLocations;
 import org.nesvilab.fragpipe.api.InputLcmsFile;
 import org.nesvilab.fragpipe.api.LcmsFileGroup;
 import org.nesvilab.fragpipe.tools.tmtintegrator.QuantLabelAnnotation;
+import org.nesvilab.fragpipe.tools.tmtintegrator.TmtiConfig;
 import org.nesvilab.fragpipe.tools.tmtintegrator.TmtiConfProps;
 import org.nesvilab.fragpipe.tools.tmtintegrator.TmtiPanel;
 import org.nesvilab.utils.FileDelete;
-import org.nesvilab.utils.StringUtils;
 import org.nesvilab.utils.SwingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,7 +83,7 @@ public class CmdTmtIntegrator extends CmdBase {
     return true;
   }
 
-  public boolean configure(TmtiPanel panel, boolean isDryRun, int ramGb, Map<LcmsFileGroup, Path> mapGroupsToProtxml, boolean doMsstats, Map<LcmsFileGroup, Path> groupAnnotationMap, boolean isSecondUnmodRun, int channelNum) {
+  public boolean configure(TmtiPanel panel, boolean isDryRun, int ramGb, Map<LcmsFileGroup, Path> mapGroupsToProtxml, boolean doMsstats, Map<LcmsFileGroup, Path> groupAnnotationMap, boolean isSecondUnmodRun, int channelNum, boolean isHyperplexing) {
     isConfigured = false;
 
     List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Stream.of(JAR_NAME));
@@ -171,33 +171,18 @@ public class CmdTmtIntegrator extends CmdBase {
       }
       Map<String, String> conf = panel.formToConfig(outDir.toString(), panel.getSelectedLabel(), isSecondUnmodRun);
 
-      // sanity checks
-      String refTag = conf.get("ref_tag");
-      String refDTag = conf.get("ref_d_tag");
       boolean isTmt35 = Boolean.parseBoolean(conf.get("is_tmt_35"));
-      boolean isRealReference = Integer.parseInt(conf.get("add_Ref")) == -1;
-
-      if (isTmt35 && !refTag.contentEquals(refDTag) && (refTag.contains(refDTag) || refDTag.contains(refTag))) {
-        SwingUtils.showErrorDialog(panel, "For TMT 35-plex, the 'Ref sample tag' and 'Ref D sample tag' can't be substrings of each other.", "ERROR: ref tags overlap");
-        return false;
-      }
-
-      if (isRealReference && StringUtils.isNullOrWhitespace(refTag)) {
-        SwingUtils.showErrorDialog(panel, "'Ref sample tag' can't be empty in 'Quant (Isobaric)' tab.", "ERROR: empty ref tag");
-        return false;
-      }
-
-      if (isRealReference && isTmt35 && StringUtils.isNullOrWhitespace(refDTag)) {
-        SwingUtils.showErrorDialog(panel, "'Ref D sample tag' can't be empty in 'Quant (Isobaric)' tab.", "ERROR: empty ref D tag");
-        return false;
-      }
 
       Set<String> ss = new HashSet<>();
       for (Path path : groupAnnotationMap.values()) {
         List<QuantLabelAnnotation> annotations = TmtiPanel.parseTmtAnnotationFile(path.toFile());
 
-        if (annotations.size() != channelNum) {
-          SwingUtils.showErrorDialog(panel, "Number of the samples in the annotation file does not match the number of channels in the 'label type' of the Quant (Isobaric) tab.", "ERROR: channel count mismatch");
+        int expectedChannels = isHyperplexing ? channelNum * panel.getHyperplexLabelCount() : channelNum;
+        if (annotations.size() != expectedChannels) {
+          String msg = isHyperplexing
+              ? String.format("Number of samples in the annotation file (%d) does not match the expected count (%d channels x %d hyperplexing labels = %d).", annotations.size(), channelNum, panel.getHyperplexLabelCount(), expectedChannels)
+              : "Number of the samples in the annotation file does not match the number of channels in the 'label type' of the Quant (Isobaric) tab.";
+          SwingUtils.showErrorDialog(panel, msg, "ERROR: channel count mismatch");
           return false;
         }
 
@@ -212,24 +197,50 @@ public class CmdTmtIntegrator extends CmdBase {
       Set<Path> filesWithoutRefChannel = new HashSet<>();
       // only check for presence of reference channels if "Define Reference is set to "Reference Sample"
       if (TmtiConfProps.COMBO_ADD_REF_CHANNEL.equalsIgnoreCase(panel.getDefineReference())) {
-        for (Path path : groupAnnotationMap.values()) {
-          List<QuantLabelAnnotation> annotations = TmtiPanel
-              .parseTmtAnnotationFile(path.toFile());
-          if (annotations.stream().noneMatch(a -> a.getSample().contains(refTag))) {
-            filesWithoutRefChannel.add(path);
+        // Build the list of ref tags to check using hardcoded constants
+        List<String> refTagsToCheck = new ArrayList<>();
+        if (isHyperplexing) {
+          String[] labels = {"light", "medium", "heavy"};
+          String[] activeKeys = {"hyper_light_active", "hyper_medium_active", "hyper_heavy_active"};
+          for (int i = 0; i < labels.length; i++) {
+            if ("true".equalsIgnoreCase(conf.get(activeKeys[i]))) {
+              refTagsToCheck.add(labels[i] + TmtiConfig.REF_TAG);
+              if (isTmt35) {
+                refTagsToCheck.add(labels[i] + TmtiConfig.REF_D_TAG);
+              }
+            }
           }
-          if (isTmt35 && annotations.stream().noneMatch(a -> a.getSample().contains(refDTag))) {
-            filesWithoutRefChannel.add(path);
+        } else {
+          refTagsToCheck.add(TmtiConfig.REF_TAG);
+          if (isTmt35) {
+            refTagsToCheck.add(TmtiConfig.REF_D_TAG);
+          }
+        }
+
+        for (Path path : groupAnnotationMap.values()) {
+          List<QuantLabelAnnotation> annotations = TmtiPanel.parseTmtAnnotationFile(path.toFile());
+          for (String tag : refTagsToCheck) {
+            if (annotations.stream().noneMatch(a -> a.getSample().contains(tag))) {
+              filesWithoutRefChannel.add(path);
+            }
           }
         }
       }
       if (!filesWithoutRefChannel.isEmpty()) {
         String files = filesWithoutRefChannel.stream().map(Path::toString)
             .collect(Collectors.joining("\n"));
+        String tagHint;
+        if (isHyperplexing) {
+          tagHint = "For hyperplexing, each annotation file must contain reference\n"
+              + "tags for each active subplex (e.g. 'lightBridge', 'mediumBridge',\n'heavyBridge'"
+              + (isTmt35 ? ", 'lightBridgeD', 'mediumBridgeD', 'heavyBridgeD'" : "") + ").";
+        } else {
+          tagHint = "One sample name in each annotation file must contain\n"
+              + "the reference tag (e.g. 'Bridge'" + (isTmt35 ? " or 'BridgeD'" : "") + ").";
+        }
         SwingUtils.showErrorDialog(panel, "Found annotation files without reference channel\n"
             + "specified:\n" + files
-            + "\n\nOne sample name in each annotation file must start with\n"
-            + "the reference tag you set. You can change that in Quant tab, [Ref Sample Tag] text field.",
+            + "\n\n" + tagHint,
             NAME + " Config");
         return false;
       }
@@ -291,8 +302,9 @@ public class CmdTmtIntegrator extends CmdBase {
     cmd.add("-jar");
     cmd.add(constructClasspathString(classpathJars));
     cmd.add(pathConf.toString());
+    final String psmFileName = isHyperplexing ? "psm_pair.tsv" : "psm.tsv";
     mapGroupsToProtxml.keySet().forEach(g -> {
-      cmd.add(g.outputDir(wd).resolve("psm.tsv").toString());
+      cmd.add(g.outputDir(wd).resolve(psmFileName).toString());
     });
 
     ProcessBuilder pb = new ProcessBuilder(cmd);

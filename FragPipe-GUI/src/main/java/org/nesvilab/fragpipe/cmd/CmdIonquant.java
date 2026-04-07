@@ -99,7 +99,10 @@ public class CmdIonquant extends CmdBase {
         "MS2",
         "tmt10",
         null,
-        writeExperimentAnnotation);
+        writeExperimentAnnotation,
+        null,
+        null,
+        null);
   }
 
   public boolean configure(Component comp,
@@ -121,7 +124,10 @@ public class CmdIonquant extends CmdBase {
       String isoLevel,
       String isoType,
       Map<LcmsFileGroup, Path> annotationMap,
-      boolean writeExperimentAnnotation) {
+      boolean writeExperimentAnnotation,
+      String hyperLight,
+      String hyperMedium,
+      String hyperHeavy) {
 
     initPreConfig();
 
@@ -252,6 +258,19 @@ public class CmdIonquant extends CmdBase {
       cmd.add("0");
       cmd.add("--uniqueness");
       cmd.add("0");
+
+      if (hyperLight != null && !hyperLight.isEmpty()) {
+        cmd.add("--light");
+        cmd.add(hyperLight);
+      }
+      if (hyperMedium != null && !hyperMedium.isEmpty()) {
+        cmd.add("--medium");
+        cmd.add(hyperMedium);
+      }
+      if (hyperHeavy != null && !hyperHeavy.isEmpty()) {
+        cmd.add("--heavy");
+        cmd.add(hyperHeavy);
+      }
     } else {
       List<String> dynamicParams = Arrays.asList(
           "mbr",

@@ -18,8 +18,6 @@
 package org.nesvilab.fragpipe.tools.tmtintegrator;
 
 import static org.nesvilab.fragpipe.tools.tmtintegrator.QuantLabel.labelModMap;
-import static org.nesvilab.fragpipe.tools.tmtintegrator.QuantLabelAnnotation.disallowedPattern;
-import static org.nesvilab.fragpipe.tools.tmtintegrator.QuantLabelAnnotation.unifyAnnotationSampleName;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -127,6 +125,9 @@ public class TmtiPanel extends JPanelBase {
   private UiSpinnerDouble uiSpinnerMinSnr;
   private UiText uiTextModTag;
   private UiSpinnerDouble uiSpinnerMinSiteProb;
+  private UiText uiTextHyperLight;
+  private UiText uiTextHyperMedium;
+  private UiText uiTextHyperHeavy;
   public static final String PREFIX = "tmtintegrator.";
   public static final String PROP_LAST_ANNOTATION_PATH = "fragpipe.tmt.last-annotation-path";
   private static final Map<String, Function<String, String>> CONVERT_TO_FILE;
@@ -234,6 +235,7 @@ public class TmtiPanel extends JPanelBase {
     pTable = createPanelTable();
     pOptsBasic = createPanelOptsBasic();
     JPanel pOptsAdvancedPtm = createPanelOptsAdvancedPtm();
+    JPanel pHyperplexing = createPanelHyperplexing();
     pOptsAdvanced = createPanelOptsAdvanced();
 
     mu.add(pContent, pTable).growX();
@@ -241,6 +243,7 @@ public class TmtiPanel extends JPanelBase {
     JPanel p = new JPanel(new MigLayout(new LC()));
     mu.add(p, pOptsBasic).alignY("top").growX().growY().wrap();
     mu.add(p, pOptsAdvancedPtm).alignY("top").growX().growY().wrap();
+    mu.add(p, pHyperplexing).alignY("top").growX().growY().wrap();
 
     mu.add(pContent, p).alignY("top").growX().growY().wrap();
     mu.add(pContent, pOptsAdvanced).spanX().growX().wrap();
@@ -310,7 +313,7 @@ public class TmtiPanel extends JPanelBase {
     tmtAnnotationTable.setFillsViewportHeight(false);
     scrollPaneTmtTable = new JScrollPane();
     scrollPaneTmtTable.setViewportView(tmtAnnotationTable);
-    scrollPaneTmtTable.setPreferredSize(new Dimension(640, 300));
+    scrollPaneTmtTable.setPreferredSize(new Dimension(900, 560));
     p.add(scrollPaneTmtTable, BorderLayout.CENTER);
 
     return p;
@@ -330,16 +333,6 @@ public class TmtiPanel extends JPanelBase {
 
     uiSpinnerTolerance = UiUtils.spinnerInt(20, 1, 9999, 1).create();
     FormEntry feTolerance = fe("tolerance", "Mass tolerance (ppm)", uiSpinnerTolerance, "Reporter ions mass tolerance in PPM");
-
-    UiText uiTextRefTag = UiUtils.uiTextBuilder().cols(10).filter(disallowedPattern.toString()).text("Bridge").create();
-    FormEntry feRefTag = fe(TmtiConfProps.PROP_ref_tag,
-        "Ref sample tag", uiTextRefTag,
-        "<html>Unique tag to identify reference (bridge) channels.");
-
-    UiText uiTextRefDTag = UiUtils.uiTextBuilder().cols(10).filter(disallowedPattern.toString()).text("Pool").create();
-    FormEntry feRefDTag = fe(TmtiConfProps.PROP_ref_d_tag,
-        "Ref D sample tag (TMT-35)", uiTextRefDTag,
-        "<html>Unique tag to identify reference (pool) Deuterium channels.<br>Only used for TMT 35-plex.");
 
     UiCombo uiComboGroupBy = UiUtils.createUiCombo(TmtiConfProps.COMBO_GROUP_BY.stream()
         .map(ComboValue::getValInUi).collect(Collectors.toList()));
@@ -374,13 +367,16 @@ public class TmtiPanel extends JPanelBase {
     FormEntry feAddRef = fe(TmtiConfProps.PROP_add_Ref,
         "Define reference", uiComboAddRef,
         "<html>Add an artificial reference channel if<br/>\n"
-            + "there is no reference channel in the sample");
-    uiComboAddRef.addItemListener(e -> {
-      final String selected = (String) uiComboAddRef.getSelectedItem();
-      boolean enabled = TmtiConfProps.COMBO_ADD_REF_CHANNEL.equalsIgnoreCase(selected);
-      updateEnabledStatus(uiTextRefTag, enabled);
-      updateEnabledStatus(uiTextRefDTag,enabled);
-    });
+            + "there is no reference channel in the sample.<br/><br/>\n"
+            + "When using <b>Reference sample</b>, annotation sample names<br/>\n"
+            + "must contain <b>Bridge</b> (and <b>BridgeD</b> for TMT-35).<br/>\n"
+            + "For hyperplexing, use prefixed tags: e.g. <b>lightBridge</b>, <b>mediumBridge</b>, <b>heavyBridge</b>.");
+    JLabel labelRefNote = new JLabel("<html><i>Ref tag: <b>Bridge</b> (TMT-35 D tag: <b>BridgeD</b>). Only for Reference sample mode.</i></html>");
+    labelRefNote.setFont(labelRefNote.getFont().deriveFont(labelRefNote.getFont().getSize2D() - 1f));
+    labelRefNote.setToolTipText("<html>In the annotation file, the reference channel's sample name must contain <b>Bridge</b>.<br/>"
+        + "For example: <b>exp1_Bridge</b>, <b>MyBridge01</b>, etc.<br/>"
+        + "For TMT-35, an additional reference channel's name must contain <b>BridgeD</b>.<br/><br/>"
+        + "This only applies when 'Define reference' is set to <b>Reference sample</b>.</html>");
     uiComboAddRef.setSelectedItem(null);
     uiComboAddRef.setSelectedItem(TmtiConfProps.COMBO_ADD_REF_CHANNEL);
 
@@ -396,8 +392,7 @@ public class TmtiPanel extends JPanelBase {
     addRowLabelComp(p, feQuantLevel);
     addRowLabelComp(p, feTolerance);
     addRowLabelComp(p, feAddRef);
-    addRowLabelComp(p, feRefTag);
-    addRowLabelComp(p, feRefDTag);
+    mu.add(p, labelRefNote).skip(1).wrap();
     addRowLabelComp(p, feGroupBy);
     addRowLabelComp(p, feProtNorm);
     addRowLabelComp(p, feLog2Transformed);
@@ -643,6 +638,63 @@ public class TmtiPanel extends JPanelBase {
     return p;
   }
 
+  private JPanel createPanelHyperplexing() {
+    JPanel p = new JPanel(new MigLayout(new LC()));
+    mu.border(p, "Hyperplexing");
+
+    String massDeltaTooltip = "String description of mass deltas. A-Z for amino acids, n for N-terminus, c for C-terminus, and * for any amino acids.";
+
+    uiTextHyperLight = UiUtils.uiTextBuilder().cols(40).create();
+    uiTextHyperMedium = UiUtils.uiTextBuilder().cols(40).create();
+    uiTextHyperHeavy = UiUtils.uiTextBuilder().cols(40).create();
+
+    FormEntry feLight = fe("tmtintegrator.hyper_light", "Light    ", uiTextHyperLight, massDeltaTooltip);
+    FormEntry feMedium = fe("tmtintegrator.hyper_medium", "Medium", uiTextHyperMedium, massDeltaTooltip);
+    FormEntry feHeavy = fe("tmtintegrator.hyper_heavy", "Heavy  ", uiTextHyperHeavy, massDeltaTooltip);
+
+    JLabel labelHyperRefNote = new JLabel("<html><i>Ref tags: <b>lightBridge</b>, <b>mediumBridge</b>, <b>heavyBridge</b>. Only for Reference sample mode.</i></html>");
+    labelHyperRefNote.setFont(labelHyperRefNote.getFont().deriveFont(labelHyperRefNote.getFont().getSize2D() - 1f));
+    labelHyperRefNote.setToolTipText("<html>In the annotation file, the reference channel's sample name for each subplex<br/>"
+        + "must contain the corresponding tag: <b>lightBridge</b>, <b>mediumBridge</b>, or <b>heavyBridge</b>.<br/>"
+        + "For example: <b>exp1_lightBridge</b>, <b>exp1_mediumBridge</b>, etc.<br/>"
+        + "For TMT-35, additional reference channels must contain <b>lightBridgeD</b>, <b>mediumBridgeD</b>, <b>heavyBridgeD</b>.<br/><br/>"
+        + "This only applies when 'Define reference' is set to <b>Reference sample</b>.</html>");
+
+    mu.add(p, feLight.label(), mu.ccR()).split(2);
+    mu.add(p, feLight.comp).growX().wrap();
+    mu.add(p, feMedium.label(), mu.ccR()).split(2);
+    mu.add(p, feMedium.comp).growX().wrap();
+    mu.add(p, feHeavy.label(), mu.ccR()).split(2);
+    mu.add(p, feHeavy.comp).growX().wrap();
+    mu.add(p, labelHyperRefNote).spanX().wrap();
+
+    return p;
+  }
+
+  public int getHyperplexLabelCount() {
+    int count = 0;
+    if (!getHyperLight().isEmpty()) count++;
+    if (!getHyperMedium().isEmpty()) count++;
+    if (!getHyperHeavy().isEmpty()) count++;
+    return count;
+  }
+
+  public boolean isHyperplexing() {
+    return getHyperplexLabelCount() >= 2;
+  }
+
+  public String getHyperLight() {
+    return uiTextHyperLight.getNonGhostText().trim();
+  }
+
+  public String getHyperMedium() {
+    return uiTextHyperMedium.getNonGhostText().trim();
+  }
+
+  public String getHyperHeavy() {
+    return uiTextHyperHeavy.getNonGhostText().trim();
+  }
+
   private static FormEntry fe(String name, String label, JComponent comp, String tooltip) {
     return new FormEntry(name, label, comp, tooltip);
   }
@@ -684,12 +736,13 @@ public class TmtiPanel extends JPanelBase {
   public Map<LcmsFileGroup, Path> getAnnotations(Path wd, boolean isDryRun) {
     ArrayList<ExpNameToAnnotationFile> annotations = tmtAnnotationTable.fetchModel()
         .dataCopy();
+    List<String> hyperplexLabels = getHyperplexingLabels();
     Map<LcmsFileGroup, Path> map = new TreeMap<>();
     for (ExpNameToAnnotationFile row : annotations) {
       Path p;
       if (row.getPath().contentEquals(STRING_NO_PATH_SET)) {
         try {
-          p = generateDummyAnnotationFile(wd, row.expName, getSelectedLabel(), isDryRun);
+          p = generateDummyAnnotationFile(wd, row.expName, getSelectedLabel(), isDryRun, hyperplexLabels);
         } catch (Exception ex) {
           SwingUtils.showErrorDialogWithStacktrace(ex, this);
           return new TreeMap<>();
@@ -709,14 +762,38 @@ public class TmtiPanel extends JPanelBase {
     return map;
   }
 
-  private Path generateDummyAnnotationFile(Path outDir, String experimentName, QuantLabel quantLabel, boolean isDryRun) throws Exception {
+  private List<String> getHyperplexingLabels() {
+    List<String> labels = new ArrayList<>();
+    if (isHyperplexing()) {
+      if (!getHyperLight().isEmpty()) {
+        labels.add("light");
+      }
+      if (!getHyperMedium().isEmpty()) {
+        labels.add("medium");
+      }
+      if (!getHyperHeavy().isEmpty()) {
+        labels.add("heavy");
+      }
+    }
+    return labels;
+  }
+
+  private Path generateDummyAnnotationFile(Path outDir, String experimentName, QuantLabel quantLabel, boolean isDryRun, List<String> hyperplexLabels) throws Exception {
     Path p = outDir.resolve(experimentName).resolve(experimentName + "_annotation.txt");
 
     if (!isDryRun) {
       Files.createDirectories(outDir.resolve(experimentName));
       BufferedWriter bw = Files.newBufferedWriter(p);
-      for (String s : quantLabel.getReagentNames()) {
-        bw.write(String.format("%s %s_%s\n", s, experimentName, s));
+      if (hyperplexLabels.isEmpty()) {
+        for (String s : quantLabel.getReagentNames()) {
+          bw.write(String.format("%s %s_%s\n", s, experimentName, s));
+        }
+      } else {
+        for (String label : hyperplexLabels) {
+          for (String s : quantLabel.getReagentNames()) {
+            bw.write(String.format("%s_%s %s_%s_%s\n", label, s, label, experimentName, s));
+          }
+        }
       }
       bw.close();
     }
@@ -1200,8 +1277,6 @@ public class TmtiPanel extends JPanelBase {
         } else {
           mapConv.put(prop, CONVERT_TO_FILE.getOrDefault(prop, Function.identity()).apply(v));
         }
-      } else if (prop.contentEquals("ref_tag")) {
-        mapConv.put(prop, unifyAnnotationSampleName(CONVERT_TO_FILE.getOrDefault(prop, Function.identity()).apply(v)));
       } else if (prop.contentEquals(TmtiConfProps.PROP_channel_num)) {
         // TMT-I only needs the channel_num, but multiple tags may have the same number so we save the label_type to workflow file instead
         // of channel num. Get the channel num from the QuantLabel for the TMT-I config
@@ -1213,11 +1288,19 @@ public class TmtiPanel extends JPanelBase {
     });
 
     mapConv.put("output", pathOutput);
-
     if (getSelectedLabel().getName().contentEquals("TMT-35")) {
       mapConv.put("is_tmt_35", "true");
     } else {
       mapConv.put("is_tmt_35", "false");
+    }
+
+    if (isHyperplexing()) {
+      mapConv.put("is_hyperplexing", "true");
+      mapConv.put("hyper_light_active", !getHyperLight().isEmpty() ? "true" : "false");
+      mapConv.put("hyper_medium_active", !getHyperMedium().isEmpty() ? "true" : "false");
+      mapConv.put("hyper_heavy_active", !getHyperHeavy().isEmpty() ? "true" : "false");
+    } else {
+      mapConv.put("is_hyperplexing", "false");
     }
 
     return mapConv;
