@@ -108,7 +108,6 @@ import org.nesvilab.fragpipe.messages.MessageMsfraggerParamsUpdate;
 import org.nesvilab.fragpipe.messages.MessagePrecursorSelectionMode;
 import org.nesvilab.fragpipe.messages.MessageSearchType;
 import org.nesvilab.fragpipe.messages.MessageValidityMassCalibration;
-import org.nesvilab.fragpipe.messages.NoteConfigDbsplit;
 import org.nesvilab.fragpipe.messages.NoteConfigMsfragger;
 import org.nesvilab.fragpipe.params.Props.Prop;
 import org.nesvilab.fragpipe.params.ThisAppProps;
@@ -505,7 +504,6 @@ public class TabMsfragger extends JPanelBase {
   @Override
   protected void initMore() {
     updateEnabledStatus(this, false); // will get enabled once we receive NoteConfigMsfragger
-    updateEnabledStatus(uiSpinnerDbsplit, false); // only gets enabled when DbSlice2 is initialized
 
     updateEnabledStatus(uiTextCustomIonSeries, true);
     updateEnabledStatus(labelCustomIonSeries, true);
@@ -1898,12 +1896,6 @@ public class TabMsfragger extends JPanelBase {
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
   public void on(NoteConfigMsfragger m) {
     updateEnabledStatus(this, m.isValid());
-  }
-
-  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
-  public void on(NoteConfigDbsplit m) {
-    log.debug("Got NoteConfigDbsplit. Setting MSFragger tab DB Split option to enabled={}", m.isValid());
-    updateEnabledStatus(uiSpinnerDbsplit, m.isValid());
   }
 
   @Subscribe

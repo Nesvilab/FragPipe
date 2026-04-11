@@ -123,7 +123,6 @@ import org.nesvilab.fragpipe.tabs.TabDeNovo;
 import org.nesvilab.fragpipe.tabs.TabTransferLearning;
 import org.nesvilab.fragpipe.tabs.TabValidation;
 import org.nesvilab.fragpipe.tabs.TabWorkflow;
-import org.nesvilab.fragpipe.tools.dbsplit.DbSplit2;
 import org.nesvilab.fragpipe.tools.fpop.FpopScript;
 import org.nesvilab.fragpipe.tools.speclibgen.SpecLibGen2;
 import org.nesvilab.utils.OsUtils;
@@ -800,7 +799,6 @@ public class Fragpipe extends JFrameHeadless {
 
     // initialize singletons (mainly to subscribe them to the bus)
     ProcessManager.get();
-    DbSplit2.initClass();
     SpecLibGen2.initClass();
     FpopScript.initClass();
 

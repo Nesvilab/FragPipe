@@ -23,9 +23,6 @@ import org.nesvilab.fragpipe.Fragpipe;
 import org.nesvilab.fragpipe.FragpipeLocations;
 import org.nesvilab.fragpipe.api.Bus;
 import org.nesvilab.fragpipe.api.InputLcmsFile;
-import org.nesvilab.fragpipe.api.PyInfo;
-import org.nesvilab.fragpipe.exceptions.NoStickyException;
-import org.nesvilab.fragpipe.messages.NoteConfigPython;
 import org.nesvilab.fragpipe.tabs.TabRun;
 import org.nesvilab.fragpipe.tools.dbsplit.DbSplit2;
 import org.nesvilab.fragpipe.tools.enums.FraggerOutputType;
@@ -341,19 +338,6 @@ public class CmdMsfragger extends CmdBase {
         SwingUtils.showErrorDialog(comp, "<html><code>Split database</code> is incompatible with <code>localize mass shift</code>.", "Incompatible options");
         return false;
       }
-
-      if (!DbSplit2.get().isInitialized()) {
-        if (Fragpipe.headless) {
-          log.error("MSFragger: database splitting in more than 1 chunk. However not all preconditions for enabling slicing were met, check that Python is installed and meets minimum version requirements.");
-        } else {
-          JOptionPane.showMessageDialog(comp,
-              "MSFragger: database splitting in more than 1 chunk.\n"
-                  + "However not all preconditions for enabling slicing were met.\n"
-                  + "Check the bottom of 'Config' tab for details.",
-              "Error", JOptionPane.ERROR_MESSAGE);
-        }
-        return false;
-      }
     }
 
     if (StringUtils.isNullOrWhitespace(binFragger.getBin())) {
@@ -504,22 +488,15 @@ public class CmdMsfragger extends CmdBase {
     if (!isSlicing) {
       slicingCmd = null;
     } else {
-      try {
-        NoteConfigPython configPython = Fragpipe.getSticky(NoteConfigPython.class);
-        slicingCmd = Arrays.asList(
-            configPython.pi.getCommand(),
-            DbSplit2.get().getScriptDbslicingPath().toAbsolutePath().normalize().toString(),
-            Integer.toString(numSlices),
-            OsUtils.asSingleArgument(String.join(" ", javaCmd))
-        );
-      } catch (NoStickyException e) {
-        if (Fragpipe.headless) {
-          log.error("DbSplit was enabled, but Python was not configured.");
-        } else {
-          JOptionPane.showMessageDialog(comp, "DbSplit was enabled, but Python was not configured.", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-        return false;
-      }
+      // Invoke FragDbSplitter Java jar to perform MSFragger split database search.
+      List<String> slicingCmdBuilder = new ArrayList<>();
+      slicingCmdBuilder.add(Fragpipe.getBinJava());
+      slicingCmdBuilder.add("-Dfile.encoding=UTF-8");
+      slicingCmdBuilder.add("-jar");
+      slicingCmdBuilder.add(DbSplit2.getScriptDbslicingPath().toAbsolutePath().normalize().toString());
+      slicingCmdBuilder.add(Integer.toString(numSlices));
+      slicingCmdBuilder.add(OsUtils.asSingleArgument(String.join(" ", javaCmd)));
+      slicingCmd = slicingCmdBuilder;
     }
 
     Map<String, List<InputLcmsFile>> t = new TreeMap<>();
@@ -616,12 +593,6 @@ public class CmdMsfragger extends CmdBase {
         }
 
         ProcessBuilder pb = new ProcessBuilder(cmd);
-
-        if (isSlicing) {
-          PyInfo.modifyEnvironmentVariablesForPythonSubprocesses(pb);
-          pb.environment().put("PYTHONIOENCODING", "utf-8");
-          pb.environment().put("PYTHONUNBUFFERED", "true");
-        }
 
         pb.directory(wd.toFile());
 
