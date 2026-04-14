@@ -19,12 +19,17 @@ package org.nesvilab.fragpipe.cmd;
 
 import org.nesvilab.fragpipe.Fragpipe;
 import org.nesvilab.fragpipe.FragpipeLocations;
+import org.nesvilab.fragpipe.tabs.TabGlyco;
 import org.nesvilab.fragpipe.tabs.TabRun;
+import org.nesvilab.fragpipe.tools.glyco.GlycoMassLoader;
+import org.nesvilab.utils.SwingUtils;
 import org.jooq.lambda.Seq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.awt.Component;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,6 +68,34 @@ public class CmdExportMatchedFragments extends CmdBase {
       cmd.add(fragmentTypesArg);
     } else {
       cmd.add("r");
+    }
+
+    // If O-glyco or N-glyco fragment types are selected, append the glycan definition file paths
+    boolean needsGlycanFiles = fragmentTypesArg != null &&
+        (fragmentTypesArg.contains("ogly") || fragmentTypesArg.contains("ngly"));
+    if (needsGlycanFiles) {
+      final Path dirTools = FragpipeLocations.get().getDirTools();
+      Path glycanDBfolder = Paths.get(dirTools.toString(), TabGlyco.glycanDBfolder);
+      Path residuesPath = glycanDBfolder.resolve(GlycoMassLoader.GLYCAN_RESIDUES_NAME);
+      if (!Files.exists(residuesPath)) {
+        if (Fragpipe.headless) {
+          log.error(String.format("Could not find Glycan residue definitions file at %s. Please make sure this file has not been removed and try again.", residuesPath));
+        } else {
+          SwingUtils.showErrorDialog(comp, String.format("Could not find Glycan residue definitions file at %s. Please make sure this file has not been removed and try again.", residuesPath), "Error");
+        }
+        return false;
+      }
+      Path modsPath = glycanDBfolder.resolve(GlycoMassLoader.GLYCAN_MODS_NAME);
+      if (!Files.exists(modsPath)) {
+        if (Fragpipe.headless) {
+          log.error(String.format("Could not find Glycan mod definitions file at %s. Please make sure this file has not been removed and try again.", modsPath));
+        } else {
+          SwingUtils.showErrorDialog(comp, String.format("Could not find Glycan mod definitions file at %s. Please make sure this file has not been removed and try again.", modsPath), "Error");
+        }
+        return false;
+      }
+      cmd.add(residuesPath.toAbsolutePath().normalize().toString());
+      cmd.add(modsPath.toAbsolutePath().normalize().toString());
     }
 
     ProcessBuilder pb = new ProcessBuilder(cmd);
