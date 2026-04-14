@@ -492,6 +492,7 @@ public class CmdMsfragger extends CmdBase {
       List<String> slicingCmdBuilder = new ArrayList<>();
       slicingCmdBuilder.add(Fragpipe.getBinJava());
       slicingCmdBuilder.add("-Dfile.encoding=UTF-8");
+      slicingCmdBuilder.add("-Xmx" + ramGb + "G");
       slicingCmdBuilder.add("-jar");
       slicingCmdBuilder.add(DbSplit2.getScriptDbslicingPath().toAbsolutePath().normalize().toString());
       slicingCmdBuilder.add(Integer.toString(numSlices));
