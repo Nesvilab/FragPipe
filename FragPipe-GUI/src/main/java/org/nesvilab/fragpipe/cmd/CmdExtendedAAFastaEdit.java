@@ -55,14 +55,16 @@ public class CmdExtendedAAFastaEdit extends CmdBase {
      *
      * @param component   parent UI component (for error dialogs)
      * @param jarFragpipe path to the FragPipe JAR / install root
+     * @param ramGb       JVM max heap size in GB
      * @param fastaPath   absolute path to the input FASTA file
      * @return true if configuration succeeded
      */
-    public boolean configure(Component component, Path jarFragpipe, String fastaPath) {
+    public boolean configure(Component component, Path jarFragpipe, int ramGb, String fastaPath) {
         initPreConfig();
 
         List<String> cmd = new ArrayList<>();
         cmd.add(Fragpipe.getBinJava());
+        cmd.add("-Xmx" + ramGb + "G");
         cmd.add("-cp");
         Path root = FragpipeLocations.get().getDirFragpipeRoot();
         String libsDir = root.resolve("lib").toAbsolutePath().normalize() + "/*";

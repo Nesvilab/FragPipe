@@ -1499,7 +1499,7 @@ public class FragpipeRun {
     final CmdExtendedAAFastaEdit cmdExtendedAAFastaEdit = new CmdExtendedAAFastaEdit(useExtendedAAs, wd);
     addConfig.accept(cmdExtendedAAFastaEdit, () -> {
       if (cmdExtendedAAFastaEdit.isRun()) {
-        if (!cmdExtendedAAFastaEdit.configure(parent, jarPath, fastaFile)) {
+        if (!cmdExtendedAAFastaEdit.configure(parent, jarPath, ramGb, fastaFile)) {
           return false;
         }
       }
