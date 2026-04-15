@@ -2464,16 +2464,16 @@ public class FragpipeRun {
     addToGraph(graphOrder, cmdMsfragger, DIRECTION.IN, cmdCheckCentroid, cmdDiaTracer);
 
     addToGraph(graphOrder, cmdDeNovo, DIRECTION.IN, cmdPhilosopherReport);
-    addToGraph(graphOrder, cmdCrystalc, DIRECTION.IN, cmdMsfragger);
+    addToGraph(graphOrder, cmdCrystalc, DIRECTION.IN, cmdMsfragger, cmdExtendedAAFastaEdit);
     addToGraph(graphOrder, cmdMSBooster, DIRECTION.IN, cmdMsfragger);
-    addToGraph(graphOrder, cmdPeptideProphet, DIRECTION.IN, cmdMsfragger, cmdCrystalc);
-    addToGraph(graphOrder, cmdPercolator, DIRECTION.IN, cmdMsfragger, cmdCrystalc, cmdMSBooster);
+    addToGraph(graphOrder, cmdPeptideProphet, DIRECTION.IN, cmdMsfragger, cmdCrystalc, cmdExtendedAAFastaEdit);
+    addToGraph(graphOrder, cmdPercolator, DIRECTION.IN, cmdMsfragger, cmdCrystalc, cmdMSBooster, cmdExtendedAAFastaEdit);
     addToGraph(graphOrder, cmdMeta, DIRECTION.IN, cmdPercolator);
     for (final CmdBase cmdPeptideValidation : new CmdBase[]{cmdPeptideProphet, cmdPercolator}) {
       addToGraph(graphOrder, cmdPtmProphet, DIRECTION.IN, cmdPeptideValidation);
       addToGraph(graphOrder, cmdProteinProphet, DIRECTION.IN, cmdPeptideValidation, cmdPtmProphet);
     }
-    addToGraph(graphOrder, cmdPhilosopherDbAnnotate, DIRECTION.IN, cmdProteinProphet);
+    addToGraph(graphOrder, cmdPhilosopherDbAnnotate, DIRECTION.IN, cmdProteinProphet, cmdExtendedAAFastaEdit);
     addToGraph(graphOrder, cmdPhilosopherFilter, DIRECTION.IN, cmdPhilosopherDbAnnotate, cmdProteinProphet);
     addToGraph(graphOrder, cmdFreequant, DIRECTION.IN, cmdPhilosopherFilter);
     for (final CmdBase cmdPeptideValidation : new CmdBase[]{cmdPeptideProphet, cmdPercolator})
@@ -2484,7 +2484,7 @@ public class FragpipeRun {
     addToGraph(graphOrder, cmdPhilosopherReport, DIRECTION.IN, cmdPhilosopherFilter, cmdFreequant, cmdTmtFreequant, cmdTmtLabelQuant);
     addToGraph(graphOrder, cmdPairScans, DIRECTION.IN, cmdPhilosopherReport, cmdPhilosopherAbacus);
     addToGraph(graphOrder, cmdOPair, DIRECTION.IN, cmdPairScans);
-    addToGraph(graphOrder, cmdPtmshepherd, DIRECTION.IN, cmdPhilosopherReport, cmdPhilosopherAbacus);
+    addToGraph(graphOrder, cmdPtmshepherd, DIRECTION.IN, cmdPhilosopherReport, cmdPhilosopherAbacus, cmdExtendedAAFastaEdit);
     addToGraph(graphOrder, cmdAppendFile, DIRECTION.IN, cmdPtmshepherd);
     addToGraph(graphOrder, cmdMBGMatch, DIRECTION.IN, cmdPhilosopherReport, cmdPhilosopherAbacus, cmdPtmshepherd, cmdOPair);
     addToGraph(graphOrder, cmdIonquant, DIRECTION.IN, cmdPhilosopherReport, cmdPhilosopherAbacus, cmdPtmshepherd, cmdMBGMatch);
@@ -2493,10 +2493,10 @@ public class FragpipeRun {
     addToGraph(graphOrder, cmdTmt, DIRECTION.IN, cmdPhilosopherReport, cmdTmtFreequant, cmdTmtLabelQuant, cmdPhilosopherAbacus, cmdPtmshepherd, cmdTmtIonquant, cmdTmtIonquantIsobaric);
     addToGraph(graphOrder, cmdTmtFpop, DIRECTION.IN, cmdPhilosopherReport, cmdTmtFreequant, cmdTmtLabelQuant, cmdPhilosopherAbacus, cmdPtmshepherd, cmdTmtIonquant, cmdTmtIonquantIsobaric);
     addToGraph(graphOrder, cmdFpopQuant, DIRECTION.IN, cmdIonquant, cmdTmt, cmdTmtFpop);
-    addToGraph(graphOrder, cmdSpecLibGen, DIRECTION.IN, cmdPhilosopherReport, cmdOPair);
+    addToGraph(graphOrder, cmdSpecLibGen, DIRECTION.IN, cmdPhilosopherReport, cmdOPair, cmdExtendedAAFastaEdit);
     addToGraph(graphOrder, cmdMSFraggerDigest, DIRECTION.IN, cmdSpecLibGen);
-    addToGraph(graphOrder, cmdTransferLearning, DIRECTION.IN, cmdSpecLibGen, cmdMSFraggerDigest);
-    addToGraph(graphOrder, cmdDiann, DIRECTION.IN, cmdSpecLibGen, cmdTransferLearning);
+    addToGraph(graphOrder, cmdTransferLearning, DIRECTION.IN, cmdSpecLibGen, cmdMSFraggerDigest, cmdExtendedAAFastaEdit);
+    addToGraph(graphOrder, cmdDiann, DIRECTION.IN, cmdSpecLibGen, cmdTransferLearning, cmdExtendedAAFastaEdit);
     addToGraph(graphOrder, cmdFPOPcoadaptr, DIRECTION.IN, cmdPhilosopherReport, cmdIonquant, cmdTmt, cmdDiann);
     addToGraph(graphOrder, cmdSkyline, DIRECTION.IN, cmdDiann, cmdSpecLibGen, cmdPhilosopherReport);
     addToGraph(graphOrder, cmdWriteSubMzml, DIRECTION.IN, cmdPhilosopherReport);
