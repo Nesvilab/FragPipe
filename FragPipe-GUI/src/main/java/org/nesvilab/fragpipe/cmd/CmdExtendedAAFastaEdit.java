@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  * Command that runs {@link ExtendedAAFastaEdit} to produce a copy of the input FASTA file
  * with all extended (non-canonical) amino acid name patterns replaced by "X". The output
  * file is used by downstream tools (PeptideProphet, ProteinProphet, etc.) when the
- * "Use Extended AA Definitions" option is enabled in the MSFragger tab.
+ * "Extended amino acids definition" field in the MSFragger tab is non-blank.
  */
 public class CmdExtendedAAFastaEdit extends CmdBase {
 
