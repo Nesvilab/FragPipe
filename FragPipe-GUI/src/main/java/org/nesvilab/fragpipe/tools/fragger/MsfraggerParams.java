@@ -101,6 +101,7 @@ public class MsfraggerParams extends AbstractParams {
     public static final String PROP_mass_offsets = "mass_offsets";
     public static final String PROP_mass_offsets_detailed = "mass_offsets_detailed";
     public static final String PROP_use_detailed_offsets = "use_detailed_offsets";
+    public static final String PROP_extended_aas = "extended_amino_acids";
     public static final String PROP_precursor_mass_mode = "precursor_mass_mode";
     public static final String PROP_search_enzyme_name_1 = "search_enzyme_name_1";
     public static final String PROP_search_enzyme_name_2 = "search_enzyme_name_2";
@@ -198,6 +199,7 @@ public class MsfraggerParams extends AbstractParams {
         PROP_mass_offsets,
         PROP_mass_offsets_detailed,
         PROP_use_detailed_offsets,
+        PROP_extended_aas,
         PROP_precursor_mass_mode,
         PROP_search_enzyme_name_1,
         PROP_search_enzyme_name_2,
@@ -363,6 +365,7 @@ public class MsfraggerParams extends AbstractParams {
         c.put(PROP_mass_offsets, "Creates multiple precursor tolerance windows with specified mass offsets.");
         c.put(PROP_mass_offsets_detailed, "Optional detailed mass offset list. Overrides mass_offsets if use_detailed_offsets = 1.");
         c.put(PROP_use_detailed_offsets, "Whether to use the regular (0) or detailed (1) mass offset list.");
+        c.put(PROP_extended_aas, "User-defined extended amino acids. Format: name:mass, name2:mass2 (e.g. oxM:147.0354).");
         c.put(PROP_restrict_deltamass_to, "Specify amino acids on which delta masses (mass offsets or search modifications) can occur. Allowed values are single letter codes (e.g. ACD) and '-', must be capitalized. Use 'all' to allow any amino acid.");
         c.put(PROP_labile_search_mode, "type of search (nglycan, labile, or off). Off means non-labile/typical search.");
         c.put(PROP_precursor_mass_mode, "One of isolated/selected/corrected.");

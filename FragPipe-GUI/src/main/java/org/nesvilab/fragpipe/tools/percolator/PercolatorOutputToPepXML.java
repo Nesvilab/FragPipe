@@ -42,6 +42,8 @@ public class PercolatorOutputToPepXML {
     private static final Pattern pattern1 = Pattern.compile("base_name=\"([^\"]+)\"");
     private static final Pattern pattern2 = Pattern.compile("raw_data_type=\"([^\"]+)\"");
     private static final Pattern pattern3 = Pattern.compile("raw_data=\"([^\"]+)\"");
+    private static final Pattern patternSearchDatabase = Pattern.compile("local_path=\"([^\"]+)\"");
+    private static final Pattern patternDatabaseName = Pattern.compile("(name=\"database_name\"[^/]*value=\")([^\"]+)(\")");
 
     public static void main(final String[] args) {
         Locale.setDefault(Locale.US);
@@ -54,11 +56,12 @@ public class PercolatorOutputToPepXML {
                 Paths.get("G:\\dev\\msfragger\\dev2\\interact-5ngHeLaosmoothCE20-52lowguessSRIG450easy4_30t_C2_01_3451_2"),
                 "DDA",
                 0,
+                "",
                 "");
         } else if (Files.exists(Paths.get(args[0].replace(".pin", "_edited.pin")))){
-            percolatorToPepXML(Paths.get(args[0].replace(".pin", "_edited.pin")), args[1], Paths.get(args[2]), Paths.get(args[3]), Paths.get(args[4]), args[5], Double.parseDouble(args[6]), args[7].trim());
+            percolatorToPepXML(Paths.get(args[0].replace(".pin", "_edited.pin")), args[1], Paths.get(args[2]), Paths.get(args[3]), Paths.get(args[4]), args[5], Double.parseDouble(args[6]), args[7].trim(), args.length > 8 ? args[8].trim() : "");
         } else {
-            percolatorToPepXML(Paths.get(args[0]), args[1], Paths.get(args[2]), Paths.get(args[3]), Paths.get(args[4]), args[5], Double.parseDouble(args[6]), args[7].trim());
+            percolatorToPepXML(Paths.get(args[0]), args[1], Paths.get(args[2]), Paths.get(args[3]), Paths.get(args[4]), args[5], Double.parseDouble(args[6]), args[7].trim(), args.length > 8 ? args[8].trim() : "");
         }
     }
 
@@ -261,7 +264,7 @@ public class PercolatorOutputToPepXML {
         return sb.toString();
     }
 
-    public static void percolatorToPepXML(final Path pin, final String basename, final Path percolatorTargetPsms, final Path percolatorDecoyPsms, final Path outBasename, final String DIA_DDA, final double minProb, String lcmsPath) {
+    public static void percolatorToPepXML(final Path pin, final String basename, final Path percolatorTargetPsms, final Path percolatorDecoyPsms, final Path outBasename, final String DIA_DDA, final double minProb, String lcmsPath, final String updatedFastaPath) {
         // Check if the LCMS files exist. Replace the non-existing ones with the existing ones if possible.
         if (!Files.exists(Paths.get(lcmsPath))) { // Try to find the alternative file.
             boolean notOk = true;
@@ -409,6 +412,7 @@ public class PercolatorOutputToPepXML {
             try (final BufferedReader brpepxml = Files.newBufferedReader(pepxml_rank);
                  final BufferedWriter out = Files.newBufferedWriter(output_rank)) {
                 String line;
+                final boolean replaceDbPath = updatedFastaPath != null && !updatedFastaPath.isEmpty();
                 while ((line = brpepxml.readLine()) != null) {
                     if (line.trim().startsWith("<msms_run_summary")) {
                         Matcher matcher1 = pattern1.matcher(line);
@@ -427,6 +431,21 @@ public class PercolatorOutputToPepXML {
                         } else {
                             System.err.printf("Could not find the base_name from " + pepxml_rank);
                             System.exit(1);
+                        }
+                    }
+
+                    if (replaceDbPath) {
+                        final String trimmed = line.trim();
+                        if (trimmed.startsWith("<search_database")) {
+                            Matcher m = patternSearchDatabase.matcher(line);
+                            if (m.find()) {
+                                line = line.substring(0, m.start()) + "local_path=\"" + updatedFastaPath + "\"" + line.substring(m.end());
+                            }
+                        } else if (trimmed.startsWith("<parameter") && trimmed.contains("name=\"database_name\"")) {
+                            Matcher m = patternDatabaseName.matcher(line);
+                            if (m.find()) {
+                                line = line.substring(0, m.start()) + m.group(1) + updatedFastaPath + m.group(3) + line.substring(m.end());
+                            }
                         }
                     }
 

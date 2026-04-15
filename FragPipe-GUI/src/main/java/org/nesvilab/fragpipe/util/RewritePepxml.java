@@ -19,6 +19,10 @@ package org.nesvilab.fragpipe.util;
 
 import static org.nesvilab.utils.StringUtils.upToLastDot;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import org.nesvilab.utils.StringUtils;
 import java.io.EOFException;
@@ -27,6 +31,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -40,10 +45,28 @@ import org.slf4j.LoggerFactory;
 public class RewritePepxml {
   private static final Logger log = LoggerFactory.getLogger(RewritePepxml.class);
 
+  public static final String FASTA_FLAG_PREFIX = "--fasta=";
+  private static final Pattern patternSearchDatabase = Pattern.compile("local_path=\"([^\"]+)\"");
+  private static final Pattern patternDatabaseName = Pattern.compile("(name=\"database_name\"[^/]*value=\")([^\"]+)(\")");
+
   public static void main(String[] args) throws IOException {
     Locale.setDefault(Locale.US);
+
+    // Extract optional --fasta= flag and collect the remaining (LCMS) args.
+    String updatedFastaPath = "";
+    List<String> lcmsArgs = new ArrayList<>();
+    lcmsArgs.add(args[0]); // pepxml is always first
+    for (int i = 1; i < args.length; ++i) {
+      if (args[i].startsWith(FASTA_FLAG_PREFIX)) {
+        updatedFastaPath = args[i].substring(FASTA_FLAG_PREFIX.length());
+      } else {
+        lcmsArgs.add(args[i]);
+      }
+    }
+    args = lcmsArgs.toArray(new String[0]);
+
     // Check if the LCMS files exist. Replace the non-existing ones with the existing ones if possible.
-    for (int i = 0; i < args.length; ++i) {
+    for (int i = 1; i < args.length; ++i) {
       if (!Files.exists(Paths.get(args[i]))) { // Try to find the alternative file.
         boolean notOk = true;
         if (args[i].toLowerCase().endsWith("_calibrated.mzml")) {
@@ -82,6 +105,41 @@ public class RewritePepxml {
     final String[] replacements = Arrays.copyOfRange(args, 1, args.length);
     System.out.printf("Fixing pepxml: %s\n", pepxml);
     rewriteRawPath(pepxml, true, replacements);
+
+    if (!updatedFastaPath.isEmpty()) {
+      rewriteDbPath(pepxml, updatedFastaPath);
+    }
+  }
+
+  /**
+   * Rewrites the database path in {@code <search_database local_path="...">} and
+   * {@code <parameter name="database_name" value="...">} elements of the given pepXML file
+   * in-place, replacing the original fasta path with {@code updatedFastaPath}.
+   */
+  public static void rewriteDbPath(Path pepxml, String updatedFastaPath) throws IOException {
+    Path temp = Files.createTempFile(pepxml.toAbsolutePath().getParent(), pepxml.getFileName().toString(), ".temp-db-rewrite");
+    try (BufferedReader reader = Files.newBufferedReader(pepxml);
+         BufferedWriter writer = Files.newBufferedWriter(temp)) {
+      String line;
+      while ((line = reader.readLine()) != null) {
+        final String trimmed = line.trim();
+        if (trimmed.startsWith("<search_database")) {
+          Matcher m = patternSearchDatabase.matcher(line);
+          if (m.find()) {
+            line = line.substring(0, m.start()) + "local_path=\"" + updatedFastaPath + "\"" + line.substring(m.end());
+          }
+        } else if (trimmed.startsWith("<parameter") && trimmed.contains("name=\"database_name\"")) {
+          Matcher m = patternDatabaseName.matcher(line);
+          if (m.find()) {
+            line = line.substring(0, m.start()) + m.group(1) + updatedFastaPath + m.group(3) + line.substring(m.end());
+          }
+        }
+        writer.write(line);
+        writer.newLine();
+      }
+    }
+    Files.move(temp, pepxml, StandardCopyOption.REPLACE_EXISTING);
+    System.out.printf("Rewrote database path in pepxml to: %s\n", updatedFastaPath);
   }
 
   public static Path rewriteRawPath(Path origPepxml, boolean replaceOriginal, String... replacement) throws IOException {

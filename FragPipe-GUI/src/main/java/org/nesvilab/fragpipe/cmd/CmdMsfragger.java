@@ -60,6 +60,7 @@ public class CmdMsfragger extends CmdBase {
 
   private static final Logger log = LoggerFactory.getLogger(CmdMsfragger.class);
   private static final Pattern pattern = Pattern.compile("[A-Znc\\[\\]\\^\\*]+");
+  public static final Pattern extendedAminoAcidPattern = Pattern.compile("\\((\\w+)\\)");
   public static final String NAME = "MSFragger";
 
   private static volatile FileFilter ff = null;
@@ -326,7 +327,7 @@ public class CmdMsfragger extends CmdBase {
     initPreConfig();
 
     for (Mod mod : params.getVariableMods()) {
-      if (mod.isEnabled && !pattern.matcher(mod.sites).matches()) {
+      if (mod.isEnabled && !(pattern.matcher(mod.sites).matches() || extendedAminoAcidPattern.matcher(mod.sites).matches())) {
         SwingUtils.showErrorDialog(null, "Invalid variable modification sites: " + mod.sites + ".\nPlease check the tooltip or documentations.", "Variable modification sites error");
         return false;
       }

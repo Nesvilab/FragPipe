@@ -17,6 +17,7 @@
 
 package org.nesvilab.fragpipe.cmd;
 
+import static org.nesvilab.fragpipe.cmd.CmdMsfragger.extendedAminoAcidPattern;
 import static org.nesvilab.utils.PathUtils.testFilePath;
 
 import java.awt.Component;
@@ -64,7 +65,7 @@ public class CmdMsfraggerDigest extends CmdBase {
     initPreConfig();
 
     for (Mod mod : params.getVariableMods()) {
-      if (mod.isEnabled && !pattern.matcher(mod.sites).matches()) {
+      if (mod.isEnabled && !(pattern.matcher(mod.sites).matches() || extendedAminoAcidPattern.matcher(mod.sites).matches())) {
         SwingUtils.showErrorDialog(null, "Invalid variable modification sites: " + mod.sites + ".\nPlease check the tooltip or documentations.", "Variable modification sites error");
         return false;
       }

@@ -39,7 +39,7 @@ import java.util.List;
 import static org.nesvilab.fragpipe.tabs.TabMsfragger.TABLE_OFFSET_COL_NAMES;
 
 public class DetailedOffsetEditDialog extends javax.swing.JDialog {
-    private static final MassOffsetUtils.MassOffset zeroOffset = new MassOffsetUtils.MassOffset(0.0f, new String[0], new float[0], new float[0], new float[0]);
+    private static final MassOffsetUtils.MassOffset zeroOffset = new MassOffsetUtils.MassOffset(0.0f, "", new float[0], new float[0], new float[0]);
 
     private final List<MassOffsetUtils.MassOffset> offsets;
     private final Frame parent;

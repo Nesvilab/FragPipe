@@ -74,6 +74,7 @@ import org.nesvilab.fragpipe.tools.transferlearning.TransferLearningPanel;
 import org.nesvilab.fragpipe.tools.umpire.UmpirePanel;
 import org.nesvilab.fragpipe.tools.umpire.UmpireParams;
 import org.nesvilab.fragpipe.util.BatchRun;
+import org.nesvilab.fragpipe.util.ExtendedAAFastaEdit;
 import org.nesvilab.utils.*;
 import org.nesvilab.utils.swing.TextConsole;
 import org.slf4j.Logger;
@@ -1265,6 +1266,12 @@ public class FragpipeRun {
     // Check if the scans are centroided.
     final int ramGb = tabWorkflow.getRamGb() > 0 ? tabWorkflow.getRamGb() : OsUtils.getDefaultXmx();
     final int threads = tabWorkflow.getThreads();
+
+    // When extended AAs are enabled, downstream tools (PeptideProphet, ProteinProphet, etc.)
+    // use a modified FASTA with extended AA names replaced by X. MSFragger itself always uses
+    // the original FASTA.
+    final boolean useExtendedAAs = tabMsf.isUseExtendedAAs();
+    final String downstreamFastaFile = useExtendedAAs ? ExtendedAAFastaEdit.getOutputPath(fastaFile) : fastaFile;
     
     boolean onlyTransferLearning = transferLearningPanel.isRun() 
         && !tabMsf.isRun() 
@@ -1488,6 +1495,17 @@ public class FragpipeRun {
       return true;
     });
 
+    // Run ExtendedAAFastaEdit to create a modified FASTA for downstream tools when using extended AAs
+    final CmdExtendedAAFastaEdit cmdExtendedAAFastaEdit = new CmdExtendedAAFastaEdit(useExtendedAAs, wd);
+    addConfig.accept(cmdExtendedAAFastaEdit, () -> {
+      if (cmdExtendedAAFastaEdit.isRun()) {
+        if (!cmdExtendedAAFastaEdit.configure(parent, jarPath, ramGb, fastaFile)) {
+          return false;
+        }
+      }
+      return true;
+    });
+
     // run Crystalc
     final CmdCrystalc cmdCrystalc = new CmdCrystalc(crystalcPanel.isRun(), wd);
 
@@ -1505,7 +1523,7 @@ public class FragpipeRun {
             "pepXML",
             ramGb,
             ccParams,
-            fastaFile,
+            downstreamFastaFile,
             sharedPepxmlFiles)) {
           return false;
         }
@@ -1574,7 +1592,7 @@ public class FragpipeRun {
         final String pepProphCmd = pepProphPanel.getCmdOpts();
         final String enzymeName = tabMsf.getEnzymeName();
         if (!cmdPeptideProphet.configure(parent, usePhi, jarPath, isDryRun,
-            fastaFile, decoyTag, pepProphCmd, isCombinedPepxml, enzymeName, sharedPepxmlFiles, tabMsf.isWriteCalMzml() && tabMsf.getMassCalibration() > 0, threads)) {
+            downstreamFastaFile, decoyTag, pepProphCmd, isCombinedPepxml, enzymeName, sharedPepxmlFiles, tabMsf.isWriteCalMzml() && tabMsf.getMassCalibration() > 0, threads, useExtendedAAs ? downstreamFastaFile : "")) {
           return false;
         }
       }
@@ -1604,7 +1622,7 @@ public class FragpipeRun {
       cmdPercolator.setRun(cmdPercolator.isRun() && !sharedPepxmlFilesBeforePeptideValidation.isEmpty());
       if (cmdPercolator.isRun()) {
         final String percolatorCmd = percolatorPanel.getCmdOpts();
-        if (!cmdPercolator.configure(parent, jarPath, percolatorCmd, isCombinedPepxml_percolator, sharedPepxmlFilesBeforePeptideValidation, crystalcPanel.isRun(), percolatorPanel.getMinProb(), decoyTag, tabMsf.isWriteCalMzml() && tabMsf.getMassCalibration() > 0, tabRun.isWriteSubMzml(), tabDatabase.isRunMeta())) {
+        if (!cmdPercolator.configure(parent, jarPath, percolatorCmd, isCombinedPepxml_percolator, sharedPepxmlFilesBeforePeptideValidation, crystalcPanel.isRun(), percolatorPanel.getMinProb(), decoyTag, tabMsf.isWriteCalMzml() && tabMsf.getMassCalibration() > 0, tabRun.isWriteSubMzml(), tabDatabase.isRunMeta(), useExtendedAAs ? downstreamFastaFile : "")) {
           return false;
         }
       }
@@ -1658,7 +1676,7 @@ public class FragpipeRun {
       cmdPhilosopherDbAnnotate.setRun(cmdPhilosopherDbAnnotate.isRun() && !sharedPepxmlFiles.isEmpty());
       if (cmdPhilosopherDbAnnotate.isRun()) {
         return cmdPhilosopherDbAnnotate
-            .configure(parent, ramGb, threads, usePhi, fastaFile, decoyTag, sharedPepxmlFiles.firstKey());
+            .configure(parent, ramGb, threads, usePhi, downstreamFastaFile, decoyTag, sharedPepxmlFiles.firstKey());
       }
       return true;
     });
@@ -1818,6 +1836,7 @@ public class FragpipeRun {
     modMassSet.addAll(tabMsf.getVarModMassSet());
     modMassSet.addAll(tabMsf.getFixedModMassSet());
     modMassSet.addAll(tabMsf.getMassOffsetSet());
+    modMassSet.addAll(tabMsf.getExtendedAAMassSet());
 
     if (cmdIonquant.isRun() || (ptmsGlycanPanel.isRun() && ptmsGlycanPanel.needsIonQuant())) {
       final NoteConfigIonQuant configIonQuant;
@@ -2102,7 +2121,7 @@ public class FragpipeRun {
     addConfig.accept(cmdPtmshepherd, () -> {
       cmdPtmshepherd.setRun(cmdPtmshepherd.isRun() && !sharedMapGroupsToProtxml.isEmpty());
       if (cmdPtmshepherd.isRun()) {
-        Path fastaPath = Paths.get(fastaFile);
+        Path fastaPath = Paths.get(downstreamFastaFile);
         Map<String, String> additionalShepherdParams = ptmshepherdPanel.toPtmsParamsMap();
         if (threads > 0) {
           additionalShepherdParams.put("threads", Integer.toString(threads));
@@ -2223,7 +2242,7 @@ public class FragpipeRun {
         }
         final SpecLibGen2 slg = speclibConf.instance;
 
-        return cmdSpecLibGen.configure(parent, slg, sharedMapGroupsToProtxml, fastaFile, tabWorkflow.getInputDataType(), threads, decoyTag, binMsfragger, ramGb);
+        return cmdSpecLibGen.configure(parent, slg, sharedMapGroupsToProtxml, downstreamFastaFile, tabWorkflow.getInputDataType(), threads, decoyTag, binMsfragger, ramGb);
       }
       return true;
     });
@@ -2270,7 +2289,7 @@ public class FragpipeRun {
           transferLearningPanel.getNce(),
           transferLearningPanel.getCustomMods(),
           transferLearningPanel.isKeepDecoys(),
-          fastaFile,
+          downstreamFastaFile,
           decoyTag);
       }
       return true;
@@ -2311,7 +2330,7 @@ public class FragpipeRun {
             diannPanel.isDiannNormalizeIntensity(),
             diannPanel.useMbr(),
             diannPanel.redoProteinInference(),
-            fastaFile,
+            downstreamFastaFile,
             diannPanel.getLibraryPath(),
             diannPanel.getCmdOpts(),
             isDryRun,
@@ -2451,22 +2470,23 @@ public class FragpipeRun {
 
     addToGraph(graphOrder, cmdStart, DIRECTION.IN);
     addToGraph(graphOrder, cmdCheckCentroid, DIRECTION.IN, cmdStart);
+    addToGraph(graphOrder, cmdExtendedAAFastaEdit, DIRECTION.IN, cmdCheckCentroid);
     addToGraph(graphOrder, cmdUmpire, DIRECTION.IN, cmdCheckCentroid);
     addToGraph(graphOrder, cmdDiaTracer, DIRECTION.IN, cmdCheckCentroid);
     addToGraph(graphOrder, cmdMsfragger, DIRECTION.IN, cmdCheckCentroid, cmdUmpire);
     addToGraph(graphOrder, cmdMsfragger, DIRECTION.IN, cmdCheckCentroid, cmdDiaTracer);
 
     addToGraph(graphOrder, cmdDeNovo, DIRECTION.IN, cmdPhilosopherReport);
-    addToGraph(graphOrder, cmdCrystalc, DIRECTION.IN, cmdMsfragger);
+    addToGraph(graphOrder, cmdCrystalc, DIRECTION.IN, cmdMsfragger, cmdExtendedAAFastaEdit);
     addToGraph(graphOrder, cmdMSBooster, DIRECTION.IN, cmdMsfragger);
-    addToGraph(graphOrder, cmdPeptideProphet, DIRECTION.IN, cmdMsfragger, cmdCrystalc);
-    addToGraph(graphOrder, cmdPercolator, DIRECTION.IN, cmdMsfragger, cmdCrystalc, cmdMSBooster);
+    addToGraph(graphOrder, cmdPeptideProphet, DIRECTION.IN, cmdMsfragger, cmdCrystalc, cmdExtendedAAFastaEdit);
+    addToGraph(graphOrder, cmdPercolator, DIRECTION.IN, cmdMsfragger, cmdCrystalc, cmdMSBooster, cmdExtendedAAFastaEdit);
     addToGraph(graphOrder, cmdMeta, DIRECTION.IN, cmdPercolator);
     for (final CmdBase cmdPeptideValidation : new CmdBase[]{cmdPeptideProphet, cmdPercolator}) {
       addToGraph(graphOrder, cmdPtmProphet, DIRECTION.IN, cmdPeptideValidation);
       addToGraph(graphOrder, cmdProteinProphet, DIRECTION.IN, cmdPeptideValidation, cmdPtmProphet);
     }
-    addToGraph(graphOrder, cmdPhilosopherDbAnnotate, DIRECTION.IN, cmdProteinProphet);
+    addToGraph(graphOrder, cmdPhilosopherDbAnnotate, DIRECTION.IN, cmdProteinProphet, cmdExtendedAAFastaEdit);
     addToGraph(graphOrder, cmdPhilosopherFilter, DIRECTION.IN, cmdPhilosopherDbAnnotate, cmdProteinProphet);
     addToGraph(graphOrder, cmdFreequant, DIRECTION.IN, cmdPhilosopherFilter);
     for (final CmdBase cmdPeptideValidation : new CmdBase[]{cmdPeptideProphet, cmdPercolator})
@@ -2477,7 +2497,7 @@ public class FragpipeRun {
     addToGraph(graphOrder, cmdPhilosopherReport, DIRECTION.IN, cmdPhilosopherFilter, cmdFreequant, cmdTmtFreequant, cmdTmtLabelQuant);
     addToGraph(graphOrder, cmdPairScans, DIRECTION.IN, cmdPhilosopherReport, cmdPhilosopherAbacus);
     addToGraph(graphOrder, cmdOPair, DIRECTION.IN, cmdPairScans);
-    addToGraph(graphOrder, cmdPtmshepherd, DIRECTION.IN, cmdPhilosopherReport, cmdPhilosopherAbacus);
+    addToGraph(graphOrder, cmdPtmshepherd, DIRECTION.IN, cmdPhilosopherReport, cmdPhilosopherAbacus, cmdExtendedAAFastaEdit);
     addToGraph(graphOrder, cmdAppendFile, DIRECTION.IN, cmdPtmshepherd);
     addToGraph(graphOrder, cmdMBGMatch, DIRECTION.IN, cmdPhilosopherReport, cmdPhilosopherAbacus, cmdPtmshepherd, cmdOPair);
     addToGraph(graphOrder, cmdIonquant, DIRECTION.IN, cmdPhilosopherReport, cmdPhilosopherAbacus, cmdPtmshepherd, cmdMBGMatch);
@@ -2486,10 +2506,10 @@ public class FragpipeRun {
     addToGraph(graphOrder, cmdTmt, DIRECTION.IN, cmdPhilosopherReport, cmdTmtFreequant, cmdTmtLabelQuant, cmdPhilosopherAbacus, cmdPtmshepherd, cmdTmtIonquant, cmdTmtIonquantIsobaric);
     addToGraph(graphOrder, cmdTmtFpop, DIRECTION.IN, cmdPhilosopherReport, cmdTmtFreequant, cmdTmtLabelQuant, cmdPhilosopherAbacus, cmdPtmshepherd, cmdTmtIonquant, cmdTmtIonquantIsobaric);
     addToGraph(graphOrder, cmdFpopQuant, DIRECTION.IN, cmdIonquant, cmdTmt, cmdTmtFpop);
-    addToGraph(graphOrder, cmdSpecLibGen, DIRECTION.IN, cmdPhilosopherReport, cmdOPair);
+    addToGraph(graphOrder, cmdSpecLibGen, DIRECTION.IN, cmdPhilosopherReport, cmdOPair, cmdExtendedAAFastaEdit);
     addToGraph(graphOrder, cmdMSFraggerDigest, DIRECTION.IN, cmdSpecLibGen);
-    addToGraph(graphOrder, cmdTransferLearning, DIRECTION.IN, cmdSpecLibGen, cmdMSFraggerDigest);
-    addToGraph(graphOrder, cmdDiann, DIRECTION.IN, cmdSpecLibGen, cmdTransferLearning);
+    addToGraph(graphOrder, cmdTransferLearning, DIRECTION.IN, cmdSpecLibGen, cmdMSFraggerDigest, cmdExtendedAAFastaEdit);
+    addToGraph(graphOrder, cmdDiann, DIRECTION.IN, cmdSpecLibGen, cmdTransferLearning, cmdExtendedAAFastaEdit);
     addToGraph(graphOrder, cmdFPOPcoadaptr, DIRECTION.IN, cmdPhilosopherReport, cmdIonquant, cmdTmt, cmdDiann);
     addToGraph(graphOrder, cmdSkyline, DIRECTION.IN, cmdDiann, cmdSpecLibGen, cmdPhilosopherReport);
     addToGraph(graphOrder, cmdWriteSubMzml, DIRECTION.IN, cmdPhilosopherReport);
