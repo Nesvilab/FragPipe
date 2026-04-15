@@ -20,7 +20,6 @@ package org.nesvilab.fragpipe.cmd;
 import java.awt.Component;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import org.nesvilab.fragpipe.Fragpipe;

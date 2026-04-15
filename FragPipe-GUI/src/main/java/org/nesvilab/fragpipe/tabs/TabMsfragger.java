@@ -2198,9 +2198,8 @@ public class TabMsfragger extends JPanelBase {
         Fragpipe.propsVarSet(PROP_FILECHOOSER_LAST_PATH, selectedPath);
         String extAAstr = parseExtendedAAsFile(selectedPath);
         epExtendedAAs.setText(extAAstr);
-        Fragpipe.propsVarSet(PROP_extended_aas, extAAstr);
       } catch (IOException ex) {
-        log.error("Failed to load AA defintions from file {}", selectedPath);
+        log.error("Failed to load AA definitions from file {}", selectedPath);
         SwingUtils.showErrorDialogWithStacktrace(ex, this);
       }
     }
@@ -2243,7 +2242,7 @@ public class TabMsfragger extends JPanelBase {
   private void actionButtonSaveExtendedAAs(ActionEvent event) {
     // get file path to save
     FileNameEndingFilter filter = new FileNameEndingFilter("Text files (.tsv)", "tsv");
-    Path savePath = TabWorkflow.getSaveFilePath(null, PROP_FILECHOOSER_LAST_PATH, filter, ".tsv", false, null);
+    Path savePath = TabWorkflow.getSaveFilePath(null, PROP_FILECHOOSER_LAST_PATH, filter, ".tsv", false, this);
 
     if (savePath == null) {
       // user cancelled action
@@ -2255,24 +2254,24 @@ public class TabMsfragger extends JPanelBase {
     String[] entries = extAAstr.split(",\\s*");
 
     // save to file
-    try {
-      PrintWriter out = new PrintWriter(savePath.toFile());
+    try (PrintWriter out = new PrintWriter(savePath.toFile())) {
       out.print("# Name\tMass\n");
       for (String entry : entries) {
         String[] parts = entry.split(":");
         if (parts.length >= 2) {
-          out.print(parts[0] + "\t" + parts[1] + "\n");
+          out.print(parts[0].trim() + "\t" + parts[1].trim() + "\n");
         }
       }
-      out.flush();
-      out.close();
+      if (out.checkError()) {
+        throw new IOException("PrintWriter reported a write error for " + savePath);
+      }
     } catch (IOException ex) {
       log.error("Could not save extended AAs to file {}", savePath);
-      SwingUtils.showErrorDialogWithStacktrace(ex, null);
+      SwingUtils.showErrorDialogWithStacktrace(ex, this);
     }
   }
 
-    /**
+  /**
    * @return False if user's confirmation was required, but they cancelled the operation. True
    *         otherwise.
    */

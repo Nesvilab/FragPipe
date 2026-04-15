@@ -119,7 +119,7 @@ public class MassOffsetUtils {
             try {
                 values[i] = Float.parseFloat(splits[i].trim());
             } catch (NumberFormatException ex) {
-                log.error(String.format("The mass '%s' could not be parsed as a number from entry '%s'. Please check that the offsets file is formatted correctly and retry.", splits[0], floatList));
+                log.error(String.format("The mass '%s' could not be parsed as a number from entry '%s'. Please check that the offsets file is formatted correctly and retry.", splits[i], floatList));
                 SwingUtils.showErrorDialog(parent, String.format("The mass '%s' could not be parsed as a number from entry '%s'. Please check that the offsets file is formatted correctly and retry.", splits[i], floatList), "Error");
             }
         }
