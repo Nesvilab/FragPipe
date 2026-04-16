@@ -47,6 +47,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.List;
@@ -134,10 +135,25 @@ public class TabGlyco extends JPanelWithEnablement {
         mu.add(p, jLabelLoadGlycanDB).split();
         mu.add(p, uiComboLoadBuiltinGlycans).split().wrap();
         mu.add(p, textLoadGlycans).spanX().growX().wrap();
+        JButton btnClearLoadedGlycans = new JButton("Clear Loaded Glycans");
+        btnClearLoadedGlycans.addActionListener(this::actionBtnClearLoadedGlycans);
+        btnClearLoadedGlycans.setToolTipText("Clear all loaded glycan data from MSFragger mass offsets, PTM-Shepherd Glycan Assignment, and O-Pair");
+
+        JButton btnRestoreDefaultResidues = new JButton("Restore Default Glycan Residues");
+        btnRestoreDefaultResidues.addActionListener(this::actionBtnRestoreDefaultGlycanResidues);
+        btnRestoreDefaultResidues.setToolTipText("Replace glycan_residues.txt with the default backup copy (backup_glycan_residues.txt)");
+
+        JButton btnRestoreDefaultMods = new JButton("Restore Default Glycan Mods");
+        btnRestoreDefaultMods.addActionListener(this::actionBtnRestoreDefaultGlycanMods);
+        btnRestoreDefaultMods.setToolTipText("Replace glycan_mods.txt with the default backup copy (backup_glycan_mods.txt)");
+
         mu.add(p, btnSaveGlycanDB).split();
         mu.add(p, btnEditGlycanResiduesTable).split();
         mu.add(p, btnEditGlycanModsTable).split();
         mu.add(p, btnOpenInExplorer).wrap();
+        mu.add(p, btnClearLoadedGlycans).split();
+        mu.add(p, btnRestoreDefaultResidues).split();
+        mu.add(p, btnRestoreDefaultMods).wrap();
         return p;
     }
 
@@ -216,6 +232,65 @@ public class TabGlyco extends JPanelWithEnablement {
         Path savePath = glycoDBpath.resolve(GlycoMassLoader.GLYCAN_MODS_NAME);
         glycanDBloader.updateGlycanModDefinitions(updatedMods);
         saveModsToFile(updatedMods, savePath);
+    }
+
+    private void actionBtnClearLoadedGlycans(ActionEvent actionEvent) {
+        glycanDBloader.glycanDB = new ArrayList<>();
+        glycanDBloader.glycanDBnoCombos = new ArrayList<>();
+
+        TabMsfragger fraggerTab = Fragpipe.getStickyStrict(TabMsfragger.class);
+        fraggerTab.setMassOffsets("0");
+        fraggerTab.setDetailedOffsets("");
+        fraggerTab.uiCheckMassOffsetFile.setSelected(false);
+
+        panelGlycanAssign.setGlycanDatabase("");
+        panelOPair.setGlycanDatabase("");
+
+        textLoadGlycans.setText("clear successful: no glycans loaded");
+    }
+
+    private void actionBtnRestoreDefaultGlycanResidues(ActionEvent actionEvent) {
+        Path backupPath = glycoDBpath.resolve("backup_glycan_residues.txt");
+        Path targetPath = glycoDBpath.resolve(GlycoMassLoader.GLYCAN_RESIDUES_NAME);
+        if (!Files.exists(backupPath)) {
+            SwingUtils.showErrorDialog(this, "Backup file not found: " + backupPath, "Restore Failed");
+            return;
+        }
+        try {
+            Files.copy(backupPath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException ex) {
+            SwingUtils.showErrorDialogWithStacktrace(ex, this);
+            return;
+        }
+        // Reload residue definitions from the restored file
+        HashMap<String, GlycanResidue> reloadedResidues = GlycanParser.parseGlycoResiduesDB(targetPath.toString());
+        glycanDBloader.glycanResidueDefinitions = new ArrayList<>(reloadedResidues.values());
+        glycanDBloader.glycanResidueDefinitions.sort(GlycanResidue::compareTo);
+        glycanDBloader.glycanResidues = reloadedResidues;
+        glycanDBloader.glycanResidues.putAll(glycanDBloader.glycanMods);
+        SwingUtils.showInfoDialog(this, "Glycan residue definitions restored to defaults.", "Restore Complete");
+    }
+
+    private void actionBtnRestoreDefaultGlycanMods(ActionEvent actionEvent) {
+        Path backupPath = glycoDBpath.resolve("backup_glycan_mods.txt");
+        Path targetPath = glycoDBpath.resolve(GlycoMassLoader.GLYCAN_MODS_NAME);
+        if (!Files.exists(backupPath)) {
+            SwingUtils.showErrorDialog(this, "Backup file not found: " + backupPath, "Restore Failed");
+            return;
+        }
+        try {
+            Files.copy(backupPath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException ex) {
+            SwingUtils.showErrorDialogWithStacktrace(ex, this);
+            return;
+        }
+        // Reload mod definitions from the restored file
+        HashMap<String, GlycanMod> reloadedMods = GlycanParser.parseGlycoModsDB(targetPath.toString(), glycanDBloader.glycanResidueDefinitions.size(), glycanDBloader.glycanResidues);
+        glycanDBloader.glycanModDefinitions = new ArrayList<>(reloadedMods.values());
+        glycanDBloader.glycanModDefinitions.sort(GlycanMod::compareTo);
+        glycanDBloader.glycanMods = reloadedMods;
+        glycanDBloader.glycanResidues.putAll(glycanDBloader.glycanMods);
+        SwingUtils.showInfoDialog(this, "Glycan modification definitions restored to defaults.", "Restore Complete");
     }
 
     private void saveResiduesToFile(List<GlycanResidue> updatedResidues, Path savePath) {
