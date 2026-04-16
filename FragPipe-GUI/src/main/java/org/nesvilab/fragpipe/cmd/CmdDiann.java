@@ -126,7 +126,7 @@ public class CmdDiann extends CmdBase {
     initPreConfig();
 
     if (skipQuant) {
-      configureFragReporter(ramGb, fastaFile, modTag, siteProb, reportLevels, fragReporterCmdOpts, normalizeIntensity, useMaxLFQ, recalculateQvalue, runSpecificPrecursorQvalue, globalPrecursorQvalue, runSpecificProteinQvalue, globalProteinQvalue, decoyTag);
+      configureFragReporter(ramGb, fastaFile, modTag, siteProb, reportLevels, fragReporterCmdOpts, normalizeIntensity, useMaxLFQ, recalculateQvalue, runSpecificPrecursorQvalue, globalPrecursorQvalue, runSpecificProteinQvalue, globalProteinQvalue, decoyTag, isTransferLearningRun && isTransferLearningPrediction);
       isConfigured = true;
       return true;
     }
@@ -543,7 +543,7 @@ public class CmdDiann extends CmdBase {
       pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + " convert DIA-NN output to MSstats.csv").create());
     }
 
-    configureFragReporter(ramGb, fastaFile, modTag, siteProb, reportLevels, fragReporterCmdOpts, normalizeIntensity, useMaxLFQ, recalculateQvalue, runSpecificPrecursorQvalue, globalPrecursorQvalue, runSpecificProteinQvalue, globalProteinQvalue, decoyTag);
+    configureFragReporter(ramGb, fastaFile, modTag, siteProb, reportLevels, fragReporterCmdOpts, normalizeIntensity, useMaxLFQ, recalculateQvalue, runSpecificPrecursorQvalue, globalPrecursorQvalue, runSpecificProteinQvalue, globalProteinQvalue, decoyTag, isTransferLearningRun && isTransferLearningPrediction);
 
 //    if (isRunPlex) {
 //      final List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Seq.of(BATMASS_IO_JAR));
@@ -619,7 +619,7 @@ public class CmdDiann extends CmdBase {
     return true;
   }
 
-  private void configureFragReporter(int ramGb, String fastaFile, String modTag, float siteProb, String reportLevels, String fragReporterCmdOpts, boolean normalizeIntensity, boolean useMaxLFQ, boolean recalculateQvalue, float runSpecificPrecursorQvalue, float globalPrecursorQvalue, float runSpecificProteinQvalue, float globalProteinQvalue, String decoyTag) {
+  private void configureFragReporter(int ramGb, String fastaFile, String modTag, float siteProb, String reportLevels, String fragReporterCmdOpts, boolean normalizeIntensity, boolean useMaxLFQ, boolean recalculateQvalue, float runSpecificPrecursorQvalue, float globalPrecursorQvalue, float runSpecificProteinQvalue, float globalProteinQvalue, String decoyTag, boolean isTransferLearningPrediction) {
     List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Stream.of(FRAG_REPORTER));
     if (classpathJars == null) {
       System.err.println("Could not find " + FRAG_REPORTER);
@@ -664,6 +664,10 @@ public class CmdDiann extends CmdBase {
       if (recalculateQvalue) {
         cmd.add("--recalculate");
         cmd.add("1");
+      }
+      if (isTransferLearningPrediction) {
+        cmd.add("--ptm-loc");
+        cmd.add("0");
       }
       if (fragReporterCmdOpts != null && !fragReporterCmdOpts.isEmpty()) {
         cmd.add(fragReporterCmdOpts);
