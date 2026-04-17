@@ -226,6 +226,11 @@ public class FragpipeRun {
         return 1;
       }
 
+      if (!checkBrukerDotDWalShm(tabRun, inputLcmsFiles)) {
+        log.debug("checkBrukerDotDWalShm() aborted by user");
+        return 1;
+      }
+
       final Path jarPath = FragpipeLocations.get().getJarPath();
       if (jarPath == null) {
         if (Fragpipe.headless) {
@@ -999,6 +1004,63 @@ public class FragpipeRun {
       }
     }
     return lcmsFilesAll;
+  }
+
+  /**
+   * Warn if any Bruker .d folder contains stale SQLite WAL/SHM sidecar files
+   * (analysis.tdf-wal, analysis.tdf-shm). Opening the .tdf with these present
+   * causes SQLite to flush the WAL into the main db, which can truncate or
+   * corrupt analysis.tdf when the WAL belongs to a different acquisition
+   * (e.g. left over from a partial backup copy).
+   */
+  private static boolean checkBrukerDotDWalShm(JComponent parent, List<InputLcmsFile> inputLcmsFiles) {
+    final List<Path> affected = new ArrayList<>();
+    for (InputLcmsFile f : inputLcmsFiles) {
+      final Path p = f.getPath();
+      if (p == null || p.getFileName() == null) {
+        continue;
+      }
+      if (!p.getFileName().toString().toLowerCase().endsWith(".d")) {
+        continue;
+      }
+      if (!Files.isDirectory(p)) {
+        continue;
+      }
+      try (Stream<Path> listing = Files.list(p)) {
+        final boolean hasWalOrShm = listing
+            .filter(q -> q.getFileName() != null)
+            .map(q -> q.getFileName().toString().toLowerCase())
+            .anyMatch(n -> n.endsWith(".tdf-wal") || n.endsWith(".tdf-shm"));
+        if (hasWalOrShm) {
+          affected.add(p);
+        }
+      } catch (IOException e) {
+        log.warn("Could not list contents of .d folder {}", p, e);
+      }
+    }
+
+    if (affected.isEmpty()) {
+      return true;
+    }
+
+    final String fileList = affected.stream()
+        .map(p -> "- " + p.toString())
+        .collect(Collectors.joining("\n"));
+
+    final String plainMsg = "Stale .tdf-wal or .tdf-shm files found in:\n" + fileList + "\n"
+        + "The data might have been corrupted.\n"
+        + "Continue anyway?";
+
+    if (Fragpipe.headless) {
+      log.warn("Stale .tdf-wal/.tdf-shm files in .d folder(s): {}. The data might have been corrupted.",
+          affected.stream().map(Path::toString).collect(Collectors.joining(", ")));
+      return true;
+    }
+
+    final int confirm = JOptionPane.showConfirmDialog(parent, plainMsg,
+        "Stale .tdf-wal/.tdf-shm files detected",
+        JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+    return confirm == JOptionPane.YES_OPTION;
   }
 
   private static String checkFasta(JComponent parent, NoteConfigDatabase configDb) {
