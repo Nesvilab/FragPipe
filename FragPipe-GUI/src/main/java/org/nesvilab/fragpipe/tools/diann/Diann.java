@@ -20,24 +20,17 @@ package org.nesvilab.fragpipe.tools.diann;
 import static org.nesvilab.utils.OsUtils.isUnix;
 import static org.nesvilab.utils.OsUtils.isWindows;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.jooq.lambda.Seq;
 import org.nesvilab.fragpipe.FragpipeLocations;
 import org.nesvilab.fragpipe.exceptions.UnexpectedException;
 import org.nesvilab.fragpipe.exceptions.ValidationException;
-import org.nesvilab.fragpipe.util.GitHubJson;
 import org.nesvilab.utils.PathUtils;
 import org.nesvilab.utils.ProcessUtils;
 import org.nesvilab.utils.SwingUtils;
@@ -48,7 +41,6 @@ public class Diann {
 
   private static final Logger log = LoggerFactory.getLogger(Diann.class);
   private static final String DOWNLOAD_GITHUB_PAGE_URL = "https://github.com/vdemichev/DiaNN/releases/latest";
-  private static final String GITHUB_RELEASE_LATEST_API_URL = "https://api.github.com/repos/vdemichev/DiaNN/releases/latest";
   private static final Pattern reVer = Pattern.compile("DIA-NN ([\\w\\s.-]+) \\(Data-Independent Acquisition by Neural Networks\\)", Pattern.CASE_INSENSITIVE);
 
   private static final String[] DIANN_SO_DEPS = {"diann_so/libm.so.6", "diann_so/libstdc++.so.6"};
@@ -130,33 +122,6 @@ public class Diann {
     return new Version(sbVer.toString(), false, DOWNLOAD_GITHUB_PAGE_URL);
   }
 
-  public static UpdateInfo checkUpdates(String path) {
-    try {
-      Version version = validate(path);
-      String latestVersion = fetchLatestVersion();
-      if (!latestVersion.equalsIgnoreCase("n/a")) {
-        DefaultArtifactVersion v1 = new DefaultArtifactVersion(version.version);
-        DefaultArtifactVersion v2 = new DefaultArtifactVersion(latestVersion);
-        if (v1.compareTo(v2) < 0) {
-          return new UpdateInfo(true, DOWNLOAD_GITHUB_PAGE_URL);
-        }
-      }
-    } catch (Exception ignored) {}
-
-    return new UpdateInfo(false, DOWNLOAD_GITHUB_PAGE_URL);
-  }
-
-  private static String fetchLatestVersion() {
-    try {
-      String response = org.apache.commons.io.IOUtils.toString(new URL(GITHUB_RELEASE_LATEST_API_URL), StandardCharsets.UTF_8);
-      Gson gson = new GsonBuilder().create();
-      GitHubJson gitHubJsons = gson.fromJson(response, new TypeToken<GitHubJson>() {}.getType());
-      return gitHubJsons.getTagName();
-    } catch (Exception ex) {
-      return "N/A";
-    }
-  }
-
   private static String getLDPRELOAD(List<Path> diannPath) {
     String LD_PRELOAD_str = null;
     if (isUnix()) {
@@ -208,14 +173,4 @@ public class Diann {
     }
   }
 
-  public static class UpdateInfo {
-
-    public final boolean isUpdateAvailable;
-    public final String downloadUrl;
-
-    public UpdateInfo(boolean isUpdateAvailable, String downloadUrl) {
-      this.isUpdateAvailable = isUpdateAvailable;
-      this.downloadUrl = downloadUrl;
-    }
-  }
 }
