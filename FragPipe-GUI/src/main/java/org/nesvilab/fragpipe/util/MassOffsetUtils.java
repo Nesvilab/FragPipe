@@ -206,20 +206,17 @@ public class MassOffsetUtils {
 
         @Override
         public String toString() {
-            boolean hasLabileIons = diagnosticIons.length > 0 || peptideRemainderIons.length > 0 || fragmentRemainderIons.length > 0;
-            String aas = !allowedResidues.isEmpty() ? "(aa=" + allowedResidues : hasLabileIons ? "(" : "";
+            String aas = !allowedResidues.isEmpty() ? "(aa=" + allowedResidues : "(aa=";
             String diagnostic = diagnosticIons.length > 0 ? "_d=" + floatArrToString(diagnosticIons) : "";
             String peprem = peptideRemainderIons.length > 0 ? "_p=" + floatArrToString(peptideRemainderIons) : "";
             String fragrem = fragmentRemainderIons.length > 0 ? "_f=" + floatArrToString(fragmentRemainderIons) : "";
-            String closing = !allowedResidues.isEmpty() || hasLabileIons ? ")" : "";
 
-            return String.format("%.5f%s%s%s%s%s",
+            return String.format("%.5f%s%s%s%s)",
                     mass,
                     aas,
                     diagnostic,
                     peprem,
-                    fragrem,
-                    closing
+                    fragrem
             );
         }
 
