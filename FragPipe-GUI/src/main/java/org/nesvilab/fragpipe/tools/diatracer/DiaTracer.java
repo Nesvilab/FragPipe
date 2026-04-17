@@ -34,6 +34,7 @@ import org.apache.commons.lang3.SystemUtils;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.nesvilab.fragpipe.Fragpipe;
 import org.nesvilab.fragpipe.FragpipeLocations;
+import org.nesvilab.fragpipe.NetworkFlags;
 import org.nesvilab.fragpipe.api.Bus;
 import org.nesvilab.fragpipe.api.VersionFetcher;
 import org.nesvilab.fragpipe.exceptions.ValidationException;
@@ -65,6 +66,9 @@ public class DiaTracer {
 
 
   public static void checkUpdates(NoteConfigDiaTracer m) {
+    if (!NetworkFlags.ENABLE_NETWORK) {
+      return;
+    }
     final DefaultArtifactVersion verLocal = new DefaultArtifactVersion(m.version);
     Thread t = new Thread(() -> {
       DiaTracerVersionFetcherServer vfServer = new DiaTracerVersionFetcherServer();

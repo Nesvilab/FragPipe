@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
+import org.nesvilab.fragpipe.NetworkFlags;
 import org.nesvilab.fragpipe.Version;
 import org.nesvilab.utils.PropertiesUtils;
 import org.slf4j.Logger;
@@ -74,6 +75,9 @@ public class MsfraggerProps {
     }
 
     public static Properties getRemoteProperties() {
+        if (!NetworkFlags.ENABLE_NETWORK) {
+            return null;
+        }
         return HolderRemote.getRemoteProperties();
     }
 

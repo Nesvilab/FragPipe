@@ -18,6 +18,7 @@ package org.nesvilab.fragpipe.params;
 
 import org.nesvilab.fragpipe.Fragpipe;
 import org.nesvilab.fragpipe.FragpipeRun;
+import org.nesvilab.fragpipe.NetworkFlags;
 import org.nesvilab.fragpipe.messages.NoteConfigDiaTracer;
 import org.nesvilab.fragpipe.messages.NoteConfigIonQuant;
 import org.nesvilab.fragpipe.messages.NoteConfigMsfragger;
@@ -99,6 +100,9 @@ public class ThisAppProps extends Properties {
   }
 
   public static Properties getRemoteProperties() {
+    if (!NetworkFlags.ENABLE_NETWORK) {
+      return null;
+    }
     return HolderRemote.getRemoteProperties();
   }
 

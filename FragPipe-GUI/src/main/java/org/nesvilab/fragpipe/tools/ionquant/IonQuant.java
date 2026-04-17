@@ -25,6 +25,7 @@ import static org.nesvilab.fragpipe.cmd.CmdIonquant.JAR_IONQUANT_MAIN_CLASS;
 
 import org.nesvilab.fragpipe.Fragpipe;
 import org.nesvilab.fragpipe.FragpipeLocations;
+import org.nesvilab.fragpipe.NetworkFlags;
 import org.nesvilab.fragpipe.api.Bus;
 import org.nesvilab.fragpipe.api.VersionFetcher;
 import org.nesvilab.fragpipe.cmd.CmdIonquant;
@@ -73,6 +74,9 @@ public class IonQuant {
 
 
   public static void checkUpdates(NoteConfigIonQuant m) {
+    if (!NetworkFlags.ENABLE_NETWORK) {
+      return;
+    }
     final DefaultArtifactVersion verLocal = new DefaultArtifactVersion(m.version);
     Thread t = new Thread(() -> {
       IonQuantVersionFetcherServer vfServer = new IonQuantVersionFetcherServer();

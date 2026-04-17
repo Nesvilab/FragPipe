@@ -159,6 +159,12 @@ public class FragpipeLoader {
 
   private static Runnable loadRemoteProps(final long timeoutSeconds) {
     return () -> {
+      if (!NetworkFlags.ENABLE_NETWORK) {
+        log.info("Remote properties fetch disabled at compile time, using local properties");
+        Bus.post(new MessageLoaderUpdate("Using local configuration"));
+        Bus.postSticky(new NoteFragpipeProperties(ThisAppProps.getLocalProperties(), false));
+        return;
+      }
       log.info("Trying to fetch remote properties, {} seconds timeout", timeoutSeconds);
       Bus.post(new MessageLoaderUpdate("Trying to load remote configuration"));
 

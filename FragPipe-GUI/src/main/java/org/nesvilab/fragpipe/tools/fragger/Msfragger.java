@@ -19,6 +19,7 @@ package org.nesvilab.fragpipe.tools.fragger;
 
 import org.nesvilab.fragpipe.Fragpipe;
 import org.nesvilab.fragpipe.FragpipeLocations;
+import org.nesvilab.fragpipe.NetworkFlags;
 import org.nesvilab.fragpipe.api.Bus;
 import org.nesvilab.fragpipe.api.VersionFetcher;
 import org.nesvilab.fragpipe.exceptions.ValidationException;
@@ -59,6 +60,9 @@ public class Msfragger {
 
 
   public static void checkUpdates(NoteConfigMsfragger m) {
+    if (!NetworkFlags.ENABLE_NETWORK) {
+      return;
+    }
     final MsfraggerVerCmp vc = new MsfraggerVerCmp();
     final String verLocal = m.version;
     Thread t = new Thread(() -> {
