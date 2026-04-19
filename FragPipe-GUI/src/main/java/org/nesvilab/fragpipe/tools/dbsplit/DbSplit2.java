@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 public final class DbSplit2 {
   private static final Logger log = LoggerFactory.getLogger(DbSplit2.class);
 
-  public static final String DBSPLIT_JAR_NAME = "FragDbSplitter-1.0.3.jar";
+  public static final String DBSPLIT_JAR_NAME = "FragDbSplitter-1.0.4.jar";
 
   private DbSplit2() {}
 
