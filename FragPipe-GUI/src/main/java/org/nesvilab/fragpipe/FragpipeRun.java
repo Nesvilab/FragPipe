@@ -2369,7 +2369,8 @@ public class FragpipeRun {
             deNovoPanel.getIsotopeErrorMin(), deNovoPanel.getIsotopeErrorMax(),
             deNovoPanel.isUseIrt(), deNovoPanel.getNewTokens(),
             deNovoPanel.getLoraWeightsPath(), deNovoPanel.getCalFilePath(),
-            deNovoPanel.getModelName(), deNovoPanel.getTimeout());
+            deNovoPanel.getModelName(), deNovoPanel.getTimeout(),
+            downstreamFastaFile, decoyTag);
       }
       return true;
     });

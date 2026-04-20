@@ -66,7 +66,9 @@ public class CmdDeNovo extends CmdBase {
       String loraWeightsPath,
       String calFilePath,
       String modelName,
-      int timeout) {
+      int timeout,
+      String fastaPath,
+      String decoyPrefix) {
 
     initPreConfig();
 
@@ -120,13 +122,24 @@ public class CmdDeNovo extends CmdBase {
       return false;
     }
 
-    Path outputDir = wd.resolve("fragnovo");
+    Path outputDir = wd.resolve("FragNovo");
     try {
       Files.createDirectories(outputDir);
     } catch (Exception ex) {
       log.error("Failed to create FragNovo output directory", ex);
       SwingUtils.showErrorDialog(comp, "Failed to create FragNovo output directory: " + ex.getMessage(), NAME + " error");
       return false;
+    }
+
+    // Build the output fasta path: <FragNovo>/<original_fasta_name>_fragnovo.fasta
+    Path outFastaFile = null;
+    if (fastaPath != null && !fastaPath.trim().isEmpty()) {
+      String fastaFileName = Paths.get(fastaPath).getFileName().toString();
+      String baseName = StringUtils.upToLastDot(fastaFileName);
+      if (baseName.isEmpty()) {
+        baseName = fastaFileName;
+      }
+      outFastaFile = outputDir.resolve(baseName + "_fragnovo.fasta");
     }
 
     // Generate the config YAML file from GUI parameters
@@ -269,6 +282,14 @@ public class CmdDeNovo extends CmdBase {
       cmdPredict.add(String.valueOf(timeout));
       cmdPredict.add("--output-dir");
       cmdPredict.add(outputDir.toAbsolutePath().normalize().toString());
+      if (outFastaFile != null) {
+        cmdPredict.add("--fasta");
+        cmdPredict.add(Paths.get(fastaPath).toAbsolutePath().normalize().toString());
+        cmdPredict.add("--out-fasta");
+        cmdPredict.add(outFastaFile.toAbsolutePath().normalize().toString());
+        cmdPredict.add("--decoy-prefix");
+        cmdPredict.add(decoyPrefix);
+      }
 
       ProcessBuilder pbPredict = new ProcessBuilder(cmdPredict);
       pbPredict.directory(wd.toFile());
@@ -315,6 +336,14 @@ public class CmdDeNovo extends CmdBase {
       cmdLoraPredict.add(String.valueOf(timeout));
       cmdLoraPredict.add("--output-dir");
       cmdLoraPredict.add(outputDir.toAbsolutePath().normalize().toString());
+      if (outFastaFile != null) {
+        cmdLoraPredict.add("--fasta");
+        cmdLoraPredict.add(Paths.get(fastaPath).toAbsolutePath().normalize().toString());
+        cmdLoraPredict.add("--out-fasta");
+        cmdLoraPredict.add(outFastaFile.toAbsolutePath().normalize().toString());
+        cmdLoraPredict.add("--decoy-prefix");
+        cmdLoraPredict.add(decoyPrefix);
+      }
 
       ProcessBuilder pbLoraPredict = new ProcessBuilder(cmdLoraPredict);
       pbLoraPredict.directory(wd.toFile());
