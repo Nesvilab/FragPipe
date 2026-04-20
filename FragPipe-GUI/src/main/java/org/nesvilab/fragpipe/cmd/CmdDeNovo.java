@@ -39,7 +39,7 @@ import java.util.stream.Stream;
 public class CmdDeNovo extends CmdBase {
 
   private static final Logger log = LoggerFactory.getLogger(CmdDeNovo.class);
-  public static final String JAR_FRAGNOVO_CLIENT = "FragNovo-client-1.0.0.jar";
+  public static final String JAR_FRAGNOVO_CLIENT = "FragNovo-client-1.0.1.jar";
   public static String NAME = "FragNovo";
 
   public CmdDeNovo(boolean isRun, Path workDir) {
