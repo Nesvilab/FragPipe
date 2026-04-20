@@ -26,7 +26,7 @@ plugins {
 }
 
 group = 'org.nesvilab'
-version = '24.1-build19'
+version = '24.1-build20'
 
 def appName = "FragPipe"
 
