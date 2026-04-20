@@ -104,6 +104,24 @@ public class CmdPtmshepherd extends CmdBase {
     }
 
     PtmshepherdParams params = new PtmshepherdParams(wd, db, mapGroupsToProtxml, additionalProps);
+
+    if (params.getProp("use_external_library").equalsIgnoreCase("true")) {
+      if (params.getProp("glyco_lib_path") == null || params.getProp("glyco_lib_path").isEmpty()) {
+        // fall back to default path if not specified
+        params.getProps().put("glyco_lib_path", FragpipeLocations.get().getDirTools().resolve("Glycan_Databases").resolve("default.glycolib").toString());
+      }
+      // ensure final path exists before starting run
+      if (!Files.exists(Path.of(params.getProp("glyco_lib_path")))) {
+        if (Fragpipe.headless) {
+            log.error("Glycan library mode requested, but library file not found at specified path: {}", params.getProp("glyco_lib_path"));
+        } else {
+          String msg = "Glycan library mode requested, but library file not found at specified path:<br/>\n" + params.getProp("glyco_lib_path") + "<br/><br/>Please check the path and try again.";
+          SwingUtils.showDialog(comp, SwingUtils.createClickableHtml(msg), NAME + " configuration error", JOptionPane.WARNING_MESSAGE);
+        }
+        return false;
+      }
+    }
+
     String config;
     try {
       config = params.createConfig();

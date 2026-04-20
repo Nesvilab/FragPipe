@@ -108,10 +108,14 @@ public class PtmshepherdParams {
     return props.getOrDefault(key, "");
   }
 
+  public Map<String, String> getProps() {
+    return props;
+  }
+
   public boolean needsIonQuant() {
     if (props == null) {
       return false;
     }
-    return getProp("glyco_lda_features").contains("kl");
+    return getProp("glyco_skip_ms1").equalsIgnoreCase("false");
   }
 }
