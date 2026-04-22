@@ -1,0 +1,49 @@
+# Residue requirement	Ion Composition	Mass adjustment	Comment	Hit Prob Ratio	Miss Prob Ratio	Expected Rel Intensity	Diagnostic?
+NeuAc	NeuAc(1)	-18.0106	-H2O	2	0.05	0.2	TRUE
+NeuAc	NeuAc(1)	0		2	0.05	0.2	TRUE
+NeuAc	HexNAc(1)Hex(1)NeuAc(1)	0		2	0.05	0.2	TRUE
+NeuGc	NeuGc(1)	-18.0106	-H2O	2	0.05	0.2	TRUE
+NeuGc	NeuGc(1)	0		2	0.05	0.2	TRUE
+NeuGc	HexNAc(1)Hex(1)NeuGc(1)	0		2	0.05	0.2	TRUE
+Phospho	Hex(1)Phospho(1)	0		2	0.05	0.2	TRUE
+Phospho	Hex(2)Phospho(1)	0		2	0.05	0.2	TRUE
+Phospho	Hex(2)Phospho(2)	0		2	0.05	0.2	TRUE
+Sulfo	HexNAc(1)Sulfo(1)	0		2	0.05	0.2	TRUE
+Sulfo	HexNAc(1)Hex(1)Sulfo(1)	0		2	0.05	0.2	TRUE
+Sulfo	HexNAc(2)Hex(2)Sulfo(1)	0		2	0.05	0.2	TRUE
+dHex	HexNAc(1)dHex(1)	0		2	0.5	0.1	TRUE
+dHex	HexNAc(1)Hex(1)dHex(1)	0		2	0.5	0.1	TRUE
+dHex	HexNAc(2)dHex(1)	0		2	0.5	0.1	TRUE
+Acetyl	NeuAc(1)Acetyl(1)	0		2	0.05	0.2	TRUE
+Acetyl	NeuGc(1)Acetyl(1)	0		2	0.05	0.2	TRUE
+Acetyl	HexNAc(1)Hex(1)NeuAc(1)Acetyl(1)	0		2	0.05	0.2	TRUE
+Acetyl	HexNAc(1)Hex(1)NeuGc(1)Acetyl(1)	0		2	0.05	0.2	TRUE
+Acetyl	NeuAc(1)Acetyl(1)	-18.01056	-H2O	2	0.05	0.2	TRUE
+Acetyl	NeuGc(1)Acetyl(1)	-18.01056	-H2O	2	0.05	0.2	TRUE
+HexNAc	HexNAc(1)	-18.01056	186.0769				FALSE
+HexNAc	HexNAc(1)	-36.02112	168.0655				FALSE
+HexNAc	HexNAc(1)	-60.021046	144.0656				FALSE
+HexNAc	HexNAc(1)	-66.031646	138.055				FALSE
+HexNAc	HexNAc(1)	-78.031646	126.055				FALSE
+Hex	Hex(1)	0					FALSE
+HexNAc	HexNAc(1)	0					FALSE
+HexNAc	HexNAc(1)Hex(1)	0					FALSE
+HexNAc	HexNAc(2)	0					FALSE
+HexNAc	HexNAc(1)Hex(2)	0					FALSE
+NeuAc	Hex(1)NeuAc(1)	0					FALSE
+NeuAc	HexNAc(1)NeuAc(1)	0					FALSE
+NeuAc	HexNAc(2)NeuAc(1)	0					FALSE
+HexNAc	HexNAc(2)Hex(2)	0					FALSE
+HexNAc	HexNAc(3)Hex(3)	0					FALSE
+Na	HexNAc(1)Na(1)	0		2	0.05	0.1	TRUE
+Na	Hex(1)Na(1)	0		2	0.05	0.1	TRUE
+Na	HexNAc(1)Hex(1)Na(1)	0		2	0.05	0.1	TRUE
+Fe	HexNAc(1)Fe(1)	0		2	0.05	0.1	TRUE
+Fe	Hex(1)Fe(1)	0		2	0.05	0.1	TRUE
+Fe	HexNAc(1)Hex(1)Fe(1)	0		2	0.05	0.1	TRUE
+Ca	HexNAc(1)Ca(1)	0		2	0.05	0.1	TRUE
+Ca	Hex(1)Ca(1)	0		2	0.05	0.1	TRUE
+Ca	HexNAc(1)Hex(1)Ca(1)	0		2	0.05	0.1	TRUE
+Al	HexNAc(1)Al(1)	0		2	0.05	0.1	TRUE
+Al	Hex(1)Al(1)	0		2	0.05	0.1	TRUE
+Al	HexNAc(1)Hex(1)Al(1)	0		2	0.05	0.1	TRUE
