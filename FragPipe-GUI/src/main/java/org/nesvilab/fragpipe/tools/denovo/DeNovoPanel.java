@@ -196,9 +196,9 @@ public class DeNovoPanel extends JPanelBase {
     uiTextNewTokens = new UiText("", "S[79.9663]:166.998358; T[79.9663]:181.014000; Y[79.9663]:243.029659");
     uiTextNewTokens.setColumns(30);
     FormEntry feNewTokens = mu.feb("new-tokens", uiTextNewTokens)
-        .label("Additional tokens: ")
-        .tooltip("<html>Amino acid or modification tokens to add to the model vocabulary (optional).<br>"
-            + "Only specify tokens that are <b>NOT</b> already in the base model.<br><br>"
+        .label("Additional modifications: ")
+        .tooltip("<html>Amino acids or modifications to add to the model vocabulary (optional).<br>"
+            + "Only specify modified amino acids that are <b>NOT</b> already in the base model.<br><br>"
             + "<b>Format:</b> token:mass, separated by semicolons.<br>"
             + "The mass is the <b>residue mass</b> (amino acid mass + modification mass shift).<br><br>"
             + "<b>Examples (phosphorylation, +79.96633 Da):</b><br>"
