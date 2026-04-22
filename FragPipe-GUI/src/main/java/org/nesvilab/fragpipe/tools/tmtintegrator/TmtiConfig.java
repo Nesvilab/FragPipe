@@ -19,23 +19,22 @@ package org.nesvilab.fragpipe.tools.tmtintegrator;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+
 public class TmtiConfig {
 
-  public static final String REF_TAG = "Bridge";
-  public static final String REF_D_TAG = "BridgeD";
+  public static final String DEFAULT_REF_TAG = "Bridge";
+  public static final String REF_D_SUFFIX = "D";
 
   // Legacy Props class retained for YAML deserialization compatibility.
-  // All new code should use TmtiConfig.write() and the hardcoded REF_TAG/REF_D_TAG constants.
   public static class Props {
 
     private String output;
     private int channel_num;
+    private String ref_tag;
     private double min_pep_prob;
     private double min_purity;
     private double min_percent;
@@ -110,6 +109,14 @@ public class TmtiConfig {
 
     public void setChannel_num(int channel_num) {
       this.channel_num = channel_num;
+    }
+
+    public String getRef_tag() {
+      return ref_tag;
+    }
+
+    public void setRef_tag(String ref_tag) {
+      this.ref_tag = ref_tag;
     }
 
     public double getMin_pep_prob() {
@@ -290,7 +297,7 @@ public class TmtiConfig {
   }
 
   private static final Set<String> KEYS_REPLACED_BY_SUBPLEXES = Set.of(
-      "is_tmt_35", "channel_num",
+      "is_tmt_35", "channel_num", "ref_tag",
       "is_hyperplexing", "hyper_light_active", "hyper_medium_active", "hyper_heavy_active"
   );
 
@@ -307,6 +314,8 @@ public class TmtiConfig {
     boolean isTmt35 = Boolean.parseBoolean(map.getOrDefault("is_tmt_35", "false"));
     boolean isHyperplexing = Boolean.parseBoolean(map.getOrDefault("is_hyperplexing", "false"));
     String channelNum = map.getOrDefault("channel_num", "0");
+    String refTag = map.getOrDefault("ref_tag", DEFAULT_REF_TAG);
+    String refDTag = refTag + REF_D_SUFFIX;
 
     // Collect all entries, replacing internal keys with per-label subplex keys, and sort alphabetically
     TreeMap<String, String> sorted = new TreeMap<>();
@@ -325,18 +334,18 @@ public class TmtiConfig {
         String label = entry[1]; // "light", "medium", or "heavy"
         String subplex;
         if (isTmt35) {
-          subplex = "18:" + label + REF_TAG + ",17:" + label + REF_D_TAG;
+          subplex = "18:" + label + refTag + ",17:" + label + refDTag;
         } else {
-          subplex = channelNum + ":" + label + REF_TAG;
+          subplex = channelNum + ":" + label + refTag;
         }
         sorted.put(label + "_subplex", subplex);
       }
     } else {
       String subplex;
       if (isTmt35) {
-        subplex = "18:" + REF_TAG + ",17:" + REF_D_TAG;
+        subplex = "18:" + refTag + ",17:" + refDTag;
       } else {
-        subplex = channelNum + ":" + REF_TAG;
+        subplex = channelNum + ":" + refTag;
       }
       sorted.put("light_subplex", subplex);
     }

@@ -47,6 +47,7 @@ import org.nesvilab.fragpipe.tools.tmtintegrator.TmtiConfig;
 import org.nesvilab.fragpipe.tools.tmtintegrator.TmtiConfProps;
 import org.nesvilab.fragpipe.tools.tmtintegrator.TmtiPanel;
 import org.nesvilab.utils.FileDelete;
+import org.nesvilab.utils.StringUtils;
 import org.nesvilab.utils.SwingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -172,6 +173,14 @@ public class CmdTmtIntegrator extends CmdBase {
       Map<String, String> conf = panel.formToConfig(outDir.toString(), panel.getSelectedLabel(), isSecondUnmodRun);
 
       boolean isTmt35 = Boolean.parseBoolean(conf.get("is_tmt_35"));
+      String refTag = conf.getOrDefault(TmtiConfProps.PROP_ref_tag, "");
+      String refDTag = refTag + TmtiConfig.REF_D_SUFFIX;
+      boolean isRealReference = TmtiConfProps.COMBO_ADD_REF_CHANNEL.equalsIgnoreCase(panel.getDefineReference());
+
+      if (isRealReference && StringUtils.isNullOrWhitespace(refTag)) {
+        SwingUtils.showErrorDialog(panel, "'Ref sample tag' can't be empty in 'Quant (Isobaric)' tab.", "ERROR: empty ref tag");
+        return false;
+      }
 
       Set<String> ss = new HashSet<>();
       for (Path path : groupAnnotationMap.values()) {
@@ -196,24 +205,24 @@ public class CmdTmtIntegrator extends CmdBase {
 
       Set<Path> filesWithoutRefChannel = new HashSet<>();
       // only check for presence of reference channels if "Define Reference is set to "Reference Sample"
-      if (TmtiConfProps.COMBO_ADD_REF_CHANNEL.equalsIgnoreCase(panel.getDefineReference())) {
-        // Build the list of ref tags to check using hardcoded constants
+      if (isRealReference) {
+        // Build the list of ref tags to check from the user-supplied ref_tag
         List<String> refTagsToCheck = new ArrayList<>();
         if (isHyperplexing) {
           String[] labels = {"light", "medium", "heavy"};
           String[] activeKeys = {"hyper_light_active", "hyper_medium_active", "hyper_heavy_active"};
           for (int i = 0; i < labels.length; i++) {
             if ("true".equalsIgnoreCase(conf.get(activeKeys[i]))) {
-              refTagsToCheck.add(labels[i] + TmtiConfig.REF_TAG);
+              refTagsToCheck.add(labels[i] + refTag);
               if (isTmt35) {
-                refTagsToCheck.add(labels[i] + TmtiConfig.REF_D_TAG);
+                refTagsToCheck.add(labels[i] + refDTag);
               }
             }
           }
         } else {
-          refTagsToCheck.add(TmtiConfig.REF_TAG);
+          refTagsToCheck.add(refTag);
           if (isTmt35) {
-            refTagsToCheck.add(TmtiConfig.REF_D_TAG);
+            refTagsToCheck.add(refDTag);
           }
         }
 
@@ -231,12 +240,22 @@ public class CmdTmtIntegrator extends CmdBase {
             .collect(Collectors.joining("\n"));
         String tagHint;
         if (isHyperplexing) {
-          tagHint = "For hyperplexing, each annotation file must contain reference\n"
-              + "tags for each active subplex (e.g. 'lightBridge', 'mediumBridge',\n'heavyBridge'"
-              + (isTmt35 ? ", 'lightBridgeD', 'mediumBridgeD', 'heavyBridgeD'" : "") + ").";
+          StringBuilder sb = new StringBuilder();
+          sb.append("For hyperplexing, each annotation file must contain reference\n")
+              .append("tags for each active subplex (e.g. '").append("light").append(refTag)
+              .append("', '").append("medium").append(refTag)
+              .append("',\n'").append("heavy").append(refTag).append("'");
+          if (isTmt35) {
+            sb.append(", '").append("light").append(refDTag)
+                .append("', '").append("medium").append(refDTag)
+                .append("', '").append("heavy").append(refDTag).append("'");
+          }
+          sb.append(").");
+          tagHint = sb.toString();
         } else {
-          tagHint = "One sample name in each annotation file must contain\n"
-              + "the reference tag (e.g. 'Bridge'" + (isTmt35 ? " or 'BridgeD'" : "") + ").";
+          tagHint = "Each annotation file must contain the reference\n"
+              + "tag (e.g. '" + refTag + "'"
+              + (isTmt35 ? " or '" + refDTag + "'" : "") + ").";
         }
         SwingUtils.showErrorDialog(panel, "Found annotation files without reference channel\n"
             + "specified:\n" + files

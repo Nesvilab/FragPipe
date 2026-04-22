@@ -18,6 +18,8 @@
 package org.nesvilab.fragpipe.tools.tmtintegrator;
 
 import static org.nesvilab.fragpipe.tools.tmtintegrator.QuantLabel.labelModMap;
+import static org.nesvilab.fragpipe.tools.tmtintegrator.QuantLabelAnnotation.disallowedPattern;
+import static org.nesvilab.fragpipe.tools.tmtintegrator.QuantLabelAnnotation.unifyAnnotationSampleName;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -128,6 +130,7 @@ public class TmtiPanel extends JPanelBase {
   private UiText uiTextHyperLight;
   private UiText uiTextHyperMedium;
   private UiText uiTextHyperHeavy;
+  private UiText uiTextRefTag;
   public static final String PREFIX = "tmtintegrator.";
   public static final String PROP_LAST_ANNOTATION_PATH = "fragpipe.tmt.last-annotation-path";
   private static final Map<String, Function<String, String>> CONVERT_TO_FILE;
@@ -369,14 +372,21 @@ public class TmtiPanel extends JPanelBase {
         "<html>Add an artificial reference channel if<br/>\n"
             + "there is no reference channel in the sample.<br/><br/>\n"
             + "When using <b>Reference sample</b>, annotation sample names<br/>\n"
-            + "must contain <b>Bridge</b> (and <b>BridgeD</b> for TMT-35).<br/>\n"
-            + "For hyperplexing, use prefixed tags: e.g. <b>lightBridge</b>, <b>mediumBridge</b>, <b>heavyBridge</b>.");
-    JLabel labelRefNote = new JLabel("<html><i>Ref tag: <b>Bridge</b> (TMT-35 D tag: <b>BridgeD</b>). Only for Reference sample mode.</i></html>");
-    labelRefNote.setFont(labelRefNote.getFont().deriveFont(labelRefNote.getFont().getSize2D() - 1f));
-    labelRefNote.setToolTipText("<html>In the annotation file, the reference channel's sample name must contain <b>Bridge</b>.<br/>"
-        + "For example: <b>exp1_Bridge</b>, <b>MyBridge01</b>, etc.<br/>"
-        + "For TMT-35, an additional reference channel's name must contain <b>BridgeD</b>.<br/><br/>"
-        + "This only applies when 'Define reference' is set to <b>Reference sample</b>.</html>");
+            + "must contain the <b>Ref sample tag</b> (plus <b>D</b> suffix for TMT-35).<br/>\n"
+            + "For hyperplexing, subplex names are derived as<br/>\n"
+            + "<b>light</b>/<b>medium</b>/<b>heavy</b> + <b>Ref sample tag</b>.");
+
+    uiTextRefTag = UiUtils.uiTextBuilder().cols(10).filter(disallowedPattern.toString()).text("Bridge").create();
+    FormEntry feRefTag = fe(TmtiConfProps.PROP_ref_tag,
+        "Ref sample tag", uiTextRefTag,
+        "<html>Unique tag to identify reference (bridge) channel(s) in annotation files.<br/>\n"
+            + "Example with tag set to <b>Bridge</b>:<br/>\n"
+            + " - Non-hyperplex, non-TMT-35: reference sample name contains <b>Bridge</b>.<br/>\n"
+            + " - TMT-35: reference sample names contain <b>Bridge</b> (non-D) and <b>BridgeD</b> (D subplex).<br/>\n"
+            + " - Hyperplexing: reference sample names contain <b>lightBridge</b>, <b>mediumBridge</b>, <b>heavyBridge</b>.<br/>\n"
+            + " - Hyperplexing + TMT-35: also <b>lightBridgeD</b>, <b>mediumBridgeD</b>, <b>heavyBridgeD</b>.<br/>\n"
+            + "Only used when 'Define reference' is set to <b>Reference sample</b>.");
+
     uiComboAddRef.setSelectedItem(null);
     uiComboAddRef.setSelectedItem(TmtiConfProps.COMBO_ADD_REF_CHANNEL);
 
@@ -392,7 +402,7 @@ public class TmtiPanel extends JPanelBase {
     addRowLabelComp(p, feQuantLevel);
     addRowLabelComp(p, feTolerance);
     addRowLabelComp(p, feAddRef);
-    mu.add(p, labelRefNote).skip(1).wrap();
+    addRowLabelComp(p, feRefTag);
     addRowLabelComp(p, feGroupBy);
     addRowLabelComp(p, feProtNorm);
     addRowLabelComp(p, feLog2Transformed);
@@ -652,21 +662,12 @@ public class TmtiPanel extends JPanelBase {
     FormEntry feMedium = fe("tmtintegrator.hyper_medium", "Medium", uiTextHyperMedium, massDeltaTooltip);
     FormEntry feHeavy = fe("tmtintegrator.hyper_heavy", "Heavy  ", uiTextHyperHeavy, massDeltaTooltip);
 
-    JLabel labelHyperRefNote = new JLabel("<html><i>Ref tags: <b>lightBridge</b>, <b>mediumBridge</b>, <b>heavyBridge</b>. Only for Reference sample mode.</i></html>");
-    labelHyperRefNote.setFont(labelHyperRefNote.getFont().deriveFont(labelHyperRefNote.getFont().getSize2D() - 1f));
-    labelHyperRefNote.setToolTipText("<html>In the annotation file, the reference channel's sample name for each subplex<br/>"
-        + "must contain the corresponding tag: <b>lightBridge</b>, <b>mediumBridge</b>, or <b>heavyBridge</b>.<br/>"
-        + "For example: <b>exp1_lightBridge</b>, <b>exp1_mediumBridge</b>, etc.<br/>"
-        + "For TMT-35, additional reference channels must contain <b>lightBridgeD</b>, <b>mediumBridgeD</b>, <b>heavyBridgeD</b>.<br/><br/>"
-        + "This only applies when 'Define reference' is set to <b>Reference sample</b>.</html>");
-
     mu.add(p, feLight.label(), mu.ccR()).split(2);
     mu.add(p, feLight.comp).growX().wrap();
     mu.add(p, feMedium.label(), mu.ccR()).split(2);
     mu.add(p, feMedium.comp).growX().wrap();
     mu.add(p, feHeavy.label(), mu.ccR()).split(2);
     mu.add(p, feHeavy.comp).growX().wrap();
-    mu.add(p, labelHyperRefNote).spanX().wrap();
 
     return p;
   }
@@ -693,6 +694,10 @@ public class TmtiPanel extends JPanelBase {
 
   public String getHyperHeavy() {
     return uiTextHyperHeavy.getNonGhostText().trim();
+  }
+
+  public String getRefTag() {
+    return unifyAnnotationSampleName(uiTextRefTag.getNonGhostText());
   }
 
   private static FormEntry fe(String name, String label, JComponent comp, String tooltip) {
@@ -1277,6 +1282,8 @@ public class TmtiPanel extends JPanelBase {
         } else {
           mapConv.put(prop, CONVERT_TO_FILE.getOrDefault(prop, Function.identity()).apply(v));
         }
+      } else if (prop.contentEquals(TmtiConfProps.PROP_ref_tag)) {
+        mapConv.put(prop, unifyAnnotationSampleName(CONVERT_TO_FILE.getOrDefault(prop, Function.identity()).apply(v)));
       } else if (prop.contentEquals(TmtiConfProps.PROP_channel_num)) {
         // TMT-I only needs the channel_num, but multiple tags may have the same number so we save the label_type to workflow file instead
         // of channel num. Get the channel num from the QuantLabel for the TMT-I config
