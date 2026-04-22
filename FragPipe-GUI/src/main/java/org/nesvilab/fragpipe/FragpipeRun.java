@@ -2370,6 +2370,7 @@ public class FragpipeRun {
             deNovoPanel.isUseIrt(), deNovoPanel.getNewTokens(),
             deNovoPanel.getLoraWeightsPath(), deNovoPanel.getCalFilePath(),
             deNovoPanel.getModelName(), deNovoPanel.getTimeout(),
+            deNovoPanel.getScoreThreshold(),
             downstreamFastaFile, decoyTag);
       }
       return true;

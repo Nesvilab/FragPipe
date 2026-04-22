@@ -67,6 +67,7 @@ public class CmdDeNovo extends CmdBase {
       String calFilePath,
       String modelName,
       int timeout,
+      float scoreThreshold,
       String fastaPath,
       String decoyPrefix) {
 
@@ -289,6 +290,8 @@ public class CmdDeNovo extends CmdBase {
         cmdPredict.add(outFastaFile.toAbsolutePath().normalize().toString());
         cmdPredict.add("--decoy-prefix");
         cmdPredict.add(decoyPrefix);
+        cmdPredict.add("--score-threshold");
+        cmdPredict.add(String.valueOf(scoreThreshold));
       }
 
       ProcessBuilder pbPredict = new ProcessBuilder(cmdPredict);
@@ -343,6 +346,8 @@ public class CmdDeNovo extends CmdBase {
         cmdLoraPredict.add(outFastaFile.toAbsolutePath().normalize().toString());
         cmdLoraPredict.add("--decoy-prefix");
         cmdLoraPredict.add(decoyPrefix);
+        cmdLoraPredict.add("--score-threshold");
+        cmdLoraPredict.add(String.valueOf(scoreThreshold));
       }
 
       ProcessBuilder pbLoraPredict = new ProcessBuilder(cmdLoraPredict);

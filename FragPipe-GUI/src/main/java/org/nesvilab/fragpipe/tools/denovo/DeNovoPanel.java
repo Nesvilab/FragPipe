@@ -30,6 +30,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.nio.file.Path;
+import java.text.DecimalFormat;
 import java.util.stream.Stream;
 
 
@@ -55,6 +56,7 @@ public class DeNovoPanel extends JPanelBase {
   private FormEntry feCalFile;
   private JButton jButtonCalFile;
   private UiSpinnerInt uiSpinnerTimeout;
+  private UiSpinnerDouble uiSpinnerScoreThreshold;
   private UiText uiTextLoraWeightsPath;
   private UiCombo uiComboModel;
 
@@ -216,6 +218,14 @@ public class DeNovoPanel extends JPanelBase {
             + "Increase for large datasets or slow connections.</html>")
         .create();
 
+    uiSpinnerScoreThreshold = new UiSpinnerDouble(0.8, 0.0, 1.1, 0.1, 1, new DecimalFormat("0.0"));
+    uiSpinnerScoreThreshold.setColumns(3);
+    FormEntry feScoreThreshold = mu.feb("score-threshold", uiSpinnerScoreThreshold)
+        .label("Score threshold for FASTA file generation: ")
+        .tooltip("<html>Minimum de novo score for peptides to be included in the generated FASTA file.<br>"
+            + "Peptides with scores below this threshold are filtered out.</html>")
+        .create();
+
     uiCheckUseIrt = new UiCheck("Use iRT", null, true);
     uiCheckUseIrt.setName("use-irt");
 
@@ -242,14 +252,16 @@ public class DeNovoPanel extends JPanelBase {
 
     JPanel panelLora = createPanelLora();
 
-    mu.add(p, fePrecursorMassTol.label()).split(8);
+    mu.add(p, fePrecursorMassTol.label()).split(10);
     mu.add(p, fePrecursorMassTol.comp);
     mu.add(p, feIsotopeErrorMin.label()).gapLeft("30");
     mu.add(p, feIsotopeErrorMin.comp);
     mu.add(p, feIsotopeErrorMax.label());
     mu.add(p, feIsotopeErrorMax.comp);
     mu.add(p, feTimeout.label()).gapLeft("30");
-    mu.add(p, feTimeout.comp).wrap();
+    mu.add(p, feTimeout.comp);
+    mu.add(p, feScoreThreshold.label()).gapLeft("30");
+    mu.add(p, feScoreThreshold.comp).wrap();
 
     mu.add(p, feNewTokens.label()).split(2);
     mu.add(p, feNewTokens.comp).growX().wrap();
@@ -402,5 +414,9 @@ public class DeNovoPanel extends JPanelBase {
 
   public int getTimeout() {
     return uiSpinnerTimeout.getActualValue();
+  }
+
+  public float getScoreThreshold() {
+    return (float) uiSpinnerScoreThreshold.getActualValue();
   }
 }
