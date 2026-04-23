@@ -42,11 +42,11 @@ public class DeNovoPanel extends JPanelBase {
   private JPanel pContent;
   private JPanel pTop;
   private JPanel panelPrediction;
-  private JPanel panelLoraPrediction;
   private UiText uiTextCredential;
-  private UiCheck checkRunFineTuning;
-  private UiCheck checkRunPrediction;
-  private UiCheck checkRunLoraPrediction;
+  private UiRadio radioBuiltInModel;
+  private UiRadio radioFineTuning;
+  private UiRadio radioFineTuningOnly;
+  private UiRadio radioLoraWeights;
   private UiSpinnerInt uiSpinnerPrecursorMassTol;
   private UiSpinnerInt uiSpinnerIsotopeErrorMin;
   private UiSpinnerInt uiSpinnerIsotopeErrorMax;
@@ -58,7 +58,10 @@ public class DeNovoPanel extends JPanelBase {
   private UiSpinnerInt uiSpinnerTimeout;
   private UiSpinnerDouble uiSpinnerScoreThreshold;
   private UiText uiTextLoraWeightsPath;
+  private FormEntry feLoraWeights;
+  private JButton jButtonLoraWeights;
   private UiCombo uiComboModel;
+  private FormEntry feModel;
 
   private static final String[] MODEL_OPTIONS = {
       "DDA_MassIVE",
@@ -71,8 +74,6 @@ public class DeNovoPanel extends JPanelBase {
   @Override
   protected void initMore() {
     super.initMore();
-    SwingUtils.setEnablementUpdater(this, panelPrediction, checkRunPrediction);
-    SwingUtils.setEnablementUpdater(this, panelLoraPrediction, checkRunLoraPrediction);
 
     DocumentListener textFieldListener = new DocumentListener() {
       @Override
@@ -97,8 +98,14 @@ public class DeNovoPanel extends JPanelBase {
 
     uiCheckUseIrt.addItemListener(e -> updateCalFileEnablement());
 
+    radioBuiltInModel.addItemListener(e -> updateModeEnablement());
+    radioFineTuning.addItemListener(e -> updateModeEnablement());
+    radioFineTuningOnly.addItemListener(e -> updateModeEnablement());
+    radioLoraWeights.addItemListener(e -> updateModeEnablement());
+
     updateContentPanelEnablement();
     updateCalFileEnablement();
+    updateModeEnablement();
   }
 
   private void updateContentPanelEnablement() {
@@ -114,6 +121,18 @@ public class DeNovoPanel extends JPanelBase {
     updateEnabledStatus(feCalFile.label(), enabled);
     updateEnabledStatus(feCalFile.comp, enabled);
     updateEnabledStatus(jButtonCalFile, enabled);
+  }
+
+  private void updateModeEnablement() {
+    boolean builtIn = radioBuiltInModel.isSelected();
+    boolean lora = radioLoraWeights.isSelected();
+
+    updateEnabledStatus(feModel.label(), builtIn);
+    updateEnabledStatus(feModel.comp, builtIn);
+
+    updateEnabledStatus(feLoraWeights.label(), lora);
+    updateEnabledStatus(feLoraWeights.comp, lora);
+    updateEnabledStatus(jButtonLoraWeights, lora);
   }
 
   @Override
@@ -226,8 +245,8 @@ public class DeNovoPanel extends JPanelBase {
             + "Peptides with scores below this threshold are filtered out.</html>")
         .create();
 
-    uiCheckUseIrt = new UiCheck("Use iRT", null, true);
-    uiCheckUseIrt.setName("use-irt");
+    uiCheckUseIrt = new UiCheck("Use RT", null, true);
+    uiCheckUseIrt.setName("use-rt");
 
     uiTextCalFilePath = new UiText("", "");
     uiTextCalFilePath.setColumns(20);
@@ -246,11 +265,7 @@ public class DeNovoPanel extends JPanelBase {
       return fc;
     }, paths -> uiTextCalFilePath.setText(paths.get(0).toString()));
 
-    checkRunPrediction = new UiCheck("Perform de novo prediction", null, true);
-    checkRunPrediction.setName("perform-prediction");
     panelPrediction = createPanelPrediction();
-
-    JPanel panelLora = createPanelLora();
 
     mu.add(p, fePrecursorMassTol.label()).split(10);
     mu.add(p, fePrecursorMassTol.comp);
@@ -272,63 +287,53 @@ public class DeNovoPanel extends JPanelBase {
     mu.add(p, feCalFile.comp).growX().pushX();
     mu.add(p, jButtonCalFile).wrap();
 
-    mu.add(p, checkRunPrediction).gapTop("10").wrap();
-    mu.add(p, panelPrediction).growX().wrap();
-
-    mu.add(p, panelLora).growX().gapTop("10").wrap();
+    mu.add(p, panelPrediction).growX().gapTop("10").wrap();
 
     return p;
   }
 
   private JPanel createPanelPrediction() {
-    panelPrediction = mu.newPanel(mu.lcFillX());
-    mu.border(panelPrediction, 1);
+    JPanel panel = new JPanel(new MigLayout(new LC().fillX()));
+    panel.setBorder(new TitledBorder("Perform de novo prediction"));
+
+    radioBuiltInModel = new UiRadio("Built-in model", null, true);
+    radioBuiltInModel.setName("source-built-in");
+    radioBuiltInModel.setToolTipText("Run de novo prediction with a built-in model.");
+
+    radioFineTuning = new UiRadio("Perform LoRA fine-tuning", null, false);
+    radioFineTuning.setName("source-fine-tuning");
+    radioFineTuning.setToolTipText("Fine-tune a LoRA adapter on this workflow's PSMs, "
+        + "then run LoRA prediction using the fine-tuned weights.");
+
+    radioFineTuningOnly = new UiRadio("Run LoRA fine-tuning only, no prediction", null, false);
+    radioFineTuningOnly.setName("source-fine-tuning-only");
+    radioFineTuningOnly.setToolTipText("Fine-tune a LoRA adapter on this workflow's PSMs "
+        + "and save the weights, without running prediction afterward.");
+
+    radioLoraWeights = new UiRadio("Use existing LoRA weights", null, false);
+    radioLoraWeights.setName("source-lora-weights");
+    radioLoraWeights.setToolTipText("Run LoRA prediction using a pre-trained LoRA weights file.");
+
+    ButtonGroup modeGroup = new ButtonGroup();
+    modeGroup.add(radioBuiltInModel);
+    modeGroup.add(radioFineTuning);
+    modeGroup.add(radioLoraWeights);
+    modeGroup.add(radioFineTuningOnly);
 
     uiComboModel = UiUtils.createUiCombo(MODEL_OPTIONS);
-    FormEntry feModel = mu.feb("model", uiComboModel)
-        .label("Model: ")
-        .tooltip("Select the base model checkpoint for prediction.")
+    feModel = mu.feb("model", uiComboModel)
+        .label("Built-in model: ")
+        .tooltip("Select the base model for prediction.")
         .create();
-
-    mu.add(panelPrediction, feModel.label()).split(2);
-    mu.add(panelPrediction, feModel.comp).wrap();
-
-    return panelPrediction;
-  }
-
-  private JPanel createPanelLora() {
-    JPanel panel = new JPanel(new MigLayout(new LC().fillX()));
-    panel.setBorder(new TitledBorder("LoRA fine-tuning & prediction"));
-
-    checkRunFineTuning = new UiCheck("Perform LoRa fine-tuning", null, false);
-    checkRunFineTuning.setName("perform-fine-tuning");
-
-    checkRunLoraPrediction = new UiCheck("Perform LoRA prediction", null, false);
-    checkRunLoraPrediction.setName("perform-lora-prediction");
-    panelLoraPrediction = createPanelLoraPrediction();
-
-    mu.add(panel, checkRunFineTuning).wrap();
-
-    mu.add(panel, checkRunLoraPrediction).gapTop("10").wrap();
-    mu.add(panel, panelLoraPrediction).growX().wrap();
-
-    return panel;
-  }
-
-  private JPanel createPanelLoraPrediction() {
-    panelLoraPrediction = mu.newPanel(mu.lcFillX());
-    mu.border(panelLoraPrediction, 1);
 
     uiTextLoraWeightsPath = new UiText("", "");
     uiTextLoraWeightsPath.setColumns(20);
-    FormEntry feLoraWeights = mu.feb("lora-weights-path", uiTextLoraWeightsPath)
-        .label("LoRA weights (optional): ")
-        .tooltip("<html>Pre-trained LoRA weights for LoRA prediction.<br>"
-            + "If not specified and fine-tuning is enabled, FragPipe will automatically<br>"
-            + "use the LoRA weights generated during the fine-tuning step.</html>")
+    feLoraWeights = mu.feb("lora-weights-path", uiTextLoraWeightsPath)
+        .label("LoRA weights file: ")
+        .tooltip("Pre-trained LoRA weights file for LoRA prediction.")
         .create();
 
-    JButton jButtonLoraWeights = feLoraWeights.browseButton("Browse", "Select LoRA weights file", () -> {
+    jButtonLoraWeights = feLoraWeights.browseButton("Browse", "Select LoRA weights file", () -> {
       final FileNameExtensionFilter filter = new FileNameExtensionFilter("PyTorch files", "pt");
       JFileChooser fc = FileChooserUtils.create("LoRA weights file", "Select", false, FcMode.FILES_ONLY, true, filter);
       fc.setFileFilter(filter);
@@ -336,15 +341,20 @@ public class DeNovoPanel extends JPanelBase {
       return fc;
     }, paths -> uiTextLoraWeightsPath.setText(paths.get(0).toString()));
 
-    mu.add(panelLoraPrediction, feLoraWeights.label()).split(3);
-    mu.add(panelLoraPrediction, feLoraWeights.comp).growX().pushX();
-    mu.add(panelLoraPrediction, jButtonLoraWeights).wrap();
+    mu.add(panel, radioBuiltInModel).split(3);
+    mu.add(panel, feModel.label()).gapLeft("20");
+    mu.add(panel, feModel.comp).wrap();
 
-    JLabel noteLabel = new JLabel("<html><i>If fine-tuning is enabled and no LoRA weights are specified, "
-        + "weights from the fine-tuning step are used automatically.</i></html>");
-    mu.add(panelLoraPrediction, noteLabel).growX().wrap();
+    mu.add(panel, radioFineTuning).wrap();
 
-    return panelLoraPrediction;
+    mu.add(panel, radioLoraWeights).split(4);
+    mu.add(panel, feLoraWeights.label()).gapLeft("20");
+    mu.add(panel, feLoraWeights.comp).growX().pushX();
+    mu.add(panel, jButtonLoraWeights).wrap();
+
+    mu.add(panel, radioFineTuningOnly).wrap();
+
+    return panel;
   }
 
   @Override
@@ -365,15 +375,17 @@ public class DeNovoPanel extends JPanelBase {
   }
 
   public boolean isRunFineTuning() {
-    return SwingUtils.isEnabledAndChecked(checkRunFineTuning);
+    return SwingUtils.isEnabledAndChecked(radioFineTuning)
+        || SwingUtils.isEnabledAndChecked(radioFineTuningOnly);
   }
 
   public boolean isRunPrediction() {
-    return SwingUtils.isEnabledAndChecked(checkRunPrediction);
+    return SwingUtils.isEnabledAndChecked(radioBuiltInModel);
   }
 
   public boolean isRunLoraPrediction() {
-    return SwingUtils.isEnabledAndChecked(checkRunLoraPrediction);
+    return SwingUtils.isEnabledAndChecked(radioFineTuning)
+        || SwingUtils.isEnabledAndChecked(radioLoraWeights);
   }
 
   public String getCredentialPath() {
