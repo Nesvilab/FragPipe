@@ -75,6 +75,7 @@ import org.nesvilab.fragpipe.tools.umpire.UmpirePanel;
 import org.nesvilab.fragpipe.tools.umpire.UmpireParams;
 import org.nesvilab.fragpipe.util.BatchRun;
 import org.nesvilab.fragpipe.util.ExtendedAAFastaEdit;
+import org.nesvilab.fragpipe.util.LocaleCheck;
 import org.nesvilab.utils.*;
 import org.nesvilab.utils.swing.TextConsole;
 import org.slf4j.Logger;
@@ -162,6 +163,17 @@ public class FragpipeRun {
       final TabRun tabRun = Bus.getStickyEvent(TabRun.class);
       if (tabRun == null) {
         throw new IllegalStateException("TabRun has not been posted to the bus");
+      }
+
+      // FragPipe's external tools rely on '.' as the decimal separator.
+      final String localeError = LocaleCheck.validateDecimalSeparator();
+      if (localeError != null) {
+        if (Fragpipe.headless) {
+          log.error(localeError.replace("\n", " "));
+        } else {
+          JOptionPane.showMessageDialog(tabRun, localeError, "Invalid regional settings", JOptionPane.ERROR_MESSAGE);
+        }
+        return 1;
       }
 
       final TabMsfragger tabMsf = Fragpipe.getStickyStrict(TabMsfragger.class);
