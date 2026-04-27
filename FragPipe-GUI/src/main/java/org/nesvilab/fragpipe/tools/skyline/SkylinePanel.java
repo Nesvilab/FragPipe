@@ -36,6 +36,7 @@ import org.nesvilab.utils.swing.UiUtils;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.ItemSelectable;
+import java.awt.event.ItemEvent;
 import java.awt.image.BufferedImage;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -49,6 +50,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import net.miginfocom.layout.LC;
@@ -62,6 +64,11 @@ public class SkylinePanel extends JPanelBase {
 
   private static final String PREFIX = "skyline.";
 
+  // Skyline mass analyzer display names (subset of Skyline's TransitionFullScan.MASS_ANALYZERS)
+  static final String ANALYZER_CENTROIDED = "Centroided";
+  static final String ANALYZER_QIT = "QIT";
+  static final String[] MASS_ANALYZERS = {ANALYZER_CENTROIDED, ANALYZER_QIT};
+
   private JCheckBox checkRun;
   private JPanel pContent;
   private JPanel pTop;
@@ -71,8 +78,14 @@ public class SkylinePanel extends JPanelBase {
   private UiRadio uiRadioSkylineCustom;
   private UiText uiTextSkylineCustom;
   private UiCombo uiComboModsMode;
-  private UiSpinnerInt uiSpinnerPrecursorTolerance;
-  private UiSpinnerInt uiSpinnerFragmentTolerance;
+  private UiCombo uiComboPrecursorMassAnalyzer;
+  private UiCombo uiComboProductMassAnalyzer;
+  private UiSpinnerDouble uiSpinnerPrecursorTolerance;
+  private UiSpinnerDouble uiSpinnerFragmentTolerance;
+  private JLabel labelPrecursorTolerance;
+  private JLabel labelFragmentTolerance;
+  private JLabel labelPrecursorTolUnit;
+  private JLabel labelFragmentTolUnit;
   private UiSpinnerDouble uiSpinnerRtTolerance;
   private UiSpinnerInt uiSpinnerLibraryProductIons;
   private UiCheck uiCheckGenerateSkylineQuantReport;
@@ -180,11 +193,40 @@ public class SkylinePanel extends JPanelBase {
         + "If O-glyco, uses O-Pair glycan database instead of mass offsets list.<br>"
         + "If N-glyco, uses Glycan Composition Assignment glycan database instead of mass offsets list.");
 
-    uiSpinnerPrecursorTolerance = new UiSpinnerInt(10, 1, 1000, 1);
-    FormEntry fePrecursorTolerance = new FormEntry("skyline-precursor-tolerance", "Precursor tolerance (ppm)", uiSpinnerPrecursorTolerance, "Precursor tolerance in ppm");
+    String analyzerTooltip = "Mass analyzer used for the full-scan filter.<br>"
+        + "Centroided: mass accuracy in ppm (1-1000).<br>"
+        + "QIT: resolution in m/z (0.1-2.0).";
+    String resolutionTooltip = "Resolution / mass accuracy for the selected mass analyzer.<br>"
+        + "Centroided uses ppm, QIT uses m/z.";
 
-    uiSpinnerFragmentTolerance = new UiSpinnerInt(10, 1, 1000, 1);
-    FormEntry feFragmentTolerance = new FormEntry("skyline-fragment-tolerance", "Fragment tolerance (ppm)", uiSpinnerFragmentTolerance, "Fragment tolerance in ppm");
+    uiComboPrecursorMassAnalyzer = UiUtils.createUiCombo(MASS_ANALYZERS);
+    uiComboPrecursorMassAnalyzer.setSelectedItem(ANALYZER_CENTROIDED);
+    FormEntry fePrecursorMassAnalyzer = new FormEntry("skyline-precursor-mass-analyzer", "Precursor mass analyzer", uiComboPrecursorMassAnalyzer, analyzerTooltip);
+
+    uiSpinnerPrecursorTolerance = UiUtils.spinnerDouble(10, 0.1, 1000, 1).setCols(8).setFormat("#.####").create();
+    FormEntry fePrecursorTolerance = new FormEntry("skyline-precursor-tolerance", "Resolution", uiSpinnerPrecursorTolerance, resolutionTooltip);
+    labelPrecursorTolerance = fePrecursorTolerance.label();
+    labelPrecursorTolUnit = new JLabel("ppm");
+
+    uiComboProductMassAnalyzer = UiUtils.createUiCombo(MASS_ANALYZERS);
+    uiComboProductMassAnalyzer.setSelectedItem(ANALYZER_CENTROIDED);
+    FormEntry feProductMassAnalyzer = new FormEntry("skyline-product-mass-analyzer", "Product mass analyzer", uiComboProductMassAnalyzer, analyzerTooltip);
+
+    uiSpinnerFragmentTolerance = UiUtils.spinnerDouble(10, 0.1, 1000, 1).setCols(8).setFormat("#.####").create();
+    FormEntry feFragmentTolerance = new FormEntry("skyline-fragment-tolerance", "Resolution", uiSpinnerFragmentTolerance, resolutionTooltip);
+    labelFragmentTolerance = feFragmentTolerance.label();
+    labelFragmentTolUnit = new JLabel("ppm");
+
+    uiComboPrecursorMassAnalyzer.addItemListener(e -> {
+      if (e.getStateChange() == ItemEvent.SELECTED) {
+        applyMassAnalyzerSelection((String) e.getItem(), uiSpinnerPrecursorTolerance, labelPrecursorTolerance, labelPrecursorTolUnit);
+      }
+    });
+    uiComboProductMassAnalyzer.addItemListener(e -> {
+      if (e.getStateChange() == ItemEvent.SELECTED) {
+        applyMassAnalyzerSelection((String) e.getItem(), uiSpinnerFragmentTolerance, labelFragmentTolerance, labelFragmentTolUnit);
+      }
+    });
 
     uiSpinnerRtTolerance = UiUtils.spinnerDouble(2.0, 0.1, 600.0, 0.1).setCols(5).setFormat("#.##").create();
     FormEntry feRtTolerance = new FormEntry("skyline-rt-tolerance", "RT tolerance (min)", uiSpinnerRtTolerance, "Retention time tolerance in minutes");
@@ -198,11 +240,17 @@ public class SkylinePanel extends JPanelBase {
     mu.add(panelBasic, feSkylineCustom.comp).growX().pushX();
     mu.add(panelBasic, jButtonSkylineCustom).wrap();
 
-    mu.add(panelBasic, fePrecursorTolerance.label(), mu.ccL()).split(2);
+    mu.add(panelBasic, fePrecursorMassAnalyzer.label(), mu.ccL()).split(2);
+    mu.add(panelBasic, fePrecursorMassAnalyzer.comp);
+    mu.add(panelBasic, labelPrecursorTolerance, mu.ccL()).split(3);
     mu.add(panelBasic, fePrecursorTolerance.comp);
+    mu.add(panelBasic, labelPrecursorTolUnit).wrap();
 
-    mu.add(panelBasic, feFragmentTolerance.label(), mu.ccL()).split(2);
+    mu.add(panelBasic, feProductMassAnalyzer.label(), mu.ccL()).split(2);
+    mu.add(panelBasic, feProductMassAnalyzer.comp);
+    mu.add(panelBasic, labelFragmentTolerance, mu.ccL()).split(3);
     mu.add(panelBasic, feFragmentTolerance.comp);
+    mu.add(panelBasic, labelFragmentTolUnit).wrap();
 
     mu.add(panelBasic, feRtTolerance.label(), mu.ccL()).split(2);
     mu.add(panelBasic, feRtTolerance.comp).wrap();
@@ -212,6 +260,10 @@ public class SkylinePanel extends JPanelBase {
 
     mu.add(panelBasic, feComboModsMode.label(), mu.ccL()).split(2);
     mu.add(panelBasic, feComboModsMode.comp).wrap();
+
+    // initialize labels and spinner ranges to match the default selection
+    applyMassAnalyzerSelection(ANALYZER_CENTROIDED, uiSpinnerPrecursorTolerance, labelPrecursorTolerance, labelPrecursorTolUnit);
+    applyMassAnalyzerSelection(ANALYZER_CENTROIDED, uiSpinnerFragmentTolerance, labelFragmentTolerance, labelFragmentTolUnit);
 
     updateEnabledStatus(feSkylineCustom.comp, uiRadioSkylineCustom.isSelected());
     updateEnabledStatus(jButtonSkylineCustom, uiRadioSkylineCustom.isSelected());
@@ -363,16 +415,54 @@ public class SkylinePanel extends JPanelBase {
     return uiComboModsMode.getSelectedIndex();
   }
 
-  public int getPrecursorTolerance() {
+  public double getPrecursorTolerance() {
     return uiSpinnerPrecursorTolerance.getActualValue();
   }
 
-  public int getFragmentTolerance() {
+  public double getFragmentTolerance() {
     return uiSpinnerFragmentTolerance.getActualValue();
+  }
+
+  public String getPrecursorMassAnalyzer() {
+    return (String) uiComboPrecursorMassAnalyzer.getSelectedItem();
+  }
+
+  public String getProductMassAnalyzer() {
+    return (String) uiComboProductMassAnalyzer.getSelectedItem();
   }
 
   public double getRtTolerance() {
     return uiSpinnerRtTolerance.getActualValue();
+  }
+
+  /**
+   * Adapt the spinner range/default value, label text, and unit suffix to match the selected
+   * Skyline mass analyzer. Resolution units per Skyline's TransitionFullScan:
+   *   Centroided -> ppm (1-1000, default 10)
+   *   QIT        -> m/z (0.1-2.0, default 0.7)
+   */
+  static void applyMassAnalyzerSelection(String analyzer, UiSpinnerDouble resSpinner, JLabel resLabel, JLabel unitLabel) {
+    SpinnerNumberModel model = (SpinnerNumberModel) resSpinner.getModel();
+    double current = ((Number) resSpinner.getValue()).doubleValue();
+    if (ANALYZER_QIT.equals(analyzer)) {
+      resLabel.setText("Resolution");
+      unitLabel.setText("m/z");
+      model.setMinimum(0.1);
+      model.setMaximum(2.0);
+      model.setStepSize(0.1);
+      if (current < 0.1 || current > 2.0) {
+        resSpinner.setValue(0.7);
+      }
+    } else {
+      resLabel.setText("Mass accuracy");
+      unitLabel.setText("ppm");
+      model.setMinimum(1.0);
+      model.setMaximum(1000.0);
+      model.setStepSize(1.0);
+      if (current < 1 || current > 1000) {
+        resSpinner.setValue(10.0);
+      }
+    }
   }
 
   public int getLibraryProductIons() {

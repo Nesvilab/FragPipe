@@ -96,14 +96,28 @@ public class Skyline {
   public static void main(String[] args) {
     Locale.setDefault(Locale.US);
     try {
-      runSkyline(args[0], Paths.get(args[1]), args[2], Integer.parseInt(args[3]), Integer.parseInt(args[4]), Integer.parseInt(args[5]), Double.parseDouble(args[6]), Integer.parseInt(args[7]), Boolean.parseBoolean(args[8]));
+      runSkyline(
+          args[0],
+          Paths.get(args[1]),
+          args[2],
+          Integer.parseInt(args[3]),
+          args[4],
+          Double.parseDouble(args[5]),
+          args[6],
+          Double.parseDouble(args[7]),
+          Double.parseDouble(args[8]),
+          Integer.parseInt(args[9]),
+          Boolean.parseBoolean(args[10]));
     } catch (Exception e) {
       e.printStackTrace();
       System.exit(1);
     }
   }
 
-  private static void runSkyline(String skylinePath, Path wd, String skylineVersion, int modsMode, int precursorTolerance, int fragmentTolerance, double rtTolerance, int libraryProductIons, boolean runSkylineQuant) throws Exception {
+  private static void runSkyline(String skylinePath, Path wd, String skylineVersion, int modsMode,
+      String precursorMassAnalyzer, double precursorTolerance,
+      String productMassAnalyzer, double fragmentTolerance,
+      double rtTolerance, int libraryProductIons, boolean runSkylineQuant) throws Exception {
     if (skylinePath == null || skylinePath.isEmpty()) {
       throw new RuntimeException("Cannot find the Skyline executable file.");
     } else {
@@ -250,21 +264,29 @@ public class Skyline {
       writer.write("--tran-product-start-ion=\"ion 3\" ");
       writer.write("--tran-product-end-ion=\"last ion\" ");
       writer.write("--tran-product-clear-special-ions ");
-      writer.write("--library-match-tolerance=" + fragmentTolerance + "ppm ");
+      // Skyline's --library-match-tolerance accepts either ppm or mz units; pick the one
+      // that matches the product analyzer so the user's resolution value is honored.
+      String libraryMatchUnit = "QIT".equalsIgnoreCase(productMassAnalyzer) ? "mz" : "ppm";
+      writer.write("--library-match-tolerance=" + fragmentTolerance + libraryMatchUnit + " ");
       writer.write("--library-product-ions=" + libraryProductIons + " ");
       writer.write("--library-min-product-ions=1 ");
       writer.write("--library-pick-product-ions=filter ");
-      writer.write("--full-scan-precursor-analyzer=centroided ");
+      writer.write("--full-scan-precursor-analyzer=" + toAnalyzerArg(precursorMassAnalyzer) + " ");
       writer.write("--full-scan-precursor-isotopes=Count ");
-      writer.write("--full-scan-precursor-threshold=3 ");
-      writer.write("--full-scan-product-analyzer=centroided ");
+      // QIT supports only a single isotope peak for MS1 filtering; other analyzers default to 3.
+      int precursorIsotopeCount = "QIT".equalsIgnoreCase(precursorMassAnalyzer) ? 1 : 3;
+      writer.write("--full-scan-precursor-threshold=" + precursorIsotopeCount + " ");
+      writer.write("--full-scan-product-analyzer=" + toAnalyzerArg(productMassAnalyzer) + " ");
+      // --full-scan-precursor-res / --full-scan-product-res carries the resolution value for every analyzer
+      // (ppm for centroided, m/z for QIT, resolving power for orbitrap/FT). The *-res-mz variants are only
+      // meaningful for orbitrap/FT-ICR (m/z at which resolving power is measured) and Skyline rejects them
+      // without the matching *-res argument.
       writer.write("--full-scan-precursor-res=" + precursorTolerance + " ");
       writer.write("--full-scan-product-res=" + fragmentTolerance + " ");
       writer.write("--full-scan-rt-filter=ms2_ids ");
       writer.write("--full-scan-rt-filter-tolerance=" + rtTolerance + " ");
       writer.write("--instrument-min-mz=50 ");
       writer.write("--instrument-max-mz=2000 ");
-      writer.write("--full-scan-precursor-isotopes=Count ");
 
       if (dataType.contentEquals("DIA")) {
         writer.write("--full-scan-isolation-scheme=\"Results only\" ");
@@ -334,6 +356,17 @@ public class Skyline {
         }
       }
     }
+  }
+
+  /**
+   * Map the UI display name ("Centroided" / "QIT") to the value Skyline's command line accepts
+   * (FullScanMassAnalyzerType enum names: centroided, qit).
+   */
+  private static String toAnalyzerArg(String displayName) {
+    if ("QIT".equalsIgnoreCase(displayName)) {
+      return "qit";
+    }
+    return "centroided";
   }
 
   private static void redirectOutputToConsole(InputStream inputStream) {

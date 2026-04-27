@@ -65,8 +65,10 @@ public class CmdSkyline extends CmdBase {
       Path jarFragpipe,
       int ramGb,
       int modsMode,
-      int precursorTolerance,
-      int fragmentTolerance,
+      String precursorMassAnalyzer,
+      double precursorTolerance,
+      String productMassAnalyzer,
+      double fragmentTolerance,
       double rtTolerance,
       int libraryProductIons,
       boolean runSkylineQuant,
@@ -117,7 +119,9 @@ public class CmdSkyline extends CmdBase {
       cmd.add(wd.toAbsolutePath().normalize().toString());
       cmd.add(skylineVersion);
       cmd.add(String.valueOf(modsMode));
+      cmd.add(precursorMassAnalyzer);
       cmd.add(String.valueOf(precursorTolerance));
+      cmd.add(productMassAnalyzer);
       cmd.add(String.valueOf(fragmentTolerance));
       cmd.add(String.valueOf(rtTolerance));
       cmd.add(String.valueOf(libraryProductIons));
