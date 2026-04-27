@@ -73,6 +73,7 @@ public class CmdSkyline extends CmdBase {
       int libraryProductIons,
       boolean runSkylineQuant,
       boolean skipSkylineDocumentGeneration,
+      boolean runFragReporter,
       String modTag,
       float siteProb,
       float qValue,
@@ -149,30 +150,32 @@ public class CmdSkyline extends CmdBase {
       pb2.directory(wd.resolve("skyline_files").toFile());
       pbis.add(new PbiBuilder().setPb(pb2).setName(getCmdName() + " export quant result").create());
 
-      List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Stream.of(CmdDiann.FRAG_REPORTER));
-      if (classpathJars == null) {
-        System.err.println("Could not find " + CmdDiann.FRAG_REPORTER);
-      } else {
-        List<String> cmd2 = new ArrayList<>();
-        cmd2.add(Fragpipe.getBinJava());
-        cmd2.add("-Xmx" + ramGb + "G");
-        cmd2.add("-jar");
-        cmd2.add(constructClasspathString(classpathJars));
-        cmd2.add("--pr");
-        cmd2.add(wd.resolve("skyline_files").resolve("fragpipe_skyline_quant.csv").toAbsolutePath().normalize().toString());
-        cmd2.add("--exp-ann");
-        cmd2.add(wd.resolve("fragpipe-files" + manifestExt).toAbsolutePath().normalize().toString());
-        cmd2.add("--out-dir");
-        cmd2.add(wd.resolve("skyline_files").toAbsolutePath().normalize().toString());
-        cmd2.add("--qvalue");
-        cmd2.add(String.valueOf(qValue));
-        cmd2.add("--mod-tag");
-        cmd2.add(modTag);
-        cmd2.add("--min-site-prob");
-        cmd2.add(String.valueOf(siteProb));
-        ProcessBuilder pb = new ProcessBuilder(cmd2);
-        pb.directory(wd.resolve("skyline_files").toFile());
-        pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + " generate site reports").create());
+      if (runFragReporter) {
+        List<Path> classpathJars = FragpipeLocations.checkToolsMissing(Stream.of(CmdDiann.FRAG_REPORTER));
+        if (classpathJars == null) {
+          System.err.println("Could not find " + CmdDiann.FRAG_REPORTER);
+        } else {
+          List<String> cmd2 = new ArrayList<>();
+          cmd2.add(Fragpipe.getBinJava());
+          cmd2.add("-Xmx" + ramGb + "G");
+          cmd2.add("-jar");
+          cmd2.add(constructClasspathString(classpathJars));
+          cmd2.add("--pr");
+          cmd2.add(wd.resolve("skyline_files").resolve("fragpipe_skyline_quant.csv").toAbsolutePath().normalize().toString());
+          cmd2.add("--exp-ann");
+          cmd2.add(wd.resolve("fragpipe-files" + manifestExt).toAbsolutePath().normalize().toString());
+          cmd2.add("--out-dir");
+          cmd2.add(wd.resolve("skyline_files").toAbsolutePath().normalize().toString());
+          cmd2.add("--qvalue");
+          cmd2.add(String.valueOf(qValue));
+          cmd2.add("--mod-tag");
+          cmd2.add(modTag);
+          cmd2.add("--min-site-prob");
+          cmd2.add(String.valueOf(siteProb));
+          ProcessBuilder pb = new ProcessBuilder(cmd2);
+          pb.directory(wd.resolve("skyline_files").toFile());
+          pbis.add(new PbiBuilder().setPb(pb).setName(getCmdName() + " generate site reports").create());
+        }
       }
 
       if (!isDryRun) {

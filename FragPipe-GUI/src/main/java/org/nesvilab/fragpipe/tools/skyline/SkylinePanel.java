@@ -90,6 +90,7 @@ public class SkylinePanel extends JPanelBase {
   private UiSpinnerInt uiSpinnerLibraryProductIons;
   private UiCheck uiCheckGenerateSkylineQuantReport;
   private UiCheck uiCheckSkipSkylineDocumentGeneration;
+  private UiCheck uiCheckRunFragReporter;
   private JPanel panelSkylineQuant;
   private UiText uiTextModTag;
   private UiSpinnerDouble uiSpinnerSiteProb;
@@ -297,7 +298,8 @@ public class SkylinePanel extends JPanelBase {
     mu.border(panelFragReporter, 1);
     mu.border(panelFragReporter, "Reports");
 
-    JLabel noteLabel2 = new JLabel("Run FragReporter to generate additional reports:");
+    uiCheckRunFragReporter = UiUtils.createUiCheck("Run FragReporter to generate additional reports", true);
+    uiCheckRunFragReporter.setName("run-fragreporter");
 
     uiTextModTag = UiUtils.uiTextBuilder().cols(40).create();
     FormEntry feModTag = new FormEntry("mod-tag", "Mod tag", uiTextModTag, "<html>Modification tag for generating modification-specific reports <br/>\n"
@@ -307,11 +309,24 @@ public class SkylinePanel extends JPanelBase {
     uiSpinnerSiteProb = UiUtils.spinnerDouble(0.75, 0, 1, 0.01).setCols(5).setFormat("#.###").create();
     FormEntry feSiteProb = mu.feb(uiSpinnerSiteProb).name("min-site-prob").label("Min site probability").tooltip("Site localization confidence threshold").create();
 
-    mu.add(panelFragReporter, noteLabel2).wrap();
+    mu.add(panelFragReporter, uiCheckRunFragReporter).wrap();
     mu.add(panelFragReporter, feModTag.label(), mu.ccL()).split(2);
     mu.add(panelFragReporter, feModTag.comp).growX();
     mu.add(panelFragReporter, feSiteProb.label()).split(2);
     mu.add(panelFragReporter, feSiteProb.comp, mu.ccL());
+
+    updateEnabledStatus(feModTag.label(), uiCheckRunFragReporter.isSelected());
+    updateEnabledStatus(feModTag.comp, uiCheckRunFragReporter.isSelected());
+    updateEnabledStatus(feSiteProb.label(), uiCheckRunFragReporter.isSelected());
+    updateEnabledStatus(feSiteProb.comp, uiCheckRunFragReporter.isSelected());
+
+    uiCheckRunFragReporter.addItemListener(e -> {
+      boolean selected = SwingUtils.isEnabledAndChecked(uiCheckRunFragReporter);
+      updateEnabledStatus(feModTag.label(), selected);
+      updateEnabledStatus(feModTag.comp, selected);
+      updateEnabledStatus(feSiteProb.label(), selected);
+      updateEnabledStatus(feSiteProb.comp, selected);
+    });
 
     mu.add(panelQuantOptions, uiCheckSkipSkylineDocumentGeneration).wrap();
     mu.add(panelQuantOptions, feFdr.label()).split(2);
@@ -475,6 +490,10 @@ public class SkylinePanel extends JPanelBase {
 
   public boolean isSkipSkylineDocumentGeneration() {
     return SwingUtils.isEnabledAndChecked(uiCheckSkipSkylineDocumentGeneration);
+  }
+
+  public boolean isRunFragReporter() {
+    return SwingUtils.isEnabledAndChecked(uiCheckRunFragReporter);
   }
 
   public String getModTag() {

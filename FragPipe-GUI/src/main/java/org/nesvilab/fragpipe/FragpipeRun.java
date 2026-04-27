@@ -2457,6 +2457,7 @@ public class FragpipeRun {
             skylinePanel.getLibraryProductIons(),
             skylinePanel.isRunSkylineQuant(),
             skylinePanel.isSkipSkylineDocumentGeneration(),
+            skylinePanel.isRunFragReporter(),
             skylinePanel.getModTag(),
             skylinePanel.getSiteProb(),
             skylinePanel.getFdr(),
