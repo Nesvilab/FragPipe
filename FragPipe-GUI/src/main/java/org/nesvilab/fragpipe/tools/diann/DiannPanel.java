@@ -238,8 +238,8 @@ public class DiannPanel extends JPanelBase {
     uiCheckUnrelatedRuns = UiUtils.createUiCheck("Unrelated runs", false);
     FormEntry feUnrelatedRuns = new FormEntry("unrelated-runs", "Unrelated runs", uiCheckUnrelatedRuns, "Different runs will be treated as unrelated, i.e. mass accuracy (when automatic) will be determined separately, as well as the retention time scan window.");
 
-    uiCheckDiannNormalizeIntensity = UiUtils.createUiCheck("Normalize intensity across runs", true);
-    FormEntry feDiannNormalizeIntensity = new FormEntry("diann-normalize-intensity", "Normalize intensity across runs", uiCheckDiannNormalizeIntensity, "");
+    uiCheckDiannNormalizeIntensity = UiUtils.createUiCheck("DIA-NN normalize intensity across runs", true);
+    FormEntry feDiannNormalizeIntensity = new FormEntry("diann-normalize-intensity", "Normalize intensity across runs performed by DIA-NN", uiCheckDiannNormalizeIntensity, "");
 
     uiCheckMbr = UiUtils.createUiCheck("MBR", false);
     FormEntry feMbr = new FormEntry("mbr", "MBR", uiCheckMbr, "Enable DIA-NN's MBR functionality. Only used when the input spectral library is from prediction of whole proteome.");
