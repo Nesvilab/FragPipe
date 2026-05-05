@@ -350,13 +350,22 @@ public class GlycoMassLoader {
      * @return detailed offset string to put to the MSFragger tab
      */
     public String getGlycanDetailedOffsets() {
-        String defaultOx = "204.086646,186.076086,168.065526,366.139466,144.0656,138.055";
-
         // load oxo DB
         final Path dirTools = FragpipeLocations.get().getDirTools();
         Path glycanDBfolder = Paths.get(dirTools.toString(), TabGlyco.glycanDBfolder);
         String defaultOxoPath = glycanDBfolder.resolve("oxonium_ion_list.txt").toString();
         HashMap<GlycanResidue, ArrayList<GlycanFragment>> oxoniumDatabase = GlycanParser.parseOxoDB(defaultOxoPath, glycanResidues, new Random());
+
+        // generate default oxonium list from non-diagnostic oxoniums (i.e., those that are common to most glycans rather than specific to a certain residue)
+        StringBuilder defaultOxoBuilder = new StringBuilder();
+        for (ArrayList<GlycanFragment> oxoniums : oxoniumDatabase.values()) {
+            for (GlycanFragment oxonium : oxoniums) {
+                if (!oxonium.isDiagnostic) {
+                    defaultOxoBuilder.append(String.format("%.5f,", oxonium.neutralMass + PROTON_MASS));
+                }
+            }
+        }
+        String defaultOx = defaultOxoBuilder.toString();
 
         List<String> offsetStrings = new ArrayList<>();
         offsetStrings.add("0.0000(aa=)");       // include zero offset
@@ -384,11 +393,13 @@ public class GlycoMassLoader {
                 List<String> diagIonStrs = new ArrayList<>();
                 for (GlycanResidue oxoRes : oxoniumDatabase.keySet()) {
                     if (glycan.composition.containsKey(oxoRes)) {
-                        // append the specific diagnostic ion(s) for this residue
-                        foundSpecificOxoniums = true;
                         for (GlycanFragment fragment : oxoniumDatabase.get(oxoRes)) {
-                            BigDecimal diagDecimal = new BigDecimal(fragment.neutralMass + PROTON_MASS).setScale(10, RoundingMode.HALF_EVEN).stripTrailingZeros();
-                            diagIonStrs.add(diagDecimal.toPlainString());
+                            if (fragment.isDiagnostic) {
+                                // append the specific diagnostic ion(s) for this residue
+                                foundSpecificOxoniums = true;
+                                BigDecimal diagDecimal = new BigDecimal(fragment.neutralMass + PROTON_MASS).setScale(10, RoundingMode.HALF_EVEN).stripTrailingZeros();
+                                diagIonStrs.add(diagDecimal.toPlainString());
+                            }
                         }
                     }
                 }

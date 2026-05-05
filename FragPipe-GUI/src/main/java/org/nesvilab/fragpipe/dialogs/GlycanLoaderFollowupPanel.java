@@ -97,7 +97,7 @@ public class GlycanLoaderFollowupPanel extends JPanelWithEnablement {
                 .label("Allowed Sites").tooltip("Residues where glycan attachment is allowed.").create();
         uiSpinnerDoubleMaxYMass = new UiSpinnerDouble(900, 0, 10000, 100, 0, new DecimalFormat("0"));
         FormEntry feMaxYMass = Fragpipe.feNoCache(uiSpinnerDoubleMaxYMass, "Max Y mass", Fragpipe.PROP_NOCACHE)
-                .label("Max Y mass").tooltip("Maximum Y-ion mass to consider when matching glycan fragments during MSFragger only (all Y ions are considered during downstream composition assignment). Large values (>1000) here will generally reduce search speed and sensitivity.").create();
+                .label("Max Y-ion mass").tooltip("Maximum Y-ion mass to consider when matching glycan fragments during MSFragger only (all Y ions are considered during downstream composition assignment). Large values (>1000) here will generally reduce search speed and sensitivity.").create();
         JRadioButton fragmentRadioButton0 = new JRadioButton("0");
         JRadioButton fragmentRadioButton203 = new JRadioButton("203.07937");
         ButtonGroup fragMassGroup = new ButtonGroup();
