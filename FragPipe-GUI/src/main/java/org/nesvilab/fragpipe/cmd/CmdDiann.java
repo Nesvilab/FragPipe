@@ -457,7 +457,7 @@ public class CmdDiann extends CmdBase {
         }
         ProcessBuilder pb2 = new ProcessBuilder(cmd2);
         pb2.directory(groupWd.toFile());
-        pbis.add(new PbiBuilder().setPb(pb2).setName(getCmdName() + " plot DIA-NN output").create());
+        pbis.add(new PbiBuilder().setPb(pb2).setName(getCmdName() + " plot DIA-NN output").setIgnoreNonZeroExit(true).create());
       }
 
       Path speclibForSkyline = wd.resolve("dia-quant-output").resolve("report-tsv.speclib");

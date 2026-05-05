@@ -27,6 +27,7 @@ public class PbiBuilder {
   private String fnStdOut;
   private String fnStdErr;
   private String parallelGroup;
+  private boolean ignoreNonZeroExit;
 
   public PbiBuilder setPb(ProcessBuilder pb) {
     this.pb = pb;
@@ -53,8 +54,13 @@ public class PbiBuilder {
     return this;
   }
 
+  public PbiBuilder setIgnoreNonZeroExit(boolean ignoreNonZeroExit) {
+    this.ignoreNonZeroExit = ignoreNonZeroExit;
+    return this;
+  }
+
   public ProcessBuilderInfo create() {
-    return new ProcessBuilderInfo(pb, name, fnStdOut, fnStdErr, parallelGroup);
+    return new ProcessBuilderInfo(pb, name, fnStdOut, fnStdErr, parallelGroup, ignoreNonZeroExit);
   }
 
   public static List<ProcessBuilderInfo> from(List<ProcessBuilder> pbs) {

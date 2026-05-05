@@ -58,15 +58,22 @@ public class ProcessBuilderInfo {
   public final String fnStdout;
   public final String fnStderr;
   public final String parallelGroup;
+  public final boolean ignoreNonZeroExit;
   public static final String GROUP_SEQUENTIAL = "SEQUENTIAL EXECUTION";
 
   public ProcessBuilderInfo(ProcessBuilder pb, String name, String fnStdout,
       String fnStderr, String parallelGroup) {
+    this(pb, name, fnStdout, fnStderr, parallelGroup, false);
+  }
+
+  public ProcessBuilderInfo(ProcessBuilder pb, String name, String fnStdout,
+      String fnStderr, String parallelGroup, boolean ignoreNonZeroExit) {
     this.pb = pb;
     this.name = name;
     this.fnStdout = fnStdout;
     this.fnStderr = fnStderr;
     this.parallelGroup = parallelGroup;
+    this.ignoreNonZeroExit = ignoreNonZeroExit;
   }
 
   public static List<String> getMaskedCommand(List<String> command) {
@@ -264,6 +271,10 @@ public class ProcessBuilderInfo {
             String msg = String.format(Locale.ROOT, "Process '%s' finished, exit code: %d\n", pbi.name, exitValue);
             toConsole(c, msg, false, console);
             if (exitValue != 0) {
+              if (pbi.ignoreNonZeroExit) {
+                toConsole(Fragpipe.COLOR_RED, "WARNING: Process '" + pbi.name + "' returned non-zero exit code (" + exitValue + "), but is non-fatal. Continuing.", true, console);
+                break;
+              }
               log.debug("Exit value not zero, killing all processes");
               toConsole(Fragpipe.COLOR_RED, "Process returned non-zero exit code, stopping", true, console);
               Bus.post(new MessageKillAll(REASON.NON_ZERO_RETURN_FROM_PROCESS, console));
