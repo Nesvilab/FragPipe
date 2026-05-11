@@ -2217,12 +2217,13 @@ public class FragpipeRun {
         return cmdPtmshepherd.configure(parent,
                 isDryRun,
                 extLibsThermo,
+                extLibsBruker,
                 ramGb,
                 fastaPath,
                 sharedMapGroupsToProtxml,
                 additionalShepherdParams,
-                jarPath,
-                Paths.get(binIonQuant.getBin()));
+                Paths.get(binIonQuant.getBin()),
+                sharedLcmsFiles);
       }
       return true;
     });

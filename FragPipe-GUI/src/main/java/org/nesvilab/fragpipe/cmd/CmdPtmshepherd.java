@@ -36,12 +36,15 @@ import org.jooq.lambda.Seq;
 import org.nesvilab.fragpipe.Fragpipe;
 import org.nesvilab.fragpipe.FragpipeLocations;
 import org.nesvilab.fragpipe.Version;
+import org.nesvilab.fragpipe.api.InputLcmsFile;
 import org.nesvilab.fragpipe.api.LcmsFileGroup;
 import org.nesvilab.fragpipe.tools.ptmshepherd.PtmshepherdParams;
 import org.nesvilab.utils.OsUtils;
 import org.nesvilab.utils.SwingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.nesvilab.fragpipe.cmd.CmdPairScans.checkCompatibleFormats;
 
 
 public class CmdPtmshepherd extends CmdBase {
@@ -55,6 +58,7 @@ public class CmdPtmshepherd extends CmdBase {
   public static final String[] JAR_DEPS = {ToolingUtils.BATMASS_IO_JAR, ToolingUtils.JFREECHART_JAR, "commons-math3-3.6.1.jar", "hipparchus-1.8/hipparchus-core-1.8.jar", "hipparchus-1.8/hipparchus-stat-1.8.jar"};
   public static final List<String> SUPPORTED_FORMATS = Arrays.asList("mzML", "mzXML");
   private static final String THERMO_RAW_EXT = "RAW";
+  private static final String BRUKER_RAW_EXT = "d";
 
   public CmdPtmshepherd(boolean isRun, Path workDir) {
     super(isRun, workDir);
@@ -68,18 +72,53 @@ public class CmdPtmshepherd extends CmdBase {
   public boolean configure(Component comp,
                            boolean isDryRun,
                            Path extLibsThermo,
+                           Path extLibsBruker,
                            int ramGb,
                            Path db,
                            Map<LcmsFileGroup, Path> mapGroupsToProtxml,
                            Map<String, String> additionalProps,
-                           Path jarFragpipe,
-                           Path binIonQuant) {
+                           Path binIonQuant,
+                           List<InputLcmsFile> lcmsFiles
+                           ) {
 
     initPreConfig();
 
+    // check vendor format input files vs provided reader libraries
     ArrayList<String> sup = new ArrayList<>(SUPPORTED_FORMATS);
     if (extLibsThermo != null) {
       sup.add(THERMO_RAW_EXT);
+    }
+    if (extLibsBruker != null) {
+      sup.add(BRUKER_RAW_EXT);
+    }
+    if (!checkCompatibleFormats(comp, lcmsFiles, sup)) {
+      return false;
+    }
+    String thermoLib = "";
+    if (extLibsThermo != null) {
+      thermoLib = createJavaDParamString("libs.thermo.dir", extLibsThermo.toString());
+    } else {
+      if (lcmsFiles.stream().anyMatch(f -> f.getPath().getFileName().toString().toLowerCase().endsWith(".raw"))) {
+        if (Fragpipe.headless) {
+          log.error("When processing .RAW files, PTM-Shepherd requires native Thermo libraries. Native libraries come with MSFragger zip download, contained in ext sub-directory.");
+        } else {
+          SwingUtils.showErrorDialog(comp, "When processing .RAW files, PTM-Shepherd requires native Thermo libraries. Native libraries come with MSFragger zip download, contained in ext sub-directory.", NAME + " error");
+        }
+        return false;
+      }
+    }
+    String brukerLib = "";
+    if (extLibsBruker != null) {
+      brukerLib = createJavaDParamString("libs.bruker.dir", extLibsBruker.toString());
+    } else {
+      if (lcmsFiles.stream().anyMatch(f -> f.getPath().getFileName().toString().toLowerCase().endsWith(".d"))) {
+        if (Fragpipe.headless) {
+          log.error("When processing .d files, PTM-Shepherd requires native Bruker libraries. Native libraries come with MSFragger zip download, contained in ext sub-directory.");
+        } else {
+          SwingUtils.showErrorDialog(comp, "When processing .d files, PTM-Shepherd requires native Bruker libraries. Native libraries come with MSFragger zip download, contained in ext sub-directory.", NAME + " error");
+        }
+        return false;
+      }
     }
 
     // check that each group only has lcms files in one directory
@@ -169,7 +208,10 @@ public class CmdPtmshepherd extends CmdBase {
     cmd.add(Fragpipe.getBinJava());
     cmd.add("-Xmx" + ramGb + "G");
     if (extLibsThermo != null) {
-      cmd.add(createJavaDParamString("libs.thermo.dir", extLibsThermo.toString()));
+      cmd.add(thermoLib);
+    }
+    if (extLibsBruker != null) {
+      cmd.add(brukerLib);
     }
     cmd.add("-cp");
     if (params.needsIonQuant()) {
