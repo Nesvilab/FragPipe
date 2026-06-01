@@ -1,6 +1,6 @@
 # Running FragPipe in command line interface (headless mode)
 
-__For most desktop users, we recommend running FragPipe in GUI mode ([https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html)). Users can also use FragPipe on remote server with X forwarding ([https://fragpipe.nesvilab.org/docs/tutorial_setup_x_forwarding.html](https://fragpipe.nesvilab.org/docs/tutorial_setup_x_forwarding.html)).__
+__For most desktop users, we recommend running FragPipe in GUI mode ([https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html](./tutorial_fragpipe)). Users can also use FragPipe on remote server with X forwarding ([https://fragpipe.nesvilab.org/docs/tutorial_setup_x_forwarding.html](./tutorial_setup_x_forwarding)).__
 
 To run FragPipe in command line interface, using `fragpipe` (Linux) or `fragpipe.bat` (Windows) in `fragpipe/bin` directory with the following commands:
 
@@ -42,6 +42,6 @@ __Note: There must be only one annotation file in each folder.__
 
 To export the workflow and manifest files, running FragPipe GUI, set the parameters, save the workflow to custom folder, and save the manifest file. These two files can also be edited by any text editor.
 
-<img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/headless.jpg" width="1000px"/>
+<img src="../images/headless.jpg" width="1000px"/>
 
 

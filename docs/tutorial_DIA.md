@@ -1,22 +1,22 @@
 ## Analyzing DIA data
 
-##### [FragPipe](https://fragpipe.nesvilab.org) can be downloaded [here](https://github.com/Nesvilab/FragPipe/releases). Follow the instructions on that same Releases page to launch the program. See [here](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html#configure-fragpipe) for help configuring FragPipe.
+##### [FragPipe](https://fragpipe.nesvilab.org) can be downloaded [here](https://github.com/Nesvilab/FragPipe/releases). Follow the instructions on that same Releases page to launch the program. See [here](./tutorial_fragpipe#configure-fragpipe) for help configuring FragPipe.
 
 FragPipe currently offers two workflows for DIA data:
 
-1) [**DIA_SpecLib_Quant**](https://fragpipe.nesvilab.org/docs/tutorial_DIA.html#dia_speclib_quant) - takes DIA data (plus optional DDA data) as input, builds a spectral library using MSFragger-DIA, then quantifies with DIA-NN
+1) [**DIA_SpecLib_Quant**](./tutorial_DIA#dia_speclib_quant) - takes DIA data (plus optional DDA data) as input, builds a spectral library using MSFragger-DIA, then quantifies with DIA-NN
 
-2) [**DIA_DIA-Umpire_SpecLib_Quant**](https://fragpipe.nesvilab.org/docs/tutorial_DIA.html#dia_dia-umpire_speclib_quant) - takes DIA data (plus optional DDA data) as input, DIA-Umpire generates pseudo-MS/MS spectra from the DIA files (instead of direct search with MSFragger-DIA), then MSFragger in DDA mode is used to search, followed by quantification with DIA-NN
+2) [**DIA_DIA-Umpire_SpecLib_Quant**](./tutorial_DIA#dia_dia-umpire_speclib_quant) - takes DIA data (plus optional DDA data) as input, DIA-Umpire generates pseudo-MS/MS spectra from the DIA files (instead of direct search with MSFragger-DIA), then MSFragger in DDA mode is used to search, followed by quantification with DIA-NN
 
 
 Please note:
 
-* DIA data acquired with overlapping/staggered windows must be converted to mzML using the 'Demultiplex' filter, see [this page](https://fragpipe.nesvilab.org/docs/tutorial_convert.html#convert-thermo-dia-raw-files-with-staggered-windows). 
+* DIA data acquired with overlapping/staggered windows must be converted to mzML using the 'Demultiplex' filter, see [this page](./tutorial_convert#convert-thermo-dia-raw-files-with-staggered-windows). 
 * To quantify from .raw files, Thermo MS File Reader must be installed, see the [DIA-NN documentation](https://github.com/vdemichev/DiaNN#raw-data-formats) for details.
 * Any pseudo-MS/MS files from DIA-Umpire (`*_Q1.mzML`, `*_Q2.mzML`, `*_Q3.mzML`) should be designated DDA data type on the Workflow tab.
 * If you already have a spectral library and want to quantify only, uncheck all steps except 'Quantify with DIA-NN' on the 'Quant (DIA)' tab, set the path to the spectral library, and run.
 * If iRT peptides were spiked-in to the samples, change the 'RT calibration' option on the 'Spec Lib' tab to 'iRT'. EasyPQP will use the [ciRT](https://www.mcponline.org/article/S1535-9476(20)32633-5/fulltext) option by default.
-* Skyline users may also choose to import interact-.pep.xml files into Skyline for spectral library building and further analysis of DIA experiments, see this [tutorial](https://fragpipe.nesvilab.org/docs/tutorial_skyline.html).
+* Skyline users may also choose to import interact-.pep.xml files into Skyline for spectral library building and further analysis of DIA experiments, see this [tutorial](./tutorial_skyline).
  
 
 In this tutorial, We will analyse a subset of the dataset published in [Integrated Proteogenomic Characterization of Clear Cell Renal Cell Carcinoma](https://doi.org/10.1016/j.cell.2019.10.007). In the original studies, researchers from the CPTAC (Clinical Proteomic Tumor Analysis Consortium) profiled tumor (T) samples, together with normal adjacent tissue (NAT) samples from each cancer patient, to understand the tumorigenesis of ccRCC. 110 tumor and 83 NAT samples were
@@ -26,24 +26,24 @@ Here, we will use just 10 DIA runs from 5 ccRCC patients, one tumor and one pair
 
 
 ### Configure FragPipe
-Python (with EasyPQP installed) is needed for spectral library generation. On the Config tab, check that a valid Python path is provided (Python version will be shown) and that EasyPQP is 'Available'. If Python is installed but EasyPQP is missing, click the 'Install/Upgrade EasyPQP' button and wait a minute or so for installation. For help installing Python, see [this page](https://fragpipe.nesvilab.org/docs/tutorial_setup_fragpipe.html#optional-install-update-or-use-an-already-installed-version-of-python).
+Python (with EasyPQP installed) is needed for spectral library generation. On the Config tab, check that a valid Python path is provided (Python version will be shown) and that EasyPQP is 'Available'. If Python is installed but EasyPQP is missing, click the 'Install/Upgrade EasyPQP' button and wait a minute or so for installation. For help installing Python, see [this page](./tutorial_setup_fragpipe#optional-install-update-or-use-an-already-installed-version-of-python).
 
 
 ### DIA_SpecLib_Quant
 1. In the Workflow tab, select the 'DIA_SpecLib_Quant' workflow from the dropdown menu and click 'Load'.
 2. Load DIA (and optionally additional DDA) spectral files in mzML or raw format. The data type of each file will be automatically **guessed** by FragPipe. The guess is based on the folder and file name. **Please double check the data type and adjust it if necessary.**
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/DIA-tutorial_SpecLib_Quant_workflow.jpg)
+![](../images/DIA-tutorial_SpecLib_Quant_workflow.jpg)
 
 
 3. On the Database tab, use 'Browse' to select the FASTA sequence database file.
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/DIA-tutorial_database.jpg)
+![](../images/DIA-tutorial_database.jpg)
 
 
 4. On the 'Quant (DIA)' tab, note that DIA-NN will be run unless unchecked. The spectral library generated by FragPipe will automatically be passed to DIA-NN for quantification of the DIA files provided.
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-diann.png)
+![](../images/share-diann.png)
 
 
 5. On the 'Run' tab, set the output directory and click 'Run'.
@@ -59,12 +59,12 @@ Follow the same steps as above to run the 'DIA_DIA-Umpire_SpecLib_Quant' workflo
 
  Please note that if DIA-Umpire fails or is interrupted, temporary files will cause issues if the process runs again. Make sure to delete any temporary files that are generated alongside the raw/mzML files before re-running FragPipe.
 
- ![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-diaumpire.png)
+ ![](../images/share-diaumpire.png)
 
 
 ### A more comprehensive tutorial from the [EMBO Practical Course: Targeted proteomics](https://meetings.embo.org/event/23-targeted-proteomics)
 
-The tutorial file can be found from [here](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/docs/Tutorial-5-DIA-Fragpipe.pdf). 
+The tutorial file can be found from [here](../docs/Tutorial-5-DIA-Fragpipe.pdf). 
 
 
 ### Key References

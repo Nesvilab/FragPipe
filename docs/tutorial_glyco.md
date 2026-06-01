@@ -7,40 +7,40 @@ a variety of capabilities and options. Glyco searches use the following tabs/too
 * PTM-Shepherd Glycan Composition Assignment: matches glycan mass to a single glycan composition with FDR control (not needed if using O-Pair)
 * O-Pair: deconvolutes and localizes O-glycans from electron-based activation MS2 scans
 
-There are several template glyco workflows (described in the [workflows](https://fragpipe.nesvilab.org/docs/tutorial_glyco.html#load-a-glyco-workflow) 
+There are several template glyco workflows (described in the [workflows](./tutorial_glyco#load-a-glyco-workflow) 
 section) for a variety of search types and instrument activation methods. This tutorial covers each step of the process starting
 from loading raw data to validation and quantation of the results.
 
-Glycoproteomics results can be viewed using the integrated FP-PDV viewer, Skyline, or directly from the psm.tsv results table(s) (see [Examine the results](https://fragpipe.nesvilab.org/docs/tutorial_glyco.html#examine-the-results) for details). If glycan composition assignment
+Glycoproteomics results can be viewed using the integrated FP-PDV viewer, Skyline, or directly from the psm.tsv results table(s) (see [Examine the results](./tutorial_glyco#examine-the-results) for details). If glycan composition assignment
 or O-Pair search have been performed, there will be glyco-specific columns in the psm.tsv, including the 
 Total Glycan Composition assigned. If only MSFragger search has been done, glycans will only appear as masses
 in the Delta Mass column. Make sure you are looking in the right place for the glycans depending on the type of search performed! 
 
 ## Example Glycoproteomics Analysis
-**For new users, we recommend working through this [example](https://fragpipe.nesvilab.org/docs/tutorial_glyco_example.html), which walks through the complete glyco pipeline for an example dataset.** The of this tutorial page describes the parameters and options for glyco workflows in general, and can be referenced while working through the example. 
+**For new users, we recommend working through this [example](./tutorial_glyco_example), which walks through the complete glyco pipeline for an example dataset.** The of this tutorial page describes the parameters and options for glyco workflows in general, and can be referenced while working through the example. 
 https://fragpipe.nesvilab.org/docs/tutorial_glyco_example.html
 
 ## Tutorial contents
-* [Load the data](https://fragpipe.nesvilab.org/docs/tutorial_glyco.html#load-the-data)
-* [Load a glyco workflow template](https://fragpipe.nesvilab.org/docs/tutorial_glyco.html#load-a-glyco-workflow)
-* [Load Protein and Glycan Databases](https://fragpipe.nesvilab.org/docs/tutorial_glyco.html#load-protein-and-glycan-databases)
-* [Customize the search settings in MSFragger and Philosopher](https://fragpipe.nesvilab.org/docs/tutorial_glyco.html#customize-the-search-settings)
-* [Customize the glycan identification and FDR settings in PTM-Shepherd](https://fragpipe.nesvilab.org/docs/tutorial_glyco.html#glycan-identification-and-fdr-in-ptm-shepherd)
-* [Customize the O-Pair localization settings](https://fragpipe.nesvilab.org/docs/tutorial_glyco.html#o-glycan-localization-with-o-pair)
-* [Set the output location and run](https://fragpipe.nesvilab.org/docs/tutorial_glyco.html#set-the-output-location-and-run)
-* [Examine the results](https://fragpipe.nesvilab.org/docs/tutorial_glyco.html#examine-the-results)
+* [Load the data](./tutorial_glyco#load-the-data)
+* [Load a glyco workflow template](./tutorial_glyco#load-a-glyco-workflow)
+* [Load Protein and Glycan Databases](./tutorial_glyco#load-protein-and-glycan-databases)
+* [Customize the search settings in MSFragger and Philosopher](./tutorial_glyco#customize-the-search-settings)
+* [Customize the glycan identification and FDR settings in PTM-Shepherd](./tutorial_glyco#glycan-identification-and-fdr-in-ptm-shepherd)
+* [Customize the O-Pair localization settings](./tutorial_glyco#o-glycan-localization-with-o-pair)
+* [Set the output location and run](./tutorial_glyco#set-the-output-location-and-run)
+* [Examine the results](./tutorial_glyco#examine-the-results)
 
 ### Open FragPipe
-When you launch FragPipe, check that MSFragger and Philosopher are both configured. If you haven’t downloaded them yet, use their respective ‘Download / Update’ buttons. See [this page](https://fragpipe.nesvilab.org/docs/tutorial_setup_fragpipe.html) for more help. Python is not needed for glycoproteomics workflows.
+When you launch FragPipe, check that MSFragger and Philosopher are both configured. If you haven’t downloaded them yet, use their respective ‘Download / Update’ buttons. See [this page](./tutorial_setup_fragpipe) for more help. Python is not needed for glycoproteomics workflows.
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-config.png)
+![](../images/share-config.png)
 
-<br>
+<br/>
 
 ### Load the data
 On the **Workflow** tab, load the data files to analyze (drag and drop or browse). 
 Specify experiments if needed for the quantitation being done (not needed for most workflows). 
-See [this page](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html#select-workflow-and-add-spectral-files) for additional 
+See [this page](./tutorial_fragpipe#select-workflow-and-add-spectral-files) for additional 
 details on how to load and categorize experiment files. 
 
 ### Load a Glyco workflow
@@ -48,7 +48,7 @@ Select the appropriate glyco workflow from the dropdown menu and click 'Load'.
 There are pre-built workflows for N- and O-glycopeptide analyses with a variety of fragmentation 
 and quantitation methods. See below for more details on the best workflow to choose. Loading a 
 workflow sets the parameters to good base settings, but individual parameters may need to be 
-updated for your analysis (described in [this section](https://fragpipe.nesvilab.org/docs/tutorial_glyco.html#customize-the-search-settings)).
+updated for your analysis (described in [this section](./tutorial_glyco#customize-the-search-settings)).
 **Please note: workflows come with a default set of human glycans. Don't forget to load a glycan database that is appropriate for your analysis!**
 
 Workflows (organized by category):  
@@ -70,23 +70,23 @@ Workflows (organized by category):
 *glyco-O-DIA-HCD*: (experimental) library-based DIA quantation of CID/HCD fragmented O-glycopeptides with no site assignment. Glycans are placed on first allowed residue in the peptide.   
 
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/Fragpipe-glyco_1.png)
+![](../images/Fragpipe-glyco_1.png)
 
-<br>
+<br/>
 
 ### Load Protein and Glycan Databases
 **Protein Sequence Database**
 The protein sequence database is specified on the **Database** tab. Use the Download or Browse options to choose the appropriate
 database for your analysis. 
-See the [Specifying a protein sequence database](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html#specify-a-protein-sequence-database) tutorial for more details. 
+See the [Specifying a protein sequence database](./tutorial_fragpipe#specify-a-protein-sequence-database) tutorial for more details. 
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-database-options.png)
+![](../images/share-database-options.png)
 
 
 **Glycan Database**
 Glycans to search can be loaded on the **Glyco** tab. Use the Load Glycan Database button to load a list of glycans. The dropdown menu (1) can be used to select from several built-in default databases, or use **custom** to load your own database. **NOTE: glycans vary considerably between organisms and, even in well studied organisms, not all glycans are known. Use the default glycan lists with caution and use your own glycan database if you know the specific glycans you are looking for!** The glycans will be loaded to the appropriate parameter locations for MSFragger search (as mass offsets), PTM-Shepherd composition assignment, O-Pair localization, and Skyline output automatically.  
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/glyco-tab-db-load.png)
+![](../images/glyco-tab-db-load.png)
 
 Glycan database formats supported are Byonic, MetaMorpheus, and pGlyco-style glycans provided in a text file (one glycan per line). See example formats below. Glycan database files can be in .txt, .csv, .tsv, .pdb, or .glyc formats. If you have a different glycan database format that you would like to be supported, please contact us!  
 Byonic example: HexNAc(4)Hex(5)NeuAc(2)Fuc(1)  
@@ -101,7 +101,7 @@ Glycans in the database file must be comprised of allowed "Glycan Residues" (mon
 5) **Y Prob +/-**: Used for composition assignment in PTM-Shepherd. It is recommended to use the default values of 5 and 0.5, except leave blank for labile glycans.  
 6) **Elemental Composition**: the elemental (atomic) composition of the monosaccharide. Required for Skyline only. 
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/glyco_edit_res_definitions.png)
+![](../images/glyco_edit_res_definitions.png)
 
 Glycan modifications can be specified in a similar manner to glycan residues using the Edit Glycan Modifications Definitions button. All fields in the table are the same, except for the addition of "Required Residues," which can be used to specify that a given modification can only be placed on glycans containing that residue (see default table for examples). These definitions will be populated to the glycan modifications options that are shown in a dialog window after loading a glycan database. 
 
@@ -109,14 +109,14 @@ Glycan modifications can be specified in a similar manner to glycan residues usi
 After loading a glycan database, the following window will be shown with 3 optional features. 1) to specify glycan modifications, 2) to generate combinations of glycans (e.g., for O-glycopeptides that may carry multiple glycans), and 3) to filter the loaded/generated glycans by mass (e.g., to exclude large glycans that are unlikely to be acquired by the mass spectrometer).  
 The modifications shown are what is present in the Glycan Modification Definitions table described above. To enable a modification, check the box at left. Modifications can be fixed or variable, and if variable, a maximum number per glycan can be specified. Note that if multiple types of modifications are enabled, combinations of them will be generated.  
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/glyco-db-load-mods-followup.png)
-<br>
+![](../images/glyco-db-load-mods-followup.png)
+<br/>
 
 ### Customize the search settings
 Glycoproteomics searches can require changes to parameters depending on the glycans being analyzed and 
 fragmentation method used, in addition to the typical enzyme digestion/sample prep and instrument parameters
 that a standard proteomics search has. The key parameter changes for glyco searches are listed below, but for
-a full list/explanation of all parameters, see these pages: [msfragger](https://github.com/Nesvilab/MSFragger/wiki/Setting-the-Parameters), [philosopher](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html#validation)
+a full list/explanation of all parameters, see these pages: [msfragger](https://github.com/Nesvilab/MSFragger/wiki/Setting-the-Parameters), [philosopher](./tutorial_fragpipe#validation)
   
 **Basic Parameters - MSFragger**  
 Set the mass tolerances, enzyme digestion, and variable and fixed modifications to appropriate values for your sample prep/acquisition. See the MSFragger parameter page [here](https://github.com/Nesvilab/MSFragger/wiki/Setting-the-Parameters) for details 
@@ -154,7 +154,7 @@ Key parameters that may change for Prophets/Philosopher are below:
  - PeptideProphet: the --masswidth parameter must be larger than the largest glycan mass being searched (e.g., --masswidth 4000 is a common setting)
  - PeptideProphet: specify "--glyc" flag for N-glycan searches to use N-X-S/T sequon in modeling  
  - ProteinProphet: set --maxppmdiff to a large value (e.g., 2000000) to prevent excluding proteins carrying glycans
-<br>
+<br/>
 
 ### Glycan Identification and FDR in PTM-Shepherd
 MSFragger and Philosopher together report glycopeptides as a peptide sequence and a mass shift, and ensure that
@@ -170,7 +170,7 @@ when writing the assigned glycan to the Assigned Modification column, however, t
 
 Default parameters for N-glycan analysis are shown below along with a description of each parameters. 
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/glyco_PTMS_params_fragpipe.png)
+![](../images/glyco_PTMS_params_fragpipe.png)
 
 1. Glycan Assignment and FDR: basic parameters
 - Check the box to enable glycan assignment. NOTE: this is currently only supported for mass offset searches, not for fully open searches.
@@ -180,7 +180,7 @@ Default parameters for N-glycan analysis are shown below along with a descriptio
 - N-glycan mode: Check for N-glycans. Sets allowed positions to be N-X-S/T sequon only and sets default glycan database to N-glycan internal list. If unchecked, allowed site(s) are taken from the "Restrict localization to" box in the main PTM-Shepherd settings above. 
 - Max Adducts: If considering non-covalent adducts (e.g., ammonium), set the max number of adducts allowed on a glycopeptide here. Set to 0 to disallow adducts.
 - Adduct Types: Allowed adduct types: NH3, Fe3, Fe2, Na, Ca, Al. Note that NH3 refers to an ammonium adduct (NH4+). All adducts replace protons equivalent to their charge state (e.g., Fe3 replaces 3 protons as Fe 3+)
-- Custom Glycan Database: Provide a custom list of glycan candidates to match as a text file (.txt or .glyc). File format: one glycan per line, glycans can be provided in Byonic format "Residue1(Count1)Residue2(Count2)... % Mass" or "Residue1-Count1_Residue2-Count2..." where "Residue" is one of HexNAc, Hex, Fuc, NeuAc, NeuGc, Phospho, or Sulfo, "Count" is the total count of that residue in the glycan composition, and "Mass" is the total glycan mass (NOTE: mass is optional - it is provided in the Byonic format, but only the composition is necessary to read the glycan database, so mass can be skipped if generating the file manually). An example glycan database file is provided [here](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/example_glycan_database.txt) as a template: 
+- Custom Glycan Database: Provide a custom list of glycan candidates to match as a text file (.txt or .glyc). File format: one glycan per line, glycans can be provided in Byonic format "Residue1(Count1)Residue2(Count2)... % Mass" or "Residue1-Count1_Residue2-Count2..." where "Residue" is one of HexNAc, Hex, Fuc, NeuAc, NeuGc, Phospho, or Sulfo, "Count" is the total count of that residue in the glycan composition, and "Mass" is the total glycan mass (NOTE: mass is optional - it is provided in the Byonic format, but only the composition is necessary to read the glycan database, so mass can be skipped if generating the file manually). An example glycan database file is provided [here](../images/example_glycan_database.txt) as a template: 
 
 2. Advanced Glycan Parameters:
 - Check the box to enable editing advanced parameters. These are the likelihood ratios used to compute glycan scores and may need to be changed for fragmentation other than HCD or for O-glycans. 
@@ -191,7 +191,7 @@ The third value is the "expected" intensity (relative to the base peak of the sp
 - Remove Glycan Delta Mass: If checked, removes the glycan delta mass from the PSM table when the glycan is assigned and written to the assigned modifications column. Default is enabled. Required to allow IonQuant to trace peaks (and for the reported masses and modifications in the PSM table to remain consistent). NOTE: delta mass removal means that the PSM table must be regenerated prior to re-running PTM-Shepherd on the same results table.
 - Print Decoy Glycans: By default, if a PSM matches to a decoy glycan, the best target glycan is reported in the PSM table with a q-value of 1. To report the decoy glycan instead for diagnostics, check this box. 
 
-<br>
+<br/>
 
 ### O-Glycan Localization with O-Pair
 O-Pair search can deconvolute and localize multiple O-glycans on a peptide using an electron-based activation MS2 scan.
@@ -213,19 +213,19 @@ Parameters:
 - *Max Glyans*: (**key parameter**) the maximum number of glycans to attempt to localize on a single peptide. 
 - *O-Glycan Database*: The list of glycans to be used for localization. Will be set automatically when using the Load Glycan Database button at the top of the Glyco tab.
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/glyco-o-pair-options.png)
+![](../images/glyco-o-pair-options.png)
 
 ### Set the output location and run
 On the Run tab, make a new folder for the output files (e.g. ‘glyco_results’), then click ‘RUN’ and wait for the analysis to finish.
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-run.png)
+![](../images/share-run.png)
 
 
 When the run is finished, ‘DONE’ will be printed at the end of the text in the console.
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tmt-2plexes-done.png)
+![](../images/tmt-2plexes-done.png)
 
-<br>
+<br/>
 
 ### Examine the results
 In the output location, you will see several output files including the "psm.tsv" table, which contains all PSMs
@@ -245,7 +245,7 @@ backbone fragments that have lost all of the glycan or retain a single HexNAc re
 It is also possible to define custom glycan remainder masses to annotate in the spectrum and various other useful tools - 
 for a complete guide to the visualization tool, see the associated tutorial. 
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/PDV-FragPipe_vis-example.png)
+![](../images/PDV-FragPipe_vis-example.png)
 
 
 **Skyline**: new in 22.0, improved in 23.0  
@@ -290,12 +290,12 @@ to peptide/protein summary tables for each experiment.
 
 *TMT-Integrator:* If performing TMT analysis, reports summarizing the TMT results can be found in the "tmt-report" folder. For glyco
 searches, the multi-mass reports summarize the results by peptide sequence and glycan composition. All other reports
-are as in typical searches (see [this page](https://fragpipe.nesvilab.org/docs/tutorial_tmt.html) for details). TMT-reports 
+are as in typical searches (see [this page](./tutorial_tmt) for details). TMT-reports 
 can be loaded directly into many downstream analysis tools (such as Perseus) for further analysis.
 
-<br>
-<br>
-<br>
-<br>
+<br/>
+<br/>
+<br/>
+<br/>
 
 #### [Back to FragPipe homepage](https://fragpipe.nesvilab.org/)

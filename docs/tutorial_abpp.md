@@ -11,19 +11,19 @@ We will use just two TMT-16 plexes from the paper, where PaTu-8988T cells were t
 The unfractionated data were acquired with an Orbitrap Fusion Lumos using a real-time search (RTS) acquisition method.
 
 ##### Tutorial contents
-* [Download data](https://fragpipe.nesvilab.org/docs/tutorial_abpp.html#download-data)
-* [Set workflow and load files](https://fragpipe.nesvilab.org/docs/tutorial_abpp.html#set-workflow-and-load-files)
-* [Fetch database](https://fragpipe.nesvilab.org/docs/tutorial_abpp.html#fetch-database)
-* [MSFragger search settings](https://fragpipe.nesvilab.org/docs/tutorial_abpp.html#msfragger-search-settings)
-* [Validation settings](https://fragpipe.nesvilab.org/docs/tutorial_abpp.html#validation-settings)
-* [Quantification settings](https://fragpipe.nesvilab.org/docs/tutorial_abpp.html#quantification-settings)
-* [Run the analysis](https://fragpipe.nesvilab.org/docs/tutorial_abpp.html#run-the-analysis)
-* [Results](https://fragpipe.nesvilab.org/docs/tutorial_abpp.html#results)
+* [Download data](./tutorial_abpp#download-data)
+* [Set workflow and load files](./tutorial_abpp#set-workflow-and-load-files)
+* [Fetch database](./tutorial_abpp#fetch-database)
+* [MSFragger search settings](./tutorial_abpp#msfragger-search-settings)
+* [Validation settings](./tutorial_abpp#validation-settings)
+* [Quantification settings](./tutorial_abpp#quantification-settings)
+* [Run the analysis](./tutorial_abpp#run-the-analysis)
+* [Results](./tutorial_abpp#results)
 
-<br>
+<br/>
 
 ### Download data
-Download the two TMT-16 plexes (`JM4989_8988T_Cys_TMT_1.raw` and `JM5020_8988T_Cys_TMT_20.raw`) from [PRIDE](https://www.ebi.ac.uk/pride/archive/projects/PXD022511) and [convert them to mzML format](https://fragpipe.nesvilab.org/docs/tutorial_convert.html). Each plex (one mzML spectral file) is in a separate folder, each with an annotation file that denotes which sample is in which TMT channel. The first channel contains a DMSO-treated control sample in each plex.
+Download the two TMT-16 plexes (`JM4989_8988T_Cys_TMT_1.raw` and `JM5020_8988T_Cys_TMT_20.raw`) from [PRIDE](https://www.ebi.ac.uk/pride/archive/projects/PXD022511) and [convert them to mzML format](./tutorial_convert). Each plex (one mzML spectral file) is in a separate folder, each with an annotation file that denotes which sample is in which TMT channel. The first channel contains a DMSO-treated control sample in each plex.
 
 annotations for plex JM4989:
 ```
@@ -65,35 +65,35 @@ annotations for plex JM5020:
 134N CL15-2
 ```
 
-<br>
+<br/>
 
 ### Set workflow and load files
 Launch FragPipe, and on the 'Workflow' tab, select the 'SLC-ABPP' workflow from the dropdown menu and click 'Load'. In the 'Input LC-MS Files' section, click 'Add folder recursively' to find and 'Select' the ABPP_raw folder.
 
 You can then use the 'By parent directory' button to assign the appropriate label to each plex. 
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/abpp_annotate-files.png)
+![](../images/abpp_annotate-files.png)
 
-<br>
+<br/>
 
 ### Fetch database
 On the 'Database' tab, click 'Download' and then 'OK' to use the default settings (reviewed human sequences plus decoys and common contaminants), then specify a download location, which you can set to the 'ABPP_raw' folder.
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-database-options.png)
+![](../images/share-database-options.png)
 
-<br>
+<br/>
 
 ### MSFragger search settings
 The 'SLC-ABPP' workflow has already set the MSFragger search settings.
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/abpp_add-var-mod.png)
+![](../images/abpp_add-var-mod.png)
 
-<br>
+<br/>
 
 ### Validation settings
 For this tutorial, the settings on the 'Validation' tab do not need to be modified. (Percolator is now used by default for PSM validation in TMT workflows, but you can choose to use PeptideProphet instead.)
 
-<br>
+<br/>
 
 ### Quantification settings
 In the 'Quant (Isobaric)' tab, the TMT-16 channel annotations should be automatically loaded for each plex. To view or edit the annotation files, use the 'Edit/Create' button.
@@ -102,26 +102,26 @@ In the 'Basic Options' section, set 'Group by' to 'All' to generate reports at a
 
 In the 'Filtering and normalization' section, set 'Min purity' to 0, since ion purity filtering is not needed for RTS-MS3 data.
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/abpp_labelquant.png)
+![](../images/abpp_labelquant.png)
 
 
-<br>
+<br/>
 
 ### Run the analysis
 On the 'Run' tab, choose an output directory, then press 'RUN'.
 
-<br>
+<br/>
 
 ### Results
 When the analysis is finished, identification reports with raw quantification values (psm.tsv, ion.tsv, peptide.tsv, protein.tsv) will be in a separate results folder for each plex (e.g. 'JM4989).
 
-TMT-Integrator reports will be in a separate folder, 'tmt-reports'. These reports contain normalized log2-transformed values, with separate files for both abundances (intensities) and ratios at each level (gene, protein, peptide, etc.). See the TMT/iTRAQ section on [this page](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_outputs.html) for more details.
+TMT-Integrator reports will be in a separate folder, 'tmt-reports'. These reports contain normalized log2-transformed values, with separate files for both abundances (intensities) and ratios at each level (gene, protein, peptide, etc.). See the TMT/iTRAQ section on [this page](./tutorial_fragpipe_outputs) for more details.
 
 The single-site reports can be used to identify patterns in cysteine reactivity, where Cys+239 sites with lower abundance were more reactive with the electrophile initially added to the cells.
 
-<br>
-<br>
-<br>
-<br>
+<br/>
+<br/>
+<br/>
+<br/>
 
 #### [Back to FragPipe homepage](https://fragpipe.nesvilab.org/)

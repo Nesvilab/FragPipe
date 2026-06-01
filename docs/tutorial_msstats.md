@@ -3,13 +3,13 @@
 IonQuant can generate a [MSstats](https://bioconductor.org/packages/release/bioc/html/MSstats.html) compatible file `MSstats.csv`.  
 Given an experimental setup that looks like this in the 'Select LC/MS Files' tab of FragPipe:
 
-<img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/fragpipe_LCMS_msstats.png" width="450"/>
+<img src="../images/fragpipe_LCMS_msstats.png" width="450"/>
 
 The `MSstats.csv` file output from IonQuant (via FragPipe) will look something like this:
 
-<img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/fragpipe_table_to_msstats.png" width="700"/>
+<img src="../images/fragpipe_table_to_msstats.png" width="700"/>
 
-<!---
+{/*-
 | ProteinName | PeptideSequence             | PrecursorCharge | FragmentIon | ProductCharge | IsotopeLabelType | Condition | BioReplicate | Run                                                                        | Intensity |
 |-------------|-----------------------------|-----------------|-------------|---------------|------------------|-----------|--------------|----------------------------------------------------------------------------|-----------|
 | A0A024RBG1  | SEQEDEVLLVSSSR              | 2               | NA          | NA            | L                | 1         | 1            | 20180819_TIMS2_12-2_AnBr_SA_200ng_HeLa_50cm_120min_100ms_11CT_1_A1_01_2767 | 251.38202 |
@@ -20,7 +20,7 @@ The `MSstats.csv` file output from IonQuant (via FragPipe) will look something l
 | A0A024RBG1  | YPDQWIVPGGGMEPEEEPGGAAVR    | 2               | NA          | NA            | L                | 1         | 2            | 20180819_TIMS2_12-2_AnBr_SA_200ng_HeLa_50cm_120min_100ms_11CT_2_A1_01_2768 | 123.56099 |
 | A0A024RBG1  | YPDQWIVPGGGMEPEEEPGGAAVR    | 2               | NA          | NA            | L                | 1         | 3            | 20180819_TIMS2_12-2_AnBr_SA_200ng_HeLa_50cm_120min_100ms_11CT_3_A1_01_2769 | 116.3815  |
 | A0A024RBG1  | YPDQWIVPGGGMEPEEEPGGAAVR    | 2               | NA          | NA            | L                | 1         | 4            | 20180819_TIMS2_12-2_AnBr_SA_200ng_HeLa_50cm_120min_100ms_11CT_4_A1_01_2770 | 114.43072 |
--->
+*/}
 
 This `MSstats.csv` file can be read by MSstats without any conversion. The R command for installing `MSstats` is:
 

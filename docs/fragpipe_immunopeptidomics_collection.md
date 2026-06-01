@@ -96,7 +96,7 @@ Immunopeptidomics study of the Panc1 pancreatic cancer cell line using DDA and D
 Franco, P.H.C.; Zeinert, R.; Meier-Credo, J.; Storz, G.; Langer, J.D.; *Molecular & Cellular Proteomics*. 2025.  
 [https://doi.org/10.1016/j.mcpro.2025.101052](https://doi.org/10.1016/j.mcpro.2025.101052)
 
-Systematic benchmarking study of mass spectrometry strategies for identifying and quantifying small proteins (<50 aa) in *Escherichia coli*. LC–MS/MS data from top–down and bottom–up workflows (DDA, DIA, PRM) were processed using MSFragger within FragPipe under non-specific and semi-specific digestion settings, with peptide- and protein-level FDR control. FragPipe-based analysis was used to compare data acquisition modes, sample preparation strategies, and database search configurations, showing strong performance for small-protein detection in DDA and DIA datasets and supporting open and proteogenomic searches. While not an immunopeptidomics study per se, the work is relevant to immunopeptidomics-style analyses due to its focus on short peptides, non-tryptic search spaces, and large-database searching.
+Systematic benchmarking study of mass spectrometry strategies for identifying and quantifying small proteins (\<50 aa) in *Escherichia coli*. LC–MS/MS data from top–down and bottom–up workflows (DDA, DIA, PRM) were processed using MSFragger within FragPipe under non-specific and semi-specific digestion settings, with peptide- and protein-level FDR control. FragPipe-based analysis was used to compare data acquisition modes, sample preparation strategies, and database search configurations, showing strong performance for small-protein detection in DDA and DIA datasets and supporting open and proteogenomic searches. While not an immunopeptidomics study per se, the work is relevant to immunopeptidomics-style analyses due to its focus on short peptides, non-tryptic search spaces, and large-database searching.
 
 ---
 
@@ -128,7 +128,7 @@ Method-focused immunopeptidomics study assessing EThcD fragmentation performance
 Franco, P.H.C.; Zeinert, R.; Meier-Credo, J.; Storz, G.; Langer, J.D.; *Molecular & Cellular Proteomics*. 2025.  
 [https://doi.org/10.1016/j.mcpro.2025.101052](https://doi.org/10.1016/j.mcpro.2025.101052)
 
-Evaluation of mass spectrometry strategies for detecting and quantifying small proteins (<50 amino acids) using *Escherichia coli* as a model system, with data processed using MSFragger within FragPipe. Top–down and bottom–up LC–MS/MS workflows (DDA, DIA, PRM) were analyzed under non-specific and semi-specific digestion settings, enabling identification of short and non-tryptic peptides with FDR control. FragPipe-based analysis supported comparison of acquisition and quantification strategies and demonstrated suitability of MSFragger for small-protein and large-search-space workflows. 
+Evaluation of mass spectrometry strategies for detecting and quantifying small proteins (\<50 amino acids) using *Escherichia coli* as a model system, with data processed using MSFragger within FragPipe. Top–down and bottom–up LC–MS/MS workflows (DDA, DIA, PRM) were analyzed under non-specific and semi-specific digestion settings, enabling identification of short and non-tryptic peptides with FDR control. FragPipe-based analysis supported comparison of acquisition and quantification strategies and demonstrated suitability of MSFragger for small-protein and large-search-space workflows. 
 
 ---
 

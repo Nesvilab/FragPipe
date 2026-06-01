@@ -1,8 +1,8 @@
-# Running a FragPipe-equivalent workflow on Linux using command line (deprecated, please use [FragPipe headless mode](https://fragpipe.nesvilab.org/docs/tutorial_headless.html))
+# Running a FragPipe-equivalent workflow on Linux using command line (deprecated, please use [FragPipe headless mode](./tutorial_headless))
 
-For most desktop users, we recommend using [FragPipe](http://fragpipe.nesvilab.org/). Users can also use FragPipe on remote server with X forwarding ([https://fragpipe.nesvilab.org/docs/tutorial_setup_x_forwarding.html](https://fragpipe.nesvilab.org/docs/tutorial_setup_x_forwarding.html)).
+For most desktop users, we recommend using [FragPipe](http://fragpipe.nesvilab.org/). Users can also use FragPipe on remote server with X forwarding ([https://fragpipe.nesvilab.org/docs/tutorial_setup_x_forwarding.html](./tutorial_setup_x_forwarding)).
 Example shell scripts for timsTOF PASEF data and non-ion mobility data are shown below, modify them to suit your configuration.
-<br>
+<br/>
 
 ### timsTOF data:
 
@@ -63,7 +63,7 @@ java -Xmx64G -jar $ionquantPath <options> <path to .pepXML>
 ```
 **Please note: The [IonQuant.jar](https://github.com/Nesvilab/IonQuant/releases/latest) file must be in the same directory as the `ext` folder.** To see the IonQuant help, run `java -jar IonQuant.jar`.
 
-<br>
+<br/>
 
 
 ### Non-ion mobility data:

@@ -17,4 +17,4 @@
 
 #### If you are using Apptainer, just replace `singularity` with `apptainer` in the commands.
 
-### Read more: Check [Running FragPipe in command line interface](https://fragpipe.nesvilab.org/docs/tutorial_headless.html) for the instructions running FragPipe in command line interface.
+### Read more: Check [Running FragPipe in command line interface](./tutorial_headless) for the instructions running FragPipe in command line interface.

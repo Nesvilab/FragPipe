@@ -4,11 +4,11 @@
 
 FragPipe and MSFragger both require a 64-bit OpenJDK to run. Windows users can choose to download the `-jre-` version of FragPipe (see below) or install 64-bit pre-built OpenJDK [here](https://adoptium.net/temurin/releases/?package=jdk&version=17&arch=x64). Launch the installer and follow the prompts. You may need to restart FragPipe after updating OpenJDK.
 
-<br>
+<br/>
 
 **Note: During installation, remember to enable `Set JAVA_HOME variable` and `JavsSOFT (Oracle) register keys`**.
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/install_adoptiumjdk.png)
+![](../images/install_adoptiumjdk.png)
 
 
 #### Install Visual C++ Redistributable
@@ -49,5 +49,5 @@ Linux: different Linux distributions have different commands to install Python. 
 
 
 
-#### Next: see the [FragPipe usage tutorial](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html).
+#### Next: see the [FragPipe usage tutorial](./tutorial_fragpipe).
 
