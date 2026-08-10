@@ -5,11 +5,11 @@
 __Bruker's native library needs [Visual C++ Redistributable for Visual Studio 2017](https://aka.ms/vs/16/release/VC_redist.x64.exe) in Windows.__ If you see an error saying cannot find Bruker native library, please try to install the Visual C++ redistibutable.
 
 #### Configure FragPipe
-Please see the tutorials [here](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html#configure-fragpipe) and [here](https://fragpipe.nesvilab.org/docs/tutorial_setup_fragpipe.html).
+Please see the tutorials [here](./tutorial_fragpipe#configure-fragpipe) and [here](./tutorial_setup_fragpipe).
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-config.png)
+![](../images/share-config.png)
  
- <br>
+ <br/>
 
 #### Add input files
 In the next tab, 'Select LC/MS Files', drag & drop raw PASEF files (.d extension, each data file is a folder) into the window or select 'Add files'. 'Add Folder Recursively' can also be used, make sure to remove any .d folders from the input list before continuing. If you have already run MSFragger on the .d files, make sure the .mzBIN files resulting from that analysis are in the same directory as the .d files to speed up the analysis.
@@ -18,7 +18,7 @@ Specify the appropriate labels for the replicates/fractions in your experiment.
 
 **Note**: If you do not need to perform quantification, .mgf or \_calibrated.mgf files can be used instead of .d.
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-workflow.png)
+![](../images/share-workflow.png)
 
 #### Group input files
 In the 'Select LC/MS Files' tab, indicate how you'd like PSM/peptide/protein reports to be generated.
@@ -28,16 +28,16 @@ Leave the 'Experiment' and 'Bioreplicate' fields blank, and ensure that the 'Mul
 
 ##### For reports with results from different replicates shown in separate columns
 Indicate the 'Experiment' and 'Bioreplicate' for each input file as shown below, where there are three replicates for two experimental conditions. On the 'Report' tab, check 'Multi-Experiment Report'. 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/specify_replicates_pasef.png)
+![](../images/specify_replicates_pasef.png)
 
 ##### For reports with results from different fractionated replicates shown in separate columns
 Indicate the 'Experiment' and 'Bioreplicate' for each input file as shown below, where each replicate (rep1, rep2) of two experimental conditions is composed of two fractions. Different fractions (1 & 2) from the same sample should have the same 'Experiment'/'Bioreplicate' name. On the 'Report' tab, check 'Multi-Experiment Report'.
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/specify_fractions_pasef.png)
-<br>
+![](../images/specify_fractions_pasef.png)
+<br/>
 
 **Note:** for compatibility with REPRINT ([Resource for Evaluation of Protein Interaction Networks](https://reprint-apms.org/)), 'Experiment' names should be written as `gene_condition`, e.g. `HDAC8_control`.
 
-<br>
+<br/>
 
 #### Specify a protein sequence database
 In the 'Database' tab,
@@ -49,32 +49,32 @@ Use 'Browse' to select a FASTA file from a previous FragPipe/Philosopher analysi
 If you need to use a custom FASTA database, it must follow a certain format and contain decoy sequences. Click 'Browse' to navigate to your custom FASTA. If you select 'Try Auto-Detect', 50% of the entries should contain the decoy tag. For help adding decoys and database formatting, see the instructions on the 'Database' tab or [here](https://github.com/Nesvilab/philosopher/wiki/Database).
 
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-database.png)
+![](../images/share-database.png)
 
-<br>
+<br/>
 
 #### Set MSFragger search parameters
 In the 'MSFragger' tab, Specify the search parameters you want to use. For more information on these parameters, see the [MSFragger wiki page](https://github.com/Nesvilab/MSFragger/wiki/Setting-the-Parameters). 
  
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-msfragger.png)
+![](../images/share-msfragger.png)
  
  
- <br>
+ <br/>
  
 
 #### Set downstream processing parameters
 In the 'Downstream' tab, if you previously load one of the built-in workflows, you can skip to the next section.
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-validation.png)
+![](../images/share-validation.png)
 
-<br>
+<br/>
 
 #### Set quantification
 In the 'Quant (MS1)' tab, make sure 'IonQuant' is selected. We recommend using the defaults.
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-lfq.png)
+![](../images/share-lfq.png)
 
- <br>
+ <br/>
  
 #### Run FragPipe
 1. Browse for the folder where you would like the search results to be written.
@@ -83,5 +83,5 @@ In the 'Quant (MS1)' tab, make sure 'IonQuant' is selected. We recommend using t
 
 For more information, see the MSFragger [wiki](https://github.com/Nesvilab/MSFragger/wiki) for technical documentation and the [FAQ](https://github.com/Nesvilab/MSFragger/wiki/Frequently-Asked-Questions).
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/share-run.png)
+![](../images/share-run.png)
 

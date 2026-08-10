@@ -3,7 +3,7 @@
 This example will show a complete glycoproteomics workflow analyzing a real dataset. The data is from the paper [*Integrated N-glycoproteomics Analysis of Human Saliva for Lung Cancer*](https://pubs.acs.org/doi/10.1021/acs.jproteome.1c00701), which can be referenced as a guide. 
 
 ### Preparation 
-**Install FragPipe** if you have not done so already (instructions can be found [here](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html#configure-fragpipe))  
+**Install FragPipe** if you have not done so already (instructions can be found [here](./tutorial_fragpipe#configure-fragpipe))  
 
 **Download the raw data** from ProteomeXchange(https://proteomecentral.proteomexchange.org/cgi/GetDataset?ID=PXD030670) or PRIDE (https://www.ebi.ac.uk/pride/archive/projects/PXD030670). These 6 raw files need to be downloaded:
   - HILIC-normal-Intact_glycopeptides-1.raw
@@ -19,13 +19,13 @@ This example will show a complete glycoproteomics workflow analyzing a real data
 1) **Load the glyco-N-LFQ workflow** from the workflows menu on the Workflow tab (see the highlighted red box at the top of the screenshot below)
 2) **Load the .raw files** to the LC-MS files table (using the **Add Files** button) and set the experiments and replicates as shown in the screenshot to distinguish the cancer and normal samples into separate experiments. 
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tutorial-glyco-example-workflow.png)
+![](../images/tutorial-glyco-example-workflow.png)
 
 3) **Load a protein FASTA** on the Database tab. You can use a previous human fasta, or use the Download button to download a new one. If downloading, use the default settings (Human, review sequences only, add decoys, and add common contaminants). 
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tutorial-glyco-example-database.png) 
+![](../images/tutorial-glyco-example-database.png) 
 
-4) (optional) Adjust any parameters. The default glyco-N-LFQ parameters are a good starting point for this analysis, so nothing needs to be changed prior to running. However, for other analyses, common areas to adjust are listed below (see the [glyco settings tutorial](https://fragpipe.nesvilab.org/docs/tutorial_glyco.html) for details):  
+4) (optional) Adjust any parameters. The default glyco-N-LFQ parameters are a good starting point for this analysis, so nothing needs to be changed prior to running. However, for other analyses, common areas to adjust are listed below (see the [glyco settings tutorial](./tutorial_glyco) for details):  
 
     - Load a different glycan list on the Glyco tab
 	- Enable Match Between Runs (MBR) on the Quant (MS1) tab. This will reduce the number of missing values in the output using the MBR algorithm. 
@@ -47,14 +47,14 @@ There are several different outputs that can be used to examine the identified p
  + Upload the combined_protein.tsv and experiment_annotation.tsv files from your results folder and click Run. 
  + Example plots are shown below. The volcano plot shows glycoprotein expression differences between the cancer and normal samples, the PCA plot shows the ability to separate cancer and normal samples from the protein level data, and 3 selected differentially expressed glycoproteins are highlighted in the feature table, showing the difference in detected abundance between cancer and normal samples. 
  
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tutorial-glyco-example-volcano.png) 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tutorial-glyco-example-pca.png) 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tutorial-glyco-example-features.png) 
+![](../images/tutorial-glyco-example-volcano.png) 
+![](../images/tutorial-glyco-example-pca.png) 
+![](../images/tutorial-glyco-example-features.png) 
 
 
-<br>
-<br>
-<br>
-<br>
+<br/>
+<br/>
+<br/>
+<br/>
 
 #### [Back to FragPipe homepage](https://fragpipe.nesvilab.org/)

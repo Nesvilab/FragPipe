@@ -9,9 +9,9 @@ This page has instructions for loading a ‘combined_protein.tsv’ table into P
 #### Open Perseus
 Download and unzip the file from the [download page](http://coxdocs.org/doku.php?id=perseus:common:download_and_installation), then launch by double clicking 'Perseus.exe'. When the program launches, open the matrix upload dialogue by clicking the green arrow icon on the Matrix tab.
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/perseus_home.png)
+![](../images/perseus_home.png)
 
-<br>
+<br/>
 
 
 #### Load FragPipe results
@@ -19,17 +19,17 @@ Use the 'Select' button to find the 'combined_protein.tsv' file from FragPipe. C
 
 Relevant labels (e.g. protein ID and gene name) should be moved to the 'Text' section. When the columns of interest have been categorized, click 'OK'.
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/perseus_load-combined-protein.png)
+![](../images/perseus_load-combined-protein.png)
 
-<br>
+<br/>
 
 #### Explore the data
 Once the matrix is loaded, intensity transformation, row annotation, filtering, hypothesis testing, plotting, and other analyses can be performed. See the [Perseus site](http://coxdocs.org/doku.php?id=perseus:start) for more details.
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/perseus_example-analysis.png)
+![](../images/perseus_example-analysis.png)
 
-<br>
-<br>
-<br>
+<br/>
+<br/>
+<br/>
 
 #### [Back to FragPipe homepage](https://fragpipe.nesvilab.org/)

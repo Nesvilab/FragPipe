@@ -8,7 +8,7 @@ This page has instructions for using MSConvert to generate mzML files from both 
 
 **Please note:** If you are using Linux, check the scripts in [https://github.com/Nesvilab/msconvert-scripts](https://github.com/Nesvilab/msconvert-scripts)
 
-<br>
+<br/>
 
 ### Convert Thermo .raw files (DDA or DIA data with non-staggered windows):
 In the MSConvert GUI window:
@@ -19,24 +19,24 @@ In the MSConvert GUI window:
 5. Select any additional filters you want to apply to the conversion. We recommend using the default filters shown here. "peakPicking" (centroiding) must be the first filter.
 6. Press 'Start' to begin converting your files.
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/msconvert.png)
+![](../images/msconvert.png)
 
-<br>
+<br/>
 
 Example command line options:
 
 `msconvert.exe --mzML --64 --zlib --filter "peakPicking true 1-" *.raw`
 
-<br>
+<br/>
 
 ### Convert Thermo DIA .raw files with staggered windows:
 ***Note: "staggered" means the isolation windows have 50% overlapping. A small percentage of overlapping at the window boundary does not count.***
 
 Follow the steps above, with the addition of the "Demultiplex" filter in step 5.
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/msconvert_staggered_DIA.png)
+![](../images/msconvert_staggered_DIA.png)
 
-<br>
+<br/>
 
 
 ### Convert Bruker timsTOF .d files (NOT RECOMMENDED. MSFragger and IonQuant can load .d directly.):
@@ -50,4 +50,4 @@ In the MSConvert window:
 
 **Note:** with '**scanSumming**' enabled, there is **no ion mobility** array in the converted file. Thus, the file is **not suitable** for MS1-based quantification.
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/10.jpg)
+![](../images/10.jpg)

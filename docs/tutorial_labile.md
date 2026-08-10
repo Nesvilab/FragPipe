@@ -8,23 +8,23 @@ This tutorial will provide an overview of the labile search methods and settings
 search workflow, we recommend loading of the of the built-in labile workflows in FragPipe (labile_phospho or
 labile_ADP-ribosylation) and adjusting the settings as needed. 
 
-If you are new to MSFragger or FragPipe searches, please first consult the [Setup](https://fragpipe.nesvilab.org/docs/tutorial_setup_fragpipe.html) and [Basic](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html) tutorials. 
+If you are new to MSFragger or FragPipe searches, please first consult the [Setup](./tutorial_setup_fragpipe) and [Basic](./tutorial_fragpipe) tutorials. 
 
 ## Tutorial contents
-* [Labile Search Overview](https://fragpipe.nesvilab.org/docs/tutorial_labile.html#labile-search-overview)
-* [MSFragger settings for Labile Search](https://fragpipe.nesvilab.org/docs/tutorial_labile.html#msfragger-settings-for-labile-search)
-* [Validation Options for Labile Search](https://fragpipe.nesvilab.org/docs/tutorial_labile.html#validation-options-for-labile-search)
-* [Localization of Labile PTMs](https://fragpipe.nesvilab.org/docs/tutorial_labile.html#localization-of-labile-ptms)
-* [Quantification of Labile PTMs and Results](https://fragpipe.nesvilab.org/docs/tutorial_labile.html#quantification-of-labile-ptms-and-results)
+* [Labile Search Overview](./tutorial_labile#labile-search-overview)
+* [MSFragger settings for Labile Search](./tutorial_labile#msfragger-settings-for-labile-search)
+* [Validation Options for Labile Search](./tutorial_labile#validation-options-for-labile-search)
+* [Localization of Labile PTMs](./tutorial_labile#localization-of-labile-ptms)
+* [Quantification of Labile PTMs and Results](./tutorial_labile#quantification-of-labile-ptms-and-results)
 
 ### Labile Search Overview
 Labile search is primarily a set of MSFragger options that allow modification fragmentation to be used
 in filtering and scoring spectra of modified peptides. There are 3 types of ions that we will refer to
 and 3 search types, outlined in the figure below.
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/labile-overview.png)
+![](../images/labile-overview.png)
 
-<br>
+<br/>
 
 **Diagnostic ions** are only used for filtering which spectra are searched for delta masses (they
 do not contribute to the score of a candidate PSM).  
@@ -50,9 +50,9 @@ modifications can be accomplished when using only 1 mass offset (and encoding th
 as a variable modifications).
 
 ### MSFragger settings for Labile Search
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/labile-msfragger-settings.png)
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/labile-msfragger-settings-2.png)
-<br>
+![](../images/labile-msfragger-settings.png)
+![](../images/labile-msfragger-settings-2.png)
+<br/>
 
 1. **Variable Modification settings**. Include all nonlabile modifications here. Only include labile modifications
 if using a Hybrid search. The allowed amino acid residues, mass, and max number per peptide should be
@@ -127,7 +127,7 @@ details.
 PTMs from labile search will be reported to the psm.tsv table in the Delta Mass column or the Assigned
 Modifications column if "Mass Diff to Variable Mod" is enabled in MSFragger. In the latter case, modifications
 will also be propagated to ion, peptide, and protein.tsv tables (and quant output tables, if applicable). 
-Additional details about these tables can be found in the [outputs](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_outputs.html) tutorial.
+Additional details about these tables can be found in the [outputs](./tutorial_fragpipe_outputs) tutorial.
 
 #### Labile PTM visualization
 The integrated FragPipe-PDV viewer can be used to inspect labile PTM spectra. See the viewer tutorial for

@@ -3,7 +3,7 @@
 This example will demonstrate a detailed mass offset (DMO) search for rare PTMs in a histone protein dataset. The data is from the paper [*Breaking Boundaries in Histone Modification MS-based Detection: A Tailored Search Strategy for Unrestricted identification of novel epigenetic marks*](https://proteomecentral.proteomexchange.org/cgi/GetDataset?ID=PXD061934), which can be referenced as a guide. 
 
 ### Preparation 
-**Install FragPipe** if you have not done so already (instructions can be found [here](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html#configure-fragpipe))  
+**Install FragPipe** if you have not done so already (instructions can be found [here](./tutorial_fragpipe#configure-fragpipe))  
 
 **Download the raw data** from ProteomeXchange(https://proteomecentral.proteomexchange.org/cgi/GetDataset?ID=PXD061934) or PRIDE (https://www.ebi.ac.uk/pride/archive/projects/PXD061934). These 3 raw files are the ones used in the tutorial:
   - QEP220103_RN_A2780_13.raw
@@ -13,9 +13,9 @@ This example will demonstrate a detailed mass offset (DMO) search for rare PTMs 
 
 **Download the custom workflow and fasta file:** 
 
-A custom workflow with histone modifications and PTMs has been prepared and can be downloaded [here](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/files/histones-dmo-example.workflow). 
+A custom workflow with histone modifications and PTMs has been prepared and can be downloaded [here](../files/histones-dmo-example.workflow). 
 
-The analysis uses a custom fasta file containing the sequences for human histone proteins and common contaminants, which can be downloaded [here](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/files/HumanHistones-contam-decoys.fasta). 
+The analysis uses a custom fasta file containing the sequences for human histone proteins and common contaminants, which can be downloaded [here](../files/HumanHistones-contam-decoys.fasta). 
 
 A few changes have been made relative to the analysis published in the referenced paper. If you would like to reproduce that analysis exactly, the workflow file and fasta file used can be downloaded from the [ProteomeXchange repository](https://proteomecentral.proteomexchange.org/cgi/GetDataset?ID=PXD061934). 
 
@@ -24,11 +24,11 @@ A few changes have been made relative to the analysis published in the reference
 1) **Load the custom workflow** from the workflows menu on the Workflow tab (see the highlighted red box at the top of the screenshot below)
 2) **Load the .raw files** to the LC-MS files table (using the **Add Files** button) and assign the files to experiments. Note that experiments are needed to generate summary tables for label-free quantification, but are not needed for qualitative PTM searching and can be skipped.  
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/tutorial-dmo-histones_experiment_setup.png)
+![](../images/tutorial-dmo-histones_experiment_setup.png)
 
 3. **Load the custom FASTA file** on the Database tab. 
 
-4.(optional) Review and adjust any parameters. The provided custom workflow is already optimized for this analyiss, so nothing needs to be changed prior to running. However, for other analyses, common areas to adjust are listed below (see the [general DMO tutorial](https://fragpipe.nesvilab.org/docs/tutorial_offset.html) for details):  
+4.(optional) Review and adjust any parameters. The provided custom workflow is already optimized for this analyiss, so nothing needs to be changed prior to running. However, for other analyses, common areas to adjust are listed below (see the [general DMO tutorial](./tutorial_offset) for details):  
 
 + Adjust the variable modifications (common histone modifications and chemical derivatization used in sample prep) 
 + Adjust the rare modifications (specified as detailed mass offsets) using the "Edit Detailed Mass Offsets" button in the Mass Offsets section of the MSFragger tab.  
@@ -51,9 +51,9 @@ There are several different outputs that can be used to examine the identified p
  + Upload the combined_protein.tsv and experiment_annotation.tsv files from your results folder and click Run. 
 
 
-<br>
-<br>
-<br>
-<br>
+<br/>
+<br/>
+<br/>
+<br/>
 
 #### [Back to FragPipe homepage](https://fragpipe.nesvilab.org/)

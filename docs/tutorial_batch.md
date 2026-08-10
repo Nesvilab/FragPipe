@@ -17,22 +17,22 @@ A Job consists of the following components:
  
  ### Saving, loading, and running Jobs
  
-For most users, we recommend creating Jobs using the FragPipe GUI. Set up a FragPipe run as usual for a single analysis (see the general tutorial for details: ([https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html))). Once everything is ready, instead of clicking "Run" on the Run tab, click "Save as Job". This will create a .job file with all the information needed to run the job and save it to the Jobs folder inside FragPipe. It will also automatically load it to the Batch table on the Batch tab. You can name the job using the text box next to the "Save as Job" button if desired. 
+For most users, we recommend creating Jobs using the FragPipe GUI. Set up a FragPipe run as usual for a single analysis (see the general tutorial for details: ([https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html](./tutorial_fragpipe))). Once everything is ready, instead of clicking "Run" on the Run tab, click "Save as Job". This will create a .job file with all the information needed to run the job and save it to the Jobs folder inside FragPipe. It will also automatically load it to the Batch table on the Batch tab. You can name the job using the text box next to the "Save as Job" button if desired. 
  
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/run_tab_save_job.png)
-<br>
+![](../images/run_tab_save_job.png)
+<br/>
 
 Multiple jobs can be created this way by changing the parameters, raw files, and/or output directory and saving a new job. When all jobs are ready to run, go to the Batch tab and click "Run All" to run all jobs that are loaded in the batch table. The progress bar will display the status of the batch, and the output of each run can be viewed in the console below. The "Stop All" button can be used to stop a batch of jobs mid-run. Note that once a batch of jobs is running, any edits to the batch table are ignored until the batch is finished and a new batch is started (i.e., a batch is "submitted" to run, not read live from the table throughout the run). 
  
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/batch_tab_run_jobs.png)
-<br>
+![](../images/batch_tab_run_jobs.png)
+<br/>
 
 To save a compiled batch of jobs, use the "Save Job Manifest" button. Job Manifests (i.e., lists of saved jobs) can be loaded using the "Load Job Manifest" button. Individual Job(s) can also be loaded to the table with the "Load Job(s)" button. All loaded jobs will be added to the table. If you want to remove existing jobs prior to loading new ones, use the "Clear Table" button, or use the "Remove Selected Jobs" button to remove only highlighted job(s) from the table. 
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/batch_tab_manipulate_table.png)
-<br>
+![](../images/batch_tab_manipulate_table.png)
+<br/>
 
 Previously saved jobs can also be loaded into the rest of the FragPipe GUI on the Workflow tab. This can be used to see what the settings were in a previous job, or to run a job as a standard (single) FragPipe run using the Run tab. 
 
-![](https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/workflow_load_job.png)
-<br>
+![](../images/workflow_load_job.png)
+<br/>

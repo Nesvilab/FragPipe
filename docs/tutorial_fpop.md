@@ -4,7 +4,7 @@
 ### FPOP Overview
 Structural information of proteins can be obtained by labelling solvent accessible regions under different environmental states. 
 In FPOP, OH radicals are used to irreversibly oxidize solvent exposed residues of proteins undergoing structural changes due to perturbations such as ligand-binding or mutations.  
-We have implemented an hybrid workflow in FragPipe to search the most common FPOP modifications as variable modifications, and the rest as [mass offsets](https://fragpipe.nesvilab.org/docs/tutorial_convert.html). 
+We have implemented an hybrid workflow in FragPipe to search the most common FPOP modifications as variable modifications, and the rest as [mass offsets](./tutorial_convert). 
 See **[publication](https://doi.org/10.1021/acs.analchem.3c02388)** for more details. 
 
 
@@ -34,48 +34,48 @@ Go to project [FTP](https://ftp.pride.ebi.ac.uk/pride/data/archive/2020/06/PXD01
 Only the following files are needed ( see path column below), where # stands for all the replicates (1 – 3). The other columns will be used in section III.:
 
 <div align="center">
-<img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/FPOP-Manifest.png" width="600px" align="middle"/>
+<img src="../images/FPOP-Manifest.png" width="600px" align="middle"/>
 </div>
-<br>
+<br/>
 
 #### 2. Input Data Conversion
-Convert .RAW to mzML file using MSConvert with the [recommended parameters](https://fragpipe.nesvilab.org/docs/tutorial_convert.html).
+Convert .RAW to mzML file using MSConvert with the [recommended parameters](./tutorial_convert).
 #### 3. Setting up FragPipe 
-Follow FragPipe Tutorial for FragPipe configuration, adding data, and selecting a workflow [here](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html). 
+Follow FragPipe Tutorial for FragPipe configuration, adding data, and selecting a workflow [here](./tutorial_fragpipe). 
 To see how to divide the files into experiments see the manuscript file example in section *Ways to obtain the tutorial dataset* above.
 Next, select FPOP Workflow among the list of built-in workflows.
 #### 4. Running a FragPipe Workflow
-For general instructions in how to run a FragPipe workflow and saving results, see [here](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe.html).
+For general instructions in how to run a FragPipe workflow and saving results, see [here](./tutorial_fragpipe).
 ##### Key parameters
 While the current FPOP workflow has been optimized for the current test dataset, the user is encouraged to select appropriate parameters for their data such as enzyme (default is stricttrypsin), as well as if new oxidation modifications are expected. 
 In the figure below mass offset are separated by spaces, but they can also be separated by “/”.
 <div align="center">
-<img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/FPOP-MassOffsets.png" width="1290px" align="middle"/>
+<img src="../images/FPOP-MassOffsets.png" width="1290px" align="middle"/>
 </div>
-<br>
+<br/>
 
 Another point at which the workflow can be tailored for the user’s dataset is the assigned modifications in the Filter command. 
 Due to the large difference in unmodified vs modified peptides (see results below), global FDR filtering will set a threshold that will not be appropriate for both groups. 
 See **[publication](https://doi.org/10.1021/acs.analchem.3c02388)** for more details on Group-based FDR. The group FDR command divides PSMs into 3 groups for filtering: unmodified peptides, peptides with defined modifications, and peptides will any other modifications. By default, the common artifactual modifications methionine oxidation and n-terminal acetylation are defined for the second group (see figure below), but if another modification is abundant in the data, it should be added as well.  
 
 <div align="center">
-<img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/FPOP-Group-basedFDR.png" width="1920px" align="middle"/>
+<img src="../images/FPOP-Group-basedFDR.png" width="1920px" align="middle"/>
 </div>
-<br>
+<br/>
 
 This grouping allows the FPOP modifications to be FDR controlled separately from peptides with very common artifacts that have a smaller search space. If a modification is very frequent in the data (present in more than 5-10% of the PSMs), or is present at much high levels than the FPOP modifications, it should likely be added to the defined modifications list.
 In our example, we also include N-terminal acetylation in the defined group due to its moderate abundance and relatively limited expansion of the search space. 
 
  
 #### 5. Understanding results
-To understand FragPipe outputs in general please go [here](https://fragpipe.nesvilab.org/docs/tutorial_fragpipe_outputs.html).
+To understand FragPipe outputs in general please go [here](./tutorial_fragpipe_outputs).
 In the FPOP workflow, mass offsets are reported as variable modifications. The user can determine if a PSM contains FPOP modification by looking at the “Assigned Modifications” column in psm.tsv files, as well in other FragPipe output files (if that column is included). 
 Also, MSFragger will attempt to localize the FPOP modifications to specific site(s) within the peptide. However, there may not be sufficient evidence in all spectra to confidently locate each modification site. If multiple sites are supported by equivalent evidence, MSFragger will put the modification on the first allowed equivalent site. For modifications that were found as a mass offset, the columns MSFragger Localization, and best score with/without Delta Mass will show the best site(s) and associated scores. A future update will improve MSFragger site localization and allow the use of PTMProphet to localize FPOP modifications and provide localization probabilities for all sites. 
 
 <div align="center">
-<img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/FPOP-MSFraggerlocal.png" width="1387px" align="middle"/>
+<img src="../images/FPOP-MSFraggerlocal.png" width="1387px" align="middle"/>
 </div>
-<br>
+<br/>
 
 #### 6. Downstream Analysis
 Since FragPipe v20.1, it is possible to have FragPipe generate a summary analysis of FPOP results using the FPOP quant section of the Downstream tab.  
@@ -117,7 +117,7 @@ FragPipe will automatically match the rest of the samples labels so the right co
 **Other** Mods Other modifications found in the overlapping peptides (e.g Cys carbamidomethylation).
 
 **Spectral counts** per experiment number of corresponding PSMs.
-<br>
+<br/>
 
 #### FPOP_sites.tsv
 **Group Name** UniProt protein identifier (primary accession number)_site location in protein sequence.
@@ -147,15 +147,15 @@ FragPipe will automatically match the rest of the samples labels so the right co
 **Other Mods** Other modifications found in the overlapping peptides (e.g Cys carbamidomethylation).
 	
 **Spectral counts** per experiment number of corresponding PSMs.
-<br>
+<br/>
 #### 7. Expected Results
 
 The tables below shos the amount of PSMs expected for this samall tutorial dataset, as well as the quantitative resuls for a peptide in output file FPOP_peptides.tsv (substracting background oxidation).
 
 <div align="center">
-<img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/FPOP_Tutorialdata_results.png" width="600px" align="middle"/>
+<img src="../images/FPOP_Tutorialdata_results.png" width="600px" align="middle"/>
 </div>
-<br>
+<br/>
 
 It is recommended to review this tutorial with the whole dataset and compared to the results in the **[publication](https://doi.org/10.1021/acs.analchem.3c02388)**.
 

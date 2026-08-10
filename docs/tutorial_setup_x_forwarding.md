@@ -2,7 +2,7 @@
 
 Users can run [FragPipe](https://fragpipe.nesvilab.org/) on a remote Linux server with X forwarding. Both of the server and client need to be setup.
 
-__For the details of setting up FragPipe itself, please refer to [Setting up FragPipe](https://fragpipe.nesvilab.org/docs/tutorial_setup_fragpipe.html).__
+__For the details of setting up FragPipe itself, please refer to [Setting up FragPipe](./tutorial_setup_fragpipe).__
 
 *Disclaimer: different Linux distributions have different ways to install and setup X forwarding. Thus, instructions below may need to be modified for a particular system.*
 
@@ -26,23 +26,23 @@ X11DisplayOffset 10
 2. Download Xming from [https://sourceforge.net/projects/xming/](https://sourceforge.net/projects/xming/), and install it.
 3. Make sure that Xming is running in the background. Start Xming by clicking `Xming` from the Start menu:
 
-<img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/xming.jpg" width="200px" align="middle"/>
+<img src="../images/xming.jpg" width="200px" align="middle"/>
 
 4. Open PuTTY, fill in `Host Name (or IP address)` and `Saved Sessions`, then clicking `Save`.
 
-<img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/putty1.jpg" width="400px" align="middle"/>
+<img src="../images/putty1.jpg" width="400px" align="middle"/>
 
 5. Click `SSH` then `X11`. Then, click `Enable X11 forwarding`.
 
-<img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/putty2.jpg" width="400px" align="middle"/>
+<img src="../images/putty2.jpg" width="400px" align="middle"/>
 
 6. (Optional) If you are using private key to login. Click `SSH` then `Auth`. Then, fill your private key path in `Private key file for authentication`.
 
-<img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/putty3.jpg" width="400px" align="middle"/>
+<img src="../images/putty3.jpg" width="400px" align="middle"/>
 
 7. Go back to `Session` and click `Save` again to save your settings.
 
-<img src="https://raw.githubusercontent.com/Nesvilab/FragPipe/gh-pages/images/putty4.jpg" width="400px" align="middle"/>
+<img src="../images/putty4.jpg" width="400px" align="middle"/>
 
 8. Click `Open` to log into your server with user name and password (or private key).
 
