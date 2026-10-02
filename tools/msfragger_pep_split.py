@@ -63,6 +63,9 @@ license_path = None
 if '--license' in argv:
 	license_path = argv[argv.index('--license') + 1]
 	argv = argv[:argv.index('--license')] + argv[argv.index('--license') + 2:]
+no_ptm_score_in_pin = '--no-ptm-score-in-pin' in argv
+if no_ptm_score_in_pin:
+	argv = [e for e in argv if e != '--no-ptm-score-in-pin']
 
 num_parts_str, jvm_cmd_str, msfragger_jar_path_str, param_path_str, *infiles_str = argv
 
@@ -144,7 +147,7 @@ def write_params(params_txt):
 
 
 def run_msfragger(infiles_name):
-	cmds = [msfragger_cmd + [param_part_path.name] + (['--license', license_path] if license_path is not None else []) + [*infiles_name, '--partial', f'{i}']
+	cmds = [msfragger_cmd + [param_part_path.name] + (['--license', license_path] if license_path is not None else []) + (['--no-ptm-score-in-pin'] if no_ptm_score_in_pin else []) + [*infiles_name, '--partial', f'{i}']
 			for i, param_part_path in zip(range(num_parts), param_part_paths)]
 	for i, (cmd, cwd) in enumerate(zip(cmds, tempdir_parts), start=1):
 		print(f'STARTED: DB split {i} of {len(cmds)}', flush=True)

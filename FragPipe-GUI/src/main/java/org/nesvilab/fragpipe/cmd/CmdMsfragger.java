@@ -596,10 +596,6 @@ public class CmdMsfragger extends CmdBase {
           return false;
         }
 
-        if (addNoPtmScoreInPin) {
-          cmd.add("--no-ptm-score-in-pin");
-        }
-
         List<InputLcmsFile> addedLcmsFiles = new ArrayList<>();
         while (fileIndex < e.getValue().size()) {
           InputLcmsFile f = e.getValue().get(fileIndex);
@@ -627,6 +623,10 @@ public class CmdMsfragger extends CmdBase {
             } catch (IOException ignored) {
             }
           }
+        }
+
+        if (addNoPtmScoreInPin) {
+          cmd.add("--no-ptm-score-in-pin");
         }
 
         ProcessBuilder pb = new ProcessBuilder(cmd);
