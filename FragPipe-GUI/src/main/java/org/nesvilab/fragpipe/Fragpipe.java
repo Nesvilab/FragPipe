@@ -152,6 +152,8 @@ public class Fragpipe extends JFrameHeadless {
   public static java.util.concurrent.CountDownLatch runDone = new java.util.concurrent.CountDownLatch(1);
   public static volatile boolean headlessLogSaved = false;
   public static boolean dryRun = false;
+  public static boolean writePlan = false;
+  public static boolean msfraggerPerFile = false;
   public static Integer ram = null;
   static Integer nThreadsHeadlessOnly = null; // Note: this variable is only for headless mode. For the GUI mode, please get the number of threads using TabWorkflow:getThreads().
   public static String workdir = null;
@@ -1083,6 +1085,8 @@ public class Fragpipe extends JFrameHeadless {
     sb.append("\t--manifest <string>             # Specify path to manifest file.\n");
     sb.append("\t--workdir <string>              # Specify the result directory.\n");
     sb.append("\t--dry-run                       # (optional) Dry run, not really run " + PROGRAM_TITLE + ".\n");
+    sb.append("\t--write-plan                    # (optional) Write the plan to the result directory: the config files a real run writes and the commands it would run, then exit without running any tool.\n");
+    sb.append("\t--msfragger-per-file            # (optional) Run MSFragger per-file: one MSFragger process for each LC-MS file instead of one for all files.\n");
     sb.append("\t--ram <integer>                 # (optional) Specify the maximum allowed memory size. The unit is GB. Set it to 0 to let " + PROGRAM_TITLE + " decide. Default = 0\n");
     sb.append("\t--threads <integer>             # (optional) Specify the number of threads. Default = core number - 1\n");
     sb.append("\t--config-tools-folder <string>  # (optional) specify the folder containing MSFragger, IonQuant, and dirTracer. If not specified, using the one in the cache.\n");

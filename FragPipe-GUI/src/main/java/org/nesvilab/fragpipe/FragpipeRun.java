@@ -275,7 +275,7 @@ public class FragpipeRun {
         return 1;
       }
 
-      if (!isDryRun) {
+      if (!isDryRun || Fragpipe.writePlan) {
         Path preparedWd = prepareWd(tabRun, wd, tabWorkflow);
         if (preparedWd == null) {
           log.debug("prepareWd() failed");
@@ -341,7 +341,7 @@ public class FragpipeRun {
 
       final Graph<CmdBase, DefEdge> dag = new DirectedAcyclicGraph<>(DefEdge.class);
       // main call to generate all the process builders
-      if (!configureTaskGraph(tabRun, wd, jarPath, isDryRun, fastaPath, dag)) {
+      if (!configureTaskGraph(tabRun, wd, jarPath, isDryRun && !Fragpipe.writePlan, fastaPath, dag)) {
         log.debug("createProcessBuilders() failed");
         return 1;
       }

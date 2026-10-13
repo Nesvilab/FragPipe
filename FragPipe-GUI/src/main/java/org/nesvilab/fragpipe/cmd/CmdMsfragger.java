@@ -623,6 +623,9 @@ public class CmdMsfragger extends CmdBase {
             } catch (IOException ignored) {
             }
           }
+          if (Fragpipe.msfraggerPerFile) {
+            break;
+          }
         }
 
         if (addNoPtmScoreInPin) {

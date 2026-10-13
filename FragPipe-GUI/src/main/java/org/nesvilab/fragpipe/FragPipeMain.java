@@ -49,6 +49,11 @@ public class FragPipeMain {
           Fragpipe.headless = true;
         } else if (args[i].equalsIgnoreCase("--dry-run")) {
           Fragpipe.dryRun = true;
+        } else if (args[i].equalsIgnoreCase("--write-plan")) {
+          Fragpipe.dryRun = true;
+          Fragpipe.writePlan = true;
+        } else if (args[i].equalsIgnoreCase("--msfragger-per-file")) {
+          Fragpipe.msfraggerPerFile = true;
         } else if (args[i].equalsIgnoreCase("--workflow")) {
           Fragpipe.workflowFile = Paths.get(args[++i]);
         } else if (args[i].equalsIgnoreCase("--manifest")) {
