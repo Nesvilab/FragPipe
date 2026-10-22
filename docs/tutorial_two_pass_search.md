@@ -78,7 +78,7 @@ FragPipe can also perform group FDR estimation for the peptides with different l
 
 
 #### Key References
-Desai H, Ofori S, Boatner L, Yu F, Villanueva M, Ung N, Nesvizhskii AI, Backus K. [Multi-omic stratification of the missense variant cysteinome](https://doi.org/10.1101/2023.08.12.553095), bioRxiv (2023).
+Desai H, Andrews K H, Bergersen K V, Ofori S, Yu F, Shikwana F, Arbing M A, Boatner L M, Villanueva M, Ung N, Reed E F, Nesvizhskii A I & Backus K M. [Chemoproteogenomic stratification of the missense variant cysteinome](https://doi.org/10.1038/s41467-024-53520-x), Nature Communications, 15, 9284 (2024).
 
 
 
